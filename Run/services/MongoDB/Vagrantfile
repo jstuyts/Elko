@@ -1,0 +1,15 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "generic/debian10"
+
+  config.vm.provision "file", source: "mongod.conf", destination: "mongod.conf"
+  config.vm.provision "shell", inline: "apt-get install --assume-yes gnupg"
+  config.vm.provision "shell", inline: "wget --quiet --output-document=- https://www.mongodb.org/static/pgp/server-4.2.asc | apt-key add -"
+  config.vm.provision "shell", inline: "echo \"deb http://repo.mongodb.org/apt/debian buster/mongodb-org/4.2 main\" | tee /etc/apt/sources.list.d/mongodb-org-4.2.list"
+  config.vm.provision "shell", inline: "apt-get update"
+  config.vm.provision "shell", inline: "apt-get install --assume-yes mongodb-org"
+  config.vm.provision "shell", inline: "cp /home/vagrant/mongod.conf /etc/mongod.conf"
+  config.vm.provision "shell", inline: "systemctl restart mongod"
+end

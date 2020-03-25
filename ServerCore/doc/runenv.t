@@ -2,7 +2,6 @@ Run/ -- root of the runtime environment
   common/ -- files (typically shell scripts) shared in common by all runtimes 
     setenvvars -- set universal shell and environment variables
     setlocvars -- set shell and environment variables specific to this host
-    <<setlocvars.${USER}>> -- set shell & env vars specific to user $USER
   manage/ -- scripts and PHP web pages for managing server clusters
     clusterQuery.sh -- send loaddesc & servicedesc broker requests, print reply
     clusterStartAll.sh -- command a cluster to start all its servers *BAD*
@@ -45,7 +44,6 @@ Run/ -- root of the runtime environment
       classes.json -- necessary classes file for a well-formed ODB
       launchertable.json -- serialized table of broker's configured launchers
     <<setlocvars>> -- set shell and environment vars specific to this cluster
-    <<setlocvars.${USER}>> -- set shell & env vars for this cluster for $USER
     uploads/ -- directory for uploaded JAR files prior to deployment
       ${MODULE}.jar -- uploaded JAR file for $MODULE
 
