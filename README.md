@@ -1,3 +1,5 @@
+**THIS IS A FORK. ORIGINAL DOCUMENTATION BELOW**
+
 # Elko
 
 ### A server framework for stateful, sessionful applications in the web
