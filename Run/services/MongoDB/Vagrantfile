@@ -12,4 +12,5 @@ Vagrant.configure("2") do |config|
   config.vm.provision "shell", inline: "apt-get install --assume-yes mongodb-org"
   config.vm.provision "shell", inline: "cp /home/vagrant/mongod.conf /etc/mongod.conf"
   config.vm.provision "shell", inline: "systemctl restart mongod"
+  config.vm.provision "shell", inline: "systemctl enable mongod"
 end
