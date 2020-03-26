@@ -17,41 +17,52 @@ dependencies {
     implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
     implementation(project(":Server:Gatekeeper"))
+    implementation(project(":ServerManagement"))
     implementation(project(":Trace"))
 }
 
-val runGatekeeperDev by tasks.registering(JavaExec::class) {
+val startGatekeeperDev by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.boot.Boot"
+    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
     args = mutableListOf(
             "trace_gate=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=gatelog",
             "tracelog_dir=./logs",
 
-            "conf.listen.host=elkoserver.org:9030",
-            "conf.listen.bind=elkoserver.org:9030",
+            "conf.listen.host=127.0.0.1:9030",
+            "conf.listen.bind=127.0.0.1:9030",
             "conf.listen.protocol=tcp",
             "conf.listen.auth.mode=open",
             "conf.listen.allow=any",
 
-            "conf.listen1.host=elkoserver.org:9031",
-            "conf.listen1.bind=elkoserver.org:9031",
+            "conf.listen1.host=127.0.0.1:9031",
+            "conf.listen1.bind=127.0.0.1:9031",
             "conf.listen1.protocol=tcp",
             "conf.listen1.auth.mode=password",
             "conf.listen1.auth.code=figleaf",
             "conf.listen1.allow=admin",
 
-            "conf.gatekeeper.director.host=elkoserver.org:9060",
+            "conf.gatekeeper.director.host=127.0.0.1:9060",
 
             "conf.gatekeeper.odb=mongo",
             "conf.gatekeeper.odb.mongo.hostport=$actualMongodbHostAndPort",
             "conf.gatekeeper.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
 
             "conf.gatekeeper.name=Gatekeeper",
-            "conf.broker.host=elkoserver.org:9010",
+            "conf.broker.host=127.0.0.1:9010",
 
             "conf.msgdiagnostics=true",
             "org.elkoserver.server.gatekeeper.GatekeeperBoot"
+    )
+}
+
+val stopGatekeeprDev by tasks.registering(JavaExec::class) {
+    classpath = sourceSets["main"].runtimeClasspath
+    main = "org.elkoserver.foundation.servermanagement.GatekeeperShutdown"
+    args = mutableListOf(
+            "127.0.0.1",
+            "9031",
+            "figleaf"
     )
 }

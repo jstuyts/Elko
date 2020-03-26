@@ -153,7 +153,10 @@ class Broker {
      * Make sure the state of the launch table is saved in persistent form.
      */
     void checkpoint() {
-        myLauncherTable.checkpoint(myODB);
+        LauncherTable launcherTable = this.myLauncherTable;
+        if (launcherTable != null) {
+            launcherTable.checkpoint(myODB);
+        }
     }
 
     /**

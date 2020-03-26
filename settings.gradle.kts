@@ -2,6 +2,7 @@ rootProject.name = "Elko"
 
 include("Actor")
 include("Boot")
+include("ServerManagement")
 include("ByteIoFramer:Api")
 include("ByteIoFramer:Http")
 include("ByteIoFramer:Json")

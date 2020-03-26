@@ -17,12 +17,13 @@ dependencies {
     implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
     implementation(project(":Server:Broker"))
+    implementation(project(":ServerManagement"))
     implementation(project(":Trace"))
 }
 
-val runBrokerDev by tasks.registering(JavaExec::class) {
+val startBrokerDev by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.boot.Boot"
+    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
     args = mutableListOf(
             "trace_brok=EVENT",
             "trace_comm=EVENT",
@@ -30,18 +31,28 @@ val runBrokerDev by tasks.registering(JavaExec::class) {
             "tracelog_tag=brklog",
             "tracelog_dir=./logs",
             "conf.broker.name=Broker",
-            "conf.listen.host=elkoserver.org:9010",
-            "conf.listen.bind=elkoserver.org:9010",
+            "conf.listen.host=127.0.0.1:9010",
+            "conf.listen.bind=127.0.0.1:9010",
             "conf.listen.protocol=tcp",
             "conf.listen.auth.mode=open",
             "conf.listen.allow=any",
-            "conf.listen1.host=elkoserver.org:9011",
-            "conf.listen1.bind=elkoserver.org:9011",
+            "conf.listen1.host=127.0.0.1:9011",
+            "conf.listen1.bind=127.0.0.1:9011",
             "conf.listen1.protocol=tcp",
             "conf.listen1.auth.mode=password",
             "conf.listen1.auth.code=secret",
             "conf.listen1.allow=admin",
             "conf.msgdiagnostics=true",
             "org.elkoserver.server.broker.BrokerBoot"
+    )
+}
+
+val stopBrokerDev by tasks.registering(JavaExec::class) {
+    classpath = sourceSets["main"].runtimeClasspath
+    main = "org.elkoserver.foundation.servermanagement.BrokerShutdown"
+    args = mutableListOf(
+            "127.0.0.1",
+            "9011",
+            "secret"
     )
 }

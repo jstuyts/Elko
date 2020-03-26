@@ -17,12 +17,13 @@ dependencies {
     implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
     implementation(project(":Server:Context"))
+    implementation(project(":ServerManagement"))
     implementation(project(":Trace"))
 }
 
-val runContextDev by tasks.registering(JavaExec::class) {
+val startContextDev by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.boot.Boot"
+    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
     args = mutableListOf(
             "trace_cont=EVENT",
             "trace_comm=EVENT",
@@ -70,5 +71,15 @@ val runContextDev by tasks.registering(JavaExec::class) {
             "conf.context.name=Context",
             "conf.msgdiagnostics=true",
             "org.elkoserver.server.context.ContextServerBoot"
+    )
+}
+
+val stopContextDev by tasks.registering(JavaExec::class) {
+    classpath = sourceSets["main"].runtimeClasspath
+    main = "org.elkoserver.foundation.servermanagement.ContextShutdown"
+    args = mutableListOf(
+            "127.0.0.1",
+            "8003",
+            "figleaf"
     )
 }
