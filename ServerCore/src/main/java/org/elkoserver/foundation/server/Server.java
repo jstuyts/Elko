@@ -704,18 +704,23 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         if (mgrClass != null) {
             connectionSetup = new ManagerClassConnectionSetup(label, mgrClass, host,  auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
         } else {
-            if (protocol.equals("tcp")) {
-                connectionSetup = new TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
-            } else if (protocol.equals("rtcp")) {
-                connectionSetup = new RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
-            } else if (protocol.equals("http")) {
-                connectionSetup = new HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
-            } else if (protocol.equals("ws")) {
-                connectionSetup = new WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
-            } else {
-                tr.errorm("unknown value for " + propRoot + ".protocol: " +
-                        protocol + ", listener " + propRoot + " not started");
-                throw new IllegalStateException();
+            switch (protocol) {
+                case "tcp":
+                    connectionSetup = new TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
+                    break;
+                case "rtcp":
+                    connectionSetup = new RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
+                    break;
+                case "http":
+                    connectionSetup = new HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
+                    break;
+                case "ws":
+                    connectionSetup = new WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
+                    break;
+                default:
+                    tr.errorm("unknown value for " + propRoot + ".protocol: " +
+                            protocol + ", listener " + propRoot + " not started");
+                    throw new IllegalStateException();
             }
         }
 
