@@ -105,10 +105,6 @@ public class BootProperties extends Properties
      *      The property named <tt><i>key</i></tt> is given the value
      *      <tt><i>val</i></tt>.</blockquote>
      *
-     * <tt>-nodefaults</tt><blockquote>
-     *      Suppress reading <tt>~/.propsrc</tt> for further property
-     *      definitions.</blockquote>
-     *
      * <tt><i>anythingelse</i></tt><blockquote>
      *      The argument is added to the returned arguments array.</blockquote>
      *
@@ -132,9 +128,7 @@ public class BootProperties extends Properties
 
         /* First pass parse of inArgs array */
         for (String arg : inArgs) {
-            if (arg.equals("-nodefaults")) {
-                shouldLoadDefaults = false;
-            } else if (arg.indexOf('=') > 0) {
+            if (arg.indexOf('=') > 0) {
                 propSets.add(arg);
             } else {
                 args.add(arg);
@@ -142,7 +136,7 @@ public class BootProperties extends Properties
         }
 
         /* Load default props files (if configuration says to) */
-        if (shouldLoadDefaults) {
+        if (false) {
             try {
                 loadPropsFile(System.getProperty("user.home", "") +
                               "/.propsrc");

@@ -126,11 +126,7 @@ class Boot extends Thread {
      *   class, such as an interface or an abstract class.
      *
      * @throws IOException when a file from which one is supposed to read
-     *   further properties does not exist or cannot be read.  However, if
-     *   the command line switch "-nodefaults" is not provided, but any of
-     *   the default properties files do not exist, they are silently skipped
-     *   rather than throwing an exception.  But if they *do* exist and aren't
-     *   readable, they throw an exception like any other properties file.
+     *   further properties does not exist or cannot be read.
      */
     private void startApplication() throws ClassNotFoundException, IOException,
          IllegalAccessException, InstantiationException
