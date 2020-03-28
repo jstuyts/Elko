@@ -109,10 +109,6 @@ public class BootProperties extends Properties
      *      Suppress reading <tt>~/.propsrc</tt> for further property
      *      definitions.</blockquote>
      *
-     * <tt>-properties <i>filename</i></tt><blockquote>
-     *      File <tt><i>filename</i></tt> is read for further property
-     *      definitions.</blockquote>
-     *
      * <tt><i>anythingelse</i></tt><blockquote>
      *      The argument is added to the returned arguments array.</blockquote>
      *
@@ -133,19 +129,10 @@ public class BootProperties extends Properties
 
         List<String> args = new ArrayList<>(inArgs.length);
         List<String> propSets = new ArrayList<>(inArgs.length);
-        List<String> propFiles = new ArrayList<>(inArgs.length);
 
         /* First pass parse of inArgs array */
-        for (int i = 0; i < inArgs.length; ++i) {
-            String arg = inArgs[i];
-            if (arg.equals("-properties")) {
-                if (++i < inArgs.length) {
-                    propFiles.add(inArgs[i]);
-                } else {
-                    throw new IllegalArgumentException(
-                        "-properties must be followed by a filename");
-                }
-            } else if (arg.equals("-nodefaults")) {
+        for (String arg : inArgs) {
+            if (arg.equals("-nodefaults")) {
                 shouldLoadDefaults = false;
             } else if (arg.indexOf('=') > 0) {
                 propSets.add(arg);
@@ -168,19 +155,11 @@ public class BootProperties extends Properties
             }
         }
 
-        /* Load props files given on command line */
-        int len = propFiles.size();
-        for (int i = 0; i < len; ++i) {
-            loadPropsFile(propFiles.get(i));
-        }
-
         /* Assign props set directly on command line */
-        len = propSets.size();
-        for (int i = 0; i < len; ++i) {
-            String assoc = propSets.get(i);
-            int j = assoc.indexOf('=') ;
+        for (String assoc : propSets) {
+            int j = assoc.indexOf('=');
             String key = assoc.substring(0, j);
-            String value = assoc.substring(j+1);
+            String value = assoc.substring(j + 1);
             put(key, value);
         }
 

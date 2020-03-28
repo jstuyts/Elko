@@ -201,7 +201,6 @@ class LaunchGen {
         if ($component == "context") {
             $this->pprop("conf.register.auto", boolval($config->registerauto));
             $this->pprop("conf.context.entrytimeout", $config->entrytimeout);
-            $this->pstr("-properties modules.properties");
             if ($usingDirector) {
                 $this->pprop("conf.context.reservationexpire",
                              $config->reservationexpire);

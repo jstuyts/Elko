@@ -151,7 +151,7 @@ val startBasicClusterContext by tasks.registering(JavaExec::class) {
 
             "conf.register.auto=true",
             "conf.context.entrytimeout=30",
-            "-properties", "modules.properties",
+            "conf.context.classdesc=classes-app,classes-bank",
             "conf.context.reservationexpire=300",
 
             "conf.broker.host=127.0.0.1:9011",
