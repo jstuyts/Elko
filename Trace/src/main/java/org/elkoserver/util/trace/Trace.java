@@ -1,9 +1,10 @@
 package org.elkoserver.util.trace;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONObject;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * This class provides output to the server log on behalf of a particular

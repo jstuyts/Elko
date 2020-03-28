@@ -42,11 +42,8 @@ interface TraceMessageAcceptor
      *
      * @param name  Property name.
      * @param value   Property value.
-     *
-     * @return <tt>true</tt> if the property was recognized and handled,
-     *    <tt>false</tt> if not.
      */
-    boolean setConfiguration(String name, String value);
+    void setConfiguration(String name, String value);
 
     /** 
      * After this call, the <tt>TraceMessageAcceptor</tt> must obey settings

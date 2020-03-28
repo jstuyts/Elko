@@ -3,6 +3,8 @@ package org.elkoserver.util.trace;
 import java.util.Map;
 import java.util.Properties;
 
+import static java.util.Locale.ENGLISH;
+
 /**
  * The single trace controller which manages the operation of the tracing
  * system.
@@ -123,25 +125,17 @@ public class TraceController {
         value = value.trim();
         Trace.trace.debugm("Setting property " + key + " to value " + value);
         try {
-            boolean logProp = false;
-            String lowerKey = key.toLowerCase();
-            String afterUnderbar = null;
+            String lowerKey = key.toLowerCase(ENGLISH);
 
             if (lowerKey.startsWith("trace_")) {
-                logProp = true;
-                afterUnderbar = key.substring(6);
-            } else if (lowerKey.startsWith("tracelog_")) {
-                logProp = true;
-                afterUnderbar = key.substring(9);
-            }
-            
-            if (logProp) {
-                if (afterUnderbar.equalsIgnoreCase(TraceLog.DEFAULT_NAME)) {
+                String afterUnderscore = key.substring(6);
+                if (afterUnderscore.equalsIgnoreCase(TraceLog.DEFAULT_NAME)) {
                     changeDefaultThreshold(TraceLevelTranslator.toInt(value));
-                } else if (!theAcceptor.setConfiguration(afterUnderbar,
-                                                         value)) {
-                    changeSubsystemThreshold(afterUnderbar, value);
+                } else {
+                    changeSubsystemThreshold(afterUnderscore, value);
                 }
+            } else if (lowerKey.startsWith("tracelog_")) {
+                theAcceptor.setConfiguration(key.substring(9), value);
             }
         } catch (IllegalArgumentException e) {
             Trace.trace.shred(e, "The exception has already been logged.");

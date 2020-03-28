@@ -4,6 +4,8 @@ import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
 
+import static java.util.Locale.ENGLISH;
+
 /**
  * This class manages dumping of messages to the semi-permanent on-disk log.
  * Will queue messages until it's pointed at a log file or stdout.  Messages
@@ -172,7 +174,7 @@ class TraceLog implements TraceMessageAcceptor {
     }
 
     /**
-     * Change the default directory in which logfiles live.  Has effect only
+     * Change the default directory in which log files live.  Has effect only
      * when a new logfile is opened.
      */
     private void changeDir(String value) {
@@ -200,42 +202,49 @@ class TraceLog implements TraceMessageAcceptor {
     private void changeRollover(String value) {
         int freq = 0;
         Calendar startCal = Calendar.getInstance();
-        if (value.equalsIgnoreCase("weekly")) {
-            freq = 7 * 24 * 60;
-            startCal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
-            startCal.set(Calendar.HOUR_OF_DAY, 0);
-            startCal.set(Calendar.MINUTE, 0);
-            startCal.set(Calendar.SECOND, 0);
-            startCal.set(Calendar.MILLISECOND, 0);
-        } else if (value.equalsIgnoreCase("daily")) {
-            freq = 24 * 60;
-            startCal.set(Calendar.HOUR_OF_DAY, 0);
-            startCal.set(Calendar.MINUTE, 0);
-            startCal.set(Calendar.SECOND, 0);
-            startCal.set(Calendar.MILLISECOND, 0);
-        } else if (value.equalsIgnoreCase("hourly")) {
-            freq = 60;
-            startCal.set(Calendar.MINUTE, 0);
-            startCal.set(Calendar.SECOND, 0);
-            startCal.set(Calendar.MILLISECOND, 0);
-        } else if (value.equalsIgnoreCase("none")) {
-        } else {
-            try {
-                freq = Integer.parseInt(value);
-                if (freq < 1) {
-                    Trace.trace.errori("Log size rollover value " + value +
-                                       "too small (minimum is 1 minute)");
-                    freq = 0;
-                } else {
-                    int minute = startCal.get(Calendar.MINUTE);
-                    startCal.set(Calendar.MINUTE, (minute / freq) * freq);
-                    startCal.set(Calendar.SECOND, 0);
-                    startCal.set(Calendar.MILLISECOND, 0);
+        String lowerCaseValue = value.toLowerCase(ENGLISH);
+        switch (lowerCaseValue) {
+            case "weekly":
+                freq = 7 * 24 * 60;
+                startCal.set(Calendar.DAY_OF_WEEK, Calendar.SUNDAY);
+                startCal.set(Calendar.HOUR_OF_DAY, 0);
+                startCal.set(Calendar.MINUTE, 0);
+                startCal.set(Calendar.SECOND, 0);
+                startCal.set(Calendar.MILLISECOND, 0);
+                break;
+            case "daily":
+                freq = 24 * 60;
+                startCal.set(Calendar.HOUR_OF_DAY, 0);
+                startCal.set(Calendar.MINUTE, 0);
+                startCal.set(Calendar.SECOND, 0);
+                startCal.set(Calendar.MILLISECOND, 0);
+                break;
+            case "hourly":
+                freq = 60;
+                startCal.set(Calendar.MINUTE, 0);
+                startCal.set(Calendar.SECOND, 0);
+                startCal.set(Calendar.MILLISECOND, 0);
+                break;
+            default:
+                if (!lowerCaseValue.equals("none")) {
+                    try {
+                        freq = Integer.parseInt(value);
+                        if (freq < 1) {
+                            Trace.trace.errori("Log size rollover value " + value +
+                                    "too small (minimum is 1 minute)");
+                            freq = 0;
+                        } else {
+                            int minute = startCal.get(Calendar.MINUTE);
+                            startCal.set(Calendar.MINUTE, (minute / freq) * freq);
+                            startCal.set(Calendar.SECOND, 0);
+                            startCal.set(Calendar.MILLISECOND, 0);
+                        }
+                    } catch (NumberFormatException e) {
+                        Trace.trace.errori("Invalid log size rollover value '" +
+                                value + "'.");
+                    }
                 }
-            } catch (NumberFormatException e) {
-                Trace.trace.errori("Invalid log size rollover value '" +
-                                   value + "'.");
-            }
+                break;
         }
         if (freq != 0) {
             myRolloverFrequency = freq * 60 * 1000;
@@ -285,7 +294,7 @@ class TraceLog implements TraceMessageAcceptor {
     }
 
     /**
-     * Change the 'tag' (base of filename) that logfiles have.  Has effect only
+     * Change the 'tag' (base of filename) that log files have.  Has effect only
      * when a new logfile is opened.
      */
     private void changeTag(String value) {
@@ -490,30 +499,35 @@ class TraceLog implements TraceMessageAcceptor {
      *
      * @param name  Property name
      * @param value   Property value
-     *
-     * @return true if the property was recognized and handled, false if not
      */
-    public synchronized boolean setConfiguration(String name, String value) {
-        if (name.equalsIgnoreCase("write")) {
-            changeWrite(value);
-        } else if (name.equalsIgnoreCase("dir")) {
-            changeDir(value);
-        } else if (name.equalsIgnoreCase("tag")) {
-            changeTag(value);
-        } else if (name.equalsIgnoreCase("name")) {
-            changeName(value);
-        } else if (name.equalsIgnoreCase("size")) {
-            changeSize(value);
-        } else if (name.equalsIgnoreCase("rollover")) {
-            changeRollover(value);
-        } else if (name.equalsIgnoreCase("versions")) {
-            changeVersionFileHandling(value);
-        } else if (name.equalsIgnoreCase("reopen")) {
-            reopen();
-        } else {
-            return false;
+    public synchronized void setConfiguration(String name, String value) {
+        String lowerCaseName = name.toLowerCase(ENGLISH);
+        switch (lowerCaseName) {
+            case "write":
+                changeWrite(value);
+                break;
+            case "dir":
+                changeDir(value);
+                break;
+            case "tag":
+                changeTag(value);
+                break;
+            case "name":
+                changeName(value);
+                break;
+            case "size":
+                changeSize(value);
+                break;
+            case "rollover":
+                changeRollover(value);
+                break;
+            case "versions":
+                changeVersionFileHandling(value);
+                break;
+            case "reopen":
+                reopen();
+                break;
         }
-        return true;
     }
 
     /**
