@@ -277,11 +277,6 @@ Trace control properties (used everywhere):
                                 at most one rollover backup will be kept.  If
                                 set to "many" (the default), backups will
                                 simply accumulate. }
-  flg "tracelog_showverbose"  { Controls the verbosity of log file entries. If
-                                true, log entries will include the name of the
-                                trace subsystem generating the entry and the
-                                class name, method, and line number whence the
-                                entry is being requested.  Default is false. }
 
   str "trace_" + <Subsystem>  { Sets the tracing level for a given
                                 subsystem. This is the level of severity

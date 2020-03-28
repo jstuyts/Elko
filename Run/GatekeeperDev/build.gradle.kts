@@ -57,7 +57,7 @@ val startGatekeeperDev by tasks.registering(JavaExec::class) {
     )
 }
 
-val stopGatekeeprDev by tasks.registering(JavaExec::class) {
+val stopGatekeeperDev by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.GatekeeperShutdown"
     args = mutableListOf(

@@ -19,7 +19,6 @@ set SERVER_BIND=${BIND}
 ${JAVA_RUN} org.elkoserver.foundation.boot.Boot \
    trace_work=EVENT \
    trace_comm=EVENT \
-   tracelog_showverbose=true \
    tracelog_tag=${LOG_TAG} \
    tracelog_dir=${TRACE_DIR} \
    tracelog_rollover=daily \

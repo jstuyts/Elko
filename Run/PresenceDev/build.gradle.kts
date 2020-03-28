@@ -16,42 +16,51 @@ dependencies {
     implementation(project(":Boot"))
     implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
-    implementation(project(":Server:Broker"))
+    implementation(project(":Server:Presence"))
     implementation(project(":ServerManagement"))
     implementation(project(":Trace"))
 }
 
-val startBrokerDev by tasks.registering(JavaExec::class) {
+val startPresenceDev by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.BootSpawner"
     args = mutableListOf(
-            "trace_brok=EVENT",
+            "trace_pres=EVENT",
             "trace_comm=EVENT",
-            "tracelog_tag=brklog",
+            "tracelog_tag=prelog",
             "tracelog_dir=./logs",
-            "conf.broker.name=Broker",
-            "conf.listen.host=127.0.0.1:9010",
-            "conf.listen.bind=127.0.0.1:9010",
+
+            "conf.comm.jsonstrictness=false",
+
+            "conf.presence.name=PresenceServer",
+            "conf.listen.host=127.0.0.1:9040",
+            "conf.listen.bind=127.0.0.1:9040",
             "conf.listen.protocol=tcp",
             "conf.listen.auth.mode=open",
             "conf.listen.allow=any",
-            "conf.listen1.host=127.0.0.1:9011",
-            "conf.listen1.bind=127.0.0.1:9011",
+
+            "conf.listen1.host=127.0.0.1:9041",
+            "conf.listen1.bind=127.0.0.1:9041",
             "conf.listen1.protocol=tcp",
             "conf.listen1.auth.mode=password",
             "conf.listen1.auth.code=secret",
             "conf.listen1.allow=admin",
+
+            "conf.presence.odb=mongo",
+            "conf.presence.odb.mongo.hostport=$actualMongodbHostAndPort",
+            "conf.presence.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+
             "conf.msgdiagnostics=true",
-            "org.elkoserver.server.broker.BrokerBoot"
+            "org.elkoserver.server.presence.PresenceServerBoot"
     )
 }
 
-val stopBrokerDev by tasks.registering(JavaExec::class) {
+val stopPresenceDev by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BrokerShutdown"
+    main = "org.elkoserver.foundation.servermanagement.PresenceShutdown"
     args = mutableListOf(
             "127.0.0.1",
-            "9011",
+            "9041",
             "secret"
     )
 }
