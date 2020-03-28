@@ -1,6 +1,5 @@
 package org.elkoserver.foundation.boot;
 
-import java.io.IOException;
 import org.elkoserver.util.trace.ExceptionManager;
 import org.elkoserver.util.trace.TraceController;
 
@@ -124,12 +123,9 @@ class Boot extends Thread {
      *
      * @throws InstantiationException when myArgs[0] names an uninstantiable
      *   class, such as an interface or an abstract class.
-     *
-     * @throws IOException when a file from which one is supposed to read
-     *   further properties does not exist or cannot be read.
      */
-    private void startApplication() throws ClassNotFoundException, IOException,
-         IllegalAccessException, InstantiationException
+    private void startApplication() throws ClassNotFoundException,
+            IllegalAccessException, InstantiationException
     {
         /* Extract property assignments from command line args */
         BootProperties props = new BootProperties();

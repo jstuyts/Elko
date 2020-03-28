@@ -1,9 +1,5 @@
 package org.elkoserver.foundation.boot;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
@@ -112,17 +108,8 @@ public class BootProperties extends Properties
      *
      * @return an array of the arguments remaining after all the
      *    property-specifying ones are stripped out.
-     *
-     * @throws IOException when a file from which it is supposed to read
-     *    further properties does not exist or cannot be read.  However, if any
-     *    of the <i>default</i> properties files do not exist, their
-     *    non-existence is silently ignored rather than causing an exception.
-     *    On the other hand, if they <i>do</i> exist but simply aren't
-     *    readable, an exception is thrown as for any other properties file.
      */
-    public String[] scanArgs(String[] inArgs) throws IOException {
-        boolean shouldLoadDefaults = true;
-
+    public String[] scanArgs(String[] inArgs) {
         List<String> args = new ArrayList<>(inArgs.length);
         List<String> propSets = new ArrayList<>(inArgs.length);
 
@@ -132,20 +119,6 @@ public class BootProperties extends Properties
                 propSets.add(arg);
             } else {
                 args.add(arg);
-            }
-        }
-
-        /* Load default props files (if configuration says to) */
-        if (false) {
-            try {
-                loadPropsFile(System.getProperty("user.home", "") +
-                              "/.propsrc");
-            } catch (FileNotFoundException ex) {
-                /*
-                 * The contract of this method requires that if it's loading
-                 * these by default (as opposed to by being told to), and the
-                 * files don't exist, to just silently ignore the error.
-                 */
             }
         }
 
@@ -191,36 +164,6 @@ public class BootProperties extends Properties
             return possibleValue.equals(getProperty(property));
         } else {
             return false;
-        }
-    }
-
-    /**
-     * If the file named by <tt>filename</tt> exists and is readable, it is
-     * read as a properties-defining file and the contained definitions are
-     * added to our property settings.
-     *
-     * @param filename  Name of a properties file.
-     *
-     * @throws FileNotFoundException if the file doesn't exist.
-     * @throws IOException if there was a problem reading from it.
-     */
-    private void loadPropsFile(String filename)
-        throws FileNotFoundException, IOException
-    {
-        filename = new File(filename).getAbsolutePath();
-        FileInputStream instream;
-        try {
-            instream = new FileInputStream(filename);
-        } catch (FileNotFoundException ex) {
-            throw new FileNotFoundException("Error opening " + filename +
-                                            ": " + ex);
-        }
-        try {
-            load(instream);
-        } catch (IOException ex) {
-            throw new IOException("Error reading " + filename + ": " + ex);
-        } finally {
-            instream.close();
         }
     }
 }
