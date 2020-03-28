@@ -22,6 +22,8 @@ dependencies {
 }
 
 val startRepositoryDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.BootSpawner"
     args = mutableListOf(
@@ -54,6 +56,8 @@ val startRepositoryDev by tasks.registering(JavaExec::class) {
 }
 
 val stopRepositoryDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.RepositoryShutdown"
     args = mutableListOf(

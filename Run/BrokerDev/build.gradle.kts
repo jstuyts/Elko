@@ -22,6 +22,8 @@ dependencies {
 }
 
 val startBrokerDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.BootSpawner"
     args = mutableListOf(
@@ -47,6 +49,8 @@ val startBrokerDev by tasks.registering(JavaExec::class) {
 }
 
 val stopBrokerDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.BrokerShutdown"
     args = mutableListOf(

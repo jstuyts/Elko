@@ -22,6 +22,8 @@ dependencies {
 }
 
 val startWorkshopDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.BootSpawner"
     args = mutableListOf(
@@ -61,6 +63,8 @@ val startWorkshopDev by tasks.registering(JavaExec::class) {
 }
 
 val stopWorkshopDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.WorkshopShutdown"
     args = mutableListOf(

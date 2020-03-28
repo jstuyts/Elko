@@ -22,6 +22,8 @@ dependencies {
 }
 
 val startDirectorDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.BootSpawner"
     args = mutableListOf(
@@ -56,6 +58,8 @@ val startDirectorDev by tasks.registering(JavaExec::class) {
 }
 
 val stopDirectorDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DirectorShutdown"
     args = mutableListOf(

@@ -22,6 +22,8 @@ dependencies {
 }
 
 val startGatekeeperDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.BootSpawner"
     args = mutableListOf(
@@ -58,6 +60,8 @@ val startGatekeeperDev by tasks.registering(JavaExec::class) {
 }
 
 val stopGatekeeperDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.GatekeeperShutdown"
     args = mutableListOf(

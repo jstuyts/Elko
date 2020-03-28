@@ -22,6 +22,8 @@ dependencies {
 }
 
 val startContextDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.BootSpawner"
     args = mutableListOf(
@@ -75,6 +77,8 @@ val startContextDev by tasks.registering(JavaExec::class) {
 }
 
 val stopContextDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.ContextShutdown"
     args = mutableListOf(

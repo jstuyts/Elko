@@ -22,6 +22,8 @@ dependencies {
 }
 
 val startPresenceDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.BootSpawner"
     args = mutableListOf(
@@ -56,6 +58,8 @@ val startPresenceDev by tasks.registering(JavaExec::class) {
 }
 
 val stopPresenceDev by tasks.registering(JavaExec::class) {
+    group = "Elko"
+
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.PresenceShutdown"
     args = mutableListOf(
