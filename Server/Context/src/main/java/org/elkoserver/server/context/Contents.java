@@ -76,7 +76,7 @@ class Contents implements Iterable<Item> {
      */
     public Iterator<Item> iterator() {
         if (myContents == null) {
-            return new EmptyIterator<>();
+            return EmptyIterator.emptyIterator();
         } else {
             return myContents.iterator();
         }

@@ -105,10 +105,10 @@ public class HashSetMulti<V> implements Iterable<V> {
      *    of how many times it has been added.
      */
     public Iterator<V> iterator() {
-        if (myMembers != null) {
-            return myMembers.keySet().iterator();
+        if (myMembers == null) {
+            return EmptyIterator.emptyIterator();
         } else {
-            return new EmptyIterator<>();
+            return myMembers.keySet().iterator();
         }
     }
 

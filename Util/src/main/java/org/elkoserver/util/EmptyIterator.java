@@ -1,6 +1,7 @@
 package org.elkoserver.util;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
 /**
@@ -9,10 +10,17 @@ import java.util.NoSuchElementException;
  */
 public class EmptyIterator<V> implements Iterator<V> {
 
+    private static final EmptyIterator INSTANCE = new EmptyIterator<>();
+
+    @SuppressWarnings("unchecked")
+    public static <TElement> EmptyIterator<TElement> emptyIterator() {
+        return (EmptyIterator<TElement>) INSTANCE;
+    }
+
     /**
      * Constructor.
      */
-    public EmptyIterator() {
+    private EmptyIterator() {
     }
 
     /**
