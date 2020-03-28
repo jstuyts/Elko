@@ -32,8 +32,6 @@ val startWorkshopDev by tasks.registering(JavaExec::class) {
             "tracelog_tag=work",
             "tracelog_dir=./logs",
 
-            "conf.comm.jsonstrictness=true",
-
             "conf.listen.host=127.0.0.1:9020",
             "conf.listen.bind=127.0.0.1:9020",
             "conf.listen.protocol=tcp",

@@ -23,8 +23,6 @@ ${JAVA_RUN} org.elkoserver.foundation.boot.Boot \
    tracelog_dir=${TRACE_DIR} \
    tracelog_rollover=daily \
    \
-   conf.comm.jsonstrictness=true \
-   \
    conf.listen.host=${SERVER_HOST}:${PORT_PSWD} \
    conf.listen.bind=${SERVER_BIND}:${PORT_PSWD} \
    conf.listen.protocol=tcp \

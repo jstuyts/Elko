@@ -53,10 +53,6 @@ public class NetworkManager {
         HTTPSessionConnection.initializeRNG();
         myLoadMonitor = loadMonitor;
 
-        boolean jsonStrictness =
-            props.boolProperty("conf.comm.jsonstrictness", true);
-        JSONLiteral.setStrictness(jsonStrictness);
-
         if (props.testProperty("conf.ssl.enable")) {
             setupSSL();
         }

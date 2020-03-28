@@ -137,8 +137,6 @@ class LaunchGen {
         $this->pprop("conf.$component.name", $config->name, $server);
         $this->pprop("conf.$component.shutdownpassword",
                      $config->shutdownpassword);
-        $this->pprop("conf.comm.jsonstrictness",
-                     boolval($config->jsonstrictness));
         $this->pprop("conf.msgdiagnostics", boolval($config->msgdiagnostics));
         $this->pprop("conf.load.time", $config->loadtime);
         $this->psep();

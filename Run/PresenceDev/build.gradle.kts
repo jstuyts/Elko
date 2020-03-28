@@ -32,8 +32,6 @@ val startPresenceDev by tasks.registering(JavaExec::class) {
             "tracelog_tag=prelog",
             "tracelog_dir=./logs",
 
-            "conf.comm.jsonstrictness=false",
-
             "conf.presence.name=PresenceServer",
             "conf.listen.host=127.0.0.1:9040",
             "conf.listen.bind=127.0.0.1:9040",

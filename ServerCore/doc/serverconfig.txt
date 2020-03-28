@@ -140,15 +140,6 @@ General properties (used in all or most servers):
                                         with a keep-alive message. }
   int "conf.comm.httpselectwait.debug" { Alternate value for above when a user
                                         logs in in debug mode. }
-  flg "conf.comm.jsonstrictness"      { If true (defaults to false), JSON
-                                        literals will be generated according to
-                                        "strict" JSON rules, meaning that
-                                        property names will be in the form of
-                                        strings and '/' characters in string
-                                        literals will be escaped; this is safer
-                                        for the browser but somewhat wasteful
-                                        of bandwidth and really hard on the
-                                        eyes. }
   int "conf.load.time"                { Sample interval, in seconds, for
                                         measuring server load.  The default is
                                         300 (i.e., 5 minutes). }

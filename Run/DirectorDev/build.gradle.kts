@@ -51,7 +51,6 @@ val startDirectorDev by tasks.registering(JavaExec::class) {
             "conf.listen2.protocol=tcp",
 
             "conf.director.name=Director",
-            "conf.comm.jsonstrictness=true",
             "conf.msgdiagnostics=true",
             "org.elkoserver.server.director.DirectorBoot"
     )

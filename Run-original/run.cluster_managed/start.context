@@ -34,7 +34,6 @@ ${JAVA_RUN} org.elkoserver.foundation.boot.Boot \
    conf.register.auto=true \
    conf.broker.host=${BROKERCHECKINPORT} \
    \
-   conf.comm.jsonstrictness=true \
    conf.context.entrytimeout=300 \
    conf.context.odb=mongo \
    conf.context.odb.mongo.hostport=${MONGOHOST} \

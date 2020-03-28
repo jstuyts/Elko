@@ -38,7 +38,6 @@ val startContextDev by tasks.registering(JavaExec::class) {
             "conf.comm.rtcpdisconntimeout=60",
             "conf.comm.rtcpbacklog=50000",
             "conf.context.entrytimeout=300",
-            "conf.comm.jsonstrictness=true",
 
             "conf.listen.host=127.0.0.1:9000",
             "conf.listen.bind=127.0.0.1:9000",

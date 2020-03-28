@@ -30,9 +30,6 @@ public class JSONLiteral {
     /** Encode control indicating how this literal is being encoded */
     private EncodeControl myControl;
 
-    /** Flag controlling strict adherence to the JSON standard in encoding. */
-    private static boolean theStrictnessFlag = true;
-
     /* The state values */
     private final int INITIAL  = 0; /* Have not yet added first parameter */
     private final int STARTED  = 1; /* Have added first parameter */
@@ -567,14 +564,9 @@ public class JSONLiteral {
             } else {
                 myStringBuilder.append(", ");
             }
-            if (theStrictnessFlag) {
-                myStringBuilder.append('"');
-                myStringBuilder.append(param);
-                myStringBuilder.append("\":");
-            } else {
-                myStringBuilder.append(param);
-                myStringBuilder.append(':');
-            }
+            myStringBuilder.append('"');
+            myStringBuilder.append(param);
+            myStringBuilder.append("\":");
         } else {
             throw new Error("attempt to add parameter to completed literal");
         }
@@ -674,11 +666,6 @@ public class JSONLiteral {
                     case '\n': escape = 'n';  break;
                     case '\r': escape = 'r';  break;
                     case '\t': escape = 't';  break;
-                    //case '/':
-                    //    if (theStrictnessFlag) {
-                    //        escape = '/';
-                    //    }
-                    //    break;
                 }
                 if (escape != '*') {
                     buf.append(str, start, i);
@@ -713,20 +700,5 @@ public class JSONLiteral {
             buf.append(value.toString());
         }
         return false;
-    }
-
-    /**
-     * Set the global strictness flag.  This controls whether interpretation of
-     * the JSON standard will be strict or not (by default, it is strict).
-     *
-     * The principal impact of this is that when being strict, property names
-     * are output as strings rather than as keywords.  This is safer for
-     * browsers, but much harder on the eyes when debugging.
-     *
-     * @param flag  If true, adhere strictly to the JSON standard; if false,
-     *    be prettier and friendlier.
-     */
-    public static void setStrictness(boolean flag) {
-        theStrictnessFlag = flag;
     }
 }
