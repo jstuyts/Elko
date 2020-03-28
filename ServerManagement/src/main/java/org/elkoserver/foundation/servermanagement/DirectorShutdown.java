@@ -10,21 +10,32 @@ import static java.lang.Integer.parseInt;
 public class DirectorShutdown {
 
     public static void main(String[] arguments) throws IOException, InterruptedException {
-        if (arguments.length != 2) {
-            printUsage();
-        } else {
+        if (arguments.length == 2) {
             shutDownServer(arguments[0], parseInt(arguments[1]));
+        } else  if (arguments.length == 3) {
+            shutDownServerUsingPassword(arguments[0], parseInt(arguments[1]), arguments[2]);
+        } else {
+            printUsage();
         }
     }
 
     private static void printUsage() {
-        System.out.println("Usage: DirectorShutdown <host address> <port number>");
+        System.out.println("Usage: DirectorShutdown <host address> <port number> [<password>]");
     }
 
     private static void shutDownServer(String hostAddress, int portNumber) throws IOException, InterruptedException {
         try (Socket socket = new Socket(hostAddress, portNumber)) {
             OutputStream outputStream = socket.getOutputStream();
             outputStream.write(("{to:\"admin\", op:\"auth\", auth:{mode:\"open\"}}\n\n").getBytes(StandardCharsets.UTF_8));
+            Thread.sleep(1_000L);
+            outputStream.write(("{to:\"admin\", op:\"shutdown\", director:true, kill:false}\n\n").getBytes(StandardCharsets.UTF_8));
+        }
+    }
+
+    private static void shutDownServerUsingPassword(String hostAddress, int portNumber, String password) throws IOException, InterruptedException {
+        try (Socket socket = new Socket(hostAddress, portNumber)) {
+            OutputStream outputStream = socket.getOutputStream();
+            outputStream.write(("{to:\"admin\", op:\"auth\", auth:{mode:\"password\", code:\"" + password + "\"}}\n\n").getBytes(StandardCharsets.UTF_8));
             Thread.sleep(1_000L);
             outputStream.write(("{to:\"admin\", op:\"shutdown\", director:true, kill:false}\n\n").getBytes(StandardCharsets.UTF_8));
         }
