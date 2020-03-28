@@ -22,14 +22,23 @@ public class BootSpawner {
     public static void main(String[] arguments) throws IOException {
         List<String> commandWithArguments = new ArrayList<>(5 + arguments.length);
         commandWithArguments.add("javaw");
-        commandWithArguments.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005");
+        commandWithArguments.add("-agentlib:jdwp=transport=dt_socket,server=y,suspend=n");
         commandWithArguments.add("-cp");
         commandWithArguments.add(System.getProperty("java.class.path"));
         commandWithArguments.add("org.elkoserver.foundation.boot.Boot");
         Collections.addAll(commandWithArguments, arguments);
 
-        new ProcessBuilder(commandWithArguments)
+        Process bootProcess = new ProcessBuilder(commandWithArguments)
                 .directory(new File(System.getProperty("user.dir")))
                 .start();
+        try {
+            Thread.sleep(1_000L);
+
+            if (!bootProcess.isAlive()) {
+                System.exit(bootProcess.exitValue());
+            }
+        } catch (InterruptedException e) {
+            // No action needed. Simply exit this thread.
+        }
     }
 }
