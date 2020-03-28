@@ -1,5 +1,6 @@
 package org.elkoserver.server.context;
 
+import org.elkoserver.foundation.actor.Actor;
 import org.elkoserver.foundation.actor.BasicProtocolHandler;
 import org.elkoserver.foundation.json.Deliverer;
 import org.elkoserver.foundation.json.JSONMethod;
@@ -190,13 +191,13 @@ class Session extends BasicProtocolHandler {
             } else {
                 from.send(Msg.msgExit(this, "server shutting down", "shutdown",
                                       false));
-                ((UserActor) from).close();
+                ((Actor) from).close();
             }
         } else {
             if (fromUser != null) {
                 fromUser.exitContext(null, null, false);
             } else {
-                ((UserActor) from).close();
+                ((Actor) from).close();
             }
         }
     }
