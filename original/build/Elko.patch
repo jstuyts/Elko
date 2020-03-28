@@ -1,0 +1,78 @@
+Index: Example/build/javadoc-package-list
+===================================================================
+--- Example/build/javadoc-package-list	(revision 61c78f42aa8e4b308ec25564ee66b707795d04c0)
++++ Example/build/javadoc-package-list	(date 1585406850893)
+@@ -1,4 +1,2 @@
+-org.elkoserver.example
+-org.elkoserver.example.mods
+-org.elkoserver.example.utils
++com.example.game.mods
+
+Index: Build/Makefile
+===================================================================
+--- Build/Makefile	(revision 61c78f42aa8e4b308ec25564ee66b707795d04c0)
++++ Build/Makefile	(date 1585407547641)
+@@ -36,16 +36,16 @@
+
+
+ # Extract the components list from the 'components' file.
+-export COMPONENTS ?= ServerCore $(shell cat components)
++export COMPONENTS = ServerCore Example
+
+ # List of directories where the various components are rooted
+-COMP_DIRS = $(COMPONENTS:%=../%)
++COMP_DIRS = ../ServerCore ../Example
+
+ # The directories where compiled .class files for configured components are put
+ CLA_DIRS = $(subst $(SPACE),:,$(COMPONENTS:%=../%/built/classes))
+
+ # The directories where Java source files for configured components are
+-JAV_DIRS = $(subst $(SPACE),:,$(COMPONENTS:%=../%/java))
++JAV_DIRS = ../ServerCore/java:../Example/java
+
+ # List of directories where MongoDB object definition files are found
+ DB_DIRS = $(COMPONENTS:%=../%/db)
+@@ -73,7 +73,7 @@
+
+
+ # Current list of 3rd party components that the server requires
+-EXT_JARS = $(EXT_IMPORT_DIR)/mongo.jar:$(EXT_IMPORT_DIR)/ScalableSSL.jar:$(EXT_IMPORT_DIR)/zmq.jar
++EXT_JARS = $(EXT_IMPORT_DIR)/commons-codec.jar:$(EXT_IMPORT_DIR)/mongo.jar:$(EXT_IMPORT_DIR)/ScalableSSL.jar:$(EXT_IMPORT_DIR)/zmq.jar
+
+ # Add 3rd party .jars to the class path
+ ifeq ($(CLASSPATH),)
+@@ -181,7 +181,7 @@
+     serverconfig.html \
+     servercui.html \
+     servermods.html \
+-    elko.css \
++    elkodoc.css \
+     elkologosmall.png
+
+ # Example "game"
+Index: ServerCore/build/Makefile
+===================================================================
+--- ServerCore/build/Makefile	(revision 61c78f42aa8e4b308ec25564ee66b707795d04c0)
++++ ServerCore/build/Makefile	(date 1585406363111)
+@@ -72,7 +72,7 @@
+ endif
+
+ # External .jar files
+-EXT_JARS = $(EXT_IMPORT_DIR)/mongo.jar$(D)$(EXT_IMPORT_DIR)/ScalableSSL.jar$(D)$(EXT_IMPORT_DIR)/commons-codec.jar$
++EXT_JARS = $(EXT_IMPORT_DIR)/mongo.jar$(D)$(EXT_IMPORT_DIR)/ScalableSSL.jar$(D)$(EXT_IMPORT_DIR)/commons-codec.jar
+
+ ifeq ($(CLASSPATH),)
+     CLASSPATH = $(CLA_DIR)$(D)$(EXT_JARS)
+Index: Example/build/Makefile
+===================================================================
+--- Example/build/Makefile	(revision 61c78f42aa8e4b308ec25564ee66b707795d04c0)
++++ Example/build/Makefile	(date 1585406850943)
+@@ -124,7 +124,7 @@
+
+ $(CLASS_BUILD_MARKER): $(ALL_CLA)
+ 	$(JAVAC) $(JFLAGS) -d $(CLA_DIR) -classpath "$(CLASSPATH)" $(?:$(CLA_DIR)/%.class=$(JAV_DIR)/%.java)
+-	jdep -i org.elkoserver.example -c $(CLA_DIR) -j $(JAV_DIR) -d $(DEP_DIR) $?
++	jdep -i com.example.game.mods -c $(CLA_DIR) -j $(JAV_DIR) -d $(DEP_DIR) $?
+ 	touch $@
+
+ base-build: generated $(JAR_FILES)

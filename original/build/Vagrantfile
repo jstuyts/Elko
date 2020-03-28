@@ -1,0 +1,39 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure("2") do |config|
+  config.vm.define "apt-cache" do |node|
+      node.vm.box = "generic/debian10"
+
+      node.vm.provision "shell", inline: "DEBIAN_FRONTEND=noninteractive apt-get update"
+      node.vm.provision "shell", inline: "DEBIAN_FRONTEND=noninteractive apt-get install avahi-daemon apt-cacher-ng squid-deb-proxy-client --yes"
+  end
+
+  config.vm.define "original-elko-build" do |node|
+      node.vm.box = "generic/debian10"
+
+      node.vm.provision "shell", inline: "DEBIAN_FRONTEND=noninteractive apt-get install squid-deb-proxy-client --yes"
+      node.vm.provision "shell", inline: "DEBIAN_FRONTEND=noninteractive apt-get update"
+      node.vm.provision "shell", inline: "DEBIAN_FRONTEND=noninteractive apt-get install openjdk-11-jdk --yes"
+
+      node.vm.provision "shell", privileged: false, inline: "git clone https://github.com/FUDCo/jdep.git /home/vagrant/jdep"
+
+      node.vm.provision "file", source: "Elko.patch", destination: "/home/vagrant/Elko.patch"
+      node.vm.provision "shell", privileged: false, inline: "git clone https://github.com/FUDCo/Elko.git /home/vagrant/Elko"
+
+      node.vm.provision "shell", privileged: false, inline: "cd /home/vagrant/jdep; make"
+      node.vm.provision "shell", inline: "cp /home/vagrant/jdep/bin/jdep /usr/bin/"
+      node.vm.provision "shell", inline: "cp /home/vagrant/jdep/bin/touchp /usr/bin/"
+
+      node.vm.provision "shell", privileged: false, inline: "cd /home/vagrant/Elko; patch --strip=0 </home/vagrant/Elko.patch"
+      node.vm.provision "shell", privileged: false, inline: "cp /home/vagrant/Elko/Run/manage/elkologosmall.png /home/vagrant/Elko/ServerCore/doc/"
+      node.vm.provision "shell", privileged: false, inline: "echo '#! /usr/bin/bash' >/home/vagrant/Elko/Build/stripjar"
+
+      node.vm.provision "shell", privileged: false, inline: "mkdir --parents /home/vagrant/Elko/Build/Built"
+      node.vm.provision "shell", privileged: false, inline: "mkdir --parents /home/vagrant/Elko/Distrib/External"
+      node.vm.provision "shell", privileged: false, inline: "wget --quiet 'https://repo1.maven.org/maven2/commons-codec/commons-codec/1.14/commons-codec-1.14.jar' --output-document=/home/vagrant/Elko/Distrib/External/commons-codec.jar"
+      node.vm.provision "shell", privileged: false, inline: "wget --quiet 'https://repo1.maven.org/maven2/org/mongodb/mongo-java-driver/3.4.3/mongo-java-driver-3.4.3.jar' --output-document=/home/vagrant/Elko/Distrib/External/mongo.jar"
+      node.vm.provision "shell", privileged: false, inline: "mkdir --parents /home/vagrant/Elko/Distrib/Internal"
+      node.vm.provision "shell", privileged: false, inline: "mkdir --parents /home/vagrant/Elko/Distrib/Ship"
+  end
+end
