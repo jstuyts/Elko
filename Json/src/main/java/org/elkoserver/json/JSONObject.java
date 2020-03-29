@@ -74,160 +74,13 @@ public class JSONObject {
      * @param name  The name of the property to add.
      * @param value  Its value.
      *
-     * Although class declaration rules of Java compell 'value' to be declared
+     * Although class declaration rules of Java compel 'value' to be declared
      * as class {@link Object}, in reality it must be null or one of the
      * classes: {@link Boolean}, {@link Double}, {@link Long}, {@link String},
      * {@link JSONArray}, {@link JSONObject}.
      */
     public void addProperty(String name, Object value) {
         myProperties.put(name, value);
-    }
-
-    /**
-     * Add a boolean property to the object.
-     *
-     * @param name  The name of the property to add.
-     * @param value  Its (boolean) value.
-     */
-    public void addProperty(String name, boolean value) {
-        myProperties.put(name, new Boolean(value));
-    }
-
-    /**
-     * Add a double property to the object.
-     *
-     * @param name  The name of the property to add.
-     * @param value  Its (double) value.
-     */
-    public void addProperty(String name, double value) {
-        myProperties.put(name, new Double(value));
-    }
-
-    /**
-     * Add an integer property to the object.
-     *
-     * @param name  The name of the property to add.
-     * @param value  Its (integer) value.
-     */
-    public void addProperty(String name, int value) {
-        myProperties.put(name, new Long(value));
-    }
-
-    /**
-     * Add a long property to the object.
-     *
-     * @param name  The name of the property to add.
-     * @param value  Its (integer) value.
-     */
-    public void addProperty(String name, long value) {
-        myProperties.put(name, new Long(value));
-    }
-
-    /**
-     * Add an object that can be encoded as JSON to an object.  The value given
-     * is encoded, than parsed into a JSON object.
-     *
-     * @param name  The name of the property to add.
-     * @param value  Its (Encodable) value.
-     */
-    public void addProperty(String name, Encodable value) {
-        try {
-            myProperties.put(
-                name,
-                parse(value.encode(EncodeControl.forRepository).sendableString()));
-        } catch (SyntaxError e) {
-            /* This can't happen */
-        }
-    }
-
-    /**
-     * Add a property to the object by copying a property of another object.
-     * If the object being copied from does not possess the indicated property,
-     * this operation has no effect.
-     *
-     * @param name  The name of the property to copy.
-     * @param orig  The original object to copy from.
-     */
-    public void copyProperty(String name, JSONObject orig) {
-        Object value = orig.getProperty(name);
-        if (value != null) {
-            myProperties.put(name, value);
-        }
-    }
-
-    /**
-     * Obtain an array property value.
-     *
-     * @param name  The name of the array property sought.
-     *
-     * @return  The JSON array value of the property named by 'name'.
-     *
-     * @throws JSONDecodingException if no value is associated with 'name' or
-     *    if the value is not an array.
-     */
-    public JSONArray getArray(String name) throws JSONDecodingException {
-        try {
-            JSONArray obj = (JSONArray) myProperties.get(name);
-            if (obj == null) {
-                throw new JSONDecodingException("property '" + name +
-                                                "' not found");
-            } else {
-                return obj;
-            }
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("property '" + name +
-                "' is not an array as was expected");
-        }
-    }
-
-    /**
-     * Obtain the boolean value of a property.
-     *
-     * @param name  The name of the boolean property sought.
-     *
-     * @return  The boolean value of the property named by 'name'.
-     *
-     * @throws JSONDecodingException if no value is associated with 'name' or
-     *    if the value is not boolean.
-     */
-    public boolean getBoolean(String name) throws JSONDecodingException {
-        try {
-            Boolean obj = (Boolean) myProperties.get(name);
-            if (obj == null) {
-                throw new JSONDecodingException("property '" + name +
-                                                "' not found");
-            } else {
-                return obj.booleanValue();
-            }
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("property '" + name +
-                "' is not a boolean value as was expected");
-        }
-    }
-
-    /**
-     * Obtain a double property value.
-     *
-     * @param name  The name of the double property sought.
-     *
-     * @return  The double value of the property named by 'name'.
-     *
-     * @throws JSONDecodingException if no value is associated with 'name' or
-     *    if the value is not a number.
-     */
-    public double getDouble(String name) throws JSONDecodingException {
-        try {
-            Number obj = (Number) myProperties.get(name);
-            if (obj == null) {
-                throw new JSONDecodingException("property '" + name +
-                                                "' not found");
-            } else {
-                return obj.doubleValue();
-            }
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("property '" + name +
-                "' is not a floating-point numeric value as was expected");
-        }
     }
 
     /**
@@ -248,31 +101,6 @@ public class JSONObject {
                                                 "' not found");
             } else {
                 return obj.intValue();
-            }
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("property '" + name +
-                "' is not an integer numeric value as was expected");
-        }
-    }
-
-    /**
-     * Obtain a long property value.
-     *
-     * @param name  The name of the long property sought.
-     *
-     * @return  The long value of the property named by 'name'.
-     *
-     * @throws JSONDecodingException if no value is associated with 'name' or
-     *    if the value is not a number.
-     */
-    public long getLong(String name) throws JSONDecodingException {
-        try {
-            Number obj = (Number) myProperties.get(name);
-            if (obj == null) {
-                throw new JSONDecodingException("property '" + name +
-                                                "' not found");
-            } else {
-                return obj.longValue();
             }
         } catch (ClassCastException e) {
             throw new JSONDecodingException("property '" + name +
@@ -361,10 +189,10 @@ public class JSONObject {
         literal.addParameterOpt("op", myProperties.get("op"));
         literal.addParameterOpt("type", myProperties.get("type"));
 
-        for (Map.Entry entry : myProperties.entrySet()) {
-            Object key = entry.getKey();
+        for (Map.Entry<String, Object> entry : myProperties.entrySet()) {
+            String key = entry.getKey();
             if (!key.equals("to") && !key.equals("op") && !key.equals("type")){
-                literal.addParameter((String) key, entry.getValue());
+                literal.addParameter(key, entry.getValue());
             }
         }
         literal.finish();
@@ -381,55 +209,10 @@ public class JSONObject {
     /* package */ void encodeLiteral(StringBuilder buf, EncodeControl control) {
         JSONLiteral literal = new JSONLiteral(buf, control);
 
-        for (Map.Entry entry : myProperties.entrySet()) {
-            literal.addParameter((String) entry.getKey(), entry.getValue());
+        for (Map.Entry<String, Object> entry : myProperties.entrySet()) {
+            literal.addParameter(entry.getKey(), entry.getValue());
         }
         literal.finish();
-    }
-
-    /**
-     * Obtain an array property value or an empty array if the property has no
-     * value.
-     *
-     * @param name  The name of the array property sought.
-     *
-     * @return  The JSON array value of the property named by 'name' or an
-     *    empty array if the named property has no value.
-     *
-     * @throws JSONDecodingException if property has a value but the value is
-     *    not an array.
-     */
-    public JSONArray optArray(String name) throws JSONDecodingException {
-        return optArray(name, new JSONArray());
-    }
-
-    /**
-     * Obtain an array property value or a default value if the property has no
-     * value.
-     *
-     * @param name  The name of the array property sought.
-     * @param defaultValue  The value to return if there is no such property.
-     *
-     * @return  The JSON array value of the property named by 'name' or
-     *    'defaultValue' if the named property has no value.
-     *
-     * @throws JSONDecodingException if property has a value but the value is
-     *    not an array.
-     */
-    private JSONArray optArray(String name, JSONArray defaultValue)
-        throws JSONDecodingException
-    {
-        try {
-            JSONArray obj = (JSONArray) myProperties.get(name);
-            if (obj == null) {
-                return defaultValue;
-            } else {
-                return obj;
-            }
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("property '" + name +
-                "' is not an array value as was expected");
-        }
     }
 
     /**
@@ -450,11 +233,7 @@ public class JSONObject {
     {
         try {
             Boolean obj = (Boolean) myProperties.get(name);
-            if (obj == null) {
-                return defaultValue;
-            } else {
-                return obj.booleanValue();
-            }
+            return obj == null ? defaultValue : obj;
         } catch (ClassCastException e) {
             throw new JSONDecodingException("property '" + name +
                 "' is not a boolean value as was expected");
@@ -568,32 +347,6 @@ public class JSONObject {
             JSONObject obj = (JSONObject) myProperties.get(name);
             if (obj == null) {
                 return defaultValue;
-            } else {
-                return obj;
-            }
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("property '" + name +
-                "' is not a JSON object value as was expected");
-        }
-    }
-
-    /**
-     * Obtain the JSON object value of a property or an empty object if the
-     * property has no value.
-     *
-     * @param name  The name of the JSON object property sought.
-     *
-     * @return  The JSON object value of the property named by 'name' or a new
-     *    empty JSON object if the named property has no value.
-     *
-     * @throws JSONDecodingException if the property has a value but the value
-     *    is not a {@link JSONObject}.
-     */
-    public JSONObject optObject(String name) throws JSONDecodingException {
-        try {
-            JSONObject obj = (JSONObject) myProperties.get(name);
-            if (obj == null) {
-                return new JSONObject();
             } else {
                 return obj;
             }

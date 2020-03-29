@@ -6,7 +6,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 import org.elkoserver.foundation.actor.RefTable;
-import org.elkoserver.foundation.json.StaticTypeResolver;
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.metadata.LoadDesc;
 import org.elkoserver.foundation.server.metadata.ServiceDesc;
@@ -70,7 +70,7 @@ class Broker {
         myServer = server;
         tr = appTrace;
 
-        myRefTable = new RefTable(StaticTypeResolver.theStaticTypeResolver);
+        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
 
         myClientHandler = new ClientHandler(this);
         myRefTable.addRef(myClientHandler);

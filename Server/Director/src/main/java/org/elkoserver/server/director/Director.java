@@ -10,7 +10,7 @@ import java.util.TreeMap;
 import org.elkoserver.foundation.actor.RefTable;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.OptString;
-import org.elkoserver.foundation.json.StaticTypeResolver;
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONObject;
@@ -83,7 +83,7 @@ class Director {
         myServer = server;
         tr = appTrace;
 
-        myRefTable = new RefTable(StaticTypeResolver.theStaticTypeResolver);
+        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
 
         myProviderHandler = new ProviderHandler(this);
         myRefTable.addRef(myProviderHandler);
@@ -184,8 +184,8 @@ class Director {
      * Do the work of relaying a message embedded in another message.
      *
      * @param from  The entity being relayed from.
-     * @param context  The context to be broadcast to.
-     * @param user  The user to be broadcast to.
+     * @param optContext  The context to be broadcast to.
+     * @param optUser  The user to be broadcast to.
      * @param msg  The message to relay.
      */
     void doRelay(DirectorActor from, OptString optContext, OptString optUser,
@@ -266,9 +266,9 @@ class Director {
     {
         String service = serviceName(contextName);
 
-        String logString = "";
+        StringBuilder logString = new StringBuilder();
         for (Provider provider : myProviders.keySet()) {
-            logString += "[" + provider + "/" + provider.loadFactor() + "]";
+            logString.append("[").append(provider).append("/").append(provider.loadFactor()).append("]");
         }
 
         for (Provider provider : myProviders.keySet()) {
@@ -394,11 +394,9 @@ class Director {
 
     /**
      * Shutdown the server.
-     *
-     * @param kill  If true, shutdown immediately instead of cleaning up.
      */
-    void shutdownServer(boolean kill) {
-        myServer.shutdown(kill);
+    void shutdownServer() {
+        myServer.shutdown(false);
     }
 
     /**
@@ -411,7 +409,7 @@ class Director {
      * @param userRef  The name of a user, or null if don't care.
      * @param msg  The message to send.
      *
-     * @throw MessageHandlerException if there was a problem doing this.
+     * @throws MessageHandlerException if there was a problem doing this.
      */
     void targetedBroadCast(Provider omitProvider, String contextRef,
                            String userRef, JSONLiteral msg)

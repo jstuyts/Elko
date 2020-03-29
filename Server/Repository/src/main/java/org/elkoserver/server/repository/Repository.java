@@ -1,10 +1,12 @@
 package org.elkoserver.server.repository;
 
 import org.elkoserver.foundation.actor.RefTable;
-import org.elkoserver.foundation.json.StaticTypeResolver;
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.objdb.store.ObjectStore;
 import org.elkoserver.util.trace.Trace;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * Main state data structure in a Repository.
@@ -35,7 +37,7 @@ class Repository {
         myServer = server;
         /* Trace object for diagnostics. */
 
-        myRefTable = new RefTable(StaticTypeResolver.theStaticTypeResolver);
+        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
         myRefTable.addRef(new RepHandler(this));
         myRefTable.addRef(new AdminHandler(this));
 
@@ -50,7 +52,7 @@ class Repository {
         String objectStoreClassName =
             server.props().getProperty(propRoot + ".objstore",
                "org.elkoserver.objdb.store.filestore.FileObjectStore");
-        Class objectStoreClass = null;
+        Class<?> objectStoreClass = null;
         try {
             objectStoreClass = Class.forName(objectStoreClassName);
         } catch (ClassNotFoundException e) {
@@ -58,11 +60,16 @@ class Repository {
                           " not found");
         }
         try {
-            myObjectStore = (ObjectStore) objectStoreClass.newInstance();
+            //noinspection ConstantConditions
+            myObjectStore = (ObjectStore) objectStoreClass.getConstructor().newInstance();
         } catch (IllegalAccessException e) {
             appTrace.fatalError("unable to access object store constructor: " + e);
         } catch (InstantiationException e) {
             appTrace.fatalError("unable to instantiate object store object: " + e);
+        } catch (NoSuchMethodException e) {
+            appTrace.fatalError("unable to find object store constructor: " + e);
+        } catch (InvocationTargetException e) {
+            appTrace.fatalError("error during invocation of object store constructor: " + e.getCause());
         }
         myObjectStore.initialize(myServer.props(), propRoot, appTrace);
     }

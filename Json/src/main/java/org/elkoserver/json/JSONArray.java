@@ -47,96 +47,6 @@ public class JSONArray extends ArrayList<Object> {
     }
 
     /**
-     * Obtain an array-valued element value.
-     *
-     * @param index  The index of the array value sought.
-     *
-     * @return  The JSON array value of element number 'index'.
-     *
-     * @throws JSONDecodingException if the value is not an array.
-     */
-    public JSONArray getArray(int index) throws JSONDecodingException {
-        try {
-            return (JSONArray) get(index);
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("element #" + index +
-                " is not an array as was expected");
-        }
-    }
-
-    /**
-     * Obtain the boolean value of an element.
-     *
-     * @param index  The index of the boolean value sought.
-     *
-     * @return  The boolean value of element number 'index'.
-     *
-     * @throws JSONDecodingException if the value is not a boolean.
-     */
-    public boolean getBoolean(int index) throws JSONDecodingException {
-        try {
-            return ((Boolean) get(index)).booleanValue();
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("element #" + index +
-                " is not a boolean value as was expected");
-        }
-    }
-
-    /**
-     * Obtain the double value of an element.
-     *
-     * @param index  The index of the double value sought.
-     *
-     * @return  The double value of element number 'index'.
-     *
-     * @throws JSONDecodingException if the value is not a number.
-     */
-    public double getDouble(int index) throws JSONDecodingException {
-        try {
-            return ((Number) get(index)).doubleValue();
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("element #" + index +
-                " is not a floating-point numeric value as was expected");
-        }
-    }
-
-    /**
-     * Obtain the integer value of an element.
-     *
-     * @param index  The index of the integer value sought.
-     *
-     * @return  The int value of element number 'index'.
-     *
-     * @throws JSONDecodingException if the value is not a number.
-     */
-    public int getInt(int index) throws JSONDecodingException{
-        try {
-            return ((Number) get(index)).intValue();
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("element #" + index +
-                " is not an integer numeric value as was expected");
-        }
-    }
-
-    /**
-     * Obtain the long value of an element.
-     *
-     * @param index  The index of the long value sought.
-     *
-     * @return  The long value of element number 'index'.
-     *
-     * @throws JSONDecodingException if the value is not a number.
-     */
-    public long getLong(int index) throws JSONDecodingException {
-        try {
-            return ((Number) get(index)).longValue();
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("element #" + index +
-                " is not an integer numeric value as was expected");
-        }
-    }
-
-    /**
      * Obtain the JSON object value of an element.
      *
      * @param index  The index of the object value sought.
@@ -151,24 +61,6 @@ public class JSONArray extends ArrayList<Object> {
         } catch (ClassCastException e) {
             throw new JSONDecodingException("element #" + index +
                 " is not a JSON object value as was expected");
-        }
-    }
-
-    /**
-     * Obtain the string value of an element.
-     *
-     * @param index  The index of the string value sought.
-     *
-     * @return  The string value of element number 'index'.
-     *
-     * @throws JSONDecodingException if the value is not a string.
-     */
-    public String getString(int index) throws JSONDecodingException {
-        try {
-            return (String) get(index);
-        } catch (ClassCastException e) {
-            throw new JSONDecodingException("element #" + index +
-                " is not a string value as was expected");
         }
     }
 

@@ -44,13 +44,11 @@ public class Parser {
      */
     private JSONObject parseOpenObjectLiteral() throws SyntaxError {
         JSONObject obj = new JSONObject();
-        int propertyCount = 0;
         Token token = scanToken();
         while (token != Token.theCloseBrace) {
             if (token.type() == Token.SYMBOL || token.type() == Token.STRING) {
                 String name = token.symbol();
                 obj.addProperty(name, parseProperty());
-                ++propertyCount;
                 token = scanToken();
                 if (token == Token.theComma) {
                     token = scanToken();
@@ -65,24 +63,10 @@ public class Parser {
     }
 
     /**
-     * Look for a particular token as the next token.
-     *
-     * @param type  The type of token we expect to see
-     *
-     * @return true if the specified type of token was not seen (i.e., there's
-     *    an error)
-     */
-    private boolean expectToken(int type) {
-        return scanToken().type() != type;
-    }
-
-    /**
      * Recognize the trailing exponent ([=+]?[0-9]+) as we scan a literal
      * floating point number.
      *
-     * @param buf  Buffer into which we are putting the floating point
-     *    number token being scanned; this contains the text of the literal up
-     *    to the point where we started looking for the trailing exponent.
+     * @param start Start position in the string.
      *
      * @return the token recognized (either float or syntax error).
      */
@@ -98,7 +82,7 @@ public class Parser {
             String number = myString.substring(start, myReadPtr);
             --myReadPtr;
             try {
-                return new Token(new Double(number), Token.FLOAT);
+                return new Token(Double.valueOf(number), Token.FLOAT);
             } catch (NumberFormatException e) {
                 return Token.theSyntaxError;
             }
@@ -111,9 +95,7 @@ public class Parser {
      * Recognize the tail of a floating point number (everything after the
      * decimal point) as we scan.
      *
-     * @param buf  Buffer into which we are putting the floating point number
-     *    token being scanned; this contains the text of the literal up to the
-     *    point where we started looking for the tail
+     * @param start Start position in the string.
      * @param needDigits  true==>there must be digits after the decimal point
      *    (because there weren't any before it); false==>no digits required.
      *
@@ -135,7 +117,7 @@ public class Parser {
             String number = myString.substring(start, myReadPtr);
             --myReadPtr;
             try {
-                return new Token(new Double(number), Token.FLOAT);
+                return new Token(Double.valueOf(number), Token.FLOAT);
             } catch (NumberFormatException e) {
                 return Token.theSyntaxError;
             }
@@ -300,7 +282,7 @@ public class Parser {
                     c = myString.charAt(++myReadPtr);
                 }
                 --myReadPtr;
-                return new Token(new Long(intValue * sign), Token.INTEGER);
+                return new Token(intValue * sign, Token.INTEGER);
             } else {
                 radix = 8;
             }
@@ -318,7 +300,7 @@ public class Parser {
             return finishFloatExponent(start);
         } else {
             --myReadPtr;
-            return new Token(new Long(intValue * sign), Token.INTEGER);
+            return new Token(intValue * sign, Token.INTEGER);
         }
     }
 
@@ -380,14 +362,15 @@ public class Parser {
         String identifier = myString.substring(start, myReadPtr);
         --myReadPtr;
 
-        if (identifier.equals("false")) {
-            return Token.theBooleanFalse;
-        } else if (identifier.equals("true")) {
-            return Token.theBooleanTrue;
-        } else if (identifier.equals("null")) {
-            return Token.theNull;
-        } else {
-            return new Token(identifier, Token.SYMBOL);
+        switch (identifier) {
+            case "false":
+                return Token.theBooleanFalse;
+            case "true":
+                return Token.theBooleanTrue;
+            case "null":
+                return Token.theNull;
+            default:
+                return new Token(identifier, Token.SYMBOL);
         }
     }
 
@@ -450,11 +433,7 @@ public class Parser {
                         c = myString.charAt(++myReadPtr);
                         if (c == '/' && sawStar) {
                             break;
-                        } else if (c == '*') {
-                            sawStar = true;
-                        } else {
-                            sawStar = false;
-                        }
+                        } else sawStar = c == '*';
                     }
                 } else if (c == '/') {
                     boolean sawReturn = false;
@@ -465,11 +444,7 @@ public class Parser {
                         } else if (sawReturn) {
                             --myReadPtr;
                             break;
-                        } else if (c == '\r') {
-                            sawReturn = true;
-                        } else {
-                            sawReturn = false;
-                        }
+                        } else sawReturn = c == '\r';
                     }
                 } else {
                     --myReadPtr;

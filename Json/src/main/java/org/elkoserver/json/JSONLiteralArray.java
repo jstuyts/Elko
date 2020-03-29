@@ -87,8 +87,8 @@ public class JSONLiteralArray {
             Object[] valueArray = (Object[]) value;
             JSONLiteralArray arr =
                 new JSONLiteralArray(myStringBuilder, myControl);
-            for (int i = 0; i < valueArray.length; ++i) {
-                arr.addElement(valueArray[i]);
+            for (Object o : valueArray) {
+                arr.addElement(o);
             }
             arr.finish();
         } else if (value != null) {
@@ -108,75 +108,12 @@ public class JSONLiteralArray {
     }
 
     /**
-     * Add an object element to an incomplete array.
-     *
-     * @param value  The ({@link Encodable}) element value.
-     */
-    public void addElement(Encodable value) {
-        addElement((Object) value);
-    }
-
-    /**
-     * Add a floating point element to an incomplete array.
-     *
-     * @param value  The (double) element value.
-     */
-    public void addElement(double value) {
-        addElement((Object) new Double(value));
-    }
-
-    /**
-     * Add a boolean element to an incomplete array.
-     *
-     * @param value  The (boolean) element value.
-     */ 
-    public void addElement(boolean value) {
-        addElement((Object) new Boolean(value));
-    }
-    
-    /**
-     * Add an integer element to an incomplete array.
-     *
-     * @param value  The (int) element value.
-     */
-    public void addElement(int value) {
-        addElement((Object) new Integer(value));
-    }
-    
-    /**
-     * Add a long element to an incomplete array.
-     *
-     * @param value  The (long) element value.
-     */
-    public void addElement(long value) {
-        addElement((Object) new Long(value));
-    }
-
-    /**
-     * Add a JSON object element to an incomplete array.
-     *
-     * @param value  The ({@link JSONObject}) element value.
-     */
-    public void addElement(JSONObject value) {
-        addElement((Object) value);
-    }
-
-    /**
      * Add a reference element to an incomplete array.
      *
      * @param value  The ({@link Referenceable}) element value.
      */
     public void addElement(Referenceable value) {
-        addElement((Object) value.ref());
-    }
-
-    /**
-     * Add a string element to an incomplete array.
-     *
-     * @param value  The ({@link String}) element value.
-     */
-    public void addElement(String value) {
-        addElement((Object) value);
+        addElement(value.ref());
     }
 
     /**
@@ -186,6 +123,7 @@ public class JSONLiteralArray {
     private void beginElement() {
         if (myState != COMPLETE) {
             if (myState == INITIAL) {
+                /* Have added first element */
                 myState = STARTED;
             } else {
                 myStringBuilder.append(", ");

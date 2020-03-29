@@ -5,13 +5,9 @@ import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.OptBoolean;
 import org.elkoserver.foundation.json.OptString;
-import org.elkoserver.json.EncodeControl;
-import org.elkoserver.json.Encodable;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONLiteralArray;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.Referenceable;
+import org.elkoserver.json.*;
 import org.elkoserver.util.HashSetMulti;
+
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
@@ -210,7 +206,7 @@ class AdminHandler extends BasicProtocolHandler {
         for (Provider subj : myDirector.providers()) {
             if (providerName == null || subj.matchLabel(providerName)) {
                 ProviderDump providerDump =
-                    new ProviderDump(depth, subj, contextName);
+                        new ProviderDump(depth, subj, contextName);
                 if (providerDump.numContexts() > 0 || contextName == null) {
                     ++numProviders;
                     numContexts += providerDump.numContexts();
@@ -225,7 +221,7 @@ class AdminHandler extends BasicProtocolHandler {
                           providerList));
     }
 
-    private class ProviderDump implements Encodable {
+    private static class ProviderDump implements Encodable {
         private int myNumContexts;
         private int myNumUsers;
         private Provider myProvider;
@@ -279,7 +275,7 @@ class AdminHandler extends BasicProtocolHandler {
         }
     }
 
-    private class ContextDump implements Encodable {
+    private static class ContextDump implements Encodable {
         private OpenContext myContext;
         private int myDepth;
 
@@ -443,7 +439,7 @@ class AdminHandler extends BasicProtocolHandler {
      * @param from  The administrator sending the message.
      * @param provider  The provider(s) to be shut down, if any.
      * @param director  true if this director itself should be shut down.
-     * @param kill  True if provider(s) should be shutdown immediately instead
+     * @param optKill  True if provider(s) should be shutdown immediately instead
      *    of cleaning up.
      */
     @JSONMethod({ "provider", "director", "kill" })
@@ -464,7 +460,7 @@ class AdminHandler extends BasicProtocolHandler {
             }
         }
         if (director.value(false)) {
-            myDirector.shutdownServer(false);
+            myDirector.shutdownServer();
         }
     }
 
@@ -577,7 +573,7 @@ class AdminHandler extends BasicProtocolHandler {
         msg.addParameterOpt("context", contextName);
         msg.addParameterOpt("user", userName);
         if (isDup) {
-            msg.addParameter("dup", isDup);
+            msg.addParameter("dup", true);
         }
         msg.finish();
         return msg;
@@ -680,7 +676,7 @@ class AdminHandler extends BasicProtocolHandler {
     private static JSONLiteral msgShutdown(Referenceable target, boolean kill) {
         JSONLiteral msg = new JSONLiteral(target, "shutdown");
         if (kill) {
-            msg.addParameter("kill", kill);
+            msg.addParameter("kill", true);
         }
         msg.finish();
         return msg;

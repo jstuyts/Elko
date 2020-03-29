@@ -58,7 +58,7 @@ class Client {
      * @param contextName  The name of the context they entered.
      */
     void noteUserEntry(String userName, String contextName) {
-        myPresenceServer.addUserPresence(userName, contextName, myActor);
+        myPresenceServer.addUserPresence(userName, contextName);
     }
 
     /**
@@ -106,6 +106,6 @@ class Client {
      * @param contextName  The name of the context that has lost interest
      */
     void unsubscribeToUpdates(String contextName) {
-        myPresenceServer.removeSubscriber(contextName, myActor);
+        myPresenceServer.removeSubscriber(contextName);
     }
 }

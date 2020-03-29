@@ -1,20 +1,13 @@
 package org.elkoserver.server.presence;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import org.elkoserver.foundation.actor.RefTable;
-import org.elkoserver.foundation.json.StaticTypeResolver;
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.objdb.ObjDB;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.*;
 
 /**
  * Main state data structure in a Presence Server.
@@ -48,9 +41,6 @@ class PresenceServer {
     /** Known context metadata. */
     private Map<String, JSONObject> myContextMetadata;
 
-    /** The admin object. */
-    private AdminHandler myAdminHandler;
-
     /** The client object. */
     private ClientHandler myClientHandler;
 
@@ -67,12 +57,12 @@ class PresenceServer {
         myServer = server;
         tr = appTrace;
 
-        myRefTable = new RefTable(StaticTypeResolver.theStaticTypeResolver);
+        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
 
         myClientHandler = new ClientHandler(this);
         myRefTable.addRef(myClientHandler);
 
-        myAdminHandler = new AdminHandler(this);
+        AdminHandler myAdminHandler = new AdminHandler(this);
         myRefTable.addRef(myAdminHandler);
 
         myActors = new HashSet<>();
@@ -153,7 +143,7 @@ class PresenceServer {
         }
     }
 
-    void removeSubscriber(String context, PresenceActor client) {
+    void removeSubscriber(String context) {
         for (SocialGraph graph : mySocialGraphs.values()) {
             graph.domain().removeSubscriber(context);
         }
@@ -181,12 +171,10 @@ class PresenceServer {
 
     /**
      * Add a new user to the collection of online user presences.
-     *
-     * @param userRef  The reference string for the new user.
+     *  @param userRef  The reference string for the new user.
      * @param context  The name of the context the user is in.
-     * @param client  Actor connected to context server user is on.
      */
-    void addUserPresence(String userRef, String context, PresenceActor client)
+    void addUserPresence(String userRef, String context)
     {
         if (isVisible(context)) {
             ActiveUser user = getUser(userRef);
@@ -293,13 +281,7 @@ class PresenceServer {
         for (SocialGraph graph : mySocialGraphs.values()) {
             graph.domain().removeClient(actor);
         }
-        Iterator<PresenceActor> iter = myVisibles.values().iterator();
-        while (iter.hasNext()) {
-            PresenceActor client = iter.next();
-            if (client == actor) {
-                iter.remove();
-            }
-        }
+        myVisibles.values().removeIf(client -> client == actor);
     }
 
     private boolean isVisible(String context) {

@@ -1,12 +1,5 @@
 package org.elkoserver.objdb;
 
-import java.lang.reflect.Array;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
 import org.elkoserver.foundation.json.ObjectDecoder;
 import org.elkoserver.json.JSONArray;
 import org.elkoserver.json.JSONObject;
@@ -15,6 +8,9 @@ import org.elkoserver.json.SyntaxError;
 import org.elkoserver.objdb.store.ObjectDesc;
 import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.lang.reflect.Array;
+import java.util.*;
 
 /**
  * Base class for both local and remote concrete implementations of the ObjDB
@@ -93,7 +89,6 @@ abstract class ObjDBBase implements ObjDB {
                 Parser parser = new Parser(objStr);
                 JSONObject jsonObj = parser.parseObjectLiteral();
                 insertContents(jsonObj, results);
-                //jsonObj.addProperty("ref", ref);
                 return decodeJSONObject(jsonObj);
             } catch (SyntaxError e) {
                 tr.errorm("object store syntax error getting " + ref + ": " +

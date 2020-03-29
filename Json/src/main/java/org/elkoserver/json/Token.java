@@ -20,7 +20,6 @@ class Token {
     static final int STRING        = 12; // String literal
     static final int SYMBOL        = 13; // Alphanumeric symbol
     private static final int SYNTAX_ERROR  = 14; // Syntax error marker
-    static final int UNKNOWN       = 15; // Undecipherable token
 
     /* Predefined, preallocated tokens for fixed-value terminal symbols */
     static final Token theCloseBrace   = new Token(null, CLOSE_BRACE);

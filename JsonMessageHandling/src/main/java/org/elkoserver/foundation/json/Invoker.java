@@ -1,5 +1,9 @@
 package org.elkoserver.foundation.json;
 
+import org.elkoserver.json.JSONArray;
+import org.elkoserver.json.JSONObject;
+import org.elkoserver.util.trace.Trace;
+
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
@@ -7,9 +11,6 @@ import java.lang.reflect.Member;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import org.elkoserver.json.JSONArray;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.util.trace.Trace;
 
 /**
  * Precomputed Java reflection information needed invoke a method or
@@ -20,7 +21,7 @@ abstract class Invoker {
     private Map<String, Integer> myParamMap;
 
     /** Parameter types, by position. */
-    private Class[] myParamTypes;
+    private Class<?>[] myParamTypes;
 
     /** Parameter names, by position. */
     private String[] myParamNames;
@@ -42,13 +43,12 @@ abstract class Invoker {
      *
      * @throws JSONSetupError if the method breaks the rules for a JSON method.
      */
-    Invoker(Member method, Class[] paramTypes, String[] paramNames,
+    Invoker(Member method, Class<?>[] paramTypes, String[] paramNames,
             int firstIndex)
     {
         myParamTypes = paramTypes;
         myParamNames = paramNames;
 
-        Class targetClass = method.getDeclaringClass();
         ((AccessibleObject) method).setAccessible(true);
 
         myParamMap = new HashMap<>(myParamNames.length);
@@ -108,7 +108,7 @@ abstract class Invoker {
         Object[] params = new Object[myParamTypes.length];
         for (Map.Entry<String, Object> entry : parameters) {
             String paramName = entry.getKey();
-            Integer paramNum = (Integer) myParamMap.get(paramName);
+            Integer paramNum = myParamMap.get(paramName);
             if (paramNum == null) {
                 if (!paramName.equals("op") && !paramName.equals("to") &&
                         !paramName.equals("type") &&
@@ -118,7 +118,7 @@ abstract class Invoker {
                 }
                 continue;
             }
-            Class paramType = myParamTypes[paramNum];
+            Class<?> paramType = myParamTypes[paramNum];
             Object value = entry.getValue();
             if (value != null) {
                 Object param = packParam(paramType, value, resolver);
@@ -166,7 +166,7 @@ abstract class Invoker {
      * @return true if paramClass is one of the supported optional parameter
      *    classes.
      */
-    private boolean isOptionalParamType(Class paramClass) {
+    private boolean isOptionalParamType(Class<?> paramClass) {
         return OptionalParameter.class.isAssignableFrom(paramClass) ||
             paramClass.isArray();
     }
@@ -186,9 +186,9 @@ abstract class Invoker {
      * @return the object to pass to the method for 'value', or null if the
      *    value is of the wrong type.
      */
-    private Object packParam(Class paramType, Object value,
+    private Object packParam(Class<?> paramType, Object value,
                              TypeResolver resolver) {
-        Class valueType = value.getClass();
+        Class<?> valueType = value.getClass();
         if (valueType == String.class) {
             if (paramType == String.class) {
                 return value;
@@ -201,18 +201,18 @@ abstract class Invoker {
             if (paramType == long.class || paramType == Long.class) {
                 return value;
             } else if (paramType == int.class || paramType == Integer.class) {
-                return new Integer(((Long) value).intValue());
+                return ((Long) value).intValue();
             } else if (paramType == OptInteger.class) {
                 return new OptInteger(((Long) value).intValue());
             } else if (paramType == byte.class || paramType == Byte.class) {
-                return new Byte(((Long) value).byteValue());
+                return ((Long) value).byteValue();
             } else if (paramType == short.class || paramType == Short.class) {
-                return new Short(((Long) value).shortValue());
+                return ((Long) value).shortValue();
             } else if (paramType == double.class ||
                        paramType == Double.class) {
-                return new Double(((Long) value).doubleValue());
+                return ((Long) value).doubleValue();
             } else if (paramType == float.class || paramType == Float.class) {
-                return new Float(((Long) value).floatValue());
+                return ((Long) value).floatValue();
             } else if (paramType == OptDouble.class) {
                 return new OptDouble(((Long) value).doubleValue());
             } else {
@@ -222,19 +222,19 @@ abstract class Invoker {
             if (paramType == double.class || paramType == Double.class) {
                 return value;
             } else if (paramType == float.class || paramType == Float.class) {
-                return new Float(((Double) value).doubleValue());
+                return value;
             } else if (paramType == OptDouble.class) {
-                return new OptDouble(((Double) value).doubleValue());
+                return new OptDouble((Double) value);
             } else if (paramType == long.class || paramType == Long.class) {
-                return new Long(((Double) value).longValue());
+                return ((Double) value).longValue();
             } else if (paramType == int.class || paramType == Integer.class) {
-                return new Integer(((Double) value).intValue());
+                return ((Double) value).intValue();
             } else if (paramType == OptInteger.class) {
                 return new OptInteger(((Double) value).intValue());
             } else if (paramType == byte.class || paramType == Byte.class) {
-                return new Byte(((Double) value).byteValue());
+                return ((Double) value).byteValue();
             } else if (paramType == short.class || paramType == Short.class) {
-                return new Short(((Double) value).shortValue());
+                return ((Double) value).shortValue();
             } else {
                 return null;
             }
@@ -242,7 +242,7 @@ abstract class Invoker {
             if (paramType == boolean.class || paramType == Boolean.class) {
                 return value;
             } else if (paramType == OptBoolean.class) {
-                return new OptBoolean(((Boolean) value).booleanValue());
+                return new OptBoolean((Boolean) value);
             } else {
                 return null;
             }
@@ -251,7 +251,7 @@ abstract class Invoker {
             if (paramType == JSONArray.class) {
                 return value;
             } else if (paramType.isArray()) {
-                Class baseType = paramType.getComponentType();
+                Class<?> baseType = paramType.getComponentType();
                 Object[] valueArray = arrayValue.toArray();
                 Object result = Array.newInstance(baseType, valueArray.length);
                 for (int i = 0; i < valueArray.length; ++i) {
@@ -269,7 +269,7 @@ abstract class Invoker {
             }
         } else if (valueType == JSONObject.class) {
             if (paramType == JSONObject.class) {
-                return (JSONObject) value;
+                return value;
             } else {
                 return ObjectDecoder.decode(paramType, (JSONObject) value,
                                             resolver);

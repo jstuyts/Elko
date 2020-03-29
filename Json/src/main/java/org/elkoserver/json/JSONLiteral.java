@@ -163,31 +163,12 @@ public class JSONLiteral {
      * @param param  The parameter name.
      * @param value  The (collection) parameter value.
      */
-    public void addParameter(String param, Collection value) {
+    public void addParameter(String param, Collection<?> value) {
         beginParameter(param);
         JSONLiteralArray arr =
             new JSONLiteralArray(myStringBuilder, myControl);
         for (Object element : value) {
             arr.addElement(element);
-        }
-        arr.finish();
-    }
-
-    /**
-     * Add a dereferenceable array parameter to an incomplete literal.  Object
-     * references encoded in this way will be decoded as pointers to the
-     * referenced objects rather than as the object reference strings
-     * themselves.
-     *
-     * @param param  The parameter name.
-     * @param value  The (array of {@link Referenceable}) parameter value.
-     */
-    public void addParameterRef(String param, Object[] value) {
-        beginParameter("ref$" + param);
-        JSONLiteralArray arr =
-            new JSONLiteralArray(myStringBuilder, myControl);
-        for (Object element : value) {
-            arr.addElement(((Referenceable) element).ref());
         }
         arr.finish();
     }
@@ -214,7 +195,7 @@ public class JSONLiteral {
      * @param param  The parameter name.
      * @param value  The optional (collection) parameter value.
      */
-    public void addParameterOpt(String param, Collection value) {
+    public void addParameterOpt(String param, Collection<?> value) {
         if (value != null && value.size() > 0) {
             addParameter(param, value);
         }
@@ -389,19 +370,6 @@ public class JSONLiteral {
     }
 
     /**
-     * Add a dereferenceable array literal parameter to an incomplete literal.
-     * The array being encoded should contain a collection of object reference
-     * strings; these reference strings will be decoded as pointers to the
-     * referenced objects, rather than as the reference strings themselves.
-     *
-     * @param param  The parameter name.
-     * @param value  The ({@link JSONLiteralArray}) parameter value.
-     */
-    public void addParameterRef(String param, JSONLiteralArray value) {
-        addParameter("ref$" + param, (Object) value);
-    }
-
-    /**
      * Add an object-valued parameter to an incomplete literal.
      *
      * @param param  The parameter name.
@@ -511,18 +479,6 @@ public class JSONLiteral {
         if (value != null) {
             addParameter(param, value);
         }
-    }
-
-    /**
-     * Add a dereferenceable reference parameter to an incomplete literal.  The
-     * object reference encoded in this way will be decoded as a poniter to the
-     * referenced object rather than as the object reference string itself.
-     *
-     * @param param  The parameter name.
-     * @param value  The ({@link Referenceable}) parameter value
-     */
-    public void addParameterRef(String param, Referenceable value) {
-        addParameter("ref$" + param, (Object) value.ref());
     }
 
     /**

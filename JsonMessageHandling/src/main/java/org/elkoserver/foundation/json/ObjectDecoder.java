@@ -1,12 +1,13 @@
 package org.elkoserver.foundation.json;
 
-import java.lang.reflect.Constructor;
-import java.util.HashMap;
-import java.util.Map;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Parser;
 import org.elkoserver.json.SyntaxError;
 import org.elkoserver.util.trace.Trace;
+
+import java.lang.reflect.Constructor;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * A producer of some class of Java objects from JSON-encoded object
@@ -15,7 +16,7 @@ import org.elkoserver.util.trace.Trace;
 public class ObjectDecoder {
     /** Mapping from Java class to the specific decoder for that class.  This
         is a cache of decoders, to avoid recomputing reflection information. */
-    private static Map<Class, ObjectDecoder> theDecoders =
+    private static Map<Class<?>, ObjectDecoder> theDecoders =
             new HashMap<>();
 
     /** Reflection information for the Java constructor this decoder invokes.*/
@@ -44,7 +45,7 @@ public class ObjectDecoder {
      * will be passed the value of the uninterpreted JSON object from which the
      * (other) parameters were extracted.
      *
-     * If a constructor is annotated {@link JSONMetod} but does not follow
+     * If a constructor is annotated {@link JSONMethod} but does not follow
      * these rules, no decoder will be created for the class and an error
      * message will be logged.
      *
@@ -53,13 +54,13 @@ public class ObjectDecoder {
      * @throws JSONSetupError if an annotated constructor breaks the rules for
      *    a JSON-driven constructor.
      */
-    private ObjectDecoder(Class decodeClass) {
-        Constructor jsonConstructor = null;
+    private ObjectDecoder(Class<?> decodeClass) {
+        Constructor<?> jsonConstructor = null;
         boolean includeRawObject = false;
-        Class[] paramTypes = null;
+        Class<?>[] paramTypes = null;
         String[] paramNames = null;
         for (Constructor<?> constructor : decodeClass.getDeclaredConstructors()) {
-            JSONMethod note = (JSONMethod) constructor.getAnnotation(JSONMethod.class);
+            JSONMethod note = constructor.getAnnotation(JSONMethod.class);
             if (note == null) {
                 continue;
             }
@@ -100,7 +101,7 @@ public class ObjectDecoder {
      *
      * @return a decoder for 'decodeClass', or null if one could not be made.
      */
-    private static ObjectDecoder classDecoder(Class decodeClass) {
+    private static ObjectDecoder classDecoder(Class<?> decodeClass) {
         ObjectDecoder decoder = theDecoders.get(decodeClass);
 
         if (decoder == null) {
@@ -143,12 +144,12 @@ public class ObjectDecoder {
      *    described by 'obj', or null if the object could not be decoded for
      *    some reason.
      */
-    public static Object decode(Class baseType, JSONObject obj,
+    public static Object decode(Class<?> baseType, JSONObject obj,
                                 TypeResolver resolver)
     {
         Object result = null;
         String typeName = obj.type();
-        Class targetClass = null;
+        Class<?> targetClass;
         if (typeName != null) {
             targetClass = resolver.resolveType(baseType, typeName);
             if (targetClass == null) {
@@ -171,7 +172,7 @@ public class ObjectDecoder {
     /**
      * A simple JSON object decoder for one-shot objects.  The given object is
      * by the {@link #decode(Class,JSONObject,TypeResolver)} method, using the
-     * {@link StaticTypeResolver} to resolve type tags.
+     * {@link AlwaysBaseTypeResolver} to resolve type tags.
      *
      * @param baseType  The desired class of the resulting Java object.  The
      *    result will not necessarily be of this class, but will be assignable
@@ -182,16 +183,16 @@ public class ObjectDecoder {
      *    described by 'jsonObj', or null if the object could not be decoded
      *    for some reason.
      */
-    private static Object decode(Class baseType, JSONObject jsonObj) {
+    private static Object decode(Class<?> baseType, JSONObject jsonObj) {
         return decode(baseType, jsonObj,
-                      StaticTypeResolver.theStaticTypeResolver);
+                      AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
     }
 
     /**
      * A simple JSON string decoder for one-shot objects.  The given string is
      * first parsed, and then decoded as by the {@link
      * #decode(Class,JSONObject,TypeResolver)} method, using the {@link
-     * StaticTypeResolver} to resolve type tags.
+     * AlwaysBaseTypeResolver} to resolve type tags.
      *
      * @param baseType  The desired class of the resulting Java object.  The
      *    result will not necessarily be of this class, but will be assignable
@@ -202,7 +203,7 @@ public class ObjectDecoder {
      *    described by 'str', or null if the string was syntactically malformed
      *    or the object could not be decoded for some reason.
      */
-    public static Object decode(Class baseType, String str) {
+    public static Object decode(Class<?> baseType, String str) {
         try {
             Parser parser = new Parser(str);
             JSONObject jsonObj = parser.parseObjectLiteral();

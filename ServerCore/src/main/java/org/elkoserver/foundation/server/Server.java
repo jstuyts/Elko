@@ -6,7 +6,7 @@ import java.util.concurrent.Callable;
 import org.elkoserver.foundation.actor.RefTable;
 import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.json.MessageDispatcher;
-import org.elkoserver.foundation.json.StaticTypeResolver;
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver;
 import org.elkoserver.foundation.net.*;
 import org.elkoserver.foundation.run.Runner;
 import org.elkoserver.foundation.run.SlowServiceRunner;
@@ -156,7 +156,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         myServiceRefTable = null;
 
         myDispatcher = new MessageDispatcher(
-            StaticTypeResolver.theStaticTypeResolver);
+            AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
         myDispatcher.addClass(BrokerActor.class);
         myPendingFinds = new HashMapMulti<>();
         myBrokerActor = null;
