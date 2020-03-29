@@ -242,8 +242,11 @@ class AdminHandler extends BasicProtocolHandler {
                     if (serverName.equals("all") ||
                             client.matchLabel(serverName)) {
                         if (componentShutdown) {
-                            myBroker.launcherTable().
-                                setRunSettingOn(serverName);
+                            LauncherTable launcherTable = myBroker.launcherTable();
+                            // FIXME: Check if having no launcher table is a state that should be supported.
+                            if (launcherTable != null) {
+                                launcherTable.setRunSettingOn(serverName);
+                            }
                         }
                         actor.send(msg);
                     }
