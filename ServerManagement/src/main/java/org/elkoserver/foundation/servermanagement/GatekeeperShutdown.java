@@ -3,9 +3,9 @@ package org.elkoserver.foundation.servermanagement;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.nio.charset.StandardCharsets;
 
 import static java.lang.Integer.parseInt;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class GatekeeperShutdown {
 
@@ -24,9 +24,10 @@ public class GatekeeperShutdown {
     private static void shutDownServer(String hostAddress, int portNumber, String password) throws IOException, InterruptedException {
         try (Socket socket = new Socket(hostAddress, portNumber)) {
             OutputStream outputStream = socket.getOutputStream();
-            outputStream.write(("{to:\"admin\", op:\"auth\", auth:{mode:\"password\", code:\"" + password + "\"}}\n\n").getBytes(StandardCharsets.UTF_8));
+            outputStream.write(("{to:\"admin\", op:\"auth\", auth:{mode:\"password\", code:\"" + password + "\"}}\n\n").getBytes(UTF_8));
             Thread.sleep(1_000L);
-            outputStream.write(("{to:\"admin\", op:\"shutdown\", kill:false}\n\n").getBytes(StandardCharsets.UTF_8));
+            outputStream.write(("{to:\"admin\", op:\"shutdown\", kill:false}\n\n").getBytes(UTF_8));
+            Thread.sleep(1_000L);
         }
     }
 }
