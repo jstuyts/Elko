@@ -10,12 +10,8 @@ package org.elkoserver.foundation.json;
  *
  * <p>Classes you write that handle JSON messages won't generally need to
  * declare themselves as implementing this interface, since the normal coding
- * pattern for such things is to subclass a standard base class (such as {@link
- * org.elkoserver.server.context.BasicObject BasicObject}, {@link
- * org.elkoserver.server.context.Mod Mod},
- * {@link org.elkoserver.foundation.actor.BasicProtocolHandler BasicProtocolHandler}, or
- * {@link org.elkoserver.foundation.actor.NonRoutingActor NonRoutingActor})
- * that already implements it.
+ * pattern for such things is to subclass a standard base class (such as <code>BasicObject</code>,<code>Mod</code>,
+ * <code>BasicProtocolHandler</code>, or <code>NonRoutingActor</code>  that already implements it.
  */
 public interface DispatchTarget {
 }

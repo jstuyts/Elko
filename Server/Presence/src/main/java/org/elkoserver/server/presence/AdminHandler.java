@@ -54,7 +54,7 @@ class AdminHandler extends BasicProtocolHandler {
      * @param from  The administrator asking for the information.
      * @param depth  Depth limit for the dump: 0 ==> counts only, 1 ==> adds
      *    user names, 2 ==> adds presence info, 3 ==> adds social graph data
-     * @param user  A user to limit the dump to
+     * @param optUser  A user to limit the dump to
      */
     @JSONMethod({ "depth", "user" })
     public void dump(PresenceActor from, int depth, OptString optUser)

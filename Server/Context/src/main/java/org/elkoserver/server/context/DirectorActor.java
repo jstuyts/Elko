@@ -341,10 +341,8 @@ class DirectorActor extends NonRoutingActor {
      * Process a reply to a reservation request issued from here.
      *
      * @param from  The user asking for the reservation.
-     * @param protocol  The protocol it wants to use.
-     * @param contextName  The context it is seeking.
-     * @param user  The user who is asking for this.
-     * @param tag  Optional tag for requestor to match
+     * @param optUser  The user who is asking for this.
+     * @param optTag  Optional tag for requestor to match
      */
     @JSONMethod({ "context", "user", "hostport", "reservation", "deny", "tag"})
     public void reserve(DirectorActor from, String context, OptString optUser,

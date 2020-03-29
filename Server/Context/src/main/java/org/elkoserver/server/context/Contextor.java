@@ -240,7 +240,7 @@ public class Contextor extends RefTable {
      * @param container  The container into which the item is placed.
      * @param subID  Sub-ID string for cloned objects.  This should be an empty
      *    string if clones are not being generated.
-     * @param Item  Inactive item that is being activated.
+     * @param item  Inactive item that is being activated.
      */
     private void activateContentsItem(BasicObject container, String subID, Item item) {
         String ref = item.ref() + subID;

@@ -41,9 +41,7 @@ public class ObjDBLocal extends ObjDBBase {
      *
      * <p>The property <tt>"<i>propRoot</i>.objstore"</tt> may specify the
      * fully qualified Java class name of the object store implementation to
-     * use.  If unspecified, the default, "{@link
-     * org.elkoserver.objdb.store.filestore.FileObjectStore
-     * org.elkoserver.objdb.store.filestore.FileObjectStore}", will be used.
+     * use.  If unspecified, the default, <code>FileObjectStore</code>, will be used.
      *
      * <p>The property <tt>"<i>propRoot</i>.classdesc"</tt> may specify a
      * (comma-separated) list of references to class description objects to

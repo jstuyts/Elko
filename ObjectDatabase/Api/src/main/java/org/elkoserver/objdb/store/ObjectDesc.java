@@ -8,9 +8,6 @@ import org.elkoserver.json.JSONLiteral;
 
 /**
  * Description of a requested object returned from the object store.
- *
- * @see ObjectStore#getObjects ObjectStore.getObjects()
- * @see GetResultHandler
  */
 public class ObjectDesc implements Encodable {
     /** Reference string of the object. */

@@ -357,7 +357,7 @@ public class BankWorker extends WorkerObject {
      * @param repRequired  Flag that is true if the normal optional reply
      *    address is actually required in this case.
      * @param optMemo   Optional annotation for logging the operation
-     * @param memeRequired  Flag that is true if the normally optional memo
+     * @param memoRequired  Flag that is true if the normally optional memo
      *    parameter is actually required in this case.
      *
      * @return a new RequestEnv object constructed by processing the

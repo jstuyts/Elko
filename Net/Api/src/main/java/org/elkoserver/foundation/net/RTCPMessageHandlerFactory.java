@@ -292,7 +292,7 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
      * error reply to some request received by the server.
      *
      * @param errorTag  The error tag string
-     * @param explanataion  The human-readable explanation of the error, or
+     * @param explanation  The human-readable explanation of the error, or
      *     null to omit.
      *
      * @return an RTCP 'error' request line corresponding to the parameters.

@@ -46,7 +46,7 @@ class UserHandler extends BasicProtocolHandler {
      *
      * @param from  The user asking for the reservation.
      * @param protocol  The protocol it wants to use.
-     * @param contextName  The context it is seeking.
+     * @param context  The context it is seeking.
      * @param id  The user who is asking for this.
      * @param name  Optional readable name for the user.
      * @param password  Password for entry, when relevant.
@@ -105,7 +105,7 @@ class UserHandler extends BasicProtocolHandler {
      *    none.
      * @param context  Context the reservation is for.
      * @param actor  Actor the reservation is for, or null for anonymous.
-     * @param hostport  Host:port to connect to, or null in error case.
+     * @param hostPort  Host:port to connect to, or null in error case.
      * @param auth  Authorization code for entry, or null in error case.
      * @param deny  Error message in error case, or null in normal case.
      */

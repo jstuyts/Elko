@@ -14,7 +14,7 @@ public class ReservationResult {
     /**
      * Construct a successful reservation result.
      *
-     * @param context  The context ID.
+     * @param contextID  The context ID.
      * @param actor  The actor.
      * @param hostport  Where to connect.
      * @param auth  Authorization code to use.
@@ -32,7 +32,7 @@ public class ReservationResult {
     /**
      * Construct a failed reservation result.
      *
-     * @param context  The context ID.
+     * @param contextID  The context ID.
      * @param actor  The actor.
      * @param deny  Why the reservation was denied.
      */

@@ -60,7 +60,7 @@ class UserHandler extends BasicProtocolHandler {
      * @param protocol  The protocol it wants to use.
      * @param contextName  The context it is seeking.
      * @param user  The user who is asking for this.
-     * @param tag  Optional tag for requestor to match
+     * @param optTag  Optional tag for requestor to match
      */
     @JSONMethod({ "protocol", "context", "user", "tag" })
     public void reserve(DirectorActor from, String protocol,

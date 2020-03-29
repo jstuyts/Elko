@@ -74,10 +74,10 @@ class ActorDesc implements Encodable {
      * JSON-driven constructor.
      *
      * @param id  The unique ID.
-     * @param internalID  The internal ID.
-     * @param name  The human readable label.
-     * @param password  Login password (hashed).
-     * @param canSetPass  Permission to change password.
+     * @param optInternalID  The internal ID.
+     * @param optName  The human readable label.
+     * @param optPassword  Login password (hashed).
+     * @param optCanSetPass  Permission to change password.
      */
     @JSONMethod({ "id", "iid", "name", "password", "cansetpass" })
     ActorDesc(String id, OptString optInternalID, OptString optName,

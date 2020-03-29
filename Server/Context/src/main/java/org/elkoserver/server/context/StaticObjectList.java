@@ -29,7 +29,7 @@ class StaticObjectList {
      *
      * @param odb  The object database to tell.
      * @param contextor  Contextor for whom these objects are being loaded
-     * @param tr  Trace object for logging errors
+     * @param appTrace  Trace object for logging errors
      */
     void fetchFromODB(ObjDB odb, Contextor contextor, Trace appTrace) {
         for (StaticObjectListElem elem : myStatics) {

@@ -153,8 +153,7 @@ public class TraceController {
      * (Note that the messages will be governed by the default thresholds.)<p>
      *
      * Applications should not need to call this method, since normally it is
-     * called automatically by the server boot class (e.g., {@link
-     * org.elkoserver.foundation.boot.Boot}).
+     * called automatically by the server boot class (e.g., <code>Boot</code>).
      *
      * @param props  The initial set of properties provided by the user.  They
      *    override the defaults.  They may be changed later.

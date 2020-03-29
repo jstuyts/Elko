@@ -408,7 +408,7 @@ class Provider implements Comparable {
      *
      * @param service  Name of the service desired.
      * @param protocol  Protocol desired to access it by.
-     * @param internal  Flag indicating a request from within the server farm
+     * @param isInternal  Flag indicating a request from within the server farm
      *
      * @return true if this provider will serve 'service' using 'protocol'.
      */

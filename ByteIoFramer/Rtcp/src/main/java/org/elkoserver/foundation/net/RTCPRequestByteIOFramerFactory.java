@@ -13,8 +13,7 @@ import org.elkoserver.util.trace.Trace;
  * one line &amp; interpret it as an RTCP request line.  If the request is not a
  * message delivery, then framing is complete at this point.  If it *is* a
  * message delivery, then continue, following exactly the message framing rule
- * implemented by the {@link
- * org.elkoserver.foundation.net.JSONByteIOFramerFactory} class: read a block of
+ * implemented by the <code>JSONByteIOFramerFactory</code> class: read a block of
  * one or more non-empty lines terminated by an empty line (i.e., by two
  * successive newlines).
  *

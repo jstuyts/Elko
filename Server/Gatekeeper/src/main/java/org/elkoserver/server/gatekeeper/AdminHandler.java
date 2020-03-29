@@ -55,7 +55,7 @@ class AdminHandler extends BasicProtocolHandler {
      *
      * @param from  The administrator asking for the deletion.
      * @param hostport  Optional hostport for the new director.
-     * @param authi  Optional authorization configuration for connection to the
+     * @param auth  Optional authorization configuration for connection to the
      *    director.
      */
     @JSONMethod({ "hostport", "?auth" })

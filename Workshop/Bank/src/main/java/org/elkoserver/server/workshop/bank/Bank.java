@@ -597,7 +597,7 @@ class Bank implements Encodable {
      * an the other directly, and perform some joint operation on them
      * atomically.
      *
-     * @param ecRef  The ref of an encumbrance on the first account to be
+     * @param encRef  The ref of an encumbrance on the first account to be
      *    manipulated.
      * @param accountRef  The ref of the second account to be manipulated.
      * @param updater  Updater object that will effect the desired account

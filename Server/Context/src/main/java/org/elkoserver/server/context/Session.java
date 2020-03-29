@@ -75,8 +75,8 @@ class Session extends BasicProtocolHandler {
      * server.
      *
      * @param what  Indicator of which type of information is desired
-     * @param context  Optional context parameter, when relevant
-     * @param password  Password to verify that sender is allowed to do this
+     * @param optContext  Optional context parameter, when relevant
+     * @param testPassword  Password to verify that sender is allowed to do this
      */
     @JSONMethod({ "what", "password", "context" })
     public void dump(Deliverer from, String what, OptString testPassword,
@@ -169,7 +169,7 @@ class Session extends BasicProtocolHandler {
      *
      * Shutdown the server.
      *
-     * @param password  Password to verify that sender is allowed to do this.
+     * @param testPassword  Password to verify that sender is allowed to do this.
      * @param kill  If true, shutdown immediately instead of cleaning up.
      */
     @JSONMethod({ "password", "kill" })

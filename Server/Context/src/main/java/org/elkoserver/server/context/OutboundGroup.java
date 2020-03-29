@@ -117,13 +117,13 @@ abstract class OutboundGroup extends LiveGroup {
         }
     }
 
-    /**
-     * Open connections to external servers configured via the broker.
-     *
-     * @param descs  Array of service description objects describing external
-     *    servers to connect to.
-     */
     private class HostFoundHandler implements ArgRunnable {
+        /**
+         * Open connections to external servers configured via the broker.
+         *
+         * @param obj  Array of service description objects describing external
+         *    servers to connect to.
+         */
         public void run(Object obj) {
             for (ServiceDesc desc : (ServiceDesc[]) obj) {
                 if (desc.failure() == null) {

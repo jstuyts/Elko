@@ -48,11 +48,11 @@ class AuthHandler extends BasicProtocolHandler {
      * Request that an actor entry be created.
      *
      * @param from  The administrator asking for the new entry.
-     * @param id  The ID of the actor.
-     * @param iid  The internal ID of the actor.
-     * @param name  The name of the actor.
-     * @param password  Password for the actor.
-     * @param cansetpass  Flag that actor can set their own password.
+     * @param optID  The ID of the actor.
+     * @param optIID  The internal ID of the actor.
+     * @param optName  The name of the actor.
+     * @param optPassword  Password for the actor.
+     * @param optCanSetPass  Flag that actor can set their own password.
      */
     @JSONMethod({ "id", "iid", "name", "password", "cansetpass" })
     public void createactor(BasicProtocolActor from, OptString optID,
@@ -222,7 +222,7 @@ class AuthHandler extends BasicProtocolHandler {
      *
      * @param from  The administrator asking for the change.
      * @param id  The ID of the actor.
-     * @param cansetpass  The (new) permission setting.
+     * @param canSetPass  The (new) permission setting.
      */
     @JSONMethod({ "id", "cansetpass" })
     public void setcansetpass(BasicProtocolActor from, String id,
@@ -248,7 +248,7 @@ class AuthHandler extends BasicProtocolHandler {
      *
      * @param from  The administrator asking for the change.
      * @param id  The ID of the actor.
-     * @param iid  The (new) internal ID for the actor (empty string or omitted
+     * @param optInternalID  The (new) internal ID for the actor (empty string or omitted
      *    to remove).
      */
     @JSONMethod({ "id", "iid" })
@@ -276,7 +276,7 @@ class AuthHandler extends BasicProtocolHandler {
      *
      * @param from  The administrator asking for the name change.
      * @param id  The ID of the actor.
-     * @param name  The (new) name for the actor (empty string or omitted to
+     * @param optName  The (new) name for the actor (empty string or omitted to
      *    remove).
      */
     @JSONMethod({ "id", "name" })
@@ -304,7 +304,7 @@ class AuthHandler extends BasicProtocolHandler {
      *
      * @param from  The administrator asking for the password change.
      * @param id  The ID of the actor.
-     * @param password  The (new) password for the actor (empty string or
+     * @param optPassword  The (new) password for the actor (empty string or
      *    omitted to remove).
      */
     @JSONMethod({ "id", "password" })

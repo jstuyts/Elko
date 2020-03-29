@@ -60,7 +60,7 @@ class PresencerActor extends NonRoutingActor {
      * Process a notification about a group of users to a particular user
      *
      * @param userRef  The user who may be interested in this
-     * @param context  The context the user is in
+     * @param contextRef  The context the user is in
      * @param group  Info about the other users whose presences are online
      */
     @JSONMethod({ "touser", "ctx", "group" })
@@ -112,7 +112,7 @@ class PresencerActor extends NonRoutingActor {
      * @param contextRef  The context that this user has entered or exited
      * @param contextMeta  Optional context metadata
      * @param on  Flag indicating whether the presence is coming online or not
-     * @param conns  List of users who may be interested in this
+     * @param toGroup  List of users who may be interested in this
      */
     @JSONMethod({ "user", "?umeta", "ctx", "?cmeta", "on", "togroup" })
     public void utog(PresencerActor from, String userRef, JSONObject userMeta,

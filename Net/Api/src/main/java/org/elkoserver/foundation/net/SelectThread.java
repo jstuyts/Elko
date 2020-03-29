@@ -207,7 +207,7 @@ class SelectThread extends Thread {
      *    for the new connection.
      * @param framerFactory  Byte I/O framer factory for the new connection.
      * @param channel  The new channel for the new connection.
-     * @param secure  If true, this will be an SSL connnection.
+     * @param isSecure  If true, this will be an SSL connnection.
      * @param trace  Trace object to use with this new connection.
      */
     void newChannel(MessageHandlerFactory handlerFactory,

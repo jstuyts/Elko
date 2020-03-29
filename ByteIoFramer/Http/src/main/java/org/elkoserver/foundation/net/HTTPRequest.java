@@ -132,7 +132,7 @@ class HTTPRequest {
     /**
      * Record the request's message body content.
      *
-     * @param body  The body itself.
+     * @param content  The body itself.
      */
     void setContent(String content) {
         if (amURLEncoded) {

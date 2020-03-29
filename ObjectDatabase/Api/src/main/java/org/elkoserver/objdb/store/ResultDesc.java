@@ -8,10 +8,6 @@ import org.elkoserver.json.JSONLiteral;
 
 /**
  * Description of the result status of an object store operation.
- *
- * @see ObjectStore#putObjects ObjectStore.putObjects()
- * @see ObjectStore#removeObjects ObjectStore.removeObjects()
- * @see RequestResultHandler
  */
 public class ResultDesc implements Encodable {
     /** Reference string of the object. */

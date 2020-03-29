@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.net;
 
 /**
- * Interface for the object that a {@link Connection} uses to accept incoming
+ * Interface for the object that a <code>Connection</code> uses to accept incoming
  * messages from the net.
  */
 public interface MessageReceiver {

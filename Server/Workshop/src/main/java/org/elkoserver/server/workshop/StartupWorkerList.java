@@ -30,7 +30,7 @@ class StartupWorkerList {
      *
      * @param odb  The object database to tell.
      * @param workshop  Workshop for whom these objects are being loaded
-     * @param tr  Trace object for logging errors
+     * @param appTrace  Trace object for logging errors
      */
     void fetchFromODB(ObjDB odb, Workshop workshop, Trace appTrace) {
         for (WorkerListElem elem : myWorkers) {

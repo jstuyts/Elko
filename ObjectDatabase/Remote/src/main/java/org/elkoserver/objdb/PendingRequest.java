@@ -80,7 +80,7 @@ class PendingRequest {
      * Fill in this request's message field with a 'get' request.
      *
      * @param ref  Reference string naming the object desired.
-     * @param boolean  Flag controlling contents retrieval.
+     * @param contents  Flag controlling contents retrieval.
      * @param collectionName  Name of collection to get from, or null to take
      *    the configured default.
      */

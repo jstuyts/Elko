@@ -143,7 +143,7 @@ public class RTCPSessionConnection extends ConnectionBase
      * Accept an 'ack' message from the client, acknowleding receipt of one
      * or more messages, and providing activity to keep the session alive.
      *
-     * @param seqNum  The message number being acknowledged.
+     * @param clientRecvSeqNum  The message number being acknowledged.
      */
     void clientAck(int clientRecvSeqNum) {
         long timeInactive = System.currentTimeMillis() - myLastActivityTime;
