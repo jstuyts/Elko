@@ -202,7 +202,6 @@ do-sdk: do-sdk-deploy javadoc
 do-sdk-deploy: do-build
 	mkdir -p $(PKG_DIR)
 	cp $(COMP_JARS) $(PKG_DIR)
-	./stripjar $(PKG_DIR)/elkoserver.jar
 	mv $(PKG_DIR)/elkoserver.jar $(PKG_DIR)/elkosdk.jar
 
 #############################################################
