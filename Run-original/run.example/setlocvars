@@ -1,8 +1,0 @@
-PORT_BASE=9100
-LOCAL_JARS="./localmodules/*"
-
-if [ ! ${CLASSPATH} ]; then
-  export CLASSPATH="${LOCAL_JARS}"
-else
-  export CLASSPATH="${LOCAL_JARS}${DELIM}${CLASSPATH}"
-fi
