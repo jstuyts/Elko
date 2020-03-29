@@ -21,7 +21,7 @@ dependencies {
     implementation(project(":Trace"))
 }
 
-val startContext1ClusterDev by tasks.registering(JavaExec::class) {
+val startClusterDevContext1 by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
@@ -66,7 +66,7 @@ val startContext1ClusterDev by tasks.registering(JavaExec::class) {
     )
 }
 
-val stopContext1ClusterDev by tasks.registering(JavaExec::class) {
+val stopClusterDevContext1 by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
@@ -78,7 +78,7 @@ val stopContext1ClusterDev by tasks.registering(JavaExec::class) {
     )
 }
 
-val startContext2ClusterDev by tasks.registering(JavaExec::class) {
+val startClusterDevContext2 by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
@@ -123,7 +123,7 @@ val startContext2ClusterDev by tasks.registering(JavaExec::class) {
     )
 }
 
-val stopContext2ClusterDev by tasks.registering(JavaExec::class) {
+val stopClusterDevContext2 by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
