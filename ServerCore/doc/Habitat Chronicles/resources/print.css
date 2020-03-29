@@ -1,0 +1,79 @@
+.nav, .entrymeta, #sidebar, #navigation,.metadata, .comments {
+    display: none;
+}
+body {
+    font: 11pt/120% Arial, serif;
+    background-color: white !important;
+    background-image: none !important;
+    color: black;
+}
+h1, h2, h3, h4, h5, h6 {
+    font-size: 13pt;
+    line-height: 110%;
+    margin: 0;
+    padding: 0;
+}
+div#content {
+    margin-left: 0.8em;
+    padding-top: 1em;
+}
+h3.comments {
+    font-weight: normal;
+    font-size: 11pt;
+}
+body img.wp-smiley, body img {
+    border: none;
+    float: none!important;
+}
+img, img a:link, img a:visited {
+    border-bottom: 1px solid #C30099;
+    margin-right: 12px;
+}
+blockquote {
+    margin-right: 12px;
+    width: 80%;
+    font-size: 10pt;
+    font-weight: bold;
+}
+a:link, a:visited {
+    color: #7A1E19;
+    background: white;
+    text-decoration: none;
+}
+#content a:link:after, .content a:visited:after {
+    content: " ("attr(href)")";
+    font-size: 90%;
+}
+#content  ul, #content  ol {
+    margin: 0px 5px 0px 6px;
+    padding: 2px 0 0 5px;
+}
+.two {
+    margin-left: 30px;
+}
+dl, dt, dd {
+    float: none !important;
+    border: none;
+    display: block;
+    white-space: normal;
+    font: 11pt/120% Arial, serif;
+}
+#content  ul li, #content  ol li {
+    padding: 2px;
+    font: 11pt/120% Arial, serif;
+}
+acronym[title]:after, abbr[title]:after {
+    content: ' (' attr(title) ')';
+}
+pre, code {
+    font: 10pt /2em  "Courier New", Courier, monospace;
+    color: black;
+    background: white;
+    margin-left: 2px;
+    padding: 1em;
+    border-left: 1px solid #930;
+    overflow: visible!important;
+    white-space: normal;
+    width: 90%;
+    height: auto;
+}

@@ -1,0 +1,306 @@
+/*
+#commentform {
+    margin: 0 0.4em;
+    text-align: left;
+    padding: 0.4em 0 1em 0;
+    width: 98.6%;
+    font-size: 0.9em;
+    border: 1px solid #4d86df;
+}
+#commentform legend {
+    color: #151515;
+    background-color: inherit;
+    text-align: center;
+}
+#commentform fieldset.comment {
+    width: 97%;
+    margin: 0;
+    padding-top: 0;
+    border: none;
+    text-align: center;
+}
+#commentform fieldset.comment fieldset {
+    margin-left: 0 !important;
+    margin-left: 0.5em;
+    margin-top: 0.6em;
+    border: none;
+    text-align: left;
+}
+#commentform fieldset.comment fieldset.fieldone {
+    float: right;
+    width: 38%;
+}
+#commentform fieldset.comment fieldset.fieldtwo {
+    float: left;
+    width: 56%;
+}
+#commentform fieldset.comment fieldset label {
+    margin: 0 0 0.9em 0;
+    display: block;
+    clear: both;
+}
+#commentform fieldset.comment fieldset label.author {
+    margin-top: 10px;
+}
+#commentform fieldset.comment fieldset label.labelcomment {
+    width: 100%;
+}
+#commentform textarea#comment {
+    width: 97%;
+    overflow: auto;
+}
+#commentform input#submit {
+    cursor: pointer;
+    width: 95%;
+    margin: 0.6em 0;
+}
+#commentform input, #commentform textarea {
+    padding: 0.3em;
+    line-height: 1.5em;
+    border: 1px solid #4d86df;
+}
+*/
+
+.commentlist {
+}
+
+.comment-content,
+.comments-open-content
+{
+  clear: both;
+  margin: 15px 10px;
+}
+
+.comments-header,
+.comments-open-header
+{
+  /* ie win (5, 5.5, 6) bugfix */
+  position: relative;
+  width: 100%;
+  width: auto;
+
+  margin: 1px 0;
+  padding: 5px 5px 5px 10px;
+    background: #CC9948;
+    color: #080705;
+    font-family: verdana, arial, sans-serif;
+  font-size: 14px;
+  font-weight: bold;
+  line-height: 1;
+}
+
+.comment {
+    border-bottom: 1px dotted #080705;
+/*    margin: 6px 0;*/
+/*    clear: both;*/
+}
+.comment-footer,
+.comments-open-footer
+{
+  clear: both;
+  margin: 5px 10px 5px 10px;
+}
+
+.comment-footer
+{
+  font-family: verdana, arial, sans-serif;
+  font-size: 11px;
+}
+
+.comments-open label
+{
+    display: block;
+}
+
+.comment-preview
+{
+   padding-top: 5px;
+   padding-bottom: 5px;
+   background-color: #f0f0f0;
+}
+
+#ajax-comment-preview
+{
+   margin-top: 1em;
+}
+
+.comment p {
+  margin-top: 10px;
+  margin-bottom: 10px;
+/*    margin: 4px;*/
+/*    line-height: 1.6em;*/
+}
+
+br {
+/*  margin-top: 10px;*/
+  line-height: 3em;
+}
+
+.thread-even {
+    background-color: #fff;
+    color: inherit;
+    border-left: 1px solid #4d86df;
+    border-bottom: 1px solid #4d86df;
+}
+.thread-odd {
+    background-color: #edecec;
+    color: inherit;
+    border-left: 1px solid #4d86df;
+    border-bottom: 1px solid #4d86df;
+}
+
+/*--author--*/
+.comment-author {
+    float: left;
+    background-color: #fff;
+    color: inherit;
+    margin: 0 4px 4px 0;
+}
+.comment-author img {
+    display: block;
+    margin: 3px;
+    padding: 4px;
+}
+.vcard {
+}
+.comment-author cite {
+    font-size: 0.9em;
+}
+.comment-author cite a {
+}
+.comment-author-admin {
+}
+.byuser {
+}
+.comment-author-admin {
+}
+.bypostauthor {
+}
+
+/*--comment meta--*/
+.comment-meta {
+    font-size: 0.8em;
+}
+.commentmetadata {
+}
+
+/*-- for the threaded reply link--*/
+.reply {
+    clear: both;
+    font-size: 0.8em;
+}
+.reply a {
+}
+
+/*--threaded comments  --*/
+ol.commentlist li ul.children {
+    margin: 2px 0;
+    padding: 2px 4px 2px 8px;
+}
+.commentlist ul.children {
+    margin: 4px 0;
+    clear: both;
+}
+.commentlist ul.children li {
+    margin: 4px 0;
+    padding: 0 0 0 0;
+}
+.commentlist .children .comment {
+    margin: 5px 0;
+}
+.commentlist .children .odd {
+    background-color: #fefefe;
+    color: inherit;
+    border-left: 1px solid #4d86df;
+    border-bottom: 1px solid #4d86df;
+}
+.commentlist .children .alt {
+    background-color: #edecec;
+    color: inherit;
+    border-left: 1px solid #4d86df;
+    border-bottom: 1px solid #4d86df;
+}
+.commentlist .children .even {
+    background-color: #fefefe;
+    color: inherit;
+    border-left: 1px solid #4d86df;
+    border-bottom: 1px solid #4d86df;
+}
+
+/*--pinglist--*/
+.post .pinglist .comment-author {
+    float: left;
+    border: none;
+    background-color: #fff;
+    color: inherit;
+    font-size: 0.9em;
+    margin: 2px;
+}
+
+/*--for wp prior 2 7--*/
+ol.commentlist00, ol.commentlist00 li {
+    margin: 0 0 5px 0;
+    padding: 4px 0 0 0;
+    line-height: 1.5em;
+    overflow: hidden;
+}
+ol.commentlist00 li {
+    border-bottom: 1px solid #688f9e;
+    clear: both;
+}
+.num {
+    font: lighter 4em swiss, serif;
+    float: left;
+    margin: -7px 4px 0 -6px;
+}
+a.num {
+    display: inline;
+    color: #2a4651;
+    background-color: inherit;
+}
+.commentlist00 p {
+    clear: none;
+}
+.commentlist00 h2 {
+    margin: 0 0 0 25px;
+}
+.commentlist00 p.metadata {
+    clear: both;
+    border-bottom: 1px solid #688f9e;
+    border-top: 1px solid #688f9e;
+}
+.commauthor {
+    float: left;
+    display: table;
+    min-width: 10em;
+    max-width: 28%;
+    width: 28%;
+    padding-top: 6px;
+}
+.commtext {
+    text-align: left;
+    width: 68%;
+    display: table;
+}
+.mine .commauthor a.num {
+    background-color: inherit;
+    color: #688f9e;
+}
+.mine .commtext {
+    background-color: #f0f0f0;
+    color: inherit;
+}
+.commetadata {
+    border-top: 1px solid #688f9e;
+    margin: 0;
+    clear: both;
+    font-size: 0.9em;
+}
+ol.pinglist00 {
+    border-bottom: 1px solid #688f9e;
+}
+ol.pinglist00 , ol.pinglist00  li {
+    margin: 0;
+    padding: 0;
+    line-height: 1.3em;
+}

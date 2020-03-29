@@ -1,0 +1,138 @@
+html,body {
+    background-color: #fff;
+    color: #000;
+}
+html,body,div,table,td,li,dt,dd,form,span,address,blockquote,p {
+    font: 1em/1.5em Verdana,Arial, sans-serif;
+}
+html img {
+    max-width: 165px;
+    float: none!important;
+    text-align: left;
+    vertical-align: bottom;
+}
+ul,ol {
+    margin: 0.2em 0.5em;
+    padding: 4px 2px;
+}
+ul li ul, ul li ul li ul {
+    padding: 1px 4px;
+    margin: 0;
+}
+li {
+    line-height: 1.4em;
+    padding: 2px 0;
+    margin: 0 0.6em;
+}
+li.two {
+    margin-left: 7px;
+}
+li h2,li h3,li h6 {
+    font-size: 1em;
+    margin: 0;
+    padding: 0 0 0 4px;
+}
+div#sidebar ul li {
+    list-style-type: none;
+}
+div#sidebar ul li ul li {
+    list-style-type: circle;
+}
+div#navigation ul li {
+    list-style-type: none;
+}
+div#navigation ul li ul li {
+    list-style-type: circle;
+}
+h1,h2,h3,h4,h5,h6 {
+    font-size: 1.2em;
+}
+blockquote,address,h1,h2,h3,h4,h5,h6,.auffall,.red {
+    border-left: 2px solid #000080;
+    padding: 4px;
+    text-align: left;
+    color: #7A1E19;
+    background-color: #fcfcfc;
+}
+
+/*--for all links--*/
+a {
+    padding: 0px 2px;
+    color: #1E3458;
+    background-color: inherit;
+    text-decoration: underline;
+}
+a:link {
+    color: #1E3458;
+    background-color: inherit;
+    text-decoration: underline;
+}
+a:visited {
+    color: #143452;
+    background-color: inherit;
+    text-decoration: none;
+}
+a:link:focus {
+    color: #003;
+    background-color: inherit;
+    text-decoration: none;
+}
+a:link:hover {
+    color: #BB2690;
+    background-color: inherit;
+    text-decoration: none;
+}
+a:visited:hover {
+    color: #AF2691;
+    background-color: inherit;
+    text-decoration: none;
+}
+a:link:active {
+    color: #6F1E1A;
+    background-color: inherit;
+}
+a:visited:active {
+    color: #7A1E19;
+    background-color: inherit;
+}
+div#content {
+    margin: 0.5em;
+}
+.nav li {
+    display: inline;
+    padding: 2px 2px 2px 9px;
+    font-weight: bold;
+    border-left: 2px solid #C30099;
+}
+.nav li.hand {
+    display: block;
+    border: none;
+    margin-bottom: 4px;
+}
+.nav li.hand img {
+    border: 1px solid #d5d5d5;
+    padding: 3px;
+    background-color: #fcfcfc;
+    color: inherit;
+}
+.top {
+    text-align: right;
+    margin-right: 1em;
+}
+.cat,.postspermonth {
+    border-bottom: 1px solid  #C30099;
+    padding-left: 4px;
+}
+label {
+    display: block;
+    margin-top: 0.3em;
+}
+textarea {
+    width: 90%;
+}
+input,select {
+    width: 80%;
+}
+.invisible {
+    visibility: visible;
+}
