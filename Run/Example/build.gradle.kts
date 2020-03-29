@@ -8,7 +8,7 @@ val actualMongodbHostAndPort = mongodbHostAndPort ?: "localhost:27017"
 repositories {
     mavenCentral()
     maven {
-        url = uri("http://repo.maven.apache.org/maven2")
+        url = uri("https://repo.maven.apache.org/maven2")
     }
 }
 
