@@ -342,10 +342,6 @@ brokerwatcher   -- watchdog script, suitable for execution at OS startup (via
    associated permissions).
 clusterStart    -- script to start a stopped cluster
 clusterStop     -- script to stop shutdown a running cluster
-kqwait.c        -- a utility for BSD-derived Unixes (Mac OSX, Solaris) to
-   efficiently watch for changes in control directories using the OS kqueue
-   API.  Linux systems do the same job via the open source inotifywait
-   utility.  Used by brokerwatcher.
 setenvvars      -- universal environment variable settings for all servers
 setlocvars      -- (optional) env var settings peculiar to the current machine
 setlocvars.*    -- (optional) env var settings peculiar to a particular user;
