@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":Json"))
     implementation(project(":FileObjectStore"))
     implementation(project(":MongoObjectStore"))
+    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Broker"))
     implementation(project(":Server:Context"))
     implementation(project(":Server:Director"))
@@ -75,6 +76,8 @@ val startClusterManagedBroker by tasks.registering(JavaExec::class) {
             "conf.listen1.allow=admin",
 
             "conf.msgdiagnostics=true",
+
+            "conf.broker.odb=${File(brokerDataDirectory.get().temporaryDir, "odb").path}",
 
             "org.elkoserver.server.broker.BrokerBoot"
     )

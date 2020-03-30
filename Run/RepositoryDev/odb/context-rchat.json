@@ -1,0 +1,11 @@
+{
+  type: "context",
+  capacity: 10,
+  name: "Restricted chat room",
+  restricted: true,
+  mods: [
+    {
+      type: "chat"
+    }
+  ]
+}

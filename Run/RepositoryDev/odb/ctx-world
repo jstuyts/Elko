@@ -1,7 +1,0 @@
-{
- ref:"ctx-world",
- type:"context",
- capacity:10,
- name:"The world",
- mods:[{ type:"world" }]
-}

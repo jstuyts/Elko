@@ -16,6 +16,7 @@ dependencies {
     implementation(project(":Boot"))
     implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
+    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Presence"))
     implementation(project(":ServerManagement"))
     implementation(project(":Trace"))

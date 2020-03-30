@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":Json"))
     implementation(project(":FileObjectStore"))
     implementation(project(":MongoObjectStore"))
+    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Broker"))
     implementation(project(":Server:Context"))
     implementation(project(":Server:Director"))
