@@ -35,29 +35,17 @@ class Repository {
      */
     Repository(Server server, Trace appTrace) {
         myServer = server;
-        /* Trace object for diagnostics. */
-
-        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
-        myRefTable.addRef(new RepHandler(this));
-        myRefTable.addRef(new AdminHandler(this));
-
-        amShuttingDown = false;
-        myRepClientCount = 0;
-        server.registerShutdownWatcher(() -> {
-            amShuttingDown = true;
-            countRepClients(0);
-        });
 
         String propRoot = "conf.rep";
         String objectStoreClassName =
-            server.props().getProperty(propRoot + ".objstore",
-               "org.elkoserver.objdb.store.filestore.FileObjectStore");
+                server.props().getProperty(propRoot + ".objstore",
+                        "org.elkoserver.objdb.store.filestore.FileObjectStore");
         Class<?> objectStoreClass = null;
         try {
             objectStoreClass = Class.forName(objectStoreClassName);
         } catch (ClassNotFoundException e) {
             appTrace.fatalError("object store class " + objectStoreClassName +
-                          " not found");
+                    " not found");
         }
         try {
             //noinspection ConstantConditions
@@ -71,7 +59,19 @@ class Repository {
         } catch (InvocationTargetException e) {
             appTrace.fatalError("error during invocation of object store constructor: " + e.getCause());
         }
+        //noinspection ConstantConditions
         myObjectStore.initialize(myServer.props(), propRoot, appTrace);
+
+        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
+        myRefTable.addRef(new RepHandler(this));
+        myRefTable.addRef(new AdminHandler(this));
+
+        amShuttingDown = false;
+        myRepClientCount = 0;
+        server.registerShutdownWatcher(() -> {
+            amShuttingDown = true;
+            countRepClients(0);
+        });
     }
 
     /**
