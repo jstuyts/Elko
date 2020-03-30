@@ -383,7 +383,7 @@ public class RTCPSessionConnection extends ConnectionBase
                 }
             }
         } else {
-            throw new RuntimeException("invalid message type");//XXX define type
+            throw new IllegalArgumentException("Invalid message type: " + (message == null ? "null" : message.getClass().getName()));
         }
         if (myLiveConnection != null) {
             myLiveConnection.sendMsg(messageString);

@@ -96,10 +96,16 @@ public class JSONHTTPFramer extends HTTPFramer {
          */
         JSONBodyUnpacker(String postBody) {
             Trace.comm.debugm("unpacker for: /" + postBody + "/");
+            postBody = extractBodyFromSafariPostIfNeeded(postBody);
+            myParser = new Parser(postBody);
+            myLastMessageParsed = parseNextMessage();
+        }
+
+        // XXX Temporary hack to decode POSTs from Safari
+        private String extractBodyFromSafariPostIfNeeded(String postBody) {
             int junkMark = postBody.indexOf('=');
             if (junkMark >= 0) {
 
-                // XXX Temporary hack to decode POSTs from Safari
                 if (postBody.length() > junkMark &&
                         postBody.charAt(junkMark+1) == '%') {
                     postBody = URLDecoder.decode(postBody, StandardCharsets.UTF_8);
@@ -110,8 +116,7 @@ public class JSONHTTPFramer extends HTTPFramer {
                     postBody = postBody.substring(junkMark + 1);
                 }
             }
-            myParser = new Parser(postBody);
-            myLastMessageParsed = parseNextMessage();
+            return postBody;
         }
 
         /**

@@ -259,7 +259,7 @@ public class ObjDBRemote extends ObjDBBase {
         if (req != null && results != null) {
             Object obj;
             String failure = results[0].failure();
-            /* XXX this is just wrong (for queries, not for gets) */
+            /* XXX this is just wrong. (As previously documented for queries. But why not for gets?) */
             if (failure == null) {
                 obj = decodeObject(req.ref(), results);
             } else {

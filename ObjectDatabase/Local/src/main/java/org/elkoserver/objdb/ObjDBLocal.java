@@ -247,6 +247,8 @@ public class ObjDBLocal extends ObjDBBase {
                     // error handling path to pass a generic result object all
                     // the way back instead of just passing a string and then
                     // overloading it in this horrible, icky way
+                    //
+                    // Only used in class "Bank" for now.
                     failure = '@' + failure;
                 }
                 myReturnRunner.enqueue(
