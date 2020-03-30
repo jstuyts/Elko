@@ -1,0 +1,7 @@
+# Copy this to "gradle.properties", and adapt to your environment.
+
+# See Run/services/MongoDB which provides a Vagrant script to run MongoDB without having to install it.
+#
+# Note: On Windows, it is not possible to set a static IP for Vagrant VMs
+# (https://github.com/hashicorp/vagrant/issues/8384), so you have to change this every time your start the VM.
+mongodbHostAndPort=192.168.229.23:27017
