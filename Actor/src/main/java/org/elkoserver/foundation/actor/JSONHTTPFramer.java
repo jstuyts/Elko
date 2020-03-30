@@ -71,7 +71,7 @@ public class JSONHTTPFramer extends HTTPFramer {
      * @return an iterator that can be called upon to return the JSON
      *    message(s) contained within 'body'.
      */
-    public Iterator postBodyUnpacker(String body) {
+    public Iterator<Object> postBodyUnpacker(String body) {
         return new JSONBodyUnpacker(body);
     }
 
@@ -79,7 +79,7 @@ public class JSONHTTPFramer extends HTTPFramer {
      * Post body unpacker for a bundle of JSON messages.  In this case, the
      * HTTP POST body contains one or more JSON messages.
      */
-    private static class JSONBodyUnpacker implements Iterator {
+    private static class JSONBodyUnpacker implements Iterator<Object> {
         /** Current JSON parser. */
         private Parser myParser;
 

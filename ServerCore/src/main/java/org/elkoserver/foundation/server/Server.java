@@ -165,9 +165,6 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         if (props.testProperty("conf.msgdiagnostics")) {
             Communication.TheDebugReplyFlag = true;
         }
-        if (props.testProperty("conf.debugsessions")) {
-            HTTPSessionConnection.TheDebugSessionsFlag = true;
-        }
     }
 
     /**

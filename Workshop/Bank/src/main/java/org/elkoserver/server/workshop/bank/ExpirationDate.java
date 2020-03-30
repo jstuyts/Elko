@@ -12,7 +12,7 @@ import org.elkoserver.json.EncodeControl;
  * Object representing the date and time at which a key or encumbrance will
  * cease to be valid.
  */
-class ExpirationDate implements Comparable, Encodable {
+class ExpirationDate implements Comparable<ExpirationDate>, Encodable {
     /** Millisecond clock time at which this expiration happens. */
     private long myTime;
 
@@ -95,9 +95,8 @@ class ExpirationDate implements Comparable, Encodable {
      * @return a value less than, equal to, or greater than zero according to
      *    whether this expiration date is before, at, or after 'other'.
      */
-    public int compareTo(Object other) {
-        ExpirationDate otherDate = (ExpirationDate) other;
-        long deltaTime = myTime - otherDate.myTime;
+    public int compareTo(ExpirationDate other) {
+        long deltaTime = myTime - other.myTime;
         if (deltaTime < 0) {
             return -1;
         } else if (deltaTime > 0) {

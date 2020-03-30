@@ -156,13 +156,6 @@ General properties (used in all or most servers):
                                         errors will not be reported to the
                                         client (though they will be reported in
                                         the server log). }
-  flg "conf.debugsessions"            { If true, HTTP session IDs are generated
-                                        by an incrementing counter, making them
-                                        predictable to aid in debugging using
-                                        static scripts. If false (the default),
-                                        session IDs are geerated using the
-                                        secure random number generator, making
-                                        them securely unguessable. }
 
   str "conf." + <ServerType> + ".service" { Label for services offered by this
                                         server, to distinguish it from other

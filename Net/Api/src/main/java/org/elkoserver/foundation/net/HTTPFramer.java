@@ -164,7 +164,7 @@ public class HTTPFramer {
      * @return an iterator that can be called upon to return the application-
      *    level message(s) contained within 'postBody'.
      */
-    public Iterator postBodyUnpacker(String postBody) {
+    public Iterator<Object> postBodyUnpacker(String postBody) {
         return new StringBodyUnpacker(postBody);
     }
 
@@ -173,7 +173,7 @@ public class HTTPFramer {
      * HTTP POST body contains exactly one message, which is the value of
      * exactly one POSTed form field (whose name doesn't matter).
      */
-    private class StringBodyUnpacker implements Iterator {
+    private static class StringBodyUnpacker implements Iterator<Object> {
         /** The message string that was received. */
         private String myReceivedMessage;
         
@@ -208,8 +208,8 @@ public class HTTPFramer {
          * <p>Since there is only the one application-level message possible
          * here, just return that, or null if it was returned previously.
          */
-        public Object next() {
-            Object result = myReceivedMessage;
+        public String next() {
+            String result = myReceivedMessage;
             myReceivedMessage = null;
             return result;
         }

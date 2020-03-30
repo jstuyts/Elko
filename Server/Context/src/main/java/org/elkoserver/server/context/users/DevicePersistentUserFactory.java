@@ -47,8 +47,8 @@ public class DevicePersistentUserFactory implements UserFactory {
      * @param contextor The contextor of the server in which the requested
      *    user will be present
      * @param connection  The connection over which the new user presented
-     *    themself.
-     * @param param   Arbitary JSON object parameterizing the construction.
+     *    themselves.
+     * @param param   Arbitrary JSON object parameterizing the construction.
      *    this is analogous to the user record read from the ODB, but may be
      *    anything that makes sense for the particular factory implementation.
      *    Of course, the sender of this parameter must be coordinated with the
@@ -71,7 +71,7 @@ public class DevicePersistentUserFactory implements UserFactory {
         }        
     }
 
-    private class DeviceQueryResultHandler implements ArgRunnable {
+    private static class DeviceQueryResultHandler implements ArgRunnable {
         private Contextor myContextor;
         private DeviceCredentials myCreds;
         private ArgRunnable myHandler;
@@ -135,7 +135,7 @@ public class DevicePersistentUserFactory implements UserFactory {
      * @param param  User factory parameters
      *
      * @return a credentials object as described by the parameter object given,
-     *    or null if parameters were missing or invalide somehow.
+     *    or null if parameters were missing or invalid somehow.
      */
     DeviceCredentials extractCredentials(Trace appTrace,
                                          JSONObject param)

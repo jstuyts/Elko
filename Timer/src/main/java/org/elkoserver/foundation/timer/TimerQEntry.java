@@ -3,7 +3,7 @@ package org.elkoserver.foundation.timer;
 /**
  * An entry in the timer event queue.
  */
-class TimerQEntry implements Comparable
+class TimerQEntry implements Comparable<TimerQEntry>
 {
     boolean myRepeat;
     long myDelta;
@@ -19,16 +19,9 @@ class TimerQEntry implements Comparable
         myNext = null;
     }
 
-    public int compareTo(Object obj) {
-        if (obj instanceof TimerQEntry) {
-            TimerQEntry other = (TimerQEntry) obj;
-            if (myWhen < other.myWhen) {
-                return -1;
-            } else if (myWhen == other.myWhen) {
-                return 0;
-            } else {
-                return 1;
-            }
+    public int compareTo(TimerQEntry other) {
+        if (other != null) {
+            return Long.compare(myWhen, other.myWhen);
         } else {
             throw new ClassCastException();
         }

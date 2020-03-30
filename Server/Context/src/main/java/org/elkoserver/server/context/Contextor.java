@@ -126,6 +126,7 @@ public class Contextor extends RefTable {
             tr.fatalError("no database specified");
         }
         myODB = odb;
+        //noinspection ConstantConditions
         myODB.addClass("context", Context.class);
         myODB.addClass("item", Item.class);
         myODB.addClass("user", User.class);
@@ -356,32 +357,7 @@ public class Contextor extends RefTable {
         initializeItem(item, container);
         return item;
     }
-    
-    /**
-     * Return a newly minted geo-positioned Item (i.e., one created at runtime
-     * rather than loaded from the object database).  The new item will have
-     * neither any contents nor any mods.
-     *
-     * @param name  The name for the new item, or null if the name doesn't
-     *    matter.
-     * @param container  The object that is to be the new item's container.
-     * @param isPossibleContainer  Flag that is true if the new item may itself
-     *    be used as a container.
-     * @param isDeletable  Flag that is true if the new item may be deleted by
-     *    users.
-     * @param lat  Position latitude, in decimal degrees.
-     * @param lon  Position longitude, in decimal degrees.
-     */
-    private Item createGeoItem(String name, BasicObject container,
-                               boolean isPossibleContainer, boolean isDeletable,
-                               double lat, double lon)
-    {
-        Item item = new Item(name, isPossibleContainer, isDeletable, false,
-                             new GeoPosition(lat, lon));
-        initializeItem(item, container);
-        return item;
-    }
-    
+
     /**
      * Return a newly minted Item (i.e., one created at runtime rather than
      * loaded from the object database).  The new item will be born with no
@@ -417,8 +393,10 @@ public class Contextor extends RefTable {
     public Item createGeoItem(String name, boolean isPossibleContainer,
                               boolean isDeletable, double lat, double lon)
     {
-        return createGeoItem(name, null, isPossibleContainer, isDeletable,
-                             lat, lon);
+        Item item = new Item(name, isPossibleContainer, isDeletable, false,
+                             new GeoPosition(lat, lon));
+        initializeItem(item, null);
+        return item;
     }
 
 
@@ -533,9 +511,6 @@ public class Contextor extends RefTable {
      * @param contextHandler  Handler to invoke with resulting context.
      * @param opener  Director that requested this context be opened, or null
      *    if not relevant.
-     *
-     * @return a Context object that is the requested context, or null if it
-     *    could not be obtained.
      */
     void getOrLoadContext(String contextRef, String contextTemplate,
                           ArgRunnable contextHandler, DirectorActor opener)
@@ -702,7 +677,7 @@ public class Contextor extends RefTable {
          *    handling.
          */
         public void run(Object obj) {
-            Item[] contents = null;
+            Item[] contents;
             if (obj != null) {
                 Object[] rawContents = (Object[]) obj;
                 if (rawContents.length == 0) {
@@ -853,9 +828,6 @@ public class Contextor extends RefTable {
      *
      * @param itemRef  Reference string identifying the item sought.
      * @param itemHandler  Handler to invoke with the resulting item.
-     *
-     * @return a Item object that is the requested item, or null if it could
-     *    not be obtained.
      */
     void getOrLoadItem(String itemRef, ArgRunnable itemHandler) {
         if (itemRef.startsWith("item-") || itemRef.startsWith("i-")) {
@@ -881,14 +853,14 @@ public class Contextor extends RefTable {
         }
 
         public void run(Object obj) {
-            Item item = null;
             if (obj != null) {
-                item = (Item) obj;
+                Item item = (Item) obj;
                 item.activate(myItemRef, "", false, Contextor.this);
                 item.objectIsComplete();
-            }
-            if (item.isReady()) {
-                resolvePendingGet(myItemRef, item);
+
+                if (item.isReady()) {
+                    resolvePendingGet(myItemRef, item);
+                }
             }
         }
     }
@@ -1205,6 +1177,7 @@ public class Contextor extends RefTable {
                 String name = whoMeta.getString("name");
                 myUserNames.put(whoRef, name);
             } catch (JSONDecodingException e) {
+                // No action needed. Do not add a user name.
             }
         }
         if (whereMeta != null) {
@@ -1212,6 +1185,7 @@ public class Contextor extends RefTable {
                 String name = whereMeta.getString("name");
                 myContextNames.put(whereRef, name);
             } catch (JSONDecodingException e) {
+                // No action needed. Do not add a context name.
             }
         }
         Context subscriber = (Context) get(contextRef);
@@ -1490,20 +1464,19 @@ public class Contextor extends RefTable {
      * object table) produce it.
      *
      * @param connection  The connection over which the new user presented
-     *    themself.
+     *    themselves.
      * @param factoryTag  Tag identifying the factory to use
      * @param param  Arbitrary parameter object, which should be consistent
      *    with the factory indicated by 'factoryTag'
      * @param contextRef  Ref of context the new synthesized user will be
      *    placed into
      * @param contextTemplate  Ref of the context template for the context
-     * @param scope  Application scope for filtering mods
      * @param userHandler  Handler to invoke with the resulting user object or
      *    with null if the user object could not be produced.
      */
     void synthesizeUser(Connection connection, String factoryTag,
                         final JSONObject param, final String contextRef,
-                        final String contextTemplate, String scope,
+                        final String contextTemplate,
                         ArgRunnable userHandler)
     {
         Object rawFactory = getStaticObject(factoryTag);
@@ -1529,12 +1502,12 @@ public class Contextor extends RefTable {
     /**
      * Generate a unique object ID.
      *
-     * @param root
+     * @param prefix The prefix for the new ID.
      *
      * @return a reference string for a new object with the given root.
      */
-    public String uniqueID(String root) {
-        return root + '-' + Math.abs(theRandom.nextLong());
+    public String uniqueID(String prefix) {
+        return prefix + '-' + Math.abs(theRandom.nextLong());
     }
 
     /**

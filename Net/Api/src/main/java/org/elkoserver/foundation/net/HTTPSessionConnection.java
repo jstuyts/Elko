@@ -79,9 +79,6 @@ public class HTTPSessionConnection extends ConnectionBase
     /** Random number generator, for creating session IDs. */
     private static SecureRandom theRandom = new SecureRandom();
 
-    /** Flag to bypass unguessable ID generation for debugging purposes. */
-    public static boolean TheDebugSessionsFlag = false;
-
 
     /**
      * Make a new HTTP session connection object for an incoming connection,
@@ -221,7 +218,7 @@ public class HTTPSessionConnection extends ConnectionBase
      */
     static void initializeRNG() {
         /* Get the initialization delay over right now */
-        long junk = theRandom.nextLong();
+        theRandom.nextBoolean();
     }
 
     /**
@@ -329,7 +326,7 @@ public class HTTPSessionConnection extends ConnectionBase
                              uri.sequenceNumber);
                 reply = myHTTPFramer.makeSequenceErrorReply("sequenceError");
             } else {
-                Iterator unpacker = myHTTPFramer.postBodyUnpacker(message);
+                Iterator<Object> unpacker = myHTTPFramer.postBodyUnpacker(message);
                 while (unpacker.hasNext()) {
                     enqueueReceivedMessage(unpacker.next());
                 }
@@ -368,7 +365,7 @@ public class HTTPSessionConnection extends ConnectionBase
 
         } else if (myQueue.hasMoreElements()) {
             /* There are messages waiting, so send them. */
-            String reply = "";
+            StringBuilder reply = new StringBuilder();
             boolean start = true;
             boolean end;
             do {
@@ -378,10 +375,10 @@ public class HTTPSessionConnection extends ConnectionBase
                     trMsg.msgi(this + ":" + downstreamConnection, false,
                                message);
                 }
-                reply += packMessage(message, start, end);
+                reply.append(packMessage(message, start, end));
                 start = false;
             } while (!end);
-            downstreamConnection.sendMsg(reply);
+            downstreamConnection.sendMsg(reply.toString());
             clearDownstreamConnection();
             return true;
 
@@ -467,9 +464,8 @@ public class HTTPSessionConnection extends ConnectionBase
      *
      * @param connection  The TCP connection that died.
      *
-     * @return true if this session was using 'connection'.
      */
-    private boolean tcpConnectionDied(Connection connection) {
+    private void tcpConnectionDied(Connection connection) {
         if (myDownstreamConnection == connection) {
             clearDownstreamConnection();
             noteClientActivity();
@@ -477,9 +473,6 @@ public class HTTPSessionConnection extends ConnectionBase
                 trMsg.eventm(this + " lost " + connection +
                              " with pending select");
             }
-            return true;
-        } else {
-            return false;
         }
     }
 

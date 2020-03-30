@@ -21,6 +21,8 @@ import org.elkoserver.objdb.store.UpdateResultDesc;
 import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * Asynchronous access to a local instance of the object database.  This is
  * implemented as a separate run queue thread synchronously accessing a local
@@ -30,10 +32,10 @@ public class ObjDBLocal extends ObjDBBase {
     /** Local object storage module. */
     private ObjectStore myObjectStore;
 
-    /** Asynch run queue for giving tasks to the ODB thread. */
+    /** Async run queue for giving tasks to the ODB thread. */
     private Runner myRunner;
 
-    /** Asynch run queue for giving results back to the main thread. */
+    /** Async run queue for giving results back to the main thread. */
     private Runner myReturnRunner;
 
     /**
@@ -60,7 +62,7 @@ public class ObjDBLocal extends ObjDBBase {
 
         String objectStoreClassName = props.getProperty(propRoot + ".objstore",
                 "org.elkoserver.objdb.store.filestore.FileObjectStore");
-        Class objectStoreClass = null;
+        Class<?> objectStoreClass = null;
         try {
             objectStoreClass = Class.forName(objectStoreClassName);
         } catch (ClassNotFoundException e) {
@@ -68,11 +70,16 @@ public class ObjDBLocal extends ObjDBBase {
                           " not found");
         }
         try {
-            myObjectStore = (ObjectStore) objectStoreClass.newInstance();
+            //noinspection ConstantConditions
+            myObjectStore = (ObjectStore) objectStoreClass.getConstructor().newInstance();
         } catch (IllegalAccessException e) {
             tr.fatalError("unable to access object store constructor: " + e);
         } catch (InstantiationException e) {
             tr.fatalError("unable to instantiate object store object: " + e);
+        } catch (NoSuchMethodException e) {
+            tr.fatalError("unable to find object store constructor: " + e);
+        } catch (InvocationTargetException e) {
+            tr.fatalError("error during invocation of object store constructor: " + e.getCause());
         }
         myObjectStore.initialize(props, propRoot, tr);
 
@@ -199,8 +206,8 @@ public class ObjDBLocal extends ObjDBBase {
         public void handle(ResultDesc[] results) {
             if (myRunnable != null) {
                 myReturnRunner.enqueue(
-                    new ArgRunnableRunnable(myRunnable,
-                                            results[0].failure()));
+                        new ArgRunnableRunnable(myRunnable,
+                                results[0].failure()));
             }
         }
     }
@@ -239,11 +246,11 @@ public class ObjDBLocal extends ObjDBBase {
                     // XXX This is an egregious hack. We should refactor the
                     // error handling path to pass a generic result object all
                     // the way back instead of just passing a string and then
-                    // overloading it in this horrile, icky way
+                    // overloading it in this horrible, icky way
                     failure = '@' + failure;
                 }
                 myReturnRunner.enqueue(
-                    new ArgRunnableRunnable(myRunnable, failure));
+                        new ArgRunnableRunnable(myRunnable, failure));
             }
         }
     }
@@ -358,8 +365,8 @@ public class ObjDBLocal extends ObjDBBase {
         public void handle(ResultDesc[] results) {
             if (myRunnable != null) {
                 myReturnRunner.enqueue(
-                    new ArgRunnableRunnable(myRunnable,
-                                            results[0].failure()));
+                        new ArgRunnableRunnable(myRunnable,
+                                results[0].failure()));
             }
         }
     }
@@ -374,7 +381,7 @@ public class ObjDBLocal extends ObjDBBase {
     /**
      * Runnable to invoke an ArgRunnable.  Runs in the main thread.
      */
-    private class ArgRunnableRunnable implements Runnable {
+    private static class ArgRunnableRunnable implements Runnable {
         private ArgRunnable myRunnable;
         private Object myResult;
         ArgRunnableRunnable(ArgRunnable runnable, Object result) {

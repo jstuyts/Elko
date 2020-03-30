@@ -34,11 +34,11 @@ class StaticObjectList {
     void fetchFromODB(ObjDB odb, Contextor contextor, Trace appTrace) {
         for (StaticObjectListElem elem : myStatics) {
             odb.getObject(elem.ref, null,
-                          new StaticObjectReceiver(contextor, elem, appTrace));
+                    new StaticObjectReceiver(contextor, elem, appTrace));
         }
     }
 
-    private class StaticObjectReceiver implements ArgRunnable {
+    private static class StaticObjectReceiver implements ArgRunnable {
         StaticObjectListElem myElem;
         Contextor myContextor;
         Trace tr;

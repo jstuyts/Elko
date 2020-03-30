@@ -31,7 +31,7 @@ public class HTTPRequestByteIOFramerFactory implements ByteIOFramerFactory {
     /**
      * I/O framer implementation for HTTP requests.
      */
-    private class HTTPRequestFramer implements ByteIOFramer {
+    private static class HTTPRequestFramer implements ByteIOFramer {
         /** The message receiver that input is being framed for. */
         private MessageReceiver myReceiver;
         
@@ -188,8 +188,7 @@ public class HTTPRequestByteIOFramerFactory implements ByteIOFramerFactory {
             if (Trace.comm.debug && Trace.ON) {
                 Trace.comm.debugm("HTTP sending:\n" + reply);
             }
-            byte[] result = reply.getBytes(StandardCharsets.UTF_8);
-            return result;
+            return reply.getBytes(StandardCharsets.UTF_8);
         }
     }
 }

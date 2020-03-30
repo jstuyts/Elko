@@ -9,12 +9,14 @@ import java.util.Set;
 import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.trace.Trace;
 
+import static java.lang.Math.max;
+
 /**
  * The provider facet of a director actor.  This object represents the state
  * functionality required when a connected entity is engaging in the provider
  * protocol.
  */
-class Provider implements Comparable {
+class Provider implements Comparable<Provider> {
     /** The director itself. */
     private Director myDirector;
 
@@ -94,15 +96,14 @@ class Provider implements Comparable {
      * Compare this provider to another for sorting (comparison is by load
      * factor).
      */
-    public int compareTo(Object other) {
-        Provider otherProvider = (Provider) other;
-        double diff = myLoadFactor - otherProvider.myLoadFactor;
+    public int compareTo(Provider other) {
+        double diff = myLoadFactor - other.myLoadFactor;
         if (diff < 0.0) {
             return -1;
         } else if (diff > 0.0) {
             return 1;
         } else {
-            return myOrdinal - otherProvider.myOrdinal;
+            return myOrdinal - other.myOrdinal;
         }
     }
 
@@ -395,11 +396,7 @@ class Provider implements Comparable {
      */
     void setLoadFactor(double loadFactor) {
         myDirector.removeProvider(this);
-        if (loadFactor < 0.0) {
-            myLoadFactor = 0.0;
-        } else {
-            myLoadFactor = loadFactor;
-        }
+        myLoadFactor = max(loadFactor, 0.0);
         myDirector.addProvider(this);
     }
 

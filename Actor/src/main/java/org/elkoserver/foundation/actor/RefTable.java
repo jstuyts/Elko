@@ -64,7 +64,7 @@ public class RefTable implements Iterable<DispatchTarget> {
      * it is created, so that received error and debug messages have someplace
      * to go.
      */
-    private class ErrorHandler extends BasicProtocolHandler {
+    private static class ErrorHandler extends BasicProtocolHandler {
         /** Constructor */
         ErrorHandler() {
         }
@@ -86,7 +86,7 @@ public class RefTable implements Iterable<DispatchTarget> {
      *
      * @param targetClass  Java class whose JSON methods are to be added.
      */
-    public void addClass(Class targetClass) {
+    public void addClass(Class<?> targetClass) {
         myDispatcher.addClass(targetClass);
     }
 
@@ -100,11 +100,7 @@ public class RefTable implements Iterable<DispatchTarget> {
         myObjects.put(ref, target);
         myDispatcher.addClass(target.getClass());
         String groupRef = rootRef(ref);
-        List<DispatchTarget> group = myObjectGroups.get(groupRef);
-        if (group == null) {
-            group = new LinkedList<>();
-            myObjectGroups.put(groupRef, group);
-        }
+        List<DispatchTarget> group = myObjectGroups.computeIfAbsent(groupRef, k -> new LinkedList<>());
         group.add(target);
     }
 

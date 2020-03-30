@@ -70,7 +70,7 @@ class TestUserFactory implements EphemeralUserFactory {
      * Nonce.  Our nonces consist of an unguessable random string and an
      * expiration time.
      */
-    private class Nonce implements Comparable<Nonce> {
+    private static class Nonce implements Comparable<Nonce> {
         final int expiration;
         final String nonceID;
         Nonce(int expiration, String nonceID) {
@@ -109,8 +109,8 @@ class TestUserFactory implements EphemeralUserFactory {
      * @param contextor  The contextor of the server in which the synthetic
      *    user will be present
      * @param connection  The connection over which the new user presented
-     *    themself.
-     * @param param  Arbitary JSON object parameterizing the construction.
+     *    themselves.
+     * @param param  Arbitrary JSON object parameterizing the construction.
      * @param contextRef  Ref of context the new synthesized user will be
      *    placed into
      * @param contextTemplate  Ref of the context template for the context

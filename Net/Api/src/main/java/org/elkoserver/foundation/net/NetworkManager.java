@@ -50,7 +50,9 @@ public class NetworkManager {
         myProps = props;
         myRunner = runner;
         myConnectionManagers = new HashMap<>();
+        // FIXME: Initialize somewhere else
         HTTPSessionConnection.initializeRNG();
+        RTCPSessionConnection.initializeRNG();
         myLoadMonitor = loadMonitor;
 
         if (props.testProperty("conf.ssl.enable")) {

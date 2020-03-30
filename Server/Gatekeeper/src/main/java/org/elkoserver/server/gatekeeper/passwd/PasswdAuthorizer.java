@@ -287,7 +287,7 @@ public class PasswdAuthorizer implements Authorizer {
                             final SetPasswordResultHandler handler)
     {
         getActor(id, obj -> {
-            String failure = null;
+            String failure;
 
             if (obj != null) {
                 ActorDesc actor = (ActorDesc) obj;

@@ -70,7 +70,7 @@ class UserHandler extends BasicProtocolHandler {
         from.ensureAuthorizedUser();
 
         String userName = user.value(null);
-        Provider provider = null;
+        Provider provider;
         String tag = optTag.value(null);
 
         /* See if somebody is serving the requested context. */

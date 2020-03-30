@@ -20,7 +20,7 @@ class ActiveUser {
     /** The user's identity. */
     private String myRef;
 
-    /** Number of domais that are loaded. */
+    /** Number of domains that are loaded. */
     private int myDomainLoadCount;
 
     /** Current online presences of this user, stored in the form of an array
@@ -186,26 +186,11 @@ class ActiveUser {
                                         domain.subscriber(context);
                                     if (client != null) {
                                         Map<Domain, Map<String, List<String>>> dtell =
-                                            tell.get(client);
-                                        if (dtell == null) {
-                                            dtell =
-                                                    new HashMap<>();
-                                            tell.put(client, dtell);
-                                        }
+                                                tell.computeIfAbsent(client, k -> new HashMap<>());
                                         Map<String, List<String>> ctell =
-                                            dtell.get(domain);
-                                        if (ctell == null) {
-                                            ctell =
-                                                    new HashMap<>();
-                                            dtell.put(domain, ctell);
-                                        }
+                                                dtell.computeIfAbsent(domain, k -> new HashMap<>());
                                         List<String> nameList =
-                                            ctell.get(context);
-                                        if (nameList == null) {
-                                            nameList =
-                                                    new LinkedList<>();
-                                            ctell.put(context, nameList);
-                                        }
+                                                ctell.computeIfAbsent(context, k -> new LinkedList<>());
                                         nameList.add(friend.ref());
                                     }
                                 }
@@ -250,10 +235,10 @@ class ActiveUser {
                                 for (String context : friend.myPresences) {
                                     if (context != null) {
                                         friendList.add(
-                                            new FriendInfo(friendName,
-                                                           friend.myMetadata,
-                                                           context,
-                                                           master.getContextMetadata(context)));
+                                                new FriendInfo(friendName,
+                                                        friend.myMetadata,
+                                                        context,
+                                                        master.getContextMetadata(context)));
                                     }
                                 }
                             }
@@ -437,7 +422,7 @@ class ActiveUser {
      * describing an online member of a user's social graph: a pair consisting
      * of the friend's user ref and the context ref of the context they are in.
      */
-    private class FriendInfo implements Encodable {
+    private static class FriendInfo implements Encodable {
         private String myUser;
         private JSONObject myUserMeta;
         private String myContext;

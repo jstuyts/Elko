@@ -66,9 +66,6 @@ public class RTCPSessionConnection extends ConnectionBase
     /** Random number generator, for creating session IDs. */
     private static SecureRandom theRandom = new SecureRandom();
 
-    /** Flag to bypass unguessable ID generation for debugging purposes. */
-    public static boolean TheDebugSessionsFlag = false;
-
 
     /**
      * Make a new RTCP session connection object for an incoming connection,
@@ -223,7 +220,7 @@ public class RTCPSessionConnection extends ConnectionBase
      */
     static void initializeRNG() {
         /* Get the initialization delay over right now */
-        long junk = theRandom.nextLong();
+        theRandom.nextBoolean();
     }
 
     /**
@@ -357,7 +354,7 @@ public class RTCPSessionConnection extends ConnectionBase
             JSONLiteral jsonMessage = (JSONLiteral) message;
             ++myServerSendSeqNum;
             RTCPMessage qMsg =
-                new RTCPMessage(myServerSendSeqNum, jsonMessage);
+                    new RTCPMessage(myServerSendSeqNum, jsonMessage);
             myQueueBacklog += jsonMessage.length();
             if (Trace.comm.debug && Trace.ON) {
                 Trace.comm.debugm(this + " queue backlog increased to " + myQueueBacklog);
@@ -421,18 +418,14 @@ public class RTCPSessionConnection extends ConnectionBase
      *
      * @param connection  The TCP connection that died.
      *
-     * @return true if this session was using 'connection'.
      */
-    private boolean tcpConnectionDied(Connection connection) {
+    private void tcpConnectionDied(Connection connection) {
         if (myLiveConnection == connection) {
             myLiveConnection = null;
             noteClientActivity();
             if (Trace.comm.event && Trace.ON) {
                 Trace.comm.eventm(this + " lost " + connection);
             }
-            return true;
-        } else {
-            return false;
         }
     }
 
@@ -455,7 +448,7 @@ public class RTCPSessionConnection extends ConnectionBase
      * Simple struct to hold outgoing messages along with their sequence
      * numbers in the message replay queue.
      */
-    private class RTCPMessage {
+    private static class RTCPMessage {
         int seqNum;
         JSONLiteral message;
         

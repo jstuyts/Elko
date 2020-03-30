@@ -61,7 +61,7 @@ class PendingRequest {
     static PendingRequest getReq(String ref, String collectionName,
                                  ArgRunnable handler) {
         PendingRequest req = new PendingRequest(handler, ref, collectionName);
-        req.msgGet(ref, true, collectionName);
+        req.msgGet(ref, collectionName);
         return req;
     }
 
@@ -78,21 +78,16 @@ class PendingRequest {
 
     /**
      * Fill in this request's message field with a 'get' request.
-     *
-     * @param ref  Reference string naming the object desired.
-     * @param contents  Flag controlling contents retrieval.
+     *  @param ref  Reference string naming the object desired.
      * @param collectionName  Name of collection to get from, or null to take
-     *    the configured default.
      */
-    private void msgGet(String ref, boolean contents, String collectionName) {
+    private void msgGet(String ref, String collectionName) {
         myMsg = new JSONLiteral("rep", "get");
         myMsg.addParameter("tag", myTag);
 
         JSONLiteral what = new JSONLiteral("reqi", EncodeControl.forClient);
         what.addParameter("ref", ref);
-        if (contents) {
-            what.addParameter("contents", contents);
-        }
+        what.addParameter("contents", true);
         what.addParameterOpt("coll", collectionName);
         what.finish();
 
@@ -227,7 +222,7 @@ class PendingRequest {
      * Generate a request to update an object in the repository.
      *
      * @param ref  Reference string naming the object to be put.
-     * @param version  Version number of the object to be upated.
+     * @param version  Version number of the object to be updated.
      * @param obj  The object itself.
      * @param collectionName  Name of collection to write, or null to take the
      *    configured default (or the db doesn't use this abstraction).

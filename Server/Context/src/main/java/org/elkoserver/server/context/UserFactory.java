@@ -9,8 +9,8 @@ import org.elkoserver.util.ArgRunnable;
  * either by manufacturing them from whole cloth or by fetching information
  * from an external data store.  Such factory objects are typically singletons
  * stored in the contextor's static object table.  These factories are used in
- * conjuction with the user synthesis entry pattern provided by the Session
- * object's extercontext() method.
+ * conjunction with the user synthesis entry pattern provided by the Session
+ * object's entercontext() method.
  *
  * @see EphemeralUserFactory
  */
@@ -21,8 +21,8 @@ public interface UserFactory {
      * @param contextor  The contextor of the server in which the requested
      *    user will be present
      * @param connection  The connection over which the new user presented
-     *    themself.
-     * @param param  Arbitary JSON object parameterizing the construction.
+     *    themselves.
+     * @param param  Arbitrary JSON object parameterizing the construction.
      *    this is analogous to the user record read from the ODB, but may be
      *    anything that makes sense for the particular factory implementation.
      *    Of course, the sender of this parameter must be coordinated with the

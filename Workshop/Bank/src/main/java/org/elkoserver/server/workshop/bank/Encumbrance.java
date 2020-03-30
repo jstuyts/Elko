@@ -10,7 +10,7 @@ import org.elkoserver.json.EncodeControl;
  * Object representing an encumbrance, a tentative reservation of the funds in
  * some account.
  */
-class Encumbrance implements Comparable, Encodable {
+class Encumbrance implements Comparable<Encumbrance>, Encodable {
     /** This encumbrance's unique identifier string. */
     private String myRef;
 
@@ -115,9 +115,8 @@ class Encumbrance implements Comparable, Encodable {
      *    whether this encumbrance's expiration date is before, at, or after
      *    other's.
      */
-    public int compareTo(Object other) {
-        Encumbrance otherEnc = (Encumbrance) other;
-        int result = myExpires.compareTo(otherEnc.myExpires);
+    public int compareTo(Encumbrance other) {
+        int result = myExpires.compareTo(other.myExpires);
         if (result == 0) {
             result = hashCode() - other.hashCode();
         }
@@ -125,7 +124,7 @@ class Encumbrance implements Comparable, Encodable {
     }
 
     /**
-     * Obtain the date after which this enumbrance no longer encumbers.
+     * Obtain the date after which this encumbrance no longer encumbers.
      *
      * @return this encumbrance's expiration date.
      */

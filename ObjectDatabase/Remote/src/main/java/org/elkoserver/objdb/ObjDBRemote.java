@@ -68,7 +68,7 @@ public class ObjDBRemote extends ObjDBBase {
      *
      * <p>The property <tt>"<i>propRoot</i>.service"</tt>, if given, indicates
      * a repository name to ask the Broker for.  Specifying this property as
-     * the special value 'any' indicates that any repsitory that the Broker
+     * the special value 'any' indicates that any repository that the Broker
      * knows about will be acceptable.
      *
      * <p>Alternatively, a repository host may be specified directly using the
@@ -215,19 +215,7 @@ public class ObjDBRemote extends ObjDBBase {
      * @param results  The results returned.
      */
     void handleGetResult(String tag, ObjectDesc[] results) {
-        PendingRequest req = myPendingRequests.remove(tag);
-        if (req != null && results != null) {
-            Object obj = null;
-            String failure = results[0].failure();
-            if (failure == null) {
-                obj = decodeObject(req.ref(), results);
-            } else {
-                tr.errorm("repository error getting " + req.ref() + ": " +
-                          failure);
-                obj = null;
-            }
-            req.handleReply(obj);
-        }
+        handleRetrievalResult(tag, results);
     }
 
     /**
@@ -263,16 +251,20 @@ public class ObjDBRemote extends ObjDBBase {
      * @param results  The results returned.
      */
     void handleQueryResult(String tag, ObjectDesc[] results) {
+        handleRetrievalResult(tag, results);
+    }
+
+    private void handleRetrievalResult(String tag, ObjectDesc[] results) {
         PendingRequest req = myPendingRequests.remove(tag);
         if (req != null && results != null) {
-            Object obj = null;
+            Object obj;
             String failure = results[0].failure();
-            /* XXX this is just wrong */
+            /* XXX this is just wrong (for queries, not for gets) */
             if (failure == null) {
                 obj = decodeObject(req.ref(), results);
             } else {
                 tr.errorm("repository error getting " + req.ref() + ": " +
-                          failure);
+                        failure);
                 obj = null;
             }
             req.handleReply(obj);
@@ -332,7 +324,7 @@ public class ObjDBRemote extends ObjDBBase {
      * Update an object in the repository.
      *
      * @param ref  Reference string naming the object to be stored.
-     * @param version  Version number of the object to be upated.
+     * @param version  Version number of the object to be updated.
      * @param obj  The object to be stored.
      * @param collectionName  Name of collection to put into, or null to take
      *    the configured default (or the db doesn't use this abstraction).

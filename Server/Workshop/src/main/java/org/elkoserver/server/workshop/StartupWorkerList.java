@@ -35,11 +35,11 @@ class StartupWorkerList {
     void fetchFromODB(ObjDB odb, Workshop workshop, Trace appTrace) {
         for (WorkerListElem elem : myWorkers) {
             odb.getObject(elem.ref, null,
-                          new WorkerReceiver(workshop, elem, appTrace));
+                    new WorkerReceiver(workshop, elem, appTrace));
         }
     }
 
-    private class WorkerReceiver implements ArgRunnable {
+    private static class WorkerReceiver implements ArgRunnable {
         WorkerListElem myElem;
         Workshop myWorkshop;
         Trace tr;

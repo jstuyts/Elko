@@ -14,7 +14,7 @@ import org.elkoserver.util.ArgRunnable;
  * server run queue.
  */
 public class SlowServiceRunner {
-    /** Asynch run queue for giving results back to the main thread. */
+    /** Async run queue for giving results back to the main thread. */
     private Runner myResultRunner;
 
     /** Executor to dole out work to a pool of threads that it manages. */

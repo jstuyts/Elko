@@ -240,7 +240,7 @@ class UserActor
                               contextRef, sess);
         if (utag != null) {
             myContextor.synthesizeUser(myConnection, utag, uparam, contextRef,
-                                       contextTemplate, scope, runnable);
+                                       contextTemplate, runnable);
         } else {
             myContextor.loadUser(userRef, scope, runnable);
         }
