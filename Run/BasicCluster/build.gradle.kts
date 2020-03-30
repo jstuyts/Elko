@@ -52,7 +52,7 @@ val startBasicClusterBroker by tasks.registering(JavaExec::class) {
     inputs.files(brokerDataDirectory)
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
+    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
             "trace_brok=EVENT",
             "trace_comm=EVENT",
@@ -114,7 +114,7 @@ val startBasicClusterContext by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
+    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
             "trace_cont=EVENT",
             "trace_comm=EVENT",
@@ -177,7 +177,7 @@ val startBasicClusterDirector by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
+    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
             "trace_dire=EVENT",
             "trace_comm=EVENT",
@@ -231,7 +231,7 @@ val startBasicClusterWorkshop by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
+    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
             "trace_work=EVENT",
             "trace_comm=EVENT",

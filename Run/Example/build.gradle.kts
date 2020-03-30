@@ -53,7 +53,7 @@ val startExampleBroker by tasks.registering(JavaExec::class) {
     inputs.files(brokerDataDirectory)
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
+    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
             "trace_brok=EVENT",
             "trace_comm=EVENT",
@@ -115,7 +115,7 @@ val startExampleContext by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
+    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
             "trace_cont=EVENT",
             "trace_comm=EVENT",
@@ -177,7 +177,7 @@ val startExampleDirector by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
+    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
             "trace_dire=EVENT",
             "trace_comm=EVENT",
@@ -231,7 +231,7 @@ val startExampleWorkshop by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
+    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
             "trace_work=EVENT",
             "trace_comm=EVENT",

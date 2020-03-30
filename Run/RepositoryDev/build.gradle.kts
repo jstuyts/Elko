@@ -25,7 +25,7 @@ val startRepositoryDev by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BootSpawner"
+    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
             "trace_repo=EVENT",
             "trace_comm=EVENT",
