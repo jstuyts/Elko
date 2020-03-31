@@ -10,7 +10,7 @@ import org.elkoserver.json.SyntaxError;
 import org.elkoserver.server.context.Contextor;
 import org.elkoserver.server.context.EphemeralUserFactory;
 import org.elkoserver.server.context.User;
-import org.elkoserver.util.trace.Trace;
+
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.SortedSet;
@@ -94,14 +94,8 @@ class TestUserFactory implements EphemeralUserFactory {
     public TestUserFactory(String key) {
         myNonces = new TreeSet<>();
         myLastPurgeTime = System.currentTimeMillis() / 1000;
-        try {
-            myCryptor = new Cryptor(key);
-        } catch (IOException e) {
-            Trace.startup.errorm("invalid Cryptor key '" + key +
-                                 "' for TestUserFactory");
-            myCryptor = null;
-        }
-    }  
+        myCryptor = new Cryptor(key);
+    }
 
     /**
      * Synthesize a user object.

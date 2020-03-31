@@ -9,7 +9,7 @@ import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
 
 /**
- * Mod to enable an object to function as a simple counter, maintly for testing
+ * Mod to enable an object to function as a simple counter, mainly for testing
  * control over persistence.
  */
 public class Counter extends Mod implements GeneralMod {

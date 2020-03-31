@@ -10,7 +10,6 @@ repositories {
 dependencies {
     implementation(project(":Json"))
     implementation(project(":Trace"))
-    implementation(Libraries.commons_codec)
 }
 
 java {

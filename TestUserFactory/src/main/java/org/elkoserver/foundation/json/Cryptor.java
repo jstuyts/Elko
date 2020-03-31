@@ -1,23 +1,19 @@
 package org.elkoserver.foundation.json;
 
+import org.apache.commons.codec.binary.Base64;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.SyntaxError;
 import org.elkoserver.util.trace.Trace;
+
+import javax.crypto.*;
+import javax.crypto.spec.IvParameterSpec;
+import javax.crypto.spec.SecretKeySpec;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
-import javax.crypto.BadPaddingException;
-import javax.crypto.Cipher;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.KeyGenerator;
-import javax.crypto.NoSuchPaddingException;
-import javax.crypto.SecretKey;
-import javax.crypto.spec.IvParameterSpec;
-import javax.crypto.spec.SecretKeySpec;
-import org.apache.commons.codec.binary.Base64;
 
 /**
  * Simple AES-based string encryptor/decryptor, for passing sealed bundles of
@@ -37,9 +33,8 @@ public class Cryptor {
      *
      * @param keyStr  Base64-encoded symmetric key.
      *
-     * @throws IOException if the key string is malformed.
      */
-    public Cryptor(String keyStr) throws IOException {
+    public Cryptor(String keyStr) {
         myKey = decodeKey(keyStr);
         try {
             myCipher = Cipher.getInstance(CRYPTO_ALGORITHM);
@@ -63,9 +58,8 @@ public class Cryptor {
      *
      * @return the given key, decoded, in the form of a SecretKey object.
      *
-     * @throws IOException if the given key string was malformed.
      */
-    private SecretKey decodeKey(String keyStr) throws IOException {
+    private SecretKey decodeKey(String keyStr) {
         byte[] encodedKey = theCodec.decode(keyStr);
         return new SecretKeySpec(encodedKey, KEY_ALGORITHM);
     }
@@ -132,7 +126,7 @@ public class Cryptor {
      *
      * @throws IOException if the input string is malformed
      */
-    public Object decryptObject(Class baseType, String str)
+    public Object decryptObject(Class<?> baseType, String str)
         throws IOException
     {
         return ObjectDecoder.decode(baseType, decrypt(str));

@@ -72,13 +72,7 @@ class CryptoTest {
             keyStr = Cryptor.generateKey();
         } 
 
-        Cryptor cryptor = null;
-        try {
-            cryptor = new Cryptor(keyStr);
-        } catch (IOException e) {
-            System.out.println("problem initializing Cryptor: " + e);
-            System.exit(1);
-        }
+        Cryptor cryptor = new Cryptor(keyStr);
 
         if (cypherText != null) {
             try {
