@@ -8,7 +8,8 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot"))
+    implementation(project(":Boot:Api"))
+    implementation(project(":Boot:App"))
     implementation(project(":Json"))
     implementation(project(":FileObjectStore"))
     implementation(project(":ObjectDatabase:Local"))

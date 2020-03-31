@@ -11,7 +11,8 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot"))
+    implementation(project(":Boot:Api"))
+    implementation(project(":Boot:App"))
     implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
     implementation(project(":ObjectDatabase:Local"))

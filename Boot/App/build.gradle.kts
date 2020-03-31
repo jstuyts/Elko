@@ -1,5 +1,5 @@
 plugins {
-    java
+    `java-library`
 }
 
 repositories {
@@ -9,10 +9,7 @@ repositories {
 
 dependencies {
     implementation(project(":Boot:Api"))
-    implementation(project(":Json"))
-    implementation(project(":JsonMessageHandling"))
     implementation(project(":Trace"))
-    implementation(project(":Util"))
 }
 
 java {

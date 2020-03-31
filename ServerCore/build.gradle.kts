@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
     implementation(project(":Actor"))
-    implementation(project(":Boot"))
+    implementation(project(":Boot:Api"))
     implementation(project(":ByteIoFramer:Api"))
     implementation(project(":ByteIoFramer:Json"))
     implementation(project(":Communication"))

@@ -8,7 +8,7 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot"))
+    implementation(project(":Boot:Api"))
     implementation(project(":ByteIoFramer:Api"))
     implementation(project(":ByteIoFramer:Json"))
     implementation(project(":ByteIoFramer:Http"))
