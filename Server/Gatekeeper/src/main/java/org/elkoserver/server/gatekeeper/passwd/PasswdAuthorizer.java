@@ -9,16 +9,12 @@ import org.elkoserver.server.gatekeeper.ReservationResult;
 import org.elkoserver.server.gatekeeper.ReservationResultHandler;
 import org.elkoserver.server.gatekeeper.SetPasswordResultHandler;
 import org.elkoserver.util.ArgRunnable;
-import org.elkoserver.util.trace.Trace;
 
 /**
  * A simple implementation of the {@link Authorizer} interface for use with
  * the Elko Gatekeeper.
  */
 public class PasswdAuthorizer implements Authorizer {
-    /** Trace object for diagnostics. */
-    private Trace tr;
-
     /** The database in which the authorization info is kept. */
     private ObjDB myODB;
 
@@ -49,11 +45,11 @@ public class PasswdAuthorizer implements Authorizer {
      */
     public void initialize(Gatekeeper gatekeeper) {
         myGatekeeper = gatekeeper;
-        tr = gatekeeper.trace();
 
         myODB = gatekeeper.openObjectDatabase("conf.gatekeeper");
         if (myODB == null) {
-            tr.fatalError("no database specified");
+            gatekeeper.trace().fatalError("no database specified");
+            throw new IllegalStateException();
         }
 
         myODB.addClass("place", PlaceDesc.class);
@@ -111,7 +107,7 @@ public class PasswdAuthorizer implements Authorizer {
      *
      * @param actorID  The ID of the actor of interest.
      * @param handler  Handler to be called with the actor description object
-     *    when retreived.
+     *    when retrieved.
      */
     void getActor(String actorID, ArgRunnable handler) {
         myODB.getObject("a-" + actorID, null, handler);
@@ -122,7 +118,7 @@ public class PasswdAuthorizer implements Authorizer {
      *
      * @param name  The name of the place of interest.
      * @param handler  Handler to be called with place description object when
-     *    retreived.
+     *    retrieved.
      */
     void getPlace(String name, ArgRunnable handler) {
         myODB.getObject("p-" + name, null, handler);
@@ -149,13 +145,13 @@ public class PasswdAuthorizer implements Authorizer {
 
     /**
      * Service a request to make a reservation.  This method is called each
-     * time the Gatekeeper recieves a 'reserve' request from a client.
+     * time the Gatekeeper receives a 'reserve' request from a client.
      *
      * @param protocol  The protocol the reservation seeker wants to use.
      * @param context  The context they wish to enter.
      * @param id  The user who is asking for the reservation.
      * @param name  Optional legible name for the user.
-     * @param password  Password tendered for entry, if relevent.
+     * @param password  Password tendered for entry, if relevant.
      * @param handler  Object to receive results of reservation check, once
      *    available.
      */
@@ -275,7 +271,7 @@ public class PasswdAuthorizer implements Authorizer {
 
     /**
      * Service a request to change a user's password.  This method is called
-     * each time the Gatekeeper recieves a 'setpassword' request from a client.
+     * each time the Gatekeeper receives a 'setpassword' request from a client.
      *
      * @param id  The user who is asking for this.
      * @param oldPassword  Current password, to check for permission.

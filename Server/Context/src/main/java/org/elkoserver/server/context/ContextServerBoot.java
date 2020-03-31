@@ -28,6 +28,7 @@ public class ContextServerBoot implements Bootable {
         if (server.startListeners("conf.listen",
                                   new ContextServiceFactory()) == 0) {
             tr.fatalError("no listeners specified");
+            throw new IllegalStateException();
         }
 
         List<HostDesc> directors = scanHostList(props, "conf.register");

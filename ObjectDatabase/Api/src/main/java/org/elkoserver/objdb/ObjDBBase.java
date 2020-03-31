@@ -100,7 +100,7 @@ abstract class ObjDBBase implements ObjDB {
 
     /**
      * Given an object reference, obtain the object(s) it refers to, from among
-     * the collection of objects retreived by the store.  If the reference
+     * the collection of objects retrieved by the store.  If the reference
      * value is a string, the output is the object referenced by that string.
      * If the reference value is a JSON array of strings, the output value is
      * an array of the objects referenced by those strings.  Otherwise, the

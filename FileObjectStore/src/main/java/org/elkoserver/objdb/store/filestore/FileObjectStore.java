@@ -58,14 +58,17 @@ public class FileObjectStore implements ObjectStore {
         String dirname = props.getProperty(propRoot + ".odb");
         if (dirname == null) {
             appTrace.fatalError("no object database directory specified");
+            throw new IllegalStateException();
         }
         myODBDirectory = new File(dirname);
         if (!myODBDirectory.exists()) {
             appTrace.fatalError("object database directory '" + dirname +
                           "' does not exist");
+            throw new IllegalStateException();
         } else if (!myODBDirectory.isDirectory()) {
             appTrace.fatalError("requested object database directory " + dirname +
                           " is not a directory");
+            throw new IllegalStateException();
         }
     }
 
@@ -108,6 +111,7 @@ public class FileObjectStore implements ObjectStore {
             if (length > 0) {
                 FileReader objReader = new FileReader(file);
                 char[] buf = new char[(int) length];
+                // FIXME: Handle the result
                 objReader.read(buf);
                 objReader.close();
                 obj = new String(buf);

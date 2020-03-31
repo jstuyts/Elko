@@ -48,6 +48,7 @@ class ActorDesc implements Encodable {
                if either the documentation or the JVM implementation are wrong.
                Like that ever happens. */
             Trace.comm.fatalError("This JVM lacks SHA support");
+            throw new IllegalStateException();
         }
     }
 
@@ -123,7 +124,7 @@ class ActorDesc implements Encodable {
         result.addParameterOpt("name", myName);
         result.addParameterOpt("password", myPassword);
         if (!myCanSetPass) {
-            result.addParameter("cansetpass", myCanSetPass);
+            result.addParameter("cansetpass", false);
         }
         result.finish();
         return result;
@@ -144,7 +145,7 @@ class ActorDesc implements Encodable {
         byte[] hash = theSHA.digest();
         char[] encoded = new char[hash.length*2 + 8];
         for (int i = 0; i < 4; ++i) {
-            encoded[i*2 + 0] =
+            encoded[i * 2] =
                 Integer.toHexString((salt[i] & 0xF0) >> 4).charAt(0);
             encoded[i*2 + 1] =
                 Integer.toHexString((salt[i] & 0x0F)     ).charAt(0);

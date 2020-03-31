@@ -73,6 +73,7 @@ class PresenceServer {
         myODB = server.openObjectDatabase("conf.presence");
         if (myODB == null) {
             tr.fatalError("no database specified");
+            throw new IllegalStateException();
         }
         myODB.addClass("graphtable", GraphTable.class);
 

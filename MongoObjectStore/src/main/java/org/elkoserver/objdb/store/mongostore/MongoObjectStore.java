@@ -77,6 +77,7 @@ public class MongoObjectStore implements ObjectStore {
         String addressStr = props.getProperty(propRoot + ".hostport");
         if (addressStr == null) {
             appTrace.fatalError("no mongo database server address specified");
+            throw new IllegalStateException();
         }
         int colon = addressStr.indexOf(':');
         int port;
@@ -162,7 +163,7 @@ public class MongoObjectStore implements ObjectStore {
             if (!key.startsWith("_")) {
                 Object value = dbObj.get(key);
                 if (value instanceof List) {
-                    value = dbListToJSONArray((List) value);
+                    value = dbListToJSONArray((List<?>) value);
                 } else if (value instanceof Document) {
                     value = dbObjectToJSONObject((Document) value);
                 }
@@ -175,11 +176,11 @@ public class MongoObjectStore implements ObjectStore {
         return result;
     }
 
-    private JSONArray dbListToJSONArray(List dbList) {
+    private JSONArray dbListToJSONArray(List<?> dbList) {
         JSONArray result = new JSONArray();
         for (Object elem : dbList) {
             if (elem instanceof List) {
-                elem = dbListToJSONArray((List) elem);
+                elem = dbListToJSONArray((List<?>) elem);
             } else if (elem instanceof Document) {
                 elem = dbObjectToJSONObject((Document) elem);
             }
@@ -200,7 +201,7 @@ public class MongoObjectStore implements ObjectStore {
 
         // WARNING: the following is a rather profound and obnoxious modularity
         // boundary violation, but as ugly as it is, it appears to be the least
-        // bad way to accomodate some of the limitations of Mongodb's
+        // bad way to accommodate some of the limitations of Mongodb's
         // geo-indexing feature.  In order to spatially index an object,
         // Mongodb requires the 2D coordinate information to be stored in a
         // 2-element object or array property at the top level of the object to
@@ -218,7 +219,7 @@ public class MongoObjectStore implements ObjectStore {
         // Consequently, what we do is notice if an object being written has a
         // "pos" property of type "geopos", and if so we manually generate an
         // additional "_qpos_" property that is well formed according to
-        // Mondodb's 2D coordinate encoding rules, and have Mongodb index
+        // MongoDB's 2D coordinate encoding rules, and have Mongodb index
         // *that*.  When an object is read from the database, we strip this
         // property off again before we return the object to the application.
 

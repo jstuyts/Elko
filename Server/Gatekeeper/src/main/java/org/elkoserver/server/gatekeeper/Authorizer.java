@@ -37,7 +37,7 @@ public interface Authorizer {
      * @param context  The context they wish to enter.
      * @param id  The user who is asking for the reservation.
      * @param name  Optional legible name for the user.
-     * @param password  Password tendered for entry, if relevent.
+     * @param password  Password tendered for entry, if relevant.
      * @param handler  Object to receive results of reservation check, once
      *    available.
      */
@@ -46,7 +46,7 @@ public interface Authorizer {
 
     /**
      * Service a request to change a user's password.  This method will be
-     * called each time the Gatekeeper recieves a 'setpassword' request from a
+     * called each time the Gatekeeper receives a 'setpassword' request from a
      * client.  The various parameters are extracted from that message.  The
      * result, once available, should be passed to the object specified by the
      * 'handler' parameter, by invoking the handler's {@link

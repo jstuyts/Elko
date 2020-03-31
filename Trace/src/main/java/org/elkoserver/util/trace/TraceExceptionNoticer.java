@@ -15,5 +15,6 @@ class TraceExceptionNoticer implements ExceptionNoticer
 
     public void noticeUncaughtException(String msg, Throwable t) {
         Trace.runq.fatalError(msg, t);
+        throw new IllegalStateException();
     }
 }

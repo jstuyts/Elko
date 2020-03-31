@@ -64,6 +64,7 @@ public class Workshop extends RefTable {
 
         if (odb == null) {
             tr.fatalError("no database specified");
+            throw new IllegalStateException();
         }
         myODB = odb;
 
@@ -238,22 +239,7 @@ public class Workshop extends RefTable {
      * @param object  The object itself.
      */
     public void putObject(String ref, Encodable object) {
-        putObject(ref, object, null);
-    }
-
-    /**
-     * Store an object into the repository with results notification.
-     *
-     * @param ref  Ref of the object to write.
-     * @param object  The object itself.
-     * @param resultHandler  Handler that wil be invoked with the result of
-     *   the operation; the result will be null if the operation suceeded, or
-     *   an error string if the operation failed.
-     */
-    private void putObject(String ref, Encodable object,
-                           ArgRunnable resultHandler)
-    {
-        myODB.putObject(ref, object, null, false, resultHandler);
+        myODB.putObject(ref, object, null, false, null);
     }
 
     /**

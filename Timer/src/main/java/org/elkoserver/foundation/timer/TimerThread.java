@@ -80,7 +80,7 @@ class TimerThread extends Thread
     /**
      * The actual guts of the timer thread: Look for the next event on the
      * timer queue.  Wait until the indicated time.  Process the event and any
-     * others that may now be relevent.  Repeat.
+     * others that may now be relevant.  Repeat.
      */
     private void runloop() {
         long time;

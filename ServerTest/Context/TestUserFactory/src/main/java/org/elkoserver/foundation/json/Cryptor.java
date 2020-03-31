@@ -46,8 +46,10 @@ public class Cryptor {
            either of these happens we're dead. */
         } catch (NoSuchAlgorithmException e) {
             Trace.startup.fatalError("Cryptor init failure: doesn't like algorithm 'AES'", e);
+            throw new IllegalStateException();
         } catch (NoSuchPaddingException e) {
             Trace.startup.fatalError("Cryptor init failure: doesn't like padding mode 'PKCS5Padding'", e);
+            throw new IllegalStateException();
         }
     }
 
@@ -86,7 +88,7 @@ public class Cryptor {
                     StandardCharsets.UTF_8);
         } catch (InvalidAlgorithmParameterException | InvalidKeyException e) {
             Trace.startup.fatalError("fatal Cryptor.decrypt failure: ", e);
-            return null; /* For compiler; fatalError does not return. */
+            throw new IllegalStateException();
         } catch (BadPaddingException e) {
             throw new IOException("bad padding in cryptoblob " + e);
         } catch (IllegalBlockSizeException e) {
@@ -158,7 +160,7 @@ public class Cryptor {
         }
         /* None of these should ever actually happen.  Die if they do. */
         Trace.startup.fatalError("Cryptor.encrypt failure: ", failure);
-        return null; /* For compiler; fatalError does not return. */
+        throw new IllegalStateException();
     }
 
     /**
@@ -175,7 +177,7 @@ public class Cryptor {
         } catch (NoSuchAlgorithmException e) {
             /* This should never actually happen. */
             Trace.startup.fatalError("Cryptor.generateKey failure: unknown algorithm", e);
-            return null; /* For compiler; fatalError does not return. */
+            throw new IllegalStateException();
         }
     }
 }
