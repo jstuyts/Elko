@@ -3,10 +3,9 @@ package org.elkoserver.server.repository;
 import org.elkoserver.foundation.actor.RefTable;
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver;
 import org.elkoserver.foundation.server.Server;
+import org.elkoserver.objdb.ObjectStoreFactory;
 import org.elkoserver.objdb.store.ObjectStore;
 import org.elkoserver.util.trace.Trace;
-
-import java.lang.reflect.InvocationTargetException;
 
 /**
  * Main state data structure in a Repository.
@@ -36,34 +35,7 @@ class Repository {
     Repository(Server server, Trace appTrace) {
         myServer = server;
 
-        String propRoot = "conf.rep";
-        String objectStoreClassName =
-                server.props().getProperty(propRoot + ".objstore",
-                        "org.elkoserver.objdb.store.filestore.FileObjectStore");
-        Class<?> objectStoreClass;
-        try {
-            objectStoreClass = Class.forName(objectStoreClassName);
-        } catch (ClassNotFoundException e) {
-            appTrace.fatalError("object store class " + objectStoreClassName +
-                    " not found");
-            throw new IllegalStateException();
-        }
-        try {
-            myObjectStore = (ObjectStore) objectStoreClass.getConstructor().newInstance();
-        } catch (IllegalAccessException e) {
-            appTrace.fatalError("unable to access object store constructor: " + e);
-            throw new IllegalStateException();
-        } catch (InstantiationException e) {
-            appTrace.fatalError("unable to instantiate object store object: " + e);
-            throw new IllegalStateException();
-        } catch (NoSuchMethodException e) {
-            appTrace.fatalError("unable to find object store constructor: " + e);
-            throw new IllegalStateException();
-        } catch (InvocationTargetException e) {
-            appTrace.fatalError("error during invocation of object store constructor: " + e.getCause());
-            throw new IllegalStateException();
-        }
-        myObjectStore.initialize(myServer.props(), propRoot, appTrace);
+        myObjectStore = ObjectStoreFactory.createAndInitializeObjectStore(server.props(), "conf.rep", appTrace);
 
         myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
         myRefTable.addRef(new RepHandler(this));

@@ -21,8 +21,6 @@ import org.elkoserver.objdb.store.UpdateResultDesc;
 import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
 
-import java.lang.reflect.InvocationTargetException;
-
 /**
  * Asynchronous access to a local instance of the object database.  This is
  * implemented as a separate run queue thread synchronously accessing a local
@@ -60,28 +58,7 @@ public class ObjDBLocal extends ObjDBBase {
     public ObjDBLocal(BootProperties props, String propRoot, Trace appTrace) {
         super(appTrace);
 
-        String objectStoreClassName = props.getProperty(propRoot + ".objstore",
-                "org.elkoserver.objdb.store.filestore.FileObjectStore");
-        Class<?> objectStoreClass = null;
-        try {
-            objectStoreClass = Class.forName(objectStoreClassName);
-        } catch (ClassNotFoundException e) {
-            tr.fatalError("object store class " + objectStoreClassName +
-                          " not found");
-            throw new IllegalStateException();
-        }
-        try {
-            myObjectStore = (ObjectStore) objectStoreClass.getConstructor().newInstance();
-        } catch (IllegalAccessException e) {
-            tr.fatalError("unable to access object store constructor: " + e);
-        } catch (InstantiationException e) {
-            tr.fatalError("unable to instantiate object store object: " + e);
-        } catch (NoSuchMethodException e) {
-            tr.fatalError("unable to find object store constructor: " + e);
-        } catch (InvocationTargetException e) {
-            tr.fatalError("error during invocation of object store constructor: " + e.getCause());
-        }
-        myObjectStore.initialize(props, propRoot, tr);
+        myObjectStore = ObjectStoreFactory.createAndInitializeObjectStore(props, propRoot, this.tr);
 
         myReturnRunner = Runner.currentRunner();
         myRunner = new Runner("Elko RunQueue LocalObjDB");
