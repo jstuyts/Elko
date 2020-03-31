@@ -36,7 +36,7 @@ class TraceMessageDebug extends TraceMessage {
     /**
      * Constructor.
      */
-    TraceMessageDebug(String subsystem, int level, StackTraceElement frameData,
+    TraceMessageDebug(String subsystem, Trace.Level level, StackTraceElement frameData,
                       String text, Object object)
     {
         super(subsystem, level);

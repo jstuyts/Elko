@@ -65,17 +65,11 @@ class TraceLogDescriptor implements Cloneable {
      *
      * @param file  The file that we desire a version name for.
      * @param clashAction  How the versioned name is to be determined.
-     *    VA_ADD means a file with the next highest sequence number.
-     *    VA_OVERWRITE means a file with the smallest sequence number.
+     *    ADD means a file with the next highest sequence number.
+     *    OVERWRITE means a file with the smallest sequence number.
      */
-    private File versionFile(File file, int clashAction) {
-        if (clashAction == TraceLog.VA_ADD) {
-            return new TraceVersionNamer(file).nextAvailableVersion();
-        } else if (clashAction == TraceLog.VA_OVERWRITE) {
-            return new TraceVersionNamer(file).firstVersion();
-        } else { 
-            throw new Error("Bad clashAction " + clashAction);
-        }
+    private File versionFile(File file, TraceLog.ClashAction clashAction) {
+        return clashAction.versionFile(new TraceVersionNamer(file));
     }
 
     /**
@@ -99,7 +93,7 @@ class TraceLogDescriptor implements Cloneable {
      * before the next one is opened.  Predetermining the file here enables ust
      * to write some information about the new file into the old one.
      */
-    void prepareToRollover(int clashAction) {
+    void prepareToRollover(TraceLog.ClashAction clashAction) {
         if (useStdout) {
             myNextFile = null;
             return;
@@ -226,16 +220,10 @@ class TraceLogDescriptor implements Cloneable {
      * Enables this LogDescriptor for use.  Most obvious effect is that
      * 'stream' is initialized.  
      *
-     * @param clashAction Determines what to do if the target logfile already
-     *    exists.  The two options are VA_ADD (to add a new version file) or
-     *    VA_OVERWRITE (to overwrite an existing one).  VA_IRRELEVANT should be
-     *    used when the destination is <em>known</em> to be standard output,
-     *    which never clashes.
-     *
      * @throws Exception if a logfile could not be opened.  The contents of the
      *    exception are irrelevant, as this method logs the problem.
      */
-    void startUsing(int clashAction, TraceLogDescriptor previous)
+    void startUsing(TraceLogDescriptor previous)
         throws Exception
     {
         if (useStdout) {

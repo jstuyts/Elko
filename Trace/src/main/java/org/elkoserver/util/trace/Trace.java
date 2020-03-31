@@ -27,42 +27,43 @@ public class Trace {
     private static final Map<String, Trace> theTraces =
             new HashMap<>();
 
-    /*
+    /**
      * The different trace thresholds.  See the Trace class for documentation.
      * There is space between the levels for expansion.  If you add or delete
      * a level, you must change Trace.java to add new methods and variables.
      */
+    public enum Level {
+        /** "Notice" level (not thresholded) */
+        NOTICE(20000, "NTC"),
+        /** "Metrics" level (not thresholded) */
+        METRICS(20001, "MET"),
+        /** "Error" level trace threshold */
+        /* Always on */
+        ERROR(10000, "ERR"),
+        /** "Warning" level trace threshold */
+        WARNING(120, "WRN"),
+        /** "World" level trace threshold */
+        WORLD(100, "WLD"),
+        /** "Usage" level trace threshold */
+        USAGE(80, "USE"),
+        /** "Event" level trace threshold */
+        EVENT(60, "EVN"),
+        /** "Message" level trace threshold.  Essentially the same as "Event", but
+         flagged differently in log entries. */
+        MESSAGE(59, "MSG"),
+        /** "Debug" level trace threshold */
+        DEBUG(40, "DBG"),
+        /** "Verbose" level trace threshold */
+        VERBOSE(20, "VRB");
 
-    /** "Notice" level (not thresholded) */
-    public static final int NOTICE = 20000;
+        public final int threshold;
+        public final String terseCode;
 
-    /** "Metrics" level (not thresholded) */
-    public static final int METRICS = 20001;
-
-    /** "Error" level trace threshold */
-    public static final int ERROR = 10000;  /* Always on */
-
-    /** "Warning" level trace threshold */
-    public static final int WARNING = 120;
-
-    /** "World" level trace threshold */
-    public static final int WORLD = 100;
-
-    /** "Usage" level trace threshold */
-    public static final int USAGE = 80;
-
-    /** "Event" level trace threshold */
-    public static final int EVENT = 60;
-
-    /** "Message" level trace threshold.  Essentially the save as "Event", but
-        flagged differently in log entries. */
-    public static final int MESSAGE = 59;
-
-    /** "Debug" level trace threshold */
-    public static final int DEBUG = 40;
-
-    /** "Verbose" level trace threshold */
-    public static final int VERBOSE = 20;
+        Level(int threshold, String terseCode) {
+            this.threshold = threshold;
+            this.terseCode = terseCode;
+        }
+    }
 
     /** 
      * This variable statically controls whether tracing is enabled at all.  By
@@ -132,7 +133,7 @@ public class Trace {
      * controlled by setting the threshold, which effects various flags in a
      * coordinated fashion.
      */
-    private int myThreshold;
+    private Level myThreshold;
 
     /** Flag that the threshold is defaulted. */
     private boolean myThresholdIsDefaulted;
@@ -249,7 +250,7 @@ public class Trace {
      *
      * @param threshold  The new threshold value.
      */
-    public void setThreshold(int threshold) {
+    public void setThreshold(Level threshold) {
         if (myThreshold != threshold) {
             myThreshold = threshold;
             updateThresholdFlags();
@@ -283,13 +284,13 @@ public class Trace {
         verbose = debug = event = usage = warning = error = false;
         switch (myThreshold) {
             /* The order of the cases is significant, fallthrus intentional */
-            case Trace.VERBOSE: verbose = true;
-            case Trace.DEBUG:   debug   = true;
-            case Trace.EVENT:   event   = true;
-            case Trace.USAGE:   usage   = true;
-            case Trace.WORLD:   world   = true;
-            case Trace.WARNING: warning = true;
-            case Trace.ERROR:   error   = true;
+            case VERBOSE: verbose = true;
+            case DEBUG:   debug   = true;
+            case EVENT:   event   = true;
+            case USAGE:   usage   = true;
+            case WORLD:   world   = true;
+            case WARNING: warning = true;
+            case ERROR:   error   = true;
                 break;
             default:
                 assert false: "bad case in updateThresholdFlags: " +
@@ -339,7 +340,7 @@ public class Trace {
      * @param obj  Arbitrary annotation object to go with the message (usually
      *     but not necessarily an exception).
      */
-    private void recordDebugMessage(String message, int level, Object obj) {
+    private void recordDebugMessage(String message, Level level, Object obj) {
         StackTraceElement frame;
         try {
             frame = new Exception().getStackTrace()[2];
@@ -359,7 +360,7 @@ public class Trace {
      * @param message  The message string
      * @param level  Trace level at which it is being output
      */
-    private void recordInfoMessage(String message, int level) {
+    private void recordInfoMessage(String message, Level level) {
         TraceMessage traceMessage =
             new TraceMessageInfo(mySubsystem, level, message);
         myAcceptor.accept(traceMessage);
@@ -375,7 +376,7 @@ public class Trace {
      */
     private void recordMetricsMessage(String type, int id, String value) {
         TraceMessage traceMessage =
-            new TraceMessageMetrics(mySubsystem, METRICS, type, id, value);
+            new TraceMessageMetrics(mySubsystem, Level.METRICS, type, id, value);
         myAcceptor.accept(traceMessage);
     }
 
@@ -523,7 +524,7 @@ public class Trace {
      * @param message  The message string
      */
     public void noticei(String message) {
-        recordInfoMessage(message, NOTICE);
+        recordInfoMessage(message, Level.NOTICE);
     }
 
     /**
@@ -536,7 +537,7 @@ public class Trace {
     public void msgi(Object conn, boolean inbound, Object msg) {
         if (event) {
             TraceMessage traceMessage =
-                new TraceMessageComm(mySubsystem, MESSAGE, conn.toString(),
+                new TraceMessageComm(mySubsystem, Level.MESSAGE, conn.toString(),
                                      inbound, msg.toString());
             myAcceptor.accept(traceMessage);
         }
@@ -548,7 +549,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void debugi(String message) {
-        if (debug) recordInfoMessage(message, DEBUG);
+        if (debug) recordInfoMessage(message, Level.DEBUG);
     }
 
     /**
@@ -557,7 +558,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void debugm(String message) {
-        if (debug) recordDebugMessage(message, DEBUG, null);
+        if (debug) recordDebugMessage(message, Level.DEBUG, null);
     }
 
     /**
@@ -567,7 +568,7 @@ public class Trace {
      * @param obj  Object to report with <tt>message</tt>.
      */
     public void debugm(String message, Object obj) {
-        if (debug) recordDebugMessage(message, DEBUG, obj);
+        if (debug) recordDebugMessage(message, Level.DEBUG, obj);
     }
 
     /**
@@ -577,7 +578,7 @@ public class Trace {
      * @param message  An explanatory message to accompany the log entry.
      */
     public void debugReportException(Throwable th, String message) {
-        if (debug) recordDebugMessage(message, DEBUG, th);
+        if (debug) recordDebugMessage(message, Level.DEBUG, th);
     }
 
 
@@ -587,7 +588,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void errori(String message) {
-        if (error) recordInfoMessage(message, ERROR);
+        if (error) recordInfoMessage(message, Level.ERROR);
     }
 
     /**
@@ -596,7 +597,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void errorm(String message) {
-        if (error) recordDebugMessage(message, ERROR, null);
+        if (error) recordDebugMessage(message, Level.ERROR, null);
     }
 
     /**
@@ -606,7 +607,7 @@ public class Trace {
      * @param obj  Object to report with <tt>message</tt>.
      */
     public void errorm(String message, Object obj) {
-        if (error) recordDebugMessage(message, ERROR, obj);
+        if (error) recordDebugMessage(message, Level.ERROR, obj);
     }
 
     /**
@@ -616,7 +617,7 @@ public class Trace {
      * @param message  An explanatory message to accompany the log entry.
      */
     public void errorReportException(Throwable th, String message) {
-        if (error) recordDebugMessage(message, ERROR, th);
+        if (error) recordDebugMessage(message, Level.ERROR, th);
     }
 
 
@@ -626,7 +627,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void eventi(String message) {
-        if (event) recordInfoMessage(message, EVENT);
+        if (event) recordInfoMessage(message, Level.EVENT);
     }
 
     /**
@@ -635,7 +636,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void eventm(String message) {
-        if (event) recordDebugMessage(message, EVENT, null);
+        if (event) recordDebugMessage(message, Level.EVENT, null);
     }
 
     /**
@@ -645,7 +646,7 @@ public class Trace {
      * @param obj  Object to report with <tt>message</tt>.
      */
     public void eventm(String message, Object obj) {
-        if (event) recordDebugMessage(message, EVENT, obj);
+        if (event) recordDebugMessage(message, Level.EVENT, obj);
     }
 
     /**
@@ -655,7 +656,7 @@ public class Trace {
      * @param message  An explanatory message to accompany the log entry.
      */
     public void eventReportException(Throwable th, String message) {
-        if (event) recordDebugMessage(message, EVENT, th);
+        if (event) recordDebugMessage(message, Level.EVENT, th);
     }
 
 
@@ -665,7 +666,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void usagei(String message) {
-        if (usage) recordInfoMessage(message, USAGE);
+        if (usage) recordInfoMessage(message, Level.USAGE);
     }
 
     /**
@@ -674,7 +675,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void usagem(String message) {
-        if (usage) recordDebugMessage(message, USAGE, null);
+        if (usage) recordDebugMessage(message, Level.USAGE, null);
     }
 
     /**
@@ -684,7 +685,7 @@ public class Trace {
      * @param obj  Object to report with <tt>message</tt>.
      */
     public void usagem(String message, Object obj) {
-        if (usage) recordDebugMessage(message, USAGE, obj);
+        if (usage) recordDebugMessage(message, Level.USAGE, obj);
     }
 
     /**
@@ -694,7 +695,7 @@ public class Trace {
      * @param message  An explanatory message to accompany the log entry.
      */
     public void usageReportException(Throwable th, String message) {
-        if (usage) recordDebugMessage(message, USAGE, th);
+        if (usage) recordDebugMessage(message, Level.USAGE, th);
     }
 
 
@@ -704,7 +705,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void verbosei(String message) {
-        if (verbose) recordInfoMessage(message, VERBOSE);
+        if (verbose) recordInfoMessage(message, Level.VERBOSE);
     }
 
     /**
@@ -713,7 +714,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void verbosem(String message) {
-        if (verbose) recordDebugMessage(message, VERBOSE, null);
+        if (verbose) recordDebugMessage(message, Level.VERBOSE, null);
     }
 
     /**
@@ -723,7 +724,7 @@ public class Trace {
      * @param obj  Object to report with <tt>message</tt>.
      */
     public void verbosem(String message, Object obj) {
-        if (verbose) recordDebugMessage(message, VERBOSE, obj);
+        if (verbose) recordDebugMessage(message, Level.VERBOSE, obj);
     }
 
     /**
@@ -733,7 +734,7 @@ public class Trace {
      * @param message  An explanatory message to accompany the log entry.
      */
     private void verboseReportException(Throwable th, String message) {
-        if (verbose) recordDebugMessage(message, VERBOSE, th);
+        if (verbose) recordDebugMessage(message, Level.VERBOSE, th);
     }
 
 
@@ -743,7 +744,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void warningi(String message) {
-        if (warning) recordInfoMessage(message, WARNING);
+        if (warning) recordInfoMessage(message, Level.WARNING);
     }
 
     /**
@@ -752,7 +753,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void warningm(String message) {
-        if (warning) recordDebugMessage(message, WARNING, null);
+        if (warning) recordDebugMessage(message, Level.WARNING, null);
     }
 
     /**
@@ -762,7 +763,7 @@ public class Trace {
      * @param obj  Object to report with <tt>message</tt>.
      */
     public void warningm(String message, Object obj) {
-        if (warning) recordDebugMessage(message, WARNING, obj);
+        if (warning) recordDebugMessage(message, Level.WARNING, obj);
     }
 
     /**
@@ -772,7 +773,7 @@ public class Trace {
      * @param message  An explanatory message to accompany the log entry.
      */
     public void warningReportException(Throwable th, String message) {
-        if (warning) recordDebugMessage(message, WARNING, th);
+        if (warning) recordDebugMessage(message, Level.WARNING, th);
     }
 
 
@@ -782,7 +783,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void worldi(String message) {
-        if (world) recordInfoMessage(message, WORLD);
+        if (world) recordInfoMessage(message, Level.WORLD);
     }
 
     /**
@@ -791,7 +792,7 @@ public class Trace {
      * @param message  The message to write to the log.
      */
     public void worldm(String message) {
-        if (world) recordDebugMessage(message, WORLD, null);
+        if (world) recordDebugMessage(message, Level.WORLD, null);
     }
 
     /**
@@ -801,7 +802,7 @@ public class Trace {
      * @param obj  Object to report with <tt>message</tt>.
      */
     public void worldm(String message, Object obj) {
-        if (world) recordDebugMessage(message, WORLD, obj);
+        if (world) recordDebugMessage(message, Level.WORLD, obj);
     }
 
     /**
@@ -811,6 +812,6 @@ public class Trace {
      * @param message  An explanatory message to accompany the log entry.
      */
     public void worldReportException(Throwable th, String message) {
-        if (world) recordDebugMessage(message, WORLD, th);
+        if (world) recordDebugMessage(message, Level.WORLD, th);
     }
 }

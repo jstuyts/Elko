@@ -18,7 +18,7 @@ class TraceMessageMetrics extends TraceMessage {
     /**
      * Constructor.
      */
-    TraceMessageMetrics(String subsystem, int level, String type, int id,
+    TraceMessageMetrics(String subsystem, Trace.Level level, String type, int id,
                         String value)
     {
         super(subsystem, level);

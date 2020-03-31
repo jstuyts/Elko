@@ -380,18 +380,18 @@ class LogEater {
     }
 
     /** Table mapping from message tags to logging levels. */
-    private static Map<String,Integer> tags = new HashMap<>();
+    private static Map<String, Trace.Level> tags = new HashMap<>();
     static {
-        tags.put("NTC", Trace.NOTICE);
-        tags.put("MET", Trace.METRICS);
-        tags.put("MSG", Trace.MESSAGE);
-        tags.put("ERR", Trace.ERROR);
-        tags.put("WRN", Trace.WARNING);
-        tags.put("WLD", Trace.WORLD);
-        tags.put("USE", Trace.USAGE);
-        tags.put("EVN", Trace.EVENT);
-        tags.put("DBG", Trace.DEBUG);
-        tags.put("VRB", Trace.VERBOSE);
+        tags.put("NTC", Trace.Level.NOTICE);
+        tags.put("MET", Trace.Level.METRICS);
+        tags.put("MSG", Trace.Level.MESSAGE);
+        tags.put("ERR", Trace.Level.ERROR);
+        tags.put("WRN", Trace.Level.WARNING);
+        tags.put("WLD", Trace.Level.WORLD);
+        tags.put("USE", Trace.Level.USAGE);
+        tags.put("EVN", Trace.Level.EVENT);
+        tags.put("DBG", Trace.Level.DEBUG);
+        tags.put("VRB", Trace.Level.VERBOSE);
     }
 
     /** Regexp to parse the message field of a metrics entry. */
@@ -416,13 +416,13 @@ class LogEater {
                                String subsystem, String location,
                                String message)
     {
-        Integer tag = tags.get(tagStr);
+        Trace.Level tag = tags.get(tagStr);
         if (tag == null) {
             e("unknown log tag '" + tagStr + "'");
             return;
         }
         switch (tag) {
-            case Trace.METRICS:
+            case METRICS:
                 if (amEatingMetrics) {
                     Matcher metricsMatcher = METRICS_PATTERN.matcher(message);
                     if (metricsMatcher.matches()) {
@@ -440,14 +440,14 @@ class LogEater {
                 } else {
                     return;
                 }
-            case Trace.NOTICE:
+            case NOTICE:
                 if (amEatingDebug) {
                     processInfo(timestamp, subsystem, message);
                     return;
                 } else {
                     return;
                 }
-            case Trace.MESSAGE:
+            case MESSAGE:
                 if (amEatingComm) {
                     Matcher commMatcher = COMM_PATTERN.matcher(message);
                     if (commMatcher.matches()) {
@@ -465,13 +465,13 @@ class LogEater {
                 } else {
                     return;
                 }
-            case Trace.ERROR:
-            case Trace.WARNING:
-            case Trace.WORLD:
-            case Trace.USAGE:
-            case Trace.EVENT:
-            case Trace.DEBUG:
-            case Trace.VERBOSE:
+            case ERROR:
+            case WARNING:
+            case WORLD:
+            case USAGE:
+            case EVENT:
+            case DEBUG:
+            case VERBOSE:
                 if (amEatingDebug) {
                     processDebug(timestamp, subsystem, tag, location,
                             message);
@@ -654,20 +654,10 @@ class LogEater {
      * @param message  The free-form message text.
      *
      */
-    private void processDebug(long timestamp, String subsystem, int level,
+    private void processDebug(long timestamp, String subsystem, Trace.Level level,
                               String location, String message)
     {
-        String tag;
-        switch (level) {
-            case Trace.ERROR:   tag = "ERR"; break;
-            case Trace.WARNING: tag = "WRN"; break;
-            case Trace.WORLD:   tag = "WLD"; break;
-            case Trace.USAGE:   tag = "USE"; break;
-            case Trace.EVENT:   tag = "EVN"; break;
-            case Trace.DEBUG:   tag = "DBG"; break;
-            case Trace.VERBOSE: tag = "VRB"; break;
-            default:            tag = "???"; break;
-        }
+        String tag = level.terseCode;
         if (amTesting) {
             String timestr =
                 String.format("%1$tY/%1$tm/%1$td %1$tT.%1$tL", timestamp);

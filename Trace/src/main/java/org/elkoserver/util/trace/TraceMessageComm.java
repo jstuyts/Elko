@@ -17,7 +17,7 @@ class TraceMessageComm extends TraceMessage {
     /**
      * Constructor.
      */
-    TraceMessageComm(String subsystem, int level, String conn, boolean inbound,
+    TraceMessageComm(String subsystem, Trace.Level level, String conn, boolean inbound,
                      String msg)
     {
         super(subsystem, level);

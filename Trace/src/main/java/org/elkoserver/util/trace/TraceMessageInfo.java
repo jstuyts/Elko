@@ -12,7 +12,7 @@ class TraceMessageInfo extends TraceMessage {
     /**
      * Constructor.
      */
-    TraceMessageInfo(String subsystem, int level, String text)
+    TraceMessageInfo(String subsystem, Trace.Level level, String text)
     {
         super(subsystem, level);
         myText = text;

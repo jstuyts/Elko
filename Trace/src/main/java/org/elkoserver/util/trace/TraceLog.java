@@ -1,5 +1,6 @@
 package org.elkoserver.util.trace;
 
+import java.io.File;
 import java.util.Calendar;
 import java.util.LinkedList;
 import java.util.List;
@@ -18,15 +19,28 @@ class TraceLog implements TraceMessageAcceptor {
     private static final long SMALLEST_LOG_SIZE_THRESHOLD = 1000;
 
     /* Behaviors when opening files that already exist */
-    private static final int VA_IRRELEVANT = -1; /* When opening stdout */
-    static final int VA_OVERWRITE = 0;   /* Empty: overwrite existing */
-    static final int VA_ADD = 1;         /* Rollover: add a new file */
-    private static final int STARTING_LOG_VERSION_ACTION = VA_ADD;
+    enum ClashAction {
+        OVERWRITE {
+            @Override
+            File versionFile(TraceVersionNamer traceVersionNamer) {
+                return traceVersionNamer.firstVersion();
+            }
+        },
+        ADD {
+            @Override
+            File versionFile(TraceVersionNamer traceVersionNamer) {
+                return traceVersionNamer.nextAvailableVersion();
+            }
+        };
+
+        abstract File versionFile(TraceVersionNamer traceVersionNamer);
+    }
+    private static final ClashAction STARTING_LOG_VERSION_ACTION = ClashAction.ADD;
 
     static final String DEFAULT_NAME = "default";
 
     /** What to do with full or existing log files: rollover or empty. */
-    private int myVersionAction = STARTING_LOG_VERSION_ACTION;
+    private ClashAction myVersionAction = STARTING_LOG_VERSION_ACTION;
 
     /** Flag controlling whether a log file should be written at all. */
     private boolean amWriteEnabled = false;
@@ -131,14 +145,14 @@ class TraceLog implements TraceMessageAcceptor {
     private void beginLogging() {
         try {
             /* Rename any existing file */
-            myPending.startUsing(myVersionAction, null);
+            myPending.startUsing(null);
         } catch (Exception e) {
             /* Couldn't open the log file.  Bail to stdout. */
             Trace.trace.shred(e, "Exception has already been logged.");
 
             myCurrent = TraceLogDescriptor.stdout;
             try { 
-                myCurrent.startUsing(VA_IRRELEVANT, null);
+                myCurrent.startUsing(null);
             } catch (Exception ignore) {
                 assert false: "Exceptions shouldn't happen opening stdout.";
             }
@@ -160,12 +174,13 @@ class TraceLog implements TraceMessageAcceptor {
      * file fills up.
      */
     private void changeVersionFileHandling(String newBehavior) {
-        if (newBehavior.equalsIgnoreCase("one") || newBehavior.equals("1")) {
+        String lowerCaseNewBehavior = newBehavior.toLowerCase(ENGLISH);
+        if (lowerCaseNewBehavior.equals("one") || newBehavior.equals("1")) {
             Trace.trace.eventi("Log files will be overwritten.");
-            myVersionAction = VA_OVERWRITE;
-        } else if (newBehavior.equalsIgnoreCase("many")) {
+            myVersionAction = ClashAction.OVERWRITE;
+        } else if (lowerCaseNewBehavior.equals("many")) {
             Trace.trace.eventi("New version files will always be created.");
-            myVersionAction = VA_ADD;
+            myVersionAction = ClashAction.ADD;
         } else {
             Trace.trace.errori(
                 "tracelog_versions property was given unknown value '" +
@@ -266,9 +281,10 @@ class TraceLog implements TraceMessageAcceptor {
      */
     private void changeSize(String value) {
         long newSize;
-        if (value.equalsIgnoreCase(DEFAULT_NAME)) {
+        String lowerCaseValue = value.toLowerCase(ENGLISH);
+        if (lowerCaseValue.equals(DEFAULT_NAME)) {
             newSize = STARTING_LOG_SIZE_THRESHOLD; 
-        } else if (value.equalsIgnoreCase("unlimited")) {
+        } else if (lowerCaseValue.equals("unlimited")) {
             newSize = Long.MAX_VALUE;
         } else try { 
             newSize = Long.parseLong(value);
@@ -322,7 +338,8 @@ class TraceLog implements TraceMessageAcceptor {
      * There would be some merit in having a state machine implement all this.
      */
     private void changeWrite(String value) {
-        if (value.equalsIgnoreCase("true")) {
+        String lowerCaseValue = value.toLowerCase(ENGLISH);
+        if (lowerCaseValue.equals("true")) {
             if (amWriteEnabled) { 
                 Trace.trace.warningi("Log writing enabled twice in a row.");
             } else {
@@ -333,7 +350,7 @@ class TraceLog implements TraceMessageAcceptor {
                     beginLogging();
                 } 
             }
-        } else if (value.equalsIgnoreCase("false")) {
+        } else if (lowerCaseValue.equals("false")) {
             if (!amWriteEnabled) {
                 Trace.trace.warningi("Log writing disabled twice in a row.");
             } else {
@@ -412,7 +429,7 @@ class TraceLog implements TraceMessageAcceptor {
         try {
             /* rename an existing file, since it is not an earlier version of
                the new name we're using. */
-            myPending.startUsing(myVersionAction, null);
+            myPending.startUsing(null);
         } catch (Exception e) {
             Trace.trace.shred(e, "Exception has already been logged.");
             /* continue using current. */
@@ -571,13 +588,13 @@ class TraceLog implements TraceMessageAcceptor {
         startQueuing(); /* further messages should go to the new log. */
 
         try {
-            myPending.startUsing(myVersionAction, myCurrent);
+            myPending.startUsing(myCurrent);
         } catch (Exception e) {
             Trace.trace.shred(e, "Exception has already been logged.");
             myCurrent = TraceLogDescriptor.stdout;
             myCurrentSize = 0;
             try { 
-                myCurrent.startUsing(VA_IRRELEVANT, null);
+                myCurrent.startUsing(null);
             } catch (Exception ignore) {
                 assert false: "No exceptions when opening stdout.";
             }

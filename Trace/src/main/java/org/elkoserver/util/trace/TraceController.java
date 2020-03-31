@@ -15,7 +15,7 @@ public class TraceController {
      * Trace threshold that applies to subsystems that haven't been given
      * specific values.
      */
-    static /*private*/ int theDefaultThreshold;
+    static /*private*/ Trace.Level theDefaultThreshold;
 
     /** Have we already been initialized? */
     private static boolean theStarted = false;
@@ -30,7 +30,7 @@ public class TraceController {
            Trace, because it makes use of them.
         */
         theAcceptor = new TraceLog(); /* disk log as default */
-        theDefaultThreshold = Trace.WARNING;
+        theDefaultThreshold = Trace.Level.WARNING;
 
         /* Load Trace.class to define trace.trace().  Otherwise, it only gets
            loaded when the first client refers to it.  It's convenient to load
@@ -55,11 +55,11 @@ public class TraceController {
     /**
      * Change the default tracing threshold.
      */
-    private static void changeDefaultThreshold(int newThreshold) {
+    private static void changeDefaultThreshold(Trace.Level newThreshold) {
         theDefaultThreshold = newThreshold;
-        
+
         Trace.trace.eventi("The new default threshold for log is " +
-                           TraceLevelTranslator.terse(newThreshold));
+                newThreshold.terseCode);
     }
 
     /** 
@@ -73,7 +73,7 @@ public class TraceController {
         if (value.equalsIgnoreCase(TraceLog.DEFAULT_NAME)) {
             tr.setThreshold(theDefaultThreshold);
         } else {
-            tr.setThreshold(TraceLevelTranslator.toInt(value));
+            tr.setThreshold(TraceLevelTranslator.toLevel(value));
         }
     }
 
@@ -130,7 +130,7 @@ public class TraceController {
             if (lowerKey.startsWith("trace_")) {
                 String afterUnderscore = key.substring(6);
                 if (afterUnderscore.equalsIgnoreCase(TraceLog.DEFAULT_NAME)) {
-                    changeDefaultThreshold(TraceLevelTranslator.toInt(value));
+                    changeDefaultThreshold(TraceLevelTranslator.toLevel(value));
                 } else {
                     changeSubsystemThreshold(afterUnderscore, value);
                 }

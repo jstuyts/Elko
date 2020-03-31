@@ -4,6 +4,8 @@ import org.elkoserver.foundation.timer.Timeout;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
 
+import static java.util.Locale.ENGLISH;
+
 /**
  * Message handler for HTTP requests wrapping a message stream.
  */
@@ -106,22 +108,25 @@ class HTTPMessageHandler implements MessageHandler {
         } else if (Trace.comm.debug && Trace.ON) {
             Trace.comm.debugm(connection + " |> " + message.URI());
         }
-        
-        if (message.method().equalsIgnoreCase("GET")) {
-            myFactory.handleGET(connection, message.URI(),
-                                message.isNonPersistent());
-        } else if (message.method().equalsIgnoreCase("POST")) {
-            myFactory.handlePOST(connection, message.URI(),
-                                 message.isNonPersistent(), message.content());
-        } else if (message.method().equalsIgnoreCase("OPTIONS")) {
-            myFactory.handleOPTIONS(connection, message);
-        } else {
-            if (Trace.comm.usage && Trace.ON) {
-                Trace.comm.usagem("Received invalid HTTP method " +
-                                  message.method() + " from " + connection);
-            }
-            connection.close();
+
+        String upperCaseMethod = message.method().toUpperCase(ENGLISH);
+        switch (upperCaseMethod) {
+            case "GET":
+                myFactory.handleGET(connection, message.URI(), message.isNonPersistent());
+                break;
+            case "POST":
+                myFactory.handlePOST(connection, message.URI(), message.isNonPersistent(), message.content());
+                break;
+            case "OPTIONS":
+                myFactory.handleOPTIONS(connection, message);
+                break;
+            default:
+                if (Trace.comm.usage && Trace.ON) {
+                    Trace.comm.usagem("Received invalid HTTP method " +
+                            message.method() + " from " + connection);
+                }
+                connection.close();
+                break;
         }
     }
 }
-

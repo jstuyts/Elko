@@ -19,7 +19,7 @@ class TraceMessage {
      * determines <i>whether</i> the message should be output.  (The latter is
      * controlled by the {@link Trace} object).
      */
-    private final int myLevel;
+    private final Trace.Level myLevel;
 
     /**
      * Start a new TraceMessage.
@@ -27,7 +27,7 @@ class TraceMessage {
      * @param subsystem  The subsystem which generated the message
      * @param level  The trace level applicable to the message
      */
-    TraceMessage(String subsystem, int level) {
+    TraceMessage(String subsystem, Trace.Level level) {
         myTimestamp = System.currentTimeMillis();
         mySubsystem = subsystem;
         myLevel = level;
@@ -61,7 +61,7 @@ class TraceMessage {
         Formatter formatter = new Formatter(buffer);
         formatter.format("- %1$tY/%1$tm/%1$td %1$tT.%1$tL ", myTimestamp);
 
-        buffer.append(TraceLevelTranslator.terse(myLevel));
+        buffer.append(myLevel.terseCode);
         buffer.append(' ');
 
         buffer.append(mySubsystem);
