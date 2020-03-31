@@ -124,9 +124,9 @@ public class Contextor extends RefTable {
 
         if (odb == null) {
             tr.fatalError("no database specified");
+            throw new IllegalStateException();
         }
         myODB = odb;
-        //noinspection ConstantConditions
         myODB.addClass("context", Context.class);
         myODB.addClass("item", Item.class);
         myODB.addClass("user", User.class);

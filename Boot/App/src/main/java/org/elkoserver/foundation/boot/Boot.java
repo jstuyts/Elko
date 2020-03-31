@@ -3,6 +3,8 @@ package org.elkoserver.foundation.boot;
 import org.elkoserver.util.trace.ExceptionManager;
 import org.elkoserver.util.trace.TraceController;
 
+import java.lang.reflect.InvocationTargetException;
+
 /**
  * This is the universal startup class for applications using Elko.  It
  * performs the necessary initializations that all applications require, then
@@ -19,7 +21,7 @@ import org.elkoserver.util.trace.TraceController;
  *
  * In addition to regular application command line parameters, property
  * settings may also be given on the command line.  They are interpreted
- * according to the format in {@link BootProperties#scanArgs}.  Arguments that
+ * according to the format in {@link BootPropertiesImpl#scanArgs}.  Arguments that
  * set property values are removed from the arguments array before it is
  * presented to the application.<p>
  */
@@ -128,7 +130,7 @@ class Boot extends Thread {
             IllegalAccessException, InstantiationException
     {
         /* Extract property assignments from command line args */
-        BootProperties props = new BootProperties();
+        BootPropertiesImpl props = new BootPropertiesImpl();
         myArgs = props.scanArgs(myArgs);
 
         /* Start up tracing early, in case anyone needs it during setup */
@@ -140,9 +142,13 @@ class Boot extends Thread {
         }
         Bootable starter;
         try {
-            starter = (Bootable) Class.forName(myArgs[0]).newInstance();
+            starter = (Bootable) Class.forName(myArgs[0]).getConstructor().newInstance();
         } catch (ClassCastException e) {
             throw new ClassCastException(myArgs[0] + " isn't a Bootable");
+        } catch (NoSuchMethodException e) {
+            throw new IllegalStateException("Class does not have a public no-arg constructor", e);
+        } catch (InvocationTargetException e) {
+            throw new IllegalStateException("Error occurred during construction of class", e.getCause());
         }
 
         starter.boot(props);

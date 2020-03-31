@@ -1,7 +1,5 @@
 package org.elkoserver.foundation.boot;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 /**
@@ -9,22 +7,31 @@ import java.util.Properties;
  * properties settings out of the command line and also provides a friendlier
  * interface to the values of the properties settings themselves.
  */
-public class BootProperties extends Properties
+public abstract class BootProperties
 {
+    protected final Properties properties = new Properties();
+
     /**
      * Creates an empty property collection with no default values.
      */
-    public BootProperties() {
+    protected BootProperties() {
         super();
     }
 
-    /**
-     * Creates an empty property collection with the specified defaults.
-     *
-     * @param defaults  A set of properties to use as a default initializer.
-     */
-    public BootProperties(Properties defaults) {
-        super(defaults);
+    public boolean containsProperty(String property) {
+        return properties.containsKey(property);
+    }
+
+    public String getProperty(String property) {
+        return properties.getProperty(property);
+    }
+
+    public String getProperty(String property, String defaultValue) {
+        return properties.getProperty(property, defaultValue);
+    }
+
+    public Iterable<String> stringPropertyNames() {
+        return properties.stringPropertyNames();
     }
 
     /**
@@ -39,7 +46,7 @@ public class BootProperties extends Properties
      * @return the value of the property interpreted as a boolean.
      */
     public boolean boolProperty(String property, boolean defaultValue) {
-        String val = getProperty(property);
+        String val = properties.getProperty(property);
         if ("true".equals(val)) {
             return true;
         } else if ("false".equals(val)) {
@@ -58,7 +65,7 @@ public class BootProperties extends Properties
      * @return the value of the property interpreted as a double.
      */
     public double doubleProperty(String property, double defaultValue) {
-        String val = getProperty(property);
+        String val = properties.getProperty(property);
         if (val != null) {
             try {
                 return Double.parseDouble(val);
@@ -79,7 +86,7 @@ public class BootProperties extends Properties
      * @return the value of the property interpreted as an int.
      */
     public int intProperty(String property, int defaultValue) {
-        String val = getProperty(property);
+        String val = properties.getProperty(property);
         if (val != null) {
             try {
                 return Integer.parseInt(val);
@@ -89,49 +96,6 @@ public class BootProperties extends Properties
         } else {
             return defaultValue;
         }
-    }
-
-    /**
-     * Read properties files and parse property settings from the command line.
-     * Unless otherwise directed, a default properties file is read for
-     * property definitions.  The command line is parsed for additional
-     * property assignments according to the following rules:<p>
-     *
-     * <tt><i>key</i>=<i>val</i></tt><blockquote>
-     *      The property named <tt><i>key</i></tt> is given the value
-     *      <tt><i>val</i></tt>.</blockquote>
-     *
-     * <tt><i>anythingelse</i></tt><blockquote>
-     *      The argument is added to the returned arguments array.</blockquote>
-     *
-     * @param inArgs  The raw, unprocessed command line arguments array.
-     *
-     * @return an array of the arguments remaining after all the
-     *    property-specifying ones are stripped out.
-     */
-    public String[] scanArgs(String[] inArgs) {
-        List<String> args = new ArrayList<>(inArgs.length);
-        List<String> propSets = new ArrayList<>(inArgs.length);
-
-        /* First pass parse of inArgs array */
-        for (String arg : inArgs) {
-            if (arg.indexOf('=') > 0) {
-                propSets.add(arg);
-            } else {
-                args.add(arg);
-            }
-        }
-
-        /* Assign props set directly on command line */
-        for (String assoc : propSets) {
-            int j = assoc.indexOf('=');
-            String key = assoc.substring(0, j);
-            String value = assoc.substring(j + 1);
-            put(key, value);
-        }
-
-        /* Return the actual args that remain */
-        return args.toArray(new String[0]);
     }
 
     /**
@@ -161,7 +125,7 @@ public class BootProperties extends Properties
      */
     public boolean testProperty(String property, String possibleValue) {
         if (possibleValue != null) {
-            return possibleValue.equals(getProperty(property));
+            return possibleValue.equals(properties.getProperty(property));
         } else {
             return false;
         }

@@ -68,9 +68,9 @@ public class ObjDBLocal extends ObjDBBase {
         } catch (ClassNotFoundException e) {
             tr.fatalError("object store class " + objectStoreClassName +
                           " not found");
+            throw new IllegalStateException();
         }
         try {
-            //noinspection ConstantConditions
             myObjectStore = (ObjectStore) objectStoreClass.getConstructor().newInstance();
         } catch (IllegalAccessException e) {
             tr.fatalError("unable to access object store constructor: " + e);

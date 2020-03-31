@@ -1,6 +1,7 @@
 package org.elkoserver.foundation.net;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
 import javax.net.ssl.SSLContext;
@@ -87,7 +88,7 @@ public class NetworkManager {
         if (result == null) {
             try {
                 result =
-                    (ConnectionManager) Class.forName(className).newInstance();
+                    (ConnectionManager) Class.forName(className).getConstructor().newInstance();
                 result.init(this, msgTrace);
                 myConnectionManagers.put(className, result);
             } catch (ClassNotFoundException e) {
@@ -99,6 +100,12 @@ public class NetworkManager {
             } catch (IllegalAccessException e) {
                 Trace.comm.errorm("ConnectionManager class " + className +
                                   " constructor not accessible: " + e);
+            } catch (NoSuchMethodException e) {
+                Trace.comm.errorm("ConnectionManager class " + className +
+                        " does not have a public no-arg constructor: " + e);
+            } catch (InvocationTargetException e) {
+                Trace.comm.errorm("Error occurred during creation of connectionManager class " + className +
+                        ": " + e.getCause());
             }
         }
         return result;

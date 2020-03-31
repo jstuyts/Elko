@@ -1,7 +1,9 @@
 package org.elkoserver.util.trace;
 
+import org.elkoserver.foundation.boot.BootProperties;
+
+import java.util.HashMap;
 import java.util.Map;
-import java.util.Properties;
 
 import static java.util.Locale.ENGLISH;
 
@@ -99,9 +101,12 @@ public class TraceController {
      *
      * IMPORTANT:  The properties are processed in an unpredictable order.
      */
-    private static void setProperties(Properties props) {
-        for (Map.Entry<Object,Object> entry : props.entrySet()) {
-            setProperty((String) entry.getKey(), (String) entry.getValue());
+    private static void setProperties(BootProperties props, Map<String, String> additionalProperties) {
+        for (String property : props.stringPropertyNames()) {
+            setProperty(property, props.getProperty(property));
+        }
+        for (Map.Entry<String, String> entry: additionalProperties.entrySet()) {
+            setProperty(entry.getKey(), entry.getValue());
         }
     }
 
@@ -158,7 +163,7 @@ public class TraceController {
      * @param props  The initial set of properties provided by the user.  They
      *    override the defaults.  They may be changed later.
      */
-    public static void start(Properties props) {
+    public static void start(BootProperties props) {
         if (theStarted) {
             Trace.trace.errorm(
                 "The tracing system is being started for a second time.\n" +
@@ -169,17 +174,18 @@ public class TraceController {
         theStarted = true;
         Trace.trace.usagem("Tracing system being started.");
 
-        if (!props.containsKey("tracelog_write")) {
-            props.put("tracelog_write", "true");
+        Map<String, String> additionalProperties = new HashMap<>();
+        if (!props.containsProperty("tracelog_write")) {
+            additionalProperties.put("tracelog_write", "true");
         }
         
-        if (!props.containsKey("tracelog_name") && 
-                !props.containsKey("tracelog_dir") && 
-                !props.containsKey("tracelog_tag")) {
-            props.put("tracelog_name", "-");
+        if (!props.containsProperty("tracelog_name") &&
+                !props.containsProperty("tracelog_dir") &&
+                !props.containsProperty("tracelog_tag")) {
+            additionalProperties.put("tracelog_name", "-");
         }
 
-        setProperties(props);
+        setProperties(props, additionalProperties);
         theAcceptor.setupIsComplete();
         new TraceExceptionNoticer();
     }

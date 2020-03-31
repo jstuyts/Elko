@@ -1,6 +1,8 @@
 package org.elkoserver.server.gatekeeper;
 
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+
 import org.elkoserver.foundation.actor.BasicProtocolActor;
 import org.elkoserver.foundation.actor.RefTable;
 import org.elkoserver.foundation.boot.BootProperties;
@@ -93,19 +95,28 @@ public class Gatekeeper {
         String authorizerClassName =
             props.getProperty("conf.gatekeeper.authorizer",
                  "org.elkoserver.server.gatekeeper.passwd.PasswdAuthorizer");
-        Class authorizerClass = null;
+        Class<?> authorizerClass;
         try {
             authorizerClass = Class.forName(authorizerClassName);
         } catch (ClassNotFoundException e) {
             tr.fatalError("auth service class " + authorizerClassName +
                           " not found");
+            throw new IllegalStateException();
         }
         try {
-            myAuthorizer = (Authorizer) authorizerClass.newInstance();
+            myAuthorizer = (Authorizer) authorizerClass.getConstructor().newInstance();
         } catch (IllegalAccessException e) {
             tr.fatalError("unable to access auth service constructor: " + e);
+            throw new IllegalStateException();
         } catch (InstantiationException e) {
             tr.fatalError("unable to instantiate auth service object: " + e);
+            throw new IllegalStateException();
+        } catch (NoSuchMethodException e) {
+            tr.fatalError("auth service object does not have a public no-arg constructor: " + e);
+            throw new IllegalStateException();
+        } catch (InvocationTargetException e) {
+            tr.fatalError("error occurred during instantiation of auth service object: " + e);
+            throw new IllegalStateException();
         }
         myAuthorizer.initialize(this);
 

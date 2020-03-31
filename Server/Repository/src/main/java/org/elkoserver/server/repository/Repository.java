@@ -40,26 +40,29 @@ class Repository {
         String objectStoreClassName =
                 server.props().getProperty(propRoot + ".objstore",
                         "org.elkoserver.objdb.store.filestore.FileObjectStore");
-        Class<?> objectStoreClass = null;
+        Class<?> objectStoreClass;
         try {
             objectStoreClass = Class.forName(objectStoreClassName);
         } catch (ClassNotFoundException e) {
             appTrace.fatalError("object store class " + objectStoreClassName +
                     " not found");
+            throw new IllegalStateException();
         }
         try {
-            //noinspection ConstantConditions
             myObjectStore = (ObjectStore) objectStoreClass.getConstructor().newInstance();
         } catch (IllegalAccessException e) {
             appTrace.fatalError("unable to access object store constructor: " + e);
+            throw new IllegalStateException();
         } catch (InstantiationException e) {
             appTrace.fatalError("unable to instantiate object store object: " + e);
+            throw new IllegalStateException();
         } catch (NoSuchMethodException e) {
             appTrace.fatalError("unable to find object store constructor: " + e);
+            throw new IllegalStateException();
         } catch (InvocationTargetException e) {
             appTrace.fatalError("error during invocation of object store constructor: " + e.getCause());
+            throw new IllegalStateException();
         }
-        //noinspection ConstantConditions
         myObjectStore.initialize(myServer.props(), propRoot, appTrace);
 
         myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);

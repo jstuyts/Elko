@@ -8,6 +8,7 @@ repositories {
 }
 
 dependencies {
+    implementation(project(":Boot:Api"))
     implementation(project(":Json"))
 }
 
