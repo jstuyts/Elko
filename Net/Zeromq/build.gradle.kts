@@ -3,10 +3,8 @@ plugins {
 }
 
 repositories {
+    jcenter()
     mavenCentral()
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2")
-    }
 }
 
 dependencies {
@@ -21,9 +19,9 @@ dependencies {
     implementation(project(":ServerCore"))
     implementation(project(":ServerMetadata"))
     implementation(project(":Trace"))
-    implementation("org.zeromq:jeromq:0.5.1")
+    implementation(Libraries.jeromq)
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_14
+    sourceCompatibility = JavaVersion.VERSION_12
 }

@@ -3,5 +3,5 @@ plugins {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_14
+    sourceCompatibility = JavaVersion.VERSION_12
 }

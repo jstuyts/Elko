@@ -6,10 +6,8 @@ val mongodbHostAndPort: String? by project
 val actualMongodbHostAndPort = mongodbHostAndPort ?: "localhost:27017"
 
 repositories {
+    jcenter()
     mavenCentral()
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2")
-    }
 }
 
 dependencies {

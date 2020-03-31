@@ -3,10 +3,8 @@ plugins {
 }
 
 repositories {
+    jcenter()
     mavenCentral()
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2")
-    }
 }
 
 dependencies {
@@ -17,5 +15,5 @@ dependencies {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_14
+    sourceCompatibility = JavaVersion.VERSION_12
 }

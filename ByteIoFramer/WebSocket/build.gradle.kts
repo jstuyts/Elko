@@ -3,10 +3,8 @@ plugins {
 }
 
 repositories {
+    jcenter()
     mavenCentral()
-    maven {
-        url = uri("https://repo.maven.apache.org/maven2")
-    }
 }
 
 dependencies {
@@ -15,9 +13,9 @@ dependencies {
     implementation(project(":ByteIoFramer:Json"))
     implementation(project(":Json"))
     implementation(project(":Trace"))
-    implementation("commons-codec:commons-codec:1.9")
+    implementation(Libraries.commons_codec)
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_14
+    sourceCompatibility = JavaVersion.VERSION_12
 }
