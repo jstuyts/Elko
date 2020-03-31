@@ -1,8 +1,5 @@
 package org.elkoserver.server.gatekeeper;
 
-import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
-
 import org.elkoserver.foundation.actor.BasicProtocolActor;
 import org.elkoserver.foundation.actor.RefTable;
 import org.elkoserver.foundation.boot.BootProperties;
@@ -13,6 +10,8 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.objdb.ObjDB;
 import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.lang.reflect.InvocationTargetException;
 
 /**
  * The Gatekeeper itself as presented to its configured {@link Authorizer}
@@ -42,9 +41,6 @@ public class Gatekeeper {
     /** Object for managing director connections. */
     private DirectorActorFactory myDirectorActorFactory;
 
-    /** Trace object for controlling message logging. */
-    private Trace myMsgTrace;
-
     /**
      * Constructor.
      *
@@ -65,12 +61,6 @@ public class Gatekeeper {
         myDirectorActorFactory =
             new DirectorActorFactory(server.networkManager(), this, tr);
 
-        if (props.testProperty("conf.gatekeeper.director.dontlog")) {
-            myMsgTrace = Trace.none;
-        } else {
-            myMsgTrace = Trace.comm;
-        }
-
         myRetryInterval =
             props.intProperty("conf.gatekeeper.director.retry", -1);
 
@@ -84,11 +74,7 @@ public class Gatekeeper {
             if (directorHost == null) {
                 tr.errori("no director specified");
             } else {
-                try {
-                    setDirectorHost(directorHost);
-                } catch (IOException e) {
-                    tr.errorm("unable to open director connection", e);
-                }
+                setDirectorHost(directorHost);
             }
         }
 
@@ -132,11 +118,7 @@ public class Gatekeeper {
             if (desc[0].failure() != null) {
                 tr.errorm("unable to find director: " + desc[0].failure());
             } else {
-                try {
-                    setDirectorHost(desc[0].asHostDesc(myRetryInterval));
-                } catch (IOException e) {
-                    tr.errorm("unable to open director connection", e);
-                }
+                setDirectorHost(desc[0].asHostDesc(myRetryInterval));
             }
         }
     }
@@ -259,7 +241,7 @@ public class Gatekeeper {
      *
      * @param host  The new director host.
      */
-    void setDirectorHost(HostDesc host) throws IOException {
+    void setDirectorHost(HostDesc host) {
         if (myDirectorHost != null) {
             myDirectorActorFactory.disconnectDirector();
         }

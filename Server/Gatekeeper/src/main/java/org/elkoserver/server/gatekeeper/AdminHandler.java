@@ -1,6 +1,5 @@
 package org.elkoserver.server.gatekeeper;
 
-import java.io.IOException;
 import org.elkoserver.foundation.actor.BasicProtocolHandler;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
@@ -66,22 +65,13 @@ class AdminHandler extends BasicProtocolHandler {
         from.ensureAuthorizedAdmin();
 
         String hostportStr = hostport.value(null);
-        String failure = null;
         if (hostportStr != null) {
-            try {
-                myGatekeeper.setDirectorHost(
+            myGatekeeper.setDirectorHost(
                     new HostDesc("tcp", false, hostportStr,
-                                 AuthDesc.theOpenAuth, -1, false));
-            } catch (IOException e) {
-                failure = e.getMessage();
-            }
+                            AuthDesc.theOpenAuth, -1, false));
         }
-        if (failure == null) {
-            HostDesc directorHost = myGatekeeper.directorHost();
-            from.send(msgDirector(this, directorHost.hostPort(), null));
-        } else {
-            from.send(msgDirector(this, null, failure));
-        }
+        HostDesc directorHost = myGatekeeper.directorHost();
+        from.send(msgDirector(this, directorHost.hostPort()));
     }
 
     /**
@@ -116,12 +106,10 @@ class AdminHandler extends BasicProtocolHandler {
     /**
      * Generate a 'director' message.
      */
-    private static JSONLiteral msgDirector(Referenceable target, String hostport,
-                                           String failure)
+    private static JSONLiteral msgDirector(Referenceable target, String hostport)
     {
         JSONLiteral msg = new JSONLiteral(target, "director");
         msg.addParameter("hostport", hostport);
-        msg.addParameterOpt("failure", failure);
         msg.finish();
         return msg;
     }

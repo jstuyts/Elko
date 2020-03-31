@@ -1,14 +1,14 @@
 package org.elkoserver.foundation.net;
 
+import org.elkoserver.foundation.boot.BootProperties;
+import org.elkoserver.foundation.run.Runner;
+import org.elkoserver.util.trace.Trace;
+
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.Map;
-import javax.net.ssl.SSLContext;
-import org.elkoserver.foundation.boot.BootProperties;
-import org.elkoserver.foundation.run.Runner;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.util.trace.Trace;
 
 /**
  * Manage network connections between this server and other entities.
@@ -206,7 +206,7 @@ public class NetworkManager {
      * @param innerHandlerFactory  Message handler factory to provide message
      *    handlers for messages passed inside RTCP requests on connections made
      *    to this port.
-     * @param msgTrace   Trace object for logging message traffice
+     * @param msgTrace   Trace object for logging message traffic
      * @param secure  If true, use SSL.
      *
      * @return the address that ended up being listened upon
@@ -233,7 +233,7 @@ public class NetworkManager {
      * @param innerHandlerFactory  Message handler factory to provide message
      *    handlers for messages passed inside WebSocket frames on connections
      *    made to this port.
-     * @param msgTrace   Trace object for logging message traffice
+     * @param msgTrace   Trace object for logging message traffic
      * @param secure  If true, use SSL.
      *
      * @param socketURI  The WebSocket URI that browsers connect to
