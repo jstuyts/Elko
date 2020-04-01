@@ -5,14 +5,12 @@ import org.elkoserver.foundation.net.MessageHandlerFactory;
 import org.elkoserver.foundation.net.NetAddr;
 import org.elkoserver.foundation.net.NetworkManager;
 import org.elkoserver.foundation.run.Queue;
-import org.elkoserver.foundation.run.Thunk;
 import org.elkoserver.util.trace.Trace;
 import org.zeromq.SocketType;
 import org.zeromq.ZMQ;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 class ZeroMQThread extends Thread {
     /** Poller to await available I/O opportunities. */
@@ -223,7 +221,6 @@ class ZeroMQThread extends Thread {
                                      socket, true, ZeroMQThread.this,
                                      myNetworkManager, finalAddr);
             myConnections.put(socket, connection);
-            return null;
         });
         wakeup();
     }
@@ -239,7 +236,6 @@ class ZeroMQThread extends Thread {
             ZMQ.Socket socket = connection.socket();
             unwatchSocket(socket);
             myConnections.remove(socket);
-            return null;
         });
         wakeup();
     }
@@ -304,7 +300,6 @@ class ZeroMQThread extends Thread {
             myConnections.put(socket, connection);
             Trace.comm.eventm("watching ZMQ socket");
             watchSocket(socket, ZMQ.Poller.POLLIN);
-            return null;
         });
         wakeup();
         return result;

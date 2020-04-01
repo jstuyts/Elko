@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.run;
+package org.elkoserver.foundation.net.zmq;
 
 /**
  * An arbitrary (zero-argument) executable.  Similar to {@link Runnable} but
@@ -10,5 +10,5 @@ public interface Thunk {
     /**
      * Execute this thunk.
      */
-    Object run() throws Throwable;
+    void run() throws Throwable;
 }

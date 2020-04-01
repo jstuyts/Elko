@@ -9,11 +9,9 @@ import org.elkoserver.foundation.net.MessageReceiver;
 import org.elkoserver.foundation.net.NetworkManager;
 import org.elkoserver.foundation.run.Queue;
 import org.elkoserver.foundation.run.Runner;
-import org.elkoserver.foundation.run.Thunk;
 import org.elkoserver.util.trace.Trace;
 import org.zeromq.ZMQ;
 import java.io.IOException;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * An implementation of {@link org.elkoserver.foundation.net.Connection} that
@@ -263,7 +261,7 @@ public class ZeroMQConnection
      * poll set so that it will then attend to the availability of write
      * opportunities when poll() is called.
      */
-    public Object run() {
+    public void run() {
         if (myOutputQueue.hasMoreElements()) {
             myThread.watchSocket(mySocket, ZMQ.Poller.POLLOUT);
             if (Trace.comm.debug && Trace.ON) {
@@ -273,7 +271,6 @@ public class ZeroMQConnection
         if (Trace.comm.debug) {
             Trace.comm.debugm("ZMQ thread interested in writes on " + this);
         }
-        return null;
     }
 
     /**
