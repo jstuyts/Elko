@@ -44,7 +44,7 @@ class ZMQSender {
             socket.bind(host);
         }
 
-        String msg = null;
+        StringBuilder msg = null;
         while (true) {
             try {
                 String line = in.readLine();
@@ -53,16 +53,16 @@ class ZMQSender {
                     break;
                 } else if (line.equals("")) {
                     if (msg != null) {
-                        msg += " ";
-                        byte[] msgBytes = msg.getBytes();
+                        msg.append(" ");
+                        byte[] msgBytes = msg.toString().getBytes();
                         msgBytes[msgBytes.length - 1] = 0;
                         socket.send(msgBytes, 0);
                         msg = null;
                     }
                 } else if (msg == null) {
-                    msg = line;
+                    msg = new StringBuilder(line);
                 } else {
-                    msg += "\n" + line;
+                    msg.append("\n").append(line);
                 }
             } catch (IOException e) {
                 break;
