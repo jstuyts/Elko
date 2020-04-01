@@ -1,30 +1,19 @@
 package org.elkoserver.server.context;
 
-import java.security.SecureRandom;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.StringTokenizer;
 import org.elkoserver.foundation.actor.RefTable;
 import org.elkoserver.foundation.json.DispatchTarget;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.metadata.HostDesc;
-import org.elkoserver.json.JSONArray;
-import org.elkoserver.json.JSONDecodingException;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.Parser;
-import org.elkoserver.json.SyntaxError;
+import org.elkoserver.json.*;
 import org.elkoserver.objdb.ObjDB;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.trace.Trace;
+
+import java.security.SecureRandom;
+import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Main state data structure in a Context Server.
@@ -44,7 +33,7 @@ public class Contextor extends RefTable {
 
     /** Sets of entities awaiting objects from the object database, by object
         reference string. */
-    private Map<String, Set<ArgRunnable>> myPendingGets;
+    private Map<String, Set<Consumer<Object>>> myPendingGets;
 
     /** Open contexts. */
     private Set<Context> myContexts;
@@ -259,8 +248,8 @@ public class Contextor extends RefTable {
      *
      * @return true if this is the first pending get for the requested object.
      */
-    private boolean addPendingGet(String ref, ArgRunnable handler) {
-        Set<ArgRunnable> handlerSet = myPendingGets.get(ref);
+    private boolean addPendingGet(String ref, Consumer<Object> handler) {
+        Set<Consumer<Object>> handlerSet = myPendingGets.get(ref);
         boolean isFirst = false;
         if (handlerSet == null) {
             handlerSet = new HashSet<>();
@@ -497,7 +486,7 @@ public class Contextor extends RefTable {
      *    service link once the connection is located or created.  The handler
      *    will be passed a null if no connection was possible.
      */
-    public void findServiceLink(String serviceName, ArgRunnable handler) {
+    public void findServiceLink(String serviceName, Consumer<Object> handler) {
         myServer.findServiceLink("workshop-service-" + serviceName, handler);
     }
 
@@ -513,7 +502,7 @@ public class Contextor extends RefTable {
      *    if not relevant.
      */
     void getOrLoadContext(String contextRef, String contextTemplate,
-                          ArgRunnable contextHandler, DirectorActor opener)
+                          Consumer<Object> contextHandler, DirectorActor opener)
     {
         if (isValidContextRef(contextRef)) {
             Context result = findContextClone(contextRef);
@@ -524,20 +513,20 @@ public class Contextor extends RefTable {
                 if (contextTemplate == null) {
                     contextTemplate = contextRef;
                 }
-                ArgRunnable getHandler = 
+                Consumer<Object> getHandler =
                     new GetContextHandler(contextTemplate, contextRef, opener);
                 final ContentsHandler contentsHandler =
                     new ContentsHandler(null, getHandler);
-                ArgRunnable contextReceiver = obj -> contentsHandler.receiveContainer((BasicObject) obj);
+                Consumer<Object> contextReceiver = obj -> contentsHandler.receiveContainer((BasicObject) obj);
                 if (addPendingGet(contextTemplate, contextHandler)) {
                     myODB.getObject(contextTemplate, null, contextReceiver);
                     loadContentsOfContainer(contextRef, contentsHandler);
                 }
             } else {
-                contextHandler.run(result);
+                contextHandler.accept(result);
             }
         } else {
-            contextHandler.run(null);
+            contextHandler.accept(null);
         }
     }
 
@@ -551,7 +540,7 @@ public class Contextor extends RefTable {
      * class represents a container that is being loaded; it tracks the loading
      * of its contents and then notifies the container that contains *it*.
      */
-    private class ContentsHandler implements ArgRunnable {
+    private class ContentsHandler implements Consumer<Object> {
         /** Contents handler for the enclosing container, or null if this is
             the top level. */
         private ContentsHandler myParentHandler;
@@ -583,7 +572,7 @@ public class Contextor extends RefTable {
         /** Runnable that will be invoked with the root of the entire tree of
             contained objects, once all those objects have been successfully
             loaded. */
-        private ArgRunnable myTopHandler;
+        private Consumer<Object> myTopHandler;
 
         /**
          * Constructor.
@@ -593,7 +582,7 @@ public class Contextor extends RefTable {
          * @param topHandler Thunk to be notified with the complete result once
          *    it is available.
          */
-        ContentsHandler(ContentsHandler parentHandler, ArgRunnable topHandler)
+        ContentsHandler(ContentsHandler parentHandler, Consumer<Object> topHandler)
         {
             myParentHandler = parentHandler;
             myTopHandler = topHandler;
@@ -636,7 +625,7 @@ public class Contextor extends RefTable {
                     }
                     myWaitCount = -1;
                     if (myParentHandler == null) {
-                        myTopHandler.run(myContainer);
+                        myTopHandler.accept(myContainer);
                     } else {
                         myParentHandler.somethingArrived(1);
                     }
@@ -676,7 +665,7 @@ public class Contextor extends RefTable {
          *    representing the contents of the container object this handler is
          *    handling.
          */
-        public void run(Object obj) {
+        public void accept(Object obj) {
             Item[] contents;
             if (obj != null) {
                 Object[] rawContents = (Object[]) obj;
@@ -712,7 +701,7 @@ public class Contextor extends RefTable {
      * @param handler  Runnable to be invoked with the retrieved objects.
      */
     private void loadContentsOfContainer(String containerRef,
-                                         ArgRunnable handler)
+                                         Consumer<Object> handler)
     {
         queryObjects(contentsQuery(extractBaseRef(containerRef)), null, 0,
                      handler);
@@ -738,7 +727,7 @@ public class Contextor extends RefTable {
      * the point this is invoked, the context and all of its contents are
      * loaded but not activated.
      */
-    private class GetContextHandler implements ArgRunnable {
+    private class GetContextHandler implements Consumer<Object> {
         /** The ref of the context template.  This is the ref of the object
             that is loaded from the database.*/
         private String myContextTemplate;
@@ -772,7 +761,7 @@ public class Contextor extends RefTable {
          * @param obj  The object that was fetched.  This will be a Context
          *    object with a fully expanded (but unactivated) contents tree.
          */
-        public void run(Object obj) {
+        public void accept(Object obj) {
             Context context = null;
             if (obj instanceof Context) {
                 context = (Context) obj;
@@ -829,7 +818,7 @@ public class Contextor extends RefTable {
      * @param itemRef  Reference string identifying the item sought.
      * @param itemHandler  Handler to invoke with the resulting item.
      */
-    void getOrLoadItem(String itemRef, ArgRunnable itemHandler) {
+    void getOrLoadItem(String itemRef, Consumer<Object> itemHandler) {
         if (itemRef.startsWith("item-") || itemRef.startsWith("i-")) {
             Item result = (Item) get(itemRef);
             if (result == null) {
@@ -838,21 +827,21 @@ public class Contextor extends RefTable {
                                     new GetItemHandler(itemRef));
                 }
             } else {
-                itemHandler.run(result);
+                itemHandler.accept(result);
             }
         } else {
-            itemHandler.run(null);
+            itemHandler.accept(null);
         }
     }
 
-    private class GetItemHandler implements ArgRunnable {
+    private class GetItemHandler implements Consumer<Object> {
         private String myItemRef;
 
         GetItemHandler(String itemRef) {
             myItemRef = itemRef;
         }
 
-        public void run(Object obj) {
+        public void accept(Object obj) {
             if (obj != null) {
                 Item item = (Item) obj;
                 item.activate(myItemRef, "", false, Contextor.this);
@@ -891,7 +880,7 @@ public class Contextor extends RefTable {
      * @param item  The item whose contents are to be loaded.
      * @param handler  Handler to be notified once the contents are laoded.
      */
-    void loadItemContents(Item item, ArgRunnable handler) {
+    void loadItemContents(Item item, Consumer<Object> handler) {
         ContentsHandler contentsHandler = new ContentsHandler(null, handler);
         contentsHandler.receiveContainer(item);
         loadContentsOfContainer(item.ref(), contentsHandler);
@@ -917,12 +906,12 @@ public class Contextor extends RefTable {
         }
     }
 
-    private class StaticObjectListReceiver implements ArgRunnable {
+    private class StaticObjectListReceiver implements Consumer<Object> {
         String myTag;
         StaticObjectListReceiver(String tag) {
             myTag = tag;
         }
-        public void run(Object obj) {
+        public void accept(Object obj) {
             StaticObjectList statics = (StaticObjectList) obj;
             if (statics != null) {
                 tr.eventi("loading static object list '" + myTag + "'");
@@ -942,23 +931,23 @@ public class Contextor extends RefTable {
      *    with null if the user object could not be obtained.
      */
     void loadUser(final String userRef, String scope,
-                  ArgRunnable userHandler)
+                  Consumer<Object> userHandler)
     {
         if (userRef.startsWith("user-") || userRef.startsWith("u-")) {
             if (scope != null) {
                 userHandler = new ScopedModAttacher(scope, userHandler);
             }
 
-            ArgRunnable getHandler = obj -> resolvePendingGet(userRef, obj);
+            Consumer<Object> getHandler = obj -> resolvePendingGet(userRef, obj);
             final ContentsHandler contentsHandler =
                 new ContentsHandler(null, getHandler);
-            ArgRunnable userReceiver = obj -> contentsHandler.receiveContainer((BasicObject) obj);
+            Consumer<Object> userReceiver = obj -> contentsHandler.receiveContainer((BasicObject) obj);
             if (addPendingGet(userRef, userHandler)) {
                 myODB.getObject(userRef, null, userReceiver);
                 loadContentsOfContainer(userRef, contentsHandler);
             }
         } else {
-            userHandler.run(null);
+            userHandler.accept(null);
         }
     }
 
@@ -1020,9 +1009,9 @@ public class Contextor extends RefTable {
      * attach those mods to the object before passing the object to whoever
      * actually asked for it originally.
      */
-    private class ScopedModAttacher implements ArgRunnable {
+    private class ScopedModAttacher implements Consumer<Object> {
         private String myScope;
-        private ArgRunnable myOuterHandler;
+        private Consumer<Object> myOuterHandler;
         private BasicObject myObj;
 
         /**
@@ -1032,7 +1021,7 @@ public class Contextor extends RefTable {
          * @param outerHandler  The original handler to which the modified
          *    object should be passed.
          */
-        ScopedModAttacher(String scope, ArgRunnable outerHandler) {
+        ScopedModAttacher(String scope, Consumer<Object> outerHandler) {
             myScope = scope;
             myOuterHandler = outerHandler;
             myObj = null;
@@ -1060,10 +1049,10 @@ public class Contextor extends RefTable {
          * @param arg  The object or objects fetched from the database, per
          *    the above description.
          */
-        public void run(Object arg) {
+        public void accept(Object arg) {
             if (myObj == null) {
                 if (arg == null) {
-                    myOuterHandler.run(null);
+                    myOuterHandler.accept(null);
                 } else {
                     myObj = (BasicObject) arg;
                     queryObjects(scopeQuery(myObj.ref(), myScope), null, 0,
@@ -1076,7 +1065,7 @@ public class Contextor extends RefTable {
                         myObj.attachMod((Mod) rawMod);
                     }
                 }
-                myOuterHandler.run(myObj);
+                myOuterHandler.accept(myObj);
             }
         }
     }
@@ -1266,7 +1255,7 @@ public class Contextor extends RefTable {
      * XXX Is this a POLA (https://en.wikipedia.org/wiki/Principle_of_least_astonishment) violation??
      */
     public void queryObjects(JSONObject template, String collectionName,
-                             int maxResults, ArgRunnable handler) {
+                             int maxResults, Consumer<Object> handler) {
         myODB.queryObjects(template, collectionName, maxResults, handler);
     }
 
@@ -1396,11 +1385,11 @@ public class Contextor extends RefTable {
      */
     private void resolvePendingGet(String ref, Object obj) {
         ref = extractBaseRef(ref);
-        Set<ArgRunnable> handlerSet = myPendingGets.get(ref);
+        Set<Consumer<Object>> handlerSet = myPendingGets.get(ref);
         if (handlerSet != null) {
             myPendingGets.remove(ref);
-            for (ArgRunnable handler : handlerSet) {
-                handler.run(obj);
+            for (Consumer<Object> handler : handlerSet) {
+                handler.accept(obj);
             }
         }
     }
@@ -1477,25 +1466,25 @@ public class Contextor extends RefTable {
     void synthesizeUser(Connection connection, String factoryTag,
                         final JSONObject param, final String contextRef,
                         final String contextTemplate,
-                        ArgRunnable userHandler)
+                        Consumer<Object> userHandler)
     {
         Object rawFactory = getStaticObject(factoryTag);
         if (rawFactory == null) {
             tr.errori("user factory '" + factoryTag + "' not found");
-            userHandler.run(null);
+            userHandler.accept(null);
         } else if (rawFactory instanceof EphemeralUserFactory) {
             EphemeralUserFactory factory = (EphemeralUserFactory) rawFactory;
             User user = factory.provideUser(this, connection, param,
                                             contextRef, contextTemplate);
             user.markAsEphemeral();
-            userHandler.run(user);
+            userHandler.accept(user);
         } else if (rawFactory instanceof UserFactory) {
             UserFactory factory = (UserFactory) rawFactory;
             factory.provideUser(this, connection, param, userHandler);
         } else {
             tr.errori("factory tag '" + factoryTag +
                       "' does not designate a user factory object");
-            userHandler.run(null);
+            userHandler.accept(null);
         }
     }
 
@@ -1544,7 +1533,7 @@ public class Contextor extends RefTable {
      * @param ref  Reference string designating the deleted object.
      * @param handler  Completion handler.
      */
-    void writeObjectDelete(String ref, ArgRunnable handler) {
+    void writeObjectDelete(String ref, Consumer<Object> handler) {
         myODB.removeObject(ref, null, handler);
     }
 
@@ -1565,7 +1554,7 @@ public class Contextor extends RefTable {
      * @param state  The object state to be written.
      * @param handler  Completion handler
      */
-    void writeObjectState(String ref, BasicObject state, ArgRunnable handler) {
+    void writeObjectState(String ref, BasicObject state, Consumer<Object> handler) {
         myODB.putObject(ref, state, null, false, handler);
     }
 }

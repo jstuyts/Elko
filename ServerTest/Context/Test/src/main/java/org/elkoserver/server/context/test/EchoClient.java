@@ -1,19 +1,19 @@
 package org.elkoserver.server.context.test;
 
-import java.util.LinkedList;
 import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.server.ServiceActor;
 import org.elkoserver.foundation.server.ServiceLink;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.AdminObject;
 import org.elkoserver.server.context.Contextor;
-import org.elkoserver.util.ArgRunnable;
+
+import java.util.LinkedList;
+import java.util.function.Consumer;
 
 /**
  * Internal object that acts as a client for the external 'echo' service.
  */
-public class EchoClient extends AdminObject implements ArgRunnable {
+public class EchoClient extends AdminObject implements Consumer<Object> {
     /** Connection to the workshop running the echo service. */
     private ServiceLink myServiceLink;
 
@@ -21,7 +21,7 @@ public class EchoClient extends AdminObject implements ArgRunnable {
     private String myStatus;
 
     /** Ordered list of handlers for pending requests to the service. */
-    private LinkedList<ArgRunnable> myResultHandlers;
+    private LinkedList<Consumer<Object>> myResultHandlers;
 
     /**
      * JSON-driven constructor.
@@ -53,7 +53,7 @@ public class EchoClient extends AdminObject implements ArgRunnable {
      * @param obj  The connection to the echo service, or null if connection
      *    setup failed.
      */
-    public void run(Object obj) {
+    public void accept(Object obj) {
         if (obj != null) {
             myServiceLink = (ServiceLink) obj;
             myStatus = "connected";
@@ -70,7 +70,7 @@ public class EchoClient extends AdminObject implements ArgRunnable {
      *     when it is received, or an error message string if there was a
      *     problem.
      */
-    void probe(String text, ArgRunnable resultHandler) {
+    void probe(String text, Consumer<Object> resultHandler) {
         if (myServiceLink != null) {
             myResultHandlers.addLast(resultHandler);
             JSONLiteral msg = new JSONLiteral("echotest", "echo");
@@ -79,7 +79,7 @@ public class EchoClient extends AdminObject implements ArgRunnable {
             msg.finish();
             myServiceLink.send(msg);
         } else {
-            resultHandler.run("no connection to echo service");
+            resultHandler.accept("no connection to echo service");
         }
     }
 
@@ -97,10 +97,8 @@ public class EchoClient extends AdminObject implements ArgRunnable {
      * requests sent to the external service.
      */
     @JSONMethod({ "text" })
-    public void echo(ServiceActor from, String text)
-        throws MessageHandlerException
-    {
-        ArgRunnable resultHandler = myResultHandlers.removeFirst();
-        resultHandler.run(text);
+    public void echo(ServiceActor from, String text) {
+        Consumer<Object> resultHandler = myResultHandlers.removeFirst();
+        resultHandler.accept(text);
     }
 }

@@ -12,7 +12,7 @@ import org.elkoserver.util.trace.Trace;
  */
 class ConstructorInvoker extends Invoker {
     /** The constructor to call. */
-    private Constructor myConstructor;
+    private Constructor<?> myConstructor;
 
     /** Flag to include the raw JSON object being decoded as a constructor
         parameter. */
@@ -27,8 +27,8 @@ class ConstructorInvoker extends Invoker {
      * @param paramTypes  The types of the various parameters.
      * @param paramNames  JSON names for the parameters.
      */
-    ConstructorInvoker(Constructor constructor, boolean includeRawObject,
-                       Class[] paramTypes, String[] paramNames)
+    ConstructorInvoker(Constructor<?> constructor, boolean includeRawObject,
+                       Class<?>[] paramTypes, String[] paramNames)
     {
         super(constructor, paramTypes, paramNames, includeRawObject ? 1 : 0);
         myConstructor = constructor;

@@ -1,20 +1,17 @@
 package org.elkoserver.server.context;
 
-import java.util.Iterator;
-import java.util.List;
 import org.elkoserver.foundation.actor.Actor;
 import org.elkoserver.foundation.json.Deliverer;
 import org.elkoserver.foundation.json.MessageDispatcher;
-import org.elkoserver.foundation.net.Connection;
-import org.elkoserver.foundation.net.ConnectionRetrier;
-import org.elkoserver.foundation.net.MessageHandler;
-import org.elkoserver.foundation.net.MessageHandlerFactory;
-import org.elkoserver.foundation.net.NetworkManager;
+import org.elkoserver.foundation.net.*;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.foundation.server.metadata.ServiceDesc;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * Live group containing a bundle of related connections to some species of
@@ -45,9 +42,6 @@ abstract class OutboundGroup extends LiveGroup {
     /** Trace object for diagnostics. */
     private Trace tr;
 
-    /** Trace object for controlling message logging. */
-    private Trace myMsgTrace;
-    
     /**
      * Constructor.
      *
@@ -75,11 +69,6 @@ abstract class OutboundGroup extends LiveGroup {
         myDispatcher.addClass(actorClass());
         amAutoRegister = server.props().testProperty(propRoot + ".auto");
 
-        if (server.props().testProperty(propRoot + ".dontlog")) {
-            myMsgTrace = Trace.none;
-        } else {
-            myMsgTrace = Trace.comm;
-        }
         myRetryInterval = server.props().intProperty(propRoot + ".retry", -1);
 
         tr = appTrace;
@@ -101,7 +90,7 @@ abstract class OutboundGroup extends LiveGroup {
      *
      * @return this group's actor class.
      */
-    abstract Class actorClass();
+    abstract Class<?> actorClass();
 
     /**
      * Open connections to statically configured external servers, try to find
@@ -117,14 +106,14 @@ abstract class OutboundGroup extends LiveGroup {
         }
     }
 
-    private class HostFoundHandler implements ArgRunnable {
+    private class HostFoundHandler implements Consumer<Object> {
         /**
          * Open connections to external servers configured via the broker.
          *
          * @param obj  Array of service description objects describing external
          *    servers to connect to.
          */
-        public void run(Object obj) {
+        public void accept(Object obj) {
             for (ServiceDesc desc : (ServiceDesc[]) obj) {
                 if (desc.failure() == null) {
                     HostDesc host = desc.asHostDesc(myRetryInterval);

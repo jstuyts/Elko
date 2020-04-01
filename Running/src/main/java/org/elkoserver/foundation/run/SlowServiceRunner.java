@@ -4,7 +4,7 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import org.elkoserver.util.ArgRunnable;
+import java.util.function.Consumer;
 
 /**
  * This class provides a mechanism for safely making use of external services
@@ -57,7 +57,7 @@ public class SlowServiceRunner {
      *    returned by the task.  This will be executed on the main run queue.
      */
     public void enqueueTask(final Callable<Object> task,
-                            final ArgRunnable resultHandler)
+                            final Consumer<Object> resultHandler)
     {
         myExecutor.execute(() -> {
             Object realResult;
@@ -69,7 +69,7 @@ public class SlowServiceRunner {
             final Object result = realResult;
             myResultRunner.enqueue(() -> {
                 if (resultHandler != null) {
-                    resultHandler.run(result);
+                    resultHandler.accept(result);
                 }
             });
         });

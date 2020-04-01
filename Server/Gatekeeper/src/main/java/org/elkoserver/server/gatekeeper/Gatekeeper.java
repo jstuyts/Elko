@@ -8,10 +8,10 @@ import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.objdb.ObjDB;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.function.Consumer;
 
 /**
  * The Gatekeeper itself as presented to its configured {@link Authorizer}
@@ -112,8 +112,8 @@ public class Gatekeeper {
         });
     }
 
-    private class DirectorFoundRunnable implements ArgRunnable {
-        public void run(Object obj) {
+    private class DirectorFoundRunnable implements Consumer<Object> {
+        public void accept(Object obj) {
             ServiceDesc[] desc = (ServiceDesc[]) obj;
             if (desc[0].failure() != null) {
                 tr.errorm("unable to find director: " + desc[0].failure());
@@ -213,11 +213,11 @@ public class Gatekeeper {
      *    ReservationResult}.
      */
     public void requestReservation(String protocol, String context,
-                                   String actor, ArgRunnable handler)
+                                   String actor, Consumer<Object> handler)
     {
         if (myDirectorHost == null) {
-            handler.run(new ReservationResult(context, actor,
-                                            "no director host specified"));
+            handler.accept(new ReservationResult(context, actor,
+                                                "no director host specified"));
         } else {
             myDirectorActorFactory.requestReservation(protocol, context, actor,
                                                       handler);

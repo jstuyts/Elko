@@ -7,6 +7,8 @@ import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import org.elkoserver.foundation.run.Queue;
 import org.elkoserver.foundation.run.Runner;
 import org.elkoserver.util.trace.Trace;
@@ -20,7 +22,7 @@ public class TCPConnection
     implements MessageReceiver, Callable<Object>
 {
     /** Queue of unencoded outbound messages. */
-    private Queue myOutputQueue;
+    private Queue<Object> myOutputQueue;
 
     /** Framer to perform low-level message conversion. */
     private ByteIOFramer myFramer;
@@ -38,20 +40,14 @@ public class TCPConnection
         'myChannel'. */
     private SelectionKey myKey;
 
-    /** Printable form of the address this connection is connected to. */
-    private String myRemoteAddr;
-    
-    /** Time an inbound message was last received. */
-    private long myLastNetActivity = System.currentTimeMillis();
-
     /** Default size of input buffer. */
     private static final int INPUT_BUFFER_SIZE = 2048;
 
     /** Buffer receiving actual input bytes. */
     private ByteBuffer myInputBuffer;
 
-    /** Monitor lock for synching with the select thread. */
-    private Object myWakeupLock = new Object();
+    /** Monitor lock for syncing with the select thread. */
+    private final Object myWakeupLock = new Object();
 
     /** Flag to trigger select thread to look for write opportunities. */
     private boolean amNeedingToWakeupSelect;
@@ -105,12 +101,12 @@ public class TCPConnection
         Socket socket = channel.socket();
         socket.setSoLinger(true, 0);
         socket.setReuseAddress(true);
-        myRemoteAddr = socket.getInetAddress().getHostAddress() + ":" +
+        String myRemoteAddr = socket.getInetAddress().getHostAddress() + ":" +
             socket.getPort();
         myInputBuffer = ByteBuffer.wrap(new byte[INPUT_BUFFER_SIZE]);
         myFramer = framerFactory.provideFramer(this, label());
         myOutputBuffer = null;
-        myOutputQueue = new Queue();
+        myOutputQueue = new Queue<>();
         mySelectThread = selectThread;
         enqueueHandlerFactory(handlerFactory);
         if (myTrace.event && Trace.ON) {
@@ -373,7 +369,6 @@ public class TCPConnection
      * @param message the incoming message.
      */
     public void receiveMsg(Object message) {
-        myLastNetActivity = System.currentTimeMillis();
         enqueueReceivedMessage(message);
     }
 

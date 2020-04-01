@@ -24,7 +24,7 @@ public class MessageDispatcher {
 
     /** Classes for which there is stored dispatch information, to avoid
         repeating reflection operations. */
-    private Set<Class> myClasses;
+    private Set<Class<?>> myClasses;
 
     /** Type resolver for the type tags of JSON encoded message parameter
         objects. */
@@ -69,7 +69,7 @@ public class MessageDispatcher {
      * @throws JSONSetupError if an annotated method breaks the rules for a
      *    JSON method.
      */
-    public void addClass(Class targetClass) {
+    public void addClass(Class<?> targetClass) {
         if (!myClasses.contains(targetClass)) {
             for (Method method : targetClass.getMethods()) {
                 JSONMethod note = method.getAnnotation(JSONMethod.class);
@@ -90,7 +90,7 @@ public class MessageDispatcher {
                         " does not have return type void");
                 }
 
-                Class[] paramTypes = method.getParameterTypes();
+                Class<?>[] paramTypes = method.getParameterTypes();
                 if (paramTypes.length == 0 ||
                         !Deliverer.class.isAssignableFrom(paramTypes[0])) {
                     throw new JSONSetupError("class " + targetClass.getName() +

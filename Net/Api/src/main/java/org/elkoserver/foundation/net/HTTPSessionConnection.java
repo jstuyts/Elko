@@ -4,6 +4,8 @@ import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import org.elkoserver.foundation.run.Queue;
 import org.elkoserver.foundation.timer.Clock;
 import org.elkoserver.foundation.timer.Timer;
@@ -31,7 +33,7 @@ public class HTTPSessionConnection extends ConnectionBase
     private int myXmitSequenceNumber;
 
     /** Queue of outgoing messages awaiting retrieval by the client. */
-    private Queue myQueue;
+    private Queue<Object> myQueue;
 
     /** Flag indicating that connection is in the midst of shutting down. */
     private boolean amClosing;
@@ -113,7 +115,7 @@ public class HTTPSessionConnection extends ConnectionBase
         mySelectSequenceNumber = 1;
         myXmitSequenceNumber = 1;
         clearDownstreamConnection();
-        myQueue = new Queue();
+        myQueue = new Queue<>();
         myHTTPFramer = mySessionFactory.httpFramer();
         amClosing = false;
 

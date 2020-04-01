@@ -1,7 +1,5 @@
 package org.elkoserver.server.workshop.bank.client;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptBoolean;
 import org.elkoserver.foundation.json.OptInteger;
@@ -12,13 +10,16 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.AdminObject;
 import org.elkoserver.server.context.Contextor;
 import org.elkoserver.server.workshop.bank.Currency;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Internal object that acts as a client for the external 'bank' service.
  */
-public class BankClient extends AdminObject implements ArgRunnable {
+public class BankClient extends AdminObject implements Consumer<Object> {
     /** Connection to the workshop running the bank service. */
     private ServiceLink myServiceLink;
 
@@ -70,7 +71,7 @@ public class BankClient extends AdminObject implements ArgRunnable {
      * @param obj  The connection to the bank service, or null if connection
      *    setup failed.
      */
-    public void run(Object obj) {
+    public void accept(Object obj) {
         if (obj != null) {
             myServiceLink = (ServiceLink) obj;
             myStatus = "connected";

@@ -1,8 +1,5 @@
 package org.elkoserver.server.workshop;
 
-import java.util.LinkedList;
-import java.util.List;
-import java.util.StringTokenizer;
 import org.elkoserver.foundation.actor.RefTable;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
@@ -10,8 +7,12 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.json.Encodable;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.objdb.ObjDB;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.LinkedList;
+import java.util.List;
+import java.util.StringTokenizer;
+import java.util.function.Consumer;
 
 /**
  * Main state data structure in a Workshop Server.
@@ -127,12 +128,12 @@ public class Workshop extends RefTable {
         }
     }
 
-    private class StartupWorkerListReceiver implements ArgRunnable {
+    private class StartupWorkerListReceiver implements Consumer<Object> {
         String myTag;
         StartupWorkerListReceiver(String tag) {
             myTag = tag;
         }
-        public void run(Object obj) {
+        public void accept(Object obj) {
             StartupWorkerList workers = (StartupWorkerList) obj;
             if (workers != null) {
                 tr.eventi("loading startup worker list '" + myTag + "'");
@@ -185,7 +186,7 @@ public class Workshop extends RefTable {
      * @param handler  Callback that will be invoked with the object in
      *   question, or null if the object was not available.
      */
-    public void getObject(String ref, ArgRunnable handler) {
+    public void getObject(String ref, Consumer<Object> handler) {
         myODB.getObject(ref, null, handler);
     }
 
@@ -197,7 +198,7 @@ public class Workshop extends RefTable {
      * @param handler  Callback that will be invoked with the object in
      *   question, or null if the object was not available.
      */
-    public void getObject(String ref, String collection, ArgRunnable handler) {
+    public void getObject(String ref, String collection, Consumer<Object> handler) {
         myODB.getObject(ref, collection, handler);
     }
 
@@ -211,7 +212,7 @@ public class Workshop extends RefTable {
      *    null if the query failed.
      */
     public void queryObjects(JSONObject query, int maxResults,
-                             ArgRunnable handler)
+                             Consumer<Object> handler)
     {
         myODB.queryObjects(query, null, maxResults, handler);
     }
@@ -227,7 +228,7 @@ public class Workshop extends RefTable {
      *    null if the query failed.
      */
     public void queryObjects(JSONObject query, String collection,
-                             int maxResults, ArgRunnable handler)
+                             int maxResults, Consumer<Object> handler)
     {
         myODB.queryObjects(query, collection, maxResults, handler);
     }
@@ -254,7 +255,7 @@ public class Workshop extends RefTable {
      *   an error string if the operation failed.
      */
     public void putObject(String ref, Encodable object, String collection,
-                          ArgRunnable resultHandler)
+                          Consumer<Object> resultHandler)
     {
         myODB.putObject(ref, object, collection, false, resultHandler);
     }
@@ -270,7 +271,7 @@ public class Workshop extends RefTable {
      *   an error string if the operation failed.
      */
     public void updateObject(String ref, int version, Encodable object,
-                             ArgRunnable resultHandler)
+                             Consumer<Object> resultHandler)
     {
         myODB.updateObject(ref, version, object, null, resultHandler);
     }
@@ -287,7 +288,7 @@ public class Workshop extends RefTable {
      *   an error string if the operation failed.
      */
     public void updateObject(String ref, int version, Encodable object,
-                             String collection, ArgRunnable resultHandler)
+                             String collection, Consumer<Object> resultHandler)
     {
         myODB.updateObject(ref, version, object, collection, resultHandler);
     }

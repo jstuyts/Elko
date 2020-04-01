@@ -1,7 +1,8 @@
 package org.elkoserver.foundation.server;
 
 import org.elkoserver.foundation.server.metadata.ServiceDesc;
-import org.elkoserver.util.ArgRunnable;
+
+import java.util.function.Consumer;
 
 /**
  * A pending service lookup query to a broker.
@@ -11,7 +12,7 @@ class ServiceQuery {
     private String myService;
 
     /** Handler for results when and if they arrive. */
-    private ArgRunnable myHandler;
+    private Consumer<Object> myHandler;
 
     /** Flag to continue waiting for further results. */
     private boolean amMonitor;
@@ -27,7 +28,7 @@ class ServiceQuery {
      * @param isMonitor   If true, continue waiting for more results.
      * @param tag  Optional tag string for matching response with the request.
      */
-    ServiceQuery(String service, ArgRunnable handler, boolean isMonitor,
+    ServiceQuery(String service, Consumer<Object> handler, boolean isMonitor,
                  String tag)
     {
         myService = service;
@@ -52,7 +53,7 @@ class ServiceQuery {
      */
     void result(ServiceDesc[] services) {
         if (myHandler != null) {
-            myHandler.run(services);
+            myHandler.accept(services);
             if (!amMonitor) {
                 myHandler = null;
             }

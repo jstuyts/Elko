@@ -36,7 +36,7 @@ class PresencerGroup extends OutboundGroup {
      *
      * @return this group's actor class.
      */
-    Class actorClass() {
+    Class<?> actorClass() {
         return PresencerActor.class;
     }
 
@@ -134,7 +134,7 @@ class PresencerGroup extends OutboundGroup {
      * Generate a metadata object for a context.  Right now, we only include
      * the name string.
      *
-     * @context  The context for which metadata is sought.
+     * @param context  The context for which metadata is sought.
      *
      * @return JSON-encoded metadata for the give context.
      */
@@ -149,7 +149,7 @@ class PresencerGroup extends OutboundGroup {
      * Generate a metadata object for a user.  Right now, we only include the
      * name string.
      *
-     * @user  The user for whom metadata is sought.
+     * @parm user  The user for whom metadata is sought.
      *
      * @return JSON-encoded metadata for the give user.
      */

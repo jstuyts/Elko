@@ -9,7 +9,8 @@ import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.server.gatekeeper.Gatekeeper;
-import org.elkoserver.util.ArgRunnable;
+
+import java.util.function.Consumer;
 
 /**
  * Singleton 'auth' message handler object for the password authorizer.
@@ -76,7 +77,7 @@ class AuthHandler extends BasicProtocolHandler {
                                                    optCanSetPass.value(true)));
     }
 
-    private class CreateActorRunnable implements ArgRunnable {
+    private class CreateActorRunnable implements Consumer<Object> {
         private BasicProtocolActor myFrom;
         private String myID;
         private boolean amGenerated;
@@ -97,7 +98,7 @@ class AuthHandler extends BasicProtocolHandler {
             myCanSetPass = canSetPass;
         }
 
-        public void run(Object obj) {
+        public void accept(Object obj) {
             if (obj != null) {
                 if (amGenerated) {
                     myID = myAuthorizer.generateID();

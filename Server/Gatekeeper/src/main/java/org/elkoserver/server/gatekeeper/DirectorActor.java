@@ -1,7 +1,5 @@
 package org.elkoserver.server.gatekeeper;
 
-import java.util.HashMap;
-import java.util.Map;
 import org.elkoserver.foundation.actor.NonRoutingActor;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageDispatcher;
@@ -10,8 +8,11 @@ import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Actor representing a gatekeeper's connection to its director.
@@ -31,7 +32,7 @@ class DirectorActor extends NonRoutingActor {
 
     /** Reservation requests that have been issued to the director, the
         responses to which have not yet been received to. */
-    private Map<String, ArgRunnable> myPendingReservations;
+    private Map<String, Consumer<Object>> myPendingReservations;
 
     /**
      * Constructor.
@@ -64,15 +65,15 @@ class DirectorActor extends NonRoutingActor {
                           reason);
         amLive = false;
         myFactory.setDirector(null);
-        for (Map.Entry<String, ArgRunnable> entry :
+        for (Map.Entry<String, Consumer<Object>> entry :
                  myPendingReservations.entrySet())
         {
             String key = entry.getKey();
-            ArgRunnable handler = entry.getValue();
+            Consumer<Object> handler = entry.getValue();
             int sep = key.indexOf('|');
-            handler.run(new ReservationResult(key.substring(0, sep),
-                                              key.substring(sep + 1),
-                                              "director connection lost"));
+            handler.accept(new ReservationResult(key.substring(0, sep),
+                                                  key.substring(sep + 1),
+                                                  "director connection lost"));
         }
     }
 
@@ -85,13 +86,13 @@ class DirectorActor extends NonRoutingActor {
      * @param handler  Object to handle result.
      */
     void requestReservation(String protocol, String context, String actor,
-                            ArgRunnable handler) {
+                            Consumer<Object> handler) {
         if (!amLive) {
-            handler.run(new ReservationResult(context, actor,
-                                              "director connection lost"));
+            handler.accept(new ReservationResult(context, actor,
+                                                  "director connection lost"));
         } else {
-            String pactor = actor == null ? "" : actor;
-            myPendingReservations.put(context + "|" + pactor, handler);
+            String nonNullActor = actor == null ? "" : actor;
+            myPendingReservations.put(context + "|" + nonNullActor, handler);
             send(msgReserve(this, protocol, context, actor));
         }
     }
@@ -126,12 +127,12 @@ class DirectorActor extends NonRoutingActor {
         String auth = optAuth.value(null);
         String deny = optDeny.value(null);
         String actor = optActor.value(null);
-        String pactor = (actor == null) ? "" : actor;
+        String nonNullActor = (actor == null) ? "" : actor;
         
         String contextKey = context;
-        ArgRunnable handler;
+        Consumer<Object> handler;
         do {
-            handler = myPendingReservations.remove(contextKey + "|" + pactor);
+            handler = myPendingReservations.remove(contextKey + "|" + nonNullActor);
             if (handler == null) {
                 int slash = contextKey.lastIndexOf('-');
                 if (slash > -1) {
@@ -144,11 +145,11 @@ class DirectorActor extends NonRoutingActor {
 
         if (handler == null) {
             Trace.comm.errorm("received unexpected reservation for " +
-                              context + " " + pactor);
+                              context + " " + nonNullActor);
         } else if (deny == null) {
-            handler.run(new ReservationResult(context, actor, hostport, auth));
+            handler.accept(new ReservationResult(context, actor, hostport, auth));
         } else {
-            handler.run(new ReservationResult(context, actor, deny));
+            handler.accept(new ReservationResult(context, actor, deny));
         }
     }
 

@@ -5,7 +5,8 @@ import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.server.context.Contextor;
 import org.elkoserver.server.context.User;
-import org.elkoserver.util.ArgRunnable;
+
+import java.util.function.Consumer;
 
 /**
  * Factory that generates a non-persistent user object from connected mobile
@@ -36,7 +37,7 @@ public class DeviceEphemeralUserFactory extends DevicePersistentUserFactory {
    *    with null if the user object could not be produced.
    */
     public void provideUser(Contextor contextor, Connection connection,
-                            JSONObject param, ArgRunnable handler)
+                            JSONObject param, Consumer<Object> handler)
     {
         DeviceCredentials creds =
             extractCredentials(contextor.appTrace(), param);
@@ -46,7 +47,7 @@ public class DeviceEphemeralUserFactory extends DevicePersistentUserFactory {
             user.markAsEphemeral();
             user.objectIsComplete();
         }
-        handler.run(user);
+        handler.accept(user);
     }
 
 }

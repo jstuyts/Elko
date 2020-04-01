@@ -13,10 +13,10 @@ import java.util.Map;
  */
 class ModSet {
     /** The mods themselves, indexed by class. */
-    private Map<Class, Mod> myMods;
+    private Map<Class<?>, Mod> myMods;
 
     /** Auxiliary mods table, to lookup mods by superclass. */
-    private Map<Class, Mod> mySuperMods;
+    private Map<Class<?>, Mod> mySuperMods;
 
     /**
      * Constructor.  Note that this is private so it won't be called
@@ -48,7 +48,7 @@ class ModSet {
      * @param mod  The mod to add.
      */
     private void addMod(Mod mod) {
-        Class modClass = mod.getClass();
+        Class<?> modClass = mod.getClass();
         myMods.put(modClass, mod);
         modClass = modClass.getSuperclass();
         while (modClass != Mod.class && Mod.class.isAssignableFrom(modClass)) {
@@ -97,7 +97,7 @@ class ModSet {
      *
      * @return the mod of the given class, or null if there is no such mod.
      */
-    Mod getMod(Class type) {
+    Mod getMod(Class<?> type) {
         Mod result = myMods.get(type);
         if (result == null && mySuperMods != null) {
             result = mySuperMods.get(type);
@@ -128,13 +128,7 @@ class ModSet {
      * Remove from the mods list any mods that are marked as being ephemeral.
      */
     void purgeEphemeralMods() {
-        Iterator<Mod> iter = myMods.values().iterator();
-        while (iter.hasNext()) {
-            Mod mod = iter.next();
-            if (mod.isEphemeral()) {
-                iter.remove();
-            }
-        }
+        myMods.values().removeIf(Mod::isEphemeral);
     }
 
     /**

@@ -1,14 +1,11 @@
 package org.elkoserver.server.gatekeeper;
 
 import org.elkoserver.foundation.json.MessageDispatcher;
-import org.elkoserver.foundation.net.Connection;
-import org.elkoserver.foundation.net.ConnectionRetrier;
-import org.elkoserver.foundation.net.MessageHandler;
-import org.elkoserver.foundation.net.MessageHandlerFactory;
-import org.elkoserver.foundation.net.NetworkManager;
+import org.elkoserver.foundation.net.*;
 import org.elkoserver.foundation.server.metadata.HostDesc;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.function.Consumer;
 
 /**
  * Object to manage the connection to the director.  At any given time, there
@@ -107,10 +104,10 @@ class DirectorActorFactory implements MessageHandlerFactory {
      * @param handler  Object to handle result.
      */
     void requestReservation(String protocol, String context, String actor,
-                            ArgRunnable handler) {
+                            Consumer<Object> handler) {
         if (myDirector == null) {
-            handler.run(new ReservationResult(context, actor,
-                                              "no director available"));
+            handler.accept(new ReservationResult(context, actor,
+                                                  "no director available"));
         } else {
             myDirector.requestReservation(protocol, context, actor, handler);
         }

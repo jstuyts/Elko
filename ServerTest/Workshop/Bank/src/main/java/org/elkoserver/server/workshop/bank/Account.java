@@ -1,15 +1,16 @@
 package org.elkoserver.server.workshop.bank;
 
+import org.elkoserver.foundation.json.JSONMethod;
+import org.elkoserver.foundation.json.OptBoolean;
+import org.elkoserver.json.Encodable;
+import org.elkoserver.json.EncodeControl;
+import org.elkoserver.json.JSONLiteral;
+import org.elkoserver.server.workshop.Workshop;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeSet;
-import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.OptBoolean;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.Encodable;
-import org.elkoserver.json.EncodeControl;
-import org.elkoserver.server.workshop.Workshop;
-import org.elkoserver.util.ArgRunnable;
+import java.util.function.Consumer;
 
 /**
  * Object representing an account: a store of money in some currency belonging
@@ -157,7 +158,7 @@ class Account implements Encodable {
      *    write, after completion.
      */
     void checkpoint(Workshop workshop, String collection,
-                    ArgRunnable resultHandler)
+                    Consumer<Object> resultHandler)
     {
         if (myVersion == 0) {
             myVersion = 1;

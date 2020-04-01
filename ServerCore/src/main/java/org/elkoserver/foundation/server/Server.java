@@ -1,12 +1,9 @@
 package org.elkoserver.foundation.server;
 
-import java.util.*;
-import java.util.concurrent.Callable;
-
 import org.elkoserver.foundation.actor.RefTable;
 import org.elkoserver.foundation.boot.BootProperties;
-import org.elkoserver.foundation.json.MessageDispatcher;
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver;
+import org.elkoserver.foundation.json.MessageDispatcher;
 import org.elkoserver.foundation.net.*;
 import org.elkoserver.foundation.run.Runner;
 import org.elkoserver.foundation.run.SlowServiceRunner;
@@ -17,10 +14,13 @@ import org.elkoserver.foundation.server.metadata.ServiceFinder;
 import org.elkoserver.objdb.ObjDB;
 import org.elkoserver.objdb.ObjDBLocal;
 import org.elkoserver.objdb.ObjDBRemote;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceController;
+
+import java.util.*;
+import java.util.concurrent.Callable;
+import java.util.function.Consumer;
 
 /**
  * The core of an Elko server, holding the run queue, a collection of
@@ -246,7 +246,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      *    returned by the task.  This will be executed on the main run queue.
      */
     public void enqueueSlowTask(Callable<Object> task,
-                                ArgRunnable resultHandler)
+                                Consumer<Object> resultHandler)
     {
         mySlowRunner.enqueueTask(task, resultHandler);
     }
@@ -273,7 +273,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      * @param handler  Object to receive the asynchronous result(s).
      * @param monitor  If true, keep watching for more results after the first.
      */
-    public void findService(String service, ArgRunnable handler,
+    public void findService(String service, Consumer<Object> handler,
                             boolean monitor)
     {
         if (myBrokerHost != null) {
@@ -302,11 +302,11 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      *    the requested service once the connection is located or created.  The
      *    handler will be passed a null if no connection was possible.
      */
-    public void findServiceLink(String service, ArgRunnable handler) {
+    public void findServiceLink(String service, Consumer<Object> handler) {
         if (!amShuttingDown) {
             ServiceLink link = myServiceLinksByService.get(service);
             if (link != null) {
-                handler.run(link);
+                handler.accept(link);
             } else {
                 findService(service,
                             new ServiceFoundHandler(handler, service, null),
@@ -323,10 +323,10 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      * established.
      */
     private class ServiceFoundHandler
-        implements ArgRunnable, MessageHandlerFactory
+        implements Consumer<Object>, MessageHandlerFactory
     {
         /** Handler to receive connection to service, once there is one. */
-        private ArgRunnable myInnerHandler;
+        private Consumer<Object> myInnerHandler;
 
         /** Optional arbitrary label to attach to new connection. */
         private String myLabel;
@@ -346,7 +346,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
          * @param link  Service link that will be associated with the
          *    connection; if null, a new link will be created
          */
-        ServiceFoundHandler(ArgRunnable innerHandler, String service,
+        ServiceFoundHandler(Consumer<Object> innerHandler, String service,
                             ServiceLink link)
         {
             myInnerHandler = innerHandler;
@@ -369,13 +369,13 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
          * @param obj  Array of service descriptors for the service that was
          *    located.  Normally this will be a single element array.
          */
-        public void run(Object obj) {
+        public void accept(Object obj) {
             ServiceDesc[] descs = (ServiceDesc[]) obj;
             myDesc = descs[0];
             if (myDesc.failure() != null) {
                 tr.warningi("service query for " + myLabel + " failed: " +
                             myDesc.failure());
-                myInnerHandler.run(null);
+                myInnerHandler.accept(null);
                 return;
             }
             if (descs.length > 1) {
@@ -416,7 +416,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         private void connectLinkToActor(ServiceActor actor) {
             myServiceLinksByService.put(myDesc.service(), myLink);
             actor.addLink(myLink);
-            myInnerHandler.run(myLink);
+            myInnerHandler.accept(myLink);
         }
     }
 

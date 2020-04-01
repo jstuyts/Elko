@@ -616,7 +616,7 @@ public class Context extends BasicObject implements Deliverer {
     }
 
     /**
-     * Release an earlier call to {@link #retain}.  When {@link #release} has
+     * Release an earlier call to {@link #retain}.  When <code>release</code> has
      * been called the same number of times as {@link #retain} has been, the
      * context is free to shut down when empty.  If the context is already
      * empty, it will be shut down immediately.  Calls to this method in excess
@@ -632,7 +632,7 @@ public class Context extends BasicObject implements Deliverer {
     /**
      * Keep this context open even if all users exit (normally a context will
      * be shut down automatically after the last user leaves).  Each call to
-     * {@link #retain} must be matched by a corresponding call to {@link
+     * <code>retain</code> must be matched by a corresponding call to {@link
      * #release} in order for the context to be permitted to close normally
      * (though it can still be closed by called {@link #forceClose}).
      */

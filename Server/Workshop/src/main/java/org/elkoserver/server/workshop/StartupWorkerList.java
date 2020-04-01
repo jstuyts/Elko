@@ -2,8 +2,9 @@ package org.elkoserver.server.workshop;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.objdb.ObjDB;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.function.Consumer;
 
 /**
  * Object stored in the object database that holds a list of worker objects
@@ -39,7 +40,7 @@ class StartupWorkerList {
         }
     }
 
-    private static class WorkerReceiver implements ArgRunnable {
+    private static class WorkerReceiver implements Consumer<Object> {
         WorkerListElem myElem;
         Workshop myWorkshop;
         Trace tr;
@@ -49,7 +50,7 @@ class StartupWorkerList {
             myElem = elem;
             tr = appTrace;
         }
-        public void run(Object obj) {
+        public void accept(Object obj) {
             if (obj != null) {
                 if (obj instanceof WorkerObject) {
                     tr.eventi("loading worker object '" + myElem.ref +

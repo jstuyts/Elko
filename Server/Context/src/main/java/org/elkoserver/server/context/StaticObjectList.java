@@ -2,8 +2,9 @@ package org.elkoserver.server.context;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.objdb.ObjDB;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.function.Consumer;
 
 /**
  * Object stored in the object database that holds a list of static objects
@@ -38,7 +39,7 @@ class StaticObjectList {
         }
     }
 
-    private static class StaticObjectReceiver implements ArgRunnable {
+    private static class StaticObjectReceiver implements Consumer<Object> {
         StaticObjectListElem myElem;
         Contextor myContextor;
         Trace tr;
@@ -49,7 +50,7 @@ class StaticObjectList {
             myElem = elem;
             tr = appTrace;
         }
-        public void run(Object obj) {
+        public void accept(Object obj) {
             if (obj != null) {
                 tr.eventi("loading static object '" + myElem.ref + "' as '" +
                           myElem.key + "'");

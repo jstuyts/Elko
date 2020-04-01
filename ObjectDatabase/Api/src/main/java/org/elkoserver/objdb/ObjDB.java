@@ -3,7 +3,8 @@ package org.elkoserver.objdb;
 import org.elkoserver.foundation.json.TypeResolver;
 import org.elkoserver.json.Encodable;
 import org.elkoserver.json.JSONObject;
-import org.elkoserver.util.ArgRunnable;
+
+import java.util.function.Consumer;
 
 /**
  * Asynchronous interface to the object database.
@@ -29,7 +30,7 @@ public interface ObjDB extends TypeResolver {
      *    retrieved.
      */
     void getObject(String ref, String collectionName,
-                   ArgRunnable handler);
+                   Consumer<Object> handler);
 
     /**
      * Store an object into the object database.
@@ -45,7 +46,7 @@ public interface ObjDB extends TypeResolver {
      *    or null if the operation was successful.
      */
     void putObject(String ref, Encodable obj, String collectionName,
-                   boolean requireNew, ArgRunnable handler);
+                   boolean requireNew, Consumer<Object> handler);
 
     /**
      * Query one or more objects from the object database.
@@ -60,7 +61,7 @@ public interface ObjDB extends TypeResolver {
      *    be retrieved.
      */
     void queryObjects(JSONObject template, String collectionName,
-                      int maxResults, ArgRunnable handler);
+                      int maxResults, Consumer<Object> handler);
 
     /**
      * Delete an object from the object database.  It is not considered an
@@ -75,7 +76,7 @@ public interface ObjDB extends TypeResolver {
      *    or null if the operation was successful.
      */
     void removeObject(String ref, String collectionName,
-                      ArgRunnable handler);
+                      Consumer<Object> handler);
 
     /**
      * Shutdown the object database.
@@ -95,5 +96,5 @@ public interface ObjDB extends TypeResolver {
      *    or null if the operation was successful.
      */
     void updateObject(String ref, int version, Encodable obj,
-                      String collectionName, ArgRunnable handler);
+                      String collectionName, Consumer<Object> handler);
 }

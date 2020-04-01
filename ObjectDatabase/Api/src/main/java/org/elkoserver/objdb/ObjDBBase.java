@@ -6,11 +6,11 @@ import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Parser;
 import org.elkoserver.json.SyntaxError;
 import org.elkoserver.objdb.store.ObjectDesc;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
 
 import java.lang.reflect.Array;
 import java.util.*;
+import java.util.function.Consumer;
 
 /**
  * Base class for both local and remote concrete implementations of the ObjDB
@@ -208,12 +208,12 @@ abstract class ObjDBBase implements ObjDB {
         }
     }
 
-    private class ClassDescReceiver implements ArgRunnable {
+    private class ClassDescReceiver implements Consumer<Object> {
         String myTag;
         ClassDescReceiver(String tag) {
             myTag = tag;
         }
-        public void run(Object obj) {
+        public void accept(Object obj) {
             ClassDesc classes = (ClassDesc) obj;
             if (classes != null) {
                 tr.eventi("loading classDesc '" + myTag + "'");

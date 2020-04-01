@@ -1,11 +1,8 @@
 package org.elkoserver.objdb;
 
-import org.elkoserver.json.EncodeControl;
-import org.elkoserver.json.Encodable;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONLiteralArray;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.util.ArgRunnable;
+import org.elkoserver.json.*;
+
+import java.util.function.Consumer;
 
 /**
  * A pending request to the repository.
@@ -27,7 +24,7 @@ class PendingRequest {
     private String myCollectionName;
 
     /** Handler to be called with request result when available. */
-    private ArgRunnable myHandler;
+    private Consumer<Object> myHandler;
 
     /**
      * Private constructor.  N.b.: initially, the object has no encoded message
@@ -39,7 +36,7 @@ class PendingRequest {
      * @param collectionName  Name of collection to get from, or null to take
      *    the configured default.
      */
-    private PendingRequest(ArgRunnable handler, String ref,
+    private PendingRequest(Consumer<Object> handler, String ref,
                            String collectionName) {
         myTag = Integer.toString(++theTagCounter);
         myHandler = handler;
@@ -59,7 +56,7 @@ class PendingRequest {
      * @return an object encapsulating the indicated 'get' request.
      */
     static PendingRequest getReq(String ref, String collectionName,
-                                 ArgRunnable handler) {
+                                 Consumer<Object> handler) {
         PendingRequest req = new PendingRequest(handler, ref, collectionName);
         req.msgGet(ref, collectionName);
         return req;
@@ -72,7 +69,7 @@ class PendingRequest {
      */
     void handleReply(Object obj) {
         if (myHandler != null) {
-            myHandler.run(obj);
+            myHandler.accept(obj);
         }
     }
 
@@ -211,7 +208,7 @@ class PendingRequest {
      */
     static PendingRequest putReq(String ref, Encodable obj,
                                  String collectionName, boolean requireNew,
-                                 ArgRunnable handler)
+                                 Consumer<Object> handler)
     {
         PendingRequest req = new PendingRequest(handler, ref, collectionName);
         req.msgPut(ref, obj, collectionName, requireNew);
@@ -231,7 +228,7 @@ class PendingRequest {
      * @return an object encapsulating the indicated 'update' request.
      */
     static PendingRequest updateReq(String ref, int version, Encodable obj,
-                                    String collectionName, ArgRunnable handler)
+                                    String collectionName, Consumer<Object> handler)
     {
         PendingRequest req = new PendingRequest(handler, ref, collectionName);
         req.msgUpdate(ref, version, obj, collectionName);
@@ -251,7 +248,7 @@ class PendingRequest {
      * @return an object encapsulating the indicated 'query' request.
      */
     static PendingRequest queryReq(JSONObject template, String collectionName,
-                                   int maxResults, ArgRunnable handler) {
+                                   int maxResults, Consumer<Object> handler) {
         PendingRequest req =
             new PendingRequest(handler, "query", collectionName);
         req.msgQuery(template, collectionName, maxResults);
@@ -278,7 +275,7 @@ class PendingRequest {
      * @return an object encapsulating the indicated 'remove' request.
      */
     static PendingRequest removeReq(String ref, String collectionName,
-                                    ArgRunnable handler) {
+                                    Consumer<Object> handler) {
         PendingRequest req = new PendingRequest(handler, ref, collectionName);
         req.msgRemove(ref, collectionName);
         return req;

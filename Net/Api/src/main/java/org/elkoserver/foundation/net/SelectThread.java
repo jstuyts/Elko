@@ -9,6 +9,8 @@ import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
 import java.util.concurrent.Callable;
 import java.util.Iterator;
+import java.util.concurrent.ConcurrentLinkedQueue;
+
 import org.elkoserver.foundation.run.Queue;
 import org.elkoserver.util.trace.Trace;
 
@@ -26,7 +28,7 @@ class SelectThread extends Thread {
     private Selector mySelector;
 
     /** Queue of unserviced I/O requests. */
-    private Queue myQueue;
+    private Queue<Object> myQueue;
 
     /** Network manager for this server */
     private NetworkManager myMgr;
@@ -40,7 +42,7 @@ class SelectThread extends Thread {
     SelectThread(NetworkManager mgr, SSLContext sslContext) {
         super("Elko Select");
         myMgr = mgr;
-        myQueue = new Queue();
+        myQueue = new Queue<>();
         try {
             if (sslContext != null) {
                 mySelector = SSLSelector.open(sslContext);
@@ -188,7 +190,7 @@ class SelectThread extends Thread {
     Listener listen(String localAddress, MessageHandlerFactory handlerFactory,
                     ByteIOFramerFactory framerFactory, boolean secure,
                     Trace portTrace)
-        throws UnknownHostException, IOException
+        throws IOException
     {
         Listener listener =
             new Listener(localAddress, handlerFactory,

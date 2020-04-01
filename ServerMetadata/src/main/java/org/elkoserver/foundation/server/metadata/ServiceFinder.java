@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.server.metadata;
 
-import org.elkoserver.util.ArgRunnable;
+import java.util.function.Consumer;
 
 /**
  * Interface for using the broker to find external services.
@@ -13,7 +13,7 @@ public interface ServiceFinder {
      * @param handler  Object to receive the asynchronous result(s).
      * @param monitor  If true, keep watching for more results after the first.
      */
-    void findService(String service, ArgRunnable handler,
+    void findService(String service, Consumer<Object> handler,
                      boolean monitor);
 }
 

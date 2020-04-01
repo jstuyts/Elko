@@ -12,13 +12,14 @@ import org.zeromq.ZMQ;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 class ZeroMQThread extends Thread {
     /** Poller to await available I/O opportunities. */
     private ZMQ.Poller myPoller;
 
     /** Queue of unserviced I/O requests. */
-    private Queue myQueue;
+    private Queue<Object> myQueue;
     
     /** Network manager for this server */
     private NetworkManager myNetworkManager;
@@ -55,7 +56,7 @@ class ZeroMQThread extends Thread {
     ZeroMQThread(NetworkManager mgr) {
         super("Elko ZeroMQ");
         myNetworkManager = mgr;
-        myQueue = new Queue();
+        myQueue = new Queue<>();
         myConnections = new HashMap<>();
         myContext = ZMQ.context(1);
         myPoller = myContext.poller();

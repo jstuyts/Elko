@@ -23,7 +23,7 @@ class UserHandler extends BasicProtocolHandler {
     /**
      * Constructor.
      *
-     * @gatekeeper  The gatekeeper itself.
+     * @param gatekeeper  The gatekeeper itself.
      */
     UserHandler(Gatekeeper gatekeeper) {
         myGatekeeper = gatekeeper;

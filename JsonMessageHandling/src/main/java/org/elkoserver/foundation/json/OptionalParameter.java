@@ -25,7 +25,7 @@ abstract class OptionalParameter {
      *
      * @return the canonical missing value object for 'type'.
      */
-    static Object missingValue(Class type) {
+    static Object missingValue(Class<?> type) {
         if (!OptionalParameter.class.isAssignableFrom(type)) {
             return null;
         } else if (type == OptString.class) {

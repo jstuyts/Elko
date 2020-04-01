@@ -13,6 +13,7 @@ import org.elkoserver.foundation.run.Thunk;
 import org.elkoserver.util.trace.Trace;
 import org.zeromq.ZMQ;
 import java.io.IOException;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * An implementation of {@link org.elkoserver.foundation.net.Connection} that
@@ -23,7 +24,7 @@ public class ZeroMQConnection
     implements MessageReceiver, Thunk
 {
     /** Queue of unencoded outbound messages. */
-    private Queue myOutputQueue;
+    private Queue<Object> myOutputQueue;
 
     /** Framer to perform low-level message conversion. */
     private ByteIOFramer myFramer;
@@ -69,7 +70,7 @@ public class ZeroMQConnection
         amSendMode = isSendMode;
         /* Printable form of the address this connection is connected to. */
         myFramer = framerFactory.provideFramer(this, label());
-        myOutputQueue = new Queue();
+        myOutputQueue = new Queue<>();
         myThread = thread;
         enqueueHandlerFactory(handlerFactory);
         if (Trace.comm.event && Trace.ON) {

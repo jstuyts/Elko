@@ -1,9 +1,5 @@
 package org.elkoserver.server.context;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import org.elkoserver.foundation.actor.BasicProtocolActor;
 import org.elkoserver.foundation.actor.BasicProtocolHandler;
 import org.elkoserver.foundation.actor.RoutingActor;
@@ -15,8 +11,13 @@ import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.foundation.timer.Timeout;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.JSONObject;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Actor representing a connection to a user in one or more contexts.
@@ -257,7 +258,7 @@ class UserActor
      * by the database: If so, it processes the entry normally.  If not, the
      * user is kicked off.
      */
-    private class EnterRunnable implements ArgRunnable {
+    private class EnterRunnable implements Consumer<Object> {
         private String myUserRef;
         private boolean amEphemeral;
         private boolean amAnonymous;
@@ -282,7 +283,7 @@ class UserActor
             myComponentCount = 0;
         }
 
-        public void run(Object obj) {
+        public void accept(Object obj) {
             if (amDead) {
                 /* User disconnected before getting all the way in. */
                 return;

@@ -1,7 +1,9 @@
 package org.elkoserver.foundation.run;
 
 import org.elkoserver.util.trace.Trace;
+
 import java.util.concurrent.Callable;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Runs when it can, but never on empty.  A thread services a queue
@@ -31,7 +33,7 @@ public class Runner implements Runnable {
     /**
      * Note that Queue is a thread-safe data structure with its own lock.
      */
-    private Queue myQ;
+    private Queue<Runnable> myQ;
 
     /**
      * If we ever go orthogonal again, myThread must not be
@@ -53,7 +55,7 @@ public class Runner implements Runnable {
      * application execution inside the server must only happen while this
      * lock is held.
      */
-    private Object myRunLock;
+    private final Object myRunLock = new Object();
 
     /**
      * When the queue is empty, myThread blocks on myNotifyLock rather
@@ -67,7 +69,7 @@ public class Runner implements Runnable {
      * deadlock.  It would be too hard to explain or remember what not
      * to do to avoid this deadlock.  Hence a separate lock.  Ugh.
      */
-    private Object myNotifyLock;
+    private final Object myNotifyLock = new Object();
     private boolean myNeedsNotify = false;
     
     /**
@@ -90,9 +92,7 @@ public class Runner implements Runnable {
      */
     public Runner(String name) {
         ++theRunnerCount;
-        myRunLock = new Object();
-        myNotifyLock = new Object();
-        myQ = new Queue(Runnable.class);
+        myQ = new Queue<>();
         myWorker = myThread = new RunnerThread(this, name);
         myThread.start();
     }
@@ -208,7 +208,7 @@ public class Runner implements Runnable {
                            the queue lock while we're still holding the
                            runLock!  I believe this is safe under all
                            conditions, but cannot prove it at this time. */
-                        todo = (Runnable) myQ.optDequeue();
+                        todo = myQ.optDequeue();
                         if (todo == null) {
                             break;
                         }

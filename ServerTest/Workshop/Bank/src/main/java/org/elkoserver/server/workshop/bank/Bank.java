@@ -266,7 +266,7 @@ class Bank implements Encodable {
      *    database.
      * @param refRef2  The ref by which the second account or encumbrance was
      *    located.
-     * @param allegedAccount1  The second object that was read from the
+     * @param allegedAccount2  The second object that was read from the
      *    database.
      * @param updater  Updater to effect the desired account modifications.
      */

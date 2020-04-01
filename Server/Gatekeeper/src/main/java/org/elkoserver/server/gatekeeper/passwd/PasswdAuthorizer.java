@@ -1,14 +1,11 @@
 package org.elkoserver.server.gatekeeper.passwd;
 
-import java.security.SecureRandom;
 import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.objdb.ObjDB;
-import org.elkoserver.server.gatekeeper.Authorizer;
-import org.elkoserver.server.gatekeeper.Gatekeeper;
-import org.elkoserver.server.gatekeeper.ReservationResult;
-import org.elkoserver.server.gatekeeper.ReservationResultHandler;
-import org.elkoserver.server.gatekeeper.SetPasswordResultHandler;
-import org.elkoserver.util.ArgRunnable;
+import org.elkoserver.server.gatekeeper.*;
+
+import java.security.SecureRandom;
+import java.util.function.Consumer;
 
 /**
  * A simple implementation of the {@link Authorizer} interface for use with
@@ -109,7 +106,7 @@ public class PasswdAuthorizer implements Authorizer {
      * @param handler  Handler to be called with the actor description object
      *    when retrieved.
      */
-    void getActor(String actorID, ArgRunnable handler) {
+    void getActor(String actorID, Consumer<Object> handler) {
         myODB.getObject("a-" + actorID, null, handler);
     }
 
@@ -120,7 +117,7 @@ public class PasswdAuthorizer implements Authorizer {
      * @param handler  Handler to be called with place description object when
      *    retrieved.
      */
-    void getPlace(String name, ArgRunnable handler) {
+    void getPlace(String name, Consumer<Object> handler) {
         myODB.getObject("p-" + name, null, handler);
     }
 
@@ -130,7 +127,7 @@ public class PasswdAuthorizer implements Authorizer {
      * @param actorID  The ID of the actor to be removed.
      * @param handler  Handler to be called with deletion result.
      */
-    void removeActor(String actorID, ArgRunnable handler) {
+    void removeActor(String actorID, Consumer<Object> handler) {
         myODB.removeObject("a-" + actorID, null, handler);
     }
 
@@ -162,7 +159,7 @@ public class PasswdAuthorizer implements Authorizer {
         if (id == null && !amAnonymousOK) {
             handler.handleFailure("anonymous reservations not allowed");
         } else {
-            ArgRunnable runnable =
+            Consumer<Object> runnable =
                 new ReserveRunnable(handler, protocol, context, id, name,
                                     password);
             if (id != null) {
@@ -172,7 +169,7 @@ public class PasswdAuthorizer implements Authorizer {
         }
     }
 
-    private class ReserveRunnable implements ArgRunnable {
+    private class ReserveRunnable implements Consumer<Object> {
         private ReservationResultHandler myHandler;
         private String myProtocol;
         private String myContextName;
@@ -196,7 +193,7 @@ public class PasswdAuthorizer implements Authorizer {
             myContextID = null;
         }
 
-        public void run(Object obj) {
+        public void accept(Object obj) {
             /* This method normally gets entered twice, once for the context
                and once for the actor.  These can be distinguished by looking
                at the type of 'obj'.  However, failure to fetch an object is

@@ -1,9 +1,5 @@
 package org.elkoserver.objdb;
 
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
 import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.json.MessageDispatcher;
 import org.elkoserver.foundation.net.ConnectionRetrier;
@@ -16,8 +12,13 @@ import org.elkoserver.json.Encodable;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.objdb.store.ObjectDesc;
 import org.elkoserver.objdb.store.ResultDesc;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 
 /**
  * Asynchronous access to a remote instance of the object database.  This is
@@ -146,8 +147,8 @@ public class ObjDBRemote extends ObjDBBase {
         }
     }
 
-    private class RepositoryFoundHandler implements ArgRunnable {
-        public void run(Object obj) {
+    private class RepositoryFoundHandler implements Consumer<Object> {
+        public void accept(Object obj) {
             ServiceDesc[] desc = (ServiceDesc[]) obj;
             if (desc[0].failure() != null) {
                 tr.errorm("unable to find repository: " + desc[0].failure());
@@ -204,7 +205,7 @@ public class ObjDBRemote extends ObjDBBase {
      *    retrieved.
      */
     public void getObject(String ref, String collectionName,
-                          ArgRunnable handler) {
+                          Consumer<Object> handler) {
         newRequest(PendingRequest.getReq(ref, collectionName, handler));
     }
 
@@ -315,7 +316,7 @@ public class ObjDBRemote extends ObjDBBase {
      *    or null if the operation was successful.
      */
     public void putObject(String ref, Encodable obj, String collectionName,
-                          boolean requireNew, ArgRunnable handler) {
+                          boolean requireNew, Consumer<Object> handler) {
         newRequest(PendingRequest.putReq(ref, obj, collectionName, requireNew,
                                          handler));
     }
@@ -333,7 +334,7 @@ public class ObjDBRemote extends ObjDBBase {
      *    or null if the operation was successful.
      */
     public void updateObject(String ref, int version, Encodable obj,
-                             String collectionName, ArgRunnable handler) {
+                             String collectionName, Consumer<Object> handler) {
         newRequest(PendingRequest.updateReq(ref, version, obj, collectionName,
                                             handler));
     }
@@ -351,7 +352,7 @@ public class ObjDBRemote extends ObjDBBase {
      *    be retrieved.
      */
     public void queryObjects(JSONObject template, String collectionName,
-                             int maxResults, ArgRunnable handler) {
+                             int maxResults, Consumer<Object> handler) {
         newRequest(PendingRequest.queryReq(template, collectionName,
                                            maxResults, handler));
     }
@@ -369,7 +370,7 @@ public class ObjDBRemote extends ObjDBBase {
      *    or null if the operation was successful.
      */
     public void removeObject(String ref, String collectionName,
-                             ArgRunnable handler) {
+                             Consumer<Object> handler) {
         newRequest(PendingRequest.removeReq(ref, collectionName, handler));
     }
 

@@ -87,7 +87,7 @@ class DirectorActor extends NonRoutingActor {
      * a user's clones or the intersection of a set of a user clones and a set
      * of context clones.
      *
-     * @internal Note that this class has the form of Iterator but it does not
+     * Note that this class has the form of Iterator but it does not
      * actually implement the Iterator interface because some of its methods
      * need to declare exceptions.
      */

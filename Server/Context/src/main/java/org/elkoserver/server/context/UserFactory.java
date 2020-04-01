@@ -2,7 +2,8 @@ package org.elkoserver.server.context;
 
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.json.JSONObject;
-import org.elkoserver.util.ArgRunnable;
+
+import java.util.function.Consumer;
 
 /**
  * Interface implemented by objects that can produce User objects on demand,
@@ -31,5 +32,5 @@ public interface UserFactory {
      *    be the user object that was produced, or null if none could be.
      */
     void provideUser(Contextor contextor, Connection connection,
-                     JSONObject param, ArgRunnable handler);
+                     JSONObject param, Consumer<Object> handler);
 }

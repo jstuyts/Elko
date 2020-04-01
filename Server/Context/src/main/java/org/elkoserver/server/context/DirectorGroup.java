@@ -70,7 +70,7 @@ class DirectorGroup extends OutboundGroup {
      *
      * @return this group's actor class.
      */
-    Class actorClass() {
+    Class<?> actorClass() {
         return DirectorActor.class;
     }
 

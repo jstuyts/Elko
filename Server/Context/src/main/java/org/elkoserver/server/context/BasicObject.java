@@ -1,18 +1,17 @@
 package org.elkoserver.server.context;
 
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
-import org.elkoserver.foundation.json.DefaultDispatchTarget;
-import org.elkoserver.foundation.json.Deliverer;
-import org.elkoserver.foundation.json.DispatchTarget;
-import org.elkoserver.foundation.json.MessageHandlerException;
-import org.elkoserver.foundation.json.MessageRetargeter;
+import org.elkoserver.foundation.json.*;
 import org.elkoserver.json.Encodable;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Referenceable;
-import org.elkoserver.util.ArgRunnable;
+
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.function.Consumer;
+
+import static java.util.Objects.requireNonNullElse;
 
 /**
  * Base class of the fundamental addressable objects in the Context Server:
@@ -272,7 +271,7 @@ public abstract class BasicObject
      *
      * @param handler  Optional completion handler.
      */
-    void checkpoint(ArgRunnable handler) {
+    void checkpoint(Consumer<Object> handler) {
         if (!amEphemeral) {
             checkpointSelf(handler);
             if (myCodependents != null) {
@@ -284,7 +283,7 @@ public abstract class BasicObject
             }
         } else {
             if (handler != null) {
-                handler.run(null);
+                handler.accept(null);
             }
         }
     }
@@ -295,7 +294,7 @@ public abstract class BasicObject
      *
      * @param handler  Optional completion handler.
      */
-    private void checkpointSelf(ArgRunnable handler) {
+    private void checkpointSelf(Consumer<Object> handler) {
         if (!amEphemeral) {
             if (myContents != null) {
                 for (BasicObject item : myContents) {
@@ -305,7 +304,7 @@ public abstract class BasicObject
             doCheckpoint(handler);
         } else {
             if (handler != null) {
-                handler.run(null);
+                handler.accept(null);
             }
         }
     }
@@ -355,11 +354,7 @@ public abstract class BasicObject
      * @return an iterable that iterates over this object's contents.
      */
     public Iterable<Item> contents() {
-        if (myContents == null) {
-            return Collections.emptyList();
-        } else {
-            return myContents;
-        }
+        return requireNonNullElse(myContents, Collections.emptyList());
     }
 
     /**
@@ -407,7 +402,7 @@ public abstract class BasicObject
      *
      * @param handler  Optional completion handler
      */
-    private void doCheckpoint(ArgRunnable handler) {
+    private void doCheckpoint(Consumer<Object> handler) {
         if (amChanged) {
             amChanged = false;
             if (amDeleted) {
@@ -417,7 +412,7 @@ public abstract class BasicObject
             }
         } else {
             if (handler != null) {
-                handler.run(null);
+                handler.accept(null);
             }
         }
     }
@@ -457,7 +452,7 @@ public abstract class BasicObject
      *
      * @return the mod of the given type, if there is one, else null.
      */
-    public Mod getMod(Class type) {
+    public Mod getMod(Class<?> type) {
         if (myModSet == null) {
             return null;
         } else {
@@ -772,7 +767,7 @@ public abstract class BasicObject
      * @return an object that can handle messages for class 'type', or null if
      *    this object doesn't handle messages for that class.
      */
-    public DispatchTarget findActualTarget(Class type) {
+    public DispatchTarget findActualTarget(Class<?> type) {
         if (type == this.getClass()) {
             return this;
         } else if (myModSet == null) {

@@ -8,8 +8,9 @@ import org.elkoserver.server.context.Contextor;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
 import org.elkoserver.server.context.UserFactory;
-import org.elkoserver.util.ArgRunnable;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.function.Consumer;
 
 /**
  * Factory that generates a persistent user object from connected mobile device
@@ -57,7 +58,7 @@ public class DevicePersistentUserFactory implements UserFactory {
      *    be the user object that was produced, or null if none could be.
      */
     public void provideUser(final Contextor contextor, Connection connection,
-                            JSONObject param, final ArgRunnable handler) {
+                            JSONObject param, final Consumer<Object> handler) {
         final DeviceCredentials creds =
             extractCredentials(contextor.appTrace(), param);
         if (creds != null) {
@@ -67,24 +68,24 @@ public class DevicePersistentUserFactory implements UserFactory {
                 return null;
             }, null);
         } else {
-            handler.run(null);
-        }        
+            handler.accept(null);
+        }
     }
 
-    private static class DeviceQueryResultHandler implements ArgRunnable {
+    private static class DeviceQueryResultHandler implements Consumer<Object> {
         private Contextor myContextor;
         private DeviceCredentials myCreds;
-        private ArgRunnable myHandler;
+        private Consumer<Object> myHandler;
 
         DeviceQueryResultHandler(Contextor contextor, DeviceCredentials creds,
-                                 ArgRunnable handler)
+                                 Consumer<Object> handler)
         {
             myContextor = contextor;
             myCreds = creds;
             myHandler = handler;
         }
 
-        public void run(Object queryResult) {
+        public void accept(Object queryResult) {
             User user;
             Object[] result = (Object []) queryResult;
             if (result != null && result.length > 0) {
@@ -106,7 +107,7 @@ public class DevicePersistentUserFactory implements UserFactory {
                                 myContextor.uniqueID("u"), null);
                 user.markAsChanged();
             }
-            myHandler.run(user);
+            myHandler.accept(user);
         }
     }
 

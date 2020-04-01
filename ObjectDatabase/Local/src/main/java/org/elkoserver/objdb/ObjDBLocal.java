@@ -2,24 +2,11 @@ package org.elkoserver.objdb;
 
 import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.run.Runner;
-import org.elkoserver.json.EncodeControl;
-import org.elkoserver.json.Encodable;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.Parser;
-import org.elkoserver.json.SyntaxError;
-import org.elkoserver.objdb.store.GetResultHandler;
-import org.elkoserver.objdb.store.ObjectDesc;
-import org.elkoserver.objdb.store.ObjectStore;
-import org.elkoserver.objdb.store.PutDesc;
-import org.elkoserver.objdb.store.QueryDesc;
-import org.elkoserver.objdb.store.UpdateDesc;
-import org.elkoserver.objdb.store.RequestDesc;
-import org.elkoserver.objdb.store.RequestResultHandler;
-import org.elkoserver.objdb.store.ResultDesc;
-import org.elkoserver.objdb.store.UpdateResultDesc;
-import org.elkoserver.util.ArgRunnable;
+import org.elkoserver.json.*;
+import org.elkoserver.objdb.store.*;
 import org.elkoserver.util.trace.Trace;
+
+import java.util.function.Consumer;
 
 /**
  * Asynchronous access to a local instance of the object database.  This is
@@ -77,7 +64,7 @@ public class ObjDBLocal extends ObjDBBase {
      *    retrieved.
      */
     public void getObject(String ref, String collectionName,
-                          ArgRunnable handler) {
+                          Consumer<Object> handler) {
         myRunner.enqueue(new GetCallHandler(ref, collectionName, handler));
     }
 
@@ -87,9 +74,9 @@ public class ObjDBLocal extends ObjDBBase {
     private class GetCallHandler implements Runnable, GetResultHandler {
         private String myRef;
         private String myCollectionName;
-        private ArgRunnable myRunnable;
+        private Consumer<Object> myRunnable;
         GetCallHandler(String ref, String collectionName,
-                       ArgRunnable runnable) {
+                       Consumer<Object> runnable) {
             myRef = ref;
             myCollectionName = collectionName;
             myRunnable = runnable;
@@ -129,7 +116,7 @@ public class ObjDBLocal extends ObjDBBase {
      *    or null if the operation was successful.
      */
     public void putObject(String ref, Encodable obj, String collectionName,
-                          boolean requireNew, ArgRunnable handler) {
+                          boolean requireNew, Consumer<Object> handler) {
         JSONLiteral objToWrite = obj.encode(EncodeControl.forRepository);
         myRunner.enqueue(new PutCallHandler(ref, objToWrite, collectionName,
                                             requireNew, handler));
@@ -148,7 +135,7 @@ public class ObjDBLocal extends ObjDBBase {
      *    or null if the operation was successful.
      */
     public void updateObject(String ref, int version, Encodable obj,
-                             String collectionName, ArgRunnable handler) {
+                             String collectionName, Consumer<Object> handler) {
         JSONLiteral objToWrite = obj.encode(EncodeControl.forRepository);
         myRunner.enqueue(new UpdateCallHandler(ref, version, objToWrite,
                                                collectionName, handler));
@@ -162,9 +149,9 @@ public class ObjDBLocal extends ObjDBBase {
         private JSONLiteral myObj;
         private String myCollectionName;
         private boolean amRequireNew;
-        private ArgRunnable myRunnable;
+        private Consumer<Object> myRunnable;
         PutCallHandler(String ref, JSONLiteral obj, String collectionName,
-                       boolean requireNew, ArgRunnable runnable) {
+                       boolean requireNew, Consumer<Object> runnable) {
             myRef = ref;
             myObj = obj;
             myCollectionName = collectionName;
@@ -197,9 +184,9 @@ public class ObjDBLocal extends ObjDBBase {
         private int myVersion;
         private JSONLiteral myObj;
         private String myCollectionName;
-        private ArgRunnable myRunnable;
+        private Consumer<Object> myRunnable;
         UpdateCallHandler(String ref, int version, JSONLiteral obj,
-                          String collectionName, ArgRunnable runnable)
+                          String collectionName, Consumer<Object> runnable)
         {
             myRef = ref;
             myVersion = version;
@@ -247,7 +234,7 @@ public class ObjDBLocal extends ObjDBBase {
      *    be retrieved.
      */
     public void queryObjects(JSONObject template, String collectionName,
-                             int maxResults, ArgRunnable handler) {
+                             int maxResults, Consumer<Object> handler) {
         myRunner.enqueue(new QueryCallHandler(template, collectionName,
                                               maxResults, handler));
     }
@@ -259,9 +246,9 @@ public class ObjDBLocal extends ObjDBBase {
         private JSONObject myTemplate;
         private String myCollectionName;
         private int myMaxResults;
-        private ArgRunnable myRunnable;
+        private Consumer<Object> myRunnable;
         QueryCallHandler(JSONObject template, String collectionName,
-                         int maxResults, ArgRunnable runnable) {
+                         int maxResults, Consumer<Object> runnable) {
             myTemplate = template;
             myCollectionName = collectionName;
             myMaxResults = maxResults;
@@ -319,7 +306,7 @@ public class ObjDBLocal extends ObjDBBase {
      *    or null if the operation was successful.
      */
     public void removeObject(String ref, String collectionName,
-                             ArgRunnable handler) {
+                             Consumer<Object> handler) {
         myRunner.enqueue(new RemoveCallHandler(ref, collectionName, handler));
     }
 
@@ -329,9 +316,9 @@ public class ObjDBLocal extends ObjDBBase {
     private class RemoveCallHandler implements Runnable, RequestResultHandler {
         private String myRef;
         private String myCollectionName;
-        private ArgRunnable myRunnable;
+        private Consumer<Object> myRunnable;
         RemoveCallHandler(String ref, String collectionName,
-                          ArgRunnable runnable) {
+                          Consumer<Object> runnable) {
             myRef = ref;
             myCollectionName = collectionName;
             myRunnable = runnable;
@@ -358,17 +345,17 @@ public class ObjDBLocal extends ObjDBBase {
     }
 
     /**
-     * Runnable to invoke an ArgRunnable.  Runs in the main thread.
+     * Runnable to invoke an Consumer.  Runs in the main thread.
      */
     private static class ArgRunnableRunnable implements Runnable {
-        private ArgRunnable myRunnable;
+        private Consumer<Object> myRunnable;
         private Object myResult;
-        ArgRunnableRunnable(ArgRunnable runnable, Object result) {
+        ArgRunnableRunnable(Consumer<Object> runnable, Object result) {
             myRunnable = runnable;
             myResult = result;
         }
         public void run() {
-            myRunnable.run(myResult);
+            myRunnable.accept(myResult);
         }
     }
 }

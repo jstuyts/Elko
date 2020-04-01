@@ -13,7 +13,7 @@ class MethodInvoker extends Invoker {
     private Method myMethod;
 
     /** The Java class that defined the method. */
-    private Class myMethodClass;
+    private Class<?> myMethodClass;
 
     /** Next method in a chain of methods for the same verb.  There will be one
         entry in this chain for each registered class that implements a handler
@@ -30,7 +30,7 @@ class MethodInvoker extends Invoker {
      * @param paramNames  JSON names for the parameters.
      * @param next  Next JSON method in a growing chain.
      */
-    MethodInvoker(Method method, Class[] paramTypes, String[] paramNames,
+    MethodInvoker(Method method, Class<?>[] paramTypes, String[] paramNames,
                   MethodInvoker next)
     {
         super(method, paramTypes, paramNames, 1);

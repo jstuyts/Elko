@@ -19,7 +19,7 @@ class ParameterMismatchException extends RuntimeException {
      * @param suppliedParams  The supplied parameter objects.
      * @param expectedParams  The classes of the expected parameters.
      */
-    ParameterMismatchException(Object[] suppliedParams, Class[] expectedParams)
+    ParameterMismatchException(Object[] suppliedParams, Class<?>[] expectedParams)
     {
         super(createMessageString(suppliedParams, expectedParams));
     }
@@ -34,16 +34,14 @@ class ParameterMismatchException extends RuntimeException {
     private static String createMessageString(Object[] suppliedParams,
                                               Class<?>[] expectedParams)
     {
-        String message = "";
+        StringBuilder message = new StringBuilder();
         int count = Math.min(suppliedParams.length, expectedParams.length);
         for (int i = 0; i < count; ++i) {
             if (!expectedParams[i].isAssignableFrom(
                     suppliedParams[i].getClass())) {
-                message = message + "Parameter mismatch: Method  requires "
-                    + expectedParams[i] + "; found "
-                    + suppliedParams[i].getClass() + " ";
+                message.append("Parameter mismatch: Method  requires ").append(expectedParams[i]).append("; found ").append(suppliedParams[i].getClass()).append(" ");
             }
         }
-        return message;
+        return message.toString();
     }
 }

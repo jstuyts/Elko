@@ -16,36 +16,17 @@ import java.util.NoSuchElementException;
  * Queue is a thread-safe data structure, providing its own lock, and a
  * blocking {@link #dequeue} operation.
  */
-public class Queue implements Enumeration {
+public class Queue<TElement> implements Enumeration<TElement> {
     private static final int INITIAL_SIZE = 400;
 
-    private Object myQLock;
-    private Object[] myStuff;
+    private final Object myQLock = new Object();
+    private Object[] myStuff = new Object[INITIAL_SIZE];
     private int myMaxSize;
     private int myCurSize;
     private int myOut;
     private int myIn;
 
-    /**
-     * Makes a Queue that can hold any object.
-     */
     public Queue() {
-        this(Object.class);
-    }
-
-    /**
-     * Makes a Queue that can hold objects of the specified
-     * <tt>elementType</tt>.
-     *
-     * @param elementType may not be a primitive (ie, scalar) type.
-     */
-    public Queue(Class elementType) {
-        myQLock = new Object();
-        if (elementType.isPrimitive()) {
-            throw new IllegalArgumentException("must be reference type: " + 
-                                               elementType);
-        }                                       
-        myStuff = (Object[])Array.newInstance(elementType, INITIAL_SIZE);
         myMaxSize = INITIAL_SIZE;
         myCurSize = 0;
         myOut = 0;
@@ -57,10 +38,10 @@ public class Queue implements Enumeration {
      * is currently empty, block until there is an element that can be
      * dequeued. 
      */
-    public Object dequeue() {
+    public TElement dequeue() {
         synchronized (myQLock) {
             while(true) {
-                Object result = optDequeue();
+                TElement result = optDequeue();
                 if (result != null) {
                     return result;
                 }
@@ -83,7 +64,7 @@ public class Queue implements Enumeration {
      * @throws ArrayStoreException thrown if newElement does not conform 
      *    to the elementType specified in the Queue constructor.
      */
-    public void enqueue(Object newElement) {
+    public void enqueue(TElement newElement) {
         if (newElement == null) {
             throw new NullPointerException("cannot enqueue a null");
         }
@@ -91,8 +72,8 @@ public class Queue implements Enumeration {
             /* grow array if necessary */
             if (myCurSize == myMaxSize) {
                 int newSize = (myMaxSize * 3) / 2 + 10;
-                Class elementType = myStuff.getClass().getComponentType();
-                Object[] stuff = (Object[])Array.newInstance(elementType,
+                Class<?> elementType = myStuff.getClass().getComponentType();
+                TElement[] stuff = (TElement[])Array.newInstance(elementType,
                                                              newSize);
 
                 /* note: careful code to avoid inadvertantly reordering msgs */
@@ -133,8 +114,8 @@ public class Queue implements Enumeration {
      * is currently empty, throw NoSuchElementException.  This method
      * allows a Queue to be used as an Enumeration.
      */
-    public Object nextElement() throws NoSuchElementException {
-        Object result = optDequeue();
+    public TElement nextElement() throws NoSuchElementException {
+        TElement result = optDequeue();
         if (result == null) {
             throw new NoSuchElementException("queue is currently empty");
         }
@@ -145,13 +126,13 @@ public class Queue implements Enumeration {
      * Get the least-recently-added element off of the queue, or null
      * if the queue is currently empty.
      */
-    public Object optDequeue() {
+    public TElement optDequeue() {
         if (myCurSize == 0) {
             return null;
         }
 
         synchronized (myQLock) {
-            Object result = myStuff[myOut];
+            TElement result = (TElement) myStuff[myOut];
 
             myStuff[myOut] = null;
             ++myOut;

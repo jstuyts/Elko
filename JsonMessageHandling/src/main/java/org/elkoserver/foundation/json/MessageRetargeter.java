@@ -22,5 +22,5 @@ public interface MessageRetargeter {
      * @return an object that can handle messages for class 'type' on behalf of
      *    this object, or null if no such object exists.
      */
-    DispatchTarget findActualTarget(Class type);
+    DispatchTarget findActualTarget(Class<?> type);
 }
