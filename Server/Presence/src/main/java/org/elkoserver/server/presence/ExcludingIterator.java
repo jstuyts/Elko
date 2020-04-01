@@ -1,4 +1,4 @@
-package org.elkoserver.util;
+package org.elkoserver.server.presence;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -6,7 +6,7 @@ import java.util.NoSuchElementException;
 /**
  * Iterator over a collection that excludes a distinguished element.
  */
-public abstract class ExcludingIterator<V> implements Iterator<V> {
+abstract class ExcludingIterator<V> implements Iterator<V> {
     /** The base iterator */
     private Iterator<V> myBase;
 

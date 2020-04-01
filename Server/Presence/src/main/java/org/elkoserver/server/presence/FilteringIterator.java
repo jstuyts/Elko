@@ -1,4 +1,4 @@
-package org.elkoserver.util;
+package org.elkoserver.server.presence;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
  * values of another type via a transformation method that is supplied by the
  * implementing subclass.
  */
-public class FilteringIterator<From,To> implements Iterator<To> {
+class FilteringIterator<From,To> implements Iterator<To> {
     /** The base iterator */
     private Iterator<From> myBase;
 
@@ -21,7 +21,7 @@ public class FilteringIterator<From,To> implements Iterator<To> {
      * @param base  The iterator whose elements are to be transformed.
      * @param filter  The filter to transform the iterata.
      */
-    public FilteringIterator(Iterator<From> base, Filter<From, To> filter) {
+    FilteringIterator(Iterator<From> base, Filter<From, To> filter) {
         myBase = base;
         myFilter = filter;
     }
@@ -61,7 +61,7 @@ public class FilteringIterator<From,To> implements Iterator<To> {
      * Utility class implemented by filters used by the {@link
      * FilteringIterator} iterator class.
      */
-    public interface Filter<From, To> {
+    interface Filter<From, To> {
         /**
          * Generate an object of type To given an object of type From.
          *

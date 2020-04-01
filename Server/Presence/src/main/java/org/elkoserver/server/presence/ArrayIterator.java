@@ -1,4 +1,4 @@
-package org.elkoserver.util;
+package org.elkoserver.server.presence;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -8,7 +8,7 @@ import java.util.NoSuchElementException;
  * the underlying array is null, and when you actually need an explicit
  * iterator.
  */
-public class ArrayIterator<V> implements Iterator<V> {
+class ArrayIterator<V> implements Iterator<V> {
     /** The array */
     private V[] myArray;
 
@@ -20,7 +20,7 @@ public class ArrayIterator<V> implements Iterator<V> {
      *
      * @param array  The array to iterate over.
      */
-    public ArrayIterator(V[] array) {
+    ArrayIterator(V[] array) {
         myArray = array;
         myIndex = 0;
     }

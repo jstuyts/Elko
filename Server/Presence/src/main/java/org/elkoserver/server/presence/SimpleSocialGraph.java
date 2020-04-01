@@ -3,7 +3,6 @@ package org.elkoserver.server.presence;
 import org.elkoserver.json.JSONDecodingException;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.objdb.ObjDB;
-import org.elkoserver.util.ArrayIterator;
 import org.elkoserver.util.trace.Trace;
 
 class SimpleSocialGraph implements SocialGraph {

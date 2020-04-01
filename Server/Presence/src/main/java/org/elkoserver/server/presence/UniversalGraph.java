@@ -4,9 +4,6 @@ import java.security.SecureRandom;
 import java.util.Iterator;
 import org.elkoserver.json.JSONDecodingException;
 import org.elkoserver.json.JSONObject;
-import org.elkoserver.util.ExcludingIterator;
-import org.elkoserver.util.FilteringIterator;
-import org.elkoserver.util.trace.Trace;
 
 /**
  * Social graph based on the notion that everybody is connected to everybody
@@ -26,9 +23,6 @@ class UniversalGraph implements SocialGraph {
     /** The domain this graph describes. */
     private Domain myDomain;
 
-    /** Trace object for diagnostics. */
-    private Trace tr;
-
     /** Number of pseudo-friends someone has, for throttling.  A negative
         value is unthrottled. */
     private int myPseudoFriendCount;
@@ -42,13 +36,12 @@ class UniversalGraph implements SocialGraph {
     public void init(PresenceServer master, Domain domain, JSONObject conf) {
         myMaster = master;
         myDomain = domain;
-        tr = master.appTrace();
         try {
             myPseudoFriendCount = conf.optInt("friends", -1);
         } catch (JSONDecodingException e) {
             myPseudoFriendCount = -1;
         }
-        tr.worldi("init UniversalGraph for domain '" + domain.name() + "'");
+        master.appTrace().worldi("init UniversalGraph for domain '" + domain.name() + "'");
     }
 
     /**
