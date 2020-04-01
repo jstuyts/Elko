@@ -100,13 +100,17 @@ class HTTPRequest {
             String name = line.substring(0, colon).trim().toLowerCase();
             String value = line.substring(colon+1).trim();
             myHeaders.put(name, value);
-            if (name.equals("content-length")) {
-                myContentLength = Integer.parseInt(value);
-            } else if (name.equals("connection")) {
-                amNonPersistent = value.equalsIgnoreCase("close");
-            } else if (name.equals("content-type")) {
-                amURLEncoded =
-                   value.equalsIgnoreCase("application/x-www-form-urlencoded");
+            switch (name) {
+                case "content-length":
+                    myContentLength = Integer.parseInt(value);
+                    break;
+                case "connection":
+                    amNonPersistent = value.equalsIgnoreCase("close");
+                    break;
+                case "content-type":
+                    amURLEncoded =
+                            value.equalsIgnoreCase("application/x-www-form-urlencoded");
+                    break;
             }
         }
     }
@@ -148,18 +152,18 @@ class HTTPRequest {
      * @return a printable dump of the request state.
      */
     public String toString() {
-        String result = "HTTP Request " + myMethod + " for " + myURI + "\n";
+        StringBuilder result = new StringBuilder("HTTP Request " + myMethod + " for " + myURI + "\n");
 
         for (Map.Entry<String, String> entry : myHeaders.entrySet()) {
-            result += entry.getKey() + ": " + entry.getValue() + "\n";
+            result.append(entry.getKey()).append(": ").append(entry.getValue()).append("\n");
         }
 
         if (myContent == null) {
-            result += "Content: <none>\n";
+            result.append("Content: <none>\n");
         } else {
-            result += "Content: /" + myContent + "/\n";
+            result.append("Content: /").append(myContent).append("/\n");
         }
-        return result;
+        return result.toString();
     }
 
     /**
