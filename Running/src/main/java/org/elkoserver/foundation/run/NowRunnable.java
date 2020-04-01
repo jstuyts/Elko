@@ -11,7 +11,7 @@ class NowRunnable implements Runnable {
     /**
      * Acts as a condition variable on "null == myOptTodo"
      */
-    private Object myLock = new Object();
+    private final Object myLock = new Object();
 
     /**
      * If non-null, it is the thunk to be executed.  <p>
@@ -29,7 +29,7 @@ class NowRunnable implements Runnable {
     private Throwable myOptProblem;
 
     /**
-     * Meaningfull iff null == myOptTodo && null == myOptProblem, in which
+     * Meaningful iff null == myOptTodo && null == myOptProblem, in which
      * case it's the value successfully returned by myOptTodo's execution.
      */
     private Object myResult;
