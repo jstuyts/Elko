@@ -6,7 +6,6 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.elkoserver.json.JSONArray;
 import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.SyntaxError;
 import org.elkoserver.util.trace.Trace;
 
 import java.io.BufferedReader;
@@ -50,9 +49,6 @@ class LogEater {
 
     /** If true, process communications message entries. */
     private static boolean amEatingComm = false;
-
-    /** If true, process metrics entries. */
-    private static boolean amEatingMetrics = true;
 
     /** If true, process server debug entries. */
     private static boolean amEatingDebug = false;
@@ -106,15 +102,13 @@ class LogEater {
         e("");
         e("  -c[omm]             Eat message traffic logs");
         e("  -noc[omm]           Don't eat message traffic logs {default}");
-        e("  -m[etrics]          Eat metrics data logs {default}");
-        e("  -nom[etrics]        Don't eat metrics data logs");
         e("  -d[ebug]            Eat server debug logs");
         e("  -nod[ebug]          Don't eat server debug logs {default}");
         e("  -all                Equivalent to -c -m -d");
         e("");
         e("  -dbhost HOST:PORT   MongoDB is at HOST:PORT {localhost:27017}");
         e("  -db DBNAME          Use MongoDB database DBNAME {elko}");
-        e("  -dbcoll COLL        Use MongoDB collection COLL {metrics}");
+        e("  -dbcoll COLL        Use MongoDB collection COLL {logeater}");
         e("  -nodb               Don't write to the database");
         e("");
         e("  -test               Spew diagnostic output to stdout");
@@ -131,7 +125,7 @@ class LogEater {
         SourceInfo source = new SourceInfo();
         String dbHost = "localhost:27017";
         String dbName = "elko";
-        String dbCollName = "metrics";
+        String dbCollName = "logeater";
 
         try {
             for (int i = 0; i < args.length; ) {
@@ -149,14 +143,6 @@ class LogEater {
                         case "-noc":
                             amEatingComm = false;
                             break;
-                        case "-metrics":
-                        case "-m":
-                            amEatingMetrics = true;
-                            break;
-                        case "-nometrics":
-                        case "-nom":
-                            amEatingMetrics = false;
-                            break;
                         case "-debug":
                         case "-d":
                             amEatingDebug = true;
@@ -167,7 +153,6 @@ class LogEater {
                             break;
                         case "-all":
                             amEatingComm = true;
-                            amEatingMetrics = true;
                             amEatingDebug = true;
                             break;
                         case "-file":
@@ -383,7 +368,6 @@ class LogEater {
     private static Map<String, Trace.Level> tags = new HashMap<>();
     static {
         tags.put("NTC", Trace.Level.NOTICE);
-        tags.put("MET", Trace.Level.METRICS);
         tags.put("MSG", Trace.Level.MESSAGE);
         tags.put("ERR", Trace.Level.ERROR);
         tags.put("WRN", Trace.Level.WARNING);
@@ -393,10 +377,6 @@ class LogEater {
         tags.put("DBG", Trace.Level.DEBUG);
         tags.put("VRB", Trace.Level.VERBOSE);
     }
-
-    /** Regexp to parse the message field of a metrics entry. */
-    private static final Pattern METRICS_PATTERN =
-        Pattern.compile("([^ ]+) (\\d+) (.*)");
 
     /** Regexp to parse the message field of a comm entry. */
     private static final Pattern COMM_PATTERN =
@@ -422,24 +402,6 @@ class LogEater {
             return;
         }
         switch (tag) {
-            case METRICS:
-                if (amEatingMetrics) {
-                    Matcher metricsMatcher = METRICS_PATTERN.matcher(message);
-                    if (metricsMatcher.matches()) {
-                        String path = metricsMatcher.group(1);
-                        String idStr = metricsMatcher.group(2);
-                        int id = Integer.parseInt(idStr);
-                        String value = metricsMatcher.group(3);
-                        processMetrics(timestamp, subsystem, path, id,
-                                value);
-                        return;
-                    } else {
-                        e("malformed metrics message /" + message + "/");
-                        return;
-                    }
-                } else {
-                    return;
-                }
             case NOTICE:
                 if (amEatingDebug) {
                     processInfo(timestamp, subsystem, message);
@@ -552,43 +514,6 @@ class LogEater {
             result.put(prop.getKey(), valueToDBValue(prop.getValue()));
         }
         return result;
-    }
-
-    /**
-     * Process a metrics (MET) entry.
-     *
-     * @param timestamp  The message timestamp.
-     * @param subsystem  The logging subsystem.
-     * @param path  The metric identifier.
-     * @param id  The session id.
-     * @param value  The value that was logged.
-     *
-     */
-    private void processMetrics(long timestamp, String subsystem,
-                                String path, int id, String value)
-    {
-        if (amTesting) {
-            String timestr =
-                String.format("%1$tY/%1$tm/%1$td %1$tT.%1$tL", timestamp);
-            p("- " + timestr + " MET " + subsystem + " : " + path + " " + id +
-              " " + value);
-        }
-        if (amWriting) {
-            Document out = baseDBObject(timestamp, "MET", subsystem);
-            out.put("path", path);
-            out.put("id", id);
-            value = "{hack:" + value + "}";
-            JSONObject json;
-            try {
-                json = JSONObject.parse(value);
-            } catch (SyntaxError e) {
-                e("invalid JSON value /" + value + "/");
-                return;
-            }
-            Document dbValue = jsonObjectToDBObject(json);
-            out.put("val", dbValue.get("hack"));
-            theCollection.insertOne(out);
-        }
     }
 
     /**

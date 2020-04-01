@@ -87,16 +87,6 @@ public class TraceController {
     }
 
     /**
-     * Set the acceptor that will be used to actually handle trace events.
-     *
-     * @param acceptor  The new acceptor.
-     */
-    public static void setAcceptor(TraceMessageAcceptor acceptor) {
-        theAcceptor = acceptor;
-        Trace.setAcceptor(theAcceptor);
-    }
-
-    /**
      * Set the trace control properties from a given set of properties.<p>
      *
      * IMPORTANT:  The properties are processed in an unpredictable order.

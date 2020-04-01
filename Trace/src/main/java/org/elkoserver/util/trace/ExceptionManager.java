@@ -36,16 +36,6 @@ public class ExceptionManager
     }
 
     /**
-     * Prints a {@link Throwable} and its backtrace to the standard error
-     * stream in way that knows about non-local exceptions.
-     *
-     * @param problem  The {@link Throwable} to print a stack trace for.
-     */
-    public static void printStackTrace(Throwable problem) {
-        printStackTrace(problem, System.err, false);
-    }
-
-    /**
      * Prints a {@link Throwable} and its backtrace to the specified print
      * stream in way that knows about non-local exceptions.
      *
@@ -138,19 +128,6 @@ public class ExceptionManager
             System.err.println(msg);
             printStackTrace(problem, System.err, nonLocal);
         }
-    }
-
-    /**
-     * Handle an exception, either by printing its stack trace to the standard
-     * error stream or, if an {@link ExceptionNoticer} has been registered, by
-     * informing the {@link ExceptionNoticer}.
-     *
-     * @param problem  The {@link Throwable} to report.
-     * @param nonLocal  If <tt>true</tt>, also report the site from which the
-     *    stack trace is being printed.
-     */
-    public static void reportException(Throwable problem, boolean nonLocal) {
-        reportException(problem, "", nonLocal);
     }
 
     /**

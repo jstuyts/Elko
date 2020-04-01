@@ -136,10 +136,6 @@ class TraceLogDescriptor implements Cloneable {
         return printName().equals(other.printName());
     }
 
-    boolean inUse() { 
-        return stream != null;
-    }
-
     /** 
      * Return a name of this descriptor, suitable for printing.  System.out is
      * named "standard output".  Real files are named by their canonical

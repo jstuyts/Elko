@@ -1,8 +1,5 @@
 package org.elkoserver.util.trace;
 
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -34,33 +31,29 @@ public class Trace {
      */
     public enum Level {
         /** "Notice" level (not thresholded) */
-        NOTICE(20000, "NTC"),
-        /** "Metrics" level (not thresholded) */
-        METRICS(20001, "MET"),
+        NOTICE("NTC"),
         /** "Error" level trace threshold */
         /* Always on */
-        ERROR(10000, "ERR"),
+        ERROR("ERR"),
         /** "Warning" level trace threshold */
-        WARNING(120, "WRN"),
+        WARNING("WRN"),
         /** "World" level trace threshold */
-        WORLD(100, "WLD"),
+        WORLD("WLD"),
         /** "Usage" level trace threshold */
-        USAGE(80, "USE"),
+        USAGE("USE"),
         /** "Event" level trace threshold */
-        EVENT(60, "EVN"),
+        EVENT("EVN"),
         /** "Message" level trace threshold.  Essentially the same as "Event", but
          flagged differently in log entries. */
-        MESSAGE(59, "MSG"),
+        MESSAGE("MSG"),
         /** "Debug" level trace threshold */
-        DEBUG(40, "DBG"),
+        DEBUG("DBG"),
         /** "Verbose" level trace threshold */
-        VERBOSE(20, "VRB");
+        VERBOSE("VRB");
 
-        public final int threshold;
         public final String terseCode;
 
-        Level(int threshold, String terseCode) {
-            this.threshold = threshold;
+        Level(String terseCode) {
             this.terseCode = terseCode;
         }
     }
@@ -162,16 +155,12 @@ public class Trace {
      * messages that need to be generated as a part of server boot. */
     public static Trace startup = trace("startup");
 
-    /** Trace object for the 'timers' subsystem.  This is used for log messages
-     * from the clock/timer API. */
-    public static Trace timers = trace("timers");
-
     /** Trace object for the 'trace' subsystem itself. */
     public static Trace trace = trace("trace");
 
     /**
      * The acceptor this trace object communicates with to output trace log
-     * messags.
+     * messages.
      */
     private TraceMessageAcceptor myAcceptor;
 
@@ -235,17 +224,6 @@ public class Trace {
     }
 
     /**
-     * Set the acceptor, i.e., control where the output will go.
-     *
-     * @param acceptor  The new acceptor to use.
-     */
-    static void setAcceptor(TraceMessageAcceptor acceptor) {
-        for (Trace tr : theTraces.values()) {
-            tr.myAcceptor = acceptor;
-        }
-    }
-
-    /**
      * Set the logging threshold.
      *
      * @param threshold  The new threshold value.
@@ -256,15 +234,6 @@ public class Trace {
             updateThresholdFlags();
         }
         myThresholdIsDefaulted = false;
-    }
-
-    /**
-     * Get the subsystem this trace object applies to.
-     *
-     * @return the name of this trace object's subsystem.
-     */
-    String subsystem() {
-        return mySubsystem;
     }
 
     /** 
@@ -315,7 +284,7 @@ public class Trace {
      * @param length  Number of bytes to convert.
      *
      * @return a String rendering the indicated bytes in a legible form
-     *    suitable for loggging.
+     *    suitable for logging.
      */
     public static String byteArrayToASCII(byte[] buf, int offset, int length) {
         StringBuilder chars = new StringBuilder(length);
@@ -363,20 +332,6 @@ public class Trace {
     private void recordInfoMessage(String message, Level level) {
         TraceMessage traceMessage =
             new TraceMessageInfo(mySubsystem, level, message);
-        myAcceptor.accept(traceMessage);
-    }
-
-    /**
-     * Actually manufacture an metrics-style trace message and put it into the
-     * log.
-     *
-     * @param type  Message type
-     * @param id  Session id number to associate with the message.
-     * @param value  Message value
-     */
-    private void recordMetricsMessage(String type, int id, String value) {
-        TraceMessage traceMessage =
-            new TraceMessageMetrics(mySubsystem, Level.METRICS, type, id, value);
         myAcceptor.accept(traceMessage);
     }
 
@@ -431,93 +386,6 @@ public class Trace {
     }
 
     /**
-     * Output a string-valued metrics message.
-     *
-     * @param type  Type tag
-     * @param id  Session id number to associate with the message.
-     * @param value  The value to record.
-     */
-    public void metrics(String type, int id, String value) {
-        recordMetricsMessage(type, id, "\"" + value + "\"");
-    }
-
-    /**
-     * Output an integer-valued metrics message.
-     *
-     * @param type  Type tag
-     * @param id  Session id number to associate with the message.
-     * @param value  The value to record.
-     */
-    public void metrics(String type, int id, int value) {
-        recordMetricsMessage(type, id, Integer.toString(value));
-    }
-
-    /**
-     * Output a long-valued metrics message.
-     *
-     * @param type  Type tag
-     * @param id  Session id number to associate with the message.
-     * @param value  The value to record.
-     */
-    public void metrics(String type, int id, long value) {
-        recordMetricsMessage(type, id, Long.toString(value));
-    }
-
-    /**
-     * Output a floating point-valued metrics message.
-     *
-     * @param type  Type tag
-     * @param id  Session id number to associate with the message.
-     * @param value  The value to record.
-     */
-    public void metrics(String type, int id, double value) {
-        recordMetricsMessage(type, id, Double.toString(value));
-    }
-
-    /**
-     * Output an unvalued metrics message.
-     *
-     * @param type  Type tag
-     * @param id  Session id number to associate with the message.
-     */
-    public void metrics(String type, int id) {
-        recordMetricsMessage(type, id, null);
-    }
-
-    /**
-     * Output a boolean-valued metrics message.
-     *
-     * @param type  Type tag
-     * @param id  Session id number to associate with the message.
-     * @param value  The value to record.
-     */
-    public void metrics(String type, int id, boolean value) {
-        recordMetricsMessage(type, id, Boolean.toString(value));
-    }
-
-    /**
-     * Output a JSON object-valued metrics message.
-     *
-     * @param type  Type tag
-     * @param id  Session id number to associate with the message.
-     * @param value  The value to record.
-     */
-    public void metrics(String type, int id, JSONLiteral value) {
-        recordMetricsMessage(type, id, value.sendableString());
-    }
-
-    /**
-     * Output a JSON object-valued metrics message.
-     *
-     * @param type  Type tag
-     * @param id  Session id number to associate with the message.
-     * @param value  The value to record.
-     */
-    public void metrics(String type, int id, JSONObject value) {
-        recordMetricsMessage(type, id, value.sendableString());
-    }
-
-    /**
      * Output an informational log message at <tt>NOTICE</tt> level (which is
      * unblockable).
      *
@@ -569,16 +437,6 @@ public class Trace {
      */
     public void debugm(String message, Object obj) {
         if (debug) recordDebugMessage(message, Level.DEBUG, obj);
-    }
-
-    /**
-     * Log an exception event at <tt>DEBUG</tt> level.
-     *
-     * @param th  The exception to log
-     * @param message  An explanatory message to accompany the log entry.
-     */
-    public void debugReportException(Throwable th, String message) {
-        if (debug) recordDebugMessage(message, Level.DEBUG, th);
     }
 
 
@@ -639,26 +497,6 @@ public class Trace {
         if (event) recordDebugMessage(message, Level.EVENT, null);
     }
 
-    /**
-     * Output a log message at <tt>EVENT</tt> level, with attached object.
-     *
-     * @param message  The message to write to the log.
-     * @param obj  Object to report with <tt>message</tt>.
-     */
-    public void eventm(String message, Object obj) {
-        if (event) recordDebugMessage(message, Level.EVENT, obj);
-    }
-
-    /**
-     * Log an exception event at <tt>EVENT</tt> level.
-     *
-     * @param th  The exception to log
-     * @param message  An explanatory message to accompany the log entry.
-     */
-    public void eventReportException(Throwable th, String message) {
-        if (event) recordDebugMessage(message, Level.EVENT, th);
-    }
-
 
     /**
      * Output an informational log message at <tt>USAGE</tt> level.
@@ -679,52 +517,12 @@ public class Trace {
     }
 
     /**
-     * Output a log message at <tt>USAGE</tt> level, with attached object.
-     *
-     * @param message  The message to write to the log.
-     * @param obj  Object to report with <tt>message</tt>.
-     */
-    public void usagem(String message, Object obj) {
-        if (usage) recordDebugMessage(message, Level.USAGE, obj);
-    }
-
-    /**
-     * Log an exception event at <tt>USAGE</tt> level.
-     *
-     * @param th  The exception to log
-     * @param message  An explanatory message to accompany the log entry.
-     */
-    public void usageReportException(Throwable th, String message) {
-        if (usage) recordDebugMessage(message, Level.USAGE, th);
-    }
-
-
-    /**
-     * Output an informational log message at <tt>VERBOSE</tt> level.
-     *
-     * @param message  The message to write to the log.
-     */
-    public void verbosei(String message) {
-        if (verbose) recordInfoMessage(message, Level.VERBOSE);
-    }
-
-    /**
      * Output a log message at <tt>VERBOSE</tt> level.
      *
      * @param message  The message to write to the log.
      */
     public void verbosem(String message) {
         if (verbose) recordDebugMessage(message, Level.VERBOSE, null);
-    }
-
-    /**
-     * Output a log message at <tt>VERBOSE</tt> level, with attached object.
-     *
-     * @param message  The message to write to the log.
-     * @param obj  Object to report with <tt>message</tt>.
-     */
-    public void verbosem(String message, Object obj) {
-        if (verbose) recordDebugMessage(message, Level.VERBOSE, obj);
     }
 
     /**
@@ -757,61 +555,11 @@ public class Trace {
     }
 
     /**
-     * Output a log message at <tt>WARNING</tt> level, with attached object.
-     *
-     * @param message  The message to write to the log.
-     * @param obj  Object to report with <tt>message</tt>.
-     */
-    public void warningm(String message, Object obj) {
-        if (warning) recordDebugMessage(message, Level.WARNING, obj);
-    }
-
-    /**
-     * Log an exception event at <tt>WARNING</tt> level.
-     *
-     * @param th  The exception to log
-     * @param message  An explanatory message to accompany the log entry.
-     */
-    public void warningReportException(Throwable th, String message) {
-        if (warning) recordDebugMessage(message, Level.WARNING, th);
-    }
-
-
-    /**
      * Output an informational log message at <tt>WORLD</tt> level.
      *
      * @param message  The message to write to the log.
      */
     public void worldi(String message) {
         if (world) recordInfoMessage(message, Level.WORLD);
-    }
-
-    /**
-     * Output a log message at <tt>WORLD</tt> level.
-     *
-     * @param message  The message to write to the log.
-     */
-    public void worldm(String message) {
-        if (world) recordDebugMessage(message, Level.WORLD, null);
-    }
-
-    /**
-     * Output a log message at <tt>WORLD</tt> level, with attached object.
-     *
-     * @param message  The message to write to the log.
-     * @param obj  Object to report with <tt>message</tt>.
-     */
-    public void worldm(String message, Object obj) {
-        if (world) recordDebugMessage(message, Level.WORLD, obj);
-    }
-
-    /**
-     * Log an exception event at <tt>WORLD</tt> level.
-     *
-     * @param th  The exception to log
-     * @param message  An explanatory message to accompany the log entry.
-     */
-    public void worldReportException(Throwable th, String message) {
-        if (world) recordDebugMessage(message, Level.WORLD, th);
     }
 }

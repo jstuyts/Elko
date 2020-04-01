@@ -17,24 +17,24 @@ class TraceLevelTranslator {
      * @throws IllegalArgumentException if the string is not recognized.
      */
     static Trace.Level toLevel(String level) throws IllegalArgumentException {
-        String lowerCaseLevel = level.toLowerCase(ENGLISH);
-        switch (lowerCaseLevel) {
-            case "error":
+        String upperCaseLevel = level.toUpperCase(ENGLISH);
+        switch (upperCaseLevel) {
+            case "ERROR":
                 return Trace.Level.ERROR;
-            case "warning":
+            case "WARNING":
                 return Trace.Level.WARNING;
-            case "world":
+            case "WORLD":
                 return Trace.Level.WORLD;
-            case "usage":
+            case "USAGE":
                 return Trace.Level.USAGE;
-            case "event":
+            case "EVENT":
                 return Trace.Level.EVENT;
-            case "debug":
+            case "DEBUG":
                 return Trace.Level.DEBUG;
-            case "verbose":
+            case "VERBOSE":
                 return Trace.Level.VERBOSE;
             default:
-                String problem = "Incorrect tracing threshold '" + lowerCaseLevel + "'";
+                String problem = "Incorrect tracing threshold '" + upperCaseLevel + "'";
                 Trace.trace.errori(problem);
                 throw new IllegalArgumentException(problem);
         }
