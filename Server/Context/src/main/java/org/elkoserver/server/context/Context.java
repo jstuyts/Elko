@@ -13,6 +13,8 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
+
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
@@ -99,6 +101,7 @@ public class Context extends BasicObject implements Deliverer {
 
     /** Trace object for diagnostics. */
     private Trace tr;
+    private Timer timer;
 
     /**
      * JSON-driven constructor.
@@ -178,9 +181,10 @@ public class Context extends BasicObject implements Deliverer {
      */
     void activate(String ref, String subID, boolean isEphemeral,
                   Contextor contextor, String loadedFromRef,
-                  DirectorActor opener, Trace appTrace)
+                  DirectorActor opener, Trace appTrace, Timer timer, TraceFactory traceFactory)
     {
-        super.activate(ref, subID, isEphemeral, contextor);
+        super.activate(ref, subID, isEphemeral, contextor, traceFactory);
+        this.timer = timer;
         tr = appTrace;
         myGroup = new LiveGroup();
         myUserCount = 0;
@@ -658,7 +662,7 @@ public class Context extends BasicObject implements Deliverer {
      */
     public void scheduleContextEvent(long millis, Runnable thunk) {
         retain();
-        Timer.theTimer().after(millis, new ContextEventThunk(thunk));
+        timer.after(millis, new ContextEventThunk(thunk));
     }
 
     /**

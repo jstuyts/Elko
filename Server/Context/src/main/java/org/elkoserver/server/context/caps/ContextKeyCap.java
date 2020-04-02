@@ -9,6 +9,8 @@ import org.elkoserver.server.context.ContextKey;
 import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.UserMod;
 
+import java.time.Clock;
+
 /**
  * Capability to enable entry to one or more entry controlled contexts.
  */
@@ -27,10 +29,10 @@ public class ContextKeyCap
      *    entry permission.
      */
     @JSONMethod({ "contexts" })
-    public ContextKeyCap(JSONObject raw, String[] contexts)
+    public ContextKeyCap(JSONObject raw, String[] contexts, Clock clock)
         throws JSONDecodingException
     {
-        super(raw);
+        super(raw, clock);
         myContexts = contexts;
     }
 

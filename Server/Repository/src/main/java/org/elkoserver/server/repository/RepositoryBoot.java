@@ -1,27 +1,35 @@
 package org.elkoserver.server.repository;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Set;
-import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.boot.Bootable;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.ServiceFactory;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * The Elko boot class for the Repository.  The Repository is a server that
- * provides access to persistant storage for objects.
+ * provides access to persistent storage for objects.
  */
 public class RepositoryBoot implements Bootable {
-    private Trace tr = Trace.trace("repo");
+    private TraceFactory traceFactory;
+    private Trace tr;
     private Repository myRepository;
 
-    public void boot(BootProperties props) {
-        Server server = new Server(props, "rep", tr);
+    public void boot(ElkoProperties props, TraceFactory traceFactory) {
+        Clock clock = Clock.systemDefaultZone();
+        this.traceFactory = traceFactory;
+        tr = traceFactory.trace("repo");
+        Timer timer = new Timer(traceFactory, clock);
+        Server server = new Server(props, "rep", tr, timer, clock, traceFactory);
 
-        myRepository = new Repository(server, tr);
+        myRepository = new Repository(server, tr, traceFactory);
 
         if (server.startListeners("conf.listen",
                                   new RepositoryServiceFactory()) == 0) {
@@ -67,7 +75,7 @@ public class RepositoryBoot implements Bootable {
             }
             
             return new RepositoryActorFactory(myRepository, auth, allowAdmin,
-                                              allowRep, tr);
+                                              allowRep, tr, traceFactory);
         }
     }
 }

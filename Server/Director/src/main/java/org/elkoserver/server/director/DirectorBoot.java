@@ -1,28 +1,37 @@
 package org.elkoserver.server.director;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Set;
-import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.boot.Bootable;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.ServiceFactory;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * The Elko boot class for the Director.  The Director is a server that
  * provides load balancing and context location directory services for Elko
  * applications using the Context Server.
  */
+@SuppressWarnings("unused")
 public class DirectorBoot implements Bootable {
-    private Trace tr = Trace.trace("dire");
+    private TraceFactory traceFactory;
+    private Trace tr;
     private Director myDirector;
 
-    public void boot(BootProperties props) {
-        Server server = new Server(props, "director", tr);
+    public void boot(ElkoProperties props, TraceFactory traceFactory) {
+        Clock clock = Clock.systemDefaultZone();
+        this.traceFactory = traceFactory;
+        tr = traceFactory.trace("dire");
+        Timer timer = new Timer(traceFactory, clock);
+        Server server = new Server(props, "director", tr, timer, clock, traceFactory);
 
-        myDirector = new Director(server, tr);
+        myDirector = new Director(server, tr, traceFactory);
 
         if (server.startListeners("conf.listen",
                                   new DirectorServiceFactory()) == 0) {
@@ -78,7 +87,7 @@ public class DirectorBoot implements Bootable {
             }
 
             return new DirectorActorFactory(myDirector, auth, allowAdmin,
-                                            allowProvider, allowUser, tr);
+                                            allowProvider, allowUser, tr, traceFactory);
         }
     }
 }

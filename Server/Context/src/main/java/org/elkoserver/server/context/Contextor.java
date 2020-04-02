@@ -6,10 +6,12 @@ import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.metadata.HostDesc;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.*;
 import org.elkoserver.objdb.ObjDB;
 import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.security.SecureRandom;
 import java.util.*;
@@ -24,6 +26,7 @@ public class Contextor extends RefTable {
 
     /** Trace object for diagnostics. */
     private Trace tr;
+    private final Timer timer;
 
     /** The server object. */
     private Server myServer;
@@ -84,8 +87,8 @@ public class Contextor extends RefTable {
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    Contextor(Server server, Trace appTrace) {
-        this(server.openObjectDatabase("conf.context"), server, appTrace);
+    Contextor(Server server, Trace appTrace, Timer timer, TraceFactory traceFactory) {
+        this(server.openObjectDatabase("conf.context"), server, appTrace, timer, traceFactory);
     }
 
     /**
@@ -107,9 +110,10 @@ public class Contextor extends RefTable {
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    private Contextor(ObjDB odb, Server server, Trace appTrace) {
-        super(odb);
+    private Contextor(ObjDB odb, Server server, Trace appTrace, Timer timer, TraceFactory traceFactory) {
+        super(odb, traceFactory);
         tr = appTrace;
+        this.timer = timer;
 
         if (odb == null) {
             tr.fatalError("no database specified");
@@ -123,7 +127,7 @@ public class Contextor extends RefTable {
         myODB.addClass("geopos", GeoPosition.class);
         myODB.addClass("cartpos", CartesianPosition.class);
 
-        mySession = new Session(this, server);
+        mySession = new Session(this, server, traceFactory);
         addRef(mySession);
 
         myServer = server;
@@ -234,7 +238,7 @@ public class Contextor extends RefTable {
      */
     private void activateContentsItem(BasicObject container, String subID, Item item) {
         String ref = item.ref() + subID;
-        item.activate(ref, subID, container.isEphemeral(), this);
+        item.activate(ref, subID, container.isEphemeral(), this, traceFactory);
         item.setContainerPrim(container);
         item.objectIsComplete();
     }
@@ -320,7 +324,7 @@ public class Contextor extends RefTable {
      * Common initialization logic for createItem and createGeoItem.
      */
     private void initializeItem(Item item, BasicObject container) {
-        item.activate(uniqueID("i"), "", false, this);
+        item.activate(uniqueID("i"), "", false, this, traceFactory);
         item.markAsChanged();
         item.setContainer(container);
     }
@@ -786,7 +790,7 @@ public class Contextor extends RefTable {
                     context.activate(myContextRef, subID,
                                      !myContextRef.equals(myContextTemplate),
                                      Contextor.this, myContextTemplate,
-                                     myOpener, tr);
+                                     myOpener, tr, timer, traceFactory);
                     context.objectIsComplete();
                     notifyPendingObjectCompletionWatchers();
                 } else {
@@ -844,7 +848,7 @@ public class Contextor extends RefTable {
         public void accept(Object obj) {
             if (obj != null) {
                 Item item = (Item) obj;
-                item.activate(myItemRef, "", false, Contextor.this);
+                item.activate(myItemRef, "", false, Contextor.this, traceFactory);
                 item.objectIsComplete();
 
                 if (item.isReady()) {
@@ -1280,7 +1284,7 @@ public class Contextor extends RefTable {
                                List<HostDesc> listeners)
     {
         DirectorGroup group =
-            new DirectorGroup(myServer, this, directors, listeners, tr);
+            new DirectorGroup(myServer, this, directors, listeners, tr, timer, traceFactory);
         if (group.isLive()) {
             myDirectorGroup = group;
         }
@@ -1295,7 +1299,7 @@ public class Contextor extends RefTable {
     void registerWithPresencers(List<HostDesc> presencers)
     {
         PresencerGroup group =
-            new PresencerGroup(myServer, this, presencers, tr);
+            new PresencerGroup(myServer, this, presencers, tr, timer, traceFactory);
         if (group.isLive()) {
             myPresencerGroup = group;
         }

@@ -3,11 +3,10 @@ package org.elkoserver.server.context;
 import org.elkoserver.foundation.actor.NonRoutingActor;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageDispatcher;
-import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.json.JSONObject;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Actor representing a connection to a director.
@@ -25,8 +24,8 @@ class PresencerActor extends NonRoutingActor {
      * @param host  Host description for this connection.
      */
     PresencerActor(Connection connection, MessageDispatcher dispatcher,
-                   PresencerGroup group, HostDesc host) {
-        super(connection, dispatcher);
+                   PresencerGroup group, HostDesc host, TraceFactory traceFactory) {
+        super(connection, dispatcher, traceFactory);
         myGroup = group;
         group.admitMember(this);
         send(msgAuth(this, host.auth(), group.contextor().serverName()));
@@ -39,7 +38,7 @@ class PresencerActor extends NonRoutingActor {
      * @param reason  Exception explaining why.
      */
     public void connectionDied(Connection connection, Throwable reason) {
-        Trace.comm.eventm("lost director connection " + connection + ": " +
+        traceFactory.comm.eventm("lost director connection " + connection + ": " +
                           reason);
         myGroup.expelMember(this);
     }
@@ -65,8 +64,7 @@ class PresencerActor extends NonRoutingActor {
      */
     @JSONMethod({ "touser", "ctx", "group" })
     public void gtou(PresencerActor from, String userRef, String contextRef,
-                     GToUDomainInfo[] group) throws MessageHandlerException
-    {
+                     GToUDomainInfo[] group) {
         for (GToUDomainInfo info : group) {
             for (GToUFriendInfo friend : info.friends) {
                 myGroup.contextor().observePresenceChange(
@@ -117,9 +115,7 @@ class PresencerActor extends NonRoutingActor {
     @JSONMethod({ "user", "?umeta", "ctx", "?cmeta", "on", "togroup" })
     public void utog(PresencerActor from, String userRef, JSONObject userMeta,
                      String contextRef, JSONObject contextMeta, boolean on,
-                     UToGDomainInfo[] toGroup)
-        throws MessageHandlerException
-    {
+                     UToGDomainInfo[] toGroup) {
         for (UToGDomainInfo domainInfo : toGroup) {
             for (UToGContextInfo contextInfo : domainInfo.who) {
                 for (String friend : contextInfo.users) {

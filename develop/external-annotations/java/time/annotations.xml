@@ -1,0 +1,44 @@
+<root>
+    <item name='java.time.Instant java.time.Instant now()'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.LocalDate java.time.LocalDate now()'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.LocalDate java.time.LocalDate now(java.time.ZoneId)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.LocalDateTime java.time.LocalDateTime now()'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.LocalDateTime java.time.LocalDateTime now(java.time.ZoneId)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.LocalTime java.time.LocalTime now()'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.LocalTime java.time.LocalTime now(java.time.ZoneId)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.OffsetDateTime java.time.OffsetDateTime now()'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.OffsetDateTime java.time.OffsetDateTime now(java.time.ZoneId)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.OffsetTime java.time.OffsetTime now()'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.OffsetTime java.time.OffsetTime now(java.time.ZoneId)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.ZoneId java.time.ZoneId systemDefault()'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.ZonedDateTime java.time.ZonedDateTime now()'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.time.ZonedDateTime java.time.ZonedDateTime now(java.time.ZoneId)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+</root>

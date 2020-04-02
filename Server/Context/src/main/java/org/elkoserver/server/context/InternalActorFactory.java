@@ -5,6 +5,7 @@ import org.elkoserver.foundation.net.MessageHandler;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * MessageHandlerFactory class to create new actors for new connections to a
@@ -19,6 +20,7 @@ class InternalActorFactory implements MessageHandlerFactory {
 
     /** Trace object for diagnostics. */
     private Trace tr;
+    private TraceFactory traceFactory;
 
     /**
      * Constructor.
@@ -27,10 +29,11 @@ class InternalActorFactory implements MessageHandlerFactory {
      * @param auth  The authorization needed for connections to this port.
      * @param appTrace  Trace object for diagnostics.
      */
-    InternalActorFactory(Contextor contextor, AuthDesc auth, Trace appTrace) {
+    InternalActorFactory(Contextor contextor, AuthDesc auth, Trace appTrace, TraceFactory traceFactory) {
         myContextor = contextor;
         myAuth = auth;
         tr = appTrace;
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -48,7 +51,7 @@ class InternalActorFactory implements MessageHandlerFactory {
      * @param connection  The new connection.
      */
     public MessageHandler provideMessageHandler(Connection connection) {
-        return new InternalActor(connection, this, tr);
+        return new InternalActor(connection, this, tr, traceFactory);
     }
 
     /**

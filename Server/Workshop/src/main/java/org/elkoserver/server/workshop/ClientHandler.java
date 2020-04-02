@@ -1,6 +1,7 @@
 package org.elkoserver.server.workshop;
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Singleton handler for the workshop service protocol.
@@ -15,7 +16,8 @@ class ClientHandler extends BasicProtocolHandler {
     /**
      * Constructor.
      */
-    ClientHandler(Workshop workshop) {
+    ClientHandler(Workshop workshop, TraceFactory traceFactory) {
+        super(traceFactory);
         myWorkshop = workshop;
     }
 

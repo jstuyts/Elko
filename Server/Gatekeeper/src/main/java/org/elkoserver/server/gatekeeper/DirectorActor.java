@@ -8,7 +8,7 @@ import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,9 +43,9 @@ class DirectorActor extends NonRoutingActor {
      * @param director  Host description for the director connected to.
      */
     DirectorActor(Connection connection, MessageDispatcher dispatcher,
-                  DirectorActorFactory factory, HostDesc director)
+                  DirectorActorFactory factory, HostDesc director, TraceFactory traceFactory)
     {
-        super(connection, dispatcher);
+        super(connection, dispatcher, traceFactory);
         amLive = true;
         myPendingReservations = new HashMap<>();
         myFactory = factory;
@@ -61,7 +61,7 @@ class DirectorActor extends NonRoutingActor {
      * @param reason  Exception explaining why.
      */
     public void connectionDied(Connection connection, Throwable reason) {
-        Trace.comm.eventm("lost director connection " + connection + ": " +
+        traceFactory.comm.eventm("lost director connection " + connection + ": " +
                           reason);
         amLive = false;
         myFactory.setDirector(null);
@@ -144,7 +144,7 @@ class DirectorActor extends NonRoutingActor {
         } while (handler == null && contextKey != null);
 
         if (handler == null) {
-            Trace.comm.errorm("received unexpected reservation for " +
+            traceFactory.comm.errorm("received unexpected reservation for " +
                               context + " " + nonNullActor);
         } else if (deny == null) {
             handler.accept(new ReservationResult(context, actor, hostport, auth));

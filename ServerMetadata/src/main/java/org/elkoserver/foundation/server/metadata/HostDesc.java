@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.server.metadata;
 
-import org.elkoserver.foundation.boot.BootProperties;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.foundation.properties.ElkoProperties;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Contact information for establishing a network connection to a host.
@@ -22,9 +22,6 @@ public class HostDesc {
     /** Connection retry interval default, in seconds. */
     private static final int DEFAULT_CONNECT_RETRY_TIMEOUT = 15;
 
-    /** Flag not to log traffic on connections to this host. */
-    private boolean amDontLog;
-
     /**
      * Constructor.
      *
@@ -34,10 +31,9 @@ public class HostDesc {
      * @param auth  Authorization.
      * @param retryInterval  Connection retry interval, in seconds, or -1 to
      *    accept the default (currently 15).
-     * @param dontLog  Flag not to log traffic when communicating to host.
      */
     public HostDesc(String protocol, boolean isSecure, String hostPort,
-                    AuthDesc auth, int retryInterval, boolean dontLog)
+                    AuthDesc auth, int retryInterval)
     {
         if (isSecure) {
             myProtocol = "s" + protocol;
@@ -46,7 +42,6 @@ public class HostDesc {
         }
         myHostPort = hostPort;
         myAuth = auth;
-        amDontLog = dontLog;
         if (retryInterval == -1) {
             myRetryInterval = DEFAULT_CONNECT_RETRY_TIMEOUT;
         } else {
@@ -64,16 +59,7 @@ public class HostDesc {
      * @param hostPort  Host/port/path to address for service.
      */
     public HostDesc(String protocol, String hostPort) {
-        this(protocol, false, hostPort, null, -1, false);
-    }
-
-    /**
-     * Test if this host descriptor says not to log traffic.
-     *
-     * @return true if this host's "don't log" flag is set.
-     */
-    public boolean dontLog() {
-        return amDontLog;
+        this(protocol, false, hostPort, null, -1);
     }
 
     /**
@@ -83,20 +69,17 @@ public class HostDesc {
      *    string.<br>
      * <tt>"<i>propRoot</i>.protocol"</tt>, if given, should specify a protocol
      *    name.  If not given, the protocol defaults to "tcp".<br>
-     * <tt>"<i>propRoot</i>.dontlog"</tt>, a boolean, if given and true,
-     *    indicates that message traffic on a connection to this host should
-     *    not be logged.<br>
      * <tt>"<i>propRoot</i>.retry"</tt>, an integer, if given, is the retry
      *    interval, in seconds.
      *
      * @param props  Properties to examine for a host description.
      * @param propRoot  Root property name.
      *
-     * @return a new HostDesc object as specfied by 'props', or null if no such
+     * @return a new HostDesc object as specified by 'props', or null if no such
      *    host was described.
      */
-    public static HostDesc fromProperties(BootProperties props,
-                                          String propRoot)
+    public static HostDesc fromProperties(ElkoProperties props,
+                                          String propRoot, TraceFactory traceFactory)
     {
         String host = props.getProperty(propRoot + ".host");
         if (host == null) {
@@ -104,14 +87,13 @@ public class HostDesc {
         } else {
             String protocol = props.getProperty(propRoot + ".protocol", "tcp");
             AuthDesc auth =
-                AuthDesc.fromProperties(props, propRoot, Trace.comm);
+                AuthDesc.fromProperties(props, propRoot, traceFactory.comm);
             if (auth == null) {
                 return null;
             }
             int retry = props.intProperty(propRoot + ".retry", -1);
-            boolean dontLog = props.testProperty(propRoot + ".dontlog");
-            
-            return new HostDesc(protocol, false, host, auth, retry, dontLog);
+
+            return new HostDesc(protocol, false, host, auth, retry);
         }
     }
 

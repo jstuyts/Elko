@@ -9,6 +9,7 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * A User represents a connection to someone entered into a context from a
@@ -116,9 +117,9 @@ public class User extends BasicObject implements Deliverer {
      */
     void activate(String ref, String subID, Contextor contextor, String name,
                   String sess, boolean isEphemeral, boolean isAnonymous,
-                  UserActor actor, Trace appTrace)
+                  UserActor actor, Trace appTrace, TraceFactory traceFactory)
     {
-        super.activate(ref, subID, isEphemeral, contextor);
+        super.activate(ref, subID, isEphemeral, contextor, traceFactory);
         tr = appTrace;
         if (name != null) {
             myName = name;
@@ -149,11 +150,10 @@ public class User extends BasicObject implements Deliverer {
 
     /**
      * Handle loss of connection from the user.
+     *  @param connection  The connection that died.
      *
-     * @param connection  The connection that died.
-     * @param reason  Exception explaining why.
      */
-    void connectionDied(Connection connection, Throwable reason) {
+    void connectionDied(Connection connection) {
         disconnect();
         tr.eventm(this + " connection died: " + connection);
     }

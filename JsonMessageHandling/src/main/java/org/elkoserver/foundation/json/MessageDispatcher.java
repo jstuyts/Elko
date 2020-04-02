@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import org.elkoserver.json.JSONObject;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * A collection of precomputed Java reflection information that can dispatch
@@ -29,6 +30,7 @@ public class MessageDispatcher {
     /** Type resolver for the type tags of JSON encoded message parameter
         objects. */
     private TypeResolver myResolver;
+    private TraceFactory traceFactory;
 
     /**
      * Constructor.  Creates an empty dispatcher.
@@ -36,7 +38,8 @@ public class MessageDispatcher {
      * @param resolver Type resolver for the type tags of JSON encoded message
      *    parameter objects.
      */
-    public MessageDispatcher(TypeResolver resolver) {
+    public MessageDispatcher(TypeResolver resolver, TraceFactory traceFactory) {
+        this.traceFactory = traceFactory;
         myInvokers = new HashMap<>();
         myClasses = new HashSet<>();
         myResolver = resolver;
@@ -107,7 +110,7 @@ public class MessageDispatcher {
                 String name = method.getName();
                 MethodInvoker prev = myInvokers.get(name);
                 myInvokers.put(name,
-                    new MethodInvoker(method, paramTypes, paramNames, prev));
+                    new MethodInvoker(method, paramTypes, paramNames, prev, traceFactory));
             }
             myClasses.add(targetClass);
         }

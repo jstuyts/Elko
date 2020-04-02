@@ -1,10 +1,15 @@
 package org.elkoserver.foundation.json.test;
 
 import org.elkoserver.foundation.json.Cryptor;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
+import org.elkoserver.util.trace.TraceController;
+import org.elkoserver.util.trace.acceptor.file.TraceLog;
+
 import java.io.IOException;
 import java.security.SecureRandom;
+import java.time.Clock;
 
 class CryptoTest {
     private static SecureRandom theRandom = new SecureRandom();
@@ -19,7 +24,7 @@ class CryptoTest {
     private static final int CHAR_RANGE = CHAR_TOP - CHAR_BASE;
     private static final int NONCE_LENGTH = 20;
 
-    private static String makeNonce(String timeout, String userName)
+    private static String makeNonce(String timeout, String userName, Clock clock)
     {
         JSONLiteral nonce = new JSONLiteral();
         StringBuilder idstr = new StringBuilder(NONCE_LENGTH);
@@ -27,7 +32,7 @@ class CryptoTest {
             idstr.append((char) (CHAR_BASE + theRandom.nextInt(CHAR_RANGE)));
         }
         nonce.addParameter("nonce", idstr.toString());
-        nonce.addParameter("expire", System.currentTimeMillis() / 1000 + Integer.parseInt(timeout));
+        nonce.addParameter("expire", clock.millis() / 1000 + Integer.parseInt(timeout));
         JSONLiteral user = new JSONLiteral("user", EncodeControl.forClient);
         user.addParameter("name", userName);
         user.finish();
@@ -37,6 +42,11 @@ class CryptoTest {
     }
 
     public static void main(String[] args) {
+        Clock clock = Clock.systemDefaultZone();
+        ElkoProperties bootProperties = new ElkoProperties();
+        TraceController traceController = new TraceController(new TraceLog(clock), clock);
+        traceController.start(bootProperties);
+
         String keyStr = null;
         String plainText = "The crow flies at midnight";
         String cypherText = null;
@@ -55,7 +65,7 @@ class CryptoTest {
                 case "nonce":
                     String timeout = args[++i];
                     String user = args[++i];
-                    plainText = makeNonce(timeout, user);
+                    plainText = makeNonce(timeout, user, clock);
                     break;
                 case "help":
                     usage();
@@ -69,10 +79,10 @@ class CryptoTest {
         }
 
         if (keyStr == null) {
-            keyStr = Cryptor.generateKey();
+            keyStr = Cryptor.generateKey(traceController.getFactory());
         } 
 
-        Cryptor cryptor = new Cryptor(keyStr);
+        Cryptor cryptor = new Cryptor(keyStr, traceController.getFactory());
 
         if (cypherText != null) {
             try {

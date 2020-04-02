@@ -1,0 +1,14 @@
+<root>
+    <item name='java.lang.String String(byte[])'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.lang.String String(byte[], int, int)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.lang.String byte[] getBytes()'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.lang.System long currentTimeMillis()'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+</root>

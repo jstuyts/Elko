@@ -7,7 +7,10 @@ import org.elkoserver.foundation.net.MessageHandlerFactory;
 import org.elkoserver.foundation.net.NetAddr;
 import org.elkoserver.foundation.net.NetworkManager;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
+
 import java.io.IOException;
+import java.time.Clock;
 
 /**
  * Connection manager for connections using the ZeroMQ queued messaging
@@ -16,15 +19,19 @@ import java.io.IOException;
 public class ZeroMQConnectionManager implements ConnectionManager {
     private ZeroMQThread myZeroMQThread;
     private Trace myMsgTrace;
+    private TraceFactory traceFactory;
+    private Clock clock;
 
     /**
      * Initialize this connection manager.
      *
      * @param networkManager  The network manager this connection manager will
      *    be managing connections for.
+     * @param clock
      */
-    public void init(NetworkManager networkManager, Trace msgTrace) {
-        myZeroMQThread = new ZeroMQThread(networkManager);
+    public void init(NetworkManager networkManager, Trace msgTrace, Clock clock, TraceFactory traceFactory) {
+        this.traceFactory = traceFactory;
+        myZeroMQThread = new ZeroMQThread(networkManager, traceFactory, this.clock);
         myMsgTrace = msgTrace;
     }
 
@@ -43,7 +50,7 @@ public class ZeroMQConnectionManager implements ConnectionManager {
                         String hostPort)
     {
         ByteIOFramerFactory framerFactory =
-            new JSONByteIOFramerFactory(myMsgTrace);
+            new JSONByteIOFramerFactory(myMsgTrace, traceFactory);
         myZeroMQThread.connect(handlerFactory, framerFactory, hostPort);
     }
 
@@ -67,7 +74,7 @@ public class ZeroMQConnectionManager implements ConnectionManager {
         throws IOException
     {
         ByteIOFramerFactory framerFactory =
-            new JSONByteIOFramerFactory(myMsgTrace);
+            new JSONByteIOFramerFactory(myMsgTrace, traceFactory);
         return myZeroMQThread.listen(listenAddress, handlerFactory,
                                      framerFactory, secure);
     }

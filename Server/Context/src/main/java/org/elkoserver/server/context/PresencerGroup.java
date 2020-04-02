@@ -6,8 +6,10 @@ import org.elkoserver.foundation.json.MessageDispatcher;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.metadata.HostDesc;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Outbound group containing all the connected presence servers.
@@ -23,9 +25,9 @@ class PresencerGroup extends OutboundGroup {
      * @param appTrace  Trace object for diagnostics.
      */
     PresencerGroup(Server server, Contextor contextor,
-                   List<HostDesc> presencers, Trace appTrace)
+                   List<HostDesc> presencers, Trace appTrace, Timer timer, TraceFactory traceFactory)
     {
-        super("conf.presence", server, contextor, presencers, appTrace);
+        super("conf.presence", server, contextor, presencers, appTrace, timer, traceFactory);
         connectHosts();
     }
 
@@ -66,7 +68,7 @@ class PresencerGroup extends OutboundGroup {
                        HostDesc host)
     {
         PresencerActor presencer =
-            new PresencerActor(connection, dispatcher, this, host);
+            new PresencerActor(connection, dispatcher, this, host, traceFactory);
         updatePresencer(presencer);
         return presencer;
     }
@@ -149,7 +151,7 @@ class PresencerGroup extends OutboundGroup {
      * Generate a metadata object for a user.  Right now, we only include the
      * name string.
      *
-     * @parm user  The user for whom metadata is sought.
+     * @param user  The user for whom metadata is sought.
      *
      * @return JSON-encoded metadata for the give user.
      */

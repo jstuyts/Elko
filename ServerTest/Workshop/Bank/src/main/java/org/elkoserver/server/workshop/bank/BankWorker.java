@@ -1,6 +1,8 @@
 package org.elkoserver.server.workshop.bank;
 
 import java.text.ParseException;
+import java.time.Clock;
+
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.foundation.json.JSONMethod;
@@ -20,6 +22,7 @@ public class BankWorker extends WorkerObject {
     /** Reference string for the bank, which is known prior to the bank being
         loaded. */
     private String myBankRef;
+    private final Clock clock;
 
     /**
      * Common state for a request to the banking service.
@@ -42,6 +45,7 @@ public class BankWorker extends WorkerObject {
 
         /** Optional text notation for logging.  Null if elided. */
         final String memo;
+        private final Clock clock;
 
         /**
          * Constructor.
@@ -54,7 +58,7 @@ public class BankWorker extends WorkerObject {
          * @param memo  Arbitrary annotation
          */
         private RequestEnv(WorkshopActor from, String verb, Key key,
-                           String xid, String rep, String memo)
+                           String xid, String rep, String memo, Clock clock)
         {
             this.from = from;
             this.verb = verb;
@@ -62,6 +66,7 @@ public class BankWorker extends WorkerObject {
             this.xid = xid;
             this.rep = rep;
             this.memo = memo;
+            this.clock = clock;
         }
 
         /**
@@ -275,7 +280,7 @@ public class BankWorker extends WorkerObject {
                 expires = key.expires();
             } else {
                 try {
-                    expires = new ExpirationDate(expiresStr);
+                    expires = new ExpirationDate(expiresStr, clock);
                 } catch (ParseException e) {
                     fail("badexpiry", "invalid 'expires' parameter: " + e);
                     return null;
@@ -322,9 +327,10 @@ public class BankWorker extends WorkerObject {
      *    this worker object provides the interface to.
      */
     @JSONMethod({ "service", "bank" })
-    public BankWorker(OptString serviceName, String bankRef) {
+    public BankWorker(OptString serviceName, String bankRef, Clock clock) {
         super(serviceName.value("bank"));
         myBankRef = bankRef;
+        this.clock = clock;
     }
 
     /**
@@ -360,13 +366,14 @@ public class BankWorker extends WorkerObject {
      * @param memoRequired  Flag that is true if the normally optional memo
      *    parameter is actually required in this case.
      *
+     * @param clock
      * @return a new RequestEnv object constructed by processing the
      *    given parameters, or null if these parameters were somehow
      *    invalid.
      */
     private RequestEnv init(WorkshopActor from, String verb, String keyRef,
                             OptString optXid, OptString optRep, boolean repRequired,
-                            OptString optMemo, boolean memoRequired)
+                            OptString optMemo, boolean memoRequired, Clock clock)
         throws MessageHandlerException
     {
         from.ensureAuthorizedClient();
@@ -381,7 +388,7 @@ public class BankWorker extends WorkerObject {
         if (myBank != null) {
             key = myBank.getKey(keyRef);
         }
-        RequestEnv env = new RequestEnv(from, verb, key, xid, rep, memo);
+        RequestEnv env = new RequestEnv(from, verb, key, xid, rep, memo, clock);
         if (myBank == null) {
             env.fail("unready", "bank object not yet loaded");
             return null;
@@ -412,7 +419,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         RequestEnv env =
-            init(from, "issuerootkey", null, xid, rep, true, memo, false);
+            init(from, "issuerootkey", null, xid, rep, true, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -448,7 +455,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "xfer", key, xid, rep, false, memo, false);
+            init(from, "xfer", key, xid, rep, false, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -530,7 +537,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "mint", key, xid, rep, false, memo, false);
+            init(from, "mint", key, xid, rep, false, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -587,7 +594,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "unmint", key, xid, rep, false, memo, false);
+            init(from, "unmint", key, xid, rep, false, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -646,7 +653,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "encumber", key, xid, rep, true, memo, false);
+            init(from, "encumber", key, xid, rep, true, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -713,7 +720,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "releaseenc", key, xid, rep, false, memo, false);
+            init(from, "releaseenc", key, xid, rep, false, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -768,7 +775,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "xferenc", key, xid, rep, false, memo, false);
+            init(from, "xferenc", key, xid, rep, false, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -842,7 +849,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "unmintenc", key, xid, rep, false, memo, false);
+            init(from, "unmintenc", key, xid, rep, false, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -894,7 +901,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "queryenc", key, xid, rep, true, memo, false);
+            init(from, "queryenc", key, xid, rep, true, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -950,7 +957,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         RequestEnv env =
-            init(from, "makeaccounts", key, xid, rep, true, memo, true);
+            init(from, "makeaccounts", key, xid, rep, true, memo, true, clock);
         if (env == null) {
             return;
         }
@@ -992,7 +999,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "deleteaccount", key, xid, rep, false, memo, false);
+            init(from, "deleteaccount", key, xid, rep, false, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -1044,7 +1051,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "queryaccounts", key, xid, rep, true, memo, false);
+            init(from, "queryaccounts", key, xid, rep, true, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -1139,7 +1146,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "freezeaccount", key, xid, rep, false, memo, false);
+            init(from, "freezeaccount", key, xid, rep, false, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -1186,7 +1193,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         final RequestEnv env =
-            init(from, "unfreezeaccount", key, xid, rep, false, memo, false);
+            init(from, "unfreezeaccount", key, xid, rep, false, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -1231,7 +1238,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         RequestEnv env =
-            init(from, "makecurrency", key, xid, rep, false, memo, true);
+            init(from, "makecurrency", key, xid, rep, false, memo, true, clock);
         if (env == null) {
             return;
         }
@@ -1265,7 +1272,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         RequestEnv env =
-            init(from, "querycurrencies", key, xid, rep, true, memo, false);
+            init(from, "querycurrencies", key, xid, rep, true, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -1306,7 +1313,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         RequestEnv env =
-            init(from, "makekey", key, xid, rep, true, memo, true);
+            init(from, "makekey", key, xid, rep, true, memo, true, clock);
         if (env == null) {
             return;
         }
@@ -1358,7 +1365,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         RequestEnv env =
-            init(from, "cancelkey", key, xid, rep, false, memo, false);
+            init(from, "cancelkey", key, xid, rep, false, memo, false, clock);
         if (env == null) {
             return;
         }
@@ -1395,7 +1402,7 @@ public class BankWorker extends WorkerObject {
         throws MessageHandlerException
     {
         RequestEnv env =
-            init(from, "makekey", key, xid, rep, true, memo, true);
+            init(from, "makekey", key, xid, rep, true, memo, true, clock);
         if (env == null) {
             return;
         }

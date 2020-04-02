@@ -9,6 +9,7 @@ import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Singleton handler for the gatekeeper 'admin' protocol.
@@ -33,7 +34,8 @@ class AdminHandler extends BasicProtocolHandler {
      *
      * @param gatekeeper  The Gatekeeper object for this handler.
      */
-    AdminHandler(Gatekeeper gatekeeper) {
+    AdminHandler(Gatekeeper gatekeeper, TraceFactory traceFactory) {
+        super(traceFactory);
         myGatekeeper = gatekeeper;
     }
 
@@ -68,7 +70,7 @@ class AdminHandler extends BasicProtocolHandler {
         if (hostportStr != null) {
             myGatekeeper.setDirectorHost(
                     new HostDesc("tcp", false, hostportStr,
-                            AuthDesc.theOpenAuth, -1, false));
+                            AuthDesc.theOpenAuth, -1));
         }
         HostDesc directorHost = myGatekeeper.directorHost();
         from.send(msgDirector(this, directorHost.hostPort()));

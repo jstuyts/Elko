@@ -8,11 +8,11 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
     implementation(project(":Json"))
     implementation(project(":JsonMessageHandling"))
     implementation(project(":ObjectDatabase:Api"))
     implementation(project(":ObjectDatabase:Local"))
+    implementation(project(":Properties"))
     implementation(project(":ServerCore"))
     implementation(project(":Trace"))
 }

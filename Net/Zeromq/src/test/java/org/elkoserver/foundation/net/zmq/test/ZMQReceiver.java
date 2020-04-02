@@ -2,9 +2,12 @@ package org.elkoserver.foundation.net.zmq.test;
 
 import org.elkoserver.foundation.net.NetAddr;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import org.zeromq.SocketType;
 import org.zeromq.ZMQ;
+
+import static java.nio.charset.StandardCharsets.*;
 
 class ZMQReceiver {
     /** Subscribe filter to receive all messages. */
@@ -58,7 +61,7 @@ class ZMQReceiver {
                 while (length > 0 && data[length - 1] == '\n') {
                     --length;
                 }
-                String msg = new String(data, 0, length);
+                String msg = new String(data, 0, length, UTF_16);
                 System.out.println("in: " + msg + "\n");
             } else {
                 System.out.println("null ZMQ recv, exiting");

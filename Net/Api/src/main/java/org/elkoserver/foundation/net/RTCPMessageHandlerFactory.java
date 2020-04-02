@@ -1,9 +1,13 @@
 package org.elkoserver.foundation.net;
 
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
-import org.elkoserver.foundation.boot.BootProperties;
+
+import org.elkoserver.foundation.properties.ElkoProperties;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Message handler factory to provide message handlers that wrap a message
@@ -17,6 +21,8 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
     /** The message handler factory for the messages embedded in the composite
         stream. */
     private MessageHandlerFactory myInnerFactory;
+    private final Timer timer;
+    private final TraceFactory traceFactory;
 
     /** Trace object for logging message traffic. */
     private Trace trMsg;
@@ -54,6 +60,7 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
 
     /** Default message backlog limit if none explicitly given, in chars. */
     private static final int DEFAULT_SESSION_BACKLOG_LIMIT = 64000;
+    private final Clock clock;
 
     /**
      * Each RTCP message handler wraps an application-level message handler,
@@ -68,16 +75,19 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
      */
     RTCPMessageHandlerFactory(MessageHandlerFactory innerFactory,
                               Trace msgTrace,
-                              NetworkManager manager)
+                              NetworkManager manager, Timer timer, Clock clock, TraceFactory traceFactory)
     {
         myInnerFactory = innerFactory;
+        this.timer = timer;
+        this.traceFactory = traceFactory;
+        this.clock = clock;
         mySessions = new HashMap<>();
         mySessionsByConnection =
                 new HashMap<>();
         trMsg = msgTrace;
         myManager = manager;
 
-        BootProperties props = manager.props();
+        ElkoProperties props = manager.props();
         mySessionInactivityTimeout =
             props.intProperty("conf.comm.rtcptimeout",
                               DEFAULT_SESSION_INACTIVITY_TIMEOUT) * 1000;
@@ -130,7 +140,7 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
         if (session != null) {
             session.clientAck(clientRecvSeqNum);
         } else {
-            String reply = makeErrorReply("noSession", null);
+            String reply = makeErrorReply("noSession");
             sendWithLog(connection, reply);
         }
     }
@@ -154,19 +164,13 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
     /**
      * Handle an RTCP 'error' request, which simply announces an error from the
      * client
-     *
-     * @param connection  The TCP connection upon which the 'error' request was
+     *  @param connection  The TCP connection upon which the 'error' request was
      *    received.
      * @param errorTag  The error tag string from the request
-     * @param errorText  The error text from the request, or null if there
-     *    wasn't any
      */
-    void doError(Connection connection, String errorTag, String errorText) {
-        if (trMsg.usage && Trace.ON) {
+    void doError(Connection connection, String errorTag) {
+        if (trMsg.getUsage() && Trace.ON) {
             String aux = "";
-            if (errorText != null) {
-                aux = " (" + errorText + ")";
-            }
             trMsg.usagem(connection + " received error request " + errorTag +
                          aux);
         }
@@ -186,7 +190,7 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
         if (session != null) {
             session.receiveMessage(message);
         } else {
-            String reply = makeErrorReply("noSession", null);
+            String reply = makeErrorReply("noSession");
             sendWithLog(connection, reply);
         }
     }
@@ -206,12 +210,12 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
         RTCPSessionConnection session = mySessionsByConnection.get(connection);
         String reply = null;
         if (session != null) {
-            reply = makeErrorReply("sessionInProgress", null);
+            reply = makeErrorReply("sessionInProgress");
         } else {
             session = getSession(sessionID);
             if (session != null) {
                 acquireTCPConnection(session, connection);
-                if (trMsg.event && Trace.ON) {
+                if (trMsg.getEvent() && Trace.ON) {
                     trMsg.eventm(session + " resume " + session.sessionID());
                 }
                 sendWithLog(connection,
@@ -219,7 +223,7 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
                                             session.clientSendSeqNum()));
                 session.replayUnacknowledgedMessages(clientRecvSeqNum);
             } else {
-                reply = makeErrorReply("noSuchSession", null);
+                reply = makeErrorReply("noSuchSession");
             }
         }
         if (reply != null) {
@@ -237,11 +241,11 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
         RTCPSessionConnection session = mySessionsByConnection.get(connection);
         String reply;
         if (session != null) {
-            reply = makeErrorReply("sessionInProgress", null);
+            reply = makeErrorReply("sessionInProgress");
         } else {
-            session = new RTCPSessionConnection(this);
+            session = new RTCPSessionConnection(this, timer, clock, traceFactory);
             acquireTCPConnection(session, connection);
-            if (trMsg.event && Trace.ON) {
+            if (trMsg.getEvent() && Trace.ON) {
                 trMsg.eventm(session + " start " + session.sessionID());
             }
             reply = makeStartReply(session.sessionID());
@@ -292,16 +296,10 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
      * error reply to some request received by the server.
      *
      * @param errorTag  The error tag string
-     * @param explanation  The human-readable explanation of the error, or
-     *     null to omit.
-     *
      * @return an RTCP 'error' request line corresponding to the parameters.
      */
-    String makeErrorReply(String errorTag, String explanation) {
+    String makeErrorReply(String errorTag) {
         String result = "error " + errorTag;
-        if (explanation != null) {
-            result += " " + explanation;
-        }
         result += "\n";
         return result;
     }
@@ -377,7 +375,7 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
      */
     public MessageHandler provideMessageHandler(Connection connection) {
         return new RTCPMessageHandler(connection, this,
-                                      sessionInactivityTimeout(false));
+                                      sessionInactivityTimeout(false), timer, traceFactory);
     }
 
     /**
@@ -396,7 +394,7 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
      * @param msg  The message to send.
      */
     private void sendWithLog(Connection connection, String msg) {
-        if (trMsg.debug && Trace.ON) {
+        if (trMsg.getDebug() && Trace.ON) {
             trMsg.debugm(connection + " <| " + msg.trim());
         }
         connection.sendMsg(msg);
@@ -407,12 +405,9 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
      * message traffic we'll allow to accumulate before deeming the client
      * unmutual and killing the session.
      *
-     * @param debug  If true, return the debug-mode limit; if false, return
-     *    the normal use limit.
-     *
      * @return the session backlog limit, in characters.
      */
-    int sessionBacklogLimit(boolean debug) {
+    int sessionBacklogLimit() {
         return mySessionBacklogLimit;
     }
 
@@ -463,12 +458,12 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
         
         if (session != null) {
             session.loseTCPConnection(connection);
-            if (trMsg.event && Trace.ON) {
+            if (trMsg.getEvent() && Trace.ON) {
                 trMsg.eventm(connection + " lost under " + session + "-" +
                                   session.sessionID() + ": " + reason);
             }
         } else {
-            if (trMsg.event && Trace.ON) {
+            if (trMsg.getEvent() && Trace.ON) {
                 trMsg.eventm(connection +
                              " lost under no known RTCP session: " + reason);
             }

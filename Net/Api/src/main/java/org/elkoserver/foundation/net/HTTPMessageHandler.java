@@ -3,6 +3,7 @@ package org.elkoserver.foundation.net;
 import org.elkoserver.foundation.timer.Timeout;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import static java.util.Locale.ENGLISH;
 
@@ -16,6 +17,7 @@ class HTTPMessageHandler implements MessageHandler {
     /** The factory that created this handler, which also contains much of the
         handler implementation logic. */
     private HTTPMessageHandlerFactory myFactory;
+    private TraceFactory traceFactory;
 
     /** Timeout for kicking off users who connect and then don't do anything */
     private Timeout myStartupTimeout;
@@ -33,14 +35,15 @@ class HTTPMessageHandler implements MessageHandler {
      */
     HTTPMessageHandler(Connection connection,
                        HTTPMessageHandlerFactory factory,
-                       int startupTimeoutInterval)
+                       int startupTimeoutInterval, Timer timer, TraceFactory traceFactory)
     {
         myConnection = connection;
         myFactory = factory;
+        this.traceFactory = traceFactory;
         myStartupTimeoutTripped = false;
         /* Kick the user off if they haven't yet done anything. */
         myStartupTimeout =
-            Timer.theTimer().after(
+            timer.after(
                 startupTimeoutInterval,
                     () -> {
                         if (myStartupTimeout != null) {
@@ -103,10 +106,10 @@ class HTTPMessageHandler implements MessageHandler {
         }
 
         HTTPRequest message = (HTTPRequest) rawMessage;
-        if (Trace.comm.verbose && Trace.ON) {
-            Trace.comm.verbosem(connection + " " + message);
-        } else if (Trace.comm.debug && Trace.ON) {
-            Trace.comm.debugm(connection + " |> " + message.URI());
+        if (traceFactory.comm.getVerbose() && Trace.ON) {
+            traceFactory.comm.verbosem(connection + " " + message);
+        } else if (traceFactory.comm.getDebug() && Trace.ON) {
+            traceFactory.comm.debugm(connection + " |> " + message.URI());
         }
 
         String upperCaseMethod = message.method().toUpperCase(ENGLISH);
@@ -121,8 +124,8 @@ class HTTPMessageHandler implements MessageHandler {
                 myFactory.handleOPTIONS(connection, message);
                 break;
             default:
-                if (Trace.comm.usage && Trace.ON) {
-                    Trace.comm.usagem("Received invalid HTTP method " +
+                if (traceFactory.comm.getUsage() && Trace.ON) {
+                    traceFactory.comm.usagem("Received invalid HTTP method " +
                             message.method() + " from " + connection);
                 }
                 connection.close();

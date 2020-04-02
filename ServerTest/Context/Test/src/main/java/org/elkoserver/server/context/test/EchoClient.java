@@ -6,6 +6,7 @@ import org.elkoserver.foundation.server.ServiceLink;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.AdminObject;
 import org.elkoserver.server.context.Contextor;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.LinkedList;
 import java.util.function.Consumer;
@@ -27,7 +28,8 @@ public class EchoClient extends AdminObject implements Consumer<Object> {
      * JSON-driven constructor.
      */
     @JSONMethod
-    public EchoClient() {
+    public EchoClient(TraceFactory traceFactory) {
+        super(traceFactory);
         myStatus = "startup";
         myResultHandlers = new LinkedList<>();
     }

@@ -1,27 +1,36 @@
 package org.elkoserver.server.workshop;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Set;
-import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.boot.Bootable;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.ServiceFactory;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * The boot class for the Workshop.  The Workshop is a server that provides a
  * place for arbitrary, configurable worker objects to run.
  */
+@SuppressWarnings("unused")
 public class WorkshopBoot implements Bootable {
-    private Trace tr = Trace.trace("work");
+    private Trace tr;
     private Workshop myWorkshop;
+    private TraceFactory traceFactory;
 
-    public void boot(BootProperties props) {
-        Server server = new Server(props, "workshop", tr);
+    public void boot(ElkoProperties props, TraceFactory traceFactory) {
+        Clock clock = Clock.systemDefaultZone();
+        this.traceFactory = traceFactory;
+        tr = traceFactory.trace("work");
+        Timer timer = new Timer(traceFactory, clock);
+        Server server = new Server(props, "workshop", tr, timer, clock, traceFactory);
 
-        myWorkshop = new Workshop(server, tr);
+        myWorkshop = new Workshop(server, tr, traceFactory);
 
         if (server.startListeners("conf.listen",
                                   new WorkshopServiceFactory()) == 0) {
@@ -69,7 +78,7 @@ public class WorkshopBoot implements Bootable {
             }
             
             return new WorkshopActorFactory(myWorkshop, auth, allowAdmin,
-                                            allowClient, tr);
+                                            allowClient, tr, traceFactory);
         }
     }
 }

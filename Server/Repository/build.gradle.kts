@@ -16,8 +16,10 @@ dependencies {
     implementation(project(":Net:Api"))
     implementation(project(":ObjectDatabase:Api"))
     implementation(project(":ObjectDatabase:Local"))
+    implementation(project(":Properties"))
     implementation(project(":ServerCore"))
     implementation(project(":ServerMetadata"))
+    implementation(project(":Timer"))
     implementation(project(":Trace"))
 }
 

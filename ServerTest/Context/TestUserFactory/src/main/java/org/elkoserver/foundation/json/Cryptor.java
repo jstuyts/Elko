@@ -3,7 +3,7 @@ package org.elkoserver.foundation.json;
 import org.apache.commons.codec.binary.Base64;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.SyntaxError;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import javax.crypto.*;
 import javax.crypto.spec.IvParameterSpec;
@@ -22,6 +22,7 @@ import java.security.SecureRandom;
 public class Cryptor {
     private Cipher myCipher;
     private SecretKey myKey;
+    private TraceFactory traceFactory;
     private static Base64 theCodec = new Base64();
     private static SecureRandom theRandom = new SecureRandom();
 
@@ -34,8 +35,9 @@ public class Cryptor {
      * @param keyStr  Base64-encoded symmetric key.
      *
      */
-    public Cryptor(String keyStr) {
+    public Cryptor(String keyStr, TraceFactory traceFactory) {
         myKey = decodeKey(keyStr);
+        this.traceFactory = traceFactory;
         try {
             myCipher = Cipher.getInstance(CRYPTO_ALGORITHM);
 
@@ -45,10 +47,10 @@ public class Cryptor {
            missing, in which case the whole system is already hosed, so if
            either of these happens we're dead. */
         } catch (NoSuchAlgorithmException e) {
-            Trace.startup.fatalError("Cryptor init failure: doesn't like algorithm 'AES'", e);
+            traceFactory.startup.fatalError("Cryptor init failure: doesn't like algorithm 'AES'", e);
             throw new IllegalStateException();
         } catch (NoSuchPaddingException e) {
-            Trace.startup.fatalError("Cryptor init failure: doesn't like padding mode 'PKCS5Padding'", e);
+            traceFactory.startup.fatalError("Cryptor init failure: doesn't like padding mode 'PKCS5Padding'", e);
             throw new IllegalStateException();
         }
     }
@@ -87,7 +89,7 @@ public class Cryptor {
             return new String(myCipher.doFinal(theCodec.decode(cypherText)),
                     StandardCharsets.UTF_8);
         } catch (InvalidAlgorithmParameterException | InvalidKeyException e) {
-            Trace.startup.fatalError("fatal Cryptor.decrypt failure: ", e);
+            traceFactory.startup.fatalError("fatal Cryptor.decrypt failure: ", e);
             throw new IllegalStateException();
         } catch (BadPaddingException e) {
             throw new IOException("bad padding in cryptoblob " + e);
@@ -131,7 +133,7 @@ public class Cryptor {
     public Object decryptObject(Class<?> baseType, String str)
         throws IOException
     {
-        return ObjectDecoder.decode(baseType, decrypt(str));
+        return ObjectDecoder.decode(baseType, decrypt(str), traceFactory);
     }
 
     /**
@@ -159,7 +161,7 @@ public class Cryptor {
             failure = e;
         }
         /* None of these should ever actually happen.  Die if they do. */
-        Trace.startup.fatalError("Cryptor.encrypt failure: ", failure);
+        traceFactory.startup.fatalError("Cryptor.encrypt failure: ", failure);
         throw new IllegalStateException();
     }
 
@@ -169,14 +171,14 @@ public class Cryptor {
      * @return the generated key, as a string containing a base64-encoding of
      *    the key bits.
      */
-    public static String generateKey() {
+    public static String generateKey(TraceFactory traceFactory) {
         try {
             SecretKey key =
                 KeyGenerator.getInstance(KEY_ALGORITHM).generateKey();
             return theCodec.encodeToString(key.getEncoded());
         } catch (NoSuchAlgorithmException e) {
             /* This should never actually happen. */
-            Trace.startup.fatalError("Cryptor.generateKey failure: unknown algorithm", e);
+            traceFactory.startup.fatalError("Cryptor.generateKey failure: unknown algorithm", e);
             throw new IllegalStateException();
         }
     }

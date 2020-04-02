@@ -1,10 +1,11 @@
 package org.elkoserver.objdb;
 
-import org.elkoserver.foundation.boot.BootProperties;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.run.Runner;
 import org.elkoserver.json.*;
 import org.elkoserver.objdb.store.*;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.function.Consumer;
 
@@ -42,13 +43,13 @@ public class ObjDBLocal extends ObjDBBase {
      *    properties.
      * @param appTrace  Trace object for event logging.
      */
-    public ObjDBLocal(BootProperties props, String propRoot, Trace appTrace) {
-        super(appTrace);
+    public ObjDBLocal(ElkoProperties props, String propRoot, Trace appTrace, TraceFactory traceFactory) {
+        super(appTrace, traceFactory);
 
-        myObjectStore = ObjectStoreFactory.createAndInitializeObjectStore(props, propRoot, this.tr);
+        myObjectStore = ObjectStoreFactory.createAndInitializeObjectStore(props, propRoot, tr);
 
-        myReturnRunner = Runner.currentRunner();
-        myRunner = new Runner("Elko RunQueue LocalObjDB");
+        myReturnRunner = Runner.currentRunner(traceFactory);
+        myRunner = new Runner("Elko RunQueue LocalObjDB", traceFactory);
 
         loadClassDesc(props.getProperty(propRoot + ".classdesc"));
     }

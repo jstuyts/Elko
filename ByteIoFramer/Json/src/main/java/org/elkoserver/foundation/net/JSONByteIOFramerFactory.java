@@ -1,6 +1,7 @@
 package org.elkoserver.foundation.net;
 
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Byte I/O framer factory for JSON messaging over a byte stream.  The framing
@@ -16,14 +17,16 @@ import org.elkoserver.util.trace.Trace;
  */
 public class JSONByteIOFramerFactory implements ByteIOFramerFactory {
     private Trace trMsg;
+    private TraceFactory traceFactory;
 
     /**
      * Constructor.
      *
      * @param msgTrace  Trace object for logging message traffic.
      */
-    public JSONByteIOFramerFactory(Trace msgTrace) {
+    public JSONByteIOFramerFactory(Trace msgTrace, TraceFactory traceFactory) {
         trMsg = msgTrace;
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -33,6 +36,6 @@ public class JSONByteIOFramerFactory implements ByteIOFramerFactory {
      * @param label  A printable label identifying the associated connection.
      */
     public ByteIOFramer provideFramer(MessageReceiver receiver, String label) {
-        return new JSONByteIOFramer(trMsg, receiver, label);
+        return new JSONByteIOFramer(trMsg, receiver, label, traceFactory);
     }
 }

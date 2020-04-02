@@ -8,7 +8,7 @@ import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.objdb.store.ObjectDesc;
 import org.elkoserver.objdb.store.ResultDesc;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Actor representing a connection to a repository.
@@ -29,9 +29,9 @@ class ODBActor extends NonRoutingActor
      * @param dispatcher  Message dispatcher for repository actors.
      */
     ODBActor(Connection connection, ObjDBRemote odb, String localName,
-             HostDesc host, MessageDispatcher dispatcher)
+             HostDesc host, MessageDispatcher dispatcher, TraceFactory traceFactory)
     {
-        super(connection, dispatcher);
+        super(connection, dispatcher, traceFactory);
         myODB = odb;
         send(msgAuth(this, host.auth(), localName));
         odb.repositoryConnected(this);
@@ -44,7 +44,7 @@ class ODBActor extends NonRoutingActor
      * @param reason  Exception explaining why.
      */
     public void connectionDied(Connection connection, Throwable reason) {
-        Trace.comm.eventm("lost repository connection " + connection + ": " +
+        traceFactory.comm.eventm("lost repository connection " + connection + ": " +
                           reason);
         myODB.repositoryConnected(null);
     }

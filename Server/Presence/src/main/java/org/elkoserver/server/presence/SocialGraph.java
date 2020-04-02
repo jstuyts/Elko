@@ -20,7 +20,7 @@ interface SocialGraph {
     void init(PresenceServer master, Domain domain, JSONObject conf);
 
     /**
-     * Fetch the social graph for a new user presence from persistant storage.
+     * Fetch the social graph for a new user presence from persistent storage.
      * Implementors of this method must then invoke the user's
      * userGraphIsReady() method to inform the system that the graph
      * information can now be used.

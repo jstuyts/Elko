@@ -22,7 +22,7 @@ class EchoWorker extends WorkerObject {
     {
         from.ensureAuthorizedClient();
 
-        JSONLiteral response = new JSONLiteral(rep.value(this.ref()), "echo");
+        JSONLiteral response = new JSONLiteral(rep.value(ref()), "echo");
         response.addParameter("text", myPrefix + text.value("<nothing>"));
         response.finish();
         from.send(response);

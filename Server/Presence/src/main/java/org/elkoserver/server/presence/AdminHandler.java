@@ -9,6 +9,7 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Referenceable;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Singleton handler for the presence server 'admin' protocol.
@@ -32,7 +33,8 @@ class AdminHandler extends BasicProtocolHandler {
      *
      * @param presenceServer  The presence server administered by this handler
      */
-    AdminHandler(PresenceServer presenceServer) {
+    AdminHandler(PresenceServer presenceServer, TraceFactory traceFactory) {
+        super(traceFactory);
         myPresenceServer = presenceServer;
     }
 

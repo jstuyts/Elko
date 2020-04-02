@@ -6,7 +6,7 @@ import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Utility message handler implementation base class that supports a basic JSON
@@ -19,10 +19,13 @@ import org.elkoserver.util.trace.Trace;
 public abstract class BasicProtocolHandler
     implements Referenceable, DispatchTarget
 {
+    private TraceFactory traceFactory;
+
     /**
      * Constructor.
      */
-    protected BasicProtocolHandler() {
+    protected BasicProtocolHandler(TraceFactory traceFactory) {
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -64,7 +67,7 @@ public abstract class BasicProtocolHandler
      */
     @JSONMethod({ "msg" })
     public void debug(BasicProtocolActor from, String msg) {
-        Trace.comm.eventi("Debug msg: " + msg);
+        traceFactory.comm.eventi("Debug msg: " + msg);
     }
 
     /**

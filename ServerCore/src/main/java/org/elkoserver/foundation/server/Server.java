@@ -1,23 +1,25 @@
 package org.elkoserver.foundation.server;
 
 import org.elkoserver.foundation.actor.RefTable;
-import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver;
 import org.elkoserver.foundation.json.MessageDispatcher;
 import org.elkoserver.foundation.net.*;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.run.Runner;
 import org.elkoserver.foundation.run.SlowServiceRunner;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.foundation.server.metadata.ServiceFinder;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.objdb.ObjDB;
 import org.elkoserver.objdb.ObjDBLocal;
 import org.elkoserver.objdb.ObjDBRemote;
 import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.trace.Trace;
-import org.elkoserver.util.trace.TraceController;
+import org.elkoserver.util.trace.TraceFactory;
 
+import java.time.Clock;
 import java.util.*;
 import java.util.concurrent.Callable;
 import java.util.function.Consumer;
@@ -31,7 +33,7 @@ import java.util.function.Consumer;
 public class Server implements ConnectionCountMonitor, ServiceFinder
 {
     /** The properties settings. */
-    private BootProperties myProps;
+    private ElkoProperties myProps;
 
     /** The name of this server (for logging). */
     private String myServerName;
@@ -105,6 +107,8 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
 
     /* RefTable to dispatching messages incoming from external services. */
     private RefTable myServiceRefTable;
+    private final TraceFactory traceFactory;
+    private final Timer timer;
 
     /**
      * Generate the Server from Java properties.
@@ -113,10 +117,12 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      * @param serverType  Server type tag (for generating property names).
      * @param appTrace  Trace object for event logging.
      */
-    public Server(BootProperties props, String serverType, Trace appTrace) {
+    public Server(ElkoProperties props, String serverType, Trace appTrace, Timer timer, Clock clock, TraceFactory traceFactory) {
+        this.timer = timer;
+        this.traceFactory = traceFactory;
         myProps = props;
         myConnectionCount = 0;
-        myMainRunner = Runner.currentRunner();
+        myMainRunner = Runner.currentRunner(traceFactory);
         mySlowRunner =
             new SlowServiceRunner(myMainRunner,
                                   props.intProperty("conf.slowthreads",
@@ -128,9 +134,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         myServices = new LinkedList<>();
 
         tr = appTrace;
-        trServer = Trace.trace("server");
-        TraceController.setProperty("trace_server", "WORLD");
-        TraceController.setProperty("trace_trace", "WORLD");
+        trServer = traceFactory.trace("server");
 
         myServiceName = props.getProperty("conf." + serverType + ".service");
         if (myServiceName == null) {
@@ -146,9 +150,9 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         trServer.noticei("Copyright 2016 ElkoServer.org; see LICENSE");
         trServer.noticei("Starting " + myServerName);
 
-        myLoadMonitor = new ServerLoadMonitor(this);
+        myLoadMonitor = new ServerLoadMonitor(this, timer, clock);
         myNetworkManager =
-            new NetworkManager(this, props, myLoadMonitor, myMainRunner);
+            new NetworkManager(this, props, myLoadMonitor, myMainRunner, timer, clock, traceFactory);
 
         myServiceLinksByService = new HashMap<>();
         myServiceActorsByProviderID = new HashMap<>();
@@ -156,11 +160,11 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         myServiceRefTable = null;
 
         myDispatcher = new MessageDispatcher(
-            AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
+            AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory);
         myDispatcher.addClass(BrokerActor.class);
         myPendingFinds = new HashMapMulti<>();
         myBrokerActor = null;
-        myBrokerHost = HostDesc.fromProperties(props, "conf.broker");
+        myBrokerHost = HostDesc.fromProperties(props, "conf.broker", traceFactory);
 
         if (props.testProperty("conf.msgdiagnostics")) {
             Communication.TheDebugReplyFlag = true;
@@ -201,7 +205,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
             new ConnectionRetrier(myBrokerHost,
                                   "broker",
                                   myNetworkManager,
-                                  new BrokerMessageHandlerFactory(), tr);
+                                  new BrokerMessageHandlerFactory(), timer, tr, traceFactory);
         }
     }
 
@@ -209,7 +213,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
     {
         public MessageHandler provideMessageHandler(Connection connection) {
             return new BrokerActor(connection, myDispatcher, Server.this,
-                                   myBrokerHost);
+                                   myBrokerHost, traceFactory);
         }
     }
 
@@ -388,7 +392,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
                 connectLinkToActor(actor);
             } else {
                 new ConnectionRetrier(myDesc.asHostDesc(-1), myLabel,
-                                      myNetworkManager, this, tr);
+                                      myNetworkManager, this, timer, tr, traceFactory);
             }
         }
 
@@ -400,7 +404,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         public MessageHandler provideMessageHandler(Connection connection) {
             ServiceActor actor =
                 new ServiceActor(connection, myServiceRefTable, myDesc,
-                                 Server.this);
+                                 Server.this, traceFactory);
             myServiceActorsByProviderID.put(myDesc.providerID(), actor);
             connectLinkToActor(actor);
             return actor;
@@ -472,13 +476,13 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      */
     public ObjDB openObjectDatabase(String propRoot) {
         if (myProps.getProperty(propRoot + ".odb") != null) {
-            return new ObjDBLocal(myProps, propRoot, tr);
+            return new ObjDBLocal(myProps, propRoot, tr, traceFactory);
         } else {
             if (myProps.getProperty(propRoot + ".repository.host") != null ||
                 myProps.getProperty(propRoot + ".repository.service") != null)
             {
                 return new ObjDBRemote(this, myNetworkManager, myServerName,
-                                       myProps, propRoot, tr);
+                                       myProps, propRoot, tr, traceFactory, timer);
             } else {
                 return null;
             }
@@ -490,7 +494,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      *
      * @return the properties
      */
-    public BootProperties props() {
+    public ElkoProperties props() {
         return myProps;
     }
 
@@ -699,20 +703,20 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
 
         ConnectionSetup connectionSetup;
         if (mgrClass != null) {
-            connectionSetup = new ManagerClassConnectionSetup(label, mgrClass, host,  auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
+            connectionSetup = new ManagerClassConnectionSetup(label, mgrClass, host,  auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory);
         } else {
             switch (protocol) {
                 case "tcp":
-                    connectionSetup = new TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
+                    connectionSetup = new TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory);
                     break;
                 case "rtcp":
-                    connectionSetup = new RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
+                    connectionSetup = new RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory);
                     break;
                 case "http":
-                    connectionSetup = new HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
+                    connectionSetup = new HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory);
                     break;
                 case "ws":
-                    connectionSetup = new WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr);
+                    connectionSetup = new WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory);
                     break;
                 default:
                     tr.errorm("unknown value for " + propRoot + ".protocol: " +
@@ -729,8 +733,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
                                                 label, auth, null, -1));
             }
         }
-        boolean dontLog = myProps.testProperty(propRoot + ".dontlog");
-        return new HostDesc(protocol, secure, connectionSetup.getServerAddress(), auth, -1, dontLog);
+        return new HostDesc(protocol, secure, connectionSetup.getServerAddress(), auth, -1);
     }
 
     /**

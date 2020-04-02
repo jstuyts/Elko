@@ -11,6 +11,7 @@ import org.elkoserver.server.context.AdminObject;
 import org.elkoserver.server.context.Contextor;
 import org.elkoserver.server.workshop.bank.Currency;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -42,7 +43,8 @@ public class BankClient extends AdminObject implements Consumer<Object> {
      * Constructor.
      */
     @JSONMethod({ "servicename" })
-    public BankClient(String serviceName) {
+    public BankClient(String serviceName, TraceFactory traceFactory) {
+        super(traceFactory);
         myServiceName = serviceName;
         myStatus = "startup";
         myXidCounter = 0;

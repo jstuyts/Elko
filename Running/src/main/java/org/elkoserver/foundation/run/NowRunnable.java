@@ -1,6 +1,5 @@
 package org.elkoserver.foundation.run;
 
-import org.elkoserver.util.trace.ExceptionManager;
 import java.util.concurrent.Callable;
 
 /**
@@ -60,9 +59,30 @@ class NowRunnable implements Runnable {
             }
         }
         if (null != myOptProblem) {
-            throw ExceptionManager.asSafe(myOptProblem);
+            throw asSafe(myOptProblem);
         }
         return myResult;
+    }
+
+    /**
+     * Wrap a {@link Throwable} in a {@link RuntimeException}.
+     *
+     * Wraps <tt>problem</tt> if necessary so that the caller can do a
+     * <pre>
+     * throw ExceptionMgr.asSafe(problem);
+     * </pre>
+     *
+     * without having to declare any new "throws" cases.  The caller does the
+     * throw rather than this method so that the Java compiler will have better
+     * control flow information.
+     *
+     * @param problem  The [Throwable] to wrap
+     */
+    private static RuntimeException asSafe(Throwable problem) {
+        if (problem instanceof  RuntimeException) {
+            return (RuntimeException) problem;
+        }
+        return new RuntimeException(problem);
     }
 
     /**

@@ -3,7 +3,7 @@ package org.elkoserver.foundation.json;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Parser;
 import org.elkoserver.json.SyntaxError;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.lang.reflect.Constructor;
 import java.util.HashMap;
@@ -54,7 +54,7 @@ public class ObjectDecoder {
      * @throws JSONSetupError if an annotated constructor breaks the rules for
      *    a JSON-driven constructor.
      */
-    private ObjectDecoder(Class<?> decodeClass) {
+    private ObjectDecoder(Class<?> decodeClass, TraceFactory traceFactory) {
         Constructor<?> jsonConstructor = null;
         boolean includeRawObject = false;
         Class<?>[] paramTypes = null;
@@ -90,7 +90,7 @@ public class ObjectDecoder {
         }
         myConstructor =
             new ConstructorInvoker(jsonConstructor, includeRawObject,
-                                   paramTypes, paramNames);
+                                   paramTypes, paramNames, traceFactory);
     }
 
     /**
@@ -101,15 +101,15 @@ public class ObjectDecoder {
      *
      * @return a decoder for 'decodeClass', or null if one could not be made.
      */
-    private static ObjectDecoder classDecoder(Class<?> decodeClass) {
+    private static ObjectDecoder classDecoder(Class<?> decodeClass, TraceFactory traceFactory) {
         ObjectDecoder decoder = theDecoders.get(decodeClass);
 
         if (decoder == null) {
             try {
-                decoder = new ObjectDecoder(decodeClass);
+                decoder = new ObjectDecoder(decodeClass, traceFactory);
                 theDecoders.put(decodeClass, decoder);
             } catch (JSONSetupError e) {
-                Trace.comm.errorm(e.getMessage());
+                traceFactory.comm.errorm(e.getMessage());
                 decoder = null;
             }
         }
@@ -145,7 +145,7 @@ public class ObjectDecoder {
      *    some reason.
      */
     public static Object decode(Class<?> baseType, JSONObject obj,
-                                TypeResolver resolver)
+                                TypeResolver resolver, TraceFactory traceFactory)
     {
         Object result = null;
         String typeName = obj.type();
@@ -153,17 +153,17 @@ public class ObjectDecoder {
         if (typeName != null) {
             targetClass = resolver.resolveType(baseType, typeName);
             if (targetClass == null) {
-                Trace.comm.errorm("no Java class associated with JSON type tag '" + typeName + "'");
+                traceFactory.comm.errorm("no Java class associated with JSON type tag '" + typeName + "'");
             }
         } else {
             targetClass = baseType;
         }
         if (targetClass != null) {
-            ObjectDecoder decoder = classDecoder(targetClass);
+            ObjectDecoder decoder = classDecoder(targetClass, traceFactory);
             if (decoder != null) {
                 result = decoder.decode(obj, resolver);
             } else {
-                Trace.comm.errorm("no decoder for " + targetClass);
+                traceFactory.comm.errorm("no decoder for " + targetClass);
             }
         }
         return result;
@@ -171,7 +171,7 @@ public class ObjectDecoder {
 
     /**
      * A simple JSON object decoder for one-shot objects.  The given object is
-     * by the {@link #decode(Class,JSONObject,TypeResolver)} method, using the
+     * by the {@link #decode(Class,JSONObject,TypeResolver, TraceFactory)} method, using the
      * {@link AlwaysBaseTypeResolver} to resolve type tags.
      *
      * @param baseType  The desired class of the resulting Java object.  The
@@ -183,15 +183,15 @@ public class ObjectDecoder {
      *    described by 'jsonObj', or null if the object could not be decoded
      *    for some reason.
      */
-    private static Object decode(Class<?> baseType, JSONObject jsonObj) {
+    private static Object decode(Class<?> baseType, JSONObject jsonObj, TraceFactory traceFactory) {
         return decode(baseType, jsonObj,
-                      AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
+                      AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory);
     }
 
     /**
      * A simple JSON string decoder for one-shot objects.  The given string is
      * first parsed, and then decoded as by the {@link
-     * #decode(Class,JSONObject,TypeResolver)} method, using the {@link
+     * #decode(Class,JSONObject,TypeResolver, TraceFactory)} method, using the {@link
      * AlwaysBaseTypeResolver} to resolve type tags.
      *
      * @param baseType  The desired class of the resulting Java object.  The
@@ -203,13 +203,13 @@ public class ObjectDecoder {
      *    described by 'str', or null if the string was syntactically malformed
      *    or the object could not be decoded for some reason.
      */
-    public static Object decode(Class<?> baseType, String str) {
+    public static Object decode(Class<?> baseType, String str, TraceFactory traceFactory) {
         try {
             Parser parser = new Parser(str);
             JSONObject jsonObj = parser.parseObjectLiteral();
-            return decode(baseType, jsonObj);
+            return decode(baseType, jsonObj, traceFactory);
         } catch (SyntaxError e) {
-            Trace.comm.warningm("syntax error decoding object: " +
+            traceFactory.comm.warningm("syntax error decoding object: " +
                                 e.getMessage());
             return null;
         }

@@ -1,18 +1,20 @@
 package org.elkoserver.objdb;
 
-import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.json.MessageDispatcher;
 import org.elkoserver.foundation.net.ConnectionRetrier;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
 import org.elkoserver.foundation.net.NetworkManager;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.foundation.server.metadata.ServiceFinder;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.Encodable;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.objdb.store.ObjectDesc;
 import org.elkoserver.objdb.store.ResultDesc;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -56,10 +58,12 @@ public class ObjDBRemote extends ObjDBBase {
     private boolean amClosing;
 
     /** Trace object for logging message traffic. */
-    private Trace myMsgTrace;
+    private final Trace myMsgTrace;
 
     /** Message handler factory for repository connections. */
-    private MessageHandlerFactory myMessageHandlerFactory;
+    private final MessageHandlerFactory myMessageHandlerFactory;
+    private final TraceFactory traceFactory;
+    private final Timer timer;
 
     /**
      * Create an object to access a remote object repository.
@@ -78,11 +82,6 @@ public class ObjDBRemote extends ObjDBBase {
      * <p>However the repository is indicated, the following properties are
      * also recognized:
      *
-     * <p>The boolean property <tt>"<i>propRoot</i>.dontlog"</tt>, if true,
-     * indicates that message traffic between this server and the remote
-     * repository should not be logged, even if this server is otherwise
-     * logging all message traffic.  If unspecified, it defaults to false.
-     *
      * <p>The property <tt>"<i>propRoot</i>.retry"</tt> may specify a retry
      * interval (in seconds), at which successive attempts will be made to
      * connect to the external repository if earlier attempts have failed.  The
@@ -92,29 +91,30 @@ public class ObjDBRemote extends ObjDBBase {
      * <p>The property <tt>"<i>propRoot</i>.classdesc"</tt> may specify a
      * (comma-separated) list of references to class description objects to
      * read from the repository at startup time.
-     *
-     * @param serviceFinder  Access to broker, to locate repository server.
+     *  @param serviceFinder  Access to broker, to locate repository server.
      * @param networkManager  Network manager, for making outbound connections.
      * @param localName  Name of this server.
      * @param props  Properties that the hosting server was configured with
      * @param propRoot  Prefix string for generating relevant configuration
-     *    property names.
+*    property names.
      * @param appTrace  Trace object for event logging.
      */
     public ObjDBRemote(ServiceFinder serviceFinder,
                        NetworkManager networkManager, final String localName,
-                       BootProperties props, String propRoot, Trace appTrace)
+                       ElkoProperties props, String propRoot, Trace appTrace, TraceFactory traceFactory, Timer timer)
     {
-        super(appTrace);
+        super(appTrace, traceFactory);
+        this.timer = timer;
         myODBActor = null;
         myNetworkManager = networkManager;
+        this.traceFactory = traceFactory;
         amClosing = false;
         addClass("obji", ObjectDesc.class);
         addClass("stati", ResultDesc.class);
         myPendingRequests = new HashMap<>();
         myUnsentRequests = null;
         myMessageHandlerFactory = conn -> new ODBActor(conn, ObjDBRemote.this,
-                            localName, myRepHost, myDispatcher);
+                            localName, myRepHost, myDispatcher, traceFactory);
 
         loadClassDesc(props.getProperty(propRoot + ".classdesc"));
         String odbPropRoot = propRoot + ".repository";
@@ -123,14 +123,9 @@ public class ObjDBRemote extends ObjDBBase {
 
         String serviceName = props.getProperty(odbPropRoot + ".service");
 
-        boolean dontLog = props.testProperty(odbPropRoot + ".dontlog");
-        if (dontLog) {
-            myMsgTrace = Trace.none;
-        } else {
-            myMsgTrace = Trace.comm;
-        }
+        myMsgTrace = traceFactory.comm;
 
-        myDispatcher = new MessageDispatcher(this);
+        myDispatcher = new MessageDispatcher(this, traceFactory);
         myDispatcher.addClass(ODBActor.class);
         if (serviceName != null) {
             myRepHost = null;
@@ -142,7 +137,7 @@ public class ObjDBRemote extends ObjDBBase {
             serviceFinder.findService(serviceName,
                                       new RepositoryFoundHandler(), false);
         } else {
-            myRepHost = HostDesc.fromProperties(props, odbPropRoot);
+            myRepHost = HostDesc.fromProperties(props, odbPropRoot, traceFactory);
             connectToRepository();
         }
     }
@@ -169,7 +164,8 @@ public class ObjDBRemote extends ObjDBBase {
                 new ConnectionRetrier(myRepHost, "repository",
                                       myNetworkManager,
                                       myMessageHandlerFactory,
-                                      myMsgTrace);
+                                      timer,
+                                      myMsgTrace, traceFactory);
             }
         }
     }

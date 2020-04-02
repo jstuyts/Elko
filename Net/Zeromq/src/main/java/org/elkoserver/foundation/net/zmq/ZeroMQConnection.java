@@ -10,8 +10,10 @@ import org.elkoserver.foundation.net.NetworkManager;
 import org.elkoserver.foundation.run.Queue;
 import org.elkoserver.foundation.run.Runner;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 import org.zeromq.ZMQ;
 import java.io.IOException;
+import java.time.Clock;
 
 /**
  * An implementation of {@link org.elkoserver.foundation.net.Connection} that
@@ -58,9 +60,9 @@ public class ZeroMQConnection
                      boolean isSendMode,
                      ZeroMQThread thread,
                      NetworkManager networkMgr,
-                     String remoteAddr)
+                     String remoteAddr, Clock clock, TraceFactory traceFactory)
     {
-        super(networkMgr);
+        super(networkMgr, clock, traceFactory);
         wakeupThreadForWrite();
         mySocket = socket;
         myMgr = networkMgr;
@@ -71,8 +73,8 @@ public class ZeroMQConnection
         myOutputQueue = new Queue<>();
         myThread = thread;
         enqueueHandlerFactory(handlerFactory);
-        if (Trace.comm.event && Trace.ON) {
-            Trace.comm.eventm(this + " new ZMQ connection with " + remoteAddr);
+        if (traceFactory.comm.getEvent() && Trace.ON) {
+            traceFactory.comm.eventm(this + " new ZMQ connection with " + remoteAddr);
         }
     }
 
@@ -80,8 +82,8 @@ public class ZeroMQConnection
      * Shut down the connection.  Any queued messages will be sent.
      */
     public void close() {
-        if (Trace.comm.debug && Trace.ON) {
-            Trace.comm.debugm(this + " close");
+        if (traceFactory.comm.getDebug() && Trace.ON) {
+            traceFactory.comm.debugm(this + " close");
         }
 
         /* Enqueue a special object to mark the end of the outgoing message
@@ -104,8 +106,8 @@ public class ZeroMQConnection
     private void closeIsDone(Throwable reason) {
         mySocket.close();
         myMgr.connectionCount(-1);
-        if (Trace.comm.event && Trace.ON) {
-            Trace.comm.eventm(this + " died: " + reason);
+        if (traceFactory.comm.getEvent() && Trace.ON) {
+            traceFactory.comm.eventm(this + " died: " + reason);
         }
         connectionDied(reason);
     }
@@ -166,7 +168,7 @@ public class ZeroMQConnection
                 throw new ConnectionCloseException("Null ZMQ recv result");
             }
         } catch (Throwable t) {
-            Trace.comm.eventm(this + " problem: " + t);
+            traceFactory.comm.eventm(this + " problem: " + t);
             close();
             closeIsDone(t);
             Runner.throwIfMandatory(t);
@@ -195,15 +197,15 @@ public class ZeroMQConnection
                 mySocket.send(outBytes, 0);
             }
         } catch (IOException e) {
-            Trace.comm.usagem(this + " IOException: " + e.getMessage());
+            traceFactory.comm.usagem(this + " IOException: " + e.getMessage());
             closeException = e;
         }
         if (closeException != null) {
             closeIsDone(closeException);
         } else if (!myOutputQueue.hasMoreElements()) {
             myThread.unwatchSocket(mySocket);
-            if (Trace.comm.debug && Trace.ON) {
-                Trace.comm.debugm(this + " set poll off");
+            if (traceFactory.comm.getDebug() && Trace.ON) {
+                traceFactory.comm.debugm(this + " set poll off");
             }
         }
     }
@@ -215,8 +217,8 @@ public class ZeroMQConnection
      *    String, but this is not required.
      */
     private void enqueueSentMessage(Object message) {
-        if (Trace.comm.verbose && Trace.ON) {
-            Trace.comm.verbosem("enqueue " + message);
+        if (traceFactory.comm.getVerbose() && Trace.ON) {
+            traceFactory.comm.verbosem("enqueue " + message);
         }
 
         /* If the connection is going away, the message can be discarded. */
@@ -264,12 +266,12 @@ public class ZeroMQConnection
     public void run() {
         if (myOutputQueue.hasMoreElements()) {
             myThread.watchSocket(mySocket, ZMQ.Poller.POLLOUT);
-            if (Trace.comm.debug && Trace.ON) {
-                Trace.comm.debugm(this + " set poller for write");
+            if (traceFactory.comm.getDebug() && Trace.ON) {
+                traceFactory.comm.debugm(this + " set poller for write");
             }
         }
-        if (Trace.comm.debug) {
-            Trace.comm.debugm("ZMQ thread interested in writes on " + this);
+        if (traceFactory.comm.getDebug()) {
+            traceFactory.comm.debugm("ZMQ thread interested in writes on " + this);
         }
     }
 
@@ -280,12 +282,12 @@ public class ZeroMQConnection
      */
     public void sendMsg(Object message) {
         if (amSendMode) {
-            if (Trace.comm.debug && Trace.ON) {
-                Trace.comm.debugm(this + " enqueueing message");
+            if (traceFactory.comm.getDebug() && Trace.ON) {
+                traceFactory.comm.debugm(this + " enqueueing message");
             }
             enqueueSentMessage(message);
         } else {
-            Trace.comm.errorm(this +
+            traceFactory.comm.errorm(this +
                               " send on a receive-only connection: " +
                               message);
         }

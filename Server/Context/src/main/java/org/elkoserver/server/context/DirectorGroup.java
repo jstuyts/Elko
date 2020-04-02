@@ -12,8 +12,10 @@ import org.elkoserver.foundation.json.MessageDispatcher;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.metadata.HostDesc;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Outbound group containing all the connected directors.
@@ -47,9 +49,9 @@ class DirectorGroup extends OutboundGroup {
      */
     DirectorGroup(Server server, Contextor contextor,
                   List<HostDesc> directors, List<HostDesc> listeners,
-                  Trace appTrace)
+                  Trace appTrace, Timer timer, TraceFactory traceFactory)
     {
-        super("conf.register", server, contextor, directors, appTrace);
+        super("conf.register", server, contextor, directors, appTrace, timer, traceFactory);
 
         server.registerLoadWatcher(factor -> send(msgLoad(factor)));
 
@@ -100,7 +102,7 @@ class DirectorGroup extends OutboundGroup {
                        HostDesc host)
     {
         DirectorActor director =
-            new DirectorActor(connection, dispatcher, this, host);
+            new DirectorActor(connection, dispatcher, this, host, timer, traceFactory);
         updateDirector(director);
         return director;
     }
@@ -155,7 +157,7 @@ class DirectorGroup extends OutboundGroup {
      * @return the requested reservation if there is one, or null if not.
      */
     Reservation lookupReservation(String who, String where, String authCode) {
-        Reservation key = new Reservation(who, where, authCode);
+        Reservation key = new Reservation(who, where, authCode, traceFactory);
         return myReservations.get(key);
     }
 

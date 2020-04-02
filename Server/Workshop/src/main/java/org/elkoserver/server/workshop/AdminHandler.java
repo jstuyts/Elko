@@ -4,6 +4,7 @@ import org.elkoserver.foundation.actor.BasicProtocolHandler;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.OptBoolean;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Singleton handler for the workshop 'admin' protocol.
@@ -22,7 +23,8 @@ class AdminHandler extends BasicProtocolHandler {
     /**
      * Constructor.
      */
-    AdminHandler(Workshop workshop) {
+    AdminHandler(Workshop workshop, TraceFactory traceFactory) {
+        super(traceFactory);
         myWorkshop = workshop;
     }
 

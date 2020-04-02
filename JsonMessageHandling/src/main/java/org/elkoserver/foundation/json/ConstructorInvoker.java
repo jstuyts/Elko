@@ -3,7 +3,7 @@ package org.elkoserver.foundation.json;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import org.elkoserver.json.JSONObject;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Invoker subclass for constructors.  Uses Java reflection to invoke a
@@ -28,9 +28,9 @@ class ConstructorInvoker extends Invoker {
      * @param paramNames  JSON names for the parameters.
      */
     ConstructorInvoker(Constructor<?> constructor, boolean includeRawObject,
-                       Class<?>[] paramTypes, String[] paramNames)
+                       Class<?>[] paramTypes, String[] paramNames, TraceFactory traceFactory)
     {
-        super(constructor, paramTypes, paramNames, includeRawObject ? 1 : 0);
+        super(constructor, paramTypes, paramNames, includeRawObject ? 1 : 0, traceFactory);
         myConstructor = constructor;
         amIncludingRawObject = includeRawObject;
     }
@@ -52,7 +52,7 @@ class ConstructorInvoker extends Invoker {
                 return apply(null, null, obj.properties(), resolver);
             }
         } catch (JSONInvocationException e) {
-            Trace.comm.errorm("error calling JSON constructor: " +
+            traceFactory.comm.errorm("error calling JSON constructor: " +
                               e.getMessage());
             return null;
         } catch (MessageHandlerException e) {
@@ -60,7 +60,7 @@ class ConstructorInvoker extends Invoker {
             if (report == null) {
                 report = e;
             }
-            Trace.comm.errorReportException(report,
+            traceFactory.comm.errorReportException(report,
                                             "calling JSON constructor");
             return null;
         }

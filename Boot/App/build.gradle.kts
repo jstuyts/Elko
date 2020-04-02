@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     implementation(project(":Boot:Api"))
+    implementation(project(":Properties"))
     implementation(project(":Trace"))
 }
 

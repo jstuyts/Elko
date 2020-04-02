@@ -4,6 +4,7 @@ import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.foundation.timer.TimeoutNoticer;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Worker object to manage an ongoing attempt to establish an outbound TCP
@@ -52,13 +53,14 @@ public class ConnectionRetrier
     public ConnectionRetrier(HostDesc host, String label,
                              NetworkManager networkManager,
                              MessageHandlerFactory actualFactory,
-                             Trace appTrace)
+                             Timer timer,
+                             Trace appTrace, TraceFactory traceFactory)
     {
         myHost = host;
         myLabel = label;
         myKeepTryingFlag = true;
         myTrace = appTrace.subTrace(label);
-        myFramerFactory = new JSONByteIOFramerFactory(myTrace);
+        myFramerFactory = new JSONByteIOFramerFactory(myTrace, traceFactory);
         myNetworkManager = networkManager;
         myActualFactory = actualFactory;
         myTrace.eventi("connecting to " + myLabel + " at " + host.hostPort());
@@ -66,7 +68,7 @@ public class ConnectionRetrier
         myRetryHandlerFactory = connection -> {
             if (connection == null) {
                 if (myKeepTryingFlag) {
-                    Timer.theTimer().after(myHost.retryInterval() * 1000,
+                    timer.after(myHost.retryInterval() * 1000,
                                            myRetryTimeout);
                 }
                 return null;

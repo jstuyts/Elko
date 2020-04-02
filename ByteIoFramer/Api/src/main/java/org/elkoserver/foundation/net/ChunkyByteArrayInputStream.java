@@ -4,7 +4,11 @@ import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
+
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
+
+import static org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII;
 
 /**
  * Input stream similar to ByteArrayInputStream but backed by an ongoing series
@@ -100,11 +104,13 @@ public class ChunkyByteArrayInputStream extends InputStream {
 
     /** Flag indicating that WebSocket framing is enabled. */
     private boolean amWebSocketFraming;
-    
+    private TraceFactory traceFactory;
+
     /**
      * Constructor.  Initially, no input has been provided.
      */
-    public ChunkyByteArrayInputStream() {
+    public ChunkyByteArrayInputStream(TraceFactory traceFactory) {
+        this.traceFactory = traceFactory;
         myPendingBuffers = new LinkedList<>();
         myWorkingBuffer = null;
         myClientBuffer = null;
@@ -129,12 +135,12 @@ public class ChunkyByteArrayInputStream extends InputStream {
      * @param length  Number of bytes in 'buf' to read (&lt;= buf.length).
      */
     public void addBuffer(byte[] buf, int length) {
-        if (Trace.comm.debug && Trace.ON) {
+        if (traceFactory.comm.getDebug() && Trace.ON) {
             if (length == 0) {
-                Trace.comm.debugm("receiving 0 bytes: || (EOF)");
+                traceFactory.comm.debugm("receiving 0 bytes: || (EOF)");
             } else {
-                Trace.comm.debugm("receiving " + length + " bytes: |" +
-                                  Trace.byteArrayToASCII(buf, 0, length) +"|");
+                traceFactory.comm.debugm("receiving " + length + " bytes: |" +
+                                  byteArrayToASCII(buf, 0, length) + "|");
             }
         }
         if (length == 0) {
@@ -159,7 +165,7 @@ public class ChunkyByteArrayInputStream extends InputStream {
      *
      * @return the number of bytes that can be read from this input stream.
      */
-    public int available() throws IOException {
+    public int available() {
         return myTotalByteCount;
     }
     
@@ -221,9 +227,8 @@ public class ChunkyByteArrayInputStream extends InputStream {
      * @return the next byte of data, or -1 if the end of the currently
      *    available input is reached.
      *
-     * @throws IOException if the true end of input is reached normally
      */
-    public int readByte() throws IOException {
+    public int readByte() {
         if (myTotalByteCount < 1) {
             return -1;
         } else {
@@ -238,7 +243,7 @@ public class ChunkyByteArrayInputStream extends InputStream {
      *
      * @return the next byte of data.
      */
-    private int readByteInternal() throws IOException {
+    private int readByteInternal() {
         if (myWorkingBuffer == null) {
             if (myPendingBuffers.size() > 0) {
                 myWorkingBuffer = myPendingBuffers.removeFirst();
@@ -275,9 +280,8 @@ public class ChunkyByteArrayInputStream extends InputStream {
      * @return an array of 'count' bytes, or null if that many bytes are not
      *    currently available.
      *
-     * @throws IOException if the true end of input is reached normally
      */
-    public byte[] readBytes(int count) throws IOException {
+    public byte[] readBytes(int count) {
         if (myTotalByteCount < count) {
             return null;
         } else {
@@ -376,7 +380,7 @@ public class ChunkyByteArrayInputStream extends InputStream {
                 return "";
             } else {
                 do {
-                    if (inChar != '\r' && inChar != '\n' && inChar != 0) {
+                    if (inChar != '\r' && inChar != 0) {
                         myLine.append(inChar);
                     }
                     inChar = (char) (doUTF8 ? readUTF8Char() : read());

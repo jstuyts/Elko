@@ -7,6 +7,7 @@ import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Actor for an internal connection to a context server from within the server
@@ -35,9 +36,9 @@ public class InternalActor extends RoutingActor implements BasicProtocolActor
      * @param appTrace  Trace object for diagnostics.
      */
     InternalActor(Connection connection, InternalActorFactory factory,
-                  Trace appTrace)
+                  Trace appTrace, TraceFactory traceFactory)
     {
-        super(connection, factory.contextor());
+        super(connection, factory.contextor(), traceFactory);
         myFactory = factory;
         amAuthorized = false;
         tr = appTrace;

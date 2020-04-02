@@ -3,7 +3,9 @@ package org.elkoserver.server.gatekeeper;
 import org.elkoserver.foundation.json.MessageDispatcher;
 import org.elkoserver.foundation.net.*;
 import org.elkoserver.foundation.server.metadata.HostDesc;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.function.Consumer;
 
@@ -21,9 +23,11 @@ class DirectorActorFactory implements MessageHandlerFactory {
 
     /** Network manager for making new outbound connections. */
     private NetworkManager myNetworkManager;
-    
+
+    private Timer timer;
     /** Message dispatcher for director connections. */
     private MessageDispatcher myDispatcher;
+    private TraceFactory traceFactory;
 
     /** The gatekeeper itself. */
     private Gatekeeper myGatekeeper;
@@ -43,10 +47,12 @@ class DirectorActorFactory implements MessageHandlerFactory {
      * @param appTrace  Trace object for diagnostics.
      */
     DirectorActorFactory(NetworkManager networkManager, Gatekeeper gatekeeper,
-                         Trace appTrace)
+                         Trace appTrace, Timer timer, TraceFactory traceFactory)
     {
         myNetworkManager = networkManager;
-        myDispatcher = new MessageDispatcher(null);
+        this.timer = timer;
+        myDispatcher = new MessageDispatcher(null, traceFactory);
+        this.traceFactory = traceFactory;
         myDispatcher.addClass(DirectorActor.class);
         myDirector = null;
         myDirectorHost = null;
@@ -72,7 +78,7 @@ class DirectorActorFactory implements MessageHandlerFactory {
             myDirectorHost = director;
             myConnectionRetrier =
                 new ConnectionRetrier(director, "director", myNetworkManager,
-                                      this, tr);
+                                      this, timer, tr, traceFactory);
         }
     }
 
@@ -92,7 +98,7 @@ class DirectorActorFactory implements MessageHandlerFactory {
      */
     public MessageHandler provideMessageHandler(Connection connection) {
         return new DirectorActor(connection, myDispatcher, this,
-                                 myDirectorHost);
+                                 myDirectorHost, traceFactory);
     }
 
     /**

@@ -1,9 +1,13 @@
 package org.elkoserver.foundation.net;
 
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
-import org.elkoserver.foundation.boot.BootProperties;
+
+import org.elkoserver.foundation.properties.ElkoProperties;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Message handler factory to provide message handlers that wrap a message
@@ -27,6 +31,8 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
 
     /** The root URI for GETs and POSTs. */
     private String myRootURI;
+    private Timer timer;
+    private TraceFactory traceFactory;
 
     /** Table of current sessions, indexed by ID number. */
     private Map<Long, HTTPSessionConnection> mySessions;
@@ -56,6 +62,7 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
 
     /** Default session timeout if none is explicitly given, in seconds. */
     private static final int DEFAULT_SESSION_TIMEOUT = 15;
+    private final Clock clock;
 
     /**
      * Each HTTP message handler wraps an application-level message handler,
@@ -72,17 +79,20 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
      */
     HTTPMessageHandlerFactory(MessageHandlerFactory innerFactory,
                               String rootURI, HTTPFramer httpFramer,
-                              NetworkManager manager)
+                              NetworkManager manager, Timer timer, Clock clock, TraceFactory traceFactory)
     {
         myInnerFactory = innerFactory;
         myRootURI = "/" + rootURI + "/";
+        this.timer = timer;
+        this.traceFactory = traceFactory;
+        this.clock = clock;
         mySessions = new HashMap<>();
         mySessionsByConnection =
                 new HashMap<>();
         myHTTPFramer = httpFramer;
         myManager = manager;
 
-        BootProperties props = manager.props();
+        ElkoProperties props = manager.props();
 
         mySelectTimeout =
             props.intProperty("conf.comm.httpselectwait",
@@ -132,16 +142,14 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
      *
      * @param connection  The TCP connection upon which the connection request
      *    was received.
-     * @param uri  HTTP GET URI fields.
-     *
      * @return true if an HTTP reply was sent.
      */
-    private boolean doConnect(Connection connection, SessionURI uri) {
-        HTTPSessionConnection session = new HTTPSessionConnection(this);
+    private boolean doConnect(Connection connection) {
+        HTTPSessionConnection session = new HTTPSessionConnection(this, timer, clock, traceFactory);
 
         associateTCPConnection(session, connection);
-        if (Trace.comm.event && Trace.ON) {
-            Trace.comm.eventm(session + " connect over " + connection);
+        if (traceFactory.comm.getEvent() && Trace.ON) {
+            traceFactory.comm.eventm(session + " connect over " + connection);
         }
         String reply = myHTTPFramer.makeConnectReply(session.sessionID());
 
@@ -168,7 +176,7 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
 
         String reply;
         if (session == null) {
-            Trace.comm.errorm("got disconnect with invalid session " +
+            traceFactory.comm.errorm("got disconnect with invalid session " +
                               uri.sessionID);
             reply = myHTTPFramer.makeSequenceErrorReply("sessionIDError");
         } else {
@@ -191,8 +199,8 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
      * @return true if an HTTP reply was sent.
      */
     private boolean doError(Connection connection, String uri) {
-        if (Trace.comm.usage && Trace.ON) {
-            Trace.comm.usagem(connection +
+        if (traceFactory.comm.getUsage() && Trace.ON) {
+            traceFactory.comm.usagem(connection +
                               " received invalid URI in HTTP request " + uri);
         }
         connection.sendMsg(new HTTPError(404, "Not Found",
@@ -219,7 +227,7 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
             associateTCPConnection(session, connection);
             return session.selectMessages(connection, uri, nonPersistent);
         } else {
-            Trace.comm.errorm("got select with invalid session " +
+            traceFactory.comm.errorm("got select with invalid session " +
                               uri.sessionID);
             connection.sendMsg(
                 myHTTPFramer.makeSequenceErrorReply("sessionIDError"));
@@ -246,7 +254,7 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
             associateTCPConnection(session, connection);
             session.receiveMessage(connection, uri, message);
         } else {
-            Trace.comm.errorm("got xmit with invalid session " +
+            traceFactory.comm.errorm("got xmit with invalid session " +
                               uri.sessionID);
             connection.sendMsg(
                 myHTTPFramer.makeSequenceErrorReply("sessionIDError"));
@@ -283,7 +291,7 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
         if (!parsed.valid) {
             replied = doError(connection, uri);
         } else if (parsed.verb == SessionURI.VERB_CONNECT) {
-            replied = doConnect(connection, parsed);
+            replied = doConnect(connection);
         } else if (parsed.verb == SessionURI.VERB_SELECT) {
             replied = doSelect(connection, parsed, nonPersistent);
         } else if (parsed.verb == SessionURI.VERB_DISCONNECT) {
@@ -307,8 +315,8 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
      *    header information.
      */
     void handleOPTIONS(Connection connection, HTTPRequest request) {
-        if (Trace.comm.event && Trace.ON) {
-            Trace.comm.eventm("OPTIONS request over " + connection);
+        if (traceFactory.comm.getEvent() && Trace.ON) {
+            traceFactory.comm.eventm("OPTIONS request over " + connection);
         }
         HTTPOptionsReply reply = new HTTPOptionsReply(request);
         connection.sendMsg(reply);
@@ -336,7 +344,7 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
         } else if (parsed.verb == SessionURI.VERB_XMIT_POST) {
             replied = doXmit(connection, parsed, message);
         } else if (parsed.verb == SessionURI.VERB_CONNECT) {
-            replied = doConnect(connection, parsed);
+            replied = doConnect(connection);
         } else if (parsed.verb == SessionURI.VERB_DISCONNECT) {
             replied = doDisconnect(connection, parsed);
         } else {
@@ -384,8 +392,8 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
         if (session != null) {
             return session;
         }
-        if (Trace.comm.usage && Trace.ON) {
-            Trace.comm.usagem(connection + " received invalid session ID " +
+        if (traceFactory.comm.getUsage() && Trace.ON) {
+            traceFactory.comm.usagem(connection + " received invalid session ID " +
                               uri.sessionID);
         }
         return null;
@@ -406,7 +414,7 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
      * @param connection  The TCP connection object that was just created.
      */
     public MessageHandler provideMessageHandler(Connection connection) {
-        return new HTTPMessageHandler(connection, this, sessionTimeout(false));
+        return new HTTPMessageHandler(connection, this, sessionTimeout(false), timer, traceFactory);
     }
 
     /**
@@ -465,13 +473,13 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
         
         if (session != null) {
             session.dissociateTCPConnection(connection);
-            if (Trace.comm.event && Trace.ON) {
-                Trace.comm.eventm(connection + " lost under " + session +
+            if (traceFactory.comm.getEvent() && Trace.ON) {
+                traceFactory.comm.eventm(connection + " lost under " + session +
                                   ": " + reason);
             }
         } else {
-            if (Trace.comm.event && Trace.ON) {
-                Trace.comm.eventm(connection +
+            if (traceFactory.comm.getEvent() && Trace.ON) {
+                traceFactory.comm.eventm(connection +
                                   " lost under no known HTTP session: " +
                                   reason);
             }

@@ -20,12 +20,13 @@ import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Referenceable;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Actor representing a connection to a director.
  */
 class DirectorActor extends NonRoutingActor {
+    private final Timer timer;
     /** Send group containing all the director connections. */
     private DirectorGroup myGroup;
 
@@ -47,8 +48,9 @@ class DirectorActor extends NonRoutingActor {
      * @param host  Host description for this connection.
      */
     DirectorActor(Connection connection, MessageDispatcher dispatcher,
-                  DirectorGroup group, HostDesc host) {
-        super(connection, dispatcher);
+                  DirectorGroup group, HostDesc host, Timer timer, TraceFactory traceFactory) {
+        super(connection, dispatcher, traceFactory);
+        this.timer = timer;
         myGroup = group;
         myPendingReservationRequests = new HashMap<>();
         myNextReservationTag = 1;
@@ -77,7 +79,7 @@ class DirectorActor extends NonRoutingActor {
      * @param reason  Exception explaining why.
      */
     public void connectionDied(Connection connection, Throwable reason) {
-        Trace.comm.eventm("lost director connection " + connection + ": " +
+        traceFactory.comm.eventm("lost director connection " + connection + ": " +
                           reason);
         myGroup.expelMember(this);
     }
@@ -270,8 +272,8 @@ class DirectorActor extends NonRoutingActor {
                 deadUsers.add((User) obj);
             }
         }
-        for (User deaduser : deadUsers) {
-            deaduser.exitContext("admin", "admin", isDup);
+        for (User deadUser : deadUsers) {
+            deadUser.exitContext("admin", "admin", isDup);
         }
         for (Context deadContext : deadContexts) {
             deadContext.forceClose(isDup);
@@ -292,7 +294,7 @@ class DirectorActor extends NonRoutingActor {
                           String reservation)
     {
         myGroup.addReservation(new Reservation(user.value(null), context,
-            reservation, myGroup.reservationTimeout(), from));
+            reservation, myGroup.reservationTimeout(), from, timer, traceFactory));
     }
 
     /**
@@ -324,7 +326,7 @@ class DirectorActor extends NonRoutingActor {
     void pushNewContext(User who, String contextRef) {
         final String tag = "" + myNextReservationTag++;
         myPendingReservationRequests.put(tag, who);
-        Timer.theTimer().after(
+        timer.after(
             INTERNAL_RESERVATION_TIMEOUT,
                 () -> {
                     User user = myPendingReservationRequests.remove(tag);
@@ -347,9 +349,7 @@ class DirectorActor extends NonRoutingActor {
     @JSONMethod({ "context", "user", "hostport", "reservation", "deny", "tag"})
     public void reserve(DirectorActor from, String context, OptString optUser,
                         OptString optHostPort, OptString optReservation,
-                        OptString optDeny, OptString optTag)
-        throws MessageHandlerException
-    {
+                        OptString optDeny, OptString optTag) {
         String tag = optTag.value(null);
         String hostPort = optHostPort.value(null);
         String reservation = optReservation.value(null);
@@ -357,7 +357,7 @@ class DirectorActor extends NonRoutingActor {
         if (tag != null) {
             User who = myPendingReservationRequests.remove(tag);
             if (who == null) {
-                Trace.comm.warningi("received reservation for unknown tag " +
+                traceFactory.comm.warningi("received reservation for unknown tag " +
                                     tag);
             } else if (deny != null) {
                 who.exitContext(deny, "dirdeny", false);
@@ -371,7 +371,7 @@ class DirectorActor extends NonRoutingActor {
                 who.exitWithContextChange(context, hostPort, reservation);
             }
         } else {
-            Trace.comm.warningi("received reservation reply without tag");
+            traceFactory.comm.warningi("received reservation reply without tag");
         }
     }
 
@@ -472,7 +472,7 @@ class DirectorActor extends NonRoutingActor {
             msg.addParameter("capacity", capacity);
         }
         if (restricted) {
-            msg.addParameter("restricted", restricted);
+            msg.addParameter("restricted", true);
         }
         msg.finish();
         return msg;

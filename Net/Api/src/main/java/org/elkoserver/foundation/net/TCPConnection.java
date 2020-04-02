@@ -6,12 +6,13 @@ import java.net.Socket;
 import java.nio.ByteBuffer;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
+import java.time.Clock;
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.elkoserver.foundation.run.Queue;
 import org.elkoserver.foundation.run.Runner;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * An implementation of {@link Connection} that manages a non-blocking TCP
@@ -86,10 +87,10 @@ public class TCPConnection
     TCPConnection(MessageHandlerFactory handlerFactory,
                   ByteIOFramerFactory framerFactory, SocketChannel channel,
                   SelectionKey key, SelectThread selectThread,
-                  NetworkManager mgr, boolean isSecure, Trace trace)
+                  NetworkManager mgr, boolean isSecure, Trace trace, Clock clock, TraceFactory traceFactory)
         throws IOException
     {
-        super(mgr);
+        super(mgr, clock, traceFactory);
         amSecure = isSecure;
         myTrace = trace;
         wakeupSelectForWrite();
@@ -109,7 +110,7 @@ public class TCPConnection
         myOutputQueue = new Queue<>();
         mySelectThread = selectThread;
         enqueueHandlerFactory(handlerFactory);
-        if (myTrace.event && Trace.ON) {
+        if (myTrace.getEvent() && Trace.ON) {
             myTrace.eventi(this + " new connection from " + myRemoteAddr);
         }
     }
@@ -123,11 +124,11 @@ public class TCPConnection
     public Object call() {
         if (myOutputQueue.hasMoreElements() && myKey.isValid()) {
             myKey.interestOps(myKey.interestOps() | SelectionKey.OP_WRITE);
-            if (myTrace.debug && Trace.ON) {
+            if (myTrace.getDebug() && Trace.ON) {
                 myTrace.debugm(this + " set selectkey Read/Write");
             }
         }
-        if (myTrace.debug) {
+        if (myTrace.getDebug()) {
             myTrace.debugm("select thread interested in writes on " + this);
         }
         return null;
@@ -137,7 +138,7 @@ public class TCPConnection
      * Shut down the connection.  Any queued messages will be sent.
      */
     public void close() {
-        if (myTrace.debug && Trace.ON) {
+        if (myTrace.getDebug() && Trace.ON) {
             myTrace.debugm(this + " close");
         }
 
@@ -169,7 +170,7 @@ public class TCPConnection
         }
         myKey.attach(null);
         myMgr.connectionCount(-1);
-        if (myTrace.event && Trace.ON) {
+        if (myTrace.getEvent() && Trace.ON) {
             myTrace.eventi(this + " died: " + reason);
         }
         Object message = myOutputQueue.optDequeue();
@@ -205,7 +206,7 @@ public class TCPConnection
                                               myInputBuffer.position());
                         myInputBuffer.clear();
                     } else {
-                        if (myTrace.event && Trace.ON) {
+                        if (myTrace.getEvent() && Trace.ON) {
                             myTrace.debugm(this + " zero length read");
                         }
                     }
@@ -213,7 +214,7 @@ public class TCPConnection
             } while (count > 0 && amSecure);
         } catch (Throwable t) {
             /* If anything bad happens during read, the connection is dead. */
-            if (myTrace.debug) {
+            if (myTrace.getDebug()) {
                 myTrace.debugm(this + " caught exception", t);
             }
             if (t instanceof EOFException) {
@@ -257,7 +258,7 @@ public class TCPConnection
             if (myOutputBuffer != null) {
                 int before = myOutputBuffer.remaining();
                 int wrote = myChannel.write(myOutputBuffer);
-                if (myTrace.event && Trace.ON) {
+                if (myTrace.getEvent() && Trace.ON) {
                     myTrace.debugm(this + " wrote " + wrote + " bytes of " + before);
                 }
                 if (myOutputBuffer.remaining() == 0) {
@@ -266,7 +267,7 @@ public class TCPConnection
             } else if (amSecure) {
                 /* ScalableSSL sometimes requires us to do empty writes to pump
                    SSL protocol handshaking. */
-                if (myTrace.event && Trace.ON) {
+                if (myTrace.getEvent() && Trace.ON) {
                     myTrace.debugm(this + " SSL empty write");
                 }
                 myChannel.write(theEmptyBuffer);
@@ -280,7 +281,7 @@ public class TCPConnection
         } else if (myOutputBuffer == null) {
             if (!myOutputQueue.hasMoreElements()) {
                 myKey.interestOps(myKey.interestOps() &~SelectionKey.OP_WRITE);
-                if (myTrace.debug && Trace.ON) {
+                if (myTrace.getDebug() && Trace.ON) {
                     myTrace.debugm(this + " set selectkey ReadOnly");
                 }
             }
@@ -294,7 +295,7 @@ public class TCPConnection
      *    String, but this is not required.
      */
     private void enqueueSentMessage(Object message) {
-        if (myTrace.verbose && Trace.ON) {
+        if (myTrace.getVerbose() && Trace.ON) {
             myTrace.verbosem("enqueue " + message);
         }
 
@@ -378,7 +379,7 @@ public class TCPConnection
      * @param message  The message to be sent.
      */
     public void sendMsg(Object message) {
-        if (myTrace.debug && Trace.ON) {
+        if (myTrace.getDebug() && Trace.ON) {
             myTrace.debugm(this + " enqueueing message: " + message);
         }
         enqueueSentMessage(message);

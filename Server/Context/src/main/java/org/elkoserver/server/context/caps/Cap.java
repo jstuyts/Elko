@@ -16,6 +16,8 @@ import org.elkoserver.server.context.Msg;
 import org.elkoserver.server.context.ObjectCompletionWatcher;
 import org.elkoserver.server.context.User;
 
+import java.time.Clock;
+
 /**
  * Base class for implementing capability mods that grant access to privileged
  * operations.
@@ -35,6 +37,7 @@ public abstract class Cap extends Mod implements ObjectCompletionWatcher {
      * capability is ephemeral, i.e., that it expires when the holder exits.
      */
     private long myExpiration;
+    private final Clock clock;
 
     /**
      * JSON-driven constructor.
@@ -49,14 +52,15 @@ public abstract class Cap extends Mod implements ObjectCompletionWatcher {
      *    expiration     time after which cap no longer operates (default
      *                   value is 0, i.e., cap is permanent), expressed as
      *                   milliseconds past the epoch, exactly as returned by
-     *                   {@link System#currentTimeMillis}.
+     *                   {@link Clock#millis}.
      *
      * @param desc  The parsed JSON object describing this capability mod.
      */
-    Cap(JSONObject desc) throws JSONDecodingException {
+    Cap(JSONObject desc, Clock clock) throws JSONDecodingException {
         amTransferrable = desc.optBoolean("transferrable", true);
         amDeletable     = desc.optBoolean("deletable", true);
         myExpiration    = desc.optLong("expiration", 0);
+        this.clock = clock;
     }
 
     /**
@@ -115,7 +119,7 @@ public abstract class Cap extends Mod implements ObjectCompletionWatcher {
      *    use.
      */
     final boolean isExpired() {
-        return 0 < myExpiration && myExpiration < System.currentTimeMillis();
+        return 0 < myExpiration && myExpiration < clock.millis();
     }
 
     /**
@@ -274,7 +278,7 @@ public abstract class Cap extends Mod implements ObjectCompletionWatcher {
         if (newExpiration == 0 && newDuration == 0) {
             newExpiration = myExpiration;
         } else if (newExpiration == 0) { /* newDuration != 0 */
-            newExpiration = newDuration + System.currentTimeMillis();
+            newExpiration = newDuration + clock.millis();
         } else if (newDuration != 0) { /* && newExpiration != 0 */
             throw new MessageHandlerException(
                 "can't specify both duration and expiration");

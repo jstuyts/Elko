@@ -1,5 +1,8 @@
 package org.elkoserver.foundation.boot;
 
+import org.elkoserver.foundation.properties.ElkoProperties;
+import org.elkoserver.util.trace.TraceFactory;
+
 /**
  * Interface to be implemented by application classes that want to be launched
  * by <code>Boot</code>.
@@ -12,5 +15,5 @@ public interface Bootable {
      * @param props  Properties specified by the command line, environment
      *    variables, and property files.
      */
-    void boot(BootProperties props);
+    void boot(ElkoProperties props, TraceFactory traceFactory);
 }

@@ -7,6 +7,7 @@ import org.elkoserver.json.Parser;
 import org.elkoserver.json.SyntaxError;
 import org.elkoserver.objdb.store.ObjectDesc;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.lang.reflect.Array;
 import java.util.*;
@@ -21,13 +22,15 @@ abstract class ObjDBBase implements ObjDB {
     private Map<String, Class<?>> myClasses;
 
     /** Application trace object for logging. */
-    Trace tr;
+    protected final Trace tr;
+    private final TraceFactory traceFactory;
 
     /**
      * Constructor.
      */
-    ObjDBBase(Trace appTrace) {
+    ObjDBBase(Trace appTrace, TraceFactory traceFactory) {
         tr = appTrace;
+        this.traceFactory = traceFactory;
         myClasses = new HashMap<>();
     }
 
@@ -55,7 +58,7 @@ abstract class ObjDBBase implements ObjDB {
         if (typeTag != null) {
             Class<?> type = myClasses.get(typeTag);
             if (type != null) {
-                result = ObjectDecoder.decode(type, jsonObj, this);
+                result = ObjectDecoder.decode(type, jsonObj, this, traceFactory);
             } else {
                 tr.errorm("no class for type tag '" + typeTag + "'");
             }

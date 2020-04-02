@@ -1,9 +1,14 @@
 package org.elkoserver.foundation.boot;
 
-import org.elkoserver.util.trace.ExceptionManager;
 import org.elkoserver.util.trace.TraceController;
+import org.elkoserver.util.trace.TraceFactory;
+import org.elkoserver.util.trace.acceptor.file.TraceLog;
+import org.elkoserver.util.trace.exceptionreporting.ExceptionReporter;
+import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.trace.TraceExceptionNoticer;
 
 import java.lang.reflect.InvocationTargetException;
+import java.time.Clock;
+import java.time.LocalDateTime;
 
 /**
  * This is the universal startup class for applications using Elko.  It
@@ -20,27 +25,27 @@ import java.lang.reflect.InvocationTargetException;
  * The boot class must implement {@link Bootable}.<p>
  *
  * In addition to regular application command line parameters, property
- * settings may also be given on the command line.  They are interpreted
- * according to the format in {@link BootPropertiesImpl#scanArgs}.  Arguments that
+ * settings may also be given on the command line. Arguments that
  * set property values are removed from the arguments array before it is
  * presented to the application.<p>
  */
-class Boot extends Thread {
-    /** Flag to suppress multiple launchings */
-    private static boolean theHaveStartedFlag = false;
+class Boot implements Runnable {
 
-    /** Command line args */
-    private String[] myArgs;
+    private final ExceptionReporter myExceptionReporter;
+    private final BootArguments bootArguments;
+    private final TraceFactory traceFactory;
 
     /**
      * Create the thread from which everything else will unfold.
-     *
-     * @param threadGroup The ThreadGroup to run in
-     * @param args Command line arguments per Java language spec
+     * @param exceptionReporter The exception manager
+     * @param bootArguments Command line arguments per Java language spec
      */
-    private Boot(ThreadGroup threadGroup, String[] args) {
-        super(threadGroup, "Elko Server Boot");
-        myArgs = args;
+    private Boot(ExceptionReporter exceptionReporter, BootArguments bootArguments, TraceFactory traceFactory) {
+        super();
+
+        myExceptionReporter = exceptionReporter;
+        this.bootArguments = bootArguments;
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -50,43 +55,48 @@ class Boot extends Thread {
      */
     public static void main(String[] args) {
         try {
-            /* Lock out multiple invocations */
-            assert !theHaveStartedFlag : "Boot.main() called twice";
-
-            theHaveStartedFlag = true;
-
-            /* Launch the thread in a new thread group */
-            new Boot(new EMThreadGroup("Elko Thread Group"), args).start();
-        } catch (Throwable t) {
+            BootArguments bootArguments = new BootArguments(args);
+            Clock clock = Clock.systemDefaultZone();
+            TraceController traceController = new TraceController(new TraceLog(clock), clock);
+            traceController.start(bootArguments.bootProperties);
+            ExceptionReporter exceptionReporter = new ExceptionReporter(new TraceExceptionNoticer(traceController.getFactory().getException()));
+            EMThreadGroup threadGroup = new EMThreadGroup("Elko Thread Group", exceptionReporter);
+            Boot boot = new Boot(exceptionReporter, bootArguments, traceController.getFactory());
+            new Thread(threadGroup, boot, "Elko Server Boot").start();
+        } catch (Exception e) {
             /* All purpose top-level exception interception */
-            ExceptionManager.reportException(t);
+            e.printStackTrace();
         }
     }
 
     /**
      * Thread group for all server application threads to run in.  Will punt
-     * all uncaught exceptions to the {@link ExceptionManager} class.
+     * all uncaught exceptions to the {@link ExceptionReporter} class.
      */
     private static class EMThreadGroup extends ThreadGroup {
+
+        private ExceptionReporter myExceptionReporter;
+
         /**
          * Standard thread group constructor.
          *
          * @param name The name for the new thread group.
          */
-        EMThreadGroup(String name) {
+        EMThreadGroup(String name, ExceptionReporter exceptionReporter) {
             super(name);
+            myExceptionReporter = exceptionReporter;
         }
         
         /**
          * Handle uncaught exceptions by giving them to the
-         * {@link ExceptionManager}.
+         * {@link ExceptionReporter}.
          *
          * @param thread  The thread in which the exception was thrown (and not
          *    caught).
          * @param ex  The exception itself.
          */
         public void uncaughtException(Thread thread, Throwable ex) {
-            ExceptionManager.uncaughtException(thread, ex);
+            myExceptionReporter.uncaughtException(thread, ex);
         }
     }
 
@@ -104,7 +114,7 @@ class Boot extends Thread {
         try {
             startApplication();
         } catch (Exception e) {
-            ExceptionManager.reportException(e,
+            myExceptionReporter.reportException(e,
                                              "Failure in application startup");
         }
     }
@@ -123,34 +133,24 @@ class Boot extends Thread {
      * @throws IllegalAccessException when myArgs[0] names a non-permitted
      *   class, or a class whose zero-argument constructor is not permitted.
      *
-     * @throws InstantiationException when myArgs[0] names an uninstantiable
+     * @throws InstantiationException when myArgs[0] names an uninstantiatable
      *   class, such as an interface or an abstract class.
      */
     private void startApplication() throws ClassNotFoundException,
             IllegalAccessException, InstantiationException
     {
-        /* Extract property assignments from command line args */
-        BootPropertiesImpl props = new BootPropertiesImpl();
-        myArgs = props.scanArgs(myArgs);
-
-        /* Start up tracing early, in case anyone needs it during setup */
-        TraceController.start(props);
-
         /* Make an instance of the start class */
-        if (myArgs.length < 1) {
-            throw new Error("Boot needs class name to boot");
-        }
         Bootable starter;
         try {
-            starter = (Bootable) Class.forName(myArgs[0]).getConstructor().newInstance();
+            starter = (Bootable) Class.forName(bootArguments.mainClassName).getConstructor().newInstance();
         } catch (ClassCastException e) {
-            throw new ClassCastException(myArgs[0] + " isn't a Bootable");
+            throw new ClassCastException(bootArguments.mainClassName + " isn't a Bootable");
         } catch (NoSuchMethodException e) {
             throw new IllegalStateException("Class does not have a public no-arg constructor", e);
         } catch (InvocationTargetException e) {
             throw new IllegalStateException("Error occurred during construction of class", e.getCause());
         }
 
-        starter.boot(props);
+        starter.boot(bootArguments.bootProperties, traceFactory);
     }
 }

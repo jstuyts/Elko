@@ -1,12 +1,15 @@
 package org.elkoserver.foundation.net;
 
-import org.elkoserver.foundation.boot.BootProperties;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.run.Runner;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,10 +21,13 @@ public class NetworkManager {
     private ConnectionCountMonitor myConnectionCountMonitor;
 
     /** This server's boot properties, for initializing network access. */
-    private BootProperties myProps;
+    private ElkoProperties myProps;
 
     /** The run queue for this server. */
     private Runner myRunner;
+    private Timer timer;
+    private final TraceFactory traceFactory;
+    private final Clock clock;
 
     /** System load tracker. */
     private LoadMonitor myLoadMonitor;
@@ -44,12 +50,15 @@ public class NetworkManager {
      * @param runner  The Runner managing this server's run queue.
      */
     public NetworkManager(ConnectionCountMonitor connectionCountMonitor,
-                          BootProperties props, LoadMonitor loadMonitor,
-                          Runner runner)
+                          ElkoProperties props, LoadMonitor loadMonitor,
+                          Runner runner, Timer timer, Clock clock, TraceFactory traceFactory)
     {
         myConnectionCountMonitor = connectionCountMonitor;
         myProps = props;
         myRunner = runner;
+        this.timer = timer;
+        this.traceFactory = traceFactory;
+        this.clock = clock;
         myConnectionManagers = new HashMap<>();
         // FIXME: Initialize somewhere else
         HTTPSessionConnection.initializeRNG();
@@ -89,22 +98,22 @@ public class NetworkManager {
             try {
                 result =
                     (ConnectionManager) Class.forName(className).getConstructor().newInstance();
-                result.init(this, msgTrace);
+                result.init(this, msgTrace, clock, traceFactory);
                 myConnectionManagers.put(className, result);
             } catch (ClassNotFoundException e) {
-                Trace.comm.errorm("ConnectionManager class " + className +
+                traceFactory.comm.errorm("ConnectionManager class " + className +
                                   " not found: " + e);
             } catch (InstantiationException e) {
-                Trace.comm.errorm("ConnectionManager class " + className +
+                traceFactory.comm.errorm("ConnectionManager class " + className +
                                   " not instantiable: " + e);
             } catch (IllegalAccessException e) {
-                Trace.comm.errorm("ConnectionManager class " + className +
+                traceFactory.comm.errorm("ConnectionManager class " + className +
                                   " constructor not accessible: " + e);
             } catch (NoSuchMethodException e) {
-                Trace.comm.errorm("ConnectionManager class " + className +
+                traceFactory.comm.errorm("ConnectionManager class " + className +
                         " does not have a public no-arg constructor: " + e);
             } catch (InvocationTargetException e) {
-                Trace.comm.errorm("Error occurred during creation of connectionManager class " + className +
+                traceFactory.comm.errorm("Error occurred during creation of connectionManager class " + className +
                         ": " + e.getCause());
             }
         }
@@ -165,7 +174,7 @@ public class NetworkManager {
      */
     private void ensureSelectThread() {
         if (mySelectThread == null) {
-            mySelectThread = new SelectThread(this, mySSLContext);
+            mySelectThread = new SelectThread(this, mySSLContext, clock, traceFactory);
         }
     }
 
@@ -191,10 +200,10 @@ public class NetworkManager {
     {
         MessageHandlerFactory outerHandlerFactory =
             new HTTPMessageHandlerFactory(
-               innerHandlerFactory, rootURI, httpFramer, this);
+               innerHandlerFactory, rootURI, httpFramer, this, timer, clock, traceFactory);
 
         ByteIOFramerFactory framerFactory =
-            new HTTPRequestByteIOFramerFactory();
+            new HTTPRequestByteIOFramerFactory(traceFactory);
 
         return listenTCP(listenAddress, outerHandlerFactory, trace, secure, framerFactory);
     }
@@ -218,10 +227,10 @@ public class NetworkManager {
         throws IOException
     {
         MessageHandlerFactory outerHandlerFactory =
-            new RTCPMessageHandlerFactory(innerHandlerFactory, msgTrace, this);
+            new RTCPMessageHandlerFactory(innerHandlerFactory, msgTrace, this, timer, clock, traceFactory);
 
         ByteIOFramerFactory framerFactory =
-            new RTCPRequestByteIOFramerFactory(msgTrace);
+            new RTCPRequestByteIOFramerFactory(msgTrace, traceFactory);
 
         return listenTCP(listenAddress, outerHandlerFactory, msgTrace, secure, framerFactory);
     }
@@ -249,10 +258,10 @@ public class NetworkManager {
         }
         MessageHandlerFactory outerHandlerFactory =
             new WebSocketMessageHandlerFactory(innerHandlerFactory, socketURI,
-                                               msgTrace, this);
+                                               msgTrace);
 
         ByteIOFramerFactory framerFactory =
-            new WebSocketByteIOFramerFactory(msgTrace, listenAddress, socketURI);
+            new WebSocketByteIOFramerFactory(msgTrace, listenAddress, socketURI, traceFactory);
 
         return listenTCP(listenAddress, outerHandlerFactory, msgTrace, secure, framerFactory);
     }
@@ -340,7 +349,7 @@ public class NetworkManager {
      *
      * @return the properties
      */
-    public BootProperties props() {
+    public ElkoProperties props() {
         return myProps;
     }
 
@@ -349,7 +358,7 @@ public class NetworkManager {
      * up to support SSL connections.
      */
     private void setupSSL() {
-        mySSLContext = SslSetup.setupSsl(this.myProps, "conf.ssl.", Trace.startup);
+        mySSLContext = SslSetup.setupSsl(myProps, "conf.ssl.", traceFactory.startup);
     }
 
     /**

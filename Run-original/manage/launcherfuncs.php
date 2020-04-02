@@ -276,8 +276,6 @@ class LaunchGen {
                              '${HOST}', '${REPO_PORT}');
                 $this->pprop("conf.$component.repository.service",
                              $repo->service, "contextdb");
-                $this->pprop("conf.$component.repository.dontlog",
-                             boolval($repo->dontlog));
             }
             $this->psep();
         }

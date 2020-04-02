@@ -10,6 +10,7 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.json.Referenceable;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Singleton handler for the broker client protocol.
@@ -38,7 +39,8 @@ class ClientHandler extends BasicProtocolHandler {
      *
      * @param broker  The broker object for this handler.
      */
-    ClientHandler(Broker broker) {
+    ClientHandler(Broker broker, TraceFactory traceFactory) {
+        super(traceFactory);
         myBroker = broker;
     }
 

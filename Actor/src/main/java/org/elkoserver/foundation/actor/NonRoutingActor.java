@@ -11,7 +11,7 @@ import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.json.JSONObject;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * An {@link Actor} that receives untargeted JSON messages over its connection.
@@ -41,6 +41,7 @@ public abstract class NonRoutingActor
 {
     /** Dispatcher for delivering messages based on the 'op' parameter. */
     private MessageDispatcher myDispatcher;
+    protected final TraceFactory traceFactory;
 
     /**
      * Constructor.
@@ -48,10 +49,11 @@ public abstract class NonRoutingActor
      * @param connection  Connection associated with this actor.
      * @param dispatcher  Dispatcher to invoke message handlers based on 'op'.
      */
-    protected NonRoutingActor(Connection connection, MessageDispatcher dispatcher)
+    protected NonRoutingActor(Connection connection, MessageDispatcher dispatcher, TraceFactory traceFactory)
     {
         super(connection);
         myDispatcher = dispatcher;
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -88,7 +90,7 @@ public abstract class NonRoutingActor
                 if (report == null) {
                     report = result;
                 } else {
-                    Trace.comm.errorReportException(report,
+                    traceFactory.comm.errorReportException(report,
                         "exception in message handler");
                 }
             }
@@ -97,7 +99,7 @@ public abstract class NonRoutingActor
         }
         if (report != null) {
             String warning = "message handler error: " + report;
-            Trace.comm.warningm(warning);
+            traceFactory.comm.warningm(warning);
             if (Communication.TheDebugReplyFlag) {
                 debugMsg(warning);
             }
@@ -120,7 +122,7 @@ public abstract class NonRoutingActor
      */
     @JSONMethod({ "msg" })
     public void debug(Deliverer from, String msg) {
-        Trace.comm.eventi("Debug msg: " + msg);
+        traceFactory.comm.eventi("Debug msg: " + msg);
     }
 
     /**

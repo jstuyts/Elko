@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     implementation(project(":Trace"))
+    implementation(project(":Util"))
 }
 
 java {

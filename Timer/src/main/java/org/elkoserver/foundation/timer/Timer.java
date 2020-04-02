@@ -1,5 +1,7 @@
 package org.elkoserver.foundation.timer;
 
+import org.elkoserver.util.trace.TraceFactory;
+
 /**
  * The master control object for scheduling timed events using timeouts and
  * clocks.  One-time events (controlled by {@link Timeout} objects) may be
@@ -15,9 +17,6 @@ package org.elkoserver.foundation.timer;
  * practice should not be assumed.
  */
 public class Timer {
-    
-    /** The single permitted instance of this class */
-    private static Timer theTimer = new Timer();
 
     /** The timer thread */
     private TimerThread myThread;
@@ -25,8 +24,8 @@ public class Timer {
     /**
      * Private constructor.  Just start the timer thread.
      */
-    private Timer() {
-        myThread = new TimerThread();
+    public Timer(TraceFactory traceFactory, java.time.Clock clock) {
+        myThread = new TimerThread(traceFactory, clock);
         myThread.start();
     }
 
@@ -63,12 +62,5 @@ public class Timer {
      */
     public Clock every(long resolution, TickNoticer target) {
         return new Clock(myThread, resolution, target);
-    }
-
-    /**
-     * Return the single permitted <tt>Timer</tt> instance.
-     */
-    public static Timer theTimer() {
-        return theTimer;
     }
 }

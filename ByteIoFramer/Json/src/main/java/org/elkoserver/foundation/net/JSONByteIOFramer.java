@@ -8,6 +8,7 @@ import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Parser;
 import org.elkoserver.json.SyntaxError;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * I/O framer implementation for JSON messages.
@@ -32,9 +33,9 @@ public class JSONByteIOFramer implements ByteIOFramer {
      * Constructor.
      */
     public JSONByteIOFramer(Trace msgTrace, MessageReceiver receiver,
-                            String label)
+                            String label, TraceFactory traceFactory)
     {
-        this(msgTrace, receiver, label, new ChunkyByteArrayInputStream());
+        this(msgTrace, receiver, label, new ChunkyByteArrayInputStream(traceFactory));
     }
     
     /**
@@ -70,7 +71,7 @@ public class JSONByteIOFramer implements ByteIOFramer {
             }
             if (line.length() == 0) {
                 String msgString = myMsgBuffer.toString();
-                if (trMsg.event) {
+                if (trMsg.getEvent()) {
                     trMsg.msgi(myLabel, true, msgString);
                 }
                 Parser parser = new Parser(msgString);
@@ -87,7 +88,7 @@ public class JSONByteIOFramer implements ByteIOFramer {
                         if (Communication.TheDebugReplyFlag) {
                             myReceiver.receiveMsg(e);
                         }
-                        if (trMsg.warning) {
+                        if (trMsg.getWarning()) {
                             trMsg.warningm("syntax error in JSON message: " +
                                            e.getMessage());
                         }
@@ -127,7 +128,7 @@ public class JSONByteIOFramer implements ByteIOFramer {
         } else {
             throw new IOException("invalid message object class for write");
         }
-        if (trMsg.event) {
+        if (trMsg.getEvent()) {
             trMsg.msgi(myLabel, false, messageString);
         }
         messageString += "\n\n";

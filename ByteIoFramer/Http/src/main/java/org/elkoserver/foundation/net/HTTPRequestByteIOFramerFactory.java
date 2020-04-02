@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Byte I/O framer factory for HTTP requests.  The framing rules implemented
@@ -12,10 +13,13 @@ import org.elkoserver.util.trace.Trace;
  * HTTP/1.1", except that chunked transfer coding is not supported.
  */
 public class HTTPRequestByteIOFramerFactory implements ByteIOFramerFactory {
+    private TraceFactory traceFactory;
+
     /**
      * Constructor.
      */
-    HTTPRequestByteIOFramerFactory() {
+    HTTPRequestByteIOFramerFactory(TraceFactory traceFactory) {
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -25,7 +29,7 @@ public class HTTPRequestByteIOFramerFactory implements ByteIOFramerFactory {
      * @param label  A printable label identifying the associated connection.
      */
     public ByteIOFramer provideFramer(MessageReceiver receiver, String label) {
-        return new HTTPRequestFramer(receiver, label);
+        return new HTTPRequestFramer(receiver, label, traceFactory);
     }
 
     /**
@@ -40,9 +44,7 @@ public class HTTPRequestByteIOFramerFactory implements ByteIOFramerFactory {
 
         /** Input data source. */
         private ChunkyByteArrayInputStream myIn;
-
-        /** Message input currently in progress. */
-        private String myMsgString;
+        private TraceFactory traceFactory;
 
         /** Stage of HTTP request reading. */
         private int myHTTPParseStage;
@@ -60,11 +62,11 @@ public class HTTPRequestByteIOFramerFactory implements ByteIOFramerFactory {
         /**
          * Constructor.
          */
-        HTTPRequestFramer(MessageReceiver receiver, String label) {
+        HTTPRequestFramer(MessageReceiver receiver, String label, TraceFactory traceFactory) {
             myReceiver = receiver;
             myLabel = label;
-            myMsgString = "";
-            myIn = new ChunkyByteArrayInputStream();
+            myIn = new ChunkyByteArrayInputStream(traceFactory);
+            this.traceFactory = traceFactory;
             myHTTPParseStage = HTTP_STAGE_START;
             myRequest = new HTTPRequest();
         }
@@ -153,8 +155,8 @@ public class HTTPRequestByteIOFramerFactory implements ByteIOFramerFactory {
 
             if (message instanceof String) {
                 reply = (String) message;
-                if (Trace.comm.verbose && Trace.ON) {
-                    Trace.comm.verbosem("to=" + myLabel +
+                if (traceFactory.comm.getVerbose() && Trace.ON) {
+                    traceFactory.comm.verbosem("to=" + myLabel +
                                         " writeMessage=" + reply.length());
                 }
                 reply = "HTTP/1.1 200 OK\r\n" +
@@ -185,8 +187,8 @@ public class HTTPRequestByteIOFramerFactory implements ByteIOFramerFactory {
                 throw new IOException("unwritable message type: " +
                                       message.getClass());
             }
-            if (Trace.comm.debug && Trace.ON) {
-                Trace.comm.debugm("HTTP sending:\n" + reply);
+            if (traceFactory.comm.getDebug() && Trace.ON) {
+                traceFactory.comm.debugm("HTTP sending:\n" + reply);
             }
             return reply.getBytes(StandardCharsets.UTF_8);
         }

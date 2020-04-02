@@ -7,6 +7,7 @@ import org.elkoserver.foundation.json.OptBoolean;
 import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.*;
 import org.elkoserver.util.HashSetMulti;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.Collection;
 import java.util.LinkedList;
@@ -66,7 +67,8 @@ class AdminHandler extends BasicProtocolHandler {
      *
      * @param director  The Director object for this handler.
      */
-    AdminHandler(Director director) {
+    AdminHandler(Director director, TraceFactory traceFactory) {
+        super(traceFactory);
         myDirector = director;
     }
 

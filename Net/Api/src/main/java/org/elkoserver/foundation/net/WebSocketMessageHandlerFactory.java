@@ -18,9 +18,6 @@ class WebSocketMessageHandlerFactory implements MessageHandlerFactory {
     /** The URI of the WebSocket connection point. */
     private String mySocketURI;
 
-    /** Network manager for this server */
-    private NetworkManager myManager;
-
     /** Trace object for message logging. */
     private Trace trMsg;
 
@@ -29,21 +26,17 @@ class WebSocketMessageHandlerFactory implements MessageHandlerFactory {
      * which is the entity that will actually process the messages extracted
      * from the HTTP requests, so the HTTP message handler factory needs to
      * wrap the application-level message handler factory.
-     *
-     * @param innerFactory  The application-level message handler factor that
+     *  @param innerFactory  The application-level message handler factor that
      *   is to be wrapped by this.
      * @param socketURI  The URI of the WebSocket connection point.
      * @param msgTrace  Trace object for message logging
-     * @param manager  Network manager for this server.
      */
     WebSocketMessageHandlerFactory(MessageHandlerFactory innerFactory,
-                                   String socketURI, Trace msgTrace,
-                                   NetworkManager manager)
+                                   String socketURI, Trace msgTrace)
     {
         myInnerFactory = innerFactory;
         mySocketURI = socketURI;
         trMsg = msgTrace;
-        myManager = manager;
     }
 
     private String makeErrorReply(String problem) {
@@ -65,7 +58,7 @@ class WebSocketMessageHandlerFactory implements MessageHandlerFactory {
      * @param problem  The error that is being reported
      */
     private void sendError(Connection connection, String problem) {
-        if (trMsg.usage && Trace.ON) {
+        if (trMsg.getUsage() && Trace.ON) {
             trMsg.usagem(connection +
                 " received invalid WebSocket connection startup: " + problem);
         }

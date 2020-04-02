@@ -12,6 +12,7 @@ import org.elkoserver.foundation.timer.Timeout;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -46,6 +47,7 @@ class UserActor
 
     /** Trace object for diagnostics. */
     private Trace tr;
+    private final Timer timer;
 
     /** Connection associated with this user. */
     private Connection myConnection;
@@ -64,12 +66,13 @@ class UserActor
      * @param appTrace  Trace object for diagnostics.
      */
     UserActor(Connection connection, Contextor contextor, boolean authRequired,
-              String protocol, Trace appTrace)
+              String protocol, Trace appTrace, Timer timer, TraceFactory traceFactory)
     {
-        super(connection, contextor);
+        super(connection, contextor, traceFactory);
         myConnection = connection;
         myContextor = contextor;
         tr = appTrace;
+        this.timer = timer;
         amDead = false;
 
         myUsers = new HashMap<>();
@@ -109,7 +112,7 @@ class UserActor
             final List<User> users = new LinkedList<>(myUsers.values());
             myContextor.server().enqueue(() -> {
                 for (User user : users) {
-                    user.connectionDied(connection, reason);
+                    user.connectionDied(connection);
                 }
             });
             close();
@@ -316,7 +319,7 @@ class UserActor
                     myUsers.put(myContext, myUser);
                     myUser.activate(ref, subID, myContextor, name, mySess,
                                     amEphemeral, amAnonymous, UserActor.this,
-                                    tr);
+                                    tr, traceFactory);
                     myUser.checkpoint();
                     String problem = myUser.enterContext(myContext);
                     myContextor.noteUser(myUser, true);
@@ -373,7 +376,7 @@ class UserActor
      */
     private void startEntryTimeout() {
         myEntryTimeout =
-            Timer.theTimer().after(
+            timer.after(
                 myContextor.entryTimeout(),
                     () -> {
                         if (myEntryTimeout != null) {

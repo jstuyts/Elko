@@ -7,6 +7,7 @@ import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Parser;
 import org.elkoserver.json.SyntaxError;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Byte I/O framer factory for RTCP requests.  The framing rule used is: read
@@ -30,12 +31,14 @@ import org.elkoserver.util.trace.Trace;
 public class RTCPRequestByteIOFramerFactory implements ByteIOFramerFactory {
     /** Trace object for logging message traffic. */
     private Trace trMsg;
+    private TraceFactory traceFactory;
 
     /**
      * Constructor.
      */
-    RTCPRequestByteIOFramerFactory(Trace msgTrace) {
+    RTCPRequestByteIOFramerFactory(Trace msgTrace, TraceFactory traceFactory) {
         trMsg = msgTrace;
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -45,7 +48,7 @@ public class RTCPRequestByteIOFramerFactory implements ByteIOFramerFactory {
      * @param label  A printable label identifying the associated connection.
      */
     public ByteIOFramer provideFramer(MessageReceiver receiver, String label) {
-        return new RTCPRequestFramer(receiver, label);
+        return new RTCPRequestFramer(receiver, label, traceFactory);
     }
 
     /**
@@ -78,11 +81,11 @@ public class RTCPRequestByteIOFramerFactory implements ByteIOFramerFactory {
         /**
          * Constructor.
          */
-        RTCPRequestFramer(MessageReceiver receiver, String label) {
+        RTCPRequestFramer(MessageReceiver receiver, String label, TraceFactory traceFactory) {
             myReceiver = receiver;
             myLabel = label;
             myMsgBuffer = new StringBuilder(1000);
-            myIn = new ChunkyByteArrayInputStream();
+            myIn = new ChunkyByteArrayInputStream(traceFactory);
             myRTCPParseStage = RTCP_STAGE_REQUEST;
             myRequest = new RTCPRequest();
         }
@@ -105,7 +108,7 @@ public class RTCPRequestByteIOFramerFactory implements ByteIOFramerFactory {
                             myIn.preserveBuffers();
                             return;
                         } else if (line.length() != 0) {
-                            if (trMsg.debug && Trace.ON) {
+                            if (trMsg.getDebug() && Trace.ON) {
                                 trMsg.debugm(myLabel + " |> " + line);
                             }
                             myRequest.parseRequestLine(line);
@@ -137,7 +140,7 @@ public class RTCPRequestByteIOFramerFactory implements ByteIOFramerFactory {
                                     if (Communication.TheDebugReplyFlag) {
                                         myRequest.noteProblem(e);
                                     }
-                                    if (trMsg.warning) {
+                                    if (trMsg.getWarning()) {
                                         trMsg.warningm(
                                             "syntax error in JSON message: " +
                                             e.getMessage());
@@ -177,7 +180,7 @@ public class RTCPRequestByteIOFramerFactory implements ByteIOFramerFactory {
 
             if (message instanceof String) {
                 reply = (String) message;
-                if (trMsg.verbose && Trace.ON) {
+                if (trMsg.getVerbose() && Trace.ON) {
                     trMsg.verbosem("to=" + myLabel + " writeMessage=" +
                                    reply.length());
                 }
@@ -185,7 +188,7 @@ public class RTCPRequestByteIOFramerFactory implements ByteIOFramerFactory {
                 throw new IOException("unwritable message type: " +
                                       message.getClass());
             }
-            if (trMsg.debug && Trace.ON) {
+            if (trMsg.getDebug() && Trace.ON) {
                 trMsg.debugm("RTCP sending:\n" + reply);
             }
             return reply.getBytes(StandardCharsets.UTF_8);

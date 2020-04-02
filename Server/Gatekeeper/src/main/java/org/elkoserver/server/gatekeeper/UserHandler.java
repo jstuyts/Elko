@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Singleton handler for the gatekeeper 'user' protocol.
@@ -25,7 +26,8 @@ class UserHandler extends BasicProtocolHandler {
      *
      * @param gatekeeper  The gatekeeper itself.
      */
-    UserHandler(Gatekeeper gatekeeper) {
+    UserHandler(Gatekeeper gatekeeper, TraceFactory traceFactory) {
+        super(traceFactory);
         myGatekeeper = gatekeeper;
     }
 

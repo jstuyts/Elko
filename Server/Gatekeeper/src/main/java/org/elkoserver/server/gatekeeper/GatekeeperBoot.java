@@ -1,14 +1,17 @@
 package org.elkoserver.server.gatekeeper;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Set;
-import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.boot.Bootable;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.ServiceFactory;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * The Elko boot class for the Gatekeeper.  The Gatekeeper is a server that
@@ -16,7 +19,9 @@ import org.elkoserver.util.trace.Trace;
  * servers such as the Director.
  */
 public class GatekeeperBoot implements Bootable {
-    private Trace tr = Trace.trace("gate");
+    private TraceFactory traceFactory;
+    private Trace tr;
+    private Timer timer;
     private Gatekeeper myGatekeeper;
 
     /** How long user has before being kicked off, in milliseconds. */
@@ -25,10 +30,14 @@ public class GatekeeperBoot implements Bootable {
     /** Default action timeout, in seconds. */
     private static final int DEFAULT_ACTION_TIMEOUT = 15;
 
-    public void boot(BootProperties props) {
-        Server server = new Server(props, "gatekeeper", tr);
+    public void boot(ElkoProperties props, TraceFactory traceFactory) {
+        Clock clock = Clock.systemDefaultZone();
+        this.traceFactory = traceFactory;
+        tr = traceFactory.trace("gate");
+        timer = new Timer(traceFactory, clock);
+        Server server = new Server(props, "gatekeeper", tr, timer, clock, traceFactory);
 
-        myGatekeeper = new Gatekeeper(server, tr);
+        myGatekeeper = new Gatekeeper(server, tr, timer, traceFactory);
         myActionTimeout = 1000 *
             props.intProperty("conf.gatekeeper.actiontimeout",
                               DEFAULT_ACTION_TIMEOUT);
@@ -76,7 +85,7 @@ public class GatekeeperBoot implements Bootable {
                 serviceNames.add("gatekeeper-user");
             }
             return new GatekeeperActorFactory(myGatekeeper, auth, allowAdmin,
-                                              allowUser, myActionTimeout, tr);
+                                              allowUser, myActionTimeout, tr, timer, traceFactory);
         }
     }
 }

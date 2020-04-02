@@ -1,9 +1,10 @@
 package org.elkoserver.foundation.server;
 
-import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.net.NetAddr;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.io.IOException;
 
@@ -14,26 +15,25 @@ abstract class BaseConnectionSetup implements ConnectionSetup {
     final String propRoot;
     private final Trace trServer;
     private final Trace tr;
+    protected TraceFactory traceFactory;
     final String bind;
     final Trace msgTrace;
 
-    BaseConnectionSetup(String label, String host, AuthDesc auth, boolean secure, BootProperties props, String propRoot, Trace trServer, Trace tr) {
+    BaseConnectionSetup(String label, String host, AuthDesc auth, boolean secure, ElkoProperties props, String propRoot, Trace trServer, Trace tr, TraceFactory traceFactory) {
         this.host = host;
         this.auth = auth;
         this.secure = secure;
         this.propRoot = propRoot;
         this.trServer = trServer;
         this.tr = tr;
+        this.traceFactory = traceFactory;
 
         bind = props.getProperty(propRoot + ".bind", host);
 
-        boolean dontLog = props.testProperty(propRoot + ".dontlog");
-        if (dontLog) {
-            msgTrace = Trace.none;
-        } else if (label != null) {
-            msgTrace = Trace.comm.subTrace(label);
+        if (label != null) {
+            msgTrace = traceFactory.comm.subTrace(label);
         } else {
-            msgTrace = Trace.comm.subTrace("cli");
+            msgTrace = traceFactory.comm.subTrace("cli");
         }
     }
 

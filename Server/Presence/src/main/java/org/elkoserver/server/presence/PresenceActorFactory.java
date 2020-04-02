@@ -6,6 +6,7 @@ import org.elkoserver.foundation.net.MessageHandler;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * MessageHandlerFactory class to create actors for new connections to a
@@ -26,6 +27,7 @@ class PresenceActorFactory implements MessageHandlerFactory {
 
     /** Trace object for diagnostics. */
     private Trace tr;
+    private final TraceFactory traceFactory;
 
     /**
      * Constructor.
@@ -37,13 +39,14 @@ class PresenceActorFactory implements MessageHandlerFactory {
      * @param appTrace  Trace object for diagnostics.
      */
     PresenceActorFactory(PresenceServer presenceServer, AuthDesc auth,
-        boolean allowAdmin, boolean allowClient, Trace appTrace)
+        boolean allowAdmin, boolean allowClient, Trace appTrace, TraceFactory traceFactory)
     {
         myPresenceServer = presenceServer;
         myAuth = auth;
         amAllowAdmin = allowAdmin;
         amAllowClient = allowClient;
         tr = appTrace;
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -79,7 +82,7 @@ class PresenceActorFactory implements MessageHandlerFactory {
      * @param connection  The new connection.
      */
     public MessageHandler provideMessageHandler(Connection connection) {
-        return new PresenceActor(connection, this, tr);
+        return new PresenceActor(connection, this, tr, traceFactory);
     }
 
     /**

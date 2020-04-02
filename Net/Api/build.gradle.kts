@@ -8,7 +8,6 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
     implementation(project(":ByteIoFramer:Api"))
     implementation(project(":ByteIoFramer:Json"))
     implementation(project(":ByteIoFramer:Http"))
@@ -16,6 +15,7 @@ dependencies {
     implementation(project(":ByteIoFramer:WebSocket"))
     implementation(project(":Json"))
     implementation(project(":JsonMessageHandling"))
+    implementation(project(":Properties"))
     implementation(project(":Running"))
     implementation(project(":ScalableSsl"))
     implementation(project(":ServerMetadata"))

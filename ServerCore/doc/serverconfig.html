@@ -105,14 +105,6 @@ or <code>"http"</code>.
 </tr>
 
 <tr valign="top">
-<td><i>flg</i></td>
-<td class="gap"><code>.dontlog</code></td>
-<td class="gap">If <code>true</code>, don't include message traffic to and from
-this host in the server's log, even if message logging is turned on in general.
-</td>
-</tr>
-
-<tr valign="top">
 <td><i>int</i></td>
 <td class="gap"><code>.retry</code></td>
 <td class="gap">Certain kinds of host connections (such as connections to a
@@ -518,14 +510,6 @@ port. Defaults to <code>false</code>.
 </tr>
 
 <tr valign="top">
-<td><i>flg</i></td>
-<td class="gap"><code>.dontlog</code></td>
-<td class="gap">If <code>true</code>, don't include message traffic to and from
-connections made to this port, even if message logging is turned on in general.
-</td>
-</tr>
-
-<tr valign="top">
 <td><i>str</i></td>
 <td class="gap"><code>.root</code></td>
 <td class="gap">URL root for HTTP tunneling.</td>
@@ -595,10 +579,10 @@ in which case incrementing integers will be used instead.
 
 <tr valign="top">
 <td><i>str</i></td>
-<td class="gap"><code>tracelog_backups</code></td>
-<td class="gap">Sets the behavior with respect to log file rollover
-("backups").  If set to <code>"one"</code> or <code>"1"</code>, at most one
-rollover backup will be kept.  If set to <code>"many"</code> (the default),
+<td class="gap"><code>tracelog_rollover</code></td>
+<td class="gap">Sets the behavior with respect to log file rollover.  If
+set to <code>"one"</code> or <code>"1"</code>, at most one rollover
+backup will be kept.  If set to <code>"many"</code> (the default),
 backups will simply accumulate.
 </td>
 </tr>

@@ -1,5 +1,7 @@
 package org.elkoserver.foundation.timer;
 
+import java.time.Clock;
+
 /**
  * An entry in the timer event queue.
  */
@@ -11,10 +13,10 @@ class TimerQEntry implements Comparable<TimerQEntry>
     TimerWatcher myTarget;
     TimerQEntry myNext;
 
-    TimerQEntry(boolean repeat, long delta, TimerWatcher target) {
+    TimerQEntry(boolean repeat, long delta, TimerWatcher target, Clock clock) {
         myRepeat = repeat;
         myDelta = delta;
-        myWhen = TimerThread.queryTimerMillis() + delta;
+        myWhen = clock.millis() + delta;
         myTarget = target;
         myNext = null;
     }

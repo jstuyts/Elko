@@ -8,6 +8,7 @@ import org.elkoserver.foundation.actor.RoutingActor;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Actor for a connection to an external service.
@@ -38,9 +39,9 @@ public class ServiceActor extends RoutingActor
      * @param server  The server we are calling from
      */
     ServiceActor(Connection connection, RefTable refTable, ServiceDesc desc,
-                 Server server)
+                 Server server, TraceFactory traceFactory)
     {
-        super(connection, refTable);
+        super(connection, refTable, traceFactory);
         myServiceLinks = new LinkedList<>();
         myServer = server;
         send(msgAuth("workshop", desc.auth(), server.serverName()));

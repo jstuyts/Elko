@@ -1,6 +1,6 @@
 package org.elkoserver.objdb.store;
 
-import org.elkoserver.foundation.boot.BootProperties;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.util.trace.Trace;
 
 /**
@@ -22,7 +22,7 @@ public interface ObjectStore {
      * @param propRoot  Prefix string for selecting relevant properties.
      * @param trace  Trace object for use in logging.
      */
-    void initialize(BootProperties props, String propRoot, Trace trace);
+    void initialize(ElkoProperties props, String propRoot, Trace trace);
 
     /**
      * Service a 'get' request.  This is a request to retrieve one or more

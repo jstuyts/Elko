@@ -13,6 +13,7 @@ dependencies {
     implementation(project(":ByteIoFramer:Json"))
     implementation(project(":Json"))
     implementation(project(":Trace"))
+    implementation(project(":Util"))
     implementation(Libraries.commons_codec)
 }
 

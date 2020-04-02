@@ -5,13 +5,15 @@ import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.AdminObject;
 import org.elkoserver.server.context.InternalActor;
+import org.elkoserver.util.trace.TraceFactory;
 
 class TestInternalObject extends AdminObject {
     /**
      * JSON-driven constructor.
      */
     @JSONMethod
-    public TestInternalObject() {
+    public TestInternalObject(TraceFactory traceFactory) {
+        super(traceFactory);
     }
 
     @JSONMethod({ "arg" })

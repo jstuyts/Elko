@@ -12,6 +12,7 @@ import org.elkoserver.objdb.store.QueryDesc;
 import org.elkoserver.objdb.store.UpdateDesc;
 import org.elkoserver.objdb.store.RequestDesc;
 import org.elkoserver.objdb.store.ResultDesc;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Singleton handler for the repository 'rep' protocol.
@@ -26,17 +27,14 @@ import org.elkoserver.objdb.store.ResultDesc;
  *   'remove' - Requests the deletion of an object from the object store.
  */
 class RepHandler extends BasicProtocolHandler {
-    /** The repostory server proper. */
-    private Repository myRepository;
-
     /** Local object store module. */
     private ObjectStore myObjectStore;
 
     /**
      * Constructor.
      */
-    RepHandler(Repository repository) {
-        myRepository = repository;
+    RepHandler(Repository repository, TraceFactory traceFactory) {
+        super(traceFactory);
         myObjectStore = repository.objectStore();
     }
 
@@ -69,7 +67,7 @@ class RepHandler extends BasicProtocolHandler {
     /**
      * Handle the 'put' verb.
      *
-     * Request data be saved in persistant storage.
+     * Request data be saved in persistent storage.
      *
      * @param from  The connection asking for the write.
      * @param tag  Client tag for matching replies.
@@ -85,7 +83,7 @@ class RepHandler extends BasicProtocolHandler {
     /**
      * Handle the 'update' verb.
      *
-     * Request data be saved in persistant storage if it hasn't changed.
+     * Request data be saved in persistent storage if it hasn't changed.
      *
      * @param from  The connection asking for the write.
      * @param tag  Client tag for matching replies.

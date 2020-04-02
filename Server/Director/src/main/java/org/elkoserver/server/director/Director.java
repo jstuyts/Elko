@@ -18,6 +18,7 @@ import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.HashSetMulti;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Main state data structure in a Director.
@@ -79,19 +80,19 @@ class Director {
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    Director(Server server, Trace appTrace) {
+    Director(Server server, Trace appTrace, TraceFactory traceFactory) {
         myServer = server;
         tr = appTrace;
 
-        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
+        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory);
 
-        myProviderHandler = new ProviderHandler(this);
+        myProviderHandler = new ProviderHandler(this, traceFactory);
         myRefTable.addRef(myProviderHandler);
         myRefTable.addRef("session", myProviderHandler);
 
-        myRefTable.addRef(new UserHandler(this));
+        myRefTable.addRef(new UserHandler(this, traceFactory));
 
-        myAdminHandler = new AdminHandler(this);
+        myAdminHandler = new AdminHandler(this, traceFactory);
         myRefTable.addRef(myAdminHandler);
 
         myContexts = new HashMap<>();

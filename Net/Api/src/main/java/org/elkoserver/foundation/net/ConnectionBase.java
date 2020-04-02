@@ -2,6 +2,9 @@ package org.elkoserver.foundation.net;
 
 import org.elkoserver.foundation.run.Runner;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
+
+import java.time.Clock;
 
 /**
  * Base class providing common internals implementation for various types of
@@ -25,13 +28,17 @@ public abstract class ConnectionBase implements Connection {
 
     /** System load tracker. */
     private LoadMonitor myLoadMonitor;
+    protected Clock clock;
+    protected TraceFactory traceFactory;
 
     /**
      * Constructor.
      *
      * @param mgr  Network manager for this server.
      */
-    protected ConnectionBase(NetworkManager mgr) {
+    protected ConnectionBase(NetworkManager mgr, Clock clock, TraceFactory traceFactory) {
+        this.clock = clock;
+        this.traceFactory = traceFactory;
         myMessageHandler = null;
         myRunner = mgr.runner();
         myLoadMonitor = mgr.loadMonitor();
@@ -45,13 +52,13 @@ public abstract class ConnectionBase implements Connection {
      */
     protected void connectionDied(Throwable reason) {
         if (myMessageHandler != null) {
-            if (Trace.comm.debug && Trace.ON) {
-                Trace.comm.debugm(this + " calls connectionDied in " +
+            if (traceFactory.comm.getDebug() && Trace.ON) {
+                traceFactory.comm.debugm(this + " calls connectionDied in " +
                                   myMessageHandler);
             }
             myMessageHandler.connectionDied(this, reason);
         } else {
-            Trace.comm.debugm(this +
+            traceFactory.comm.debugm(this +
                 " ignores connection death while message handler is null");
         }
     }
@@ -87,25 +94,25 @@ public abstract class ConnectionBase implements Connection {
         MessageHandlerThunk(Object message) {
             myMessage = message;
             if (myLoadMonitor != null) {
-                myOnQueueTime = System.currentTimeMillis();
+                myOnQueueTime = clock.millis();
             }
         }
         
         public void run() {
             if (myMessageHandler != null) {
-                if (Trace.comm.verbose && Trace.ON) {
-                    Trace.comm.verbosem(ConnectionBase.this +
+                if (traceFactory.comm.getVerbose() && Trace.ON) {
+                    traceFactory.comm.verbosem(ConnectionBase.this +
                         " calls processMessage in " + myMessageHandler);
                 }
                 myMessageHandler.processMessage(ConnectionBase.this,
                                                 myMessage);
             } else {
-                Trace.comm.verbosem(ConnectionBase.this +
+                traceFactory.comm.verbosem(ConnectionBase.this +
                     " ignores message received while message handler is null");
             }
             if (myLoadMonitor != null) {
                 myLoadMonitor.addTime(
-                    System.currentTimeMillis() - myOnQueueTime);
+                    clock.millis() - myOnQueueTime);
             }
         }
     }
@@ -131,8 +138,8 @@ public abstract class ConnectionBase implements Connection {
             myMessageHandler =
                 myHandlerFactory.provideMessageHandler(ConnectionBase.this);
             if (myMessageHandler == null) {
-                if (Trace.comm.debug && Trace.ON) {
-                    Trace.comm.debugm(this + " connection setup failed");
+                if (traceFactory.comm.getDebug() && Trace.ON) {
+                    traceFactory.comm.debugm(this + " connection setup failed");
                 }
                 close();
             }

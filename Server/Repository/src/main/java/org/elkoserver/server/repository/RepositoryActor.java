@@ -7,6 +7,7 @@ import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Actor for a connection to a repository.  An actor may be associated with
@@ -44,9 +45,9 @@ class RepositoryActor extends RoutingActor implements BasicProtocolActor
      * @param appTrace  Trace object for diagnostics.
      */
     RepositoryActor(Connection connection, RepositoryActorFactory factory,
-                    Trace appTrace)
+                    Trace appTrace, TraceFactory traceFactory)
     {
-        super(connection, factory.refTable());
+        super(connection, factory.refTable(), traceFactory);
         tr = appTrace;
         myFactory = factory;
         myRepository = factory.repository();

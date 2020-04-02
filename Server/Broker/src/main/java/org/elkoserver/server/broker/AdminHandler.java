@@ -10,6 +10,8 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.json.Referenceable;
+import org.elkoserver.util.trace.TraceFactory;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -51,7 +53,8 @@ class AdminHandler extends BasicProtocolHandler {
      *
      * @param broker  The broker object for this handler.
      */
-    AdminHandler(Broker broker) {
+    AdminHandler(Broker broker, TraceFactory traceFactory) {
+        super(traceFactory);
         myBroker = broker;
     }
 

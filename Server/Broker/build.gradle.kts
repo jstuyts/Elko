@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":JsonMessageHandling"))
     implementation(project(":Net:Api"))
     implementation(project(":ObjectDatabase:Api"))
+    implementation(project(":Properties"))
     implementation(project(":ServerCore"))
     implementation(project(":ServerMetadata"))
     implementation(project(":Timer"))

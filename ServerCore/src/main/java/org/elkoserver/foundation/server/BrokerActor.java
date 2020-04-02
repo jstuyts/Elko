@@ -12,7 +12,7 @@ import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Actor representing a server's connection to its farm's broker.
@@ -34,9 +34,9 @@ class BrokerActor extends NonRoutingActor
      * @param host  The broker's host address.
      */
     BrokerActor(Connection connection, MessageDispatcher dispatcher,
-                Server server, HostDesc host)
+                Server server, HostDesc host, TraceFactory traceFactory)
     {
-        super(connection, dispatcher);
+        super(connection, dispatcher, traceFactory);
         myServer = server;
         send(msgAuth(this, host.auth(), myServer.serverName()));
         send(msgWillserve(this, myServer.services()));
@@ -52,7 +52,7 @@ class BrokerActor extends NonRoutingActor
      * @param reason  Exception explaining why.
      */
     public void connectionDied(Connection connection, Throwable reason) {
-        Trace.comm.eventm("lost broker connection " + connection + ": " +
+        traceFactory.comm.eventm("lost broker connection " + connection + ": " +
                           reason);
         myServer.unregisterLoadWatcher(myLoadWatcher);
         myServer.brokerConnected(null);
@@ -66,7 +66,7 @@ class BrokerActor extends NonRoutingActor
      * @param tag  Optional tag to match response with the request.
      */
     void findService(String service, boolean monitor, String tag) {
-        send(msgFind(this, service, -1, monitor, tag));
+        send(msgFind(this, service, monitor, tag));
     }
 
     /**
@@ -124,26 +124,20 @@ class BrokerActor extends NonRoutingActor
 
     /**
      * Create a 'find' message: ask the broker to look up service information.
-     *
-     * @param target  Object the message is being sent to.
+     *  @param target  Object the message is being sent to.
      * @param service  The service being requested.
-     * @param wait  How long broker should wait, if the service is not
-     *    immediately known to it, for the service to become available, before
-     *    failing the request (0 ==> wait forever, -1 ==> don't wait at all).
      * @param monitor  If true, broker should keep watching for additional
-     *    matches for the requested service.
+ *    matches for the requested service.
      * @param tag  Optional tag to match response with the request.
      */
     private static JSONLiteral msgFind(Referenceable target, String service,
-                                       int wait, boolean monitor, String tag)
+                                       boolean monitor, String tag)
     {
         JSONLiteral msg = new JSONLiteral(target, "find");
         msg.addParameter("service", service);
-        if (wait != 0) {
-            msg.addParameter("wait", wait);
-        }
+        msg.addParameter("wait", -1);
         if (monitor) {
-            msg.addParameter("monitor", monitor);
+            msg.addParameter("monitor", true);
         }
         msg.addParameterOpt("tag", tag);
         msg.finish();

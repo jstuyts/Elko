@@ -3,7 +3,9 @@ package org.elkoserver.server.context;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.net.MessageHandler;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * MessageHandlerFactory class to associate new Users with new Connections.
@@ -20,6 +22,8 @@ class UserActorFactory implements MessageHandlerFactory {
 
     /** Trace object for diagnostics. */
     private Trace tr;
+    private final Timer timer;
+    private final TraceFactory traceFactory;
 
     /**
      * Constructor.
@@ -31,12 +35,14 @@ class UserActorFactory implements MessageHandlerFactory {
      * @param appTrace  Trace object for diagnostics.
      */
     UserActorFactory(Contextor contextor, boolean authRequired,
-                     String protocol, Trace appTrace)
+                     String protocol, Trace appTrace, Timer timer, TraceFactory traceFactory)
     {
         myContextor = contextor;
         amAuthRequired = authRequired;
         myProtocol = protocol;
         tr = appTrace;
+        this.timer = timer;
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -46,6 +52,6 @@ class UserActorFactory implements MessageHandlerFactory {
      */
     public MessageHandler provideMessageHandler(Connection connection) {
         return new UserActor(connection, myContextor, amAuthRequired,
-                             myProtocol, tr);
+                             myProtocol, tr, timer, traceFactory);
     }
 }

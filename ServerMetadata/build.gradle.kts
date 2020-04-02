@@ -8,9 +8,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
     implementation(project(":Json"))
     implementation(project(":JsonMessageHandling"))
+    implementation(project(":Properties"))
     implementation(project(":Trace"))
     implementation(project(":Util"))
 }

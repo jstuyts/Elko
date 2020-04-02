@@ -12,7 +12,7 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.util.trace.Trace;
-import org.elkoserver.util.trace.TraceController;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Singleton administrative object for entering and exiting contexts.
@@ -39,10 +39,10 @@ class Session extends BasicProtocolHandler {
      *
      * @param contextor  The contextor for this session.
      */
-    Session(Contextor contextor, Server server) {
+    Session(Contextor contextor, Server server, TraceFactory traceFactory) {
+        super(traceFactory);
         myContextor = contextor;
-        myLogger = Trace.trace("clientlogger");
-        TraceController.setProperty("trace_clientlogger", "EVENT");
+        myLogger = traceFactory.trace("clientlogger");
         myServer = server;
     }
 
@@ -87,27 +87,34 @@ class Session extends BasicProtocolHandler {
         if (password == null || password.equals(testPassword.value(null))) {
             JSONLiteral reply = new JSONLiteral("session", "dump");
             reply.addParameter("what", what);
-            if (what.equals("contexts")) {
-                JSONLiteralArray list = new JSONLiteralArray();
-                for (Context ctx : myContextor.contexts()) {
-                    list.addElement(ctx.ref());
-                }
-                list.finish();
-                reply.addParameter("contexts", list);
-            } else if (what.equals("users")) {
-                JSONLiteralArray list = new JSONLiteralArray();
-                for (User user : myContextor.users()) {
-                    if (contextRef == null ||
-                            user.context().ref().equals(contextRef)) {
-                        list.addElement(user.ref());
+            switch (what) {
+                case "contexts": {
+                    JSONLiteralArray list = new JSONLiteralArray();
+                    for (Context ctx : myContextor.contexts()) {
+                        list.addElement(ctx.ref());
                     }
+                    list.finish();
+                    reply.addParameter("contexts", list);
+                    break;
                 }
-                list.finish();
-                reply.addParameter("users", list);
-            } else if (what.equals("items")) {
-                // dump items in 'context' or all items
-            } else {
-                reply.addParameter("error", "unknown 'what' value: " + what);
+                case "users": {
+                    JSONLiteralArray list = new JSONLiteralArray();
+                    for (User user : myContextor.users()) {
+                        if (contextRef == null ||
+                                user.context().ref().equals(contextRef)) {
+                            list.addElement(user.ref());
+                        }
+                    }
+                    list.finish();
+                    reply.addParameter("users", list);
+                    break;
+                }
+                case "items":
+                    // dump items in 'context' or all items
+                    break;
+                default:
+                    reply.addParameter("error", "unknown 'what' value: " + what);
+                    break;
             }
             reply.finish();
             from.send(reply);
@@ -174,9 +181,7 @@ class Session extends BasicProtocolHandler {
      */
     @JSONMethod({ "password", "kill" })
     public void shutdown(Deliverer from, OptString testPassword,
-                         OptBoolean kill)
-        throws MessageHandlerException
-    {
+                         OptBoolean kill) {
         User fromUser = null;
         if (from instanceof User) {
             fromUser = (User) from;

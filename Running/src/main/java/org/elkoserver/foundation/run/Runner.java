@@ -1,9 +1,9 @@
 package org.elkoserver.foundation.run;
 
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.concurrent.Callable;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 /**
  * Runs when it can, but never on empty.  A thread services a queue
@@ -11,7 +11,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
  */
 public class Runner implements Runnable {
 
-    private static Trace tr = Trace.trace("runner");
+    private final Trace tr;
 
     /**
      * Number of Runners currently in operation.  When this goes to 0, it is
@@ -34,13 +34,6 @@ public class Runner implements Runnable {
      * Note that Queue is a thread-safe data structure with its own lock.
      */
     private Queue<Runnable> myQ;
-
-    /**
-     * If we ever go orthogonal again, myThread must not be
-     * checkpointed.  Ie, it must be a DISALLOWED_FIELD or 'transient'
-     * or something.
-     */
-    private RunnerThread myThread;
 
     /**
      * Normally, myWorker == myThread.
@@ -81,8 +74,8 @@ public class Runner implements Runnable {
      * Makes a Runner, and starts the thread that services its queue.
      * The name of the thread will be "Elko RunQueue".
      */
-    private Runner() {
-        this("Elko RunQueue");
+    private Runner(TraceFactory traceFactory) {
+        this("Elko RunQueue", traceFactory);
     }
 
     /**
@@ -90,24 +83,25 @@ public class Runner implements Runnable {
      *
      * @param name is the name to give to the thread created.
      */
-    public Runner(String name) {
+    public Runner(String name, TraceFactory traceFactory) {
+        tr = traceFactory.trace("runner");
         ++theRunnerCount;
         myQ = new Queue<>();
-        myWorker = myThread = new RunnerThread(this, name);
-        myThread.start();
+        myWorker = new RunnerThread(this, name);
+        myWorker.start();
     }
     
     /**
      * If called from within a thread servicing a Runner, returns that
      * Runner.  Otherwise, returns the default Runner.
      */
-    public static Runner currentRunner() {
+    public static Runner currentRunner(TraceFactory traceFactory) {
         Thread t = Thread.currentThread();
         if (t instanceof RunnerThread) {
             return (Runner) ((RunnerThread) t).myRunnable;
         } else {
             if (theDefaultRunner == null) {
-                theDefaultRunner = new Runner();
+                theDefaultRunner = new Runner(traceFactory);
             }
             return theDefaultRunner;
         }
@@ -229,7 +223,7 @@ public class Runner implements Runnable {
                     if (myQ.hasMoreElements()) {
                         continue;
                     }
-                    if (tr.debug && Trace.ON) {
+                    if (tr.getDebug() && Trace.ON) {
                         tr.debugm
                           ("RunQ empty after " + msgCount +
                            " messages.  sleeping now.");
@@ -254,7 +248,7 @@ public class Runner implements Runnable {
                 }
                 return;
             } catch (Throwable t) {
-                if (tr.error) {
+                if (tr.getError()) {
                     tr.errorReportException(t,
                         "Exception made it all the way out of the run " +
                         "loop.  Restarting it.");

@@ -1,29 +1,40 @@
 package org.elkoserver.foundation.timer;
 
+import java.time.Clock;
 import java.util.TreeMap;
-import org.elkoserver.util.trace.ExceptionManager;
+
+import org.elkoserver.util.trace.exceptionreporting.ExceptionReporter;
+import org.elkoserver.util.trace.TraceFactory;
+import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.trace.TraceExceptionNoticer;
 
 /**
  * Thread to handle timeouts and clocks.
  */
-class TimerThread extends Thread
-{
-    /** Collection of pending timer events, sorted by time */
+class TimerThread extends Thread {
+    private final ExceptionReporter exceptionReporter;
+    /**
+     * Collection of pending timer events, sorted by time
+     */
     private TreeMap<TimerQEntry, TimerQEntry> myEvents;
 
-    /** Flag to control execution */
+    /**
+     * Flag to control execution
+     */
     private boolean myRunning;
 
     private static final int FUDGE = 5; /* Get > 5 repeating timeouts */
+    private final Clock clock;
 
     /**
      * Package level constructor
      */
-    TimerThread() {
+    TimerThread(TraceFactory traceFactory, Clock clock) {
         super("Elko Timer");
+        this.clock = clock;
         setPriority(MAX_PRIORITY);
         myEvents = new TreeMap<>();
         myRunning = true;
+        exceptionReporter = new ExceptionReporter(new TraceExceptionNoticer(traceFactory.getException()));
     }
 
     boolean cancelTimeout(TimerQEntry event) {
@@ -63,8 +74,8 @@ class TimerThread extends Thread
     /**
      * Return the current clock time, in milliseconds
      */
-    static long queryTimerMillis() {
-        return System.currentTimeMillis();
+    long queryTimerMillis() {
+        return clock.millis();
     }
 
     /**
@@ -130,11 +141,11 @@ class TimerThread extends Thread
             notifies = notifies.myNext;
             if (entry.myRepeat) {
                 entry.myWhen = entry.myWhen + entry.myDelta;
-                if ((entry.myWhen + (entry.myDelta*FUDGE)) < now) {
+                if ((entry.myWhen + (entry.myDelta * FUDGE)) < now) {
                     /* Round up in increments of entry.myDelta to maintain
                        timebase, but myDelta from "now" being rounded
                        up to the timebase */
-                    long dist = (now-entry.myWhen) + entry.myDelta;
+                    long dist = (now - entry.myWhen) + entry.myDelta;
                     dist = (dist / entry.myDelta) * entry.myDelta;
                     entry.myWhen = entry.myWhen + dist;
                 }
@@ -144,7 +155,7 @@ class TimerThread extends Thread
             try {
                 target.handleTimeout();
             } catch (Exception e) {
-                ExceptionManager.reportException(e);
+                exceptionReporter.reportException(e);
             }
         }
     }
@@ -154,12 +165,12 @@ class TimerThread extends Thread
      *
      * @param millis Distance into the future for event to happen
      * @param repeat true=>repeat the even every 'millis'; false=>timeout
-     *   once only
-     * @param target  Object which will handle the timeout event when it occurs
+     *               once only
+     * @param target Object which will handle the timeout event when it occurs
      */
     void setTimeout(boolean repeat, long millis, TimerWatcher target) {
         synchronized (this) {
-            TimerQEntry entry = new TimerQEntry(repeat, millis, target);
+            TimerQEntry entry = new TimerQEntry(repeat, millis, target, clock);
             insertEntry(entry);
             target.setEvent(entry);
             if (myEvents.firstKey() == entry) {
@@ -182,13 +193,13 @@ class TimerThread extends Thread
      * Wake up the sleeping runloop.
      */
     private void wakeup() {
-        synchronized (this) {
-            try {
+        try {
+            synchronized (this) {
                 notify();
-            } catch (Throwable t) {
-                ExceptionManager.reportException(t,
-                    "TimerThread.wakeup() caught exception on notify");
             }
+        } catch (Throwable t) {
+            exceptionReporter.reportException(t,
+                    "TimerThread.wakeup() caught exception on notify");
         }
     }
 }

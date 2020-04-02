@@ -39,9 +39,6 @@ Meta symbols:
                        "http". }
     --- <AuthSpec>:  { The authorization parameters required to connect to this
                        host. }
-    flg ".dontlog"   { If true, don't include message traffic to and from this
-                       host in the server's log, even if message logging is
-                       turned on in general. }
     int ".retry"     { Certain kinds of host connections (such as connections
                        to a broker) will be repeatedly retried if the initial
                        connection attempt fails. This property sets the retry
@@ -232,9 +229,6 @@ General properties (used in all or most servers):
                          Server, which only accepts one sort of connection. }
       flg ".secure"    { If true, listen for an SSL connection on this
                          port. Defaults to false. }
-      flg ".dontlog"   { If true, don't include message traffic to and from
-                         connections made to this port, even if message logging
-                         is turned on in general. }
       str ".root"      { URL root for HTTP tunneling. }
       str ".domain"    { Domain setting to be used on http connections to
                          bypass browser 'same site' restrictions. }
@@ -256,11 +250,11 @@ Trace control properties (used everywhere):
                                 the tag string with a date string, unless
                                 "tracelog_name" has been set, in which case
                                 incrementing integers will be used instead. }
-  str "tracelog_backups"      { Sets the behavior with respect to log file
-                                rollover ('backups').  If set to "one" or "1",
-                                at most one rollover backup will be kept.  If
-                                set to "many" (the default), backups will
-                                simply accumulate. }
+  str "tracelog_rollover"     { Sets the behavior with respect to log file
+                                rollover.  If set to "one" or "1", at most one
+                                rollover backup will be kept.  If set to
+                                "many" (the default), backups will simply
+                                accumulate. }
 
   str "trace_" + <Subsystem>  { Sets the tracing level for a given
                                 subsystem. This is the level of severity
@@ -272,11 +266,9 @@ Trace control properties (used everywhere):
   where:
     <Subsystem> is one of the currently recognized subsystems:
       "comm"    = network communications subsystem
-      "msgs"    = JSON message handling subsystem
-      "runq"    = event run queue subsystem
+      "exception"    = event run queue subsystem
       "startup" = server initialization subsystem
       "timers"  = timer events subsystem
-      "trace"   = trace subsystem
       "brok"    = Broker application
       "cont"    = Context Server application
       "dire"    = Director application

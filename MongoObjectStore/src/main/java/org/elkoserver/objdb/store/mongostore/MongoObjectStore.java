@@ -7,7 +7,7 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
-import org.elkoserver.foundation.boot.BootProperties;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.json.JSONArray;
 import org.elkoserver.json.JSONDecodingException;
 import org.elkoserver.json.JSONObject;
@@ -68,7 +68,7 @@ public class MongoObjectStore implements ObjectStore {
      * @param propRoot  Prefix string for selecting relevant properties.
      * @param appTrace  Trace object for use in logging.
      */
-    public void initialize(BootProperties props, String propRoot,
+    public void initialize(ElkoProperties props, String propRoot,
                            Trace appTrace)
     {
         /* Trace object for diagnostics. */

@@ -1,6 +1,7 @@
 package org.elkoserver.server.context;
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Abstract base class for internal objects that want to be addressable in
@@ -11,6 +12,10 @@ public abstract class AdminObject
     extends BasicProtocolHandler
     implements InternalObject
 {
+    public AdminObject(TraceFactory traceFactory) {
+        super(traceFactory);
+    }
+
     /** The contextor for this server. */
     private Contextor myContextor;
 

@@ -8,6 +8,8 @@ import org.elkoserver.json.Encodable;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 
+import java.util.Objects;
+
 /**
  * Description of a (possibly) registered service.
  */
@@ -55,11 +57,7 @@ public class ServiceDesc implements Encodable {
         myHostport = hostport;
         myProtocol = protocol;
         myLabel = label;
-        if (auth == null) {
-            myAuth = AuthDesc.theOpenAuth;
-        } else {
-            myAuth = auth;
-        }
+        myAuth = Objects.requireNonNullElse(auth, AuthDesc.theOpenAuth);
         myFailure = failure;
         myProviderID = providerID;
     }
@@ -106,8 +104,7 @@ public class ServiceDesc implements Encodable {
      * @return a HostDesc for this service's host.
      */
     public HostDesc asHostDesc(int retryInterval) {
-        return new HostDesc(myProtocol, false, myHostport, myAuth,
-                            retryInterval, false);
+        return new HostDesc(myProtocol, false, myHostport, myAuth, retryInterval);
     }
 
     /**

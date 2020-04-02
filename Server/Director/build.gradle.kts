@@ -13,8 +13,10 @@ dependencies {
     implementation(project(":Json"))
     implementation(project(":JsonMessageHandling"))
     implementation(project(":Net:Api"))
+    implementation(project(":Properties"))
     implementation(project(":ServerCore"))
     implementation(project(":ServerMetadata"))
+    implementation(project(":Timer"))
     implementation(project(":Trace"))
     implementation(project(":Util"))
 }

@@ -5,10 +5,11 @@ import org.elkoserver.foundation.net.MessageHandlerFactory;
 import org.elkoserver.foundation.net.NetAddr;
 import org.elkoserver.foundation.net.NetworkManager;
 import org.elkoserver.foundation.run.Queue;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 import org.zeromq.SocketType;
 import org.zeromq.ZMQ;
 import java.io.IOException;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,7 +22,8 @@ class ZeroMQThread extends Thread {
     
     /** Network manager for this server */
     private NetworkManager myNetworkManager;
-    
+    private TraceFactory traceFactory;
+
     /** ZeroMQ context for all operations. */
     private ZMQ.Context myContext;
     
@@ -45,15 +47,18 @@ class ZeroMQThread extends Thread {
 
     /** Open connections, by socket. */
     private Map<ZMQ.Socket, ZeroMQConnection> myConnections;
+    private final Clock clock;
 
     /**
      * Constructor.
      *
      * @param mgr  Network manager for this server.
      */
-    ZeroMQThread(NetworkManager mgr) {
+    ZeroMQThread(NetworkManager mgr, TraceFactory traceFactory, Clock clock) {
         super("Elko ZeroMQ");
         myNetworkManager = mgr;
+        this.traceFactory = traceFactory;
+        this.clock = clock;
         myQueue = new Queue<>();
         myConnections = new HashMap<>();
         myContext = ZMQ.context(1);
@@ -73,8 +78,8 @@ class ZeroMQThread extends Thread {
      * acting upon them, and for polling the currently open set of sockets.
      */
     public void run() {
-        if (Trace.comm.debug) {
-            Trace.comm.debugm("ZMQ thread running");
+        if (traceFactory.comm.getDebug()) {
+            traceFactory.comm.debugm("ZMQ thread running");
         }
         while (true) {
             try {
@@ -86,7 +91,7 @@ class ZeroMQThread extends Thread {
                         Thunk thunk = (Thunk) workToDo;
                         thunk.run();
                     } else {
-                        Trace.comm.errorm("non-Thunk on ZMQ queue: " +
+                        traceFactory.comm.errorm("non-Thunk on ZMQ queue: " +
                                           workToDo);
                     }
                     workToDo = myQueue.optDequeue();
@@ -106,8 +111,8 @@ class ZeroMQThread extends Thread {
                             ++actualCount;
                             ZeroMQConnection connection =
                                 myConnections.get(myPoller.getSocket(i));
-                            if (Trace.comm.debug) {
-                                Trace.comm.debugm("poll has error for " +
+                            if (traceFactory.comm.getDebug()) {
+                                traceFactory.comm.debugm("poll has error for " +
                                                   connection);
                             }
                             connection.doError();
@@ -115,8 +120,8 @@ class ZeroMQThread extends Thread {
                             ++actualCount;
                             ZeroMQConnection connection =
                                 myConnections.get(myPoller.getSocket(i));
-                            if (Trace.comm.debug) {
-                                Trace.comm.debugm("poll has read for " +
+                            if (traceFactory.comm.getDebug()) {
+                                traceFactory.comm.debugm("poll has read for " +
                                                   connection);
                             }
                             connection.doRead();
@@ -125,21 +130,21 @@ class ZeroMQThread extends Thread {
                             ZeroMQConnection connection =
                                 myConnections.get(myPoller.getSocket(i));
                             connection.wakeupThreadForWrite();
-                            if (Trace.comm.debug) {
-                                Trace.comm.debugm("poll has write for " +
+                            if (traceFactory.comm.getDebug()) {
+                                traceFactory.comm.debugm("poll has write for " +
                                                   connection);
                             }
                             connection.doWrite();
                         }
                     }
-                    if (Trace.comm.debug) {
-                        Trace.comm.debugm("ZMQ thread poll selects " +
+                    if (traceFactory.comm.getDebug()) {
+                        traceFactory.comm.debugm("ZMQ thread poll selects " +
                                           actualCount + "/" +
                                           selectedCount + " I/O sources");
                     }
                 }
             } catch (Throwable e) {
-                Trace.comm.errorm("polling loop failed", e);
+                traceFactory.comm.errorm("polling loop failed", e);
             }
         }
     }
@@ -197,7 +202,7 @@ class ZeroMQThread extends Thread {
                 NetAddr parsedAddr = new NetAddr(remoteAddr.substring(4));
                 finalAddr = "tcp://*:" + parsedAddr.getPort();
             } catch (IOException e) {
-                Trace.comm.errorm("error setting up ZMQ connection with " +
+                traceFactory.comm.errorm("error setting up ZMQ connection with " +
                                   remoteAddr + ": " + e);
                 return;
             }
@@ -207,7 +212,7 @@ class ZeroMQThread extends Thread {
         }
 
         myQueue.enqueue((Thunk) () -> {
-            Trace.comm.eventm("connecting ZMQ to " + finalAddr);
+            traceFactory.comm.eventm("connecting ZMQ to " + finalAddr);
             ZMQ.Socket socket;
             if (push) {
                 socket = myContext.socket(SocketType.PUSH);
@@ -219,7 +224,7 @@ class ZeroMQThread extends Thread {
             ZeroMQConnection connection =
                 new ZeroMQConnection(handlerFactory, framerFactory,
                                      socket, true, ZeroMQThread.this,
-                                     myNetworkManager, finalAddr);
+                                     myNetworkManager, finalAddr, clock, traceFactory);
             myConnections.put(socket, connection);
         });
         wakeup();
@@ -232,7 +237,7 @@ class ZeroMQThread extends Thread {
      */
     void close(final ZeroMQConnection connection) {
         myQueue.enqueue((Thunk) () -> {
-            Trace.comm.eventm("closing ZMQ connection " + connection);
+            traceFactory.comm.eventm("closing ZMQ connection " + connection);
             ZMQ.Socket socket = connection.socket();
             unwatchSocket(socket);
             myConnections.remove(socket);
@@ -281,24 +286,24 @@ class ZeroMQThread extends Thread {
         myQueue.enqueue((Thunk) () -> {
             ZMQ.Socket socket;
             if (subscribe) {
-                Trace.comm.eventm("subscribing to ZMQ messages from " +
+                traceFactory.comm.eventm("subscribing to ZMQ messages from " +
                                   finalAddress);
                 socket = myContext.socket(SocketType.SUB);
                 socket.subscribe(UNIVERSAL_SUBSCRIPTION);
                 socket.connect(finalAddress);
             } else {
-                Trace.comm.eventm("pulling ZMQ messages at " +
+                traceFactory.comm.eventm("pulling ZMQ messages at " +
                                   finalAddress);
                 socket = myContext.socket(SocketType.PULL);
                 socket.bind(finalAddress);
             }
-            Trace.comm.eventm("ZMQ socket initialized");
+            traceFactory.comm.eventm("ZMQ socket initialized");
             ZeroMQConnection connection =
                 new ZeroMQConnection(handlerFactory, framerFactory,
                                      socket, false, ZeroMQThread.this,
-                                     myNetworkManager, "*");
+                                     myNetworkManager, "*", clock, traceFactory);
             myConnections.put(socket, connection);
-            Trace.comm.eventm("watching ZMQ socket");
+            traceFactory.comm.eventm("watching ZMQ socket");
             watchSocket(socket, ZMQ.Poller.POLLIN);
         });
         wakeup();

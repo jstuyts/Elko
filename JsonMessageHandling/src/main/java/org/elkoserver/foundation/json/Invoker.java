@@ -2,7 +2,7 @@ package org.elkoserver.foundation.json;
 
 import org.elkoserver.json.JSONArray;
 import org.elkoserver.json.JSONObject;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
@@ -26,6 +26,8 @@ abstract class Invoker {
     /** Parameter names, by position. */
     private String[] myParamNames;
 
+    protected final TraceFactory traceFactory;
+
     /** Parameter optionality flags, by position. */
     private boolean[] myParamOptFlags;
 
@@ -44,10 +46,11 @@ abstract class Invoker {
      * @throws JSONSetupError if the method breaks the rules for a JSON method.
      */
     Invoker(Member method, Class<?>[] paramTypes, String[] paramNames,
-            int firstIndex)
+            int firstIndex, TraceFactory traceFactory)
     {
         myParamTypes = paramTypes;
         myParamNames = paramNames;
+        this.traceFactory = traceFactory;
 
         ((AccessibleObject) method).setAccessible(true);
 
@@ -113,7 +116,7 @@ abstract class Invoker {
                 if (!paramName.equals("op") && !paramName.equals("to") &&
                         !paramName.equals("type") &&
                         !paramName.equals("ref") && !paramName.equals("_id")) {
-                    Trace.comm.warningm("ignored unknown parameter '" +
+                    traceFactory.comm.warningm("ignored unknown parameter '" +
                                         paramName + "'");
                 }
                 continue;
@@ -272,7 +275,7 @@ abstract class Invoker {
                 return value;
             } else {
                 return ObjectDecoder.decode(paramType, (JSONObject) value,
-                                            resolver);
+                                            resolver, traceFactory);
             }
         } else if (valueType == paramType) {
             return value;

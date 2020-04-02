@@ -6,6 +6,7 @@ import org.elkoserver.foundation.net.MessageHandler;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * MessageHandlerFactory class to create new actors for new connections to a
@@ -26,6 +27,7 @@ class RepositoryActorFactory implements MessageHandlerFactory {
 
     /** Trace object for diagnostics. */
     private Trace tr;
+    private final TraceFactory traceFactory;
 
     /**
      * Constructor.
@@ -38,13 +40,14 @@ class RepositoryActorFactory implements MessageHandlerFactory {
      */
     RepositoryActorFactory(Repository repository, AuthDesc auth,
                            boolean allowAdmin, boolean allowRep,
-                           Trace appTrace)
+                           Trace appTrace, TraceFactory traceFactory)
     {
         myRepository = repository;
         myAuth = auth;
         amAllowAdmin = allowAdmin;
         amAllowRep = allowRep;
         tr = appTrace;
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -71,7 +74,7 @@ class RepositoryActorFactory implements MessageHandlerFactory {
      * @param connection  The new connection.
      */
     public MessageHandler provideMessageHandler(Connection connection) {
-        return new RepositoryActor(connection, this, tr);
+        return new RepositoryActor(connection, this, tr, traceFactory);
     }
 
     /**

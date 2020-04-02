@@ -7,6 +7,7 @@ import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Singleton handler for the director 'user' protocol.
@@ -28,7 +29,8 @@ class UserHandler extends BasicProtocolHandler {
      *
      * @param director  The director object for this handler.
      */
-    UserHandler(Director director) {
+    UserHandler(Director director, TraceFactory traceFactory) {
+        super(traceFactory);
         myDirector = director;
     }
 

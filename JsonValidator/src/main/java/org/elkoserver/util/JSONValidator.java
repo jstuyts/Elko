@@ -4,13 +4,13 @@ import org.elkoserver.json.JSONDecodingException;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.SyntaxError;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
+
+import static java.nio.charset.Charset.defaultCharset;
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 
 /**
@@ -57,9 +57,9 @@ class JSONValidator {
         BufferedReader in;
         try {
             if (source.equals("-")) {
-                in = new BufferedReader(new InputStreamReader(System.in));
+                in = new BufferedReader(new InputStreamReader(System.in, defaultCharset()));
             } else {
-                in = new BufferedReader(new FileReader(file));
+                in = new BufferedReader(new InputStreamReader(new FileInputStream(file), UTF_8));
             }
         } catch (FileNotFoundException e) {
             e("bad " + source + " not found");

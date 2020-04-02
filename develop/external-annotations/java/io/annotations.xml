@@ -1,0 +1,56 @@
+<root>
+    <item name='java.io.FileReader FileReader(java.io.File)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.FileReader FileReader(java.io.FileDescriptor)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.FileReader FileReader(java.lang.String)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.FileWriter FileWriter(java.io.File)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.FileWriter FileWriter(java.io.File, boolean)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.FileWriter FileWriter(java.io.FileDescriptor)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.FileWriter FileWriter(java.lang.String)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.FileWriter FileWriter(java.lang.String, boolean)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.InputStreamReader InputStreamReader(java.io.InputStream)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.OutputStreamWriter OutputStreamWriter(java.io.OutputStream)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.PrintStream PrintStream(java.io.File)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.PrintStream PrintStream(java.io.File, java.lang.String)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.PrintStream PrintStream(java.io.File, java.nio.charset.Charset)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.PrintStream PrintStream(java.io.OutputStream)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.PrintStream PrintStream(java.io.OutputStream, boolean)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.PrintStream PrintStream(java.lang.String)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.PrintStream PrintStream(java.lang.String, java.lang.String)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+    <item name='java.io.PrintStream PrintStream(java.lang.String, java.nio.charset.Charset)'>
+        <annotation name='java.lang.Deprecated'/>
+    </item>
+</root>

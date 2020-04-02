@@ -9,7 +9,6 @@ repositories {
 
 dependencies {
     implementation(project(":Actor"))
-    implementation(project(":Boot:Api"))
     implementation(project(":ByteIoFramer:Api"))
     implementation(project(":ByteIoFramer:Json"))
     implementation(project(":Communication"))
@@ -19,6 +18,7 @@ dependencies {
     implementation(project(":ObjectDatabase:Api"))
     implementation(project(":ObjectDatabase:Local"))
     implementation(project(":ObjectDatabase:Remote"))
+    implementation(project(":Properties"))
     implementation(project(":Running"))
     implementation(project(":ScalableSsl"))
     implementation(project(":ServerMetadata"))

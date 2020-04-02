@@ -10,8 +10,10 @@ import org.elkoserver.json.SyntaxError;
 import org.elkoserver.server.context.Contextor;
 import org.elkoserver.server.context.EphemeralUserFactory;
 import org.elkoserver.server.context.User;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.io.IOException;
+import java.time.Clock;
 import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
@@ -65,6 +67,8 @@ class TestUserFactory implements EphemeralUserFactory {
 
     /** Collection size threshold for triggering expired nonce purge */
     private static final int PURGE_SIZE_THRESHOLD = 1000;
+    private final TraceFactory traceFactory;
+    private final Clock clock;
 
     /**
      * Nonce.  Our nonces consist of an unguessable random string and an
@@ -91,10 +95,12 @@ class TestUserFactory implements EphemeralUserFactory {
      * JSON-driven constructor.
      */
     @JSONMethod({ "key" })
-    public TestUserFactory(String key) {
+    public TestUserFactory(String key, Clock clock, TraceFactory traceFactory) {
+        this.traceFactory = traceFactory;
+        this.clock = clock;
         myNonces = new TreeSet<>();
-        myLastPurgeTime = System.currentTimeMillis() / 1000;
-        myCryptor = new Cryptor(key);
+        myLastPurgeTime = clock.millis() / 1000;
+        myCryptor = new Cryptor(key, traceFactory);
     }
 
     /**
@@ -123,7 +129,7 @@ class TestUserFactory implements EphemeralUserFactory {
                 JSONObject params = myCryptor.decryptJSONObject(blob);
                 JSONObject userDesc = params.getObject("user");
                 int expire = params.getInt("expire");
-                long now = System.currentTimeMillis() / 1000;
+                long now = clock.millis() / 1000;
                 if (expire > now) {
                     String nonceID = params.getString("nonce");
                     Nonce nonce = new Nonce(expire, nonceID);
@@ -148,7 +154,7 @@ class TestUserFactory implements EphemeralUserFactory {
                         }
                         Object result =
                             ObjectDecoder.decode(User.class, userDesc,
-                                                 contextor.odb());
+                                                 contextor.odb(), traceFactory);
                         return (User) result;
                     } else {
                         contextor.appTrace().errorm("reused nonce");

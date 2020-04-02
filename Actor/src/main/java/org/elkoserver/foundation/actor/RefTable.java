@@ -13,6 +13,7 @@ import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.TypeResolver;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Referenceable;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * A mapping from object reference strings (as they would be used in JSON
@@ -44,6 +45,7 @@ public class RefTable implements Iterable<DispatchTarget> {
     /** Mapping from message verbs to MethodInvoker objects (which contain
         precomputed Java reflection objects). */
     private MessageDispatcher myDispatcher;
+    protected final TraceFactory traceFactory;
 
     /**
      * Constructor.  Creates an empty reference table.
@@ -51,11 +53,12 @@ public class RefTable implements Iterable<DispatchTarget> {
      * @param resolver  Type resolver for the type tags of JSON encoded
      *    object descriptors.
      */
-    public RefTable(TypeResolver resolver) {
+    public RefTable(TypeResolver resolver, TraceFactory traceFactory) {
+        this.traceFactory = traceFactory;
         myObjects = new HashMap<>();
         myObjectGroups = new HashMap<>();
-        myDispatcher = new MessageDispatcher(resolver);
-        addRef(new ErrorHandler());
+        myDispatcher = new MessageDispatcher(resolver, traceFactory);
+        addRef(new ErrorHandler(traceFactory));
     }
 
     /**
@@ -66,7 +69,8 @@ public class RefTable implements Iterable<DispatchTarget> {
      */
     private static class ErrorHandler extends BasicProtocolHandler {
         /** Constructor */
-        ErrorHandler() {
+        ErrorHandler(TraceFactory traceFactory) {
+            super(traceFactory);
         }
 
         /**

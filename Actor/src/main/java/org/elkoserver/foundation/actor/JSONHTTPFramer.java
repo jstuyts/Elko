@@ -11,6 +11,7 @@ import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Parser;
 import org.elkoserver.json.SyntaxError;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * HTTP message framer for JSON messages transported via HTTP.
@@ -19,11 +20,14 @@ import org.elkoserver.util.trace.Trace;
  * bundle of one or more JSON messages to be handled.
  */
 public class JSONHTTPFramer extends HTTPFramer {
+    private final TraceFactory traceFactory;
+
     /**
      * Constructor.
      */
-    public JSONHTTPFramer(Trace appTrace) {
+    public JSONHTTPFramer(Trace appTrace, TraceFactory traceFactory) {
         super(appTrace);
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -72,7 +76,7 @@ public class JSONHTTPFramer extends HTTPFramer {
      *    message(s) contained within 'body'.
      */
     public Iterator<Object> postBodyUnpacker(String body) {
-        return new JSONBodyUnpacker(body);
+        return new JSONBodyUnpacker(body, traceFactory);
     }
 
     /**
@@ -87,6 +91,7 @@ public class JSONHTTPFramer extends HTTPFramer {
             returned because the framer always parses one JSON message ahead,
             in order to be able to see the end of the HTTP message string. */
         private Object myLastMessageParsed;
+        private TraceFactory traceFactory;
 
         /**
          * Constructor. Strip the form variable name and parse the rest as
@@ -94,8 +99,9 @@ public class JSONHTTPFramer extends HTTPFramer {
          *
          * @param postBody  The HTTP message body was POSTed.
          */
-        JSONBodyUnpacker(String postBody) {
-            Trace.comm.debugm("unpacker for: /" + postBody + "/");
+        JSONBodyUnpacker(String postBody, TraceFactory traceFactory) {
+            this.traceFactory = traceFactory;
+            traceFactory.comm.debugm("unpacker for: /" + postBody + "/");
             postBody = extractBodyFromSafariPostIfNeeded(postBody);
             myParser = new Parser(postBody);
             myLastMessageParsed = parseNextMessage();
@@ -152,8 +158,8 @@ public class JSONHTTPFramer extends HTTPFramer {
                 if (Communication.TheDebugReplyFlag) {
                     return e;
                 }
-                if (Trace.comm.warning && Trace.ON) {
-                    Trace.comm.warningm("syntax error in JSON message: " +
+                if (traceFactory.comm.getWarning() && Trace.ON) {
+                    traceFactory.comm.warningm("syntax error in JSON message: " +
                                         e.getMessage());
                 }
                 return null;

@@ -6,6 +6,9 @@ import java.nio.charset.StandardCharsets;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.util.trace.Trace;
 import org.apache.commons.codec.binary.Base64;
+import org.elkoserver.util.trace.TraceFactory;
+
+import static org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII;
 
 /**
  * Byte I/O framer factory for WebSocket connections, a perverse hybrid of HTTP
@@ -18,6 +21,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
 
     /** The host address of the WebSocket connection point. */
     private String myHostAddress;
+    private TraceFactory traceFactory;
 
     /** The host address, stripped of port number. */
     private String myHostName;
@@ -31,10 +35,11 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
      * @param msgTrace  Trace object for logging message traffic.
      */
     WebSocketByteIOFramerFactory(Trace msgTrace, String hostAddress,
-                                 String socketURI)
+                                 String socketURI, TraceFactory traceFactory)
     {
         trMsg = msgTrace;
         myHostAddress = hostAddress;
+        this.traceFactory = traceFactory;
         int colonPos = hostAddress.indexOf(':');
         if (colonPos != -1) {
             myHostName = hostAddress.substring(0, colonPos);
@@ -51,7 +56,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
      * @param label  A printable label identifying the associated connection.
      */
     public ByteIOFramer provideFramer(MessageReceiver receiver, String label) {
-        return new WebSocketFramer(receiver, label);
+        return new WebSocketFramer(receiver, label, traceFactory);
     }
 
     /**
@@ -69,9 +74,6 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
 
         /** Lower-level framer once we start actually reading messages. */
         private JSONByteIOFramer myMessageFramer;
-
-        /** Message input currently in progress. */
-        private String myMsgString;
 
         /** Stage of WebSocket input reading. */
         private int myWSParseStage;
@@ -91,11 +93,10 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
         /**
          * Constructor.
          */
-        WebSocketFramer(MessageReceiver receiver, String label) {
+        WebSocketFramer(MessageReceiver receiver, String label, TraceFactory traceFactory) {
             myReceiver = receiver;
             myLabel = label;
-            myMsgString = "";
-            myIn = new ChunkyByteArrayInputStream();
+            myIn = new ChunkyByteArrayInputStream(traceFactory);
             myWSParseStage = WS_STAGE_START;
             myRequest = new WebSocketRequest();
         }
@@ -182,7 +183,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
             }
             if (msg instanceof String) {
                 String msgString = (String) msg;
-                if (trMsg.event && Trace.ON) {
+                if (trMsg.getEvent() && Trace.ON) {
                     trMsg.msgi(myLabel, false, msgString);
                 }
                 byte[] msgBytes = msgString.getBytes(StandardCharsets.UTF_8);
@@ -190,14 +191,14 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
                 frame[0] = 0x00;
                 System.arraycopy(msgBytes, 0, frame, 1, msgBytes.length);
                 frame[frame.length - 1] = (byte) 0xFF;
-                if (trMsg.debug && Trace.ON) {
+                if (trMsg.getDebug() && Trace.ON) {
                     trMsg.debugm("WS sending msg: " + msg);
                 }
                 return frame;
             } else if (msg instanceof WebSocketHandshake) {
                 WebSocketHandshake handshake = (WebSocketHandshake) msg;
                 if (handshake.version() == 0) {
-                    byte[] handshakeBytes = (byte[]) handshake.bytes();
+                    byte[] handshakeBytes = handshake.bytes();
                     String header =
                         "HTTP/1.1 101 WebSocket Protocol Handshake\r\n" +
                         "Upgrade: WebSocket\r\n" +
@@ -213,9 +214,9 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
                                      headerBytes.length);
                     System.arraycopy(handshakeBytes, 0, reply,
                                     headerBytes.length, handshakeBytes.length);
-                    if (trMsg.debug && Trace.ON) {
+                    if (trMsg.getDebug() && Trace.ON) {
                         trMsg.debugm("WS sending handshake:\n" + header +
-                            Trace.byteArrayToASCII(handshakeBytes, 0,
+                            byteArrayToASCII(handshakeBytes, 0,
                                                    handshakeBytes.length));
                     }
                     return reply;
@@ -228,7 +229,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
                             theCodec.encodeToString(handshake.bytes()) +
                             "\r\n\r\n";
                     byte[] headerBytes = header.getBytes(StandardCharsets.US_ASCII);
-                    if (trMsg.debug && Trace.ON) {
+                    if (trMsg.getDebug() && Trace.ON) {
                         trMsg.debugm("WS sending handshake:\n" + header);
                     }
                     return headerBytes;
@@ -243,7 +244,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
                     "Access-Control-Allow-Origin: *\r\n" +
                     "Content-Length: " + reply.length() + "\r\n\r\n" +
                     reply;
-                if (trMsg.debug && Trace.ON) {
+                if (trMsg.getDebug() && Trace.ON) {
                     trMsg.debugm("WS sending error:\n" + reply);
                 }
                 return reply.getBytes(StandardCharsets.US_ASCII);

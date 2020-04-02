@@ -4,12 +4,12 @@ import java.security.SecureRandom;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
 import org.elkoserver.foundation.run.Queue;
 import org.elkoserver.foundation.timer.Clock;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * An implementation of {@link Connection} that virtualizes a continuous
@@ -88,8 +88,8 @@ public class HTTPSessionConnection extends ConnectionBase
      *
      * @param sessionFactory  Factory for creating HTTP message handler objects
      */
-    HTTPSessionConnection(HTTPMessageHandlerFactory sessionFactory) {
-        this(sessionFactory, Math.abs(theRandom.nextLong()));
+    HTTPSessionConnection(HTTPMessageHandlerFactory sessionFactory, Timer timer, java.time.Clock clock, TraceFactory traceFactory) {
+        this(sessionFactory, Math.abs(theRandom.nextLong()), timer, clock, traceFactory);
     }
 
     /**
@@ -100,16 +100,16 @@ public class HTTPSessionConnection extends ConnectionBase
      * @param sessionID  The session ID for the session.
      */
     private HTTPSessionConnection(HTTPMessageHandlerFactory sessionFactory,
-                                  long sessionID)
+                                  long sessionID, Timer timer, java.time.Clock clock, TraceFactory traceFactory)
     {
-        super(sessionFactory.networkManager());
+        super(sessionFactory.networkManager(), clock, traceFactory);
         mySessionFactory = sessionFactory;
         trMsg = mySessionFactory.httpFramer().msgTrace();
         mySessionID = sessionID;
         mySessionFactory.addSession(this);
         myConnections = new HashSet<>();
-        myLastActivityTime = System.currentTimeMillis();
-        if (trMsg.event && Trace.ON) {
+        myLastActivityTime = clock.millis();
+        if (trMsg.getEvent() && Trace.ON) {
             trMsg.eventi(this + " new connection");
         }
         mySelectSequenceNumber = 1;
@@ -121,13 +121,13 @@ public class HTTPSessionConnection extends ConnectionBase
 
         mySelectTimeoutInterval = mySessionFactory.selectTimeout(false);
         mySelectClock =
-            Timer.theTimer().every((mySelectTimeoutInterval + 1000) / 4,
+            timer.every((mySelectTimeoutInterval + 1000) / 4,
                     ignored -> noticeSelectTick());
         mySelectClock.start();
 
         mySessionTimeoutInterval = mySessionFactory.sessionTimeout(false);
         myInactivityClock =
-            Timer.theTimer().every(mySessionTimeoutInterval + 1000,
+            timer.every(mySessionTimeoutInterval + 1000,
                     ignored -> noticeInactivityTick());
         myInactivityClock.start();
 
@@ -141,7 +141,7 @@ public class HTTPSessionConnection extends ConnectionBase
      */
     void associateTCPConnection(Connection connection) {
         myConnections.add(connection);
-        if (trMsg.debug && Trace.ON) {
+        if (trMsg.getDebug() && Trace.ON) {
             trMsg.debugm("associate " + connection + " with " + this +
                          ", count=" + myConnections.size());
         }
@@ -237,7 +237,7 @@ public class HTTPSessionConnection extends ConnectionBase
      */
     void noteClientActivity() {
         if (!amClosing) {
-            myLastActivityTime = System.currentTimeMillis();
+            myLastActivityTime = clock.millis();
         }
     }
 
@@ -249,7 +249,7 @@ public class HTTPSessionConnection extends ConnectionBase
      */
     private void noticeSelectTick() {
         if (mySelectWaitStartTime != 0) {
-            long now = System.currentTimeMillis();
+            long now = clock.millis();
             if (now - mySelectWaitStartTime > mySelectTimeoutInterval) {
                 mySelectWaitStartTime = 0;
                 noteClientActivity();
@@ -266,14 +266,14 @@ public class HTTPSessionConnection extends ConnectionBase
      */
     private void noticeInactivityTick() {
         if (mySelectWaitStartTime == 0 &&
-                System.currentTimeMillis() - myLastActivityTime >
+                clock.millis() - myLastActivityTime >
                     mySessionTimeoutInterval) {
-            if (trMsg.event && Trace.ON) {
+            if (trMsg.getEvent() && Trace.ON) {
                 trMsg.eventm(this + " tick: HTTP session timeout");
             }
             close();
         } else {
-            if (trMsg.debug && Trace.ON) {
+            if (trMsg.getDebug() && Trace.ON) {
                 trMsg.debugm(this + " tick: HTTP session waiting");
             }
         }
@@ -318,7 +318,7 @@ public class HTTPSessionConnection extends ConnectionBase
             connection.close();
         } else {
             noteClientActivity();
-            if (trMsg.event && Trace.ON) {
+            if (trMsg.getEvent() && Trace.ON) {
                 trMsg.msgi(this + ":" + connection, true, message);
             }
             String reply;
@@ -373,7 +373,7 @@ public class HTTPSessionConnection extends ConnectionBase
             do {
                 Object message = myQueue.nextElement();
                 end = !myQueue.hasMoreElements();
-                if (trMsg.event && Trace.ON) {
+                if (trMsg.getEvent() && Trace.ON) {
                     trMsg.msgi(this + ":" + downstreamConnection, false,
                                message);
                 }
@@ -394,7 +394,7 @@ public class HTTPSessionConnection extends ConnectionBase
             /* Nothing to do yet, so block awaiting outbound traffic. */
             myDownstreamConnection = downstreamConnection;
             myDownstreamIsNonPersistent = nonPersistent;
-            mySelectWaitStartTime = System.currentTimeMillis();
+            mySelectWaitStartTime = clock.millis();
             return false;
         }
     }
@@ -408,7 +408,7 @@ public class HTTPSessionConnection extends ConnectionBase
         if (myDownstreamConnection != null) {
             /* If there *is* a pending select request, use it to send the
                message immediately. */
-            if (trMsg.event && Trace.ON) {
+            if (trMsg.getEvent() && Trace.ON) {
                 trMsg.msgi(this + ":" + myDownstreamConnection, false,
                            message);
             }
@@ -471,7 +471,7 @@ public class HTTPSessionConnection extends ConnectionBase
         if (myDownstreamConnection == connection) {
             clearDownstreamConnection();
             noteClientActivity();
-            if (trMsg.event && Trace.ON) {
+            if (trMsg.getEvent() && Trace.ON) {
                 trMsg.eventm(this + " lost " + connection +
                              " with pending select");
             }

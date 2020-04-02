@@ -9,6 +9,7 @@ import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.server.gatekeeper.Gatekeeper;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.function.Consumer;
 
@@ -28,7 +29,9 @@ class AuthHandler extends BasicProtocolHandler {
      * @param authorizer  The password authorizer being administered.
      * @param gatekeeper  The gatekeeper this handler is working for.
      */
-    AuthHandler(PasswdAuthorizer authorizer, Gatekeeper gatekeeper) {
+    AuthHandler(PasswdAuthorizer authorizer, Gatekeeper gatekeeper, TraceFactory traceFactory) {
+        super(traceFactory);
+
         myAuthorizer = authorizer;
         myGatekeeper = gatekeeper;
     }

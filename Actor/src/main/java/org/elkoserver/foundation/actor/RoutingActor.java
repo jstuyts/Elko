@@ -6,7 +6,7 @@ import org.elkoserver.foundation.net.Communication;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * An {@link Actor} that receives targeted JSON messages over its connection.
@@ -24,6 +24,7 @@ public abstract class RoutingActor extends Actor implements DispatchTarget
 {
     /** Decoder for object references and message dispatch. */
     private RefTable myRefTable;
+    protected final TraceFactory traceFactory;
 
     /**
      * Constructor.
@@ -31,9 +32,10 @@ public abstract class RoutingActor extends Actor implements DispatchTarget
      * @param connection  Connection associated with this actor.
      * @param refTable  Table for object ref decoding and message dispatch.
      */
-    protected RoutingActor(Connection connection, RefTable refTable) {
+    protected RoutingActor(Connection connection, RefTable refTable, TraceFactory traceFactory) {
         super(connection);
         myRefTable = refTable;
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -71,7 +73,7 @@ public abstract class RoutingActor extends Actor implements DispatchTarget
                 if (problem == null) {
                     problem = result;
                 } else {
-                    Trace.comm.errorReportException(problem,
+                    traceFactory.comm.errorReportException(problem,
                         "exception in message handler");
                 }
             }
@@ -80,7 +82,7 @@ public abstract class RoutingActor extends Actor implements DispatchTarget
         }
         if (problem != null) {
             String warning = "error handling message: " + problem;
-            Trace.comm.warningm(warning);
+            traceFactory.comm.warningm(warning);
             if (Communication.TheDebugReplyFlag) {
                 debugMsg(warning);
             }

@@ -3,7 +3,7 @@ package org.elkoserver.server.context;
 import org.elkoserver.foundation.timer.Timeout;
 import org.elkoserver.foundation.timer.TimeoutNoticer;
 import org.elkoserver.foundation.timer.Timer;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Object that tracks reservations issued by directors but not yet redeemed by
@@ -21,6 +21,7 @@ class Reservation implements TimeoutNoticer {
 
     /** The director that issued this reservation. */
     private DirectorActor myIssuer;
+    private final TraceFactory traceFactory;
 
     /** Timeout for expiring an unredeemed reservation. */
     private Timeout myExpirationTimeout;
@@ -37,12 +38,14 @@ class Reservation implements TimeoutNoticer {
      * @param where   Context it's for.
      * @param authCode  Secret authorization code.
      */
-    Reservation(String who, String where, String authCode) {
+    Reservation(String who, String where, String authCode, TraceFactory traceFactory) {
         myWho = who;
         myWhere = where;
         myAuthCode = authCode;
         amRedeemed = false;
         myIssuer = null;
+
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -56,11 +59,11 @@ class Reservation implements TimeoutNoticer {
      * @param issuer  What director issued this, or null if don't care.
      */
     Reservation(String who, String where, String authCode, int expirationTime,
-                DirectorActor issuer)
+                DirectorActor issuer, Timer timer, TraceFactory traceFactory)
     {
-        this(who, where, authCode);
+        this(who, where, authCode, traceFactory);
         myIssuer = issuer;
-        myExpirationTimeout = Timer.theTimer().after(expirationTime, this);
+        myExpirationTimeout = timer.after(expirationTime, this);
     }
 
     /**
@@ -114,7 +117,7 @@ class Reservation implements TimeoutNoticer {
         if (!amRedeemed) {
             amRedeemed = true;
             myIssuer.removeReservation(this);
-            Trace.comm.eventi("expiring reservation " + myWho + "|" + myWhere +
+            traceFactory.comm.eventi("expiring reservation " + myWho + "|" + myWhere +
                               "|" + myAuthCode);
         }
     }

@@ -1,6 +1,7 @@
 package org.elkoserver.server.workshop.bank;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import org.elkoserver.foundation.json.JSONMethod;
@@ -77,18 +78,18 @@ class Bank implements Encodable {
 
     /**
      * JSON-driven constructor.
-     *
-     * @param ref  The ref of this bank object.
+     *  @param ref  The ref of this bank object.
      * @param rootKeyRef  Optional ref of the key that is the root of this
      *    bank's authorization key hierarchy.  If omitted, a new root key will
      *    be generated and made available for issuance.
      * @param keys  Array of keys for access to this bank's contents.
      * @param currencies  Array of currencies this bank is managing.
      * @param accountCollection  Optional collection name for account storage.
+     * @param clock
      */
     @JSONMethod({ "ref", "rootkey", "keys", "currencies", "collection" })
     Bank(String ref, OptString rootKeyRef, Key[] keys, Currency[] currencies,
-         OptString accountCollection)
+         OptString accountCollection, Clock clock)
     {
         myRef = ref;
         myCurrencies = new HashMap<>();
@@ -109,7 +110,7 @@ class Bank implements Encodable {
             rootKeyGenerated = true;
         }
         Key rootKey = new Key(null, myRootKeyRef, "full", null,
-                              new ExpirationDate(Long.MAX_VALUE), "root key");
+                              new ExpirationDate(Long.MAX_VALUE, clock), "root key");
         myKeys.put(myRootKeyRef, rootKey);
         if (rootKeyGenerated) {
             myVirginRootKey = rootKey;

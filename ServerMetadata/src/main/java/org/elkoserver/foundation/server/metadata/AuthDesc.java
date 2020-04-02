@@ -1,8 +1,8 @@
 package org.elkoserver.foundation.server.metadata;
 
-import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptString;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.json.Encodable;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
@@ -26,7 +26,7 @@ public class AuthDesc implements Encodable {
         circumstances where open mode authorization is required or
         presented. */
     public static final AuthDesc theOpenAuth =
-        new AuthDesc("open", (String) null, (String) null);
+        new AuthDesc("open", null, (String) null);
 
     /**
      * Direct constructor.
@@ -92,7 +92,7 @@ public class AuthDesc implements Encodable {
      *    rooted at 'propRoot' as described above, or null if no such valid
      *    authorization information could be found.
      */
-    public static AuthDesc fromProperties(BootProperties props,
+    public static AuthDesc fromProperties(ElkoProperties props,
                                           String propRoot, Trace appTrace)
     {
         propRoot += ".auth";

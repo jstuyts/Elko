@@ -9,6 +9,7 @@ import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.foundation.timer.Timeout;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Actor representing a possibly multi-faceted connection to a gatekeeper.
@@ -44,15 +45,15 @@ class GatekeeperActor extends RoutingActor implements BasicProtocolActor
      * @param appTrace  Trace object for diagnostics.
      */
     GatekeeperActor(Connection connection, GatekeeperActorFactory factory,
-                    int actionTime, Trace appTrace)
+                    int actionTime, Trace appTrace, Timer timer, TraceFactory traceFactory)
     {
-        super(connection, factory.refTable());
+        super(connection, factory.refTable(), traceFactory);
         tr = appTrace;
         myFactory = factory;
         amLoggedOut = false;
         amAdmin = false;
         myLabel = null;
-        myActionTimeout = Timer.theTimer().after(
+        myActionTimeout = timer.after(
             actionTime,
                 () -> {
                     if (myActionTimeout != null) {

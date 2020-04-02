@@ -5,7 +5,9 @@ import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.net.MessageHandler;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * MessageHandlerFactory class to create new actors for new connections to a
@@ -29,6 +31,8 @@ class GatekeeperActorFactory implements MessageHandlerFactory {
 
     /** Trace object for diagnostics. */
     private Trace tr;
+    private final Timer timer;
+    private final TraceFactory traceFactory;
 
     /**
      * Constructor.
@@ -40,7 +44,7 @@ class GatekeeperActorFactory implements MessageHandlerFactory {
      */
     GatekeeperActorFactory(Gatekeeper gatekeeper, AuthDesc auth,
                            boolean allowAdmin, boolean allowUser,
-                           int actionTimeout, Trace appTrace)
+                           int actionTimeout, Trace appTrace, Timer timer, TraceFactory traceFactory)
     {
         myGatekeeper = gatekeeper;
         myAuth = auth;
@@ -48,6 +52,8 @@ class GatekeeperActorFactory implements MessageHandlerFactory {
         amAllowUser = allowUser;
         myActionTimeout = actionTimeout;
         tr = appTrace;
+        this.timer = timer;
+        this.traceFactory = traceFactory;
     }
 
     /**
@@ -83,7 +89,7 @@ class GatekeeperActorFactory implements MessageHandlerFactory {
      * @param connection  The new connection.
      */
     public MessageHandler provideMessageHandler(Connection connection) {
-        return new GatekeeperActor(connection, this, myActionTimeout, tr);
+        return new GatekeeperActor(connection, this, myActionTimeout, tr, timer, traceFactory);
     }
 
     /**

@@ -1,12 +1,13 @@
 package org.elkoserver.foundation.server;
 
 import org.elkoserver.foundation.actor.JSONHTTPFramer;
-import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
 import org.elkoserver.foundation.net.NetAddr;
 import org.elkoserver.foundation.net.NetworkManager;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.io.IOException;
 
@@ -17,17 +18,17 @@ class HttpConnectionSetup extends BaseConnectionSetup {
     private final String rootURI;
     private final String serverAddress;
 
-    HttpConnectionSetup(String label, String host, AuthDesc auth, boolean secure, BootProperties props, String propRoot, NetworkManager myNetworkManager, MessageHandlerFactory actorFactory, Trace trServer, Trace tr) {
-        super(label, host, auth, secure, props, propRoot, trServer, tr);
+    HttpConnectionSetup(String label, String host, AuthDesc auth, boolean secure, ElkoProperties props, String propRoot, NetworkManager networkManager, MessageHandlerFactory actorFactory, Trace trServer, Trace tr, TraceFactory traceFactory) {
+        super(label, host, auth, secure, props, propRoot, trServer, tr, traceFactory);
 
-        this.domain = determineDomain(host, props, propRoot);
-        this.myNetworkManager = myNetworkManager;
+        domain = determineDomain(host, props, propRoot);
+        myNetworkManager = networkManager;
         this.actorFactory = actorFactory;
         rootURI = props.getProperty(propRoot + ".root", "");
         serverAddress = host + "/" + rootURI;
     }
 
-    private String determineDomain(String host, BootProperties props, String propRoot) {
+    private String determineDomain(String host, ElkoProperties props, String propRoot) {
         String result = props.getProperty(propRoot + ".domain");
 
         if (result == null) {
@@ -63,7 +64,7 @@ class HttpConnectionSetup extends BaseConnectionSetup {
                 bind,
                 actorFactory,
                 msgTrace, secure, rootURI,
-                new JSONHTTPFramer(msgTrace));
+                new JSONHTTPFramer(msgTrace, traceFactory));
     }
 
     @Override

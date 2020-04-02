@@ -6,14 +6,10 @@ import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
 import org.elkoserver.json.JSONArray;
 import org.elkoserver.json.JSONObject;
-import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.Level;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.*;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -21,6 +17,8 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static java.nio.charset.Charset.defaultCharset;
 
 /**
  * Standalone command-line application to read and parse one or more
@@ -254,9 +252,9 @@ class LogEater {
         }
         try {
             if (source.path.equals("-")) {
-                myIn = new BufferedReader(new InputStreamReader(System.in));
+                myIn = new BufferedReader(new InputStreamReader(System.in, defaultCharset()));
             } else {
-                myIn = new BufferedReader(new FileReader(file));
+                myIn = new BufferedReader(new InputStreamReader(new FileInputStream(file), defaultCharset()));
             }
             mySource = source;
         } catch (FileNotFoundException e) {
@@ -365,17 +363,17 @@ class LogEater {
     }
 
     /** Table mapping from message tags to logging levels. */
-    private static Map<String, Trace.Level> tags = new HashMap<>();
+    private static Map<String, Level> tags = new HashMap<>();
     static {
-        tags.put("NTC", Trace.Level.NOTICE);
-        tags.put("MSG", Trace.Level.MESSAGE);
-        tags.put("ERR", Trace.Level.ERROR);
-        tags.put("WRN", Trace.Level.WARNING);
-        tags.put("WLD", Trace.Level.WORLD);
-        tags.put("USE", Trace.Level.USAGE);
-        tags.put("EVN", Trace.Level.EVENT);
-        tags.put("DBG", Trace.Level.DEBUG);
-        tags.put("VRB", Trace.Level.VERBOSE);
+        tags.put("NTC", Level.NOTICE);
+        tags.put("MSG", Level.MESSAGE);
+        tags.put("ERR", Level.ERROR);
+        tags.put("WRN", Level.WARNING);
+        tags.put("WLD", Level.WORLD);
+        tags.put("USE", Level.USAGE);
+        tags.put("EVN", Level.EVENT);
+        tags.put("DBG", Level.DEBUG);
+        tags.put("VRB", Level.VERBOSE);
     }
 
     /** Regexp to parse the message field of a comm entry. */
@@ -396,7 +394,7 @@ class LogEater {
                                String subsystem, String location,
                                String message)
     {
-        Trace.Level tag = tags.get(tagStr);
+        Level tag = tags.get(tagStr);
         if (tag == null) {
             e("unknown log tag '" + tagStr + "'");
             return;
@@ -579,10 +577,10 @@ class LogEater {
      * @param message  The free-form message text.
      *
      */
-    private void processDebug(long timestamp, String subsystem, Trace.Level level,
+    private void processDebug(long timestamp, String subsystem, Level level,
                               String location, String message)
     {
-        String tag = level.terseCode;
+        String tag = level.getTerseCode();
         if (amTesting) {
             String timestr =
                 String.format("%1$tY/%1$tm/%1$td %1$tT.%1$tL", timestamp);

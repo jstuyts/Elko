@@ -1,21 +1,20 @@
 package org.elkoserver.foundation.net;
 
+import org.elkoserver.foundation.run.Queue;
+import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
+import scalablessl.SSLSelector;
+
+import javax.net.ssl.SSLContext;
 import java.io.IOException;
 import java.net.InetSocketAddress;
-import java.net.UnknownHostException;
 import java.nio.channels.ClosedChannelException;
 import java.nio.channels.SelectionKey;
 import java.nio.channels.Selector;
 import java.nio.channels.SocketChannel;
-import java.util.concurrent.Callable;
+import java.time.Clock;
 import java.util.Iterator;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
-import org.elkoserver.foundation.run.Queue;
-import org.elkoserver.util.trace.Trace;
-
-import scalablessl.SSLSelector;
-import javax.net.ssl.SSLContext;
+import java.util.concurrent.Callable;
 
 /**
  * A thread for doing all network I/O operations (send, receive, accept) using
@@ -32,6 +31,8 @@ class SelectThread extends Thread {
 
     /** Network manager for this server */
     private NetworkManager myMgr;
+    private final TraceFactory traceFactory;
+    private final Clock clock;
 
     /**
      * Constructor.
@@ -39,9 +40,11 @@ class SelectThread extends Thread {
      * @param mgr  Network manager for this server.
      * @param sslContext  SSL context to use, if supporting SSL, else null
      */
-    SelectThread(NetworkManager mgr, SSLContext sslContext) {
+    SelectThread(NetworkManager mgr, SSLContext sslContext, Clock clock, TraceFactory traceFactory) {
         super("Elko Select");
         myMgr = mgr;
+        this.traceFactory = traceFactory;
+        this.clock = clock;
         myQueue = new Queue<>();
         try {
             if (sslContext != null) {
@@ -51,7 +54,7 @@ class SelectThread extends Thread {
             }
             start();
         } catch (IOException e) {
-            Trace.comm.errorm("failed to start SelectThread", e);
+            traceFactory.comm.errorm("failed to start SelectThread", e);
         }
     }
     
@@ -61,14 +64,14 @@ class SelectThread extends Thread {
      * sockets.
      */
     public void run() {
-        if (Trace.comm.debug) {
-            Trace.comm.debugm("select thread running");
+        if (traceFactory.comm.getDebug()) {
+            traceFactory.comm.debugm("select thread running");
         }
         while (true) {
             try {
                 int selectedCount = mySelector.select();
-                if (Trace.comm.debug) {
-                    Trace.comm.debugm("select() returned with count=" +
+                if (traceFactory.comm.getDebug()) {
+                    traceFactory.comm.debugm("select() returned with count=" +
                                       selectedCount);
                 }
                 
@@ -77,8 +80,8 @@ class SelectThread extends Thread {
                     if (workToDo instanceof Listener) {
                         Listener listener = (Listener) workToDo;
                         listener.register(this, mySelector);
-                        if (Trace.comm.debug) {
-                            Trace.comm.debugm(
+                        if (traceFactory.comm.getDebug()) {
+                            traceFactory.comm.debugm(
                                 "select thread registers listener " +
                                 listener);
                         }
@@ -86,7 +89,7 @@ class SelectThread extends Thread {
                         Callable<?> thunk = (Callable<?>) workToDo;
                         thunk.call();
                     } else {
-                        Trace.comm.errorm("mystery object on select queue: " +
+                        traceFactory.comm.errorm("mystery object on select queue: " +
                                           workToDo);
                     }
                     workToDo = myQueue.optDequeue();
@@ -102,8 +105,8 @@ class SelectThread extends Thread {
                         iter.remove();
                         if (key.isValid() && key.isAcceptable()) {
                             Listener listener = (Listener) key.attachment();
-                            if (Trace.comm.debug) {
-                                Trace.comm.debugm("select has accept for " +
+                            if (traceFactory.comm.getDebug()) {
+                                traceFactory.comm.debugm("select has accept for " +
                                                   listener);
                             }
                             listener.doAccept();
@@ -111,8 +114,8 @@ class SelectThread extends Thread {
                         if (key.isValid() && key.isReadable()) {
                             TCPConnection connection =
                                 (TCPConnection) key.attachment();
-                            if (Trace.comm.debug) {
-                                Trace.comm.debugm("select has read for " +
+                            if (traceFactory.comm.getDebug()) {
+                                traceFactory.comm.debugm("select has read for " +
                                                   connection);
                             }
                             connection.doRead();
@@ -121,23 +124,23 @@ class SelectThread extends Thread {
                             TCPConnection connection =
                                 (TCPConnection) key.attachment();
                             connection.wakeupSelectForWrite();
-                            if (Trace.comm.debug) {
-                                Trace.comm.debugm("select has write for " +
+                            if (traceFactory.comm.getDebug()) {
+                                traceFactory.comm.debugm("select has write for " +
                                                   connection);
                             }
                             connection.doWrite();
                         }
                     }
-                    if (Trace.comm.debug) {
+                    if (traceFactory.comm.getDebug()) {
                         if (actualCount > 0) {
-                            Trace.comm.debugm("select thread selected " +
+                            traceFactory.comm.debugm("select thread selected " +
                                               actualCount + "/" +
                                               selectedCount + " I/O sources");
                         }
                     }
                 }
             } catch (Throwable e) {
-                Trace.comm.errorm("select failed", e);
+                traceFactory.comm.errorm("select failed", e);
             }
         }
     }
@@ -161,13 +164,13 @@ class SelectThread extends Thread {
                 InetSocketAddress socketAddress =
                         new InetSocketAddress(remoteNetAddr.inetAddress(),
                                 remoteNetAddr.getPort());
-                Trace.comm.eventi("connecting to " + remoteNetAddr);
+                traceFactory.comm.eventi("connecting to " + remoteNetAddr);
                 SocketChannel channel = SocketChannel.open(socketAddress);
                 newChannel(handlerFactory, framerFactory, channel, false,
                         trace);
             } catch (IOException e) {
                 myMgr.connectionCount(-1);
-                Trace.comm.errorm("unable to connect to " + remoteAddr +
+                traceFactory.comm.errorm("unable to connect to " + remoteAddr +
                         ": " + e);
                 handlerFactory.provideMessageHandler(null);
             }
@@ -221,15 +224,15 @@ class SelectThread extends Thread {
             SelectionKey key =
                 channel.register(mySelector, SelectionKey.OP_READ);
             key.attach(new TCPConnection(handlerFactory, framerFactory,
-                channel, key, this, myMgr, isSecure, trace));
+                channel, key, this, myMgr, isSecure, trace, clock, traceFactory));
         } catch (ClosedChannelException e) {
             myMgr.connectionCount(-1);
             handlerFactory.provideMessageHandler(null);
-            Trace.comm.errorm("channel closed before it could be used", e);
+            traceFactory.comm.errorm("channel closed before it could be used", e);
         } catch (IOException e) {
             myMgr.connectionCount(-1);
             handlerFactory.provideMessageHandler(null);
-            Trace.comm.errorm("trouble opening TCPConnection for channel", e);
+            traceFactory.comm.errorm("trouble opening TCPConnection for channel", e);
             try {
                 channel.close();
             } catch (IOException e2) {
@@ -245,8 +248,8 @@ class SelectThread extends Thread {
      * @param connection  The connection that has messages ready to send.
      */
     void readyToSend(TCPConnection connection) {
-        if (Trace.comm.debug) {
-            Trace.comm.debugm(connection + " ready to send");
+        if (traceFactory.comm.getDebug()) {
+            traceFactory.comm.debugm(connection + " ready to send");
         }
         myQueue.enqueue(connection);
         mySelector.wakeup();

@@ -1,15 +1,18 @@
 package org.elkoserver.server.broker;
 
+import java.time.Clock;
 import java.util.List;
 import java.util.Set;
-import org.elkoserver.foundation.boot.BootProperties;
 import org.elkoserver.foundation.boot.Bootable;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.ServiceFactory;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.foundation.server.metadata.ServiceDesc;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * The Elko boot class for the Broker.  The Broker is a server allows a
@@ -19,14 +22,20 @@ import org.elkoserver.util.trace.Trace;
  * order-of-startup issues.  Finally, it provides a place to stand for
  * monitoring and administering a Elko server farm as a whole.
  */
+@SuppressWarnings("unused")
 public class BrokerBoot implements Bootable {
-    private Trace tr = Trace.trace("brok");
+    private TraceFactory traceFactory;
+    private Trace tr;
     private Broker myBroker;
 
-    public void boot(BootProperties props) {
-        Server server = new Server(props, "broker", tr);
+    public void boot(ElkoProperties props, TraceFactory traceFactory) {
+        Clock clock = Clock.systemDefaultZone();
+        this.traceFactory = traceFactory;
+        tr = traceFactory.trace("brok");
+        Timer timer = new Timer(traceFactory, clock);
+        Server server = new Server(props, "broker", tr, timer, clock, traceFactory);
 
-        myBroker = new Broker(server, tr);
+        myBroker = new Broker(server, tr, timer, traceFactory);
 
         if (server.startListeners("conf.listen",
                                   new BrokerServiceFactory()) == 0) {
@@ -77,7 +86,7 @@ public class BrokerBoot implements Bootable {
             }
             
             return new BrokerActorFactory(myBroker, auth, allowAdmin,
-                                          allowClient, tr);
+                                          allowClient, tr, traceFactory);
         }
     }
 }

@@ -7,7 +7,9 @@ import org.elkoserver.foundation.net.*;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.foundation.server.metadata.ServiceDesc;
+import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.Iterator;
 import java.util.List;
@@ -29,6 +31,7 @@ abstract class OutboundGroup extends LiveGroup {
     
     /** Server object. */
     private Server myServer;
+    protected final TraceFactory traceFactory;
 
     /** Message dispatcher for incoming messages on these connections. */
     private MessageDispatcher myDispatcher;
@@ -41,6 +44,7 @@ abstract class OutboundGroup extends LiveGroup {
     
     /** Trace object for diagnostics. */
     private Trace tr;
+    protected final Timer timer;
 
     /**
      * Constructor.
@@ -54,9 +58,11 @@ abstract class OutboundGroup extends LiveGroup {
      * @param appTrace  Trace object for diagnostics.
      */
     OutboundGroup(String propRoot, Server server, Contextor contextor,
-                   List<HostDesc> hosts, Trace appTrace)
+                   List<HostDesc> hosts, Trace appTrace, Timer timer, TraceFactory traceFactory)
     {
         myServer = server;
+        this.timer = timer;
+        this.traceFactory = traceFactory;
         server.registerReinitWatcher(() -> {
             disconnectHosts();
             connectHosts();
@@ -65,7 +71,7 @@ abstract class OutboundGroup extends LiveGroup {
         myNetworkManager = server.networkManager();
         myContextor = contextor;
         myHosts = hosts;
-        myDispatcher = new MessageDispatcher(null);
+        myDispatcher = new MessageDispatcher(null, traceFactory);
         myDispatcher.addClass(actorClass());
         amAutoRegister = server.props().testProperty(propRoot + ".auto");
 
@@ -99,7 +105,7 @@ abstract class OutboundGroup extends LiveGroup {
     void connectHosts() {
         for (HostDesc host : myHosts) {
             new ConnectionRetrier(host, label(), myNetworkManager,
-                                  new HostConnector(host), tr);
+                                  new HostConnector(host), timer, tr, traceFactory);
         }
         if (amAutoRegister) {
             myServer.findService(service(), new HostFoundHandler(), true);
@@ -118,7 +124,7 @@ abstract class OutboundGroup extends LiveGroup {
                 if (desc.failure() == null) {
                     HostDesc host = desc.asHostDesc(myRetryInterval);
                     new ConnectionRetrier(host, label(), myNetworkManager,
-                                          new HostConnector(host), tr);
+                                          new HostConnector(host), timer, tr, traceFactory);
                 }
             }
         }

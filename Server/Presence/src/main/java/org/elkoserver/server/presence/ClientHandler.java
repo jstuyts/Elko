@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.OptBoolean;
 import org.elkoserver.json.JSONObject;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Singleton handler for the presence server 'client' protocol.
@@ -23,7 +24,8 @@ class ClientHandler extends BasicProtocolHandler {
      *
      * @param presenceServer  The presence server object for this handler.
      */
-    ClientHandler(PresenceServer presenceServer) {
+    ClientHandler(PresenceServer presenceServer, TraceFactory traceFactory) {
+        super(traceFactory);
         myPresenceServer = presenceServer;
     }
 

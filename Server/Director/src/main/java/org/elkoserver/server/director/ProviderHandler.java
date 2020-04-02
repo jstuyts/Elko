@@ -6,6 +6,7 @@ import org.elkoserver.foundation.json.OptBoolean;
 import org.elkoserver.foundation.json.OptInteger;
 import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.JSONObject;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Singleton handler for the director 'provider' protocol.
@@ -39,8 +40,8 @@ class ProviderHandler extends UserHandler {
      *
      * @param director  The Director object for this handler.
      */
-    ProviderHandler(Director director) {
-        super(director);
+    ProviderHandler(Director director, TraceFactory traceFactory) {
+        super(director, traceFactory);
     }
 
     /**

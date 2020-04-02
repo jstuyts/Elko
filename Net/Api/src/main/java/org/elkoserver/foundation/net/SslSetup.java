@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net;
 
-import org.elkoserver.foundation.boot.BootProperties;
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.util.trace.Trace;
 
 import javax.net.ssl.KeyManager;
@@ -13,7 +13,7 @@ import java.security.*;
 import java.security.cert.CertificateException;
 
 public class SslSetup {
-    public static SSLContext setupSsl(BootProperties properties, String propertyNamePrefix, Trace trace) {
+    public static SSLContext setupSsl(ElkoProperties properties, String propertyNamePrefix, Trace trace) {
         SSLContext result;
 
         try {
@@ -38,7 +38,7 @@ public class SslSetup {
         return result;
     }
 
-    private static SSLContext tryToSetupSsl(BootProperties properties, String propertyNamePrefix) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException, KeyManagementException {
+    private static SSLContext tryToSetupSsl(ElkoProperties properties, String propertyNamePrefix) throws KeyStoreException, IOException, NoSuchAlgorithmException, CertificateException, UnrecoverableKeyException, KeyManagementException {
         SSLContext result;
 
         String keyStoreType = properties.getProperty(propertyNamePrefix + "keystoretype", "JKS");

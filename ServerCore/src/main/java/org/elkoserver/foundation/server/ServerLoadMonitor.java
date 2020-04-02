@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.server;
 
+import java.time.Clock;
 import java.util.LinkedList;
 import java.util.List;
 import org.elkoserver.foundation.net.LoadMonitor;
@@ -12,6 +13,7 @@ import org.elkoserver.foundation.timer.Timer;
 public class ServerLoadMonitor implements LoadMonitor {
     /** When load tracking began. */
     private long mySampleStartTime;
+    private final Clock clock;
 
     /** Total time that has been spent in processing activity since counting
         began, in milliseconds. */
@@ -28,14 +30,17 @@ public class ServerLoadMonitor implements LoadMonitor {
 
     /** Default value for interval between load samples, in seconds. */
     private static final int DEFAULT_LOAD_SAMPLE_TIMEOUT = 30;
+    private final Timer timer;
 
     /**
      * Constructor.
      *
-     * Load begins being reckonned as of the time this is called.
+     * Load begins being reckoned as of the time this is called.
      */
-    ServerLoadMonitor(final Server server) {
-        mySampleStartTime = System.currentTimeMillis();
+    ServerLoadMonitor(final Server server, Timer timer, Clock clock) {
+        this.timer = timer;
+        mySampleStartTime = clock.millis();
+        this.clock = clock;
         myCumulativeProcessingTime = 0;
         myLoadWatchers = new LinkedList<>();
         myLoadSampleTimeoutTime =
@@ -76,7 +81,7 @@ public class ServerLoadMonitor implements LoadMonitor {
      */
     private void scheduleLoadSampling() {
         myLoadSampleTimeout =
-            Timer.theTimer().after(
+            timer.after(
                 myLoadSampleTimeoutTime,
                     () -> {
                         double factor = sampleLoad();
@@ -110,13 +115,13 @@ public class ServerLoadMonitor implements LoadMonitor {
      * @return the current load estimate, as described above.
      */
     private double sampleLoad() {
-        long clockTime = System.currentTimeMillis() - mySampleStartTime;
+        long clockTime = clock.millis() - mySampleStartTime;
         double loadFactor = 0.0;
         if (clockTime > 0) {
             loadFactor = ((double) myCumulativeProcessingTime) /
                          ((double) clockTime);
         }
-        mySampleStartTime = System.currentTimeMillis();
+        mySampleStartTime = clock.millis();
         myCumulativeProcessingTime = 0;
         return loadFactor;
     }

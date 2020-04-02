@@ -1,12 +1,11 @@
 package org.elkoserver.objdb.store.filestore;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
+import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import org.elkoserver.foundation.boot.BootProperties;
+
+import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.json.JSONArray;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Parser;
@@ -20,6 +19,8 @@ import org.elkoserver.objdb.store.RequestResultHandler;
 import org.elkoserver.objdb.store.RequestDesc;
 import org.elkoserver.objdb.store.ResultDesc;
 import org.elkoserver.util.trace.Trace;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 /**
  * A simple {@link ObjectStore} implementation that stores objects in text
@@ -50,7 +51,7 @@ public class FileObjectStore implements ObjectStore {
      * @param propRoot  Prefix string for selecting relevant properties.
      * @param appTrace  Trace object for use in logging.
      */
-    public void initialize(BootProperties props, String propRoot,
+    public void initialize(ElkoProperties props, String propRoot,
                            Trace appTrace)
     {
         /* Trace object for diagnostics. */
@@ -109,7 +110,7 @@ public class FileObjectStore implements ObjectStore {
             File file = odbFile(ref);
             long length = file.length();
             if (length > 0) {
-                FileReader objReader = new FileReader(file);
+                Reader objReader = new InputStreamReader(new FileInputStream(file), UTF_8);
                 char[] buf = new char[(int) length];
                 // FIXME: Handle the result
                 objReader.read(buf);
@@ -169,7 +170,7 @@ public class FileObjectStore implements ObjectStore {
             failure = "requireNew option not supported in file store";
         } else {
             try {
-                FileWriter objWriter = new FileWriter(odbFile(ref));
+                Writer objWriter = new OutputStreamWriter(new FileOutputStream(odbFile(ref)), UTF_8);
                 objWriter.write(obj);
                 objWriter.close();
             } catch (Exception e) {

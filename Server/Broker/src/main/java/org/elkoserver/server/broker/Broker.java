@@ -17,6 +17,7 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.objdb.ObjDB;
 import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Main state data structure in a Broker.
@@ -59,6 +60,7 @@ class Broker {
 
     /** Table of servers that this broker can launch. */
     private LauncherTable myLauncherTable;
+    private final Timer timer;
 
     /**
      * Constructor.
@@ -66,16 +68,17 @@ class Broker {
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    Broker(Server server, Trace appTrace) {
+    Broker(Server server, Trace appTrace, Timer timer, TraceFactory traceFactory) {
         myServer = server;
         tr = appTrace;
+        this.timer = timer;
 
-        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver);
+        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory);
 
-        myClientHandler = new ClientHandler(this);
+        myClientHandler = new ClientHandler(this, traceFactory);
         myRefTable.addRef(myClientHandler);
 
-        myAdminHandler = new AdminHandler(this);
+        myAdminHandler = new AdminHandler(this, traceFactory);
         myRefTable.addRef(myAdminHandler);
 
         myServices = new HashMapMulti<>();
@@ -153,7 +156,7 @@ class Broker {
      * Make sure the state of the launch table is saved in persistent form.
      */
     void checkpoint() {
-        LauncherTable launcherTable = this.myLauncherTable;
+        LauncherTable launcherTable = myLauncherTable;
         if (launcherTable != null) {
             launcherTable.checkpoint(myODB);
         }
@@ -349,7 +352,7 @@ class Broker {
     {
         WaiterForService waiter =
             new WaiterForService(service, who, keepWatching, timeout, failOK,
-                                 tag);
+                                 tag, timer);
         myWaiters.add(service, waiter);
     }
 
@@ -389,7 +392,7 @@ class Broker {
          *    to match up requests and responses.
          */
         WaiterForService(String service, BrokerActor waiter,
-            boolean keepWatching, int timeout, boolean failOK, String tag)
+            boolean keepWatching, int timeout, boolean failOK, String tag, Timer timer)
         {
             myService = service;
             myWaiter = waiter;
@@ -397,7 +400,7 @@ class Broker {
             amSuccessful = failOK;
             myTag = tag;
             if (timeout > 0) {
-                myTimeout = Timer.theTimer().after(timeout * 1000, this);
+                myTimeout = timer.after(timeout * 1000, this);
             } else {
                 myTimeout = null;
             }

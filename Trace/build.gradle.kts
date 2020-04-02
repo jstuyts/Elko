@@ -1,5 +1,6 @@
 plugins {
     java
+    kotlin("jvm")
 }
 
 repositories {
@@ -8,8 +9,8 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Json"))
+    implementation(project(":Properties"))
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 java {

@@ -4,14 +4,18 @@ import org.elkoserver.foundation.net.NetAddr;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 
 import org.zeromq.SocketType;
 import org.zeromq.ZMQ;
 
+import static java.nio.charset.Charset.defaultCharset;
+import static java.nio.charset.StandardCharsets.UTF_16;
+
 class ZMQSender {
     public static void main(String[] args) {
         BufferedReader in =
-            new BufferedReader(new InputStreamReader(System.in));
+            new BufferedReader(new InputStreamReader(System.in, defaultCharset()));
 
         String host = args[0];
         boolean push = true;
@@ -54,7 +58,7 @@ class ZMQSender {
                 } else if (line.equals("")) {
                     if (msg != null) {
                         msg.append(" ");
-                        byte[] msgBytes = msg.toString().getBytes();
+                        byte[] msgBytes = msg.toString().getBytes(UTF_16);
                         msgBytes[msgBytes.length - 1] = 0;
                         socket.send(msgBytes, 0);
                         msg = null;

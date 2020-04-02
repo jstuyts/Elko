@@ -5,6 +5,7 @@ import org.elkoserver.json.Encodable;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.json.Referenceable;
+import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -52,6 +53,7 @@ public abstract class BasicObject
 
     /** Reference string for this object. */
     /* protected */ String myRef;
+    private TraceFactory traceFactory;
 
     /** Object name. */
     /* protected */ String myName;
@@ -165,16 +167,16 @@ public abstract class BasicObject
 
     /**
      * Make this object live inside the context server.
-     *
-     * @param ref  Reference string identifying this object.
+     *  @param ref  Reference string identifying this object.
      * @param subID  Clone sub identity, or the empty string for non-clones.
      * @param isEphemeral  True if this object is ephemeral (won't checkpoint).
      * @param contextor  The contextor for this server.
      */
     void activate(String ref, String subID, boolean isEphemeral,
-                  Contextor contextor)
+                  Contextor contextor, TraceFactory traceFactory)
     {
         myRef = ref;
+        this.traceFactory = traceFactory;
         if (isEphemeral) {
             markAsEphemeral();
         }
@@ -768,7 +770,7 @@ public abstract class BasicObject
      *    this object doesn't handle messages for that class.
      */
     public DispatchTarget findActualTarget(Class<?> type) {
-        if (type == this.getClass()) {
+        if (type == getClass()) {
             return this;
         } else if (myModSet == null) {
             return null;

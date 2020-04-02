@@ -2,7 +2,10 @@ package org.elkoserver.server.workshop.bank;
 
 import java.text.DateFormat;
 import java.text.ParseException;
+import java.time.Clock;
 import java.util.Date;
+import java.util.TimeZone;
+
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Encodable;
@@ -17,11 +20,9 @@ class ExpirationDate implements Comparable<ExpirationDate>, Encodable {
     private long myTime;
 
     /** Singleton DateFormat object for parsing timestamp literals. */
-    private static DateFormat theDateFmt =
-        DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
-    static {
-        theDateFmt.setLenient(true);
-    }
+    private final DateFormat theDateFmt;
+
+    private final Clock clock;
 
     /**
      * Direct constructor.  The actual expiration time is represented by a
@@ -38,7 +39,12 @@ class ExpirationDate implements Comparable<ExpirationDate>, Encodable {
      * @param dateString   String representation of the expiration date and
      *    time.
      */
-    ExpirationDate(String dateString) throws ParseException {
+    ExpirationDate(String dateString, Clock clock) throws ParseException {
+        this.clock = clock;
+        theDateFmt =
+                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+        theDateFmt.setTimeZone(TimeZone.getTimeZone(clock.getZone()));
+        theDateFmt.setLenient(true);
         if (dateString.startsWith("+")) {
             try {
                 myTime = Long.parseLong(dateString.substring(1));
@@ -59,7 +65,12 @@ class ExpirationDate implements Comparable<ExpirationDate>, Encodable {
      * @param time  Millisecond clock time when expiration happens
      */
     @JSONMethod({ "when" })
-    ExpirationDate(long time) {
+    ExpirationDate(long time, Clock clock) {
+        this.clock = clock;
+        theDateFmt =
+                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+        theDateFmt.setTimeZone(TimeZone.getTimeZone(clock.getZone()));
+        theDateFmt.setLenient(true);
         if (time == 0) {
             myTime = Long.MAX_VALUE;
         } else {
@@ -112,7 +123,7 @@ class ExpirationDate implements Comparable<ExpirationDate>, Encodable {
      * @return true if this object represents an expired date, false if not.
      */
     boolean isExpired() {
-        return myTime < System.currentTimeMillis();
+        return myTime < clock.millis();
     }
 
     /**

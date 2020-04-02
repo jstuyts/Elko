@@ -1,7 +1,10 @@
 package org.elkoserver.foundation.net;
 
 import java.io.IOException;
+import java.time.Clock;
+
 import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Interface implemented by classes that support message channel connectivity
@@ -15,12 +18,11 @@ import org.elkoserver.util.trace.Trace;
 public interface ConnectionManager {
     /**
      * Initialize this connection manager.
-     *
-     * @param networkManager  The network manager this connection manager will
+     *  @param networkManager  The network manager this connection manager will
      *    be managing connections for.
      * @param msgTrace  Trace object for logging message traffic.
      */
-    void init(NetworkManager networkManager, Trace msgTrace);
+    void init(NetworkManager networkManager, Trace msgTrace, Clock clock, TraceFactory traceFactory);
 
     /**
      * Make a connection, using this connection manager's communications
