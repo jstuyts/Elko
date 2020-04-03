@@ -2,7 +2,6 @@ package org.elkoserver.server.presence;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 class Domain {
@@ -45,13 +44,7 @@ class Domain {
     }
 
     void removeClient(PresenceActor client) {
-        Iterator<PresenceActor> iter = mySubscribers.values().iterator();
-        while (iter.hasNext()) {
-            PresenceActor subscriber = iter.next();
-            if (subscriber == client) {
-                iter.remove();
-            }
-        }
+        mySubscribers.values().removeIf(subscriber -> subscriber == client);
     }
 
     void removeSubscriber(String context) {
