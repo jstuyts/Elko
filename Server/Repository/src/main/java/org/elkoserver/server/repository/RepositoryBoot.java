@@ -22,8 +22,7 @@ public class RepositoryBoot implements Bootable {
     private Trace tr;
     private Repository myRepository;
 
-    public void boot(ElkoProperties props, TraceFactory traceFactory) {
-        Clock clock = Clock.systemDefaultZone();
+    public void boot(ElkoProperties props, TraceFactory traceFactory, Clock clock) {
         this.traceFactory = traceFactory;
         tr = traceFactory.trace("repo");
         Timer timer = new Timer(traceFactory, clock);

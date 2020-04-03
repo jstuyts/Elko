@@ -24,8 +24,7 @@ public class PresenceServerBoot implements Bootable {
     private Trace tr;
     private PresenceServer myPresenceServer;
 
-    public void boot(ElkoProperties props, TraceFactory traceFactory) {
-        Clock clock = Clock.systemDefaultZone();
+    public void boot(ElkoProperties props, TraceFactory traceFactory, Clock clock) {
         this.traceFactory = traceFactory;
         tr = traceFactory.trace("pres");
         Timer timer = new Timer(traceFactory, clock);

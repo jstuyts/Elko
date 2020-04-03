@@ -24,8 +24,7 @@ public class DirectorBoot implements Bootable {
     private Trace tr;
     private Director myDirector;
 
-    public void boot(ElkoProperties props, TraceFactory traceFactory) {
-        Clock clock = Clock.systemDefaultZone();
+    public void boot(ElkoProperties props, TraceFactory traceFactory, Clock clock) {
         this.traceFactory = traceFactory;
         tr = traceFactory.trace("dire");
         Timer timer = new Timer(traceFactory, clock);

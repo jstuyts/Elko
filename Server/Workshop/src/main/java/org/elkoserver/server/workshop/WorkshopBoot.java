@@ -23,8 +23,7 @@ public class WorkshopBoot implements Bootable {
     private Workshop myWorkshop;
     private TraceFactory traceFactory;
 
-    public void boot(ElkoProperties props, TraceFactory traceFactory) {
-        Clock clock = Clock.systemDefaultZone();
+    public void boot(ElkoProperties props, TraceFactory traceFactory, Clock clock) {
         this.traceFactory = traceFactory;
         tr = traceFactory.trace("work");
         Timer timer = new Timer(traceFactory, clock);

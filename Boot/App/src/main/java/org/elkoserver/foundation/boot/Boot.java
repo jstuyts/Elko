@@ -8,7 +8,6 @@ import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.trace.Trace
 
 import java.lang.reflect.InvocationTargetException;
 import java.time.Clock;
-import java.time.LocalDateTime;
 
 /**
  * This is the universal startup class for applications using Elko.  It
@@ -151,6 +150,6 @@ class Boot implements Runnable {
             throw new IllegalStateException("Error occurred during construction of class", e.getCause());
         }
 
-        starter.boot(bootArguments.bootProperties, traceFactory);
+        starter.boot(bootArguments.bootProperties, traceFactory, Clock.systemDefaultZone());
     }
 }

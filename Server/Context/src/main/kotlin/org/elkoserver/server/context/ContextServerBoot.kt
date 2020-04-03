@@ -22,11 +22,10 @@ class ContextServerBoot : Bootable {
     private lateinit var tr: Trace
     private lateinit var timer: Timer
     private var myContextor: Contextor? = null
-    override fun boot(props: ElkoProperties, traceFactory: TraceFactory) {
-        val clock = Clock.systemDefaultZone()
+    override fun boot(props: ElkoProperties, traceFactory: TraceFactory, clock: Clock) {
         this.traceFactory = traceFactory
         tr = traceFactory.trace("cont")
-        timer = Timer(traceFactory, clock)
+        this.timer = Timer(traceFactory, clock)
         val server = Server(props, "context", tr, timer, clock, traceFactory)
         myContextor = Contextor(server, tr, timer, traceFactory)
         if (server.startListeners("conf.listen",

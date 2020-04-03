@@ -30,8 +30,7 @@ public class GatekeeperBoot implements Bootable {
     /** Default action timeout, in seconds. */
     private static final int DEFAULT_ACTION_TIMEOUT = 15;
 
-    public void boot(ElkoProperties props, TraceFactory traceFactory) {
-        Clock clock = Clock.systemDefaultZone();
+    public void boot(ElkoProperties props, TraceFactory traceFactory, Clock clock) {
         this.traceFactory = traceFactory;
         tr = traceFactory.trace("gate");
         timer = new Timer(traceFactory, clock);
