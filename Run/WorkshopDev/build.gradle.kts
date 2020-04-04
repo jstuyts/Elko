@@ -11,14 +11,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
-    implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Workshop"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val startWorkshopDev by tasks.registering(JavaExec::class) {
@@ -70,4 +65,5 @@ val stopWorkshopDev by tasks.registering(JavaExec::class) {
             "9021",
             "secret"
     )
+    isIgnoreExitValue = true
 }

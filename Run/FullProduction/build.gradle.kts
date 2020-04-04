@@ -11,19 +11,14 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
-    implementation(project(":Json"))
     implementation(project(":FileObjectStore"))
     implementation(project(":MongoObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Broker"))
     implementation(project(":Server:Context"))
     implementation(project(":Server:Director"))
     implementation(project(":Server:Presence"))
     implementation(project(":Server:Workshop"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val brokerDataDirectory by tasks.registering {
@@ -109,6 +104,7 @@ val stopFullProductionBroker by tasks.registering(JavaExec::class) {
             "9011",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }
 
 val startFullProductionContext by tasks.registering(JavaExec::class) {
@@ -172,6 +168,7 @@ val stopFullProductionContext by tasks.registering(JavaExec::class) {
             "figleaf",
             "context"
     )
+    isIgnoreExitValue = true
 }
 
 val startFullProductionDirector by tasks.registering(JavaExec::class) {
@@ -226,6 +223,7 @@ val stopFullProductionDirector by tasks.registering(JavaExec::class) {
             "9062",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }
 
 val startFullProductionPresence by tasks.registering(JavaExec::class) {
@@ -279,6 +277,7 @@ val stopFullProductionPresence by tasks.registering(JavaExec::class) {
             "9041",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }
 
 val startFullProductionWorkshop by tasks.registering(JavaExec::class) {
@@ -328,4 +327,5 @@ val stopFullProductionWorkshop by tasks.registering(JavaExec::class) {
             "9020",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }

@@ -8,14 +8,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
-    implementation(project(":Json"))
     implementation(project(":FileObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Repository"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val repositoryDataDirectory by tasks.registering {
@@ -85,4 +80,5 @@ val stopRepositoryDev by tasks.registering(JavaExec::class) {
             "9051",
             "secret"
     )
+    isIgnoreExitValue = true
 }

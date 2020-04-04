@@ -11,19 +11,14 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
     implementation(project(":Example"))
-    implementation(project(":Json"))
     implementation(project(":FileObjectStore"))
     implementation(project(":MongoObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Broker"))
     implementation(project(":Server:Context"))
     implementation(project(":Server:Director"))
     implementation(project(":Server:Workshop"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val brokerDataDirectory by tasks.registering {
@@ -109,6 +104,7 @@ val stopExampleBroker by tasks.registering(JavaExec::class) {
             "9011",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }
 
 val startExampleContext by tasks.registering(JavaExec::class) {
@@ -171,6 +167,7 @@ val stopExampleContext by tasks.registering(JavaExec::class) {
             "figleaf",
             "context"
     )
+    isIgnoreExitValue = true
 }
 
 val startExampleDirector by tasks.registering(JavaExec::class) {
@@ -225,6 +222,7 @@ val stopExampleDirector by tasks.registering(JavaExec::class) {
             "9062",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }
 
 val startExampleWorkshop by tasks.registering(JavaExec::class) {
@@ -274,4 +272,5 @@ val stopExampleWorkshop by tasks.registering(JavaExec::class) {
             "9020",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }

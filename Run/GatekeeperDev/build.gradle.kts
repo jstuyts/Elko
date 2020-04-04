@@ -11,14 +11,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
-    implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Gatekeeper"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val startGatekeeperDev by tasks.registering(JavaExec::class) {
@@ -69,4 +64,5 @@ val stopGatekeeperDev by tasks.registering(JavaExec::class) {
             "9031",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }

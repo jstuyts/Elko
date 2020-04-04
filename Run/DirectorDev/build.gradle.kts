@@ -11,14 +11,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
-    implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Director"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val startDirectorDev by tasks.registering(JavaExec::class) {
@@ -65,4 +60,5 @@ val stopDirectorDev by tasks.registering(JavaExec::class) {
             "127.0.0.1",
             "9062"
     )
+    isIgnoreExitValue = true
 }

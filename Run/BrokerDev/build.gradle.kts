@@ -11,14 +11,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
-    implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Broker"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val startBrokerDev by tasks.registering(JavaExec::class) {
@@ -58,4 +53,5 @@ val stopBrokerDev by tasks.registering(JavaExec::class) {
             "9011",
             "secret"
     )
+    isIgnoreExitValue = true
 }

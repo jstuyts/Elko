@@ -11,14 +11,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
-    implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Context"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val startContextStandalone by tasks.registering(JavaExec::class) {
@@ -76,4 +71,5 @@ val stopContextStandalone by tasks.registering(JavaExec::class) {
             "9000",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }

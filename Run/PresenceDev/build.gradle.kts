@@ -11,14 +11,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
-    implementation(project(":Json"))
     implementation(project(":MongoObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Presence"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val startPresenceDev by tasks.registering(JavaExec::class) {
@@ -65,4 +60,5 @@ val stopPresenceDev by tasks.registering(JavaExec::class) {
             "9041",
             "secret"
     )
+    isIgnoreExitValue = true
 }

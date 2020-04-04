@@ -11,14 +11,9 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
-    implementation(project(":Json"))
     implementation(project(":FileObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Context"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val startClusterDevContext1 by tasks.registering(JavaExec::class) {
@@ -76,6 +71,7 @@ val stopClusterDevContext1 by tasks.registering(JavaExec::class) {
             "9000",
             "-"
     )
+    isIgnoreExitValue = true
 }
 
 val startClusterDevContext2 by tasks.registering(JavaExec::class) {
@@ -133,4 +129,5 @@ val stopClusterDevContext2 by tasks.registering(JavaExec::class) {
             "9100",
             "-"
     )
+    isIgnoreExitValue = true
 }

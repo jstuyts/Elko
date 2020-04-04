@@ -11,18 +11,13 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
-    implementation(project(":Json"))
     implementation(project(":FileObjectStore"))
     implementation(project(":MongoObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Broker"))
     implementation(project(":Server:Context"))
     implementation(project(":Server:Director"))
     implementation(project(":Server:Workshop"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val brokerDataDirectory by tasks.registering {
@@ -108,6 +103,7 @@ val stopBasicClusterBroker by tasks.registering(JavaExec::class) {
             "9011",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }
 
 val startBasicClusterContext by tasks.registering(JavaExec::class) {
@@ -171,6 +167,7 @@ val stopBasicClusterContext by tasks.registering(JavaExec::class) {
             "figleaf",
             "context"
     )
+    isIgnoreExitValue = true
 }
 
 val startBasicClusterDirector by tasks.registering(JavaExec::class) {
@@ -225,6 +222,7 @@ val stopBasicClusterDirector by tasks.registering(JavaExec::class) {
             "9062",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }
 
 val startBasicClusterWorkshop by tasks.registering(JavaExec::class) {
@@ -274,4 +272,5 @@ val stopBasicClusterWorkshop by tasks.registering(JavaExec::class) {
             "9020",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }

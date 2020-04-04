@@ -11,18 +11,13 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Boot:Api"))
-    implementation(project(":Boot:App"))
-    implementation(project(":Json"))
     implementation(project(":FileObjectStore"))
     implementation(project(":MongoObjectStore"))
-    implementation(project(":ObjectDatabase:Local"))
     implementation(project(":Server:Broker"))
     implementation(project(":Server:Context"))
     implementation(project(":Server:Director"))
     implementation(project(":Server:Gatekeeper"))
     implementation(project(":ServerManagement"))
-    implementation(project(":Trace"))
 }
 
 val brokerDataDirectory by tasks.registering {
@@ -92,6 +87,7 @@ val stopClusterManagedBroker by tasks.registering(JavaExec::class) {
             "9011",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }
 
 val startClusterManagedContext by tasks.registering(JavaExec::class) {
@@ -145,6 +141,7 @@ val stopClusterManagedContext by tasks.registering(JavaExec::class) {
             "figleaf",
             "ContextServer"
     )
+    isIgnoreExitValue = true
 }
 
 val startClusterManagedDirector by tasks.registering(JavaExec::class) {
@@ -186,6 +183,7 @@ val stopClusterManagedDirector by tasks.registering(JavaExec::class) {
             "127.0.0.1",
             "9061"
     )
+    isIgnoreExitValue = true
 }
 
 val startClusterManagedGatekeeper by tasks.registering(JavaExec::class) {
@@ -240,4 +238,5 @@ val stopClusterManagedGatekeeper by tasks.registering(JavaExec::class) {
             "9031",
             "figleaf"
     )
+    isIgnoreExitValue = true
 }
