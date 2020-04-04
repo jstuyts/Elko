@@ -82,3 +82,11 @@ val stopRepositoryDev by tasks.registering(JavaExec::class) {
     )
     isIgnoreExitValue = true
 }
+
+val cleanRunLogs by tasks.registering {
+    doLast {
+        file("logs").listFiles({ _, name -> !name.startsWith('.') })?.forEach {
+            it.delete()
+        }
+    }
+}
