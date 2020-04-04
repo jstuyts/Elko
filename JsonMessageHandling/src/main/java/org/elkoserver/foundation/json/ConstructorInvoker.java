@@ -46,11 +46,7 @@ class ConstructorInvoker extends Invoker {
      */
     Object construct(JSONObject obj, TypeResolver resolver) {
         try {
-            if (amIncludingRawObject) {
-                return apply(null, obj, obj.properties(), resolver);
-            } else {
-                return apply(null, null, obj.properties(), resolver);
-            }
+            return apply(null, amIncludingRawObject ? obj : null, obj.properties(), resolver);
         } catch (JSONInvocationException e) {
             traceFactory.comm.errorm("error calling JSON constructor: " +
                               e.getMessage());

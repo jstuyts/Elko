@@ -61,7 +61,7 @@ class Bank implements Encodable {
     /** The reference string of this bank's root key. */
     private String myRootKeyRef;
 
-    /** Random number source for generatng new refs. */
+    /** Random number source for generating new refs. */
     private static SecureRandom theRandom = new SecureRandom();
 
     /** The workshop in which this bank is running. */
@@ -85,7 +85,6 @@ class Bank implements Encodable {
      * @param keys  Array of keys for access to this bank's contents.
      * @param currencies  Array of currencies this bank is managing.
      * @param accountCollection  Optional collection name for account storage.
-     * @param clock
      */
     @JSONMethod({ "ref", "rootkey", "keys", "currencies", "collection" })
     Bank(String ref, OptString rootKeyRef, Key[] keys, Currency[] currencies,
@@ -413,14 +412,11 @@ class Bank implements Encodable {
      *
      * @param currency   Name of the new currency.
      * @param memo  Annotation on the currency.
-     *
-     * @return a new currency with the given name.
      */
-    Currency makeCurrency(String currency, String memo) {
+    void makeCurrency(String currency, String memo) {
         Currency newCurrency = new Currency(currency, memo);
         myCurrencies.put(currency, newCurrency);
         checkpoint();
-        return newCurrency;
     }
 
     /**
@@ -571,7 +567,6 @@ class Bank implements Encodable {
     {
         myWorkshop.queryObjects(queryEnc(encRef), myAccountCollection, 1,
                 queryResult -> {
-                    Encumbrance enc = null;
                     if (queryResult == null) {
                         myTrace.errorm("encumbrance object " + encRef +
                                        " not found");
@@ -595,7 +590,7 @@ class Bank implements Encodable {
 
     /**
      * Lookup a pair of accounts, one by the reference string of an encumbrance
-     * an the other directly, and perform some joint operation on them
+     * and the other directly, and perform some joint operation on them
      * atomically.
      *
      * @param encRef  The ref of an encumbrance on the first account to be

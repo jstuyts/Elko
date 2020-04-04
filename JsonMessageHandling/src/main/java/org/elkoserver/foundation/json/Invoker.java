@@ -104,10 +104,7 @@ abstract class Invoker {
                  TypeResolver resolver)
         throws MessageHandlerException, JSONInvocationException
     {
-        int firstIndex = 0;
-        if (firstParam != null) {
-            firstIndex = 1;
-        }
+        int firstIndex = firstParam == null ? 0 : 1;
         Object[] params = new Object[myParamTypes.length];
         for (Map.Entry<String, Object> entry : parameters) {
             String paramName = entry.getKey();
