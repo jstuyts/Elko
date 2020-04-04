@@ -30,7 +30,7 @@ class Gatekeeper internal constructor(
     private val myRefTable: RefTable
 
     /** Local auth service module.  */
-    private var myAuthorizer: Authorizer? = null
+    private val myAuthorizer: Authorizer
 
     /** Host description for the director.  */
     private var myDirectorHost: HostDesc?
@@ -224,20 +224,20 @@ class Gatekeeper internal constructor(
                     " not found")
         }
         myAuthorizer = try {
-            authorizerClass.getConstructor().newInstance() as Authorizer
+            authorizerClass.getConstructor(TraceFactory::class.java).newInstance(traceFactory) as Authorizer
         } catch (e: IllegalAccessException) {
             tr.fatalError("unable to access auth service constructor: $e")
         } catch (e: InstantiationException) {
             tr.fatalError("unable to instantiate auth service object: $e")
         } catch (e: NoSuchMethodException) {
-            tr.fatalError("auth service object does not have a public no-arg constructor: $e")
+            tr.fatalError("auth service object does not have a public constructor accepting a trace factory: $e")
         } catch (e: InvocationTargetException) {
             tr.fatalError("error occurred during instantiation of auth service object: $e")
         }
-        myAuthorizer!!.initialize(this)
+        myAuthorizer.initialize(this)
         myServer.registerShutdownWatcher {
             myDirectorActorFactory.disconnectDirector()
-            myAuthorizer!!.shutdown()
+            myAuthorizer.shutdown()
         }
     }
 }
