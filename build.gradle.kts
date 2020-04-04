@@ -9,6 +9,10 @@ buildscript {
     }
 }
 
+plugins {
+    id("com.gitlab.stfs.gradle.dependency-graph-plugin") version "0.3"
+}
+
 group = "org.elko"
 version = "2.0.4-SNAPSHOT"
 
