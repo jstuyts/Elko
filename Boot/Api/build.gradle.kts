@@ -1,12 +1,14 @@
 plugins {
-    `java-library`
+    kotlin("jvm")
+}
+
+repositories {
+    jcenter()
+    mavenCentral()
 }
 
 dependencies {
     implementation(project(":Properties"))
     implementation(project(":Trace"))
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_12
+    implementation(kotlin("stdlib-jdk8"))
 }

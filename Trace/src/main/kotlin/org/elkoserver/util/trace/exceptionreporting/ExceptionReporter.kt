@@ -3,7 +3,7 @@ package org.elkoserver.util.trace.exceptionreporting
 /**
  * A collection of static methods for doing useful things with exceptions.
  */
-class ExceptionReporter(private var theNoticer: ExceptionNoticer) {
+class ExceptionReporter(private val theNoticer: ExceptionNoticer) {
 
     /**
      * Handle an exception, either by printing its stack trace to the standard

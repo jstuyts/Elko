@@ -9,7 +9,7 @@ repositories {
 
 dependencies {
     implementation(project(":Actor"))
-    implementation(project(":Boot:Api"))
+    implementation(project(":Boot:Api", "default"))
     implementation(project(":Json"))
     implementation(project(":JsonMessageHandling"))
     implementation(project(":Net:Api"))

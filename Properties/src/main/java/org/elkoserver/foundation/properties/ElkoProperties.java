@@ -1,7 +1,10 @@
 package org.elkoserver.foundation.properties;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.Properties;
+
+import static java.util.Objects.hash;
 
 /**
  * Enhanced version of the Java {@link Properties} class that knows how to pull
@@ -134,5 +137,18 @@ public class ElkoProperties
         } else {
             return false;
         }
+    }
+
+    @Override
+    public boolean equals(Object otherAsObject) {
+        if (this == otherAsObject) return true;
+        if (otherAsObject == null || getClass() != otherAsObject.getClass()) return false;
+        ElkoProperties other = (ElkoProperties) otherAsObject;
+        return properties.equals(other.properties);
+    }
+
+    @Override
+    public int hashCode() {
+        return hash(properties);
     }
 }
