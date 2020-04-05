@@ -6,7 +6,9 @@ import java.time.Clock;
 import java.util.Date;
 import java.util.TimeZone;
 
+import org.elkoserver.foundation.json.ClockUsingObject;
 import org.elkoserver.foundation.json.JSONMethod;
+import org.elkoserver.foundation.json.PostInjectionInitializingObject;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Encodable;
 import org.elkoserver.json.EncodeControl;
@@ -15,14 +17,14 @@ import org.elkoserver.json.EncodeControl;
  * Object representing the date and time at which a key or encumbrance will
  * cease to be valid.
  */
-class ExpirationDate implements Comparable<ExpirationDate>, Encodable {
+class ExpirationDate implements Comparable<ExpirationDate>, Encodable, ClockUsingObject, PostInjectionInitializingObject {
     /** Millisecond clock time at which this expiration happens. */
     private long myTime;
 
     /** Singleton DateFormat object for parsing timestamp literals. */
-    private final DateFormat theDateFmt;
+    private DateFormat theDateFmt;
 
-    private final Clock clock;
+    private Clock clock;
 
     /**
      * Direct constructor.  The actual expiration time is represented by a
@@ -65,17 +67,35 @@ class ExpirationDate implements Comparable<ExpirationDate>, Encodable {
      * @param time  Millisecond clock time when expiration happens
      */
     @JSONMethod({ "when" })
-    ExpirationDate(long time, Clock clock) {
-        this.clock = clock;
-        theDateFmt =
-                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
-        theDateFmt.setTimeZone(TimeZone.getTimeZone(clock.getZone()));
-        theDateFmt.setLenient(true);
+    ExpirationDate(long time) {
         if (time == 0) {
             myTime = Long.MAX_VALUE;
         } else {
             myTime = time;
         }
+    }
+
+    ExpirationDate(long time, Clock clock) {
+        setClock(clock);
+        initialize();
+        if (time == 0) {
+            myTime = Long.MAX_VALUE;
+        } else {
+            myTime = time;
+        }
+    }
+
+    @Override
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Override
+    public void initialize() {
+        theDateFmt =
+                DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM);
+        theDateFmt.setTimeZone(TimeZone.getTimeZone(clock.getZone()));
+        theDateFmt.setLenient(true);
     }
 
     /**

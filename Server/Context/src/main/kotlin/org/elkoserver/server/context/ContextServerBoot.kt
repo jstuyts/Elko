@@ -27,7 +27,7 @@ class ContextServerBoot : Bootable {
         tr = traceFactory.trace("cont")
         this.timer = Timer(traceFactory, clock)
         val server = Server(props, "context", tr, timer, clock, traceFactory)
-        myContextor = Contextor(server, tr, timer, traceFactory)
+        myContextor = Contextor(server, tr, timer, traceFactory, clock)
         if (server.startListeners("conf.listen",
                         ContextServiceFactory()) == 0) {
             tr.fatalError("no listeners specified")

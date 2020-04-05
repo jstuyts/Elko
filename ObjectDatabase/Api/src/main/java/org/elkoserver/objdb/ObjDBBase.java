@@ -10,6 +10,7 @@ import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
 import java.lang.reflect.Array;
+import java.time.Clock;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -24,13 +25,15 @@ abstract class ObjDBBase implements ObjDB {
     /** Application trace object for logging. */
     protected final Trace tr;
     private final TraceFactory traceFactory;
+    private final Clock clock;
 
     /**
      * Constructor.
      */
-    ObjDBBase(Trace appTrace, TraceFactory traceFactory) {
+    ObjDBBase(Trace appTrace, TraceFactory traceFactory, Clock clock) {
         tr = appTrace;
         this.traceFactory = traceFactory;
+        this.clock = clock;
         myClasses = new HashMap<>();
     }
 
@@ -58,7 +61,7 @@ abstract class ObjDBBase implements ObjDB {
         if (typeTag != null) {
             Class<?> type = myClasses.get(typeTag);
             if (type != null) {
-                result = ObjectDecoder.decode(type, jsonObj, this, traceFactory);
+                result = ObjectDecoder.decode(type, jsonObj, this, traceFactory, clock);
             } else {
                 tr.errorm("no class for type tag '" + typeTag + "'");
             }

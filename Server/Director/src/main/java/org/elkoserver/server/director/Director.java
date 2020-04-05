@@ -1,5 +1,6 @@
 package org.elkoserver.server.director;
 
+import java.time.Clock;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -80,11 +81,11 @@ class Director {
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    Director(Server server, Trace appTrace, TraceFactory traceFactory) {
+    Director(Server server, Trace appTrace, TraceFactory traceFactory, Clock clock) {
         myServer = server;
         tr = appTrace;
 
-        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory);
+        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock);
 
         myProviderHandler = new ProviderHandler(this, traceFactory);
         myRefTable.addRef(myProviderHandler);

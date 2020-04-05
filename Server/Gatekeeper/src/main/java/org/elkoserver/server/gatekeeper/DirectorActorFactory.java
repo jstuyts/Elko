@@ -7,6 +7,7 @@ import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
+import java.time.Clock;
 import java.util.function.Consumer;
 
 /**
@@ -47,11 +48,11 @@ class DirectorActorFactory implements MessageHandlerFactory {
      * @param appTrace  Trace object for diagnostics.
      */
     DirectorActorFactory(NetworkManager networkManager, Gatekeeper gatekeeper,
-                         Trace appTrace, Timer timer, TraceFactory traceFactory)
+                         Trace appTrace, Timer timer, TraceFactory traceFactory, Clock clock)
     {
         myNetworkManager = networkManager;
         this.timer = timer;
-        myDispatcher = new MessageDispatcher(null, traceFactory);
+        myDispatcher = new MessageDispatcher(null, traceFactory, clock);
         this.traceFactory = traceFactory;
         myDispatcher.addClass(DirectorActor.class);
         myDirector = null;

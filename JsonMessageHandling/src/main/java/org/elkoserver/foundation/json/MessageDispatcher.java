@@ -2,6 +2,7 @@ package org.elkoserver.foundation.json;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -21,16 +22,17 @@ public class MessageDispatcher {
         handler list for that verb, then this list is searched sequentially for
         a handler that matches a class acceptable to the object to which the
         message was actually addressed. */
-    private Map<String, MethodInvoker> myInvokers;
+    private final Map<String, MethodInvoker> myInvokers = new HashMap<>();
 
     /** Classes for which there is stored dispatch information, to avoid
         repeating reflection operations. */
-    private Set<Class<?>> myClasses;
+    private final Set<Class<?>> myClasses = new HashSet<>();
 
     /** Type resolver for the type tags of JSON encoded message parameter
         objects. */
-    private TypeResolver myResolver;
-    private TraceFactory traceFactory;
+    private final TypeResolver myResolver;
+    private final TraceFactory traceFactory;
+    private final Clock clock;
 
     /**
      * Constructor.  Creates an empty dispatcher.
@@ -38,10 +40,9 @@ public class MessageDispatcher {
      * @param resolver Type resolver for the type tags of JSON encoded message
      *    parameter objects.
      */
-    public MessageDispatcher(TypeResolver resolver, TraceFactory traceFactory) {
+    public MessageDispatcher(TypeResolver resolver, TraceFactory traceFactory, Clock clock) {
         this.traceFactory = traceFactory;
-        myInvokers = new HashMap<>();
-        myClasses = new HashSet<>();
+        this.clock = clock;
         myResolver = resolver;
     }
 
@@ -110,7 +111,7 @@ public class MessageDispatcher {
                 String name = method.getName();
                 MethodInvoker prev = myInvokers.get(name);
                 myInvokers.put(name,
-                    new MethodInvoker(method, paramTypes, paramNames, prev, traceFactory));
+                    new MethodInvoker(method, paramTypes, paramNames, prev, traceFactory, clock));
             }
             myClasses.add(targetClass);
         }

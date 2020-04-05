@@ -12,6 +12,7 @@ import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.lang.reflect.InvocationTargetException
+import java.time.Clock
 import java.util.function.Consumer
 
 /**
@@ -20,12 +21,11 @@ import java.util.function.Consumer
  * do most of the real work in the Gatekeeper.
  */
 class Gatekeeper internal constructor(
-        /** Server object.  */
         private val myServer: Server,
-        /** Trace object for diagnostics.  */
         private val tr: Trace,
         timer: Timer,
-        traceFactory: TraceFactory) {
+        traceFactory: TraceFactory,
+        clock: Clock) {
     /** Table for mapping object references in messages.  */
     private val myRefTable: RefTable
 
@@ -195,11 +195,11 @@ class Gatekeeper internal constructor(
     }
 
     init {
-        myRefTable = RefTable(null, traceFactory)
+        myRefTable = RefTable(null, traceFactory, clock)
         myRefTable.addRef(UserHandler(this, traceFactory))
         myRefTable.addRef(AdminHandler(this, traceFactory))
         val props = myServer.props()
-        myDirectorActorFactory = DirectorActorFactory(myServer.networkManager(), this, tr, timer, traceFactory)
+        myDirectorActorFactory = DirectorActorFactory(myServer.networkManager(), this, tr, timer, traceFactory, clock)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
         myDirectorHost = null
         if (props.testProperty("conf.gatekeeper.director.auto")) {

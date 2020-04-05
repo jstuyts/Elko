@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.actor;
 
+import java.time.Clock;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +47,7 @@ public class RefTable implements Iterable<DispatchTarget> {
         precomputed Java reflection objects). */
     private MessageDispatcher myDispatcher;
     protected final TraceFactory traceFactory;
+    protected final Clock clock;
 
     /**
      * Constructor.  Creates an empty reference table.
@@ -53,11 +55,12 @@ public class RefTable implements Iterable<DispatchTarget> {
      * @param resolver  Type resolver for the type tags of JSON encoded
      *    object descriptors.
      */
-    public RefTable(TypeResolver resolver, TraceFactory traceFactory) {
+    public RefTable(TypeResolver resolver, TraceFactory traceFactory, Clock clock) {
         this.traceFactory = traceFactory;
+        this.clock = clock;
         myObjects = new HashMap<>();
         myObjectGroups = new HashMap<>();
-        myDispatcher = new MessageDispatcher(resolver, traceFactory);
+        myDispatcher = new MessageDispatcher(resolver, traceFactory, clock);
         addRef(new ErrorHandler(traceFactory));
     }
 

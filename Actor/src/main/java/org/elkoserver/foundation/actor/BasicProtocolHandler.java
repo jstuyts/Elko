@@ -3,6 +3,7 @@ package org.elkoserver.foundation.actor;
 import org.elkoserver.foundation.json.DispatchTarget;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptString;
+import org.elkoserver.foundation.json.TraceFactoryUsingObject;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
@@ -17,14 +18,21 @@ import org.elkoserver.util.trace.TraceFactory;
  * circumstances.
  */
 public abstract class BasicProtocolHandler
-    implements Referenceable, DispatchTarget
+    implements Referenceable, DispatchTarget, TraceFactoryUsingObject
 {
     private TraceFactory traceFactory;
 
     /**
      * Constructor.
      */
+    protected BasicProtocolHandler() {
+    }
+
     protected BasicProtocolHandler(TraceFactory traceFactory) {
+        this.traceFactory = traceFactory;
+    }
+
+    public void setTraceFactory(TraceFactory traceFactory) {
         this.traceFactory = traceFactory;
     }
 

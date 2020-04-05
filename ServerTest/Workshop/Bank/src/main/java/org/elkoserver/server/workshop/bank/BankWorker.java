@@ -3,26 +3,23 @@ package org.elkoserver.server.workshop.bank;
 import java.text.ParseException;
 import java.time.Clock;
 
+import org.elkoserver.foundation.json.*;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
-import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.MessageHandlerException;
-import org.elkoserver.foundation.json.OptBoolean;
-import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.server.workshop.WorkerObject;
 import org.elkoserver.server.workshop.WorkshopActor;
 
 /**
  * Workshop worker object for the bank service.
  */
-public class BankWorker extends WorkerObject {
+public class BankWorker extends WorkerObject implements ClockUsingObject {
     /** The bank this worker is the interface to. */
     private Bank myBank;
 
     /** Reference string for the bank, which is known prior to the bank being
         loaded. */
     private String myBankRef;
-    private final Clock clock;
+    private Clock clock;
 
     /**
      * Common state for a request to the banking service.
@@ -327,9 +324,13 @@ public class BankWorker extends WorkerObject {
      *    this worker object provides the interface to.
      */
     @JSONMethod({ "service", "bank" })
-    public BankWorker(OptString serviceName, String bankRef, Clock clock) {
+    public BankWorker(OptString serviceName, String bankRef) {
         super(serviceName.value("bank"));
         myBankRef = bankRef;
+    }
+
+    @Override
+    public void setClock(Clock clock) {
         this.clock = clock;
     }
 

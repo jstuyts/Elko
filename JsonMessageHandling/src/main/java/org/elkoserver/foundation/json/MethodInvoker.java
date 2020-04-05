@@ -2,6 +2,8 @@ package org.elkoserver.foundation.json;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.time.Clock;
+
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -32,9 +34,9 @@ class MethodInvoker extends Invoker {
      * @param next  Next JSON method in a growing chain.
      */
     MethodInvoker(Method method, Class<?>[] paramTypes, String[] paramNames,
-                  MethodInvoker next, TraceFactory traceFactory)
+                  MethodInvoker next, TraceFactory traceFactory, Clock clock)
     {
-        super(method, paramTypes, paramNames, 1, traceFactory);
+        super(method, paramTypes, paramNames, 1, traceFactory, clock);
         myMethod = method;
         myMethodClass = method.getDeclaringClass();
         myNext = next;

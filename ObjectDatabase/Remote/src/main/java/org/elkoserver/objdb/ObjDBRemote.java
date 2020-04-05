@@ -16,6 +16,7 @@ import org.elkoserver.objdb.store.ResultDesc;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -101,9 +102,9 @@ public class ObjDBRemote extends ObjDBBase {
      */
     public ObjDBRemote(ServiceFinder serviceFinder,
                        NetworkManager networkManager, final String localName,
-                       ElkoProperties props, String propRoot, Trace appTrace, TraceFactory traceFactory, Timer timer)
+                       ElkoProperties props, String propRoot, Trace appTrace, TraceFactory traceFactory, Timer timer, Clock clock)
     {
-        super(appTrace, traceFactory);
+        super(appTrace, traceFactory, clock);
         this.timer = timer;
         myODBActor = null;
         myNetworkManager = networkManager;
@@ -125,7 +126,7 @@ public class ObjDBRemote extends ObjDBBase {
 
         myMsgTrace = traceFactory.comm;
 
-        myDispatcher = new MessageDispatcher(this, traceFactory);
+        myDispatcher = new MessageDispatcher(this, traceFactory, clock);
         myDispatcher.addClass(ODBActor.class);
         if (serviceName != null) {
             myRepHost = null;

@@ -2,6 +2,8 @@ package org.elkoserver.foundation.json;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
+import java.time.Clock;
+
 import org.elkoserver.json.JSONObject;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -12,25 +14,24 @@ import org.elkoserver.util.trace.TraceFactory;
  */
 class ConstructorInvoker extends Invoker {
     /** The constructor to call. */
-    private Constructor<?> myConstructor;
+    private final Constructor<?> myConstructor;
 
     /** Flag to include the raw JSON object being decoded as a constructor
         parameter. */
-    private boolean amIncludingRawObject;
+    private final boolean amIncludingRawObject;
 
     /**
      * Constructor.
-     *
-     * @param constructor  The JSON-driven constructor itself.
+     *  @param constructor  The JSON-driven constructor itself.
      * @param includeRawObject  If true, pass the JSON object being decoded
      *    as the first parameter to the constructor.
      * @param paramTypes  The types of the various parameters.
      * @param paramNames  JSON names for the parameters.
      */
     ConstructorInvoker(Constructor<?> constructor, boolean includeRawObject,
-                       Class<?>[] paramTypes, String[] paramNames, TraceFactory traceFactory)
+                       Class<?>[] paramTypes, String[] paramNames, TraceFactory traceFactory, Clock clock)
     {
-        super(constructor, paramTypes, paramNames, includeRawObject ? 1 : 0, traceFactory);
+        super(constructor, paramTypes, paramNames, includeRawObject ? 1 : 0, traceFactory, clock);
         myConstructor = constructor;
         amIncludingRawObject = includeRawObject;
     }
@@ -46,7 +47,7 @@ class ConstructorInvoker extends Invoker {
      */
     Object construct(JSONObject obj, TypeResolver resolver) {
         try {
-            return apply(null, amIncludingRawObject ? obj : null, obj.properties(), resolver);
+            return tryToConstruct(obj, resolver);
         } catch (JSONInvocationException e) {
             traceFactory.comm.errorm("error calling JSON constructor: " +
                               e.getMessage());
@@ -60,6 +61,24 @@ class ConstructorInvoker extends Invoker {
                                             "calling JSON constructor");
             return null;
         }
+    }
+
+    private Object tryToConstruct(JSONObject obj, TypeResolver resolver) throws MessageHandlerException, JSONInvocationException {
+        Object result = apply(null, amIncludingRawObject ? obj : null, obj.properties(), resolver);
+
+        // FIXME: Injectors must be injected, so they can be extended without having to touch this class
+        if (result instanceof ClockUsingObject) {
+            ((ClockUsingObject)result).setClock(clock);
+        }
+        if (result instanceof TraceFactoryUsingObject) {
+            ((TraceFactoryUsingObject)result).setTraceFactory(traceFactory);
+        }
+
+        if (result instanceof PostInjectionInitializingObject) {
+            ((PostInjectionInitializingObject)result).initialize();
+        }
+
+        return result;
     }
 
     /**

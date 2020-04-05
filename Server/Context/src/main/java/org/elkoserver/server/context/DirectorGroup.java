@@ -1,5 +1,6 @@
 package org.elkoserver.server.context;
 
+import java.time.Clock;
 import java.util.Collections;
 import java.util.ConcurrentModificationException;
 import java.util.HashMap;
@@ -49,9 +50,9 @@ class DirectorGroup extends OutboundGroup {
      */
     DirectorGroup(Server server, Contextor contextor,
                   List<HostDesc> directors, List<HostDesc> listeners,
-                  Trace appTrace, Timer timer, TraceFactory traceFactory)
+                  Trace appTrace, Timer timer, TraceFactory traceFactory, Clock clock)
     {
-        super("conf.register", server, contextor, directors, appTrace, timer, traceFactory);
+        super("conf.register", server, contextor, directors, appTrace, timer, traceFactory, clock);
 
         server.registerLoadWatcher(factor -> send(msgLoad(factor)));
 

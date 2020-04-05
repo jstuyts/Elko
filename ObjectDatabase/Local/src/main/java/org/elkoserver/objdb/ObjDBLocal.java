@@ -7,6 +7,7 @@ import org.elkoserver.objdb.store.*;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
+import java.time.Clock;
 import java.util.function.Consumer;
 
 /**
@@ -43,8 +44,8 @@ public class ObjDBLocal extends ObjDBBase {
      *    properties.
      * @param appTrace  Trace object for event logging.
      */
-    public ObjDBLocal(ElkoProperties props, String propRoot, Trace appTrace, TraceFactory traceFactory) {
-        super(appTrace, traceFactory);
+    public ObjDBLocal(ElkoProperties props, String propRoot, Trace appTrace, TraceFactory traceFactory, Clock clock) {
+        super(appTrace, traceFactory, clock);
 
         myObjectStore = ObjectStoreFactory.createAndInitializeObjectStore(props, propRoot, tr);
 

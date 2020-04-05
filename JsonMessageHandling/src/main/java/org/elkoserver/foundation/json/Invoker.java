@@ -8,6 +8,7 @@ import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Array;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -28,6 +29,8 @@ abstract class Invoker {
 
     protected final TraceFactory traceFactory;
 
+    protected final Clock clock;
+
     /** Parameter optionality flags, by position. */
     private boolean[] myParamOptFlags;
 
@@ -46,11 +49,12 @@ abstract class Invoker {
      * @throws JSONSetupError if the method breaks the rules for a JSON method.
      */
     Invoker(Member method, Class<?>[] paramTypes, String[] paramNames,
-            int firstIndex, TraceFactory traceFactory)
+            int firstIndex, TraceFactory traceFactory, Clock clock)
     {
         myParamTypes = paramTypes;
         myParamNames = paramNames;
         this.traceFactory = traceFactory;
+        this.clock = clock;
 
         ((AccessibleObject) method).setAccessible(true);
 
@@ -272,7 +276,7 @@ abstract class Invoker {
                 return value;
             } else {
                 return ObjectDecoder.decode(paramType, (JSONObject) value,
-                                            resolver, traceFactory);
+                                            resolver, traceFactory, clock);
             }
         } else if (valueType == paramType) {
             return value;

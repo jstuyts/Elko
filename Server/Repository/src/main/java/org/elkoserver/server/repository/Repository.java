@@ -8,6 +8,8 @@ import org.elkoserver.objdb.store.ObjectStore;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
+import java.time.Clock;
+
 /**
  * Main state data structure in a Repository.
  */
@@ -33,12 +35,12 @@ class Repository {
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    Repository(Server server, Trace appTrace, TraceFactory traceFactory) {
+    Repository(Server server, Trace appTrace, TraceFactory traceFactory, Clock clock) {
         myServer = server;
 
         myObjectStore = ObjectStoreFactory.createAndInitializeObjectStore(server.props(), "conf.rep", appTrace);
 
-        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory);
+        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock);
         myRefTable.addRef(new RepHandler(this, traceFactory));
         myRefTable.addRef(new AdminHandler(this, traceFactory));
 

@@ -29,7 +29,7 @@ public class WorkshopBoot implements Bootable {
         Timer timer = new Timer(traceFactory, clock);
         Server server = new Server(props, "workshop", tr, timer, clock, traceFactory);
 
-        myWorkshop = new Workshop(server, tr, traceFactory);
+        myWorkshop = new Workshop(server, tr, traceFactory, clock);
 
         if (server.startListeners("conf.listen",
                                   new WorkshopServiceFactory()) == 0) {

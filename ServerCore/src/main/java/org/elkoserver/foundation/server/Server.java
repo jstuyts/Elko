@@ -109,6 +109,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
     private RefTable myServiceRefTable;
     private final TraceFactory traceFactory;
     private final Timer timer;
+    private final Clock clock;
 
     /**
      * Generate the Server from Java properties.
@@ -120,6 +121,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
     public Server(ElkoProperties props, String serverType, Trace appTrace, Timer timer, Clock clock, TraceFactory traceFactory) {
         this.timer = timer;
         this.traceFactory = traceFactory;
+        this.clock = clock;
         myProps = props;
         myConnectionCount = 0;
         myMainRunner = Runner.currentRunner(traceFactory);
@@ -160,7 +162,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         myServiceRefTable = null;
 
         myDispatcher = new MessageDispatcher(
-            AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory);
+            AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock);
         myDispatcher.addClass(BrokerActor.class);
         myPendingFinds = new HashMapMulti<>();
         myBrokerActor = null;
@@ -476,13 +478,13 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      */
     public ObjDB openObjectDatabase(String propRoot) {
         if (myProps.getProperty(propRoot + ".odb") != null) {
-            return new ObjDBLocal(myProps, propRoot, tr, traceFactory);
+            return new ObjDBLocal(myProps, propRoot, tr, traceFactory, clock);
         } else {
             if (myProps.getProperty(propRoot + ".repository.host") != null ||
                 myProps.getProperty(propRoot + ".repository.service") != null)
             {
                 return new ObjDBRemote(this, myNetworkManager, myServerName,
-                                       myProps, propRoot, tr, traceFactory, timer);
+                                       myProps, propRoot, tr, traceFactory, timer, clock);
             } else {
                 return null;
             }

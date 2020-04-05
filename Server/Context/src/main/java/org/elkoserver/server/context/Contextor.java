@@ -14,6 +14,7 @@ import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
 import java.security.SecureRandom;
+import java.time.Clock;
 import java.util.*;
 import java.util.function.Consumer;
 
@@ -87,8 +88,8 @@ public class Contextor extends RefTable {
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    Contextor(Server server, Trace appTrace, Timer timer, TraceFactory traceFactory) {
-        this(server.openObjectDatabase("conf.context"), server, appTrace, timer, traceFactory);
+    Contextor(Server server, Trace appTrace, Timer timer, TraceFactory traceFactory, Clock clock) {
+        this(server.openObjectDatabase("conf.context"), server, appTrace, timer, traceFactory, clock);
     }
 
     /**
@@ -110,8 +111,8 @@ public class Contextor extends RefTable {
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    private Contextor(ObjDB odb, Server server, Trace appTrace, Timer timer, TraceFactory traceFactory) {
-        super(odb, traceFactory);
+    private Contextor(ObjDB odb, Server server, Trace appTrace, Timer timer, TraceFactory traceFactory, Clock clock) {
+        super(odb, traceFactory, clock);
         tr = appTrace;
         this.timer = timer;
 
@@ -1284,7 +1285,7 @@ public class Contextor extends RefTable {
                                List<HostDesc> listeners)
     {
         DirectorGroup group =
-            new DirectorGroup(myServer, this, directors, listeners, tr, timer, traceFactory);
+            new DirectorGroup(myServer, this, directors, listeners, tr, timer, traceFactory, clock);
         if (group.isLive()) {
             myDirectorGroup = group;
         }
@@ -1299,7 +1300,7 @@ public class Contextor extends RefTable {
     void registerWithPresencers(List<HostDesc> presencers)
     {
         PresencerGroup group =
-            new PresencerGroup(myServer, this, presencers, tr, timer, traceFactory);
+            new PresencerGroup(myServer, this, presencers, tr, timer, traceFactory, clock);
         if (group.isLive()) {
             myPresencerGroup = group;
         }

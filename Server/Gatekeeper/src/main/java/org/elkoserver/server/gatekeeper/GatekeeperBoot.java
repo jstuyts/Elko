@@ -36,7 +36,7 @@ public class GatekeeperBoot implements Bootable {
         timer = new Timer(traceFactory, clock);
         Server server = new Server(props, "gatekeeper", tr, timer, clock, traceFactory);
 
-        myGatekeeper = new Gatekeeper(server, tr, timer, traceFactory);
+        myGatekeeper = new Gatekeeper(server, tr, timer, traceFactory, clock);
         myActionTimeout = 1000 *
             props.intProperty("conf.gatekeeper.actiontimeout",
                               DEFAULT_ACTION_TIMEOUT);

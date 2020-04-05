@@ -28,7 +28,7 @@ public class RepositoryBoot implements Bootable {
         Timer timer = new Timer(traceFactory, clock);
         Server server = new Server(props, "rep", tr, timer, clock, traceFactory);
 
-        myRepository = new Repository(server, tr, traceFactory);
+        myRepository = new Repository(server, tr, traceFactory, clock);
 
         if (server.startListeners("conf.listen",
                                   new RepositoryServiceFactory()) == 0) {

@@ -13,8 +13,6 @@ import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.User;
 import org.elkoserver.server.context.UserMod;
 
-import java.time.Clock;
-
 /**
  * Capability to enable external definition of persistent C-U-I objects.
  */
@@ -24,8 +22,8 @@ public class Definer extends Cap implements ItemMod, UserMod {
      * JSON-driven constructor.
      */
     @JSONMethod
-    public Definer(JSONObject raw, Clock clock) throws JSONDecodingException {
-        super(raw, clock);
+    public Definer(JSONObject raw) throws JSONDecodingException {
+        super(raw);
     }
 
     /**

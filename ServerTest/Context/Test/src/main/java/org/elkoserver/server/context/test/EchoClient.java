@@ -28,8 +28,8 @@ public class EchoClient extends AdminObject implements Consumer<Object> {
      * JSON-driven constructor.
      */
     @JSONMethod
-    public EchoClient(TraceFactory traceFactory) {
-        super(traceFactory);
+    public EchoClient() {
+        super();
         myStatus = "startup";
         myResultHandlers = new LinkedList<>();
     }

@@ -1,5 +1,6 @@
 package org.elkoserver.server.context;
 
+import java.time.Clock;
 import java.util.List;
 import org.elkoserver.foundation.actor.Actor;
 import org.elkoserver.foundation.json.MessageDispatcher;
@@ -25,9 +26,9 @@ class PresencerGroup extends OutboundGroup {
      * @param appTrace  Trace object for diagnostics.
      */
     PresencerGroup(Server server, Contextor contextor,
-                   List<HostDesc> presencers, Trace appTrace, Timer timer, TraceFactory traceFactory)
+                   List<HostDesc> presencers, Trace appTrace, Timer timer, TraceFactory traceFactory, Clock clock)
     {
-        super("conf.presence", server, contextor, presencers, appTrace, timer, traceFactory);
+        super("conf.presence", server, contextor, presencers, appTrace, timer, traceFactory, clock);
         connectHosts();
     }
 

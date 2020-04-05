@@ -30,7 +30,7 @@ public class PresenceServerBoot implements Bootable {
         Timer timer = new Timer(traceFactory, clock);
         Server server = new Server(props, "presence", tr, timer, clock, traceFactory);
 
-        myPresenceServer = new PresenceServer(server, tr, traceFactory);
+        myPresenceServer = new PresenceServer(server, tr, traceFactory, clock);
 
         if (server.startListeners("conf.listen",
                                   new PresenceServiceFactory()) == 0) {

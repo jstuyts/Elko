@@ -1,5 +1,6 @@
 package org.elkoserver.server.broker;
 
+import java.time.Clock;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -68,12 +69,12 @@ class Broker {
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    Broker(Server server, Trace appTrace, Timer timer, TraceFactory traceFactory) {
+    Broker(Server server, Trace appTrace, Timer timer, TraceFactory traceFactory, Clock clock) {
         myServer = server;
         tr = appTrace;
         this.timer = timer;
 
-        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory);
+        myRefTable = new RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock);
 
         myClientHandler = new ClientHandler(this, traceFactory);
         myRefTable.addRef(myClientHandler);

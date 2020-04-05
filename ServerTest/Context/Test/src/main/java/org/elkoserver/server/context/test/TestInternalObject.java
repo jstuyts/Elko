@@ -12,8 +12,8 @@ class TestInternalObject extends AdminObject {
      * JSON-driven constructor.
      */
     @JSONMethod
-    public TestInternalObject(TraceFactory traceFactory) {
-        super(traceFactory);
+    public TestInternalObject() {
+        super();
     }
 
     @JSONMethod({ "arg" })

@@ -1,8 +1,6 @@
 package org.elkoserver.server.context.test;
 
-import org.elkoserver.foundation.json.Cryptor;
-import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.ObjectDecoder;
+import org.elkoserver.foundation.json.*;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.json.JSONDecodingException;
 import org.elkoserver.json.JSONObject;
@@ -52,7 +50,7 @@ import java.util.TreeSet;
  * enough for a large number of them to accumulate in this factory's history of
  * nonces seen).
  */
-class TestUserFactory implements EphemeralUserFactory {
+class TestUserFactory implements EphemeralUserFactory, ClockUsingObject, TraceFactoryUsingObject, PostInjectionInitializingObject {
     /** Cryptor incorporating the key used to decrypt blobs. */
     private Cryptor myCryptor;
 
@@ -67,8 +65,9 @@ class TestUserFactory implements EphemeralUserFactory {
 
     /** Collection size threshold for triggering expired nonce purge */
     private static final int PURGE_SIZE_THRESHOLD = 1000;
-    private final TraceFactory traceFactory;
-    private final Clock clock;
+    private TraceFactory traceFactory;
+    private Clock clock;
+    private final String key;
 
     /**
      * Nonce.  Our nonces consist of an unguessable random string and an
@@ -95,12 +94,25 @@ class TestUserFactory implements EphemeralUserFactory {
      * JSON-driven constructor.
      */
     @JSONMethod({ "key" })
-    public TestUserFactory(String key, Clock clock, TraceFactory traceFactory) {
-        this.traceFactory = traceFactory;
-        this.clock = clock;
+    public TestUserFactory(String key) {
+        this.key = key;
         myNonces = new TreeSet<>();
+    }
+
+    @Override
+    public void setClock(Clock clock) {
+        this.clock = clock;
         myLastPurgeTime = clock.millis() / 1000;
-        myCryptor = new Cryptor(key, traceFactory);
+    }
+
+    @Override
+    public void setTraceFactory(TraceFactory traceFactory) {
+        this.traceFactory = traceFactory;
+    }
+
+    @Override
+    public void initialize() {
+        myCryptor = new Cryptor(key, traceFactory, clock);
     }
 
     /**
@@ -154,7 +166,7 @@ class TestUserFactory implements EphemeralUserFactory {
                         }
                         Object result =
                             ObjectDecoder.decode(User.class, userDesc,
-                                                 contextor.odb(), traceFactory);
+                                                 contextor.odb(), traceFactory, clock);
                         return (User) result;
                     } else {
                         contextor.appTrace().errorm("reused nonce");

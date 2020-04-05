@@ -9,6 +9,7 @@ import org.elkoserver.json.JSONObject
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import java.time.Clock
 import java.util.*
 import java.util.function.Consumer
 
@@ -32,7 +33,7 @@ import java.util.function.Consumer
  * @param tr  Trace object for diagnostics.
  */
 class Workshop private constructor(odb: ObjDB?, server: Server,
-                                   private val tr: Trace, traceFactory: TraceFactory) : RefTable(odb, traceFactory) {
+                                   private val tr: Trace, traceFactory: TraceFactory, clock: Clock) : RefTable(odb, traceFactory, clock) {
     /** Server object.  */
     private val myServer: Server
 
@@ -53,7 +54,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    internal constructor(server: Server, appTrace: Trace, traceFactory: TraceFactory) : this(server.openObjectDatabase("conf.workshop"), server, appTrace, traceFactory) {}
+    internal constructor(server: Server, appTrace: Trace, traceFactory: TraceFactory, clock: Clock) : this(server.openObjectDatabase("conf.workshop"), server, appTrace, traceFactory, clock) {}
 
     /**
      * Add a worker to the object table.

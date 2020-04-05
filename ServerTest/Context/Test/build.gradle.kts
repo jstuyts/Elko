@@ -12,7 +12,6 @@ dependencies {
     api(project(":JsonMessageHandling"))
     api(project(":Server:Context"))
     api(project(":ServerCore"))
-    api(project(":Trace"))
 }
 
 val apiClasses by tasks.registering(org.elkoserver.develop.gradle.apiclasses.ApiClassesTask::class)

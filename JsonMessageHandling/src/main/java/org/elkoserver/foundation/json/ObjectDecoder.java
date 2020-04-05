@@ -6,6 +6,7 @@ import org.elkoserver.json.SyntaxError;
 import org.elkoserver.util.trace.TraceFactory;
 
 import java.lang.reflect.Constructor;
+import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,6 +22,8 @@ public class ObjectDecoder {
 
     /** Reflection information for the Java constructor this decoder invokes.*/
     private ConstructorInvoker myConstructor;
+
+    private final Clock clock;
 
     /**
      * Constructor.
@@ -54,7 +57,8 @@ public class ObjectDecoder {
      * @throws JSONSetupError if an annotated constructor breaks the rules for
      *    a JSON-driven constructor.
      */
-    private ObjectDecoder(Class<?> decodeClass, TraceFactory traceFactory) {
+    private ObjectDecoder(Class<?> decodeClass, TraceFactory traceFactory, Clock clock) {
+        this.clock = clock;
         Constructor<?> jsonConstructor = null;
         boolean includeRawObject = false;
         Class<?>[] paramTypes = null;
@@ -90,7 +94,7 @@ public class ObjectDecoder {
         }
         myConstructor =
             new ConstructorInvoker(jsonConstructor, includeRawObject,
-                                   paramTypes, paramNames, traceFactory);
+                                   paramTypes, paramNames, traceFactory, this.clock);
     }
 
     /**
@@ -101,12 +105,12 @@ public class ObjectDecoder {
      *
      * @return a decoder for 'decodeClass', or null if one could not be made.
      */
-    private static ObjectDecoder classDecoder(Class<?> decodeClass, TraceFactory traceFactory) {
+    private static ObjectDecoder classDecoder(Class<?> decodeClass, TraceFactory traceFactory, Clock clock) {
         ObjectDecoder decoder = theDecoders.get(decodeClass);
 
         if (decoder == null) {
             try {
-                decoder = new ObjectDecoder(decodeClass, traceFactory);
+                decoder = new ObjectDecoder(decodeClass, traceFactory, clock);
                 theDecoders.put(decodeClass, decoder);
             } catch (JSONSetupError e) {
                 traceFactory.comm.errorm(e.getMessage());
@@ -145,7 +149,7 @@ public class ObjectDecoder {
      *    some reason.
      */
     public static Object decode(Class<?> baseType, JSONObject obj,
-                                TypeResolver resolver, TraceFactory traceFactory)
+                                TypeResolver resolver, TraceFactory traceFactory, Clock clock)
     {
         Object result = null;
         String typeName = obj.type();
@@ -159,7 +163,7 @@ public class ObjectDecoder {
             targetClass = baseType;
         }
         if (targetClass != null) {
-            ObjectDecoder decoder = classDecoder(targetClass, traceFactory);
+            ObjectDecoder decoder = classDecoder(targetClass, traceFactory, clock);
             if (decoder != null) {
                 result = decoder.decode(obj, resolver);
             } else {
@@ -183,15 +187,15 @@ public class ObjectDecoder {
      *    described by 'jsonObj', or null if the object could not be decoded
      *    for some reason.
      */
-    private static Object decode(Class<?> baseType, JSONObject jsonObj, TraceFactory traceFactory) {
+    private static Object decode(Class<?> baseType, JSONObject jsonObj, TraceFactory traceFactory, Clock clock) {
         return decode(baseType, jsonObj,
-                      AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory);
+                      AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock);
     }
 
     /**
      * A simple JSON string decoder for one-shot objects.  The given string is
      * first parsed, and then decoded as by the {@link
-     * #decode(Class,JSONObject,TypeResolver, TraceFactory)} method, using the {@link
+     * #decode(Class,JSONObject,TypeResolver, TraceFactory, Clock)} method, using the {@link
      * AlwaysBaseTypeResolver} to resolve type tags.
      *
      * @param baseType  The desired class of the resulting Java object.  The
@@ -203,11 +207,11 @@ public class ObjectDecoder {
      *    described by 'str', or null if the string was syntactically malformed
      *    or the object could not be decoded for some reason.
      */
-    public static Object decode(Class<?> baseType, String str, TraceFactory traceFactory) {
+    public static Object decode(Class<?> baseType, String str, TraceFactory traceFactory, Clock clock) {
         try {
             Parser parser = new Parser(str);
             JSONObject jsonObj = parser.parseObjectLiteral();
-            return decode(baseType, jsonObj, traceFactory);
+            return decode(baseType, jsonObj, traceFactory, clock);
         } catch (SyntaxError e) {
             traceFactory.comm.warningm("syntax error decoding object: " +
                                 e.getMessage());

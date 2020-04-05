@@ -82,7 +82,7 @@ class CryptoTest {
             keyStr = Cryptor.generateKey(traceController.getFactory());
         } 
 
-        Cryptor cryptor = new Cryptor(keyStr, traceController.getFactory());
+        Cryptor cryptor = new Cryptor(keyStr, traceController.getFactory(), Clock.systemDefaultZone());
 
         if (cypherText != null) {
             try {

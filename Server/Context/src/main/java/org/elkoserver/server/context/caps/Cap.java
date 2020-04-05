@@ -1,11 +1,6 @@
 package org.elkoserver.server.context.caps;
 
-import org.elkoserver.foundation.json.Deliverer;
-import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.MessageHandlerException;
-import org.elkoserver.foundation.json.OptBoolean;
-import org.elkoserver.foundation.json.OptInteger;
-import org.elkoserver.foundation.json.OptString;
+import org.elkoserver.foundation.json.*;
 import org.elkoserver.json.JSONDecodingException;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONObject;
@@ -22,7 +17,7 @@ import java.time.Clock;
  * Base class for implementing capability mods that grant access to privileged
  * operations.
  */
-public abstract class Cap extends Mod implements ObjectCompletionWatcher {
+public abstract class Cap extends Mod implements ObjectCompletionWatcher, ClockUsingObject {
 
     /** Scope flag: if true, holder can transfer the capability to another
         holder. */
@@ -37,7 +32,7 @@ public abstract class Cap extends Mod implements ObjectCompletionWatcher {
      * capability is ephemeral, i.e., that it expires when the holder exits.
      */
     private long myExpiration;
-    private final Clock clock;
+    private Clock clock;
 
     /**
      * JSON-driven constructor.
@@ -56,10 +51,14 @@ public abstract class Cap extends Mod implements ObjectCompletionWatcher {
      *
      * @param desc  The parsed JSON object describing this capability mod.
      */
-    Cap(JSONObject desc, Clock clock) throws JSONDecodingException {
+    Cap(JSONObject desc) throws JSONDecodingException {
         amTransferrable = desc.optBoolean("transferrable", true);
         amDeletable     = desc.optBoolean("deletable", true);
         myExpiration    = desc.optLong("expiration", 0);
+    }
+
+    @Override
+    public void setClock(Clock clock) {
         this.clock = clock;
     }
 

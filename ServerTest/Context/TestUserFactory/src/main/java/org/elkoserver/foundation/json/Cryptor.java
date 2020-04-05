@@ -14,17 +14,19 @@ import java.security.InvalidAlgorithmParameterException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.time.Clock;
 
 /**
  * Simple AES-based string encryptor/decryptor, for passing sealed bundles of
  * data through an untrusted party.
  */
 public class Cryptor {
-    private Cipher myCipher;
-    private SecretKey myKey;
-    private TraceFactory traceFactory;
-    private static Base64 theCodec = new Base64();
-    private static SecureRandom theRandom = new SecureRandom();
+    private final Cipher myCipher;
+    private final SecretKey myKey;
+    private final TraceFactory traceFactory;
+    private final Clock clock;
+    private static final Base64 theCodec = new Base64();
+    private static final SecureRandom theRandom = new SecureRandom();
 
     private static final String KEY_ALGORITHM = "AES";
     private static final String CRYPTO_ALGORITHM = "AES/CBC/PKCS5Padding";
@@ -35,9 +37,10 @@ public class Cryptor {
      * @param keyStr  Base64-encoded symmetric key.
      *
      */
-    public Cryptor(String keyStr, TraceFactory traceFactory) {
+    public Cryptor(String keyStr, TraceFactory traceFactory, Clock clock) {
         myKey = decodeKey(keyStr);
         this.traceFactory = traceFactory;
+        this.clock = clock;
         try {
             myCipher = Cipher.getInstance(CRYPTO_ALGORITHM);
 
@@ -133,7 +136,7 @@ public class Cryptor {
     public Object decryptObject(Class<?> baseType, String str)
         throws IOException
     {
-        return ObjectDecoder.decode(baseType, decrypt(str), traceFactory);
+        return ObjectDecoder.decode(baseType, decrypt(str), traceFactory, clock);
     }
 
     /**

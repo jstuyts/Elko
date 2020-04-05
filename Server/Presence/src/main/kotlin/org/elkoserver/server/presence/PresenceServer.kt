@@ -7,6 +7,7 @@ import org.elkoserver.json.JSONObject
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import java.time.Clock
 import java.util.*
 import java.util.function.Consumer
 
@@ -14,11 +15,10 @@ import java.util.function.Consumer
  * Main state data structure in a Presence Server.
  */
 internal class PresenceServer(
-        /** Server object.  */
         private val myServer: Server,
-        /** Trace object for diagnostics.  */
         private val tr: Trace,
-        traceFactory: TraceFactory) {
+        traceFactory: TraceFactory,
+        clock: Clock) {
     /** Database that this server stores stuff in.  */
     private val myODB: ObjDB?
 
@@ -281,7 +281,7 @@ internal class PresenceServer(
     }
 
     init {
-        myRefTable = RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory)
+        myRefTable = RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock)
         myClientHandler = ClientHandler(this, traceFactory)
         myRefTable.addRef(myClientHandler)
         val myAdminHandler = AdminHandler(this, traceFactory)

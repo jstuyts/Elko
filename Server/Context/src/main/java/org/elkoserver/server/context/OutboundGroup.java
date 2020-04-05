@@ -11,6 +11,7 @@ import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
+import java.time.Clock;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Consumer;
@@ -58,7 +59,7 @@ abstract class OutboundGroup extends LiveGroup {
      * @param appTrace  Trace object for diagnostics.
      */
     OutboundGroup(String propRoot, Server server, Contextor contextor,
-                   List<HostDesc> hosts, Trace appTrace, Timer timer, TraceFactory traceFactory)
+                   List<HostDesc> hosts, Trace appTrace, Timer timer, TraceFactory traceFactory, Clock clock)
     {
         myServer = server;
         this.timer = timer;
@@ -71,7 +72,7 @@ abstract class OutboundGroup extends LiveGroup {
         myNetworkManager = server.networkManager();
         myContextor = contextor;
         myHosts = hosts;
-        myDispatcher = new MessageDispatcher(null, traceFactory);
+        myDispatcher = new MessageDispatcher(null, traceFactory, clock);
         myDispatcher.addClass(actorClass());
         amAutoRegister = server.props().testProperty(propRoot + ".auto");
 

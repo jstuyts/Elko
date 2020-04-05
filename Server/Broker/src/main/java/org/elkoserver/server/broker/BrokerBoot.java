@@ -34,7 +34,7 @@ public class BrokerBoot implements Bootable {
         Timer timer = new Timer(traceFactory, clock);
         Server server = new Server(props, "broker", tr, timer, clock, traceFactory);
 
-        myBroker = new Broker(server, tr, timer, traceFactory);
+        myBroker = new Broker(server, tr, timer, traceFactory, clock);
 
         if (server.startListeners("conf.listen",
                                   new BrokerServiceFactory()) == 0) {

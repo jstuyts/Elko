@@ -4,8 +4,11 @@ import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.elkoserver.foundation.json.ClockUsingObject;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptString;
+import org.elkoserver.foundation.json.PostInjectionInitializingObject;
 import org.elkoserver.json.Encodable;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONArray;
@@ -48,12 +51,12 @@ import org.elkoserver.util.trace.Trace;
  * additional overhead because we'd normally have to be reading or writing the
  * account anyway in such a case.
  */
-class Bank implements Encodable {
+class Bank implements Encodable, ClockUsingObject, PostInjectionInitializingObject {
     /** Currently defined currencies, by name. */
     private Map<String, Currency> myCurrencies;
 
     /** Access keys, by key ref. */
-    private Map<String, Key> myKeys;
+    private final Map<String, Key> myKeys = new HashMap<>();
 
     /** A new root key that has been generated but not issued. */
     private Key myVirginRootKey;
@@ -75,6 +78,7 @@ class Bank implements Encodable {
 
     /** MongoDB collection into which account data will be stored. */
     private String myAccountCollection;
+    private Clock clock;
 
     /**
      * JSON-driven constructor.
@@ -88,20 +92,28 @@ class Bank implements Encodable {
      */
     @JSONMethod({ "ref", "rootkey", "keys", "currencies", "collection" })
     Bank(String ref, OptString rootKeyRef, Key[] keys, Currency[] currencies,
-         OptString accountCollection, Clock clock)
+         OptString accountCollection)
     {
         myRef = ref;
         myCurrencies = new HashMap<>();
         for (Currency curr : currencies) {
             myCurrencies.put(curr.name(), curr);
         }
-        myKeys = new HashMap<>();
         for (Key key : keys) {
             myKeys.put(key.ref(), key);
         }
         myAccountCollection = accountCollection.value(null);
 
         myRootKeyRef = rootKeyRef.value(null);
+    }
+
+    @Override
+    public void setClock(Clock clock) {
+        this.clock = clock;
+    }
+
+    @Override
+    public void initialize() {
         myVirginRootKey = null;
         boolean rootKeyGenerated = false;
         if (myRootKeyRef == null) {
@@ -109,20 +121,20 @@ class Bank implements Encodable {
             rootKeyGenerated = true;
         }
         Key rootKey = new Key(null, myRootKeyRef, "full", null,
-                              new ExpirationDate(Long.MAX_VALUE, clock), "root key");
+                new ExpirationDate(Long.MAX_VALUE, clock), "root key");
         myKeys.put(myRootKeyRef, rootKey);
         if (rootKeyGenerated) {
             myVirginRootKey = rootKey;
         }
-        for (Key key : keys) {
+        for (Key key : myKeys.values()) {
             if (key != rootKey) {
                 Key parentKey = myKeys.get(key.parentRef());
                 if (parentKey != null) {
                     key.setParent(parentKey);
                 } else {
                     throw new Error("key " + key.ref() +
-                                    " claims non-existent parent key " +
-                                    key.parentRef());
+                            " claims non-existent parent key " +
+                            key.parentRef());
                 }
             }
         }
