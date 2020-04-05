@@ -9,20 +9,21 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Actor"))
-    implementation(project(":Boot:Api", "default"))
-    implementation(project(":Json"))
-    implementation(project(":JsonMessageHandling"))
-    implementation(project(":Net:Api"))
-    implementation(project(":ObjectDatabase:Api"))
-    implementation(project(":Properties"))
-    implementation(project(":ServerCore"))
-    implementation(project(":ServerMetadata"))
-    implementation(project(":Timer"))
-    implementation(project(":Trace"))
-    implementation(project(":Util"))
+    api(project(":Actor"))
+    api(project(":Boot:Api", "default"))
+    api(project(":Json"))
+    api(project(":JsonMessageHandling"))
+    api(project(":Net:Api"))
+    api(project(":ObjectDatabase:Api"))
+    api(project(":Properties"))
+    api(project(":ServerCore"))
+    api(project(":ServerMetadata"))
+    api(project(":Trace"))
+
     implementation(kotlin("stdlib-jdk8"))
 }
+
+val apiClasses by tasks.registering(org.elkoserver.develop.gradle.apiclasses.ApiClassesTask::class)
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12

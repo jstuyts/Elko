@@ -8,14 +8,16 @@ repositories {
 }
 
 dependencies {
+    api(project(":ObjectDatabase:Local"))
+    api(project(":Properties"))
+    api(project(":Trace"))
+
     implementation(project(":Json"))
     implementation(project(":JsonMessageHandling"))
     implementation(project(":ObjectDatabase:Api"))
-    implementation(project(":ObjectDatabase:Local"))
-    implementation(project(":Properties"))
-    implementation(project(":ServerCore"))
-    implementation(project(":Trace"))
 }
+
+val apiClasses by tasks.registering(org.elkoserver.develop.gradle.apiclasses.ApiClassesTask::class)
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12

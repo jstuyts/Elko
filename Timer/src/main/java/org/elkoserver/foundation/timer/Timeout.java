@@ -24,11 +24,11 @@ public class Timeout extends TimerWatcher {
     }
 
     /**
-     * Cancels this timeout.  Note, however, that although a <tt>Timeout</tt>
+     * Cancels this timeout.  Note, however, that although a <code>Timeout</code>
      * can be cancelled, there is no guarantee that it has not already occured
      * by the time it is cancelled.
      *
-     * @return <tt>true</tt> if cancellation was successful, <tt>false</tt> if
+     * @return <code>true</code> if cancellation was successful, <code>false</code> if
      *    it wasn't.
      */
     public boolean cancel() {

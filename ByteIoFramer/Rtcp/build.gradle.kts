@@ -8,11 +8,13 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":ByteIoFramer:Api"))
+    api(project(":ByteIoFramer:Api"))
+
     implementation(project(":Communication"))
     implementation(project(":Json"))
-    implementation(project(":Trace"))
 }
+
+val apiClasses by tasks.registering(org.elkoserver.develop.gradle.apiclasses.ApiClassesTask::class)
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12

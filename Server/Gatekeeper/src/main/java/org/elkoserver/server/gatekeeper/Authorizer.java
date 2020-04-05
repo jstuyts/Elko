@@ -9,7 +9,7 @@ package org.elkoserver.server.gatekeeper;
  * reservations.  Instead, it calls upon an object implementing this interface,
  * which it instantiates at server startup time.  The server takes the fully
  * qualified class name of the class of Authorizer to instantiate from the
- * <tt>"conf.gatekeeper.authorizer"</tt> configuration property.
+ * <code>"conf.gatekeeper.authorizer"</code> configuration property.
  *
  * <p>In addition to implementing this interface, an Authorizer class must
  * also provide a zero-argument constructor).

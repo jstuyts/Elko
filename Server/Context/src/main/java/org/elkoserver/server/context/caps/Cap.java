@@ -129,8 +129,8 @@ public abstract class Cap extends Mod implements ObjectCompletionWatcher {
      * <p>This request will be rejected if the capability is marked as
      * undeletable and is not expired.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"delete" } </tt><br>
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"delete" } </tt>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"delete" } </code><br>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"delete" } </code>
      *
      * @param from  The user who sent the message.
      */
@@ -151,8 +151,8 @@ public abstract class Cap extends Mod implements ObjectCompletionWatcher {
      * Handle a 'setlabel' message.  This is a request from a client to change
      * the label of the capability object.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"setlabel",
-     *                     label:<i>STR</i> } </tt><br>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"setlabel",
+     *                     label:<i>STR</i> } </code><br>
      * <u>send</u>: no reply is sent.
      *
      * @param from  The user who sent the message.
@@ -174,9 +174,9 @@ public abstract class Cap extends Mod implements ObjectCompletionWatcher {
      * untransferrable.  Yes, this is unenforceable due to the possibility of
      * proxying, but marketing solipsism must be served.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"transfer", dest:<i>DESTREF</i> } </tt><br>
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"delete" } </tt><br>
-     * <u>send</u>: <tt> { to:<i>DESTREF</i>, op:"make", ... } </tt>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"transfer", dest:<i>DESTREF</i> } </code><br>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"delete" } </code><br>
+     * <u>send</u>: <code> { to:<i>DESTREF</i>, op:"make", ... } </code>
      *
      * @param from  The user who sent the message.
      * @param destRef  Reference to user or context that is to receive the
@@ -218,11 +218,11 @@ public abstract class Cap extends Mod implements ObjectCompletionWatcher {
      * regarded as a transfer and subjected to all the same checks as a call to
      * {@link #transfer transfer()}.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"spawn", dest:<i>optDESTREF</i>,
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"spawn", dest:<i>optDESTREF</i>,
      *                     transferrable:<i>optBOOL</i>,
      *                     duration:<i>optLONG</i>,
-     *                     expiration:<i>optLONG</i> } </tt><br>
-     * <u>send</u>: <tt> { to:<i>DESTREF</i>, op:"make", ... } </tt>
+     *                     expiration:<i>optLONG</i> } </code><br>
+     * <u>send</u>: <code> { to:<i>DESTREF</i>, op:"make", ... } </code>
      *
      * @param from  The user who sent the message.
      * @param dest  Reference to container into which the new capability is to

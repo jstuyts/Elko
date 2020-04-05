@@ -65,13 +65,13 @@ public class PrivateChat extends Mod implements UserMod {
      * is done by echoing the 'push' message to the target user, marked as
      * being from the user who sent it.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"push", url:<i>STR</i>,
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"push", url:<i>STR</i>,
      *                     frame:<i>optSTR</i>, features:<i>optSTR</i>
-     *                   } </tt><br>
+     *                   } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"push", url:<i>STR</i>,
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"push", url:<i>STR</i>,
      *                     frame:<i>optSTR</i>, features:<i>optSTR</i>,
-     *                     from:<i>REF</i> } </tt>
+     *                     from:<i>REF</i> } </code>
      *
      * @param url  The URL being pushed.
      * @param frame  Optional name of a frame to push it to.
@@ -109,10 +109,10 @@ public class PrivateChat extends Mod implements UserMod {
      * This is done by echoing the 'say' message to the target user, marked as
      * being from the user who sent it.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"say", text:<i>STR</i> } </tt><br>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"say", text:<i>STR</i> } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"say", text:<i>STR</i>,
-     *                     from:<i>REF</i> } </tt>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"say", text:<i>STR</i>,
+     *                     from:<i>REF</i> } </code>
      *
      * @param text  The chat text being "spoken".
      *

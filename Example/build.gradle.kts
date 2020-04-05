@@ -8,12 +8,12 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Json"))
-    implementation(project(":JsonMessageHandling"))
-    implementation(project(":Server:Context"))
-    implementation(project(":ServerCore"))
-    implementation(Libraries.mongodb_driver)
+    api(project(":Json"))
+    api(project(":JsonMessageHandling"))
+    api(project(":Server:Context"))
 }
+
+val apiClasses by tasks.registering(org.elkoserver.develop.gradle.apiclasses.ApiClassesTask::class)
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12

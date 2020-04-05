@@ -82,13 +82,13 @@ public class TalkPrefs
      * attributes.  If the change operation is successful, a corresponding
      * 'style' message is broadcast to the context.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"style", color:<i>optSTR</i>,
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"style", color:<i>optSTR</i>,
      *                     backgroundColor:<i>optSTR</i>, icon:<i>optSTR</i>,
-     *                     textStyle:<i>optSTR</i> } </tt><br>
+     *                     textStyle:<i>optSTR</i> } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"style", color:<i>optSTR</i>,
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"style", color:<i>optSTR</i>,
      *                     backgroundColor:<i>optSTR</i>, icon:<i>optSTR</i>,
-     *                     textStyle:<i>optSTR</i> } </tt>
+     *                     textStyle:<i>optSTR</i> } </code>
      *
      * @param from  The user who sent the message.
      * @param color  New text color value (optional).

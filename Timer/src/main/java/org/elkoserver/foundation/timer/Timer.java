@@ -31,7 +31,7 @@ public class Timer {
 
     /**
      * Sets a timeout for the specified number of milliseconds.  After the
-     * timer expires, <tt>target</tt>'s {@link TimeoutNoticer#noticeTimeout
+     * timer expires, <code>target</code>'s {@link TimeoutNoticer#noticeTimeout
      * noticeTimeout()} method is called.  Notification is always asynchronous.
      *
      * @param millis  How long to wait until timing out.

@@ -125,13 +125,13 @@ public class Chat extends Mod implements ObjectCompletionWatcher, ContextMod {
      * by echoing the 'push' message to the context, marked as being from the
      * user who sent it.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"push", url:<i>STR</i>,
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"push", url:<i>STR</i>,
      *                     frame:<i>optSTR</i>,
-     *                     features:<i>optSTR</i> } </tt><br>
+     *                     features:<i>optSTR</i> } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"push", url:<i>STR</i>,
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"push", url:<i>STR</i>,
      *                     frame:<i>optSTR</i>, features:<i>optSTR</i>,
-     *                     from:<i>REF</i> } </tt>
+     *                     from:<i>REF</i> } </code>
      *
      * @param url  The URL being pushed.
      * @param frame  Optional name of a frame to push it to.
@@ -167,10 +167,10 @@ public class Chat extends Mod implements ObjectCompletionWatcher, ContextMod {
      * is done by echoing the 'say' message to the context, marked as being
      * from the user who sent it.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"say", text:<i>STR</i> } </tt><br>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"say", text:<i>STR</i> } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"say", text:<i>STR</i>,
-     *                     from:<i>fromREF</i> } </tt>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"say", text:<i>STR</i>,
+     *                     from:<i>fromREF</i> } </code>
      *
      * @param text  The chat text being "spoken".
      *

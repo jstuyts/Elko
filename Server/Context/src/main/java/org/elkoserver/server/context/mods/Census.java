@@ -44,10 +44,10 @@ public class Census extends Mod implements GeneralMod {
      * This message requests the current number of users in the context where
      * this mod resides.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"census" } </tt><br>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"census" } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"census",
-     *                     occupancy:<i>int</i> } </tt>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"census",
+     *                     occupancy:<i>int</i> } </code>
      *
      * @param from  The user requesting the census.
      *

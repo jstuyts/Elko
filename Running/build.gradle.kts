@@ -8,9 +8,10 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Trace"))
-    implementation(project(":Util"))
+    api(project(":Trace"))
 }
+
+val apiClasses by tasks.registering(org.elkoserver.develop.gradle.apiclasses.ApiClassesTask::class)
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12

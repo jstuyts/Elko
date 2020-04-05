@@ -116,7 +116,7 @@ public class Msg {
      * Create a 'make' message with a default creator and explicit session
      * identifier.  This method is exactly equivalent to:
      *
-     * <p><tt>msgMake(target, obj, null, false, sess)</tt>
+     * <p><code>msgMake(target, obj, null, false, sess)</code>
      *
      * <p>and is provided just for convenience.
      *
@@ -135,7 +135,7 @@ public class Msg {
      * Create a 'make' message with a default creator.  This method is
      * exactly equivalent to:
      *
-     * <p><tt>msgMake(target, obj, null, false, null)</tt>
+     * <p><code>msgMake(target, obj, null, false, null)</code>
      *
      * <p>and is provided just for convenience.
      *

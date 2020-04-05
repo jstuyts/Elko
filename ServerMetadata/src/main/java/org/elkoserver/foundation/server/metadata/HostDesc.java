@@ -52,8 +52,8 @@ public class HostDesc {
     /**
      * Constructor, taking most defaults.
      *
-     * <p>Equivalent to <tt>new HostDesc(protocol, false, hostPort, null,
-     * -1, false)</tt>
+     * <p>Equivalent to <code>new HostDesc(protocol, false, hostPort, null,
+     * -1, false)</code>
      *
      * @param protocol  Protocol spoken.
      * @param hostPort  Host/port/path to address for service.
@@ -65,11 +65,11 @@ public class HostDesc {
     /**
      * Create a HostDesc object from specifications provided by properties:
      *
-     * <p><tt>"<i>propRoot</i>.host"</tt> should contain a host:port
+     * <p><code>"<i>propRoot</i>.host"</code> should contain a host:port
      *    string.<br>
-     * <tt>"<i>propRoot</i>.protocol"</tt>, if given, should specify a protocol
+     * <code>"<i>propRoot</i>.protocol"</code>, if given, should specify a protocol
      *    name.  If not given, the protocol defaults to "tcp".<br>
-     * <tt>"<i>propRoot</i>.retry"</tt>, an integer, if given, is the retry
+     * <code>"<i>propRoot</i>.retry"</code>, an integer, if given, is the retry
      *    interval, in seconds.
      *
      * @param props  Properties to examine for a host description.

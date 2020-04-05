@@ -104,11 +104,11 @@ public class Cartesian extends Mod implements ItemMod {
      * different location and/or container.  If the move is successful, a
      * corresponding 'move' message is broadcast to the context.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"move", into:<i>optREF</i>,
-     *                     left:<i>INT</i>, top:<i>INT</i> } </tt><br>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"move", into:<i>optREF</i>,
+     *                     left:<i>INT</i>, top:<i>INT</i> } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"move", into:<i>optREF</i>,
-     *                     left:<i>INT</i>, top:<i>INT</i> } </tt>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"move", into:<i>optREF</i>,
+     *                     left:<i>INT</i>, top:<i>INT</i> } </code>
      *
      * @param from  The user who sent the message.
      * @param into  Container into which object should be placed (optional,

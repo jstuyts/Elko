@@ -17,8 +17,8 @@ public class NetAddr {
 
     /**
      * Construct a NetAddr from a string in the form:
-     * <tt><i>hostName</i>:<i>portNumber</i></tt> or <tt><i>hostName</i></tt>.
-     * If the <tt>:<i>portNumber</i></tt> is omitted, port number 0 will be
+     * <code><i>hostName</i>:<i>portNumber</i></code> or <code><i>hostName</i></code>.
+     * If the <code>:<i>portNumber</i></code> is omitted, port number 0 will be
      * assumed.  The host name may be either a DNS name or a raw IPv4 address
      * in dotted decimal format.  Alternatively, it may be both these,
      * separated by a slash, in which case only the part after the slash is

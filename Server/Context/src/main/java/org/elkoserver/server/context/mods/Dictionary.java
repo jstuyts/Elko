@@ -103,11 +103,11 @@ public class Dictionary extends Mod implements GeneralMod {
      * <p>Warning: This message is not secure.  As implemented today, anyone
      * can delete variables.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"delvar",
-     *                     names:<i>STR[]</i> } </tt><br>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"delvar",
+     *                     names:<i>STR[]</i> } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"delvar",
-     *                     names:<i>STR[[</i> } </tt>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"delvar",
+     *                     names:<i>STR[[</i> } </code>
      *
      * @param from  The user who sent the message.
      * @param names  Names of the variables to remove.
@@ -140,11 +140,11 @@ public class Dictionary extends Mod implements GeneralMod {
      * <p>Warning: This message is not secure.  As implemented today, anyone
      * can modify variables.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"setvar", names:<i>STR[]</i>,
-     *                     values:<i>STR[]</i> } </tt><br>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"setvar", names:<i>STR[]</i>,
+     *                     values:<i>STR[]</i> } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"setvar", names:<i>STR[]</i>,
-     *                     values:<i>STR[]</i> } </tt>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"setvar", names:<i>STR[]</i>,
+     *                     values:<i>STR[]</i> } </code>
      *
      * @param from  The user who sent the message.
      * @param names  Names of the variables to assign.

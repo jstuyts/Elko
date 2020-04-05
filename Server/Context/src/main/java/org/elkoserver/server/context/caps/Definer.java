@@ -32,9 +32,9 @@ public class Definer extends Cap implements ItemMod, UserMod {
      * Message handler for a 'define' message.  This is a request to define a
      * new context, item, or user.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"define", into:<i>optREF</i>,
-     *                     ref:<i>optREF</i>, obj:<i>OBJDESC</i> }</tt><br>
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"define", ref:<i>REF</i> } </tt>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"define", into:<i>optREF</i>,
+     *                     ref:<i>optREF</i>, obj:<i>OBJDESC</i> }</code><br>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"define", ref:<i>REF</i> } </code>
      *
      * @param into  Container into which the new object should be placed
      *    (optional, defaults to no container).

@@ -67,7 +67,7 @@ class NowRunnable implements Runnable {
     /**
      * Wrap a {@link Throwable} in a {@link RuntimeException}.
      *
-     * Wraps <tt>problem</tt> if necessary so that the caller can do a
+     * Wraps <code>problem</code> if necessary so that the caller can do a
      * <pre>
      * throw ExceptionMgr.asSafe(problem);
      * </pre>

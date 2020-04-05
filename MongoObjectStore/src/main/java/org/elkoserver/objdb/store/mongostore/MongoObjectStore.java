@@ -53,16 +53,16 @@ public class MongoObjectStore implements ObjectStore {
      * Do the initialization required to begin providing object store
      * services.
      *
-     * <p>The property <tt>"<i>propRoot</i>.odb.mongo.hostport"</tt> should
+     * <p>The property <code>"<i>propRoot</i>.odb.mongo.hostport"</code> should
      * specify the address of the MongoDB server holding the objects.
      *
-     * <p>The optional property <tt>"<i>propRoot</i>.odb.mongo.dbname"</tt>
+     * <p>The optional property <code>"<i>propRoot</i>.odb.mongo.dbname"</code>
      * allows the Mongo database name to be specified.  If omitted, this
-     * defaults to <tt>"elko"</tt>.
+     * defaults to <code>"elko"</code>.
      *
-     * <p>The optional property <tt>"<i>propRoot</i>.odb.mongo.collname"</tt>
+     * <p>The optional property <code>"<i>propRoot</i>.odb.mongo.collname"</code>
      * allows the collection containing the object repository to be specified.
-     * If omitted, this defaults to <tt>"odb"</tt>.
+     * If omitted, this defaults to <code>"odb"</code>.
      *
      * @param props  Properties describing configuration information.
      * @param propRoot  Prefix string for selecting relevant properties.

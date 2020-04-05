@@ -43,7 +43,7 @@ public class FileObjectStore implements ObjectStore {
      * Do the initialization required to begin providing object store
      * services.
      *
-     * <p>The property <tt>"<i>propRoot</i>.odb"</tt> should specify the
+     * <p>The property <code>"<i>propRoot</i>.odb"</code> should specify the
      * pathname of the directory in which the object description files are
      * stored.
      *

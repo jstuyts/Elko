@@ -71,24 +71,24 @@ public class ObjDBRemote extends ObjDBBase {
      * <p>The repository to connect to is specified by configuration
      * properties, but may be indicated in one of two different ways:
      *
-     * <p>The property <tt>"<i>propRoot</i>.service"</tt>, if given, indicates
+     * <p>The property <code>"<i>propRoot</i>.service"</code>, if given, indicates
      * a repository name to ask the Broker for.  Specifying this property as
      * the special value 'any' indicates that any repository that the Broker
      * knows about will be acceptable.
      *
      * <p>Alternatively, a repository host may be specified directly using the
-     * <tt>"<i>propRoot</i>.host"</tt> property.
+     * <code>"<i>propRoot</i>.host"</code> property.
      *
      * <p>However the repository is indicated, the following properties are
      * also recognized:
      *
-     * <p>The property <tt>"<i>propRoot</i>.retry"</tt> may specify a retry
+     * <p>The property <code>"<i>propRoot</i>.retry"</code> may specify a retry
      * interval (in seconds), at which successive attempts will be made to
      * connect to the external repository if earlier attempts have failed.  The
      * value -1 (which is the default if this property is left unspecified)
      * indicates that no retries should be attempted.
      *
-     * <p>The property <tt>"<i>propRoot</i>.classdesc"</tt> may specify a
+     * <p>The property <code>"<i>propRoot</i>.classdesc"</code> may specify a
      * (comma-separated) list of references to class description objects to
      * read from the repository at startup time.
      *  @param serviceFinder  Access to broker, to locate repository server.

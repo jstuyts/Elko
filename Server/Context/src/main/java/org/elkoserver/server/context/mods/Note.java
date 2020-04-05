@@ -59,11 +59,11 @@ public class Note extends Mod implements ItemMod {
      * successful, a corresponding 'edit' message is broadcast to the
      * context.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"edit", text:<i>optSTR</i>,
-     *                     style:<i>optSTYLE</i> } </tt><br>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"edit", text:<i>optSTR</i>,
+     *                     style:<i>optSTYLE</i> } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"edit", text:<i>optSTR</i>,
-     *                     style:<i>optSTYLE</i> } </tt>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"edit", text:<i>optSTR</i>,
+     *                     style:<i>optSTYLE</i> } </code>
      *
      * @param from  The user who sent the message.
      * @param text  New text string value (optional).

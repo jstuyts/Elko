@@ -108,7 +108,7 @@ public class ElkoProperties
 
     /**
      * Test the setting of a boolean property.  A boolean property is
-     * <tt>true</tt> if its string value is "true", and <tt>false</tt> if its
+     * <code>true</code> if its string value is "true", and <code>false</code> if its
      * string value is "false" or if the property is not set at all.
      *
      * @param property  The name of the property to test.
@@ -128,8 +128,8 @@ public class ElkoProperties
      * @param property  The name of the property to test.
      * @param possibleValue  String value to test if it is equal to.
      *
-     * @return <tt>true</tt> if the property has a value equal to
-     *    <tt>possibleValue</tt>.
+     * @return <code>true</code> if the property has a value equal to
+     *    <code>possibleValue</code>.
      */
     public boolean testProperty(String property, String possibleValue) {
         if (possibleValue != null) {

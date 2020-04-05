@@ -8,16 +8,14 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Json"))
-    implementation(project(":Actor"))
-    implementation(project(":JsonMessageHandling"))
-    implementation(project(":Net:Api"))
-    implementation(project(":ObjectDatabase:Api"))
-    implementation(project(":Properties"))
+    api(project(":Json"))
+    api(project(":Trace"))
+
     implementation(project(":Server:Context"))
-    implementation(project(":Trace"))
     implementation(Libraries.commons_codec)
 }
+
+val apiClasses by tasks.registering(org.elkoserver.develop.gradle.apiclasses.ApiClassesTask::class)
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12

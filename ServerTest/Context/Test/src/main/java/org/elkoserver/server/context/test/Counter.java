@@ -44,10 +44,10 @@ public class Counter extends Mod implements GeneralMod {
      *
      * This message requests the counter to increment.
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"inc" } </tt><br>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"inc" } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"set",
-     *                     from:<i>REF</i>, count:<i>int</i> } </tt>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"set",
+     *                     from:<i>REF</i>, count:<i>int</i> } </code>
      *
      * @param from  The user requesting the census.
      *

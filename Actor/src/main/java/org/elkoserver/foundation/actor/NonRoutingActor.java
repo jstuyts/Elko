@@ -112,8 +112,8 @@ public abstract class NonRoutingActor
      * This message delivers textual debugging information from the other end
      * of the connection.  The received text is written to the server log.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>ignored</i>, op:"debug",
-     *                     msg:<i>STR</i> } </tt><br>
+     * <u>recv</u>: <code> { to:<i>ignored</i>, op:"debug",
+     *                     msg:<i>STR</i> } </code><br>
      *
      * <u>send</u>: no reply is sent
      *
@@ -131,11 +131,11 @@ public abstract class NonRoutingActor
      * This message is a simple connectivity test.  Respond by sending a 'pong'
      * message back to the sender.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"ping",
-     *                     tag:<i>optSTR</i> } </tt><br>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"ping",
+     *                     tag:<i>optSTR</i> } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>asReceived</i>, op:"pong",
-     *                     tag:<i>asReceived</i> } </tt>
+     * <u>send</u>: <code> { to:<i>asReceived</i>, op:"pong",
+     *                     tag:<i>asReceived</i> } </code>
      *
      * @param from  The connection over which the message was received.
      * @param tag  Optional tag string; if provided, it will be included in the
@@ -152,8 +152,8 @@ public abstract class NonRoutingActor
      * This message is the reply to an earlier 'ping' message.  It is simply
      * discarded.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>ignored</i>, op:"pong",
-     *                     tag:<i>optSTR</i> } </tt><br>
+     * <u>recv</u>: <code> { to:<i>ignored</i>, op:"pong",
+     *                     tag:<i>optSTR</i> } </code><br>
      *
      * <u>send</u>: there is no reply sent
      *

@@ -9,9 +9,12 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Properties"))
+    api(project(":Properties"))
+
     implementation(kotlin("stdlib-jdk8"))
 }
+
+val apiClasses by tasks.registering(org.elkoserver.develop.gradle.apiclasses.ApiClassesTask::class)
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12

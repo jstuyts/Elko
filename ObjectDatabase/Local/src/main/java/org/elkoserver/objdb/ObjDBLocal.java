@@ -27,11 +27,11 @@ public class ObjDBLocal extends ObjDBBase {
     /**
      * Create an object to access a local object store.
      *
-     * <p>The property <tt>"<i>propRoot</i>.objstore"</tt> may specify the
+     * <p>The property <code>"<i>propRoot</i>.objstore"</code> may specify the
      * fully qualified Java class name of the object store implementation to
      * use.  If unspecified, the default, <code>FileObjectStore</code>, will be used.
      *
-     * <p>The property <tt>"<i>propRoot</i>.classdesc"</tt> may specify a
+     * <p>The property <code>"<i>propRoot</i>.classdesc"</code> may specify a
      * (comma-separated) list of references to class description objects to
      * read from the store at startup time.
      *

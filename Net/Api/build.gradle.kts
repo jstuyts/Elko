@@ -8,21 +8,21 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":ByteIoFramer:Api"))
+    api(project(":ByteIoFramer:Api"))
+    api(project(":Properties"))
+    api(project(":Running"))
+    api(project(":ServerMetadata"))
+    api(project(":Timer"))
+    api(project(":Trace"))
+
     implementation(project(":ByteIoFramer:Json"))
     implementation(project(":ByteIoFramer:Http"))
     implementation(project(":ByteIoFramer:Rtcp"))
     implementation(project(":ByteIoFramer:WebSocket"))
-    implementation(project(":Json"))
-    implementation(project(":JsonMessageHandling"))
-    implementation(project(":Properties"))
-    implementation(project(":Running"))
     implementation(project(":ScalableSsl"))
-    implementation(project(":ServerMetadata"))
-    implementation(project(":Timer"))
-    implementation(project(":Trace"))
-    implementation(Libraries.commons_codec)
 }
+
+val apiClasses by tasks.registering(org.elkoserver.develop.gradle.apiclasses.ApiClassesTask::class)
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12

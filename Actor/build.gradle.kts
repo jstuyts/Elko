@@ -1,3 +1,5 @@
+import org.elkoserver.develop.gradle.apiclasses.ApiClassesTask
+
 plugins {
     `java-library`
 }
@@ -8,13 +10,16 @@ repositories {
 }
 
 dependencies {
+    api(project(":Json"))
+    api(project(":JsonMessageHandling"))
+    api(project(":Net:Api"))
+    api(project(":ServerMetadata"))
+    api(project(":Trace"))
+
     implementation(project(":Communication"))
-    implementation(project(":Json"))
-    implementation(project(":JsonMessageHandling"))
-    implementation(project(":Net:Api"))
-    implementation(project(":ServerMetadata"))
-    implementation(project(":Trace"))
 }
+
+val apiClasses by tasks.registering(ApiClassesTask::class)
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12

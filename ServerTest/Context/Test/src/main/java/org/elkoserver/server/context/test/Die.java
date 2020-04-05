@@ -43,10 +43,10 @@ public class Die extends Mod implements ItemMod {
      *
      * This message requests a die roll.
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"roll" } </tt>
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"roll" } </code>
      *
-     * <u>send</u>: <tt> { to:<i>REF</i>, op:"roll",
-     *                     from:<i>REF</i>, value:<i>int</i> } </tt>
+     * <u>send</u>: <code> { to:<i>REF</i>, op:"roll",
+     *                     from:<i>REF</i>, value:<i>int</i> } </code>
      *
      * @param from  The user requesting the census.
      *

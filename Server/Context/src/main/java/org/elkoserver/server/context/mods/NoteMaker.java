@@ -68,12 +68,12 @@ public class NoteMaker extends Mod implements GeneralMod {
      * creation operation is successful, a 'make' message will be broadcast to
      * the context, describing the new note object.<p>
      *
-     * <u>recv</u>: <tt> { to:<i>REF</i>, op:"makeNote", into:<i>optREF</i>,
+     * <u>recv</u>: <code> { to:<i>REF</i>, op:"makeNote", into:<i>optREF</i>,
      *                     left:<i>INT</i>, top:<i>INT</i>, width:<i>INT</i>,
      *                     height:<i>INT</i>, text:<i>STR</i>,
-     *                     style:<i>optSTYLE</i> } </tt><br>
+     *                     style:<i>optSTYLE</i> } </code><br>
      *
-     * <u>send</u>: <tt> { to:<i>intoREF</i>, op:"make", ... } </tt>
+     * <u>send</u>: <code> { to:<i>intoREF</i>, op:"make", ... } </code>
      *
      * @param from  The user who sent the message.
      * @param into  Container into which the new note object should be placed

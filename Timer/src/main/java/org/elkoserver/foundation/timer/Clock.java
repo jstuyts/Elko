@@ -5,7 +5,7 @@ package org.elkoserver.foundation.timer;
  * object every <i>n</i> milliseconds.  Clocks can only be created by calling
  * the {@link Timer#every every()} method on a {@link Timer} instance.<p>
  *
- * A <tt>Clock</tt> can be started and stopped.
+ * A <code>Clock</code> can be started and stopped.
  *
  * @see TickNoticer
  */
