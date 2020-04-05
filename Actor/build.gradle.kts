@@ -19,7 +19,9 @@ dependencies {
     implementation(project(":Communication"))
 }
 
-val apiClasses by tasks.registering(ApiClassesTask::class)
+val apiClasses by tasks.registering(ApiClassesTask::class) {
+    dependsOn(tasks.classes)
+}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12

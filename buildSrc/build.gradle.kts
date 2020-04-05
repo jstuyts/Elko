@@ -17,7 +17,6 @@ repositories {
 dependencies {
     implementation("org.javassist:javassist:3.27.0-GA")
     implementation(kotlin("stdlib-jdk8"))
-    implementation(kotlin("gradle-plugin"))
 }
 
 java {

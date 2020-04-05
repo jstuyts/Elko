@@ -4,69 +4,50 @@ import javassist.ClassPool
 import javassist.CtClass
 import javassist.Modifier
 import org.gradle.api.DefaultTask
-import org.gradle.api.tasks.compile.JavaCompile
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.gradle.api.Task
+import org.gradle.api.tasks.compile.AbstractCompile
 import java.io.File
 
-// TODO: Remove duplicate classes because Java and Kotlin is processed separately
-// TODO: Remove project classes because Java and Kotlin is processed separately
 // TODO: Report classes that must have an implementation dependency. Rename this class and the existing tasks that use it
 // TODO: Report (project and external) modules instead of classes, so it is much easier to update the dependencies. Even better: output the dependency declarations
-// TODO: Change to let user specify the dependency, and scan all transitive dependencies for tasks extending "AbstractCompile". Then drop dependency on Kotlin Gradle plug-in
 open class ApiClassesTask : DefaultTask() {
     init {
         dependsOn += project.tasks.getByPath("classes")
 
         doLast {
+            val transitiveDependencies = mutableSetOf<Task>()
+            addDependenciesOf(this, transitiveDependencies)
+            val jvmCompileTasksOfProject = transitiveDependencies.filterIsInstance<AbstractCompile>().filter { it.project == project }
+
             val fullClasspath = mutableListOf<File>()
-
-            project.tasks.findByName("compileJava")?.let { task ->
-                if (task is JavaCompile) {
-                    fullClasspath.addAll(task.classpath.toList())
-                    fullClasspath.add(task.destinationDir)
-                }
-            }
-            project.tasks.findByName("compileKotlin")?.let { task ->
-                if (task is KotlinCompile) {
-                    fullClasspath.addAll(task.classpath.toList())
-                    fullClasspath.add(task.destinationDir)
-                }
+            jvmCompileTasksOfProject.forEach { task ->
+                fullClasspath.addAll(task.classpath.toList())
+                fullClasspath.add(task.destinationDirectory.asFile.get())
             }
 
-            project.tasks.findByName("compileJava")?.let { task ->
-                if (task is JavaCompile) {
-                    outputClassesOfJavaCompile(task, fullClasspath)
-                }
+            val projectClassNames = jvmCompileTasksOfProject.flatMap { task ->
+                val taskDestinationDirectory = task.destinationDirectory.asFile.get()
+                taskDestinationDirectory.walk().filter { file ->
+                    file.isFile && file.name.endsWith(".class")
+                }.map { file ->
+                    file.relativeTo(taskDestinationDirectory).path.removeSuffix(".class").replace('\\', '.')
+                }.toSet()
             }
-            project.tasks.findByName("compileKotlin")?.let { task ->
-                if (task is KotlinCompile) {
-                    outputClassesOfKotlinCompile(task, fullClasspath)
-                }
+
+            outputClasses(fullClasspath, projectClassNames)
+        }
+    }
+
+    private fun addDependenciesOf(task: Task, transitiveDependencies: MutableSet<Task>) {
+        project.gradle.taskGraph.getDependencies(task).forEach {
+            if (!transitiveDependencies.contains(it)) {
+                transitiveDependencies.add(it)
+                addDependenciesOf(it, transitiveDependencies)
             }
         }
     }
 
-    private fun outputClassesOfJavaCompile(task: JavaCompile, fullClasspath: MutableList<File>) {
-        val projectClassNames = task.destinationDir.walk().filter { file ->
-            file.isFile && file.name.endsWith(".class")
-        }.map { file ->
-            file.relativeTo(task.destinationDir).path.removeSuffix(".class").replace('\\', '.')
-        }.toSet()
-
-        outputClasses(fullClasspath, projectClassNames)
-    }
-
-    private fun outputClassesOfKotlinCompile(task: KotlinCompile, fullClasspath: MutableList<File>) {
-        val projectClassNames = task.destinationDir.walk().filter { file ->
-            file.isFile && file.name.endsWith(".class")
-        }.map { file ->
-            file.relativeTo(task.destinationDir).path.removeSuffix(".class").replace('\\', '.')
-        }.toSet()
-
-        outputClasses(fullClasspath, projectClassNames)
-    }
-
-    private fun outputClasses(projectPlusImplementationClasspath: MutableList<File>, projectClassNames: Set<String>) {
+    private fun outputClasses(projectPlusImplementationClasspath: MutableList<File>, projectClassNames: Collection<String>) {
         val classPool = ClassPool().apply {
             appendSystemPath()
             projectPlusImplementationClasspath.forEach { file ->

@@ -1,3 +1,5 @@
+import org.elkoserver.develop.gradle.apiclasses.ApiClassesTask
+
 plugins {
     kotlin("jvm")
 }
@@ -19,7 +21,9 @@ dependencies {
     testRuntimeOnly(Libraries.junit_jupiter_engine)
 }
 
-val apiClasses by tasks.registering(org.elkoserver.develop.gradle.apiclasses.ApiClassesTask::class)
+val apiClasses by tasks.registering(ApiClassesTask::class) {
+    dependsOn(tasks.classes)
+}
 
 tasks.test {
     useJUnitPlatform()

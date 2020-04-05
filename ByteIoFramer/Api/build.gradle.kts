@@ -1,3 +1,5 @@
+import org.elkoserver.develop.gradle.apiclasses.ApiClassesTask
+
 plugins {
     `java-library`
 }
@@ -13,7 +15,9 @@ dependencies {
     implementation(project(":Util"))
 }
 
-val apiClasses by tasks.registering(org.elkoserver.develop.gradle.apiclasses.ApiClassesTask::class)
+val apiClasses by tasks.registering(ApiClassesTask::class) {
+    dependsOn(tasks.classes)
+}
 
 java {
     sourceCompatibility = JavaVersion.VERSION_12
