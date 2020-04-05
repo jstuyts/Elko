@@ -132,10 +132,8 @@ val stopClusterDevContext2 by tasks.registering(JavaExec::class) {
     isIgnoreExitValue = true
 }
 
-val cleanRunLogs by tasks.registering {
-    doLast {
-        file("logs").listFiles({ _, name -> !name.startsWith('.') })?.forEach {
-            it.delete()
-        }
-    }
+val cleanRunLogs by tasks.registering(Delete::class) {
+    delete(fileTree("logs") {
+        exclude(".*")
+    })
 }
