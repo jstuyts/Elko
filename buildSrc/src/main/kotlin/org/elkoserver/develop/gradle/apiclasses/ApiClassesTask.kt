@@ -10,8 +10,9 @@ import java.io.File
 
 // TODO: Remove duplicate classes because Java and Kotlin is processed separately
 // TODO: Remove project classes because Java and Kotlin is processed separately
-// TODO: Report classes that must have an implementation dependency
+// TODO: Report classes that must have an implementation dependency. Rename this class and the existing tasks that use it
 // TODO: Report (project and external) modules instead of classes, so it is much easier to update the dependencies. Even better: output the dependency declarations
+// TODO: Change to let user specify the dependency, and scan all transitive dependencies for tasks extending "AbstractCompile". Then drop dependency on Kotlin Gradle plug-in
 open class ApiClassesTask : DefaultTask() {
     init {
         dependsOn += project.tasks.getByPath("classes")
