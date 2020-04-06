@@ -1223,7 +1223,7 @@ public class Contextor extends RefTable {
     /**
      * Return a reference to the attached object store.
      *
-     * XXX Is this a POLA (https://en.wikipedia.org/wiki/Principle_of_least_astonishment) violation??
+     * XXX Is this a POLA (Principle of Least Authority) violation??
      */
     public ObjDB odb() {
         return myODB;
@@ -1257,7 +1257,7 @@ public class Contextor extends RefTable {
      *    be an array of the object(s) requested, or null if no objects could
      *    be retrieved.
      *
-     * XXX Is this a POLA (https://en.wikipedia.org/wiki/Principle_of_least_astonishment) violation??
+     * XXX Is this a POLA (Principle of Least Authority) violation??
      */
     public void queryObjects(JSONObject template, String collectionName,
                              int maxResults, Consumer<Object> handler) {
