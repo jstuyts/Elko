@@ -13,8 +13,8 @@ repositories {
 dependencies {
     api(project(":Actor"))
     api(project(":Boot:Api", "default"))
-    api(project(":JsonMessageHandling"))
     api(project(":Json"))
+    api(project(":JsonMessageHandling"))
     api(project(":Net:Api"))
     api(project(":ObjectDatabase:Api"))
     api(project(":Properties"))
