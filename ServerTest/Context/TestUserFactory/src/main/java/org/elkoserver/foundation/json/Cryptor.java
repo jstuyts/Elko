@@ -2,6 +2,7 @@ package org.elkoserver.foundation.json;
 
 import org.apache.commons.codec.binary.Base64;
 import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObjectParser;
 import org.elkoserver.json.SyntaxError;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -114,7 +115,7 @@ public class Cryptor {
     public JSONObject decryptJSONObject(String str)
         throws IOException, SyntaxError
     {
-        return JSONObject.parse(decrypt(str));
+        return JsonObjectParser.parse(decrypt(str));
     }
 
     /**

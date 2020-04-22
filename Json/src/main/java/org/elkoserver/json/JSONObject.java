@@ -13,7 +13,7 @@ import java.util.Set;
 public class JSONObject {
     /** Table where the object's properties are kept.  Maps from property names
         to property values. */
-    private Map<String, Object> myProperties;
+    private final Map<String, Object> myProperties;
 
     /**
      * Construct a new, empty JSON object.
@@ -168,51 +168,6 @@ public class JSONObject {
             throw new JSONDecodingException("property '" + name +
                 "' is not a string value as was expected");
         }
-    }
-
-    /**
-     * Convert this JSONObject into a JSONLiteral.
-     *
-     * @param control  Encode control determining what flavor of encoding
-     *    is being done.
-     */
-    public JSONLiteral literal(EncodeControl control) {
-        JSONLiteral literal = new JSONLiteral(control);
-
-        /* What follows is a little bit of hackery to ensure that the canonical
-           message and object properties ("to:", "op:", and "type:") are
-           output first, regardless of what order the iterator spits all the
-           properties out in.  This is strictly for the sake of legibility and
-           has no deeper semantics. */
-
-        literal.addParameterOpt("to", myProperties.get("to"));
-        literal.addParameterOpt("op", myProperties.get("op"));
-        literal.addParameterOpt("type", myProperties.get("type"));
-
-        for (Map.Entry<String, Object> entry : myProperties.entrySet()) {
-            String key = entry.getKey();
-            if (!key.equals("to") && !key.equals("op") && !key.equals("type")){
-                literal.addParameter(key, entry.getValue());
-            }
-        }
-        literal.finish();
-        return literal;
-    }
-
-    /**
-     * Encode this JSONObject into an externally provided string buffer.
-     *
-     * @param buf  The buffer into which to build the literal string.
-     * @param control  Encode control determining what flavor of encoding
-     *    is being done.
-     */
-    /* package */ void encodeLiteral(StringBuilder buf, EncodeControl control) {
-        JSONLiteral literal = new JSONLiteral(buf, control);
-
-        for (Map.Entry<String, Object> entry : myProperties.entrySet()) {
-            literal.addParameter(entry.getKey(), entry.getValue());
-        }
-        literal.finish();
     }
 
     /**
@@ -386,23 +341,6 @@ public class JSONObject {
     }
 
     /**
-     * Create a JSON object by parsing a JSON object literal string.  If this
-     * string contains more than one JSON literal, only the first one will be
-     * parsed; if you have a string containing more than one JSON literal, use
-     * {@link Parser} instead.
-     *
-     * @param str  A JSON literal string that will be parsed and turned into
-     *    the corresponding JSONObject.
-     */
-    public static JSONObject parse(String str) throws SyntaxError {
-        JSONObject result = new Parser(str).parseObjectLiteral();
-        if (result == null) {
-            throw new SyntaxError("empty JSON string");
-        }
-        return result;
-    }
-
-    /**
      * Get a set view of the properties of this JSON object.
      *
      * @return a set of this object's properties.
@@ -421,16 +359,6 @@ public class JSONObject {
      */
     public Object remove(String name) {
         return myProperties.remove(name);
-    }
-
-    /**
-     * Obtain a {@link String} representation of this object suitable for
-     * output to a connection.
-     *
-     * @return a sendable {@link String} representation of this object
-     */
-    public String sendableString() {
-        return literal(EncodeControl.forClient).sendableString();
     }
 
     /**
@@ -457,7 +385,7 @@ public class JSONObject {
      * @return a printable representation of this object.
      */
     public String toString() {
-        return literal(EncodeControl.forRepository).sendableString();
+        return JsonObjectSerialization.literal(this, EncodeControl.forRepository).sendableString();
     }
 
     /**

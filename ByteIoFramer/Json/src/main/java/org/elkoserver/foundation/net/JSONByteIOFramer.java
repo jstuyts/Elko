@@ -3,10 +3,7 @@ package org.elkoserver.foundation.net;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.Parser;
-import org.elkoserver.json.SyntaxError;
+import org.elkoserver.json.*;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -122,7 +119,7 @@ public class JSONByteIOFramer implements ByteIOFramer {
         if (message instanceof JSONLiteral) {
             messageString = ((JSONLiteral) message).sendableString();
         } else if (message instanceof JSONObject) {
-            messageString = ((JSONObject) message).sendableString();
+            messageString = JsonObjectSerialization.sendableString((JSONObject) message);
         } else if (message instanceof String) {
             messageString = (String) message;
         } else {

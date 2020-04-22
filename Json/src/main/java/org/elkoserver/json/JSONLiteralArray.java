@@ -42,7 +42,7 @@ public class JSONLiteralArray {
      * @param control  Encode control determining what flavor of encoding
      *    is being done.
      */
-    /* package */ JSONLiteralArray(StringBuilder stringBuilder,
+    JSONLiteralArray(StringBuilder stringBuilder,
                                    EncodeControl control)
     {
         myStringBuilder = stringBuilder;

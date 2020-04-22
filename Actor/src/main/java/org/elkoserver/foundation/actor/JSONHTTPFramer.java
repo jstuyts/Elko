@@ -6,10 +6,7 @@ import java.util.Iterator;
 
 import org.elkoserver.foundation.net.Communication;
 import org.elkoserver.foundation.net.HTTPFramer;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.Parser;
-import org.elkoserver.json.SyntaxError;
+import org.elkoserver.json.*;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -56,7 +53,7 @@ public class JSONHTTPFramer extends HTTPFramer {
         if (message instanceof JSONLiteral) {
             messageString = ((JSONLiteral) message).sendableString();
         } else if (message instanceof JSONObject) {
-            messageString = ((JSONObject) message).sendableString();
+            messageString = JsonObjectSerialization.sendableString((JSONObject) message);
         } else if (message instanceof String) {
             messageString = "\"" + message + "\"";
         } else {

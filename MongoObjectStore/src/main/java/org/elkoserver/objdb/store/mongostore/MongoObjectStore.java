@@ -8,10 +8,7 @@ import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
 import org.elkoserver.foundation.properties.ElkoProperties;
-import org.elkoserver.json.JSONArray;
-import org.elkoserver.json.JSONDecodingException;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.SyntaxError;
+import org.elkoserver.json.*;
 import org.elkoserver.objdb.store.GetResultHandler;
 import org.elkoserver.objdb.store.ObjectDesc;
 import org.elkoserver.objdb.store.ObjectStore;
@@ -140,7 +137,7 @@ public class MongoObjectStore implements ObjectStore {
             Document dbObj = collection.find(query).first();
             if (dbObj != null) {
                 JSONObject jsonObj = dbObjectToJSONObject(dbObj);
-                obj = jsonObj.sendableString();
+                obj = JsonObjectSerialization.sendableString(jsonObj);
                 contents = doGetContents(jsonObj, collection);
             } else {
                 failure = "not found";
@@ -192,7 +189,7 @@ public class MongoObjectStore implements ObjectStore {
     private Document jsonLiteralToDBObject(String objStr, String ref) {
         JSONObject obj;
         try {
-            obj = JSONObject.parse(objStr);
+            obj = JsonObjectParser.parse(objStr);
         } catch (SyntaxError e) {
             return null;
         }
@@ -474,7 +471,7 @@ public class MongoObjectStore implements ObjectStore {
             }
             for (Document dbObj : cursor) {
                 JSONObject jsonObj = dbObjectToJSONObject(dbObj);
-                String obj = jsonObj.sendableString();
+                String obj = JsonObjectSerialization.sendableString(jsonObj);
                 results.add(new ObjectDesc("query", obj, null));
             }
         } catch (Exception e) {

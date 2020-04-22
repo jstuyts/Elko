@@ -2,11 +2,10 @@ package org.elkoserver.util;
 
 import org.elkoserver.json.JSONDecodingException;
 import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObjectParser;
 import org.elkoserver.json.SyntaxError;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 
 import static java.nio.charset.Charset.defaultCharset;
@@ -81,7 +80,7 @@ class JSONValidator {
             }
         } while (line != null);
         try {
-            JSONObject obj = JSONObject.parse(inBuf.toString());
+            JSONObject obj = JsonObjectParser.parse(inBuf.toString());
             return obj.getString("ref");
         } catch (SyntaxError e) {
             e("bad " + source + " syntax error: " + e.getMessage());

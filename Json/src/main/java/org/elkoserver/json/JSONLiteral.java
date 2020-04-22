@@ -43,7 +43,7 @@ public class JSONLiteral {
      * @param control  Encode control determining what flavor of encoding
      *    is being done.
      */
-    /* package */ JSONLiteral(StringBuilder stringBuilder,
+    JSONLiteral(StringBuilder stringBuilder,
                               EncodeControl control)
     {
         myStringBuilder = stringBuilder;
@@ -648,9 +648,9 @@ public class JSONLiteral {
         } else if (value instanceof JSONLiteralArray) {
             buf.append(((JSONLiteralArray) value).stringBuilder());
         } else if (value instanceof JSONObject) {
-            ((JSONObject) value).encodeLiteral(buf, control);
+            JsonObjectSerialization.encodeLiteral((JSONObject) value, buf, control);
         } else if (value instanceof JSONArray) {
-            ((JSONArray) value).encodeLiteral(buf, control);
+            JsonArraySerialization.encodeLiteral((JSONArray) value, buf, control);
         } else {
             /* Else just convert the value to its natural string form */
             buf.append(value.toString());
