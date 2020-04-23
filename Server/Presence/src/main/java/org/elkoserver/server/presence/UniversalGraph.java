@@ -2,8 +2,7 @@ package org.elkoserver.server.presence;
 
 import java.security.SecureRandom;
 import java.util.Iterator;
-import org.elkoserver.json.JSONDecodingException;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 
 /**
  * Social graph based on the notion that everybody is connected to everybody
@@ -33,14 +32,10 @@ class UniversalGraph implements SocialGraph {
     UniversalGraph() {
     }
 
-    public void init(PresenceServer master, Domain domain, JSONObject conf) {
+    public void init(PresenceServer master, Domain domain, JsonObject conf) {
         myMaster = master;
         myDomain = domain;
-        try {
-            myPseudoFriendCount = conf.optInt("friends", -1);
-        } catch (JSONDecodingException e) {
-            myPseudoFriendCount = -1;
-        }
+        myPseudoFriendCount = conf.getInt("friends", -1);
         master.appTrace().worldi("init UniversalGraph for domain '" + domain.name() + "'");
     }
 
@@ -109,6 +104,6 @@ class UniversalGraph implements SocialGraph {
     public void shutdown() {
     }
 
-    public void update(PresenceServer master, Domain domain, JSONObject conf) {
+    public void update(PresenceServer master, Domain domain, JsonObject conf) {
     }
 }

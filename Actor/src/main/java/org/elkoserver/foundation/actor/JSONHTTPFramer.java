@@ -1,14 +1,19 @@
 package org.elkoserver.foundation.actor;
 
+import com.grack.nanojson.JsonParserException;
+import org.elkoserver.foundation.net.Communication;
+import org.elkoserver.foundation.net.HTTPFramer;
+import org.elkoserver.json.JSONLiteral;
+import org.elkoserver.json.JsonObject;
+import org.elkoserver.json.JsonObjectSerialization;
+import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
+
 import java.net.URLDecoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Iterator;
 
-import org.elkoserver.foundation.net.Communication;
-import org.elkoserver.foundation.net.HTTPFramer;
-import org.elkoserver.json.*;
-import org.elkoserver.util.trace.Trace;
-import org.elkoserver.util.trace.TraceFactory;
+import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
 
 /**
  * HTTP message framer for JSON messages transported via HTTP.
@@ -52,8 +57,10 @@ public class JSONHTTPFramer extends HTTPFramer {
         String messageString;
         if (message instanceof JSONLiteral) {
             messageString = ((JSONLiteral) message).sendableString();
-        } else if (message instanceof JSONObject) {
-            messageString = JsonObjectSerialization.sendableString((JSONObject) message);
+        } else if (message instanceof JsonObject) {
+            messageString = JsonObjectSerialization.sendableString((JsonObject) message);
+        } else if (message instanceof JsonObject) {
+            messageString = JsonObjectSerialization.sendableString((JsonObject) message);
         } else if (message instanceof String) {
             messageString = "\"" + message + "\"";
         } else {
@@ -81,9 +88,7 @@ public class JSONHTTPFramer extends HTTPFramer {
      * HTTP POST body contains one or more JSON messages.
      */
     private static class JSONBodyUnpacker implements Iterator<Object> {
-        /** Current JSON parser. */
-        private Parser myParser;
-
+        private final String postBody;
         /** Last JSON message parsed.  This will be the next JSON message to be
             returned because the framer always parses one JSON message ahead,
             in order to be able to see the end of the HTTP message string. */
@@ -99,8 +104,7 @@ public class JSONHTTPFramer extends HTTPFramer {
         JSONBodyUnpacker(String postBody, TraceFactory traceFactory) {
             this.traceFactory = traceFactory;
             traceFactory.comm.debugm("unpacker for: /" + postBody + "/");
-            postBody = extractBodyFromSafariPostIfNeeded(postBody);
-            myParser = new Parser(postBody);
+            this.postBody = extractBodyFromSafariPostIfNeeded(postBody);
             myLastMessageParsed = parseNextMessage();
         }
 
@@ -150,8 +154,8 @@ public class JSONHTTPFramer extends HTTPFramer {
          */
         private Object parseNextMessage() {
             try {
-                return myParser.parseObjectLiteral();
-            } catch (SyntaxError e) {
+                return jsonObjectFromString(postBody);
+            } catch (JsonParserException e) {
                 if (Communication.TheDebugReplyFlag) {
                     return e;
                 }

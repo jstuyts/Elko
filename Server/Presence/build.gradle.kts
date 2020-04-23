@@ -13,11 +13,11 @@ repositories {
 dependencies {
     api(project(":Actor"))
     api(project(":Boot:Api", "default"))
-    api(project(":Json"))
     api(project(":ObjectDatabase:Api"))
     api(project(":ServerCore"))
     api(project(":Properties"))
     api(project(":Trace"))
+    api(Libraries.nanojson)
 
     implementation(kotlin("stdlib-jdk8"))
 }

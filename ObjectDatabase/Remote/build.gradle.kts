@@ -10,13 +10,13 @@ repositories {
 }
 
 dependencies {
-    api(project(":Json"))
     api(project(":Net:Api"))
     api(project(":ObjectDatabase:Api"))
     api(project(":Properties"))
     api(project(":ServerMetadata"))
     api(project(":Timer"))
     api(project(":Trace"))
+    api(Libraries.nanojson)
 
     implementation(project(":Actor"))
 }

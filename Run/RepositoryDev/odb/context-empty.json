@@ -1,6 +1,6 @@
 {
-  type: "context",
-  name: "Pretty much empty",
-  capacity: 10
+  "type": "context",
+  "name": "Pretty much empty",
+  "capacity": 10
 }
 

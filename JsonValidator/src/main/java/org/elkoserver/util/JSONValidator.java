@@ -1,15 +1,15 @@
 package org.elkoserver.util;
 
+import com.grack.nanojson.JsonParserException;
 import org.elkoserver.json.JSONDecodingException;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.JsonObjectParser;
-import org.elkoserver.json.SyntaxError;
+import org.elkoserver.json.JsonObject;
 
 import java.io.*;
 import java.util.LinkedList;
 
 import static java.nio.charset.Charset.defaultCharset;
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
 
 
 /**
@@ -80,9 +80,9 @@ class JSONValidator {
             }
         } while (line != null);
         try {
-            JSONObject obj = JsonObjectParser.parse(inBuf.toString());
+            JsonObject obj = jsonObjectFromString(inBuf.toString());
             return obj.getString("ref");
-        } catch (SyntaxError e) {
+        } catch (JsonParserException e) {
             e("bad " + source + " syntax error: " + e.getMessage());
             return null;
         } catch (JSONDecodingException e) {

@@ -1,9 +1,9 @@
 {
-  type: "user",
-  name: "Chip",
-  mods: [
+  "type": "user",
+  "name": "Chip",
+  "mods": [
     {
-      type: "definer"
+      "type": "definer"
     }
   ]
 }

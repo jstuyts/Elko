@@ -1,7 +1,7 @@
 package org.elkoserver.server.context;
 
 import org.elkoserver.foundation.net.Connection;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 
 /**
  * Interface implemented by objects that can synthesize ephemeral User objects
@@ -36,6 +36,6 @@ public interface EphemeralUserFactory {
      *    such User object could be produced.
      */
     User provideUser(Contextor contextor, Connection connection,
-                     JSONObject param, String contextRef,
+                     JsonObject param, String contextRef,
                      String contextTemplate);
 }

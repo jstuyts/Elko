@@ -1,7 +1,7 @@
 {
-  type: "context",
-  name: "Sto Helit",
-  capacity: 10,
-  semiprivate: true
+  "type": "context",
+  "name": "Sto Helit",
+  "capacity": 10,
+  "semiprivate": true
 }
 

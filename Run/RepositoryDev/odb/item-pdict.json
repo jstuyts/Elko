@@ -1,22 +1,22 @@
 {
-  type: "item",
-  name: "a persistent dictionary item",
-  mods: [
+  "type": "item",
+  "name": "a persistent dictionary item",
+  "mods": [
     {
-      type: "dictionary",
-      names: [
+      "type": "dictionary",
+      "names": [
         "b1",
         "b2",
         "b3",
         "b4"
       ],
-      values: [
+      "values": [
         "bip",
         "bop",
         "bam",
         "boom"
       ],
-      persist: true
+      "persist": true
     }
   ]
 }

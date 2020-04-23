@@ -24,9 +24,9 @@ public class ContextShutdown {
 
     private static void shutDownServer(String hostAddress, int portNumber, String password) throws IOException, InterruptedException {
         try (Socket socket = new Socket(hostAddress, portNumber)) {
-            socket.getOutputStream().write(("{to:\"session\", op:\"shutdown\"" +
-                    (password.equals(NO_PASSWORD_INDICATOR) ? "" : ", password:\"" + password + "\"") +
-                    ", kill:false}\n\n").getBytes(UTF_8));
+            socket.getOutputStream().write(("{\"to\":\"session\", \"op\":\"shutdown\"" +
+                    (password.equals(NO_PASSWORD_INDICATOR) ? "" : ", \"password\":\"" + password + "\"") +
+                    ", \"kill\":false}\n\n").getBytes(UTF_8));
             Thread.sleep(1_000L);
         }
     }

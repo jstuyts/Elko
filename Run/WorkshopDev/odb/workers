@@ -1,10 +1,10 @@
 {
-   ref: "workers",
-   type: "workers",
-   workers: [
+   "ref": "workers",
+   "type": "workers",
+   "workers": [
       {
-         key: "bank",
-         ref: "bankservice"
+         "key": "bank",
+         "ref": "bankservice"
       }
    ]
 }

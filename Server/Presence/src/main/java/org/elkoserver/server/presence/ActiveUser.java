@@ -4,7 +4,7 @@ import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.Encodable;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -34,7 +34,7 @@ class ActiveUser {
     private ArrayList<Iterable<String>> myFriendsByDomain;
 
     /** Optional user metadata for this user. */
-    private JSONObject myMetadata;
+    private JsonObject myMetadata;
 
     /**
      * Constructor.
@@ -48,7 +48,7 @@ class ActiveUser {
         myDomainLoadCount = 0;
     }
 
-    void noteMetadata(JSONObject metadata) {
+    void noteMetadata(JsonObject metadata) {
         myMetadata = metadata;
     }
 
@@ -381,7 +381,7 @@ class ActiveUser {
      *    should be informed, by domain and context
      * @param master  The presence server master instance.
      */
-    private JSONLiteral msgUserToGroup(String user, JSONObject userMeta,
+    private JSONLiteral msgUserToGroup(String user, JsonObject userMeta,
                                        String context, boolean on,
                                        Map<Domain, Map<String, List<String>>> friends,
                                        PresenceServer master)
@@ -424,11 +424,11 @@ class ActiveUser {
      */
     private static class FriendInfo implements Encodable {
         private String myUser;
-        private JSONObject myUserMeta;
+        private JsonObject myUserMeta;
         private String myContext;
-        private JSONObject myContextMeta;
-        FriendInfo(String user, JSONObject userMeta, String context,
-                   JSONObject contextMeta)
+        private JsonObject myContextMeta;
+        FriendInfo(String user, JsonObject userMeta, String context,
+                   JsonObject contextMeta)
         {
             myUser = user;
             myUserMeta = userMeta;

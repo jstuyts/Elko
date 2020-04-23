@@ -1,11 +1,17 @@
 package org.elkoserver.foundation.net;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
-import org.elkoserver.json.*;
+import com.grack.nanojson.JsonParserException;
+import org.elkoserver.json.JSONLiteral;
+import org.elkoserver.json.JsonObject;
+import org.elkoserver.json.JsonObjectSerialization;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
+
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.charset.StandardCharsets;
+
+import static org.elkoserver.json.JsonParsing.jsonObjectFromReader;
 
 /**
  * I/O framer implementation for JSON messages.
@@ -71,17 +77,19 @@ public class JSONByteIOFramer implements ByteIOFramer {
                 if (trMsg.getEvent()) {
                     trMsg.msgi(myLabel, true, msgString);
                 }
-                Parser parser = new Parser(msgString);
-                while (parser != null) {
+                // FIXME: Do not end because of no more characters at end of string. Instead fail gracefully.
+                StringReader msgReader = new StringReader(msgString);
+                boolean needsFurtherParsing = true;
+                while (needsFurtherParsing) {
                     try {
-                        JSONObject obj = parser.parseObjectLiteral();
+                        JsonObject obj = jsonObjectFromReader(msgReader);
                         if (obj == null) {
-                            parser = null;
+                            needsFurtherParsing = false;
                         } else {
                             myReceiver.receiveMsg(obj);
                         }
-                    } catch (SyntaxError e) {
-                        parser = null;
+                    } catch (JsonParserException e) {
+                        needsFurtherParsing = false;
                         if (Communication.TheDebugReplyFlag) {
                             myReceiver.receiveMsg(e);
                         }
@@ -118,8 +126,8 @@ public class JSONByteIOFramer implements ByteIOFramer {
         
         if (message instanceof JSONLiteral) {
             messageString = ((JSONLiteral) message).sendableString();
-        } else if (message instanceof JSONObject) {
-            messageString = JsonObjectSerialization.sendableString((JSONObject) message);
+        } else if (message instanceof JsonObject) {
+            messageString = JsonObjectSerialization.sendableString((JsonObject) message);
         } else if (message instanceof String) {
             messageString = (String) message;
         } else {

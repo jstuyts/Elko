@@ -1,7 +1,7 @@
 package org.elkoserver.server.context;
 
 import org.elkoserver.foundation.net.Connection;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 
 import java.util.function.Consumer;
 
@@ -32,5 +32,5 @@ public interface UserFactory {
      *    be the user object that was produced, or null if none could be.
      */
     void provideUser(Contextor contextor, Connection connection,
-                     JSONObject param, Consumer<Object> handler);
+                     JsonObject param, Consumer<Object> handler);
 }

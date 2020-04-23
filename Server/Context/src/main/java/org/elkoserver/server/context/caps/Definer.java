@@ -4,9 +4,8 @@ import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.EncodeControl;
-import org.elkoserver.json.JSONDecodingException;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.server.context.BasicObject;
 import org.elkoserver.server.context.Contextor;
 import org.elkoserver.server.context.ItemMod;
@@ -22,7 +21,7 @@ public class Definer extends Cap implements ItemMod, UserMod {
      * JSON-driven constructor.
      */
     @JSONMethod
-    public Definer(JSONObject raw) throws JSONDecodingException {
+    public Definer(JsonObject raw) {
         super(raw);
     }
 

@@ -10,7 +10,7 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.foundation.server.metadata.ServiceFinder;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.Encodable;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.objdb.store.ObjectDesc;
 import org.elkoserver.objdb.store.ResultDesc;
 import org.elkoserver.util.trace.Trace;
@@ -348,7 +348,7 @@ public class ObjDBRemote extends ObjDBBase {
      *    be an array of the object(s) requested, or null if no objects could
      *    be retrieved.
      */
-    public void queryObjects(JSONObject template, String collectionName,
+    public void queryObjects(JsonObject template, String collectionName,
                              int maxResults, Consumer<Object> handler) {
         newRequest(PendingRequest.queryReq(template, collectionName,
                                            maxResults, handler));

@@ -10,12 +10,13 @@ repositories {
 }
 
 dependencies {
-    api(project(":Json"))
     api(project(":JsonMessageHandling"))
     api(project(":Net:Api"))
     api(project(":ServerMetadata"))
     api(project(":Trace"))
+    api(Libraries.nanojson)
 
+    api(Libraries.nanojson)
     implementation(project(":Communication"))
 }
 

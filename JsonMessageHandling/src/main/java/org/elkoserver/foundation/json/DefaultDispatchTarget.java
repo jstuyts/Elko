@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.json;
 
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 
 /**
  * Interface for an object to handle JSON messages addressed to it for which it
@@ -25,6 +25,6 @@ public interface DefaultDispatchTarget {
      * @throws MessageHandlerException if there was some kind of problem
      *    handling the message.
      */
-    void handleMessage(Deliverer from, JSONObject message)
+    void handleMessage(Deliverer from, JsonObject message)
         throws MessageHandlerException;
 }

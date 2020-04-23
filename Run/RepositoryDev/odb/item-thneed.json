@@ -1,6 +1,6 @@
 {
-  type: "item",
-  deletable: true,
-  name: "Thneed"
+  "type": "item",
+  "deletable": true,
+  "name": "Thneed"
 }
 

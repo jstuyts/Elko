@@ -3,7 +3,7 @@ package org.elkoserver.server.presence
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.server.Server
-import org.elkoserver.json.JSONObject
+import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
@@ -44,7 +44,7 @@ internal class PresenceServer(
     private val myVisibles: MutableMap<String, PresenceActor>
 
     /** Known context metadata.  */
-    private val myContextMetadata: MutableMap<String, JSONObject>
+    private val myContextMetadata: MutableMap<String, JsonObject>
 
     /** The client object.  */
     private val myClientHandler: ClientHandler
@@ -81,7 +81,7 @@ internal class PresenceServer(
         }
     }
 
-    fun updateDomain(domain: String, conf: JSONObject?, client: PresenceActor) {
+    fun updateDomain(domain: String, conf: JsonObject?, client: PresenceActor) {
         val graph = mySocialGraphs[domain]
         if (graph == null) {
             tr.warningi("client " + client +
@@ -136,7 +136,7 @@ internal class PresenceServer(
      * @param userRef  The user to whom the metadata applies
      * @param userMeta  The user metadata itself.
      */
-    fun noteUserMetadata(userRef: String, userMeta: JSONObject?) {
+    fun noteUserMetadata(userRef: String, userMeta: JsonObject?) {
         val user = getUser(userRef)
         user.noteMetadata(userMeta)
     }
@@ -147,7 +147,7 @@ internal class PresenceServer(
      * @param contextRef  The context to which the metadata applies
      * @param contextMeta  The context metadata itself.
      */
-    fun noteContextMetadata(contextRef: String, contextMeta: JSONObject) {
+    fun noteContextMetadata(contextRef: String, contextMeta: JsonObject) {
         myContextMetadata[contextRef] = contextMeta
     }
 
@@ -160,7 +160,7 @@ internal class PresenceServer(
      * @return a metadata object for the given context, or null if there is
      * none.
      */
-    fun getContextMetadata(contextRef: String): JSONObject? {
+    fun getContextMetadata(contextRef: String): JsonObject? {
         return myContextMetadata[contextRef]
     }
 

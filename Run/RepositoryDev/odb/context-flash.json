@@ -1,15 +1,15 @@
 {
-  type: "context",
-  name: "Flash",
-  basecapacity: 20,
-  capacity: 30,
-  mods: [
+  "type": "context",
+  "name": "Flash",
+  "basecapacity": 20,
+  "capacity": 30,
+  "mods": [
     {
-      type: "chat"
+      "type": "chat"
     },
     {
-      type: "dictionary",
-      persist: false
+      "type": "dictionary",
+      "persist": false
     }
   ]
 }

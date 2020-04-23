@@ -2,7 +2,7 @@ package org.elkoserver.server.context.users;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.net.Connection;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.server.context.Contextor;
 import org.elkoserver.server.context.User;
 
@@ -37,7 +37,7 @@ public class DeviceEphemeralUserFactory extends DevicePersistentUserFactory {
    *    with null if the user object could not be produced.
    */
     public void provideUser(Contextor contextor, Connection connection,
-                            JSONObject param, Consumer<Object> handler)
+                            JsonObject param, Consumer<Object> handler)
     {
         DeviceCredentials creds =
             extractCredentials(contextor.appTrace(), param);

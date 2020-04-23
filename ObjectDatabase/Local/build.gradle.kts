@@ -11,11 +11,11 @@ repositories {
 }
 
 dependencies {
-    api(project(":Json"))
     api(project(":JsonMessageHandling"))
     api(project(":ObjectDatabase:Api"))
     api(project(":Properties"))
     api(project(":Trace"))
+    api(Libraries.nanojson)
 
     implementation(project(":Running"))
     implementation(kotlin("stdlib-jdk8"))

@@ -7,7 +7,7 @@ import org.elkoserver.foundation.timer.Clock;
 import org.elkoserver.foundation.timer.Timeout;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -307,13 +307,13 @@ public class RTCPSessionConnection extends ConnectionBase
             sendMsg(reply);
         } else {
             discardAcknowledgedMessages(request.clientRecvSeqNum());
-            JSONObject message = (JSONObject) request.nextMessage();
+            JsonObject message = (JsonObject) request.nextMessage();
             while (message != null) {
                 if (trMsg.getEvent() && Trace.ON) {
                     trMsg.msgi(this, true, message);
                 }
                 enqueueReceivedMessage(message);
-                message = (JSONObject) request.nextMessage();
+                message = (JsonObject) request.nextMessage();
             }
             ++myClientSendSeqNum;
         }

@@ -4,6 +4,15 @@ plugins {
     `java-library`
 }
 
+repositories {
+    jcenter()
+    mavenCentral()
+}
+
+dependencies {
+    api(Libraries.nanojson)
+}
+
 val apiClasses by tasks.registering(ApiClassesTask::class) {
     dependsOn(tasks.classes)
 }

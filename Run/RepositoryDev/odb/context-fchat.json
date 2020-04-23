@@ -1,42 +1,42 @@
 {
-  type: "context",
-  basecapacity: 20,
-  capacity: 30,
-  name: "Styled chat context",
-  mods: [
+  "type": "context",
+  "basecapacity": 20,
+  "capacity": 30,
+  "name": "Styled chat context",
+  "mods": [
     {
-      type: "chat"
+      "type": "chat"
     },
     {
-      type: "talkoptions",
-      styles: {
-        type: "styleoptions",
-        colors: [
+      "type": "talkoptions",
+      "styles": {
+        "type": "styleoptions",
+        "colors": [
           "blue",
           "red",
           "green"
         ],
-        bgColors: [
+        "bgColors": [
           "cyan",
           "brown",
           "olive"
         ],
-        textStyles: [
+        "textStyles": [
           "italic",
           "fancy",
           "dull",
           "bold"
         ],
-        iconWidth: 20,
-        iconHeight: 20
+        "iconWidth": 20,
+        "iconHeight": 20
       }
     }
   ],
-  usermods: [
+  "usermods": [
     {
-      type: "talkprefs",
-      style: {
-        type: "style"
+      "type": "talkprefs",
+      "style": {
+        "type": "style"
       }
     }
   ]

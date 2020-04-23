@@ -6,7 +6,7 @@ import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.Encodable;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 
 /**
  * Description of a query for an object.
@@ -15,7 +15,7 @@ import org.elkoserver.json.JSONObject;
  */
 public class QueryDesc implements Encodable {
     /** Query template */
-    private JSONObject myTemplate;
+    private JsonObject myTemplate;
 
     /** Collection to query */
     private String myCollectionName;
@@ -33,7 +33,7 @@ public class QueryDesc implements Encodable {
      *    indicate no fixed limit (the default if omitted).
      */
     @JSONMethod({ "template", "coll", "limit" })
-    public QueryDesc(JSONObject template, OptString collectionName,
+    public QueryDesc(JsonObject template, OptString collectionName,
                      OptInteger maxResults) {
         this(template, collectionName.value(null), maxResults.value(0));
     }
@@ -47,7 +47,7 @@ public class QueryDesc implements Encodable {
      * @param maxResults  Maximum number of result objects to return, or 0 to
      *    indicate no fixed limit.
      */
-    public QueryDesc(JSONObject template, String collectionName,
+    public QueryDesc(JsonObject template, String collectionName,
                      int maxResults) {
         myTemplate = template;
         myCollectionName = collectionName;
@@ -78,7 +78,7 @@ public class QueryDesc implements Encodable {
      *
      * @return the query template for the query.
      */
-    public JSONObject template() {
+    public JsonObject template() {
         return myTemplate;
     }
 

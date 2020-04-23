@@ -1,7 +1,7 @@
 package org.elkoserver.server.context.statics;
 
 import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,8 +17,8 @@ class StaticStringMap extends HashMap<String, String> {
      *    String.
      */
     @JSONMethod({ "map" })
-    StaticStringMap(JSONObject map) {
-        for (Map.Entry<String, Object> entry : map.properties()) {
+    StaticStringMap(JsonObject map) {
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
             put(entry.getKey(), (String) entry.getValue());
         }
     }

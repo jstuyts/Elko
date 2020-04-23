@@ -1,26 +1,18 @@
 package org.elkoserver.objdb.store.filestore;
 
+import org.elkoserver.foundation.properties.ElkoProperties;
+import org.elkoserver.json.JsonArray;
+import org.elkoserver.json.JsonObject;
+import org.elkoserver.objdb.store.*;
+import org.elkoserver.util.trace.Trace;
+
 import java.io.*;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import org.elkoserver.foundation.properties.ElkoProperties;
-import org.elkoserver.json.JSONArray;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.Parser;
-import org.elkoserver.objdb.store.GetResultHandler;
-import org.elkoserver.objdb.store.ObjectDesc;
-import org.elkoserver.objdb.store.ObjectStore;
-import org.elkoserver.objdb.store.PutDesc;
-import org.elkoserver.objdb.store.QueryDesc;
-import org.elkoserver.objdb.store.UpdateDesc;
-import org.elkoserver.objdb.store.RequestResultHandler;
-import org.elkoserver.objdb.store.RequestDesc;
-import org.elkoserver.objdb.store.ResultDesc;
-import org.elkoserver.util.trace.Trace;
-
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
 
 /**
  * A simple {@link ObjectStore} implementation that stores objects in text
@@ -80,8 +72,8 @@ public class FileObjectStore implements ObjectStore {
      * @param results  List in which to place the object or objects obtained.
      */
     private void dereferenceValue(Object value, List<ObjectDesc> results) {
-        if (value instanceof JSONArray) {
-            for (Object elem : (JSONArray) value) {
+        if (value instanceof JsonArray) {
+            for (Object elem : (JsonArray) value) {
                 if (elem instanceof String) {
                     results.addAll(doGet((String) elem));
                 }
@@ -116,8 +108,7 @@ public class FileObjectStore implements ObjectStore {
                 objReader.read(buf);
                 objReader.close();
                 obj = new String(buf);
-                Parser parser = new Parser(obj);
-                JSONObject jsonObj = parser.parseObjectLiteral();
+                JsonObject jsonObj = jsonObjectFromString(obj);
                 contents = doGetContents(jsonObj);
             } else {
                 failure = "not found";
@@ -142,9 +133,9 @@ public class FileObjectStore implements ObjectStore {
      * @return a List of ObjectDesc objects for the contents as
      *    requested.
      */
-    private List<ObjectDesc> doGetContents(JSONObject obj) {
+    private List<ObjectDesc> doGetContents(JsonObject obj) {
         List<ObjectDesc> results = new LinkedList<>();
-        for (Map.Entry<String, Object> entry : obj.properties()) {
+        for (Map.Entry<String, Object> entry : obj.entrySet()) {
             String propName = entry.getKey();
             if (propName.startsWith("ref$")) {
                 dereferenceValue(entry.getValue(), results);

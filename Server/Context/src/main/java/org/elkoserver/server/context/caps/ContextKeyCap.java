@@ -2,9 +2,8 @@ package org.elkoserver.server.context.caps;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.json.EncodeControl;
-import org.elkoserver.json.JSONDecodingException;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.server.context.ContextKey;
 import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.UserMod;
@@ -27,8 +26,7 @@ public class ContextKeyCap
      *    entry permission.
      */
     @JSONMethod({ "contexts" })
-    public ContextKeyCap(JSONObject raw, String[] contexts)
-        throws JSONDecodingException
+    public ContextKeyCap(JsonObject raw, String[] contexts)
     {
         super(raw);
         myContexts = contexts;

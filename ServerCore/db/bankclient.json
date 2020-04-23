@@ -1,5 +1,5 @@
 {
-   type: "bankclient",
-   ref: "bankclient",
-   servicename: "bank"
+   "type": "bankclient",
+   "ref": "bankclient",
+   "servicename": "bank"
 }

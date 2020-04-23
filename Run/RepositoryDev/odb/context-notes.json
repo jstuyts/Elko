@@ -1,33 +1,33 @@
 {
-  type: "context",
-  capacity: 10,
-  name: "Note context",
-  mods: [
+  "type": "context",
+  "capacity": 10,
+  "name": "Note context",
+  "mods": [
     {
-      type: "chat"
+      "type": "chat"
     },
     {
-      type: "notemaker",
-      styles: {
-        type: "styleoptions",
-        colors: [
+      "type": "notemaker",
+      "styles": {
+        "type": "styleoptions",
+        "colors": [
           "blue",
           "red",
           "green",
           "black"
         ],
-        bgColors: [
+        "bgColors": [
           "linen",
           "thistle",
           "papayawhip",
           "honeydew"
         ],
-        borderColors: [
+        "borderColors": [
           "dimgray",
           "peru",
           "lime"
         ],
-        textStyles: [
+        "textStyles": [
           "italic",
           "fancy",
           "dull",

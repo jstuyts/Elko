@@ -1,7 +1,6 @@
 package org.elkoserver.server.presence;
 
-import org.elkoserver.json.JSONDecodingException;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.objdb.ObjDB;
 import org.elkoserver.util.trace.Trace;
 
@@ -24,17 +23,13 @@ class SimpleSocialGraph implements SocialGraph {
     SimpleSocialGraph() {
     }
 
-    public void init(PresenceServer master, Domain domain, JSONObject conf) {
+    public void init(PresenceServer master, Domain domain, JsonObject conf) {
         myODB = master.objDB();
         myODB.addClass("ugraf", UserGraphDesc.class);
         myMaster = master;
         myDomain = domain;
         tr = master.appTrace();
-        try {
-            myPrefix = conf.optString("prefix", "g");
-        } catch (JSONDecodingException e) {
-            myPrefix = "g";
-        }
+        myPrefix = conf.getString("prefix", "g");
         tr.worldi("init SimpleSocialGraph for domain '" + domain.name() +
                   "', odb prefix '" + myPrefix + "-'");
     }
@@ -70,6 +65,6 @@ class SimpleSocialGraph implements SocialGraph {
     public void shutdown() {
     }
 
-    public void update(PresenceServer master, Domain domain, JSONObject conf) {
+    public void update(PresenceServer master, Domain domain, JsonObject conf) {
     }
 }

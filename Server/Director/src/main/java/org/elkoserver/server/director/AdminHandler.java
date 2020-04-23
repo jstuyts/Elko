@@ -1,5 +1,6 @@
 package org.elkoserver.server.director;
 
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.foundation.actor.BasicProtocolHandler;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
@@ -403,7 +404,7 @@ class AdminHandler extends BasicProtocolHandler {
      */
     @JSONMethod({ "context", "user", "msg" })
     public void relay(DirectorActor from, OptString context, OptString user,
-                      JSONObject msg)
+                      JsonObject msg)
         throws MessageHandlerException
     {
         from.ensureAuthorizedAdmin();

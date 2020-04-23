@@ -1,5 +1,7 @@
 package org.elkoserver.json;
 
+import org.elkoserver.json.JsonArray;
+
 public class JsonArraySerialization {
     /**
      * Encode this JSONArray into an externally provided string buffer.
@@ -8,7 +10,7 @@ public class JsonArraySerialization {
      * @param control  Encode control determining what flavor of encoding
      *    is being done.
      */
-    static void encodeLiteral(JSONArray array, StringBuilder buf, EncodeControl control) {
+    static void encodeLiteral(JsonArray array, StringBuilder buf, EncodeControl control) {
         JSONLiteralArray literal = new JSONLiteralArray(buf, control);
         for (Object element : array) {
             literal.addElement(element);
@@ -22,7 +24,7 @@ public class JsonArraySerialization {
      * @param control  Encode control determining what flavor of encoding
      *    is being done.
      */
-    static JSONLiteralArray literal(JSONArray array, EncodeControl control) {
+    static JSONLiteralArray literal(JsonArray array, EncodeControl control) {
         JSONLiteralArray literal = new JSONLiteralArray(control);
         for (Object element : array) {
             literal.addElement(element);
@@ -37,7 +39,7 @@ public class JsonArraySerialization {
      *
      * @return a sendable string representation of this array.
      */
-    public static String sendableString(JSONArray array) {
+    public static String sendableString(JsonArray array) {
         return literal(array, EncodeControl.forClient).sendableString();
     }
 }

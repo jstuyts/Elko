@@ -1,14 +1,15 @@
 package org.elkoserver.foundation.json;
 
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.Parser;
-import org.elkoserver.json.SyntaxError;
+import com.grack.nanojson.JsonParserException;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.TraceFactory;
 
 import java.lang.reflect.Constructor;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
 
 /**
  * A producer of some class of Java objects from JSON-encoded object
@@ -44,7 +45,7 @@ public class ObjectDecoder {
      * Alternatively, the constructor may have (exactly) one more parameter
      * than the number of Strings in the {@link JSONMethod} annotation, in
      * which case the one additional parameter must be of type {@link
-     * JSONObject} and it must be the first parameter.  This first parameter
+     * JsonObject} and it must be the first parameter.  This first parameter
      * will be passed the value of the uninterpreted JSON object from which the
      * (other) parameters were extracted.
      *
@@ -77,9 +78,9 @@ public class ObjectDecoder {
             paramTypes = constructor.getParameterTypes();
             paramNames = note.value();
             if (paramNames.length + 1 == paramTypes.length) {
-                if (!JSONObject.class.isAssignableFrom(paramTypes[0])) {
+                if (!JsonObject.class.isAssignableFrom(paramTypes[0])) {
                     throw new JSONSetupError("class " + decodeClass.getName() +
-                    " JSON constructor lacks a JSONObject first parameter");
+                    " JSON constructor lacks a JsonObject first parameter");
                 }
                 includeRawObject = true;
             } else if (paramNames.length != paramTypes.length) {
@@ -130,7 +131,7 @@ public class ObjectDecoder {
      * @return the Java object described by 'obj', or null if 'obj' could not
      *    be interpreted.
      */
-    private Object decode(JSONObject obj, TypeResolver resolver) {
+    private Object decode(JsonObject obj, TypeResolver resolver) {
         return myConstructor.construct(obj, resolver);
     }
 
@@ -148,11 +149,11 @@ public class ObjectDecoder {
      *    described by 'obj', or null if the object could not be decoded for
      *    some reason.
      */
-    public static Object decode(Class<?> baseType, JSONObject obj,
+    public static Object decode(Class<?> baseType, JsonObject obj,
                                 TypeResolver resolver, TraceFactory traceFactory, Clock clock)
     {
         Object result = null;
-        String typeName = obj.type();
+        String typeName = obj.getString("type", null);
         Class<?> targetClass;
         if (typeName != null) {
             targetClass = resolver.resolveType(baseType, typeName);
@@ -175,7 +176,7 @@ public class ObjectDecoder {
 
     /**
      * A simple JSON object decoder for one-shot objects.  The given object is
-     * by the {@link #decode(Class,JSONObject,TypeResolver, TraceFactory)} method, using the
+     * by the {@link #decode(Class,JsonObject,TypeResolver, TraceFactory)} method, using the
      * {@link AlwaysBaseTypeResolver} to resolve type tags.
      *
      * @param baseType  The desired class of the resulting Java object.  The
@@ -187,7 +188,7 @@ public class ObjectDecoder {
      *    described by 'jsonObj', or null if the object could not be decoded
      *    for some reason.
      */
-    private static Object decode(Class<?> baseType, JSONObject jsonObj, TraceFactory traceFactory, Clock clock) {
+    private static Object decode(Class<?> baseType, JsonObject jsonObj, TraceFactory traceFactory, Clock clock) {
         return decode(baseType, jsonObj,
                       AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock);
     }
@@ -195,7 +196,7 @@ public class ObjectDecoder {
     /**
      * A simple JSON string decoder for one-shot objects.  The given string is
      * first parsed, and then decoded as by the {@link
-     * #decode(Class,JSONObject,TypeResolver, TraceFactory, Clock)} method, using the {@link
+     * #decode(Class,JsonObject,TypeResolver, TraceFactory, Clock)} method, using the {@link
      * AlwaysBaseTypeResolver} to resolve type tags.
      *
      * @param baseType  The desired class of the resulting Java object.  The
@@ -209,10 +210,9 @@ public class ObjectDecoder {
      */
     public static Object decode(Class<?> baseType, String str, TraceFactory traceFactory, Clock clock) {
         try {
-            Parser parser = new Parser(str);
-            JSONObject jsonObj = parser.parseObjectLiteral();
+            JsonObject jsonObj = jsonObjectFromString(str);
             return decode(baseType, jsonObj, traceFactory, clock);
-        } catch (SyntaxError e) {
+        } catch (JsonParserException e) {
             traceFactory.comm.warningm("syntax error decoding object: " +
                                 e.getMessage());
             return null;

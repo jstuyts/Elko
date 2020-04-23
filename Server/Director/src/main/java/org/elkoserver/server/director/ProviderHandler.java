@@ -5,7 +5,7 @@ import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.OptBoolean;
 import org.elkoserver.foundation.json.OptInteger;
 import org.elkoserver.foundation.json.OptString;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.TraceFactory;
 
 /**
@@ -157,7 +157,7 @@ class ProviderHandler extends UserHandler {
      */
     @JSONMethod({ "context", "user", "msg" })
     public void relay(DirectorActor from, OptString context, OptString user,
-                      JSONObject msg)
+                      JsonObject msg)
         throws MessageHandlerException
     {
         from.ensureAuthorizedProvider();

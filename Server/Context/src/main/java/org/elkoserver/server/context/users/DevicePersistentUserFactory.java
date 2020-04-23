@@ -3,7 +3,7 @@ package org.elkoserver.server.context.users;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.json.JSONDecodingException;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.server.context.Contextor;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
@@ -58,7 +58,7 @@ public class DevicePersistentUserFactory implements UserFactory {
      *    be the user object that was produced, or null if none could be.
      */
     public void provideUser(final Contextor contextor, Connection connection,
-                            JSONObject param, final Consumer<Object> handler) {
+                            JsonObject param, final Consumer<Object> handler) {
         final DeviceCredentials creds =
             extractCredentials(contextor.appTrace(), param);
         if (creds != null) {
@@ -111,20 +111,20 @@ public class DevicePersistentUserFactory implements UserFactory {
         }
     }
 
-    private JSONObject deviceQuery(String uuid) {
+    private JsonObject deviceQuery(String uuid) {
         // { type: "user",
         //   mods: { $elemMatch: { type: "deviceuser", uuid: UUID }}}
 
-        JSONObject modMatchPattern = new JSONObject();
-        modMatchPattern.addProperty("type", "deviceuser");
-        modMatchPattern.addProperty("uuid", uuid);
+        JsonObject modMatchPattern = new JsonObject();
+        modMatchPattern.put("type", "deviceuser");
+        modMatchPattern.put("uuid", uuid);
 
-        JSONObject modMatch = new JSONObject();
-        modMatch.addProperty("$elemMatch", modMatchPattern);
+        JsonObject modMatch = new JsonObject();
+        modMatch.put("$elemMatch", modMatchPattern);
 
-        JSONObject queryTemplate = new JSONObject();
-        queryTemplate.addProperty("type", "user");
-        queryTemplate.addProperty("mods", modMatch);
+        JsonObject queryTemplate = new JsonObject();
+        queryTemplate.put("type", "user");
+        queryTemplate.put("mods", modMatch);
 
         return queryTemplate;
     }
@@ -139,13 +139,17 @@ public class DevicePersistentUserFactory implements UserFactory {
      *    or null if parameters were missing or invalid somehow.
      */
     DeviceCredentials extractCredentials(Trace appTrace,
-                                         JSONObject param)
+                                         JsonObject param)
     {
         try {
             String uuid = param.getString("uuid");
-            String name = param.optString("name", null);
+            if (uuid == null) {
+                appTrace.errorm("bad parameter: missing uuid");
+                return null;
+            }
+            String name = param.getString("name");
             if (name == null) {
-                name = param.optString("nickname", null);
+                name = param.getString("nickname");
             }
             return new DeviceCredentials(uuid, name);
         } catch (JSONDecodingException e) {

@@ -1,13 +1,14 @@
 package org.elkoserver.foundation.net;
 
+import com.grack.nanojson.JsonParserException;
+import org.elkoserver.json.JsonObject;
+import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
+
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.Parser;
-import org.elkoserver.json.SyntaxError;
-import org.elkoserver.util.trace.Trace;
-import org.elkoserver.util.trace.TraceFactory;
+import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
 
 /**
  * Byte I/O framer factory for RTCP requests.  The framing rule used is: read
@@ -125,18 +126,17 @@ public class RTCPRequestByteIOFramerFactory implements ByteIOFramerFactory {
                             return;
                         }
                         if (line.length() == 0) {
-                            Parser parser = new Parser(myMsgBuffer.toString());
-                            while (parser != null) {
+                            boolean needsFurtherParsing = true;
+                            while (needsFurtherParsing) {
                                 try {
-                                    JSONObject obj =
-                                        parser.parseObjectLiteral();
+                                    JsonObject obj = jsonObjectFromString(myMsgBuffer.toString());
                                     if (obj == null) {
-                                        parser = null;
+                                        needsFurtherParsing = false;
                                     } else {
                                         myRequest.addMessage(obj);
                                     }
-                                } catch (SyntaxError e) {
-                                    parser = null;
+                                } catch (JsonParserException e) {
+                                    needsFurtherParsing = false;
                                     if (Communication.TheDebugReplyFlag) {
                                         myRequest.noteProblem(e);
                                     }

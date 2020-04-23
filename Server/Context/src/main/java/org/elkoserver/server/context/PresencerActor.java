@@ -5,7 +5,7 @@ import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageDispatcher;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.metadata.HostDesc;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.TraceFactory;
 
 /**
@@ -86,12 +86,12 @@ class PresencerActor extends NonRoutingActor {
 
     private static class GToUFriendInfo {
         final String user;
-        final JSONObject userMeta;
+        final JsonObject userMeta;
         final String context;
-        final JSONObject contextMeta;
+        final JsonObject contextMeta;
         @JSONMethod({ "user", "?umeta", "ctx", "?cmeta" })
-        GToUFriendInfo(String user, JSONObject userMeta, String context,
-                       JSONObject contextMeta)
+        GToUFriendInfo(String user, JsonObject userMeta, String context,
+                       JsonObject contextMeta)
         {
             this.user = user;
             this.userMeta = userMeta;
@@ -113,8 +113,8 @@ class PresencerActor extends NonRoutingActor {
      * @param toGroup  List of users who may be interested in this
      */
     @JSONMethod({ "user", "?umeta", "ctx", "?cmeta", "on", "togroup" })
-    public void utog(PresencerActor from, String userRef, JSONObject userMeta,
-                     String contextRef, JSONObject contextMeta, boolean on,
+    public void utog(PresencerActor from, String userRef, JsonObject userMeta,
+                     String contextRef, JsonObject contextMeta, boolean on,
                      UToGDomainInfo[] toGroup) {
         for (UToGDomainInfo domainInfo : toGroup) {
             for (UToGContextInfo contextInfo : domainInfo.who) {

@@ -1,5 +1,6 @@
 package org.elkoserver.objdb;
 
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.*;
 
 import java.util.function.Consumer;
@@ -157,7 +158,7 @@ class PendingRequest {
      * @param maxResults  Maximum number of result objects to return, or 0 to
      *    indicate no fixed limit.
      */
-    private void msgQuery(JSONObject template, String collectionName,
+    private void msgQuery(JsonObject template, String collectionName,
                           int maxResults) {
         myMsg = new JSONLiteral("rep", "query");
         myMsg.addParameter("tag", myTag);
@@ -247,7 +248,7 @@ class PendingRequest {
      *
      * @return an object encapsulating the indicated 'query' request.
      */
-    static PendingRequest queryReq(JSONObject template, String collectionName,
+    static PendingRequest queryReq(JsonObject template, String collectionName,
                                    int maxResults, Consumer<Object> handler) {
         PendingRequest req =
             new PendingRequest(handler, "query", collectionName);

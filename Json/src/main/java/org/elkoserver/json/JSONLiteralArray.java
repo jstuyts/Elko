@@ -43,7 +43,7 @@ public class JSONLiteralArray {
      *    is being done.
      */
     JSONLiteralArray(StringBuilder stringBuilder,
-                                   EncodeControl control)
+                            EncodeControl control)
     {
         myStringBuilder = stringBuilder;
         myStartPos = stringBuilder.length();

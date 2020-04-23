@@ -1,9 +1,8 @@
 package org.elkoserver.server.context.caps;
 
 import org.elkoserver.foundation.json.*;
-import org.elkoserver.json.JSONDecodingException;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.server.context.BasicObject;
 import org.elkoserver.server.context.Item;
 import org.elkoserver.server.context.Mod;
@@ -51,10 +50,10 @@ public abstract class Cap extends Mod implements ObjectCompletionWatcher, ClockU
      *
      * @param desc  The parsed JSON object describing this capability mod.
      */
-    Cap(JSONObject desc) throws JSONDecodingException {
-        amTransferrable = desc.optBoolean("transferrable", true);
-        amDeletable     = desc.optBoolean("deletable", true);
-        myExpiration    = desc.optLong("expiration", 0);
+    Cap(JsonObject desc)  {
+        amTransferrable = desc.getBoolean("transferrable", true);
+        amDeletable     = desc.getBoolean("deletable", true);
+        myExpiration    = desc.getLong("expiration", 0L);
     }
 
     @Override

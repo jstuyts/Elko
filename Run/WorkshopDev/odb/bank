@@ -1,9 +1,9 @@
 {
-   rootkey: "key-472792a8bdc28104",
-   ref: "bank",
-   currencies: [
+   "rootkey": "key-472792a8bdc28104",
+   "ref": "bank",
+   "currencies": [
    ],
-   keys: [
+   "keys": [
    ],
-   type: "bank"
+   "type": "bank"
 }

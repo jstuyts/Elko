@@ -14,7 +14,7 @@ import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.HashSetMulti;
@@ -191,7 +191,7 @@ class Director {
      * @param msg  The message to relay.
      */
     void doRelay(DirectorActor from, OptString optContext, OptString optUser,
-                 JSONObject msg)
+                 JsonObject msg)
         throws MessageHandlerException
     {
         String contextName = optContext.value(null);
@@ -561,7 +561,7 @@ class Director {
      * Generate a 'relay' message.
      */
     private static JSONLiteral msgRelay(Referenceable target, String contextName,
-                                        String userName, JSONObject relay)
+                                        String userName, JsonObject relay)
     {
         JSONLiteral msg = new JSONLiteral(target, "relay");
         msg.addParameterOpt("context", contextName);

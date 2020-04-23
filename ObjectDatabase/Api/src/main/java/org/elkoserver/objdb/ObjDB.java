@@ -2,7 +2,7 @@ package org.elkoserver.objdb;
 
 import org.elkoserver.foundation.json.TypeResolver;
 import org.elkoserver.json.Encodable;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 
 import java.util.function.Consumer;
 
@@ -60,7 +60,7 @@ public interface ObjDB extends TypeResolver {
      *    be an array of the object(s) requested, or null if no objects could
      *    be retrieved.
      */
-    void queryObjects(JSONObject template, String collectionName,
+    void queryObjects(JsonObject template, String collectionName,
                       int maxResults, Consumer<Object> handler);
 
     /**

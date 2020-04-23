@@ -1,20 +1,15 @@
 package org.elkoserver.util.trace.logeater;
 
+import org.elkoserver.json.JsonArray;
+import org.elkoserver.json.JsonObject;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import org.bson.Document;
-import org.elkoserver.json.JSONArray;
-import org.elkoserver.json.JSONObject;
 import org.elkoserver.util.trace.Level;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -469,10 +464,10 @@ class LogEater {
      *    a DBObject property.
      */
     private Object valueToDBValue(Object value) {
-        if (value instanceof JSONObject) {
-            value = jsonObjectToDBObject((JSONObject) value);
-        } else if (value instanceof JSONArray) {
-            value = jsonArrayToDBArray((JSONArray) value);
+        if (value instanceof JsonObject) {
+            value = jsonObjectToDBObject((JsonObject) value);
+        } else if (value instanceof JsonArray) {
+            value = jsonArrayToDBArray((JsonArray) value);
         } else if (value instanceof Long) {
             long intValue = (Long) value;
             if (Integer.MIN_VALUE <= intValue &&
@@ -490,7 +485,7 @@ class LogEater {
      *
      * @return an ArrayList equivalent to 'arr' that can be used in a DBObject.
      */
-    private ArrayList<Object> jsonArrayToDBArray(JSONArray arr) {
+    private ArrayList<Object> jsonArrayToDBArray(JsonArray arr) {
         ArrayList<Object> result = new ArrayList<>(arr.size());
         for (Object elem : arr) {
             result.add(valueToDBValue(elem));
@@ -506,9 +501,9 @@ class LogEater {
      * @return a DBObject equivalent to 'obj' that can be stored as a MongoDB
      *    record.
      */
-    private Document jsonObjectToDBObject(JSONObject obj) {
+    private Document jsonObjectToDBObject(JsonObject obj) {
         Document result = new Document();
-        for (Map.Entry<String, Object> prop : obj.properties()) {
+        for (Map.Entry<String, Object> prop : obj.entrySet()) {
             result.put(prop.getKey(), valueToDBValue(prop.getValue()));
         }
         return result;

@@ -12,6 +12,7 @@ repositories {
 dependencies {
     api(project(":Json"))
     api(project(":Trace"))
+    api(Libraries.nanojson)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

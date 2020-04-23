@@ -17,6 +17,7 @@ dependencies {
     implementation(project(":Json"))
     implementation(project(":Util"))
     implementation(Libraries.commons_codec)
+    implementation(Libraries.nanojson)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

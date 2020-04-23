@@ -1,5 +1,8 @@
 package org.elkoserver.json;
 
+import org.elkoserver.json.JsonArray;
+import org.elkoserver.json.JsonObject;
+
 import java.util.Collection;
 
 /**
@@ -106,6 +109,10 @@ public class JSONLiteral {
     public JSONLiteral(String type, EncodeControl control) {
         this(control);
         addParameter("type", type);
+    }
+
+    public void addParameter(String param, JSONLiteral jsonLiteral) {
+        addParameter(param, (Object) jsonLiteral);
     }
 
     /**
@@ -322,24 +329,24 @@ public class JSONLiteral {
     }
 
     /**
-     * Add a {@link JSONArray} parameter to an incomplete literal.
+     * Add a {@link JsonArray} parameter to an incomplete literal.
      *
      * @param param  The parameter name.
      * @param value  The parameter (JSONArray) value.
      */
-    private void addParameter(String param, JSONArray value) {
+    private void addParameter(String param, JsonArray value) {
         addParameter(param, (Object) value);
     }
 
     /**
-     * Add an optional {@link JSONArray} parameter to an incomplete
-     * literal.  This is similar to {@link #addParameter(String,JSONArray)},
+     * Add an optional {@link JsonArray} parameter to an incomplete
+     * literal.  This is similar to {@link #addParameter(String,JsonArray)},
      * except that if the value is null, the parameter is not added.
      *
      * @param param  The parameter name.
      * @param value  The optional (JSONArray) parameter value.
      */
-    public void addParameterOpt(String param, JSONArray value) {
+    public void addParameterOpt(String param, JsonArray value) {
         if (value != null) {
             addParameter(param, value);
         }
@@ -437,21 +444,21 @@ public class JSONLiteral {
      * Add a JSON object parameter to an incomplete literal.
      *
      * @param param  The parameter name.
-     * @param value  The ({@link JSONObject}) parameter value.
+     * @param value  The ({@link JsonObject}) parameter value.
      */
-    public void addParameter(String param, JSONObject value) {
+    public void addParameter(String param, JsonObject value) {
         addParameter(param, (Object) value);
     }
-    
+
     /**
      * Add an optional JSON object parameter to an incomplete literal.  This is
-     * similar to {@link #addParameter(String,JSONObject)}, except that if the
+     * similar to {@link #addParameter(String,JsonObject)}, except that if the
      * value is null, the parameter is not added.
      *
      * @param param  The parameter name.
-     * @param value  The ({@link JSONObject}) parameter value.
+     * @param value  The ({@link JsonObject}) parameter value.
      */
-    public void addParameterOpt(String param, JSONObject value) {
+    public void addParameterOpt(String param, JsonObject value) {
         if (value != null) {
             addParameter(param, value);
         }
@@ -647,10 +654,10 @@ public class JSONLiteral {
             buf.append(((JSONLiteral) value).myStringBuilder);
         } else if (value instanceof JSONLiteralArray) {
             buf.append(((JSONLiteralArray) value).stringBuilder());
-        } else if (value instanceof JSONObject) {
-            JsonObjectSerialization.encodeLiteral((JSONObject) value, buf, control);
-        } else if (value instanceof JSONArray) {
-            JsonArraySerialization.encodeLiteral((JSONArray) value, buf, control);
+        } else if (value instanceof JsonObject) {
+            JsonObjectSerialization.encodeLiteral((JsonObject) value, buf, control);
+        } else if (value instanceof JsonArray) {
+            JsonArraySerialization.encodeLiteral((JsonArray) value, buf, control);
         } else {
             /* Else just convert the value to its natural string form */
             buf.append(value.toString());

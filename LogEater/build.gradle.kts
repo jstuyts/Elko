@@ -8,10 +8,10 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":Json"))
     implementation(project(":ServerCore"))
     implementation(project(":Trace"))
     implementation(Libraries.mongodb_driver)
+    implementation(Libraries.nanojson)
 }
 
 java {

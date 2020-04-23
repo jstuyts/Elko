@@ -4,7 +4,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.time.Clock;
 
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.TraceFactory;
 
 /**
@@ -45,7 +45,7 @@ class ConstructorInvoker extends Invoker {
      * @return the result of calling the constructor, or null if the
      *    constructor failed.
      */
-    Object construct(JSONObject obj, TypeResolver resolver) {
+    Object construct(JsonObject obj, TypeResolver resolver) {
         try {
             return tryToConstruct(obj, resolver);
         } catch (JSONInvocationException e) {
@@ -63,8 +63,8 @@ class ConstructorInvoker extends Invoker {
         }
     }
 
-    private Object tryToConstruct(JSONObject obj, TypeResolver resolver) throws MessageHandlerException, JSONInvocationException {
-        Object result = apply(null, amIncludingRawObject ? obj : null, obj.properties(), resolver);
+    private Object tryToConstruct(JsonObject obj, TypeResolver resolver) throws MessageHandlerException, JSONInvocationException {
+        Object result = apply(null, amIncludingRawObject ? obj : null, obj.entrySet(), resolver);
 
         // FIXME: Injectors must be injected, so they can be extended without having to touch this class
         if (result instanceof ClockUsingObject) {

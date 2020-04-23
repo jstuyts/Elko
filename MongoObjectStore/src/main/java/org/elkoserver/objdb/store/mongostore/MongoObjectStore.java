@@ -1,5 +1,6 @@
 package org.elkoserver.objdb.store.mongostore;
 
+import com.grack.nanojson.JsonParserException;
 import com.mongodb.MongoClient;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -7,25 +8,20 @@ import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.UpdateOptions;
 import com.mongodb.client.result.UpdateResult;
 import org.bson.Document;
-import org.elkoserver.foundation.properties.ElkoProperties;
-import org.elkoserver.json.*;
-import org.elkoserver.objdb.store.GetResultHandler;
-import org.elkoserver.objdb.store.ObjectDesc;
-import org.elkoserver.objdb.store.ObjectStore;
-import org.elkoserver.objdb.store.PutDesc;
-import org.elkoserver.objdb.store.QueryDesc;
-import org.elkoserver.objdb.store.RequestDesc;
-import org.elkoserver.objdb.store.UpdateDesc;
-import org.elkoserver.objdb.store.RequestResultHandler;
-import org.elkoserver.objdb.store.ResultDesc;
-import org.elkoserver.objdb.store.UpdateResultDesc;
-import org.elkoserver.util.trace.Trace;
 import org.bson.types.ObjectId;
+import org.elkoserver.foundation.properties.ElkoProperties;
+import org.elkoserver.json.JsonArray;
+import org.elkoserver.json.JsonObject;
+import org.elkoserver.json.JsonObjectSerialization;
+import org.elkoserver.objdb.store.*;
+import org.elkoserver.util.trace.Trace;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
 
 /**
  * An {@link ObjectStore} implementation that stores objects in a MongoDB NoSQL
@@ -104,8 +100,8 @@ public class MongoObjectStore implements ObjectStore {
      */
     private void dereferenceValue(Object value, MongoCollection<Document> collection,
                                   List<ObjectDesc> results) {
-        if (value instanceof JSONArray) {
-            for (Object elem : (JSONArray) value) {
+        if (value instanceof JsonArray) {
+            for (Object elem : (JsonArray) value) {
                 if (elem instanceof String) {
                     results.addAll(doGet((String) elem, collection));
                 }
@@ -136,7 +132,7 @@ public class MongoObjectStore implements ObjectStore {
             query.put("ref", ref);
             Document dbObj = collection.find(query).first();
             if (dbObj != null) {
-                JSONObject jsonObj = dbObjectToJSONObject(dbObj);
+                JsonObject jsonObj = dbObjectToJSONObject(dbObj);
                 obj = JsonObjectSerialization.sendableString(jsonObj);
                 contents = doGetContents(jsonObj, collection);
             } else {
@@ -154,8 +150,8 @@ public class MongoObjectStore implements ObjectStore {
         return results;
     }
 
-    private JSONObject dbObjectToJSONObject(Document dbObj) {
-        JSONObject result = new JSONObject();
+    private JsonObject dbObjectToJSONObject(Document dbObj) {
+        JsonObject result = new JsonObject();
         for (String key : dbObj.keySet()) {
             if (!key.startsWith("_")) {
                 Object value = dbObj.get(key);
@@ -164,17 +160,17 @@ public class MongoObjectStore implements ObjectStore {
                 } else if (value instanceof Document) {
                     value = dbObjectToJSONObject((Document) value);
                 }
-                result.addProperty(key, value);
+                result.put(key, value);
             } else if (key.equals("_id")) {
                 ObjectId oid = (ObjectId) dbObj.get(key);
-                result.addProperty(key, oid.toString());
+                result.put(key, oid.toString());
             }
         }
         return result;
     }
 
-    private JSONArray dbListToJSONArray(List<?> dbList) {
-        JSONArray result = new JSONArray();
+    private JsonArray dbListToJSONArray(List<?> dbList) {
+        JsonArray result = new JsonArray();
         for (Object elem : dbList) {
             if (elem instanceof List) {
                 elem = dbListToJSONArray((List<?>) elem);
@@ -187,10 +183,10 @@ public class MongoObjectStore implements ObjectStore {
     }
 
     private Document jsonLiteralToDBObject(String objStr, String ref) {
-        JSONObject obj;
+        JsonObject obj;
         try {
-            obj = JsonObjectParser.parse(objStr);
-        } catch (SyntaxError e) {
+            obj = jsonObjectFromString(objStr);
+        } catch (JsonParserException e) {
             return null;
         }
         Document result = jsonObjectToDBObject(obj);
@@ -220,21 +216,17 @@ public class MongoObjectStore implements ObjectStore {
         // *that*.  When an object is read from the database, we strip this
         // property off again before we return the object to the application.
 
-        try {
-            JSONObject pos = obj.optObject("pos", null);
-            if (pos != null) {
-                String type = pos.optString("type", null);
-                if ("geopos".equals(type)) {
-                    double lat = pos.optDouble("lat", 0.0);
-                    double lon = pos.optDouble("lon", 0.0);
-                    Document qpos = new Document();
-                    qpos.put("lat", lat);
-                    qpos.put("lon", lon);
-                    result.put("_qpos_", qpos);
-                }
+        JsonObject pos = obj.getObject("pos", null);;
+        if (pos != null) {
+            String type = pos.getString("type", null);
+            if ("geopos".equals(type)) {
+                double lat = pos.getDouble("lat", 0.0);
+                double lon = pos.getDouble("lon", 0.0);
+                Document qpos = new Document();
+                qpos.put("lat", lat);
+                qpos.put("lon", lon);
+                result.put("_qpos_", qpos);
             }
-        } catch (JSONDecodingException e) {
-            // this can't actually happen
         }
         // End of ugly modularity boundary violation
 
@@ -242,10 +234,10 @@ public class MongoObjectStore implements ObjectStore {
     }
 
     private Object valueToDBValue(Object value) {
-        if (value instanceof JSONObject) {
-            value = jsonObjectToDBObject((JSONObject) value);
-        } else if (value instanceof JSONArray) {
-            value = jsonArrayToDBArray((JSONArray) value);
+        if (value instanceof JsonObject) {
+            value = jsonObjectToDBObject((JsonObject) value);
+        } else if (value instanceof JsonArray) {
+            value = jsonArrayToDBArray((JsonArray) value);
         } else if (value instanceof Long) {
             long intValue = (Long) value;
             if (Integer.MIN_VALUE <= intValue &&
@@ -256,7 +248,7 @@ public class MongoObjectStore implements ObjectStore {
         return value;
     }
 
-    private ArrayList<Object> jsonArrayToDBArray(JSONArray arr) {
+    private ArrayList<Object> jsonArrayToDBArray(JsonArray arr) {
         ArrayList<Object> result = new ArrayList<>(arr.size());
         for (Object elem : arr) {
             result.add(valueToDBValue(elem));
@@ -264,9 +256,9 @@ public class MongoObjectStore implements ObjectStore {
         return result;
     }
 
-    private Document jsonObjectToDBObject(JSONObject obj) {
+    private Document jsonObjectToDBObject(JsonObject obj) {
         Document result = new Document();
-        for (Map.Entry<String, Object> prop : obj.properties()) {
+        for (Map.Entry<String, Object> prop : obj.entrySet()) {
             result.put(prop.getKey(), valueToDBValue(prop.getValue()));
         }
         return result;
@@ -280,10 +272,10 @@ public class MongoObjectStore implements ObjectStore {
      * @return a List of ObjectDesc objects for the contents as
      *    requested.
      */
-    private List<ObjectDesc> doGetContents(JSONObject obj,
+    private List<ObjectDesc> doGetContents(JsonObject obj,
                                            MongoCollection<Document> collection) {
         List<ObjectDesc> results = new LinkedList<>();
-        for (Map.Entry<String, Object> entry : obj.properties()) {
+        for (Map.Entry<String, Object> entry : obj.entrySet()) {
             String propName = entry.getKey();
             if (propName.startsWith("ref$")) {
                 dereferenceValue(entry.getValue(), collection, results);
@@ -457,7 +449,7 @@ public class MongoObjectStore implements ObjectStore {
      *
      * @return a list of ObjectDesc objects for objects matching the query.
      */
-    private List<ObjectDesc> doQuery(JSONObject template,
+    private List<ObjectDesc> doQuery(JsonObject template,
                                      MongoCollection<Document> collection, int maxResults) {
         List<ObjectDesc> results = new LinkedList<>();
 
@@ -470,7 +462,7 @@ public class MongoObjectStore implements ObjectStore {
                 cursor = collection.find(query);
             }
             for (Document dbObj : cursor) {
-                JSONObject jsonObj = dbObjectToJSONObject(dbObj);
+                JsonObject jsonObj = dbObjectToJSONObject(dbObj);
                 String obj = JsonObjectSerialization.sendableString(jsonObj);
                 results.add(new ObjectDesc("query", obj, null));
             }

@@ -10,7 +10,7 @@ import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.foundation.timer.Timeout;
 import org.elkoserver.foundation.timer.Timer;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -181,7 +181,7 @@ class UserActor
      */
     void enterContext(String userRef, String name, String contextRef,
                       String contextTemplate, String sess, String auth,
-                      String utag, JSONObject uparam, boolean debug,
+                      String utag, JsonObject uparam, boolean debug,
                       String scope)
     {
         tr.eventi("attempting to enter context " + contextRef);

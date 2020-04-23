@@ -14,9 +14,9 @@ dependencies {
     api(project(":Properties"))
     api(project(":Trace"))
 
-    implementation(project(":Json"))
     implementation(project(":JsonMessageHandling"))
     implementation(project(":ObjectDatabase:Api"))
+    implementation(Libraries.nanojson)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

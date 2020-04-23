@@ -1,13 +1,13 @@
 {
-  type: "context",
-  name: "Lancre",
-  capacity: 10,
-  mods: [
+  "type": "context",
+  "name": "Lancre",
+  "capacity": 10,
+  "mods": [
     {
-      type: "chat"
+      "type": "chat"
     }
   ],
-  ref$contents: [
+  "ref$contents": [
     "item-thneed",
     "item-dict",
     "item-pdict"

@@ -7,7 +7,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.TraceFactory;
 
 /**
@@ -154,10 +154,10 @@ public class MessageDispatcher {
      *    handling the message.
      */
     public void dispatchMessage(Deliverer from, DispatchTarget target,
-                                JSONObject message)
+                                JsonObject message)
         throws MessageHandlerException
     {
-        String verb = message.verb();
+        String verb = message.getString("op", null);
         if (verb != null) {
             MethodInvoker invoker = myInvokers.get(verb);
             while (invoker != null) {

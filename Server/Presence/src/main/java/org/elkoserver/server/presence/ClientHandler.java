@@ -4,7 +4,7 @@ import org.elkoserver.foundation.actor.BasicProtocolHandler;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.OptBoolean;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.TraceFactory;
 
 /**
@@ -49,7 +49,7 @@ class ClientHandler extends BasicProtocolHandler {
      * @param conf  Domain-specific configuration update parameters.
      */
     @JSONMethod({ "domain", "conf" })
-    public void update(PresenceActor from, String domain, JSONObject conf)
+    public void update(PresenceActor from, String domain, JsonObject conf)
         throws MessageHandlerException
     {
         from.ensureAuthorizedClient();
@@ -70,7 +70,7 @@ class ClientHandler extends BasicProtocolHandler {
      */
     @JSONMethod({ "context", "user", "on", "?umeta", "?cmeta" })
     public void user(PresenceActor from, String context, String user,
-                     boolean on, JSONObject userMeta, JSONObject contextMeta)
+                     boolean on, JsonObject userMeta, JsonObject contextMeta)
         throws MessageHandlerException
     {
         from.ensureAuthorizedClient();

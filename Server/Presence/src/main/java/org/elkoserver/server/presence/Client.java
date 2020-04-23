@@ -1,6 +1,6 @@
 package org.elkoserver.server.presence;
 
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 
 /**
  * The client facet of a presence server actor.  This object represents the
@@ -37,7 +37,7 @@ class Client {
      * @param userRef  The user to whom the metadata applies
      * @param userMeta  The user metadata itself.
      */
-    void noteUserMetadata(String userRef, JSONObject userMeta) {
+    void noteUserMetadata(String userRef, JsonObject userMeta) {
         myPresenceServer.noteUserMetadata(userRef, userMeta);
     }
 
@@ -47,7 +47,7 @@ class Client {
      * @param contextRef  The context to which the metadata applies
      * @param contextMeta  The context metadata itself.
      */
-    void noteContextMetadata(String contextRef, JSONObject contextMeta) {
+    void noteContextMetadata(String contextRef, JsonObject contextMeta) {
         myPresenceServer.noteContextMetadata(contextRef, contextMeta);
     }
 

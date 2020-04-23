@@ -1,9 +1,8 @@
 package org.elkoserver.foundation.json;
 
+import com.grack.nanojson.JsonParserException;
 import org.apache.commons.codec.binary.Base64;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.JsonObjectParser;
-import org.elkoserver.json.SyntaxError;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.TraceFactory;
 
 import javax.crypto.*;
@@ -16,6 +15,8 @@ import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.time.Clock;
+
+import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
 
 /**
  * Simple AES-based string encryptor/decryptor, for passing sealed bundles of
@@ -110,12 +111,12 @@ public class Cryptor {
      * @return  The decrypted and parsed JSON object encoded in 'str'
      *
      * @throws IOException if the input string is malformed
-     * @throws SyntaxError if the decrypted JSON literal is invalid
+     * @throws JsonParserException if the decrypted JSON literal is invalid
      */
-    public JSONObject decryptJSONObject(String str)
-        throws IOException, SyntaxError
+    public JsonObject decryptJSONObject(String str)
+        throws IOException, JsonParserException
     {
-        return JsonObjectParser.parse(decrypt(str));
+        return jsonObjectFromString(decrypt(str));
     }
 
     /**

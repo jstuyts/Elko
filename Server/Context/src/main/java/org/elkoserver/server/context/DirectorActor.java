@@ -18,7 +18,7 @@ import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -314,7 +314,7 @@ class DirectorActor extends NonRoutingActor {
      */
     @JSONMethod({ "context", "user", "msg" })
     public void relay(DirectorActor from, OptString context, OptString user,
-                      JSONObject msg)
+                      JsonObject msg)
         throws MessageHandlerException
     {
         RelayIterator iter = new RelayIterator(context, user);

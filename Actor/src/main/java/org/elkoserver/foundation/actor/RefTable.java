@@ -12,7 +12,7 @@ import org.elkoserver.foundation.json.DispatchTarget;
 import org.elkoserver.foundation.json.MessageDispatcher;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.TypeResolver;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -160,7 +160,7 @@ public class RefTable implements Iterable<DispatchTarget> {
      *    handling the message.
      */
     protected void dispatchMessage(Deliverer from, DispatchTarget target,
-                                   JSONObject message)
+                                   JsonObject message)
         throws MessageHandlerException
     {
         myDispatcher.dispatchMessage(from, target, message);
@@ -176,10 +176,10 @@ public class RefTable implements Iterable<DispatchTarget> {
      * @throws MessageHandlerException if there was some kind of problem
      *    handling the message.
      */
-    public void dispatchMessage(Deliverer from, JSONObject message)
+    public void dispatchMessage(Deliverer from, JsonObject message)
         throws MessageHandlerException
     {
-        String targetRef = message.target();
+        String targetRef = message.getString("to", null);
         if (targetRef != null) {
             DispatchTarget target = get(targetRef);
             if (target != null) {

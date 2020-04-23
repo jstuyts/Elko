@@ -1,21 +1,21 @@
 package org.elkoserver.server.presence;
 
 import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 
 import java.lang.reflect.InvocationTargetException;
 
 class GraphDesc {
     private String myClassName;
     private String myGraphName;
-    private JSONObject myConf;
+    private JsonObject myConf;
 
     @JSONMethod({ "class", "name", "?conf" })
-    GraphDesc(String className, String graphName, JSONObject conf) {
+    GraphDesc(String className, String graphName, JsonObject conf) {
         myClassName = className;
         myGraphName = graphName;
         if (conf == null) {
-            conf = new JSONObject();
+            conf = new JsonObject();
         }
         myConf = conf;
     }

@@ -1,14 +1,14 @@
 {
-  type: "context",
-  name: "Dangerous clone testing area",
-  capacity: 10,
-  basecapacity: 2,
-  mods: [
+  "type": "context",
+  "name": "Dangerous clone testing area",
+  "capacity": 10,
+  "basecapacity": 2,
+  "mods": [
     {
-      type: "chat"
+      "type": "chat"
     },
     {
-      type: "clonetest"
+      "type": "clonetest"
     }
   ]
 }

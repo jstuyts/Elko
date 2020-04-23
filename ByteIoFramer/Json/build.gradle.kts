@@ -13,8 +13,9 @@ dependencies {
     api(project(":ByteIoFramer:Api"))
     api(project(":Trace"))
 
-    implementation(project(":Communication"))
     implementation(project(":Json"))
+    implementation(project(":Communication"))
+    implementation(Libraries.nanojson)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

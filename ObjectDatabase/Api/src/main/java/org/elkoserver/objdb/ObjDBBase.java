@@ -1,10 +1,9 @@
 package org.elkoserver.objdb;
 
+import com.grack.nanojson.JsonParserException;
 import org.elkoserver.foundation.json.ObjectDecoder;
-import org.elkoserver.json.JSONArray;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.Parser;
-import org.elkoserver.json.SyntaxError;
+import org.elkoserver.json.JsonArray;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.objdb.store.ObjectDesc;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
@@ -14,13 +13,15 @@ import java.time.Clock;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
+
 /**
  * Base class for both local and remote concrete implementations of the ObjDB
  * interface.
  */
 abstract class ObjDBBase implements ObjDB {
     /** Table mapping JSON object type tags to Java classes. */
-    private Map<String, Class<?>> myClasses;
+    private final Map<String, Class<?>> myClasses = new HashMap<>();
 
     /** Application trace object for logging. */
     protected final Trace tr;
@@ -34,7 +35,6 @@ abstract class ObjDBBase implements ObjDB {
         tr = appTrace;
         this.traceFactory = traceFactory;
         this.clock = clock;
-        myClasses = new HashMap<>();
     }
 
     /**
@@ -55,9 +55,9 @@ abstract class ObjDBBase implements ObjDB {
      *
      * @return the object described by 'jsonObj'.
      */
-    Object decodeJSONObject(JSONObject jsonObj) {
+    Object decodeJSONObject(JsonObject jsonObj) {
         Object result = null;
-        String typeTag = jsonObj.type();
+        String typeTag = jsonObj.getString("type", null);
         if (typeTag != null) {
             Class<?> type = myClasses.get(typeTag);
             if (type != null) {
@@ -92,11 +92,10 @@ abstract class ObjDBBase implements ObjDB {
             return null;
         } else {
             try {
-                Parser parser = new Parser(objStr);
-                JSONObject jsonObj = parser.parseObjectLiteral();
+                JsonObject jsonObj = jsonObjectFromString(objStr);
                 insertContents(jsonObj, results);
                 return decodeJSONObject(jsonObj);
-            } catch (SyntaxError e) {
+            } catch (JsonParserException e) {
                 tr.errorm("object store syntax error getting " + ref + ": " +
                           e.getMessage());
                 return null;
@@ -123,9 +122,9 @@ abstract class ObjDBBase implements ObjDB {
      */
     private Object dereferenceValue(Object refValue, ObjectDesc[] objs) {
         Object result = null;
-        if (refValue instanceof JSONArray) {
-            Iterator<Object> refs = ((JSONArray) refValue).iterator();
-            Object[] contents = new Object[((JSONArray) refValue).size()];
+        if (refValue instanceof JsonArray) {
+            Iterator<Object> refs = ((JsonArray) refValue).iterator();
+            Object[] contents = new Object[((JsonArray) refValue).size()];
             Class<?> resultClass = null;
             for (int i = 0; i < contents.length; ++i) {
                 Object ref = refs.next();
@@ -157,7 +156,7 @@ abstract class ObjDBBase implements ObjDB {
     }
 
     /**
-     * Replace the properties of a JSONObject that describe the object's
+     * Replace the properties of a JsonObject that describe the object's
      * contents with the contents objects themselves, as retrieved by the
      * store.
      *
@@ -166,13 +165,13 @@ abstract class ObjDBBase implements ObjDB {
      * property whose name has the "ref$" prefix stripped off and whose value
      * is the object or objects referenced.
      *
-     * @param obj  The JSONObject whose contents are to be inserted.
+     * @param obj  The JsonObject whose contents are to be inserted.
      * @param results  The results returned by the store.
      */
-    private void insertContents(JSONObject obj, ObjectDesc[] results) {
+    private void insertContents(JsonObject obj, ObjectDesc[] results) {
         List<Map.Entry<String, Object>> contentsProps = null;
         Iterator<Map.Entry<String, Object>> iter =
-            obj.properties().iterator();
+            obj.entrySet().iterator();
         while (iter.hasNext()) {
             Map.Entry<String, Object> entry = iter.next();
             String propName = entry.getKey();
@@ -189,7 +188,7 @@ abstract class ObjDBBase implements ObjDB {
             for (Map.Entry<String, Object> entry : contentsProps) {
                 Object prop = dereferenceValue(entry.getValue(), results);
                 if (prop != null) {
-                    obj.addProperty(entry.getKey().substring(4), prop);
+                    obj.put(entry.getKey().substring(4), prop);
                 }
             }
         }

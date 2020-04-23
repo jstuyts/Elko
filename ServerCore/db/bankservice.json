@@ -1,6 +1,6 @@
 {
-    ref: "bankservice",
-    type: "bankservice",
-    service: "bank",
-    bank: "bank"
+    "ref": "bankservice",
+    "type": "bankservice",
+    "service": "bank",
+    "bank": "bank"
 }

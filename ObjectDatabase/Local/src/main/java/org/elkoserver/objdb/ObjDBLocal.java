@@ -1,14 +1,20 @@
 package org.elkoserver.objdb;
 
+import com.grack.nanojson.JsonParserException;
 import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.run.Runner;
-import org.elkoserver.json.*;
+import org.elkoserver.json.Encodable;
+import org.elkoserver.json.EncodeControl;
+import org.elkoserver.json.JSONLiteral;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.objdb.store.*;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
 import java.time.Clock;
 import java.util.function.Consumer;
+
+import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
 
 /**
  * Asynchronous access to a local instance of the object database.  This is
@@ -235,7 +241,7 @@ public class ObjDBLocal extends ObjDBBase {
      *    be an array of the object(s) requested, or null if no objects could
      *    be retrieved.
      */
-    public void queryObjects(JSONObject template, String collectionName,
+    public void queryObjects(JsonObject template, String collectionName,
                              int maxResults, Consumer<Object> handler) {
         myRunner.enqueue(new QueryCallHandler(template, collectionName,
                                               maxResults, handler));
@@ -245,11 +251,11 @@ public class ObjDBLocal extends ObjDBBase {
      * Handler to call the store's 'query' method.  Runs in the ODB thread.
      */
     private class QueryCallHandler implements Runnable, GetResultHandler {
-        private JSONObject myTemplate;
+        private JsonObject myTemplate;
         private String myCollectionName;
         private int myMaxResults;
         private Consumer<Object> myRunnable;
-        QueryCallHandler(JSONObject template, String collectionName,
+        QueryCallHandler(JsonObject template, String collectionName,
                          int maxResults, Consumer<Object> runnable) {
             myTemplate = template;
             myCollectionName = collectionName;
@@ -280,14 +286,13 @@ public class ObjDBLocal extends ObjDBBase {
             Object[] results = new Object[descs.length];
             for (int i = 0; i < descs.length; ++i) {
                 try {
-                    Parser parser = new Parser(descs[i].obj());
-                    JSONObject jsonObj = parser.parseObjectLiteral();
-                    if (jsonObj.getProperty("type") != null) {
+                    JsonObject jsonObj = jsonObjectFromString(descs[i].obj());
+                    if (jsonObj.getString("type", null) != null) {
                         results[i] = ObjDBLocal.this.decodeJSONObject(jsonObj);
                     } else {
                         results[i] = jsonObj;
                     }
-                } catch (SyntaxError e) {
+                } catch (JsonParserException e) {
                     results[i] = null;
                 }
             }

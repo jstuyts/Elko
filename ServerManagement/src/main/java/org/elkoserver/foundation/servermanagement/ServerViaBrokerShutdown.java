@@ -24,9 +24,9 @@ public class ServerViaBrokerShutdown {
     private static void shutDownServer(String hostAddress, int portNumber, String password, String serverName) throws IOException, InterruptedException {
         try (Socket socket = new Socket(hostAddress, portNumber)) {
             OutputStream outputStream = socket.getOutputStream();
-            outputStream.write(("{to:\"admin\", op:\"auth\", auth:{mode:\"password\", code:\"" + password + "\"}}\n\n").getBytes(UTF_8));
+            outputStream.write(("{\"to\":\"admin\", \"op\":\"auth\", \"auth\":{\"mode\":\"password\", \"code\":\"" + password + "\"}}\n\n").getBytes(UTF_8));
             Thread.sleep(1_000L);
-            outputStream.write(("{to:\"admin\", op:\"shutdown\", server:\"" + serverName + "\", kill:false}\n\n").getBytes(UTF_8));
+            outputStream.write(("{\"to\":\"admin\", \"op\":\"shutdown\", \"server\":\"" + serverName + "\", \"kill\":false}\n\n").getBytes(UTF_8));
             Thread.sleep(1_000L);
         }
     }

@@ -10,8 +10,8 @@ repositories {
 }
 
 dependencies {
-    api(project(":Json"))
     api(project(":Trace"))
+    api(Libraries.nanojson)
 
     implementation(project(":Server:Context"))
     implementation(Libraries.commons_codec)

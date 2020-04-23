@@ -1,20 +1,20 @@
 {
-  type: "context",
-  name: "Text chat with open styles",
-  basecapacity: 20,
-  capacity: 30,
-  mods: [
+  "type": "context",
+  "name": "Text chat with open styles",
+  "basecapacity": 20,
+  "capacity": 30,
+  "mods": [
     {
-      type: "chat"
+      "type": "chat"
     }
   ],
-  usermods: [
+  "usermods": [
     {
-      type: "talkprefs",
-      style: {
-        type: "style",
-        color: "blue",
-        bgColor: "linen"
+      "type": "talkprefs",
+      "style": {
+        "type": "style",
+        "color": "blue",
+        "bgColor": "linen"
       }
     }
   ]

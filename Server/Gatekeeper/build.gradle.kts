@@ -13,7 +13,6 @@ repositories {
 dependencies {
     api(project(":Actor"))
     api(project(":Boot:Api", "default"))
-    api(project(":Json"))
     api(project(":JsonMessageHandling"))
     api(project(":ObjectDatabase:Api"))
     api(project(":Properties"))
@@ -21,6 +20,7 @@ dependencies {
     api(project(":ServerMetadata"))
     api(project(":Trace"))
     api(project(":Timer"))
+    api(Libraries.nanojson)
 
     implementation(kotlin("stdlib-jdk8"))
 }

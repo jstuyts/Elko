@@ -1,14 +1,14 @@
 {
-  type: "context",
-  name: "Cloneable Lancre",
-  capacity: 10,
-  basecapacity: 2,
-  mods: [
+  "type": "context",
+  "name": "Cloneable Lancre",
+  "capacity": 10,
+  "basecapacity": 2,
+  "mods": [
     {
-      type: "chat"
+      "type": "chat"
     }
   ],
-  ref$contents: [
+  "ref$contents": [
     "item-thneed",
     "item-dict",
     "item-pdict"

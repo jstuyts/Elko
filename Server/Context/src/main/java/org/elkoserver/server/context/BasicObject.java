@@ -3,7 +3,7 @@ package org.elkoserver.server.context;
 import org.elkoserver.foundation.json.*;
 import org.elkoserver.json.Encodable;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -746,14 +746,14 @@ public abstract class BasicObject
      * @throws MessageHandlerException if there was a problem handling the
      *    message.
      */
-    public void handleMessage(Deliverer from, JSONObject msg)
+    public void handleMessage(Deliverer from, JsonObject msg)
         throws MessageHandlerException
     {
         if (myDefaultDispatchTarget != null) {
             myDefaultDispatchTarget.handleMessage(from, msg);
         } else {
             throw new MessageHandlerException(
-                "no message handler method for verb '" + msg.verb() + "'");
+                "no message handler method for verb '" + msg.getString("op", null) + "'");
         }
     }
 

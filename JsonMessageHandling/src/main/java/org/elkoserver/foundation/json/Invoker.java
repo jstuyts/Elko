@@ -1,7 +1,8 @@
 package org.elkoserver.foundation.json;
 
-import org.elkoserver.json.JSONArray;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonArray;
+import org.elkoserver.json.JsonObject;
+import org.elkoserver.json.JsonWrapping;
 import org.elkoserver.util.trace.TraceFactory;
 
 import java.lang.reflect.AccessibleObject;
@@ -10,8 +11,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Member;
 import java.time.Clock;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static org.elkoserver.json.JsonWrapping.wrapWithElkoJsonImplementationIfNeeded;
 
 /**
  * Precomputed Java reflection information needed invoke a method or
@@ -222,6 +226,27 @@ abstract class Invoker {
             } else {
                 return null;
             }
+        } else if (valueType == Integer.class) {
+            if (paramType == long.class || paramType == Long.class) {
+                return ((Integer)value).longValue();
+            } else if (paramType == int.class || paramType == Integer.class) {
+                return value;
+            } else if (paramType == OptInteger.class) {
+                return new OptInteger((Integer) value);
+            } else if (paramType == byte.class || paramType == Byte.class) {
+                return ((Integer) value).byteValue();
+            } else if (paramType == short.class || paramType == Short.class) {
+                return ((Integer) value).shortValue();
+            } else if (paramType == double.class ||
+                       paramType == Double.class) {
+                return ((Integer) value).doubleValue();
+            } else if (paramType == float.class || paramType == Float.class) {
+                return ((Integer) value).floatValue();
+            } else if (paramType == OptDouble.class) {
+                return new OptDouble(((Integer) value).doubleValue());
+            } else {
+                return null;
+            }
         } else if (valueType == Double.class) {
             if (paramType == double.class || paramType == Double.class) {
                 return value;
@@ -250,9 +275,9 @@ abstract class Invoker {
             } else {
                 return null;
             }
-        } else if (valueType == JSONArray.class) {
-            JSONArray arrayValue = (JSONArray) value;
-            if (paramType == JSONArray.class) {
+        } else if (valueType == JsonArray.class) {
+            JsonArray arrayValue = (JsonArray) value;
+            if (paramType == JsonArray.class) {
                 return value;
             } else if (paramType.isArray()) {
                 Class<?> baseType = paramType.getComponentType();
@@ -271,11 +296,12 @@ abstract class Invoker {
             } else {
                 return null;
             }
-        } else if (valueType == JSONObject.class) {
-            if (paramType == JSONObject.class) {
-                return value;
+        } else if (valueType == JsonObject.class) {
+            JsonObject actualValue = (JsonObject) value;
+            if (paramType == JsonObject.class) {
+                return actualValue;
             } else {
-                return ObjectDecoder.decode(paramType, (JSONObject) value,
+                return ObjectDecoder.decode(paramType, actualValue,
                                             resolver, traceFactory, clock);
             }
         } else if (valueType == paramType) {

@@ -11,9 +11,9 @@ import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.foundation.json.PostInjectionInitializingObject;
 import org.elkoserver.json.Encodable;
 import org.elkoserver.json.EncodeControl;
-import org.elkoserver.json.JSONArray;
+import org.elkoserver.json.JsonArray;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.server.workshop.Workshop;
 import org.elkoserver.util.trace.Trace;
 
@@ -461,11 +461,11 @@ class Bank implements Encodable, ClockUsingObject, PostInjectionInitializingObje
      *
      * @param ref  The ref of the account.
      *
-     * @return a JSONObject suitable for querying MongoDB.
+     * @return a JsonObject suitable for querying MongoDB.
      */
-    private JSONObject queryAccount(String ref) {
-        JSONObject queryTemplate = new JSONObject();
-        queryTemplate.addProperty("ref", ref);
+    private JsonObject queryAccount(String ref) {
+        JsonObject queryTemplate = new JsonObject();
+        queryTemplate.put("ref", ref);
         return queryTemplate;
     }
 
@@ -479,18 +479,18 @@ class Bank implements Encodable, ClockUsingObject, PostInjectionInitializingObje
      *
      * @param encRef  The ref of the encumbrance.
      *
-     * @return a JSONObject suitable for querying MongoDB.
+     * @return a JsonObject suitable for querying MongoDB.
      */
-    private JSONObject queryEnc(String encRef) {
-        JSONObject encMatchPattern = new JSONObject();
-        encMatchPattern.addProperty("ref", encRef);
+    private JsonObject queryEnc(String encRef) {
+        JsonObject encMatchPattern = new JsonObject();
+        encMatchPattern.put("ref", encRef);
 
-        JSONObject encMatch = new JSONObject();
-        encMatch.addProperty("$elemMatch", encMatchPattern);
+        JsonObject encMatch = new JsonObject();
+        encMatch.put("$elemMatch", encMatchPattern);
 
-        JSONObject queryTemplate = new JSONObject();
-        queryTemplate.addProperty("type", "bankacct");
-        queryTemplate.addProperty("encs", encMatch);
+        JsonObject queryTemplate = new JsonObject();
+        queryTemplate.put("type", "bankacct");
+        queryTemplate.put("encs", encMatch);
 
         return queryTemplate;
     }
@@ -503,9 +503,9 @@ class Bank implements Encodable, ClockUsingObject, PostInjectionInitializingObje
      * @param encRef  The ref of an encumbrance on the first account desired.
      * @param accountRef  The ref of the second account desired.
      *
-     * @return a JSONObject suitable for querying MongoDB.
+     * @return a JsonObject suitable for querying MongoDB.
      */
-    private JSONObject queryEncAndAccount(String encRef, String accountRef) {
+    private JsonObject queryEncAndAccount(String encRef, String accountRef) {
         return queryOr(queryEnc(encRef), queryAccount(accountRef));
     }
 
@@ -520,15 +520,15 @@ class Bank implements Encodable, ClockUsingObject, PostInjectionInitializingObje
      * @param query1  The first query.
      * @param query2  The second query.
      *
-     * @return a JSONObject suitable for querying MongoDB.
+     * @return a JsonObject suitable for querying MongoDB.
      */
-    private JSONObject queryOr(JSONObject query1, JSONObject query2) {
-        JSONArray terms = new JSONArray();
+    private JsonObject queryOr(JsonObject query1, JsonObject query2) {
+        JsonArray terms = new JsonArray();
         terms.add(query1);
         terms.add(query2);
-        
-        JSONObject queryTemplate = new JSONObject();
-        queryTemplate.addProperty("$or", terms);
+
+        JsonObject queryTemplate = new JsonObject();
+        queryTemplate.put("$or", terms);
         return queryTemplate;
     }
 
@@ -538,9 +538,9 @@ class Bank implements Encodable, ClockUsingObject, PostInjectionInitializingObje
      * @param ref1  The ref of the first account desired.
      * @param ref2  The ref of the second account desired.
      *
-     * @return a JSONObject suitable for querying MongoDB.
+     * @return a JsonObject suitable for querying MongoDB.
      */
-    private JSONObject queryTwoAccounts(String ref1, String ref2) {
+    private JsonObject queryTwoAccounts(String ref1, String ref2) {
         return queryOr(queryAccount(ref1), queryAccount(ref2));
     }
 

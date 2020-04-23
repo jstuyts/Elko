@@ -1,23 +1,23 @@
 {
-  type: "context",
-  name: "Text Chat",
-  basecapacity: 20,
-  capacity: 30,
-  mods: [
+  "type": "context",
+  "name": "Text Chat",
+  "basecapacity": 20,
+  "capacity": 30,
+  "mods": [
     {
-      type: "chat"
+      "type": "chat"
     },
     {
-      type: "talkoptions",
-      styles: {
-        type: "styleoptions",
-        colors: [
+      "type": "talkoptions",
+      "styles": {
+        "type": "styleoptions",
+        "colors": [
           "blue",
           "purple",
           "brown",
           "black"
         ],
-        bgColors: [
+        "bgColors": [
           "linen",
           "thistle",
           "gainsboro",
@@ -26,11 +26,11 @@
       }
     }
   ],
-  usermods: [
+  "usermods": [
     {
-      type: "talkprefs",
-      style: {
-        type: "style"
+      "type": "talkprefs",
+      "style": {
+        "type": "style"
       }
     }
   ]

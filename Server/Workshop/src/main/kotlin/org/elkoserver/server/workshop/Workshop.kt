@@ -5,7 +5,7 @@ import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.json.Encodable
-import org.elkoserver.json.JSONObject
+import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
@@ -172,7 +172,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * @param handler  Callback that will be invoked with a results array, or
      * null if the query failed.
      */
-    fun queryObjects(query: JSONObject?, maxResults: Int,
+    fun queryObjects(query: JsonObject?, maxResults: Int,
                      handler: Consumer<Any?>?) {
         myODB.queryObjects(query, null, maxResults, handler)
     }
@@ -187,7 +187,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * @param handler  Callback that will be invoked with a results array, or
      * null if the query failed.
      */
-    fun queryObjects(query: JSONObject?, collection: String?,
+    fun queryObjects(query: JsonObject?, collection: String?,
                      maxResults: Int, handler: Consumer<Any?>?) {
         myODB.queryObjects(query, collection, maxResults, handler)
     }

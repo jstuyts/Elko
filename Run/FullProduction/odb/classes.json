@@ -1,6 +1,6 @@
 {
-  ref: "classes",
-  type: "classes",
-  classes: [
+  "ref": "classes",
+  "type": "classes",
+  "classes": [
   ]
 }

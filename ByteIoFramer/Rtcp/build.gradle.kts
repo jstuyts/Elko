@@ -14,6 +14,7 @@ dependencies {
 
     implementation(project(":Communication"))
     implementation(project(":Json"))
+    implementation(Libraries.nanojson)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

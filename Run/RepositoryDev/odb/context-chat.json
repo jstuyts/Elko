@@ -1,10 +1,10 @@
 {
-  type: "context",
-  capacity: 10,
-  name: "Chat room",
-  mods: [
+  "type": "context",
+  "capacity": 10,
+  "name": "Chat room",
+  "mods": [
     {
-      type: "chat"
+      "type": "chat"
     }
   ]
 }

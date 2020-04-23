@@ -1,5 +1,6 @@
 package org.elkoserver.server.context;
 
+import com.grack.nanojson.JsonParserException;
 import org.elkoserver.foundation.actor.RefTable;
 import org.elkoserver.foundation.json.DispatchTarget;
 import org.elkoserver.foundation.json.MessageHandlerException;
@@ -7,7 +8,10 @@ import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.foundation.timer.Timer;
-import org.elkoserver.json.*;
+import org.elkoserver.json.JSONDecodingException;
+import org.elkoserver.json.JSONLiteral;
+import org.elkoserver.json.JsonArray;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.objdb.ObjDB;
 import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.trace.Trace;
@@ -17,6 +21,8 @@ import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.*;
 import java.util.function.Consumer;
+
+import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
 
 /**
  * Main state data structure in a Context Server.
@@ -329,7 +335,7 @@ public class Contextor extends RefTable {
         item.markAsChanged();
         item.setContainer(container);
     }
-    
+
     /**
      * Return a newly minted Item (i.e., one created at runtime rather than
      * loaded from the object database).  The new item will have no contents,
@@ -411,7 +417,7 @@ public class Contextor extends RefTable {
         }
         myODB.putObject(ref, obj, null, false, null);
     }
-    
+
     /**
      * Delete a user record from the object database.
      *
@@ -420,14 +426,14 @@ public class Contextor extends RefTable {
     void deleteUserRecord(String ref) {
         myODB.removeObject(ref, null, null);
     }
-    
+
     /**
      * Deliver a relayed message to an instance of an object.
      *
      * @param destination  Object instance to deliver to.
      * @param message  The message to deliver.
      */
-    void deliverMessage(BasicObject destination, JSONObject message) {
+    void deliverMessage(BasicObject destination, JsonObject message) {
         try {
             dispatchMessage(null, destination, message);
         } catch (MessageHandlerException e) {
@@ -463,7 +469,7 @@ public class Contextor extends RefTable {
             return ref.substring(0, dash);
         }
     }
-        
+
     /**
      * Locate an available clone of some context.
      *
@@ -609,7 +615,7 @@ public class Contextor extends RefTable {
 
         /**
          * Indicate that some number of objects have been successfully loaded.
-         * 
+         *
          * @param count The number of objects that have been loaded (typically
          *    this will be 1) or -1 to indicate that all objects that are ever
          *    going to be loaded have been (typically, because an error of some
@@ -719,11 +725,11 @@ public class Contextor extends RefTable {
      *
      * @return a JSON object representing the above described query.
      */
-    private static JSONObject contentsQuery(String ref) {
+    private static JsonObject contentsQuery(String ref) {
         // { type: "item", in: REF }
-        JSONObject query = new JSONObject();
-        query.addProperty("type", "item");
-        query.addProperty("in", ref);
+        JsonObject query = new JsonObject();
+        query.put("type", "item");
+        query.put("in", ref);
         return query;
     }
 
@@ -988,8 +994,8 @@ public class Contextor extends RefTable {
      *
      * @return a JSON object representing the above described query.
      */
-    private static JSONObject scopeQuery(String ref, String scope) {
-        JSONArray orList = new JSONArray();
+    private static JsonObject scopeQuery(String ref, String scope) {
+        JsonArray orList = new JsonArray();
         String[] frags = scope.split("-");
         String scopePart = null;
         for (String frag : frags) {
@@ -998,13 +1004,13 @@ public class Contextor extends RefTable {
             } else {
                 scopePart += '-' + frag;
             }
-            JSONObject orTerm = new JSONObject();
-            orTerm.addProperty("scope", scopePart);
+            JsonObject orTerm = new JsonObject();
+            orTerm.put("scope", scopePart);
             orList.add(orTerm);
         }
-        JSONObject query = new JSONObject();
-        query.addProperty("refx", ref);
-        query.addProperty("$or", orList);
+        JsonObject query = new JsonObject();
+        query.put("refx", ref);
+        query.put("$or", orList);
         return query;
     }
 
@@ -1163,13 +1169,15 @@ public class Contextor extends RefTable {
      */
     void observePresenceChange(String contextRef, String observerRef,
                                String domain, String whoRef,
-                               JSONObject whoMeta, String whereRef,
-                               JSONObject whereMeta, boolean on)
+                               JsonObject whoMeta, String whereRef,
+                               JsonObject whereMeta, boolean on)
     {
         if (whoMeta != null) {
             try {
                 String name = whoMeta.getString("name");
-                myUserNames.put(whoRef, name);
+                if (name != null) {
+                    myUserNames.put(whoRef, name);
+                }
             } catch (JSONDecodingException e) {
                 // No action needed. Do not add a user name.
             }
@@ -1177,7 +1185,9 @@ public class Contextor extends RefTable {
         if (whereMeta != null) {
             try {
                 String name = whereMeta.getString("name");
-                myContextNames.put(whereRef, name);
+                if (name != null) {
+                    myContextNames.put(whereRef, name);
+                }
             } catch (JSONDecodingException e) {
                 // No action needed. Do not add a context name.
             }
@@ -1259,7 +1269,7 @@ public class Contextor extends RefTable {
      *
      * XXX Is this a POLA (Principle of Least Authority) violation??
      */
-    public void queryObjects(JSONObject template, String collectionName,
+    public void queryObjects(JsonObject template, String collectionName,
                              int maxResults, Consumer<Object> handler) {
         myODB.queryObjects(template, collectionName, maxResults, handler);
     }
@@ -1333,7 +1343,7 @@ public class Contextor extends RefTable {
                 throw new Error("relay from inappropriate object");
             }
 
-            JSONObject msgObject = null;
+            JsonObject msgObject = null;
             for (DispatchTarget target : clones(baseRef)) {
                 BasicObject obj = (BasicObject) target;
                 if (obj != source) {
@@ -1350,10 +1360,8 @@ public class Contextor extends RefTable {
                            actually turns out to be a performance issue in
                            practice (unlikely, IMHO), this can be revisited. */
                         try {
-                            msgObject =
-                                new Parser(message.sendableString()).
-                                   parseObjectLiteral();
-                        } catch (SyntaxError e) {
+                            msgObject = jsonObjectFromString(message.sendableString());
+                        } catch (JsonParserException e) {
                             tr.errorm(
                                 "syntax error in internal JSON message: " +
                                 e.getMessage());
@@ -1469,7 +1477,7 @@ public class Contextor extends RefTable {
      *    with null if the user object could not be produced.
      */
     void synthesizeUser(Connection connection, String factoryTag,
-                        final JSONObject param, final String contextRef,
+                        final JsonObject param, final String contextRef,
                         final String contextTemplate,
                         Consumer<Object> userHandler)
     {

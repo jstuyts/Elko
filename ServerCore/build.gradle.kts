@@ -11,7 +11,6 @@ repositories {
 
 dependencies {
     api(project(":Actor"))
-    api(project(":Json"))
     api(project(":JsonMessageHandling"))
     api(project(":Net:Api"))
     api(project(":ObjectDatabase:Api"))
@@ -19,6 +18,7 @@ dependencies {
     api(project(":ServerMetadata"))
     api(project(":Timer"))
     api(project(":Trace"))
+    api(Libraries.nanojson)
 
     implementation(project(":ByteIoFramer:Api"))
     implementation(project(":ByteIoFramer:Json"))

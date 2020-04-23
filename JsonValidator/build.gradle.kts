@@ -9,6 +9,7 @@ repositories {
 
 dependencies {
     implementation(project(":Json"))
+    implementation(Libraries.nanojson)
 }
 
 java {

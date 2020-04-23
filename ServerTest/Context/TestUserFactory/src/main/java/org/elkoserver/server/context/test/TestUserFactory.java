@@ -3,8 +3,8 @@ package org.elkoserver.server.context.test;
 import org.elkoserver.foundation.json.*;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.json.JSONDecodingException;
-import org.elkoserver.json.JSONObject;
-import org.elkoserver.json.SyntaxError;
+import org.elkoserver.json.JsonObject;
+import com.grack.nanojson.JsonParserException;
 import org.elkoserver.server.context.Contextor;
 import org.elkoserver.server.context.EphemeralUserFactory;
 import org.elkoserver.server.context.User;
@@ -132,14 +132,14 @@ class TestUserFactory implements EphemeralUserFactory, ClockUsingObject, TraceFa
      *    produced for any reason.
      */
     public User provideUser(Contextor contextor, Connection connection,
-                            JSONObject param, String contextRef,
+                            JsonObject param, String contextRef,
                             String contextTemplate)
     {
         if (myCryptor != null) {
             try {
                 String blob = param.getString("blob");
-                JSONObject params = myCryptor.decryptJSONObject(blob);
-                JSONObject userDesc = params.getObject("user");
+                JsonObject params = myCryptor.decryptJSONObject(blob);
+                JsonObject userDesc = params.getObject("user");
                 int expire = params.getInt("expire");
                 long now = clock.millis() / 1000;
                 if (expire > now) {
@@ -149,7 +149,7 @@ class TestUserFactory implements EphemeralUserFactory, ClockUsingObject, TraceFa
                         purgeExpiredNonces(now);
                         myNonces.add(nonce);
                         String reqContextRef =
-                            params.optString("context", null);
+                            params.getString("context");
                         if (reqContextRef != null &&
                                 !reqContextRef.equals(contextRef)) {
                             contextor.appTrace().errorm(
@@ -157,7 +157,7 @@ class TestUserFactory implements EphemeralUserFactory, ClockUsingObject, TraceFa
                             return null;
                         }
                         String reqContextTemplate =
-                            params.optString("ctmpl", null);
+                            params.getString("ctmpl");
                         if (reqContextTemplate != null &&
                                 !reqContextTemplate.equals(contextTemplate)) {
                             contextor.appTrace().errorm(
@@ -176,7 +176,7 @@ class TestUserFactory implements EphemeralUserFactory, ClockUsingObject, TraceFa
                 }
             } catch (IOException e) {
                 contextor.appTrace().errorm("malformed cryptoblob");
-            } catch (SyntaxError e) {
+            } catch (JsonParserException e) {
                 contextor.appTrace().errorm("bad JSON string in cryptoblob");
             } catch (JSONDecodingException e) {
                 contextor.appTrace().errorm("missing or improperly typed property in cryptoblob");

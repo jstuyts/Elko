@@ -4,7 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.time.Clock;
 
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.TraceFactory;
 
 /**
@@ -72,12 +72,12 @@ class MethodInvoker extends Invoker {
      * @param message  The message that was received.
      * @param resolver  Type resolver for parameters.
      */
-    void handle(DispatchTarget target, Deliverer from, JSONObject message,
+    void handle(DispatchTarget target, Deliverer from, JsonObject message,
                 TypeResolver resolver)
         throws MessageHandlerException
     {
         try {
-            apply(target, from, message.properties(), resolver);
+            apply(target, from, message.entrySet(), resolver);
         } catch (JSONInvocationException e) {
             throw new MessageHandlerException("error calling JSON method", e);
         }

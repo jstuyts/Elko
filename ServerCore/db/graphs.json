@@ -1,10 +1,10 @@
 {
-    type: "graphtable",
-    ref: "graphs",
-    graphs: [
+    "type": "graphtable",
+    "ref": "graphs",
+    "graphs": [
         {
-            name: "elkousers",
-            class: "org.elkoserver.server.presence.UniversalGraph"
+            "name": "elkousers",
+            "class": "org.elkoserver.server.presence.UniversalGraph"
         }
     ]
 }

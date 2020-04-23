@@ -7,7 +7,7 @@ import org.elkoserver.foundation.json.OptBoolean;
 import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -130,7 +130,7 @@ class AdminHandler extends BasicProtocolHandler {
      * @param conf  Domain-specific configuration update parameters.
      */
     @JSONMethod({ "domain", "conf" })
-    public void update(PresenceActor from, String domain, JSONObject conf)
+    public void update(PresenceActor from, String domain, JsonObject conf)
         throws MessageHandlerException
     {
         from.ensureAuthorizedAdmin();

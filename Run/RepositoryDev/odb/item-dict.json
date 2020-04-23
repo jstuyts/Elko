@@ -1,16 +1,16 @@
 {
-  type: "item",
-  name: "a dictionary item",
-  mods: [
+  "type": "item",
+  "name": "a dictionary item",
+  "mods": [
     {
-      type: "dictionary",
-      names: [
+      "type": "dictionary",
+      "names": [
         "a1",
         "a2",
         "a3",
         "a4"
       ],
-      values: [
+      "values": [
         "fee",
         "fie",
         "fo",

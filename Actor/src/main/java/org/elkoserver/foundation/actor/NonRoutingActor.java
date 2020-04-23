@@ -10,7 +10,7 @@ import org.elkoserver.foundation.net.Communication;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.TraceFactory;
 
 /**
@@ -75,13 +75,13 @@ public abstract class NonRoutingActor
      *
      * @param connection  Connection over which the message was received.
      * @param rawMessage  The message received.  Normally this should be a
-     *    {@link JSONObject}, but it could be a {@link Throwable} indicating a
+     *    {@link JsonObject}, but it could be a {@link Throwable} indicating a
      *    problem receiving or parsing the message.
      */
     public void processMessage(Connection connection, Object rawMessage) {
         Throwable report = null;
-        if (rawMessage instanceof JSONObject) {
-            JSONObject message = (JSONObject) rawMessage;
+        if (rawMessage instanceof JsonObject) {
+            JsonObject message = (JsonObject) rawMessage;
 
             try {
                 myDispatcher.dispatchMessage(this, this, message);

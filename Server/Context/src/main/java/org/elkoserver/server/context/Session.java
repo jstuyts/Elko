@@ -10,7 +10,7 @@ import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
-import org.elkoserver.json.JSONObject;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
@@ -144,7 +144,7 @@ class Session extends BasicProtocolHandler {
     public void entercontext(Deliverer from, OptString user, OptString name,
                              String context, OptString contextTemplate,
                              OptString sess, OptString auth, OptString utag,
-                             JSONObject uparam, OptBoolean debug,
+                             JsonObject uparam, OptBoolean debug,
                              OptString scope)
         throws MessageHandlerException
     {
