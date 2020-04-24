@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Simple extendsion of HashMap (mapping String->String) so it can be loaded
+ * Simple extension of HashMap (mapping String->String) so it can be loaded
  * as a static object from the object store.
  */
 class StaticStringMap extends HashMap<String, String> {

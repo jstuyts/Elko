@@ -6,7 +6,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Simple extendsion of HashMap (mapping String->JsonObject) so it can be
+ * Simple extension of HashMap (mapping String->JsonObject) so it can be
  * loaded as a static object from the object store.
  */
 class StaticObjectMap extends HashMap<String, JsonObject> {
