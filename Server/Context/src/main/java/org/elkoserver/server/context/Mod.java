@@ -49,6 +49,13 @@ public abstract class Mod implements Encodable, DispatchTarget, Cloneable {
         object.attachMod(this);
     }
 
+    public void detach() {
+        if (myObject != null) {
+            myObject.detachMod(this);
+            myObject = null;
+        }
+    }
+
     /**
      * Clone this object.
      */

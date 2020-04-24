@@ -3,7 +3,6 @@ package org.elkoserver.server.context;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteralArray;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -60,6 +59,21 @@ class ModSet {
         } 
     }
 
+    void removeMod(Mod mod) {
+        myMods.remove(mod.getClass());
+        redetermineSuperMods();
+    }
+
+    private void redetermineSuperMods() {
+        mySuperMods = new HashMap<>();
+        myMods.forEach((modClass, mod) -> {
+            while (modClass != Mod.class && Mod.class.isAssignableFrom(modClass)) {
+                mySuperMods.put(modClass, mod);
+                modClass = modClass.getSuperclass();
+            }
+        });
+    }
+
     /**
      * Make all these mods become mods of something.
      *
@@ -97,10 +111,11 @@ class ModSet {
      *
      * @return the mod of the given class, or null if there is no such mod.
      */
-    Mod getMod(Class<?> type) {
-        Mod result = myMods.get(type);
+    <TMod> TMod getMod(Class<TMod> type) {
+        @SuppressWarnings("unchecked") TMod result = (TMod) myMods.get(type);
         if (result == null && mySuperMods != null) {
-            result = mySuperMods.get(type);
+            //noinspection unchecked
+            result = (TMod) mySuperMods.get(type);
         }
         return result;
     }
@@ -129,6 +144,7 @@ class ModSet {
      */
     void purgeEphemeralMods() {
         myMods.values().removeIf(Mod::isEphemeral);
+        redetermineSuperMods();
     }
 
     /**

@@ -13,6 +13,7 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JsonArray;
 import org.elkoserver.json.JsonObject;
 import org.elkoserver.objdb.ObjDB;
+import org.elkoserver.server.context.mods.geo.GeoPosition;
 import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
@@ -132,7 +133,6 @@ public class Contextor extends RefTable {
         myODB.addClass("user", User.class);
         myODB.addClass("serverdesc", ServerDesc.class);
         myODB.addClass("geopos", GeoPosition.class);
-        myODB.addClass("cartpos", CartesianPosition.class);
 
         mySession = new Session(this, server, traceFactory);
         addRef(mySession);
@@ -353,7 +353,7 @@ public class Contextor extends RefTable {
                     boolean isPossibleContainer, boolean isDeletable)
     {
         Item item =
-            new Item(name, isPossibleContainer, isDeletable, false, null);
+            new Item(name, isPossibleContainer, isDeletable, false);
         initializeItem(item, container);
         return item;
     }
@@ -393,8 +393,8 @@ public class Contextor extends RefTable {
     public Item createGeoItem(String name, boolean isPossibleContainer,
                               boolean isDeletable, double lat, double lon)
     {
-        Item item = new Item(name, isPossibleContainer, isDeletable, false,
-                             new GeoPosition(lat, lon));
+        Item item = new Item(name, isPossibleContainer, isDeletable, false);
+        item.setPosition(new GeoPosition(lat, lon));
         initializeItem(item, null);
         return item;
     }

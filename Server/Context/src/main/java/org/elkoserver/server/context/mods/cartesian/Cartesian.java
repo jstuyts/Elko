@@ -1,4 +1,4 @@
-package org.elkoserver.server.context.mods;
+package org.elkoserver.server.context.mods.cartesian;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
@@ -7,11 +7,11 @@ import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.server.context.BasicObject;
-import org.elkoserver.server.context.Context;
 import org.elkoserver.server.context.Item;
 import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
+import org.elkoserver.server.context.ContainerValidity;
 
 /**
  * Mod to provide an item with 2D (rectangular) geometry.  This mod may only be
@@ -72,32 +72,6 @@ public class Cartesian extends Mod implements ItemMod {
     }
 
     /**
-     * Test if a proposed container for an item is acceptable.  In order for
-     * this test to succeed, the proposed container object must be either a
-     * context or a container item AND the user and the proposed container must
-     * be in the same context.
-     *
-     * @param into  The proposed container object.
-     * @param who  The user who is attempting to do this.
-     *
-     * @return true if it is OK for the user 'who' to use the object 'into' as
-     *    a container, false if not.
-     */
-    static boolean validContainer(BasicObject into, User who) {
-        if (into == null) {
-            return false;
-        } else if (into.context() != who.context()) {
-            return false;
-        } else if (into instanceof Context) {
-            return true;
-        } else if (into instanceof Item) {
-            return into.isContainer();
-        } else {
-            return false;
-        }
-    }
-
-    /**
      * Message handler for the 'move' message.
      *
      * <p>This message is a request from a client to move this object to a
@@ -130,7 +104,7 @@ public class Cartesian extends Mod implements ItemMod {
         String newContainerRef = into.value(null);
         if (newContainerRef != null) {
             newContainer = context().get(newContainerRef);
-            if (!validContainer(newContainer, from)) {
+            if (!ContainerValidity.validContainer(newContainer, from)) {
                 throw new MessageHandlerException(
                     "invalid move destination container " + newContainerRef);
             }

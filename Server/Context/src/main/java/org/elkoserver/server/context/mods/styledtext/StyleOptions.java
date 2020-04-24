@@ -1,17 +1,16 @@
-package org.elkoserver.server.context.mods;
+package org.elkoserver.server.context.mods.styledtext;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptInteger;
-import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.Encodable;
+import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 
 /**
  * Representation of permissible text style information in a context that can
  * contain text.
  *
- * <p>Note: this is not a mod.  StyleOptions objects are used by the {@link
- * NoteMaker} and {@link TalkOptions} mods.
+ * <p>Note: this is not a mod.  StyleOptions objects are used by mods.
  */
 public class StyleOptions implements Encodable {
     /** Permissible text colors. */

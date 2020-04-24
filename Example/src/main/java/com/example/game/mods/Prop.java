@@ -4,7 +4,7 @@ import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.server.context.CartesianPosition;
+import org.elkoserver.server.context.mods.cartesian.CartesianPosition;
 import org.elkoserver.server.context.Item;
 import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.Mod;
@@ -37,8 +37,18 @@ public class Prop extends Mod implements ItemMod {
                 "attempt to grab non-portable item " + item);
         }
 
-        CartesianPosition itemPos = (CartesianPosition) object().position();
-        CartesianPosition userPos = (CartesianPosition) from.position();
+        CartesianPosition userPos = from.getMod(CartesianPosition.class);
+        if (userPos == null) {
+            throw new MessageHandlerException("user " + from +
+                    " attempted grab " +
+                    this + " but Cartesian position mod not present on user");
+        }
+        CartesianPosition itemPos = item.getMod(CartesianPosition.class);
+        if (itemPos == null) {
+            throw new MessageHandlerException("user " + from +
+                    " attempted grab " +
+                    this + " but Cartesian position mod not present on item");
+        }
         int dx = itemPos.x() - userPos.x();
         int dy = itemPos.y() - userPos.y();
         if (dx*dx + dy*dy > GRAB_DISTANCE*GRAB_DISTANCE) {
@@ -47,7 +57,7 @@ public class Prop extends Mod implements ItemMod {
         }
 
         item.setContainer(from);
-        item.setPosition(null);
+        itemPos.detach();
         context().sendToNeighbors(from, Msg.msgDelete(item));
         from.send(Movement.msgMove(item, 0, 0, from));
     }
@@ -60,10 +70,21 @@ public class Prop extends Mod implements ItemMod {
             throw new MessageHandlerException(
                 "attempt to drop non-portable item " + item);
         }
-        CartesianPosition pos = (CartesianPosition) from.position();
-        item.setPosition(pos);
+        CartesianPosition userPos = from.getMod(CartesianPosition.class);
+        if (userPos == null) {
+            throw new MessageHandlerException("user " + from +
+                    " attempted drop " +
+                    this + " but Cartesian position mod not present on user");
+        }
+        CartesianPosition itemPos = item.getMod(CartesianPosition.class);
+        if (itemPos == null) {
+            itemPos = new CartesianPosition(userPos.x(), userPos.y());
+            itemPos.attachTo(item);
+        } else {
+            itemPos.set(userPos.x(), userPos.y());
+        }
         item.setContainer(context());
         item.sendObjectDescription(context().neighbors(from), context());
-        from.send(Movement.msgMove(item, pos.x(), pos.y(), context()));
+        from.send(Movement.msgMove(item, userPos.x(), userPos.y(), context()));
     }
 }

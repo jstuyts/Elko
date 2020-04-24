@@ -1,10 +1,12 @@
-package org.elkoserver.server.context.mods;
+package org.elkoserver.server.context.mods.chat;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.ContextMod;
 import org.elkoserver.server.context.Mod;
+import org.elkoserver.server.context.mods.styledtext.StyleDesc;
+import org.elkoserver.server.context.mods.styledtext.StyleOptions;
 
 /**
  * Mod to hold a context's permissible chat text display style options.  This

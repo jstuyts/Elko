@@ -104,7 +104,7 @@ public class DevicePersistentUserFactory implements UserFactory {
                                               uuid);
                 DeviceUserMod mod = new DeviceUserMod(uuid);
                 user = new User(name, new Mod[] { mod }, null,
-                                myContextor.uniqueID("u"), null);
+                                myContextor.uniqueID("u"));
                 user.markAsChanged();
             }
             myHandler.accept(user);

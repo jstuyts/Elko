@@ -1,13 +1,16 @@
-package org.elkoserver.server.context;
+package org.elkoserver.server.context.mods.cartesian;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
+import org.elkoserver.server.context.ItemMod;
+import org.elkoserver.server.context.Mod;
+import org.elkoserver.server.context.UserMod;
 
 /**
  * Position class representing an integer (x,y) coordinate on a plane.
  */
-public class CartesianPosition implements Position {
+public class CartesianPosition extends Mod implements UserMod, ItemMod {
     private int myX;
     private int myY;
 
@@ -55,5 +58,10 @@ public class CartesianPosition implements Position {
      */
     public int y() {
         return myY;
+    }
+
+    public void set(int x, int y) {
+        myX = x;
+        myY = y;
     }
 }

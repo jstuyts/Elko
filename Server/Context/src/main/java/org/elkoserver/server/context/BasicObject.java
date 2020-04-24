@@ -104,18 +104,14 @@ public abstract class BasicObject
 
     /**
      * Constructor.
-     *
-     * @param name  The name of the object (mainly for diagnostic messages).
+     *  @param name  The name of the object (mainly for diagnostic messages).
      * @param mods  Array of mods to attach to the object; can be null if no
      *    mods are to be attached at initial creation time.
      * @param isContainer  true if this object is allowed to be a container.
      * @param contents  Array of inactive items that will be the initial
-     *    contents of this object, or null if there are no contents now.
-     * @param pos  Position of this object with respect to its container, or
-     *    null if unknown or irrelevant.
+*    contents of this object, or null if there are no contents now.
      */
-    BasicObject(String name, Mod[] mods, boolean isContainer, Item[] contents,
-                Position pos) {
+    BasicObject(String name, Mod[] mods, boolean isContainer, Item[] contents) {
         myName = name;
         myCodependents = null;
         myDefaultDispatchTarget = null;
@@ -128,7 +124,6 @@ public abstract class BasicObject
         }
         myPassiveContents = contents;
         myModSet = new ModSet(mods);
-        myPosition = pos;
         amChanged = false;
         amDeleted = false;
         amEphemeral = false;
@@ -238,6 +233,12 @@ public abstract class BasicObject
                 context().trace().errorm("ContentsWatcher mod " + mod +
                     " added to " + this + ", which already has one");
             }
+        }
+    }
+
+    void detachMod(Mod mod) {
+        if (myModSet != null) {
+            myModSet.removeMod(mod);
         }
     }
 
@@ -454,11 +455,12 @@ public abstract class BasicObject
      *
      * @return the mod of the given type, if there is one, else null.
      */
-    public Mod getMod(Class<?> type) {
+    public <TMod> TMod getMod(Class<TMod> type) {
         if (myModSet == null) {
             return null;
         } else {
-            return myModSet.getMod(type);
+            //noinspection unchecked
+            return (TMod) myModSet.getMod(type);
         }
     }
 
@@ -568,15 +570,6 @@ public abstract class BasicObject
         if (myModSet != null) {
             myModSet.objectIsComplete();
         }
-    }
-
-    /**
-     * Obtain this object's position with respect to its container.
-     *
-     * @return this object's position, or null if it has none.
-     */
-    public Position position() {
-        return myPosition;
     }
 
     /**
@@ -769,9 +762,10 @@ public abstract class BasicObject
      * @return an object that can handle messages for class 'type', or null if
      *    this object doesn't handle messages for that class.
      */
-    public DispatchTarget findActualTarget(Class<?> type) {
+    public <TTarget extends DispatchTarget> TTarget findActualTarget(Class<TTarget> type) {
         if (type == getClass()) {
-            return this;
+            //noinspection unchecked
+            return (TTarget) this;
         } else if (myModSet == null) {
             return null;
         } else {

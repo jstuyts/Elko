@@ -1,5 +1,8 @@
 { "ref":"user-exfred",
   "type":"user",
   "name":"Fred",
-  "pos": { "type": "cartpos", "x":0, "y":0 },
-  "mods": [ { "type": "exu" } ] }
+  "mods": [
+    { "type": "exu" },
+    { "type": "cartpos", "x":0, "y":0 }
+  ]
+}

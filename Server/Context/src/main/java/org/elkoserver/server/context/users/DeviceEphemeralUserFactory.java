@@ -43,7 +43,7 @@ public class DeviceEphemeralUserFactory extends DevicePersistentUserFactory {
             extractCredentials(contextor.appTrace(), param);
         User user = null;
         if (creds != null) {
-            user = new User(creds.name, null, null, null, null);
+            user = new User(creds.name, null, null, null);
             user.markAsEphemeral();
             user.objectIsComplete();
         }

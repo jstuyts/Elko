@@ -144,7 +144,7 @@ public class Context extends BasicObject implements Deliverer {
             OptBoolean isAllowableTemplate, OptBoolean isMandatoryTemplate,
             OptBoolean isAllowAnonymous)
     {
-        super(name, mods, true, contents, null);
+        super(name, mods, true, contents);
         myLoadedFromRef = null;
         myMaxCapacity = maxCapacity;
         myBaseCapacity = baseCapacity.value(-1);

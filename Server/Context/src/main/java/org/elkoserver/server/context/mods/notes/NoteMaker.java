@@ -1,4 +1,4 @@
-package org.elkoserver.server.context.mods;
+package org.elkoserver.server.context.mods.notes;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
@@ -11,6 +11,10 @@ import org.elkoserver.server.context.Item;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.Msg;
 import org.elkoserver.server.context.User;
+import org.elkoserver.server.context.mods.cartesian.Cartesian;
+import org.elkoserver.server.context.ContainerValidity;
+import org.elkoserver.server.context.mods.styledtext.StyleDesc;
+import org.elkoserver.server.context.mods.styledtext.StyleOptions;
 
 /**
  * Mod to enable creation of notes.  Notes are items with the {@link Note} mod
@@ -106,7 +110,7 @@ public class NoteMaker extends Mod implements GeneralMod {
         style = myStyleOptions.mergeStyle(style);
         if (style == null) {
             throw new MessageHandlerException("invalid style options");
-        } else if (!Cartesian.validContainer(intoObj, from)) {
+        } else if (!ContainerValidity.validContainer(intoObj, from)) {
             throw new MessageHandlerException(
                 "invalid destination container " + intoRef);
         } else {

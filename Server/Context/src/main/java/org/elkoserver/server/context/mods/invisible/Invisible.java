@@ -1,4 +1,4 @@
-package org.elkoserver.server.context.mods;
+package org.elkoserver.server.context.mods.invisible;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.json.EncodeControl;

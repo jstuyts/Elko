@@ -53,8 +53,8 @@ class MethodInvoker extends Invoker {
      */
     DispatchTarget findActualTarget(DispatchTarget target) {
         if (target instanceof MessageRetargeter) {
-            return
-                ((MessageRetargeter) target).findActualTarget(myMethodClass);
+            //noinspection unchecked
+            return ((MessageRetargeter) target).findActualTarget((Class<? extends DispatchTarget>) myMethodClass);
         } else if (myMethodClass.isInstance(target)) {
             return target;
         } else {

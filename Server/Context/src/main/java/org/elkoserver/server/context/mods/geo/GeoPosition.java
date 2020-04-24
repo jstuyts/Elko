@@ -1,8 +1,10 @@
-package org.elkoserver.server.context;
+package org.elkoserver.server.context.mods.geo;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
+import org.elkoserver.server.context.BasicObject;
+import org.elkoserver.server.context.Position;
 
 /**
  * Position class representing a latitude/longitude position on the surface of

@@ -6,7 +6,7 @@ import org.elkoserver.foundation.json.OptInteger;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
-import org.elkoserver.server.context.CartesianPosition;
+import org.elkoserver.server.context.mods.cartesian.CartesianPosition;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.Msg;
 import org.elkoserver.server.context.User;
@@ -52,7 +52,13 @@ public class Movement extends Mod implements ContextMod {
             from.send(Msg.msgError(object(), "move",
                                    "movement out of bounds"));
         } else {
-            from.setPosition(new CartesianPosition(x, y));
+            CartesianPosition pos = from.getMod(CartesianPosition.class);
+            if (pos == null) {
+                throw new MessageHandlerException("user " + from +
+                        " attempted move on " +
+                        this + " but Cartesian position mod not present");
+            }
+            pos.set(x, y);
             context().send(msgMove(from, x, y, null));
         }
     }

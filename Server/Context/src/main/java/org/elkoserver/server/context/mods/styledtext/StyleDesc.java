@@ -1,16 +1,15 @@
-package org.elkoserver.server.context.mods;
+package org.elkoserver.server.context.mods.styledtext;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptString;
-import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.Encodable;
+import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 
 /**
  * Representation of style information for something containing text.
  *
- * <p>Note: this is not a mod.  StyleDesc objects are used by the {@link Note},
- * {@link NoteMaker}, {@link TalkPrefs} and {@link TalkOptions} mods and by the
+ * <p>Note: this is not a mod.  StyleDesc objects are used by mods and by the
  * {@link StyleOptions} object.
  */
 public class StyleDesc implements Encodable {

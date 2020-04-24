@@ -3,9 +3,9 @@
   "ref": "item-expenguin1",
   "mods": [
     { "type": "prop", "kind": "penguin" },
-    { "type": "exi", "str1": "some value", "str2": "some other value", "int1":47 }
+    { "type": "exi", "str1": "some value", "str2": "some other value", "int1":47 },
+    { "type": "cartpos", "x":5, "y":5 }
   ],
   "portable": true,
-  "pos": { "type": "cartpos", "x":5, "y":5 },
   "name": "First Penguin"
 }

@@ -5,17 +5,17 @@
         {
             "type": "class",
             "tag": "cart",
-            "name": "org.elkoserver.server.context.mods.Cartesian"
+            "name": "org.elkoserver.server.context.mods.cartesian.Cartesian"
         },
         {
             "type": "class",
             "tag": "census",
-            "name": "org.elkoserver.server.context.mods.Census"
+            "name": "org.elkoserver.server.context.mods.census.Census"
         },
         {
             "type": "class",
             "tag": "chat",
-            "name": "org.elkoserver.server.context.mods.Chat"
+            "name": "org.elkoserver.server.context.mods.chat.Chat"
         },
         {
             "type": "class",
@@ -25,47 +25,47 @@
         {
             "type": "class",
             "tag": "dictionary",
-            "name": "org.elkoserver.server.context.mods.Dictionary"
+            "name": "org.elkoserver.server.context.mods.dictionary.Dictionary"
         },
         {
             "type": "class",
             "tag": "image",
-            "name": "org.elkoserver.server.context.mods.Image"
+            "name": "org.elkoserver.server.context.mods.image.Image"
         },
         {
             "type": "class",
             "tag": "invisible",
-            "name": "org.elkoserver.server.context.mods.Invisible"
+            "name": "org.elkoserver.server.context.mods.invisible.Invisible"
         },
         {
             "type": "class",
             "tag": "note",
-            "name": "org.elkoserver.server.context.mods.Note"
+            "name": "org.elkoserver.server.context.mods.notes.Note"
         },
         {
             "type": "class",
             "tag": "notemaker",
-            "name": "org.elkoserver.server.context.mods.NoteMaker"
+            "name": "org.elkoserver.server.context.mods.notes.NoteMaker"
         },
         {
             "type": "class",
             "tag": "style",
-            "name": "org.elkoserver.server.context.mods.StyleDesc"
+            "name": "org.elkoserver.server.context.mods.styledtext.StyleDesc"
         },
         {
             "type": "class",
             "tag": "styleoptions",
-            "name": "org.elkoserver.server.context.mods.StyleOptions"
+            "name": "org.elkoserver.server.context.mods.styledtext.StyleOptions"
         },
         {
             "type": "class",
             "tag": "talkoptions",
-            "name": "org.elkoserver.server.context.mods.TalkOptions"
+            "name": "org.elkoserver.server.context.mods.chat.TalkOptions"
         },
         {
             "type": "class",
             "tag": "talkprefs",
-            "name": "org.elkoserver.server.context.mods.TalkPrefs"
+            "name": "org.elkoserver.server.context.mods.chat.TalkPrefs"
         },
         {
             "type" : "class",

@@ -1,4 +1,4 @@
-package org.elkoserver.server.context.mods;
+package org.elkoserver.server.context.mods.notes;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
@@ -9,6 +9,7 @@ import org.elkoserver.json.Referenceable;
 import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
+import org.elkoserver.server.context.mods.styledtext.StyleDesc;
 
 /**
  * Mod to hold a free-floating chunk of text.  This mod must be attached to an
@@ -79,7 +80,7 @@ public class Note extends Mod implements ItemMod {
         ensureSameContext(from);
         if (style != null) {
             style = myStyle.mergeStyle(style);
-            NoteMaker rules = (NoteMaker) context().getMod(NoteMaker.class);
+            NoteMaker rules = context().getMod(NoteMaker.class);
             if (rules != null && rules.allowedStyle(style)) {
                 myStyle = style;
             } else {

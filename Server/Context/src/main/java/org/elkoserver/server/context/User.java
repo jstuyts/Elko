@@ -58,36 +58,30 @@ public class User extends BasicObject implements Deliverer {
 
     /**
      * JSON-driven constructor.
-     *
-     * @param name  The name of the user.
+     *  @param name  The name of the user.
      * @param mods  Array of mods to attach to the user; can be null if no mods
      *    are to be attached at initial creation time.
      * @param contents  Array of inactive items that will be the initial
-     *    contents of this user, or null if there are no contents now.
+ *    contents of this user, or null if there are no contents now.
      * @param ref  Optional reference string for this user object.
-     * @param pos  Optional position of the user within its context.
      */
-    @JSONMethod({ "name", "mods", "contents", "ref", "?pos" })
-    User(OptString name, Mod[] mods, Item[] contents, OptString ref,
-         Position pos)
+    @JSONMethod({ "name", "mods", "contents", "ref" })
+    User(OptString name, Mod[] mods, Item[] contents, OptString ref)
     {
-        this(name.value(null), mods, contents, ref.value(null), pos);
+        this(name.value(null), mods, contents, ref.value(null));
     }
 
     /**
      * Direct constructor.
-     *
-     * @param name  The name of the user.
+     *  @param name  The name of the user.
      * @param mods  Array of mods to attach to the user; can be null if no mods
      *    are to be attached at initial creation time.
      * @param contents  Array of inactive items that will be the initial
-     *    contents of this user, or null if there are no contents now.
-     * @param pos  Optional position of the user within its context.
+ *    contents of this user, or null if there are no contents now.
      */
-    public User(String name, Mod[] mods, Item[] contents, String ref,
-                Position pos)
+    public User(String name, Mod[] mods, Item[] contents, String ref)
     {
-        super(name, mods, true, contents, pos);
+        super(name, mods, true, contents);
         myRef = ref;
         myContext = null;
         amExited = false;
@@ -451,7 +445,7 @@ public class User extends BasicObject implements Deliverer {
      *    'contextRef'.
      */
     private boolean testForEntryKey(BasicObject obj, String contextRef) {
-        ContextKey key = (ContextKey) obj.getMod(ContextKey.class);
+        ContextKey key = obj.getMod(ContextKey.class);
         if (key != null && key.enablesEntry(contextRef)) {
             return true;
         }

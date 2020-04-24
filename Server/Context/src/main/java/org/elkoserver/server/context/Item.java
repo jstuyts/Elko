@@ -39,18 +39,16 @@ public class Item extends BasicObject {
     /**
      * Manual item constructor.  Items constructed via this method are created
      * with no mods and no contents.
-     *
-     * @param name  Item name.
+     *  @param name  Item name.
      * @param isContainer  Flag indicating whether the item may be used as a
      *    container.
      * @param isDeletable  Flag indicating whether users my delete this item.
      * @param isClosed  Flag indicating whether this container is closed.
-     * @param pos  Optional position of the item within its container.
      */
     Item(String name, boolean isContainer, boolean isDeletable,
-         boolean isClosed, Position pos)
+         boolean isClosed)
     {
-        super(name, null, isContainer, null, pos);
+        super(name, null, isContainer, null);
         amDeletable = isDeletable;
         amClosed = isClosed;
         myContainerWatcher = null;
@@ -79,7 +77,7 @@ public class Item extends BasicObject {
          OptBoolean isPossibleContainer, OptBoolean isDeletable,
          OptBoolean isPortable, OptBoolean isClosed, Position pos)
     {
-        super(name, mods, isPossibleContainer.value(true), contents, pos);
+        super(name, mods, isPossibleContainer.value(true), contents);
         myRef = ref.value(null);
         amDeletable = isDeletable.value(false);
         amPortable = isPortable.value(false);

@@ -3,9 +3,9 @@
   "ref": "item-expenguin2",
   "mods": [
     { "type": "prop", "kind": "penguin" },
-    { "type": "exi", "str1": "some value", "int1":46, "int2":3 }
+    { "type": "exi", "str1": "some value", "int1":46, "int2":3 },
+    { "type": "cartpos", "x":5, "y":5 }
   ],
   "portable": true,
-  "pos": { "type": "cartpos", "x":5, "y":5 },
   "name": "Second Penguin"
 }

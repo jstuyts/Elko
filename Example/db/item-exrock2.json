@@ -3,9 +3,9 @@
   "ref": "item-exrock2",
   "mods": [
     { "type": "prop", "kind": "rock" },
-    { "type": "exi", "str1": "Black", "int1":2 }
+    { "type": "exi", "str1": "Black", "int1":2 },
+    { "type": "cartpos", "x":5, "y":5 }
   ],
   "portable": true,
-  "pos": { "type": "cartpos", "x":5, "y":5 },
   "name": "Medium rock"
 }

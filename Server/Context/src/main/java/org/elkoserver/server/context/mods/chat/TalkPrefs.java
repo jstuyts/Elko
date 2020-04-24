@@ -1,4 +1,4 @@
-package org.elkoserver.server.context.mods;
+package org.elkoserver.server.context.mods.chat;
 
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
@@ -10,6 +10,7 @@ import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.ObjectCompletionWatcher;
 import org.elkoserver.server.context.User;
 import org.elkoserver.server.context.UserMod;
+import org.elkoserver.server.context.mods.styledtext.StyleDesc;
 
 /**
  * Mod to hold a user's current chat text display style settings.  This is used
@@ -69,7 +70,7 @@ public class TalkPrefs
      * <p>Application code should not call this method.
      */
     public void objectIsComplete() {
-        TalkOptions rules = (TalkOptions) context().getMod(TalkOptions.class);
+        TalkOptions rules = context().getMod(TalkOptions.class);
         if (rules != null) {
             myStyle = rules.newStyle();
         }
@@ -117,7 +118,7 @@ public class TalkPrefs
                           newTextStyle == null ?
                               myStyle.textStyle(): newTextStyle,
                           newIcon == null ? myStyle.icon() : newIcon);
-        TalkOptions rules = (TalkOptions) context().getMod(TalkOptions.class);
+        TalkOptions rules = context().getMod(TalkOptions.class);
         if (rules == null || rules.allowedStyle(style)) {
             myStyle = style;
             context().send(msgStyle(object(), newColor, newBackgroundColor,
