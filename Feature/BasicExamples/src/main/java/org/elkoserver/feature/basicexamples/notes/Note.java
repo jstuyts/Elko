@@ -11,6 +11,9 @@ import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to hold a free-floating chunk of text.  This mod must be attached to an
  * item, not to a user or context.
@@ -45,7 +48,7 @@ public class Note extends Mod implements ItemMod {
      * @return a JSON literal representing this mod.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("note", control);
+        JSONLiteral result = type("note", control);
         result.addParameter("text", myText);
         result.addParameterOpt("style", myStyle);
         result.finish();
@@ -107,7 +110,7 @@ public class Note extends Mod implements ItemMod {
     private static JSONLiteral msgEdit(Referenceable target, String text,
                                        StyleDesc style)
     {
-        JSONLiteral msg = new JSONLiteral(target, "edit");
+        JSONLiteral msg = targetVerb(target, "edit");
         msg.addParameterOpt("text", text);
         msg.addParameterOpt("style", style);
         msg.finish();

@@ -13,6 +13,8 @@ import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.function.Consumer;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+
 /**
  * Singleton 'auth' message handler object for the password authorizer.
  */
@@ -335,7 +337,7 @@ class AuthHandler extends BasicProtocolHandler {
     private static JSONLiteral msgCreateActor(Referenceable target, String id,
                                               String failure)
     {
-        JSONLiteral msg = new JSONLiteral(target, "createactor");
+        JSONLiteral msg = targetVerb(target, "createactor");
         msg.addParameter("id", id);
         msg.addParameterOpt("failure", failure);
         msg.finish();
@@ -348,7 +350,7 @@ class AuthHandler extends BasicProtocolHandler {
     private static JSONLiteral msgDeleteActor(Referenceable target, String id,
                                               String failure)
     {
-        JSONLiteral msg = new JSONLiteral(target, "deleteactor");
+        JSONLiteral msg = targetVerb(target, "deleteactor");
         msg.addParameter("id", id);
         msg.addParameterOpt("failure", failure);
         msg.finish();
@@ -361,7 +363,7 @@ class AuthHandler extends BasicProtocolHandler {
     private static JSONLiteral msgLookupActor(Referenceable target, String id,
                                               String iid, String name, String failure)
     {
-        JSONLiteral msg = new JSONLiteral(target, "lookupactor");
+        JSONLiteral msg = targetVerb(target, "lookupactor");
         msg.addParameter("id", id);
         msg.addParameterOpt("iid", iid);
         msg.addParameterOpt("name", name);
@@ -376,7 +378,7 @@ class AuthHandler extends BasicProtocolHandler {
     private static JSONLiteral msgLookupPlace(Referenceable target, String name,
                                               String context)
     {
-        JSONLiteral msg = new JSONLiteral(target, "lookupplace");
+        JSONLiteral msg = targetVerb(target, "lookupplace");
         msg.addParameter("name", name);
         msg.addParameterOpt("context", context);
         msg.finish();

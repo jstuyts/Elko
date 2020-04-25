@@ -11,6 +11,8 @@ import java.io.IOException;
 import java.security.SecureRandom;
 import java.time.Clock;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 class CryptoTest {
     private static SecureRandom theRandom = new SecureRandom();
 
@@ -33,7 +35,7 @@ class CryptoTest {
         }
         nonce.addParameter("nonce", idstr.toString());
         nonce.addParameter("expire", clock.millis() / 1000 + Integer.parseInt(timeout));
-        JSONLiteral user = new JSONLiteral("user", EncodeControl.forClient);
+        JSONLiteral user = type("user", EncodeControl.forClient);
         user.addParameter("name", userName);
         user.finish();
         nonce.addParameter("user", user);

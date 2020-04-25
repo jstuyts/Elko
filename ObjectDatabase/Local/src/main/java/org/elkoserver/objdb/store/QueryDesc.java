@@ -3,10 +3,12 @@ package org.elkoserver.objdb.store;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptInteger;
 import org.elkoserver.foundation.json.OptString;
-import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.Encodable;
+import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JsonObject;
+
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * Description of a query for an object.
@@ -63,7 +65,7 @@ public class QueryDesc implements Encodable {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("queryi", control);
+        JSONLiteral result = type("queryi", control);
         result.addParameter("template", myTemplate);
         result.addParameterOpt("coll", myCollectionName);
         if (myMaxResults > 0) {

@@ -1,13 +1,15 @@
 package org.elkoserver.server.workshop.bank;
 
-import java.text.ParseException;
-import java.time.Clock;
-
 import org.elkoserver.foundation.json.*;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.server.workshop.WorkerObject;
 import org.elkoserver.server.workshop.WorkshopActor;
+
+import java.text.ParseException;
+import java.time.Clock;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Workshop worker object for the bank service.
@@ -116,7 +118,7 @@ public class BankWorker extends WorkerObject implements ClockUsingObject {
          * @return an open JSON literal as described.
          */
         JSONLiteral beginReply() {
-            JSONLiteral msg = new JSONLiteral(rep, verb);
+            JSONLiteral msg = targetVerb(rep, verb);
             if (xid != null) {
                 msg.addParameter("xid", xid);
             }

@@ -4,9 +4,11 @@ import org.elkoserver.foundation.json.DispatchTarget;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.net.Communication;
 import org.elkoserver.foundation.net.Connection;
-import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.JSONLiteral;
+import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.TraceFactory;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * An {@link Actor} that receives targeted JSON messages over its connection.
@@ -45,7 +47,7 @@ public abstract class RoutingActor extends Actor implements DispatchTarget
      * @param errorText  Error message text to send in the parameter 'msg'.
      */
     private void debugMsg(String errorText) {
-        JSONLiteral msg = new JSONLiteral("error", "debug");
+        JSONLiteral msg = targetVerb("error", "debug");
         msg.addParameter("msg", errorText);
         msg.finish();
         send(msg);

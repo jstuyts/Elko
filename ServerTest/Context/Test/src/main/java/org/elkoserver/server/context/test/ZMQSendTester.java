@@ -6,13 +6,11 @@ import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.net.NullMessageHandler;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.server.context.ContextMod;
-import org.elkoserver.server.context.ContextShutdownWatcher;
-import org.elkoserver.server.context.Contextor;
-import org.elkoserver.server.context.Mod;
-import org.elkoserver.server.context.ObjectCompletionWatcher;
-import org.elkoserver.server.context.User;
+import org.elkoserver.server.context.*;
 import org.elkoserver.util.trace.Trace;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * Context mod to test ZMQ outbound connections
@@ -52,7 +50,7 @@ public class ZMQSendTester
      */
     public JSONLiteral encode(EncodeControl control) {
         if (!control.toClient()) {
-            JSONLiteral result = new JSONLiteral("zmqsendtest", control);
+            JSONLiteral result = type("zmqsendtest", control);
             result.addParameter("address", myAddress);
             result.finish();
             return result;
@@ -69,7 +67,7 @@ public class ZMQSendTester
     @JSONMethod("str")
     public void log(User from, String str) throws MessageHandlerException {
         ensureInContext(from);
-        JSONLiteral msg = new JSONLiteral("logger", "log");
+        JSONLiteral msg = targetVerb("logger", "log");
         msg.addParameter("str", str);
         msg.finish();
         if (myOutbound != null) {

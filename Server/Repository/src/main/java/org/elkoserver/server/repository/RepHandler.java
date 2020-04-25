@@ -5,14 +5,10 @@ import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
-import org.elkoserver.objdb.store.ObjectDesc;
-import org.elkoserver.objdb.store.ObjectStore;
-import org.elkoserver.objdb.store.PutDesc;
-import org.elkoserver.objdb.store.QueryDesc;
-import org.elkoserver.objdb.store.UpdateDesc;
-import org.elkoserver.objdb.store.RequestDesc;
-import org.elkoserver.objdb.store.ResultDesc;
+import org.elkoserver.objdb.store.*;
 import org.elkoserver.util.trace.TraceFactory;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Singleton handler for the repository 'rep' protocol.
@@ -138,7 +134,7 @@ class RepHandler extends BasicProtocolHandler {
     private static JSONLiteral msgGet(Referenceable target, String tag,
                                       ObjectDesc[] results)
     {
-        JSONLiteral msg = new JSONLiteral(target, "get");
+        JSONLiteral msg = targetVerb(target, "get");
         msg.addParameterOpt("tag", tag);
         msg.addParameter("results", results);
         msg.finish();
@@ -155,7 +151,7 @@ class RepHandler extends BasicProtocolHandler {
     private static JSONLiteral msgPut(Referenceable target, String tag,
                                       ResultDesc[] results)
     {
-        JSONLiteral msg = new JSONLiteral(target, "put");
+        JSONLiteral msg = targetVerb(target, "put");
         msg.addParameterOpt("tag", tag);
         msg.addParameter("results", results);
         msg.finish();
@@ -172,7 +168,7 @@ class RepHandler extends BasicProtocolHandler {
     private static JSONLiteral msgUpdate(Referenceable target, String tag,
                                          ResultDesc[] results)
     {
-        JSONLiteral msg = new JSONLiteral(target, "update");
+        JSONLiteral msg = targetVerb(target, "update");
         msg.addParameterOpt("tag", tag);
         msg.addParameter("results", results);
         msg.finish();
@@ -189,7 +185,7 @@ class RepHandler extends BasicProtocolHandler {
     private static JSONLiteral msgQuery(Referenceable target, String tag,
                                         ObjectDesc[] results)
     {
-        JSONLiteral msg = new JSONLiteral(target, "query");
+        JSONLiteral msg = targetVerb(target, "query");
         msg.addParameterOpt("tag", tag);
         msg.addParameter("results", results);
         msg.finish();
@@ -206,7 +202,7 @@ class RepHandler extends BasicProtocolHandler {
     private static JSONLiteral msgRemove(Referenceable target, String tag,
                                          ResultDesc[] results)
     {
-        JSONLiteral msg = new JSONLiteral(target, "remove");
+        JSONLiteral msg = targetVerb(target, "remove");
         msg.addParameterOpt("tag", tag);
         msg.addParameter("results", results);
         msg.finish();

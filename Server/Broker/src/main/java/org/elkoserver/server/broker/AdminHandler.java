@@ -15,6 +15,8 @@ import org.elkoserver.util.trace.TraceFactory;
 import java.util.LinkedList;
 import java.util.List;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+
 /**
  * Singleton handler for the broker 'admin' protocol.
  *
@@ -306,7 +308,7 @@ class AdminHandler extends BasicProtocolHandler {
      * Generate a 'launch' message.
      */
     private static JSONLiteral msgLaunch(Referenceable target, String status) {
-        JSONLiteral msg = new JSONLiteral(target, "launch");
+        JSONLiteral msg = targetVerb(target, "launch");
         msg.addParameter("status", status);
         msg.finish();
         return msg;
@@ -318,7 +320,7 @@ class AdminHandler extends BasicProtocolHandler {
     private static JSONLiteral msgLauncherDesc(Referenceable target,
                                                JSONLiteralArray launchers)
     {
-        JSONLiteral msg = new JSONLiteral(target, "launcherdesc");
+        JSONLiteral msg = targetVerb(target, "launcherdesc");
         msg.addParameter("launchers", launchers);
         msg.finish();
         return msg;
@@ -329,7 +331,7 @@ class AdminHandler extends BasicProtocolHandler {
      */
     static JSONLiteral msgLoadDesc(Referenceable target, JSONLiteralArray desc)
     {
-        JSONLiteral msg = new JSONLiteral(target, "loaddesc");
+        JSONLiteral msg = targetVerb(target, "loaddesc");
         msg.addParameter("desc", desc);
         msg.finish();
         return msg;
@@ -339,7 +341,7 @@ class AdminHandler extends BasicProtocolHandler {
      * Generate a 'reinit' message.
      */
     private static JSONLiteral msgReinit(Referenceable target) {
-        JSONLiteral msg = new JSONLiteral(target, "reinit");
+        JSONLiteral msg = targetVerb(target, "reinit");
         msg.finish();
         return msg;
     }
@@ -350,7 +352,7 @@ class AdminHandler extends BasicProtocolHandler {
     static JSONLiteral msgServiceDesc(Referenceable target,
                                       JSONLiteralArray desc, boolean on)
     {
-        JSONLiteral msg = new JSONLiteral(target, "servicedesc");
+        JSONLiteral msg = targetVerb(target, "servicedesc");
         msg.addParameter("desc", desc);
         msg.addParameter("on", on);
         msg.finish();
@@ -361,7 +363,7 @@ class AdminHandler extends BasicProtocolHandler {
      * Generate a 'shutdown' message.
      */
     private static JSONLiteral msgShutdown(Referenceable target, boolean kill) {
-        JSONLiteral msg = new JSONLiteral(target, "shutdown");
+        JSONLiteral msg = targetVerb(target, "shutdown");
         if (kill) {
             msg.addParameter("kill", kill);
         }

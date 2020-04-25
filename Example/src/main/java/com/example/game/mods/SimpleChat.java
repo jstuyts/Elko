@@ -7,11 +7,10 @@ import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
-import org.elkoserver.server.context.ContextMod;
-import org.elkoserver.server.context.Mod;
-import org.elkoserver.server.context.ObjectCompletionWatcher;
-import org.elkoserver.server.context.User;
-import org.elkoserver.server.context.UserWatcher;
+import org.elkoserver.server.context.*;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * A simple context mod to enable users in a context to chat with
@@ -29,7 +28,7 @@ public class SimpleChat extends Mod
     }
 
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("schat", control);
+        JSONLiteral result = type("schat", control);
         if (!control.toClient()) {
             result.addParameter("allowpush", amAllowingPush);
         }
@@ -72,7 +71,7 @@ public class SimpleChat extends Mod
     private static JSONLiteral msgPush(Referenceable target, Referenceable from,
                                        String url, String frame)
     {
-        JSONLiteral msg = new JSONLiteral(target, "push");
+        JSONLiteral msg = targetVerb(target, "push");
         msg.addParameter("from", from);
         msg.addParameter("url", url);
         msg.addParameterOpt("frame", frame);
@@ -83,7 +82,7 @@ public class SimpleChat extends Mod
     static JSONLiteral msgSay(Referenceable target, Referenceable from,
                               String speech)
     {
-        JSONLiteral msg = new JSONLiteral(target, "say");
+        JSONLiteral msg = targetVerb(target, "say");
         msg.addParameter("from", from);
         msg.addParameter("speech", speech);
         msg.finish();

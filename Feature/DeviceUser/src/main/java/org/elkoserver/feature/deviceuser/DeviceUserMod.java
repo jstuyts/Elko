@@ -6,6 +6,8 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.UserMod;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * This Mod holds device specific identity information for a user.
  */
@@ -41,7 +43,7 @@ public class DeviceUserMod extends Mod implements UserMod {
      */
     public JSONLiteral encode(EncodeControl control) {
         if (control.toRepository()) {
-            JSONLiteral obj = new JSONLiteral("deviceuser", control);
+            JSONLiteral obj = type("deviceuser", control);
             obj.addParameter("uuid", myDeviceUUID);
             obj.finish();
             return obj;

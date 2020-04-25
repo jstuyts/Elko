@@ -1,14 +1,7 @@
 package org.elkoserver.server.context;
 
-import org.elkoserver.foundation.json.Deliverer;
-import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.MessageHandlerException;
-import org.elkoserver.foundation.json.OptBoolean;
-import org.elkoserver.foundation.json.OptString;
-import org.elkoserver.json.EncodeControl;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONLiteralArray;
-import org.elkoserver.json.Referenceable;
+import org.elkoserver.foundation.json.*;
+import org.elkoserver.json.*;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -208,7 +201,7 @@ public class Item extends BasicObject {
      * @return a JSON literal representing this item.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("item", control);
+        JSONLiteral result = JSONLiteralFactory.type("item", control);
         baseEncode(result, control);
         result.finish();
         return result;

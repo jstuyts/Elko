@@ -8,6 +8,9 @@ import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to enable an item to function as a die.
  */
@@ -32,7 +35,7 @@ public class Die extends Mod implements ItemMod {
      * @return a JSON literal representing this mod.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("die", control);
+        JSONLiteral result = type("die", control);
         result.addParameter("sides", mySides);
         result.finish();
         return result;
@@ -57,7 +60,7 @@ public class Die extends Mod implements ItemMod {
     @JSONMethod
     public void roll(User from) throws MessageHandlerException {
         ensureSameContext(from);
-        JSONLiteral announce = new JSONLiteral(object(), "roll");
+        JSONLiteral announce = targetVerb(object(), "roll");
         int value = (int) context().contextor().randomLong();
         value = Math.abs(value) % mySides + 1;
         announce.addParameter("value", value);

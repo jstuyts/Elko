@@ -7,6 +7,8 @@ import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.*;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 public class Prop extends Mod implements ItemMod {
     private String myKind;
 
@@ -18,7 +20,7 @@ public class Prop extends Mod implements ItemMod {
     }
 
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("prop", control);
+        JSONLiteral result = type("prop", control);
         result.addParameter("kind", myKind);
         result.finish();
         return result;

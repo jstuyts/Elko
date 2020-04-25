@@ -10,6 +10,8 @@ import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.Msg;
 import org.elkoserver.server.context.User;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to enable a context user to control the context's gate
  */
@@ -30,7 +32,7 @@ public class GateController extends Mod implements ContextMod {
      * @return a JSON literal representing this mod.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("gate", control);
+        JSONLiteral result = type("gate", control);
         result.finish();
         return result;
     }

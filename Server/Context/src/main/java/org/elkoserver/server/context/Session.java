@@ -2,17 +2,15 @@ package org.elkoserver.server.context;
 
 import org.elkoserver.foundation.actor.Actor;
 import org.elkoserver.foundation.actor.BasicProtocolHandler;
-import org.elkoserver.foundation.json.Deliverer;
-import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.MessageHandlerException;
-import org.elkoserver.foundation.json.OptBoolean;
-import org.elkoserver.foundation.json.OptString;
+import org.elkoserver.foundation.json.*;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Singleton administrative object for entering and exiting contexts.
@@ -85,7 +83,7 @@ class Session extends BasicProtocolHandler {
            myServer.props().getProperty("conf.context.shutdownpassword", null);
         String contextRef = optContext.value(null);
         if (password == null || password.equals(testPassword.value(null))) {
-            JSONLiteral reply = new JSONLiteral("session", "dump");
+            JSONLiteral reply = targetVerb("session", "dump");
             reply.addParameter("what", what);
             switch (what) {
                 case "contexts": {

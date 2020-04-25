@@ -4,11 +4,10 @@ import org.elkoserver.foundation.json.Deliverer;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.foundation.net.Connection;
-import org.elkoserver.json.EncodeControl;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONLiteralArray;
-import org.elkoserver.json.Referenceable;
+import org.elkoserver.json.*;
 import org.elkoserver.util.trace.Trace;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * A User represents a connection to someone entered into a context from a
@@ -191,7 +190,7 @@ public class User extends BasicObject implements Deliverer {
      * @return a JSON literal representing this user.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("user", control);
+        JSONLiteral result = JSONLiteralFactory.type("user", control);
         if (control.toClient()) {
             result.addParameter("ref", myRef);
         }
@@ -489,7 +488,7 @@ public class User extends BasicObject implements Deliverer {
     private static JSONLiteral msgPushContext(Referenceable target, String contextRef,
                                               String hostPort, String reservation)
     {
-        JSONLiteral msg = new JSONLiteral(target, "pushcontext");
+        JSONLiteral msg = targetVerb(target, "pushcontext");
         msg.addParameter("context", contextRef);
         msg.addParameterOpt("hostport", hostPort);
         msg.addParameterOpt("reservation", reservation);

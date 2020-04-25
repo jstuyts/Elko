@@ -7,6 +7,8 @@ import org.elkoserver.foundation.server.metadata.AuthDesc;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+
 /**
  * An object representing some entity interacting with this server (whatever
  * server this is) over the net.  It sits on top of a Connection.  It is both a
@@ -69,7 +71,7 @@ public abstract class Actor implements Deliverer, MessageHandler
     protected static JSONLiteral msgAuth(String target, AuthDesc auth,
                                          String label)
     {
-        JSONLiteral msg = new JSONLiteral(target, "auth");
+        JSONLiteral msg = targetVerb(target, "auth");
         msg.addParameterOpt("auth", auth);
         msg.addParameterOpt("label", label);
         msg.finish();

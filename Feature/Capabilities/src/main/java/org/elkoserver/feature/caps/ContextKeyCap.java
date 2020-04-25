@@ -8,6 +8,8 @@ import org.elkoserver.server.context.ContextKey;
 import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.UserMod;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Capability to enable entry to one or more entry controlled contexts.
  */
@@ -61,7 +63,7 @@ public class ContextKeyCap
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("ctxkey", control);
+        JSONLiteral result = type("ctxkey", control);
         encodeDefaultParameters(result);
         result.addParameter("contexts", myContexts);
         result.finish();

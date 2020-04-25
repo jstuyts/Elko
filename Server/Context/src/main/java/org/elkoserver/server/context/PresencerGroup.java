@@ -1,7 +1,5 @@
 package org.elkoserver.server.context;
 
-import java.time.Clock;
-import java.util.List;
 import org.elkoserver.foundation.actor.Actor;
 import org.elkoserver.foundation.json.MessageDispatcher;
 import org.elkoserver.foundation.net.Connection;
@@ -11,6 +9,11 @@ import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
+
+import java.time.Clock;
+import java.util.List;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Outbound group containing all the connected presence servers.
@@ -174,7 +177,7 @@ class PresencerGroup extends OutboundGroup {
     private static JSONLiteral msgSubscribe(String context, String[] domains,
                                             boolean visible)
     {
-        JSONLiteral msg = new JSONLiteral("presence", "subscribe");
+        JSONLiteral msg = targetVerb("presence", "subscribe");
         msg.addParameter("context", context);
         msg.addParameter("domains", domains);
         msg.addParameter("visible", visible);
@@ -188,7 +191,7 @@ class PresencerGroup extends OutboundGroup {
      * @param context  The context that is ceasing to subscribe
      */
     private static JSONLiteral msgUnsubscribe(String context) {
-        JSONLiteral msg = new JSONLiteral("presence", "unsubscribe");
+        JSONLiteral msg = targetVerb("presence", "unsubscribe");
         msg.addParameter("context", context);
         msg.finish();
         return msg;
@@ -205,7 +208,7 @@ class PresencerGroup extends OutboundGroup {
                                        boolean on, JSONLiteral userMeta,
                                        JSONLiteral contextMeta)
     {
-        JSONLiteral msg = new JSONLiteral("presence", "user");
+        JSONLiteral msg = targetVerb("presence", "user");
         msg.addParameter("context", context);
         msg.addParameter("user", user);
         msg.addParameter("on", on);

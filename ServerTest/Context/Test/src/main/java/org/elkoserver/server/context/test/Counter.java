@@ -8,6 +8,9 @@ import org.elkoserver.server.context.GeneralMod;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to enable an object to function as a simple counter, mainly for testing
  * control over persistence.
@@ -33,7 +36,7 @@ public class Counter extends Mod implements GeneralMod {
      * @return a JSON literal representing this mod.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("counter", control);
+        JSONLiteral result = type("counter", control);
         result.addParameter("count", myCount);
         result.finish();
         return result;
@@ -60,7 +63,7 @@ public class Counter extends Mod implements GeneralMod {
         ensureSameContext(from);
         ++myCount;
         markAsChanged();
-        JSONLiteral announce = new JSONLiteral(object(), "set");
+        JSONLiteral announce = targetVerb(object(), "set");
         announce.addParameter("count", myCount);
         announce.finish();
         context().send(announce);

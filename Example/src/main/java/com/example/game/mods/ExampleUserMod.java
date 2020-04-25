@@ -10,6 +10,9 @@ import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
 import org.elkoserver.server.context.UserMod;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * An empty user mod, to get you started.
  */
@@ -20,7 +23,7 @@ public class ExampleUserMod extends Mod implements UserMod {
     }
 
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("exu", control);
+        JSONLiteral result = type("exu", control);
         result.finish();
         return result;
     }
@@ -37,7 +40,7 @@ public class ExampleUserMod extends Mod implements UserMod {
     private static JSONLiteral msgUserVerb(Referenceable target, String arg,
                                            String otherArg)
     {
-        JSONLiteral msg = new JSONLiteral(target, "userverb");
+        JSONLiteral msg = targetVerb(target, "userverb");
         msg.addParameter("arg", arg);
         msg.addParameterOpt("otherarg", otherArg);
         msg.finish();

@@ -1,9 +1,11 @@
 package org.elkoserver.server.presence;
 
 import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.Encodable;
+import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
+
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * A user's social graph, as represented in the ODB.
@@ -36,7 +38,7 @@ class UserGraphDesc implements Encodable {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("ugraf", control);
+        JSONLiteral result = type("ugraf", control);
         result.addParameter("ref", ref);
         result.addParameter("friends", friends);
         result.finish();

@@ -1,17 +1,14 @@
 package org.elkoserver.foundation.actor;
 
-import org.elkoserver.foundation.json.Deliverer;
-import org.elkoserver.foundation.json.DispatchTarget;
-import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.MessageDispatcher;
-import org.elkoserver.foundation.json.MessageHandlerException;
-import org.elkoserver.foundation.json.OptString;
+import org.elkoserver.foundation.json.*;
 import org.elkoserver.foundation.net.Communication;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.Referenceable;
 import org.elkoserver.json.JsonObject;
+import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * An {@link Actor} that receives untargeted JSON messages over its connection.
@@ -63,7 +60,7 @@ public abstract class NonRoutingActor
      * @param errorText  Error message text to send in the parameter 'msg'.
      */
     private void debugMsg(String errorText) {
-        JSONLiteral msg = new JSONLiteral(this, "debug");
+        JSONLiteral msg = targetVerb(this, "debug");
         msg.addParameter("msg", errorText);
         msg.finish();
         send(msg);
@@ -174,7 +171,7 @@ public abstract class NonRoutingActor
      *    triggered this) or null.
      */
     private static JSONLiteral msgPong(Referenceable target, String tag) {
-        JSONLiteral msg = new JSONLiteral(target, "pong");
+        JSONLiteral msg = targetVerb(target, "pong");
         msg.addParameterOpt("tag", tag);
         msg.finish();
         return msg;

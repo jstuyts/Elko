@@ -6,6 +6,8 @@ import org.elkoserver.json.Encodable;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Representation of style information for something containing text.
  *
@@ -104,7 +106,7 @@ public class StyleDesc implements Encodable {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("style", control);
+        JSONLiteral result = type("style", control);
         result.addParameterOpt("color", myColor);
         result.addParameterOpt("backgroundColor", myBackgroundColor);
         result.addParameterOpt("borderColor", myBorderColor);

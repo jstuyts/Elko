@@ -3,9 +3,11 @@ package org.elkoserver.objdb.store;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptBoolean;
 import org.elkoserver.foundation.json.OptString;
-import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.Encodable;
+import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
+
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * Description of a request for an object.
@@ -81,7 +83,7 @@ public class RequestDesc implements Encodable {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("reqi", control);
+        JSONLiteral result = type("reqi", control);
         result.addParameter("ref", myRef);
         if (myContents) {
             result.addParameter("contents", myContents);

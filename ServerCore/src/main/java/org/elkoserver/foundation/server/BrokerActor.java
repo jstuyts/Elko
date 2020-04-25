@@ -1,7 +1,5 @@
 package org.elkoserver.foundation.server;
 
-import java.util.Collections;
-import java.util.List;
 import org.elkoserver.foundation.actor.NonRoutingActor;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageDispatcher;
@@ -13,6 +11,11 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
+
+import java.util.Collections;
+import java.util.List;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Actor representing a server's connection to its farm's broker.
@@ -133,7 +136,7 @@ class BrokerActor extends NonRoutingActor
     private static JSONLiteral msgFind(Referenceable target, String service,
                                        boolean monitor, String tag)
     {
-        JSONLiteral msg = new JSONLiteral(target, "find");
+        JSONLiteral msg = targetVerb(target, "find");
         msg.addParameter("service", service);
         msg.addParameter("wait", -1);
         if (monitor) {
@@ -151,7 +154,7 @@ class BrokerActor extends NonRoutingActor
      * @param factor  Load factor to report.
      */
     private static JSONLiteral msgLoad(Referenceable target, double factor) {
-        JSONLiteral msg = new JSONLiteral(target, "load");
+        JSONLiteral msg = targetVerb(target, "load");
         msg.addParameter("factor", factor);
         msg.finish();
         return msg;
@@ -167,7 +170,7 @@ class BrokerActor extends NonRoutingActor
     private static JSONLiteral msgWillserve(Referenceable target,
                                             List<ServiceDesc> services)
     {
-        JSONLiteral msg = new JSONLiteral(target, "willserve");
+        JSONLiteral msg = targetVerb(target, "willserve");
         msg.addParameter("services", ServiceDesc.encodeArray(services));
         msg.finish();
         return msg;

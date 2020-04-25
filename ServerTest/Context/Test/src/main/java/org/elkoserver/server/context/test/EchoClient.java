@@ -6,10 +6,11 @@ import org.elkoserver.foundation.server.ServiceLink;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.AdminObject;
 import org.elkoserver.server.context.Contextor;
-import org.elkoserver.util.trace.TraceFactory;
 
 import java.util.LinkedList;
 import java.util.function.Consumer;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Internal object that acts as a client for the external 'echo' service.
@@ -75,7 +76,7 @@ public class EchoClient extends AdminObject implements Consumer<Object> {
     void probe(String text, Consumer<Object> resultHandler) {
         if (myServiceLink != null) {
             myResultHandlers.addLast(resultHandler);
-            JSONLiteral msg = new JSONLiteral("echotest", "echo");
+            JSONLiteral msg = targetVerb("echotest", "echo");
             msg.addParameter("rep", this);
             msg.addParameter("text", text);
             msg.finish();

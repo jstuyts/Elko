@@ -4,6 +4,8 @@ import org.elkoserver.json.Encodable;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+
 /**
  * Utility class consisting of static methods that generate various generally
  * useful messages that can be sent to the client.  These messages are sent by
@@ -25,7 +27,7 @@ public class Msg {
      *    deleted).
      */
     public static JSONLiteral msgDelete(Referenceable target) {
-        JSONLiteral msg = new JSONLiteral(target, "delete");
+        JSONLiteral msg = targetVerb(target, "delete");
         msg.finish();
         return msg;
     }
@@ -42,7 +44,7 @@ public class Msg {
     public static JSONLiteral msgError(Referenceable target, String op,
                                        String error)
     {
-        JSONLiteral msg = new JSONLiteral(target, op);
+        JSONLiteral msg = targetVerb(target, op);
         msg.addParameter("error", error);
         msg.finish();
         return msg;
@@ -59,7 +61,7 @@ public class Msg {
     static JSONLiteral msgExit(Referenceable target, String why,
                                String whyCode, boolean reload)
     {
-        JSONLiteral msg = new JSONLiteral(target, "exit");
+        JSONLiteral msg = targetVerb(target, "exit");
         msg.addParameterOpt("why", why);
         msg.addParameterOpt("whycode", whyCode);
         if (reload) {
@@ -83,7 +85,7 @@ public class Msg {
     public static JSONLiteral msgMake(Referenceable target, BasicObject obj,
                                       User maker, boolean you, String sess)
     {
-        JSONLiteral msg = new JSONLiteral(target, "make");
+        JSONLiteral msg = targetVerb(target, "make");
         msg.addParameter("obj", (Encodable) obj);
         msg.addParameterOpt("maker", (Referenceable) maker);
         if (you) {
@@ -165,7 +167,7 @@ public class Msg {
     public static JSONLiteral msgPush(Referenceable target, Referenceable from,
                                      String url, String frame, String features)
     {
-        JSONLiteral msg = new JSONLiteral(target, "push");
+        JSONLiteral msg = targetVerb(target, "push");
         msg.addParameterOpt("from", from);
         msg.addParameter("url", url);
         msg.addParameterOpt("frame", frame);
@@ -180,7 +182,7 @@ public class Msg {
      * @param target  Object the message is being sent to.
      */
     static JSONLiteral msgReady(Referenceable target) {
-        JSONLiteral msg = new JSONLiteral(target, "ready");
+        JSONLiteral msg = targetVerb(target, "ready");
         msg.finish();
         return msg;
     }
@@ -197,7 +199,7 @@ public class Msg {
     public static JSONLiteral msgSay(Referenceable target, Referenceable from,
                                      String text)
     {
-        JSONLiteral msg = new JSONLiteral(target, "say");
+        JSONLiteral msg = targetVerb(target, "say");
         msg.addParameterOpt("from", from);
         msg.addParameter("text", text);
         msg.finish();

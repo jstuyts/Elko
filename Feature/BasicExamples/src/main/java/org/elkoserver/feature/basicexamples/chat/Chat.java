@@ -8,6 +8,8 @@ import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.*;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to enable users in a context to chat with each other.  This mod must be
  * attached to a context.
@@ -71,7 +73,7 @@ public class Chat extends Mod implements ObjectCompletionWatcher, ContextMod {
      */
     public JSONLiteral encode(EncodeControl control) {
         if (control.toRepository()) {
-            JSONLiteral result = new JSONLiteral("chat", control);
+            JSONLiteral result = type("chat", control);
             if (!amAllowChat) {
                 result.addParameter("allowchat", amAllowChat);
             }

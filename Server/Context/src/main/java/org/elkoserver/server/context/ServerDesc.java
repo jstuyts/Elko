@@ -1,9 +1,11 @@
 package org.elkoserver.server.context;
 
 import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.Encodable;
+import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
+
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * Object representing the persistent information about the server state as a
@@ -30,7 +32,7 @@ class ServerDesc implements Encodable {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral literal = new JSONLiteral("serverdesc", control);
+        JSONLiteral literal = type("serverdesc", control);
         literal.addParameter("nextid", myNextID);
         literal.finish();
         return literal;

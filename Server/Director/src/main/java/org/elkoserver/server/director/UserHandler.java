@@ -1,6 +1,5 @@
 package org.elkoserver.server.director;
 
-import java.security.SecureRandom;
 import org.elkoserver.foundation.actor.BasicProtocolHandler;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
@@ -8,6 +7,10 @@ import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
+
+import java.security.SecureRandom;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Singleton handler for the director 'user' protocol.
@@ -141,7 +144,7 @@ class UserHandler extends BasicProtocolHandler {
     private static JSONLiteral msgDoReserve(Referenceable target, String context,
                                             String user, String reservation)
     {
-        JSONLiteral msg = new JSONLiteral(target, "doreserve");
+        JSONLiteral msg = targetVerb(target, "doreserve");
         msg.addParameter("context", context);
         msg.addParameterOpt("user", user);
         msg.addParameterOpt("reservation", reservation);
@@ -153,7 +156,7 @@ class UserHandler extends BasicProtocolHandler {
                                           String user, String hostPort, String reservation, String deny,
                                           String tag)
     {
-        JSONLiteral msg = new JSONLiteral(target, "reserve");
+        JSONLiteral msg = targetVerb(target, "reserve");
         msg.addParameter("context", context);
         msg.addParameterOpt("user", user);
         msg.addParameterOpt("hostport", hostPort);

@@ -1,8 +1,5 @@
 package org.elkoserver.json;
 
-import org.elkoserver.json.JsonArray;
-import org.elkoserver.json.JsonObject;
-
 import java.util.Collection;
 
 /**
@@ -19,10 +16,10 @@ import java.util.Collection;
 public class JSONLiteral {
 
     /** The literal under construction */
-    private StringBuilder myStringBuilder;
+    private final StringBuilder myStringBuilder;
 
     /** Start of this literal's portion of buffer. */
-    private int myStartPos;
+    private final int myStartPos;
 
     /** End of this literal's portion of buffer. */
     private int myEndPos;
@@ -31,11 +28,10 @@ public class JSONLiteral {
     private int myState;
 
     /** Encode control indicating how this literal is being encoded */
-    private EncodeControl myControl;
+    private final EncodeControl myControl;
 
     /* The state values */
     private final int INITIAL  = 0; /* Have not yet added first parameter */
-    private final int STARTED  = 1; /* Have added first parameter */
     private final int COMPLETE = 2; /* All done */
 
     /**
@@ -72,43 +68,6 @@ public class JSONLiteral {
      */
     public JSONLiteral() {
         this(EncodeControl.forClient);
-    }
-
-    /**
-     * Begin a new literal representing a JSON message.
-     *
-     * @param target  The target to whom this message is addressed.
-     * @param verb  The message verb.
-     */
-    public JSONLiteral(Referenceable target, String verb) {
-        this();
-        addParameter("to", target);
-        addParameter("op", verb);
-    }
-
-    /**
-     * Begin a new literal representing a JSON message.
-     *
-     * @param target  The reference string of the target to whom this message
-     *    is addressed.
-     * @param verb  The message verb.
-     */
-    public JSONLiteral(String target, String verb) {
-        this();
-        addParameter("to", target);
-        addParameter("op", verb);
-    }
-
-    /**
-     * Begin a new literal representing a JSON object.
-     *
-     * @param type  The type tag of this object.
-     * @param control  Encode control determining what flavor of encoding
-     *    is being done.
-     */
-    public JSONLiteral(String type, EncodeControl control) {
-        this(control);
-        addParameter("type", type);
     }
 
     public void addParameter(String param, JSONLiteral jsonLiteral) {
@@ -523,7 +482,8 @@ public class JSONLiteral {
         if (myState != COMPLETE) {
             if (myState == INITIAL) {
                 /* Have added first parameter */
-                myState = STARTED;
+                // 1 = STARTED
+                myState = 1;
             } else {
                 myStringBuilder.append(", ");
             }

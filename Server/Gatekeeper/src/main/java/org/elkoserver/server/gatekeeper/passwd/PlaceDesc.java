@@ -1,9 +1,11 @@
 package org.elkoserver.server.gatekeeper.passwd;
 
 import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.Encodable;
+import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
+
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * Database object describing a place name to context mapping.
@@ -45,7 +47,7 @@ class PlaceDesc implements Encodable {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("place", control);
+        JSONLiteral result = type("place", control);
         result.addParameter("name", myName);
         result.addParameter("context", myContextID);
         result.finish();

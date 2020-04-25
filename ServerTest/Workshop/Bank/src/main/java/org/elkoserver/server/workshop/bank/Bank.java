@@ -1,21 +1,19 @@
 package org.elkoserver.server.workshop.bank;
 
+import org.elkoserver.foundation.json.ClockUsingObject;
+import org.elkoserver.foundation.json.JSONMethod;
+import org.elkoserver.foundation.json.OptString;
+import org.elkoserver.foundation.json.PostInjectionInitializingObject;
+import org.elkoserver.json.*;
+import org.elkoserver.server.workshop.Workshop;
+import org.elkoserver.util.trace.Trace;
+
 import java.security.SecureRandom;
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.elkoserver.foundation.json.ClockUsingObject;
-import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.OptString;
-import org.elkoserver.foundation.json.PostInjectionInitializingObject;
-import org.elkoserver.json.Encodable;
-import org.elkoserver.json.EncodeControl;
-import org.elkoserver.json.JsonArray;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JsonObject;
-import org.elkoserver.server.workshop.Workshop;
-import org.elkoserver.util.trace.Trace;
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * The Elko bank object.
@@ -150,7 +148,7 @@ class Bank implements Encodable, ClockUsingObject, PostInjectionInitializingObje
      */
     public JSONLiteral encode(EncodeControl control) {
         if (control.toRepository()) {
-            JSONLiteral result = new JSONLiteral("bank", control);
+            JSONLiteral result = type("bank", control);
             result.addParameter("ref", myRef);
             result.addParameter("rootkey", myRootKeyRef);
             Key rootKey = myKeys.remove(myRootKeyRef);

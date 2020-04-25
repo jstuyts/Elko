@@ -1,9 +1,11 @@
 package org.elkoserver.objdb;
 
-import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.*;
 
 import java.util.function.Consumer;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * A pending request to the repository.
@@ -80,10 +82,10 @@ class PendingRequest {
      * @param collectionName  Name of collection to get from, or null to take
      */
     private void msgGet(String ref, String collectionName) {
-        myMsg = new JSONLiteral("rep", "get");
+        myMsg = targetVerb("rep", "get");
         myMsg.addParameter("tag", myTag);
 
-        JSONLiteral what = new JSONLiteral("reqi", EncodeControl.forClient);
+        JSONLiteral what = type("reqi", EncodeControl.forClient);
         what.addParameter("ref", ref);
         what.addParameter("contents", true);
         what.addParameterOpt("coll", collectionName);
@@ -105,10 +107,10 @@ class PendingRequest {
     private void msgPut(String ref, Encodable obj, String collectionName,
                         boolean requireNew)
     {
-        myMsg = new JSONLiteral("rep", "put");
+        myMsg = targetVerb("rep", "put");
         myMsg.addParameter("tag", myTag);
 
-        JSONLiteral what = new JSONLiteral("obji", EncodeControl.forClient);
+        JSONLiteral what = type("obji", EncodeControl.forClient);
         what.addParameter("ref", ref);
         what.addParameter("obj",
             obj.encode(EncodeControl.forRepository).sendableString());
@@ -134,10 +136,10 @@ class PendingRequest {
     private void msgUpdate(String ref, int version, Encodable obj,
                            String collectionName)
     {
-        myMsg = new JSONLiteral("rep", "update");
+        myMsg = targetVerb("rep", "update");
         myMsg.addParameter("tag", myTag);
 
-        JSONLiteral what = new JSONLiteral("updatei", EncodeControl.forClient);
+        JSONLiteral what = type("updatei", EncodeControl.forClient);
         what.addParameter("ref", ref);
         what.addParameter("version", version);
         what.addParameter("obj",
@@ -160,10 +162,10 @@ class PendingRequest {
      */
     private void msgQuery(JsonObject template, String collectionName,
                           int maxResults) {
-        myMsg = new JSONLiteral("rep", "query");
+        myMsg = targetVerb("rep", "query");
         myMsg.addParameter("tag", myTag);
 
-        JSONLiteral what = new JSONLiteral("queryi", EncodeControl.forClient);
+        JSONLiteral what = type("queryi", EncodeControl.forClient);
         what.addParameter("template", template);
         what.addParameterOpt("coll", collectionName);
         if (maxResults > 0) {
@@ -183,10 +185,10 @@ class PendingRequest {
      *    take the configured default (or the db doesn't use this abstraction).
      */
     private void msgRemove(String ref, String collectionName) {
-        myMsg = new JSONLiteral("rep", "remove");
+        myMsg = targetVerb("rep", "remove");
         myMsg.addParameter("tag", myTag);
 
-        JSONLiteral what = new JSONLiteral("reqi", EncodeControl.forClient);
+        JSONLiteral what = type("reqi", EncodeControl.forClient);
         what.addParameter("ref", ref);
         what.addParameterOpt("coll", collectionName);
         what.finish();

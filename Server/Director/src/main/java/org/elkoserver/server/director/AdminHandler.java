@@ -1,6 +1,5 @@
 package org.elkoserver.server.director;
 
-import org.elkoserver.json.JsonObject;
 import org.elkoserver.foundation.actor.BasicProtocolHandler;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
@@ -14,6 +13,9 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * Singleton handler for the director 'admin' protocol.
@@ -257,7 +259,7 @@ class AdminHandler extends BasicProtocolHandler {
         }
 
         public JSONLiteral encode(EncodeControl control) {
-            JSONLiteral literal = new JSONLiteral("providerdesc", control);
+            JSONLiteral literal = type("providerdesc", control);
             literal.addParameter("provider", myProvider.actor().label());
             literal.addParameter("numcontexts", myNumContexts);
             literal.addParameter("numusers", myNumUsers);
@@ -288,7 +290,7 @@ class AdminHandler extends BasicProtocolHandler {
         }
 
         public JSONLiteral encode(EncodeControl control) {
-            JSONLiteral literal = new JSONLiteral("contextdesc", control);
+            JSONLiteral literal = type("contextdesc", control);
             literal.addParameter("context", myContext.name());
             literal.addParameter("numusers", myContext.userCount());
             if (myDepth > 2) {
@@ -572,7 +574,7 @@ class AdminHandler extends BasicProtocolHandler {
     static JSONLiteral msgClose(Referenceable target, String contextName,
                                 String userName, boolean isDup)
     {
-        JSONLiteral msg = new JSONLiteral(target, "close");
+        JSONLiteral msg = targetVerb(target, "close");
         msg.addParameterOpt("context", contextName);
         msg.addParameterOpt("user", userName);
         if (isDup) {
@@ -588,7 +590,7 @@ class AdminHandler extends BasicProtocolHandler {
     private static JSONLiteral msgContext(Referenceable target, String contextName,
                                           boolean open, String provider, JSONLiteralArray clones)
     {
-        JSONLiteral msg = new JSONLiteral(target, "context");
+        JSONLiteral msg = targetVerb(target, "context");
         msg.addParameter("context", contextName);
         msg.addParameter("open", open);
         msg.addParameterOpt("provider", provider);
@@ -603,7 +605,7 @@ class AdminHandler extends BasicProtocolHandler {
     private static JSONLiteral msgDump(Referenceable target, int numProviders,
                                        int numContexts, int numUsers, List<ProviderDump> providerList)
     {
-        JSONLiteral msg = new JSONLiteral(target, "dump");
+        JSONLiteral msg = targetVerb(target, "dump");
         msg.addParameter("numproviders", numProviders);
         msg.addParameter("numcontexts", numContexts);
         msg.addParameter("numusers", numUsers);
@@ -620,7 +622,7 @@ class AdminHandler extends BasicProtocolHandler {
     private static JSONLiteral msgListcontexts(Referenceable target,
                                                JSONLiteralArray contexts)
     {
-        JSONLiteral msg = new JSONLiteral(target, "listcontexts");
+        JSONLiteral msg = targetVerb(target, "listcontexts");
         msg.addParameter("contexts", contexts);
         msg.finish();
         return msg;
@@ -632,7 +634,7 @@ class AdminHandler extends BasicProtocolHandler {
     private static JSONLiteral msgListproviders(Referenceable target,
                                                 JSONLiteralArray providers)
     {
-        JSONLiteral msg = new JSONLiteral(target, "listproviders");
+        JSONLiteral msg = targetVerb(target, "listproviders");
         msg.addParameter("providers", providers);
         msg.finish();
         return msg;
@@ -644,7 +646,7 @@ class AdminHandler extends BasicProtocolHandler {
     private static JSONLiteral msgListusers(Referenceable target,
                                             JSONLiteralArray users)
     {
-        JSONLiteral msg = new JSONLiteral(target, "listusers");
+        JSONLiteral msg = targetVerb(target, "listusers");
         msg.addParameter("users", users);
         msg.finish();
         return msg;
@@ -654,7 +656,7 @@ class AdminHandler extends BasicProtocolHandler {
      * Generate a 'reinit' message.
      */
     private static JSONLiteral msgReinit(Referenceable target) {
-        JSONLiteral msg = new JSONLiteral(target, "reinit");
+        JSONLiteral msg = targetVerb(target, "reinit");
         msg.finish();
         return msg;
     }
@@ -665,7 +667,7 @@ class AdminHandler extends BasicProtocolHandler {
     private static JSONLiteral msgSay(Referenceable target, String contextName,
                                       String userName, String text)
     {
-        JSONLiteral msg = new JSONLiteral(target, "say");
+        JSONLiteral msg = targetVerb(target, "say");
         msg.addParameterOpt("context", contextName);
         msg.addParameterOpt("user", userName);
         msg.addParameter("text", text);
@@ -677,7 +679,7 @@ class AdminHandler extends BasicProtocolHandler {
      * Generate a 'shutdown' message.
      */
     private static JSONLiteral msgShutdown(Referenceable target, boolean kill) {
-        JSONLiteral msg = new JSONLiteral(target, "shutdown");
+        JSONLiteral msg = targetVerb(target, "shutdown");
         if (kill) {
             msg.addParameter("kill", true);
         }
@@ -691,7 +693,7 @@ class AdminHandler extends BasicProtocolHandler {
     private static JSONLiteral msgUser(Referenceable target, String userName,
                                        boolean online, JSONLiteralArray contexts)
     {
-        JSONLiteral msg = new JSONLiteral(target, "user");
+        JSONLiteral msg = targetVerb(target, "user");
         msg.addParameter("user", userName);
         msg.addParameter("on", online);
         msg.addParameterOpt("contexts", contexts);

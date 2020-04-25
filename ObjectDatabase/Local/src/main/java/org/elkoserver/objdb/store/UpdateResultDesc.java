@@ -5,6 +5,8 @@ import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Description of the result status of an object update operation.
  *
@@ -54,7 +56,7 @@ public class UpdateResultDesc extends ResultDesc {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("ustati", control);
+        JSONLiteral result = type("ustati", control);
         result.addParameter("ref", ref());
         result.addParameterOpt("failure", failure());
         result.addParameter("atomic", amAtomicFailure);

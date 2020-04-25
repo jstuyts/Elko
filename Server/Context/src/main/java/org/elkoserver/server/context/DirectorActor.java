@@ -1,19 +1,7 @@
 package org.elkoserver.server.context;
 
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
 import org.elkoserver.foundation.actor.NonRoutingActor;
-import org.elkoserver.foundation.json.DispatchTarget;
-import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.MessageDispatcher;
-import org.elkoserver.foundation.json.MessageHandlerException;
-import org.elkoserver.foundation.json.OptBoolean;
-import org.elkoserver.foundation.json.OptString;
+import org.elkoserver.foundation.json.*;
 import org.elkoserver.foundation.net.Connection;
 import org.elkoserver.foundation.server.metadata.HostDesc;
 import org.elkoserver.foundation.timer.Timer;
@@ -21,6 +9,10 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
+
+import java.util.*;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Actor representing a connection to a director.
@@ -425,7 +417,7 @@ class DirectorActor extends NonRoutingActor {
     private static JSONLiteral msgAddress(Referenceable target, String protocol,
                                           String hostPort)
     {
-        JSONLiteral msg = new JSONLiteral(target, "address");
+        JSONLiteral msg = targetVerb(target, "address");
         msg.addParameter("protocol", protocol);
         msg.addParameter("hostport", hostPort);
         msg.finish();
@@ -445,7 +437,7 @@ class DirectorActor extends NonRoutingActor {
                                           String contextRef, String userRef,
                                           String tag)
     {
-        JSONLiteral msg = new JSONLiteral(target, "reserve");
+        JSONLiteral msg = targetVerb(target, "reserve");
         msg.addParameter("protocol", protocol);
         msg.addParameter("context", contextRef);
         msg.addParameterOpt("user", userRef);
@@ -466,7 +458,7 @@ class DirectorActor extends NonRoutingActor {
                                             String context, int capacity,
                                             boolean restricted)
     {
-        JSONLiteral msg = new JSONLiteral(target, "willserve");
+        JSONLiteral msg = targetVerb(target, "willserve");
         msg.addParameter("context", context);
         if (capacity > 0) {
             msg.addParameter("capacity", capacity);

@@ -7,6 +7,8 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.GeneralMod;
 import org.elkoserver.server.context.Mod;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to associate an image with an object.  This mod may be attached to a
  * context or a user or an item.
@@ -50,7 +52,7 @@ public class Image extends Mod implements GeneralMod {
      * @return a JSON literal representing this mod.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("image", control);
+        JSONLiteral result = type("image", control);
         if (myWidth.present()) {
             result.addParameter("width", myWidth.value());
         }

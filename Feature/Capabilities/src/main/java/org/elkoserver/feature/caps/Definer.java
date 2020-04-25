@@ -8,6 +8,8 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JsonObject;
 import org.elkoserver.server.context.*;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Capability to enable external definition of persistent C-U-I objects.
  */
@@ -74,7 +76,7 @@ public class Definer extends Cap implements ItemMod, UserMod {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("definer", control);
+        JSONLiteral result = type("definer", control);
         encodeDefaultParameters(result);
         result.finish();
         return result;

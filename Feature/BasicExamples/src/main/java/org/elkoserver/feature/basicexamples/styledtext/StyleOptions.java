@@ -6,6 +6,8 @@ import org.elkoserver.json.Encodable;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Representation of permissible text style information in a context that can
  * contain text.
@@ -134,7 +136,7 @@ public class StyleOptions implements Encodable {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("styleoptions", control);
+        JSONLiteral result = type("styleoptions", control);
         if (myColors != null && myColors.length > 0) {
             result.addParameter("colors", myColors);
         }

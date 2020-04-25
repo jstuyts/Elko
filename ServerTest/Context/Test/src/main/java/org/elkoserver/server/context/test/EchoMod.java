@@ -9,6 +9,9 @@ import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.ObjectCompletionWatcher;
 import org.elkoserver.server.context.User;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to enable a context user to exercise the external 'echo' service.
  */
@@ -35,7 +38,7 @@ public class EchoMod extends Mod
      * @return a JSON literal representing this mod.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("echomod", control);
+        JSONLiteral result = type("echomod", control);
         result.finish();
         return result;
     }
@@ -51,13 +54,13 @@ public class EchoMod extends Mod
         ensureSameContext(from);
         if (myService != null) {
             myService.probe(text, obj -> {
-                JSONLiteral msg = new JSONLiteral(object(), "echo");
+                JSONLiteral msg = targetVerb(object(), "echo");
                 msg.addParameter("text", (String) obj);
                 msg.finish();
                 from.send(msg);
             });
         } else {
-            JSONLiteral msg = new JSONLiteral(object(), "echo");
+            JSONLiteral msg = targetVerb(object(), "echo");
             msg.addParameter("error", "no service");
             msg.finish();
             from.send(msg);
@@ -71,7 +74,7 @@ public class EchoMod extends Mod
     @JSONMethod
     public void status(User from) throws MessageHandlerException {
         ensureSameContext(from);
-        JSONLiteral msg = new JSONLiteral(object(), "status");
+        JSONLiteral msg = targetVerb(object(), "status");
         String status;
         if (myService != null) {
             status = myService.status();

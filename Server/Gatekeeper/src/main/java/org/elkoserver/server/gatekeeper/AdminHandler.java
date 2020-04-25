@@ -11,6 +11,8 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+
 /**
  * Singleton handler for the gatekeeper 'admin' protocol.
  *
@@ -110,7 +112,7 @@ class AdminHandler extends BasicProtocolHandler {
      */
     private static JSONLiteral msgDirector(Referenceable target, String hostport)
     {
-        JSONLiteral msg = new JSONLiteral(target, "director");
+        JSONLiteral msg = targetVerb(target, "director");
         msg.addParameter("hostport", hostport);
         msg.finish();
         return msg;

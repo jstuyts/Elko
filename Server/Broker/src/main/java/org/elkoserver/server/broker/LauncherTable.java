@@ -1,11 +1,5 @@
 package org.elkoserver.server.broker;
 
-import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.StringTokenizer;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptBoolean;
 import org.elkoserver.json.Encodable;
@@ -14,6 +8,11 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.objdb.ObjDB;
 import org.elkoserver.util.trace.Trace;
+
+import java.io.IOException;
+import java.util.*;
+
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * Holder of knowledge as to how to start external processes, normally for the
@@ -66,7 +65,7 @@ class LauncherTable implements Encodable {
      * @return a JSON literal representing this table.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("launchertable", control);
+        JSONLiteral result = type("launchertable", control);
         result.addParameter("ref", myRef);
         result.addParameter("launchers", myLaunchers.values());
         result.finish();
@@ -228,7 +227,7 @@ class LauncherTable implements Encodable {
          * @return a JSON literal representing this launcher.
          */
         public JSONLiteral encode(EncodeControl control) {
-            JSONLiteral result = new JSONLiteral("launcher", control);
+            JSONLiteral result = type("launcher", control);
             result.addParameter("name", myComponentName);
             result.addParameter("script", myLaunchScript);
             result.addParameter("on", amRunSettingOn);

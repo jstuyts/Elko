@@ -7,6 +7,8 @@ import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.UserMod;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Position class representing an integer (x,y) coordinate on a plane.
  */
@@ -35,7 +37,7 @@ public class CartesianPosition extends Mod implements UserMod, ItemMod {
      * @return a JSON literal representing this position.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("cartpos", control);
+        JSONLiteral result = type("cartpos", control);
         result.addParameter("x", myX);
         result.addParameter("y", myY);
         result.finish();

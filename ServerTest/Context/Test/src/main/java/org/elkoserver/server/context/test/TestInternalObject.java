@@ -5,7 +5,8 @@ import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.AdminObject;
 import org.elkoserver.server.context.InternalActor;
-import org.elkoserver.util.trace.TraceFactory;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 class TestInternalObject extends AdminObject {
     /**
@@ -20,7 +21,7 @@ class TestInternalObject extends AdminObject {
     public void boom(InternalActor from, String arg)
             throws MessageHandlerException
     {
-        JSONLiteral response = new JSONLiteral(this, "bah");
+        JSONLiteral response = targetVerb(this, "bah");
         response.addParameter("arg", arg);
         response.finish();
         from.send(response);
@@ -31,7 +32,7 @@ class TestInternalObject extends AdminObject {
             throws MessageHandlerException
     {
         from.ensureAuthorized();
-        JSONLiteral response = new JSONLiteral(this, "superbah");
+        JSONLiteral response = targetVerb(this, "superbah");
         response.addParameter("arg", arg);
         response.finish();
         from.send(response);

@@ -16,6 +16,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+
 /**
  * Internal object that acts as a client for the external 'bank' service.
  */
@@ -137,7 +139,7 @@ public class BankClient extends AdminObject implements Consumer<Object> {
          */
         BankRequest(String op, String key, String memo) {
             myXid = "x" + myXidCounter++;
-            msg = new JSONLiteral(myServiceName, op);
+            msg = targetVerb(myServiceName, op);
             msg.addParameterOpt("key", key);
             msg.addParameter("xid", myXid);
             msg.addParameterOpt("memo", memo);

@@ -3,9 +3,11 @@ package org.elkoserver.objdb.store;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.OptBoolean;
 import org.elkoserver.foundation.json.OptString;
-import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.Encodable;
+import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
+
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * Description of a request write to the object store.
@@ -70,7 +72,7 @@ public class PutDesc implements Encodable {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("puti", control);
+        JSONLiteral result = type("puti", control);
         result.addParameter("ref", myRef);
         result.addParameterOpt("obj", myObj);
         result.addParameterOpt("coll", myCollectionName);

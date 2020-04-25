@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.TreeSet;
 import java.util.function.Consumer;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Object representing an account: a store of money in some currency belonging
  * to some user.
@@ -119,7 +121,7 @@ class Account implements Encodable {
      */
     public JSONLiteral encode(EncodeControl control) {
         if (control.toRepository()) {
-            JSONLiteral result = new JSONLiteral("bankacct", control);
+            JSONLiteral result = type("bankacct", control);
             result.addParameter("ref", myRef);
             result.addParameter("version", myVersion);
             result.addParameter("curr", myCurrency);

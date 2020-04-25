@@ -8,6 +8,8 @@ import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.util.trace.Trace;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Descriptor containing information required or presented to authorize a
  * connection.
@@ -177,7 +179,7 @@ public class AuthDesc implements Encodable {
         if (control.toClient() && myMode.equals("open")) {
             return null;
         } else {
-            JSONLiteral result = new JSONLiteral("auth", control);
+            JSONLiteral result = type("auth", control);
             result.addParameter("mode", myMode);
             result.addParameterOpt("id", myID);
             result.addParameterOpt("code", myCode);

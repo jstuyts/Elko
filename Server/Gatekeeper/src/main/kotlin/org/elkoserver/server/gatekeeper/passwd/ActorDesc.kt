@@ -6,7 +6,7 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteral
-import java.lang.IllegalStateException
+import org.elkoserver.json.JSONLiteralFactory.type
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
@@ -119,7 +119,7 @@ class ActorDesc : Encodable {
      * @return a JSON literal representing this object.
      */
     override fun encode(control: EncodeControl): JSONLiteral {
-        val result = JSONLiteral("actor", control)
+        val result = type("actor", control)
         result.addParameter("id", myID)
         result.addParameterOpt("iid", myInternalID)
         result.addParameterOpt("name", myName)

@@ -11,6 +11,9 @@ import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 public class ExampleItemMod extends Mod implements ItemMod {
     private String myString1;
     private String myString2;
@@ -28,7 +31,7 @@ public class ExampleItemMod extends Mod implements ItemMod {
     }
 
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("exi", control);
+        JSONLiteral result = type("exi", control);
         result.addParameter("str1", myString1);
         result.addParameterOpt("str2", myString2);
         result.addParameter("int1", myInt1);
@@ -57,7 +60,7 @@ public class ExampleItemMod extends Mod implements ItemMod {
     private static JSONLiteral msgItemVerb1(Referenceable target, Referenceable from,
                                             String arg, String otherArg)
     {
-        JSONLiteral msg = new JSONLiteral(target, "itemverb1");
+        JSONLiteral msg = targetVerb(target, "itemverb1");
         msg.addParameter("from", from);
         msg.addParameter("arg", arg);
         msg.addParameterOpt("otherarg", otherArg);
@@ -68,7 +71,7 @@ public class ExampleItemMod extends Mod implements ItemMod {
     private static JSONLiteral msgItemVerb2(Referenceable target, String arg,
                                             String otherArg)
     {
-        JSONLiteral msg = new JSONLiteral(target, "itemverb2");
+        JSONLiteral msg = targetVerb(target, "itemverb2");
         msg.addParameter("arg", arg);
         msg.addParameterOpt("otherarg", otherArg);
         msg.finish();

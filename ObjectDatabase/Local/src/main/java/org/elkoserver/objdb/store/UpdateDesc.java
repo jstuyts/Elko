@@ -5,6 +5,8 @@ import org.elkoserver.foundation.json.OptString;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Description of a request to update to the object store.
  *
@@ -55,7 +57,7 @@ public class UpdateDesc extends PutDesc {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("updatei", control);
+        JSONLiteral result = type("updatei", control);
         result.addParameter("ref", ref());
         result.addParameter("version", myVersion);
         result.addParameterOpt("obj", obj());

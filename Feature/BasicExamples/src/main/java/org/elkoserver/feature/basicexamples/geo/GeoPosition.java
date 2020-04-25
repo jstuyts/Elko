@@ -8,6 +8,8 @@ import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.UserMod;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Position class representing a latitude/longitude position on the surface of
  * the earth.
@@ -39,7 +41,7 @@ public class GeoPosition extends Mod implements UserMod, ItemMod {
      * @return a JSON literal representing this position.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("geopos", control);
+        JSONLiteral result = type("geopos", control);
         result.addParameter("lat", lat);
         result.addParameter("lon", lon);
         result.finish();

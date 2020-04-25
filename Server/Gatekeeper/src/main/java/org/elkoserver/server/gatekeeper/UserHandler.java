@@ -7,6 +7,8 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+
 /**
  * Singleton handler for the gatekeeper 'user' protocol.
  *
@@ -115,7 +117,7 @@ class UserHandler extends BasicProtocolHandler {
                                           String context, String actor, String name, String hostPort,
                                           String auth, String deny)
     {
-        JSONLiteral msg = new JSONLiteral(target, "reserve");
+        JSONLiteral msg = targetVerb(target, "reserve");
         msg.addParameterOpt("id", id);
         msg.addParameter("context", context);
         msg.addParameterOpt("actor", actor);
@@ -137,7 +139,7 @@ class UserHandler extends BasicProtocolHandler {
     private static JSONLiteral msgSetPassword(Referenceable target, String id,
                                               String failure)
     {
-        JSONLiteral msg = new JSONLiteral(target, "setpassword");
+        JSONLiteral msg = targetVerb(target, "setpassword");
         msg.addParameter("id", id);
         msg.addParameterOpt("failure", failure);
         msg.finish();

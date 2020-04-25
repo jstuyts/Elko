@@ -1,11 +1,13 @@
 package org.elkoserver.server.workshop.test;
 
-import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.OptString;
+import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.workshop.WorkerObject;
 import org.elkoserver.server.workshop.WorkshopActor;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 class EchoWorker extends WorkerObject {
     private String myPrefix;
@@ -22,7 +24,7 @@ class EchoWorker extends WorkerObject {
     {
         from.ensureAuthorizedClient();
 
-        JSONLiteral response = new JSONLiteral(rep.value(ref()), "echo");
+        JSONLiteral response = targetVerb(rep.value(ref()), "echo");
         response.addParameter("text", myPrefix + text.value("<nothing>"));
         response.finish();
         from.send(response);

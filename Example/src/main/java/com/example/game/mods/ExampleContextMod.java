@@ -10,6 +10,9 @@ import org.elkoserver.server.context.ContextMod;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * An empty context mod, to get you started.
  */
@@ -20,7 +23,7 @@ public class ExampleContextMod extends Mod implements ContextMod
     }
 
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("exc", control);
+        JSONLiteral result = type("exc", control);
         result.finish();
         return result;
     }
@@ -36,7 +39,7 @@ public class ExampleContextMod extends Mod implements ContextMod
     private static JSONLiteral msgCtxVerb(Referenceable target, Referenceable from,
                                           String arg, String otherArg)
     {
-        JSONLiteral msg = new JSONLiteral(target, "ctxverb");
+        JSONLiteral msg = targetVerb(target, "ctxverb");
         msg.addParameter("from", from);
         msg.addParameter("arg", arg);
         msg.addParameterOpt("otherarg", otherArg);

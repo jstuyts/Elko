@@ -11,6 +11,8 @@ import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+
 /**
  * Singleton handler for the presence server 'admin' protocol.
  *
@@ -143,7 +145,7 @@ class AdminHandler extends BasicProtocolHandler {
     private static JSONLiteral msgDump(Referenceable target, int numUsers,
                                        int numPresences, JSONLiteralArray userDump)
     {
-        JSONLiteral msg = new JSONLiteral(target, "dump");
+        JSONLiteral msg = targetVerb(target, "dump");
         msg.addParameter("numusers", numUsers);
         msg.addParameter("numpresences", numPresences);
         if (userDump != null) {

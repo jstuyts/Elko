@@ -12,6 +12,9 @@ import org.elkoserver.server.context.ObjectCompletionWatcher;
 import org.elkoserver.server.context.User;
 import org.elkoserver.server.context.UserMod;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to hold a user's current chat text display style settings.  This is used
  * to allow text chat to be conducted with user-configurable styled text.  It
@@ -53,7 +56,7 @@ public class TalkPrefs
      */
     public JSONLiteral encode(EncodeControl control) {
         if (control.toClient()) {
-            JSONLiteral result = new JSONLiteral("talkprefs", control);
+            JSONLiteral result = type("talkprefs", control);
             result.addParameter("style", myStyle);
             result.finish();
             return result;
@@ -139,7 +142,7 @@ public class TalkPrefs
     private static JSONLiteral msgStyle(Referenceable target, String color,
                                         String backgroundColor, String icon, String textStyle)
     {
-        JSONLiteral msg = new JSONLiteral(target, "style");
+        JSONLiteral msg = targetVerb(target, "style");
         msg.addParameterOpt("color", color);
         msg.addParameterOpt("backgroundColor", backgroundColor);
         msg.addParameterOpt("icon", icon);

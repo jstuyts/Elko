@@ -9,6 +9,8 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+
 /**
  * Utility message handler implementation base class that supports a basic JSON
  * protocol for connection housekeeping.  The supported protocol is common to
@@ -144,7 +146,7 @@ public abstract class BasicProtocolHandler
      *    triggered this) or null.
      */
     private static JSONLiteral msgPong(Referenceable target, String tag) {
-        JSONLiteral msg = new JSONLiteral(target, "pong");
+        JSONLiteral msg = targetVerb(target, "pong");
         msg.addParameterOpt("tag", tag);
         msg.finish();
         return msg;

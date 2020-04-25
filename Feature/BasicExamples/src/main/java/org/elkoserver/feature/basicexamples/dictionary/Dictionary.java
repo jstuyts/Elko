@@ -13,6 +13,9 @@ import org.elkoserver.server.context.User;
 import java.util.HashMap;
 import java.util.Map;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to associate a server-moderated hashtable with its object.  This mod
  * may be attached to a context, user or item.
@@ -69,7 +72,7 @@ public class Dictionary extends Mod implements GeneralMod {
      * @return a JSON literal representing this mod.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("dictionary", control);
+        JSONLiteral result = type("dictionary", control);
         Map<String, String> vars;
         if (control.toClient() || amPersistent) {
             vars = myVars;
@@ -184,7 +187,7 @@ public class Dictionary extends Mod implements GeneralMod {
     private static JSONLiteral msgDelvar(Referenceable target, Referenceable from,
                                          String[] names)
     {
-        JSONLiteral msg = new JSONLiteral(target, "delvar");
+        JSONLiteral msg = targetVerb(target, "delvar");
         msg.addParameterOpt("from", from);
         msg.addParameter("names", names);
         msg.finish();
@@ -203,7 +206,7 @@ public class Dictionary extends Mod implements GeneralMod {
     private static JSONLiteral msgSetvar(Referenceable target, Referenceable from,
                                          String[] names, String[] values)
     {
-        JSONLiteral msg = new JSONLiteral(target, "setvar");
+        JSONLiteral msg = targetVerb(target, "setvar");
         msg.addParameterOpt("from", from);
         msg.addParameter("names", names);
         msg.addParameter("values", values);

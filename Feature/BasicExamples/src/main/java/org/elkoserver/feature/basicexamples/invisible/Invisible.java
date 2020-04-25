@@ -8,6 +8,8 @@ import org.elkoserver.server.context.ItemMod;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.ObjectCompletionWatcher;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Marker mod to indicate that an item should be hidden from clients.  This mod
  * only makes sense when attached to items, not to contexts or users.
@@ -35,7 +37,7 @@ public class Invisible extends Mod implements ObjectCompletionWatcher, ItemMod
      */
     public JSONLiteral encode(EncodeControl control) {
         if (control.toRepository()) {
-            JSONLiteral result = new JSONLiteral("invisible", control);
+            JSONLiteral result = type("invisible", control);
             result.finish();
             return result;
         } else {

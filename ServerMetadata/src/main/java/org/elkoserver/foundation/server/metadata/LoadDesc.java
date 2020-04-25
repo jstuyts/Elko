@@ -1,10 +1,12 @@
 package org.elkoserver.foundation.server.metadata;
 
 import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.Encodable;
+import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
+
+import static org.elkoserver.json.JSONLiteralFactory.type;
 
 /**
  * Description of the load on a server.
@@ -63,7 +65,7 @@ public class LoadDesc implements Encodable {
      * @return a JSON literal representing this object.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral literal = new JSONLiteral("loaddesc", control);
+        JSONLiteral literal = type("loaddesc", control);
         literal.addParameter("label", myLabel);
         literal.addParameter("load", myLoad);
         literal.addParameter("provider", myProviderID);

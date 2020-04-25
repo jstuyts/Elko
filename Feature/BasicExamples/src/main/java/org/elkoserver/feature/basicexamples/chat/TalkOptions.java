@@ -8,6 +8,8 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.ContextMod;
 import org.elkoserver.server.context.Mod;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to hold a context's permissible chat text display style options.  This
  * mod must be attached to a context.  It operates in conjunction with the
@@ -53,7 +55,7 @@ public class TalkOptions extends Mod implements ContextMod {
      * @return a JSON literal representing this mod.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("talkoptions", control);
+        JSONLiteral result = type("talkoptions", control);
         result.addParameter("styles", myStyles);
         result.finish();
         return result;

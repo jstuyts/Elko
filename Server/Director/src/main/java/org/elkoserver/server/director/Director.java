@@ -1,17 +1,9 @@
 package org.elkoserver.server.director;
 
-import java.time.Clock;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import org.elkoserver.foundation.actor.RefTable;
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.foundation.json.OptString;
-import org.elkoserver.foundation.json.AlwaysBaseTypeResolver;
 import org.elkoserver.foundation.server.Server;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JsonObject;
@@ -20,6 +12,11 @@ import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.HashSetMulti;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
+
+import java.time.Clock;
+import java.util.*;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Main state data structure in a Director.
@@ -563,7 +560,7 @@ class Director {
     private static JSONLiteral msgRelay(Referenceable target, String contextName,
                                         String userName, JsonObject relay)
     {
-        JSONLiteral msg = new JSONLiteral(target, "relay");
+        JSONLiteral msg = targetVerb(target, "relay");
         msg.addParameterOpt("context", contextName);
         msg.addParameterOpt("user", userName);
         msg.addParameter("msg", relay);

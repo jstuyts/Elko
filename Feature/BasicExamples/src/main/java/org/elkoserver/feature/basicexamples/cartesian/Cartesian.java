@@ -8,6 +8,9 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.server.context.*;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to provide an item with 2D (rectangular) geometry.  This mod may only be
  * attached to an item, not to a context or a user.
@@ -57,7 +60,7 @@ public class Cartesian extends Mod implements ItemMod {
      * @return a JSON literal representing this mod.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("cart", control);
+        JSONLiteral result = type("cart", control);
         result.addParameter("width", myWidth);
         result.addParameter("height", myHeight);
         result.addParameter("left", myLeft);
@@ -123,7 +126,7 @@ public class Cartesian extends Mod implements ItemMod {
     private static JSONLiteral msgMove(Referenceable target, BasicObject into,
                                        int left, int top)
     {
-        JSONLiteral msg = new JSONLiteral(target, "move");
+        JSONLiteral msg = targetVerb(target, "move");
         msg.addParameterOpt("into", (Referenceable) into);
         msg.addParameter("left", left);
         msg.addParameter("top", top);

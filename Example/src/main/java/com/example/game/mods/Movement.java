@@ -12,6 +12,9 @@ import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.Msg;
 import org.elkoserver.server.context.User;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * A simple context mod to enable users in a context to move around.
  */
@@ -35,7 +38,7 @@ public class Movement extends Mod implements ContextMod {
         if (control.toClient()) {
             return null;
         } else {
-            JSONLiteral result = new JSONLiteral("movement", control);
+            JSONLiteral result = type("movement", control);
             result.addParameter("minx", myMinX);
             result.addParameter("miny", myMinY);
             result.addParameter("maxx", myMaxX);
@@ -66,7 +69,7 @@ public class Movement extends Mod implements ContextMod {
     static JSONLiteral msgMove(Referenceable who, int x, int y,
                                Referenceable into)
     {
-        JSONLiteral msg = new JSONLiteral(who, "move");
+        JSONLiteral msg = targetVerb(who, "move");
         msg.addParameter("x", x);
         msg.addParameter("y", y);
         msg.addParameterOpt("into", into);

@@ -1,16 +1,14 @@
 package org.elkoserver.server.broker;
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler;
-import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.MessageHandlerException;
-import org.elkoserver.foundation.json.OptBoolean;
-import org.elkoserver.foundation.json.OptInteger;
-import org.elkoserver.foundation.json.OptString;
+import org.elkoserver.foundation.json.*;
 import org.elkoserver.foundation.server.metadata.ServiceDesc;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.TraceFactory;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Singleton handler for the broker client protocol.
@@ -197,7 +195,7 @@ class ClientHandler extends BasicProtocolHandler {
     private static JSONLiteral msgFind(Referenceable target, JSONLiteralArray desc,
                                        String tag)
     {
-        JSONLiteral msg = new JSONLiteral(target, "find");
+        JSONLiteral msg = targetVerb(target, "find");
         msg.addParameter("desc", desc);
         msg.addParameterOpt("tag", tag);
         msg.finish();

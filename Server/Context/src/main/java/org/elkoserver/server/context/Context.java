@@ -3,10 +3,7 @@ package org.elkoserver.server.context;
 import org.elkoserver.foundation.json.*;
 import org.elkoserver.foundation.timer.TimeoutNoticer;
 import org.elkoserver.foundation.timer.Timer;
-import org.elkoserver.json.EncodeControl;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONLiteralArray;
-import org.elkoserver.json.Referenceable;
+import org.elkoserver.json.*;
 import org.elkoserver.util.trace.Trace;
 
 import java.util.*;
@@ -924,7 +921,7 @@ public class Context extends BasicObject implements Deliverer {
      * @return a JSON literal representing this context.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("context", control);
+        JSONLiteral result = JSONLiteralFactory.type("context", control);
         if (control.toClient()) {
             result.addParameter("ref", myRef);
         } else {

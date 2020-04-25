@@ -14,6 +14,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Consumer;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+
 /**
  * Actor representing a gatekeeper's connection to its director.
  *
@@ -164,7 +166,7 @@ class DirectorActor extends NonRoutingActor {
     private static JSONLiteral msgReserve(Referenceable target, String protocol,
                                           String context, String actor)
     {
-        JSONLiteral msg = new JSONLiteral(target, "reserve");
+        JSONLiteral msg = targetVerb(target, "reserve");
         msg.addParameter("protocol", protocol);
         msg.addParameter("context", context);
         msg.addParameterOpt("user", actor);

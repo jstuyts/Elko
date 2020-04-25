@@ -1,15 +1,10 @@
 package org.elkoserver.server.presence;
 
-import org.elkoserver.json.EncodeControl;
-import org.elkoserver.json.Encodable;
-import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.json.JSONLiteralArray;
-import org.elkoserver.json.JsonObject;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import org.elkoserver.json.*;
+
+import java.util.*;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Information we are keeping track of with respect to an online user.  In
@@ -352,7 +347,7 @@ class ActiveUser {
     private JSONLiteral msgGroupToUser(String user, String context,
                                        Map<Domain, List<FriendInfo>> friends)
     {
-        JSONLiteral msg = new JSONLiteral("presence", "gtou");
+        JSONLiteral msg = targetVerb("presence", "gtou");
         msg.addParameter("touser", user);
         msg.addParameter("ctx", context);
         JSONLiteralArray group = new JSONLiteralArray();
@@ -386,7 +381,7 @@ class ActiveUser {
                                        Map<Domain, Map<String, List<String>>> friends,
                                        PresenceServer master)
     {
-        JSONLiteral msg = new JSONLiteral("presence", "utog");
+        JSONLiteral msg = targetVerb("presence", "utog");
         msg.addParameter("user", user);
         msg.addParameterOpt("umeta", userMeta);
         msg.addParameter("ctx", context);

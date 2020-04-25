@@ -10,6 +10,8 @@ import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.server.context.*;
 
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to enable creation of notes.  Notes are items with the {@link Note} mod
  * attached.  This mod is generally attached to a context, but this is not
@@ -53,7 +55,7 @@ public class NoteMaker extends Mod implements GeneralMod {
      * @return a JSON literal representing this mod.
      */
     public JSONLiteral encode(EncodeControl control) {
-        JSONLiteral result = new JSONLiteral("notemaker", control);
+        JSONLiteral result = type("notemaker", control);
         result.addParameter("styles", myStyleOptions);
         result.finish();
         return result;

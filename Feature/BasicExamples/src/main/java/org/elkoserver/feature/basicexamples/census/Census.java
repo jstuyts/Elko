@@ -8,6 +8,9 @@ import org.elkoserver.server.context.GeneralMod;
 import org.elkoserver.server.context.Mod;
 import org.elkoserver.server.context.User;
 
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
+import static org.elkoserver.json.JSONLiteralFactory.type;
+
 /**
  * Mod to enable tracking a context's population.  This mod may be attached to
  * a context, user or item.
@@ -30,7 +33,7 @@ public class Census extends Mod implements GeneralMod {
      */
     public JSONLiteral encode(EncodeControl control) {
         if (control.toRepository()) {
-            JSONLiteral result = new JSONLiteral("census", control);
+            JSONLiteral result = type("census", control);
             result.finish();
             return result;
         } else {
@@ -61,7 +64,7 @@ public class Census extends Mod implements GeneralMod {
         if (object() instanceof User) {
             ensureSameUser(from);
         }
-        JSONLiteral response = new JSONLiteral(object(), "census");
+        JSONLiteral response = targetVerb(object(), "census");
         response.addParameter("occupancy", context().userCount());
         response.finish();
         from.send(response);

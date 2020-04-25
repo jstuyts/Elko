@@ -1,12 +1,5 @@
 package org.elkoserver.server.context;
 
-import java.time.Clock;
-import java.util.Collections;
-import java.util.ConcurrentModificationException;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 import org.elkoserver.foundation.actor.Actor;
 import org.elkoserver.foundation.json.Deliverer;
 import org.elkoserver.foundation.json.MessageDispatcher;
@@ -17,6 +10,11 @@ import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
+
+import java.time.Clock;
+import java.util.*;
+
+import static org.elkoserver.json.JSONLiteralFactory.targetVerb;
 
 /**
  * Outbound group containing all the connected directors.
@@ -314,7 +312,7 @@ class DirectorGroup extends OutboundGroup {
     private static JSONLiteral msgContext(String context, boolean open,
                                           boolean yours, int maxCapacity, int baseCapacity, boolean restricted)
     {
-        JSONLiteral msg = new JSONLiteral("provider", "context");
+        JSONLiteral msg = targetVerb("provider", "context");
         msg.addParameter("context", context);
         msg.addParameter("open", open);
         msg.addParameter("yours", yours);
@@ -339,7 +337,7 @@ class DirectorGroup extends OutboundGroup {
      * @param factor  Load factor to report.
      */
     private static JSONLiteral msgLoad(double factor) {
-        JSONLiteral msg = new JSONLiteral("provider", "load");
+        JSONLiteral msg = targetVerb("provider", "load");
         msg.addParameter("factor", factor);
         msg.finish();
         return msg;
@@ -356,7 +354,7 @@ class DirectorGroup extends OutboundGroup {
     private static JSONLiteral msgRelay(String target,
                                         String contextName, String userName, JSONLiteral relay)
     {
-        JSONLiteral msg = new JSONLiteral(target, "relay");
+        JSONLiteral msg = targetVerb(target, "relay");
         msg.addParameterOpt("context", contextName);
         msg.addParameterOpt("user", userName);
         msg.addParameter("msg", relay);
@@ -374,7 +372,7 @@ class DirectorGroup extends OutboundGroup {
     private static JSONLiteral msgGate(String context, boolean open,
                                        String reason)
     {
-        JSONLiteral msg = new JSONLiteral("provider", "gate");
+        JSONLiteral msg = targetVerb("provider", "gate");
         msg.addParameter("context", context);
         msg.addParameter("open", open);
         msg.addParameterOpt("reason", reason);
@@ -392,7 +390,7 @@ class DirectorGroup extends OutboundGroup {
     private static JSONLiteral msgUser(String context, String user,
                                        boolean on)
     {
-        JSONLiteral msg = new JSONLiteral("provider", "user");
+        JSONLiteral msg = targetVerb("provider", "user");
         msg.addParameter("context", context);
         msg.addParameter("user", user);
         msg.addParameter("on", on);
