@@ -5,67 +5,67 @@
         {
             "type": "class",
             "tag": "cart",
-            "name": "org.elkoserver.server.context.mods.cartesian.Cartesian"
+            "name": "org.elkoserver.feature.basicexamples.cartesian.Cartesian"
         },
         {
             "type": "class",
             "tag": "census",
-            "name": "org.elkoserver.server.context.mods.census.Census"
+            "name": "org.elkoserver.feature.basicexamples.census.Census"
         },
         {
             "type": "class",
             "tag": "chat",
-            "name": "org.elkoserver.server.context.mods.chat.Chat"
+            "name": "org.elkoserver.feature.basicexamples.chat.Chat"
         },
         {
             "type": "class",
             "tag": "definer",
-            "name": "org.elkoserver.server.context.caps.Definer"
+            "name": "org.elkoserver.feature.caps.Definer"
         },
         {
             "type": "class",
             "tag": "dictionary",
-            "name": "org.elkoserver.server.context.mods.dictionary.Dictionary"
+            "name": "org.elkoserver.feature.basicexamples.dictionary.Dictionary"
         },
         {
             "type": "class",
             "tag": "image",
-            "name": "org.elkoserver.server.context.mods.image.Image"
+            "name": "org.elkoserver.feature.basicexamples.image.Image"
         },
         {
             "type": "class",
             "tag": "invisible",
-            "name": "org.elkoserver.server.context.mods.invisible.Invisible"
+            "name": "org.elkoserver.feature.basicexamples.invisible.Invisible"
         },
         {
             "type": "class",
             "tag": "note",
-            "name": "org.elkoserver.server.context.mods.notes.Note"
+            "name": "org.elkoserver.feature.basicexamples.notes.Note"
         },
         {
             "type": "class",
             "tag": "notemaker",
-            "name": "org.elkoserver.server.context.mods.notes.NoteMaker"
+            "name": "org.elkoserver.feature.basicexamples.notes.NoteMaker"
         },
         {
             "type": "class",
             "tag": "style",
-            "name": "org.elkoserver.server.context.mods.styledtext.StyleDesc"
+            "name": "org.elkoserver.feature.basicexamples.styledtext.StyleDesc"
         },
         {
             "type": "class",
             "tag": "styleoptions",
-            "name": "org.elkoserver.server.context.mods.styledtext.StyleOptions"
+            "name": "org.elkoserver.feature.basicexamples.styledtext.StyleOptions"
         },
         {
             "type": "class",
             "tag": "talkoptions",
-            "name": "org.elkoserver.server.context.mods.chat.TalkOptions"
+            "name": "org.elkoserver.feature.basicexamples.chat.TalkOptions"
         },
         {
             "type": "class",
             "tag": "talkprefs",
-            "name": "org.elkoserver.server.context.mods.chat.TalkPrefs"
+            "name": "org.elkoserver.feature.basicexamples.chat.TalkPrefs"
         }
     ]
 }

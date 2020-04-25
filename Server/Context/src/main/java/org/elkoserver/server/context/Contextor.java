@@ -13,7 +13,6 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JsonArray;
 import org.elkoserver.json.JsonObject;
 import org.elkoserver.objdb.ObjDB;
-import org.elkoserver.server.context.mods.geo.GeoPosition;
 import org.elkoserver.util.HashMapMulti;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;

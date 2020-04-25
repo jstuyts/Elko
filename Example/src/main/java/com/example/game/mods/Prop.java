@@ -1,15 +1,11 @@
 package com.example.game.mods;
 
+import org.elkoserver.feature.basicexamples.cartesian.CartesianPosition;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.foundation.json.MessageHandlerException;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.server.context.mods.cartesian.CartesianPosition;
-import org.elkoserver.server.context.Item;
-import org.elkoserver.server.context.ItemMod;
-import org.elkoserver.server.context.Mod;
-import org.elkoserver.server.context.Msg;
-import org.elkoserver.server.context.User;
+import org.elkoserver.server.context.*;
 
 public class Prop extends Mod implements ItemMod {
     private String myKind;

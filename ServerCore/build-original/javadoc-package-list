@@ -13,9 +13,9 @@ org.elkoserver.objdb.store.filestore
 org.elkoserver.objdb.store.mongostore
 org.elkoserver.server.broker
 org.elkoserver.server.context
-org.elkoserver.server.context.caps
-org.elkoserver.server.context.mods
-org.elkoserver.server.context.users
+org.elkoserver.feature.caps
+org.elkoserver.feature.basicexamples
+org.elkoserver.feature.deviceuser
 org.elkoserver.server.director
 org.elkoserver.server.gatekeeper
 org.elkoserver.server.gatekeeper.passwd

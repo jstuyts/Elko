@@ -12,8 +12,6 @@ repositories {
 dependencies {
     api(project(":JsonMessageHandling"))
     api(project(":Server:Context"))
-    api(Libraries.nanojson)
-    implementation(project(":Feature:BasicExamples"))
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {
