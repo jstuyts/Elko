@@ -132,7 +132,6 @@ public class Contextor extends RefTable {
         myODB.addClass("item", Item.class);
         myODB.addClass("user", User.class);
         myODB.addClass("serverdesc", ServerDesc.class);
-        myODB.addClass("geopos", GeoPosition.class);
 
         mySession = new Session(this, server, traceFactory);
         addRef(mySession);
@@ -328,7 +327,7 @@ public class Contextor extends RefTable {
     }
 
     /**
-     * Common initialization logic for createItem and createGeoItem.
+     * Common initialization logic for createItem.
      */
     private void initializeItem(Item item, BasicObject container) {
         item.activate(uniqueID("i"), "", false, this, traceFactory);
@@ -374,29 +373,6 @@ public class Contextor extends RefTable {
                            boolean isDeletable)
     {
         return createItem(name, null, isPossibleContainer, isDeletable);
-    }
-
-    /**
-     * Return a newly minted geo-positioned Item (i.e., one created at runtime
-     * rather than loaded from the object database).  The new item will be born
-     * with no contents, no mods, and no container.
-     *
-     * @param name  The name for the new item, or null if the name doesn't
-     *    matter.
-     * @param isPossibleContainer  Flag that is true if the new item may itself
-     *    be used as a container.
-     * @param isDeletable  Flag that is true if the new item may be deleted by
-     *    users.
-     * @param lat  Position latitude, in decimal degrees.
-     * @param lon  Position longitude, in decimal degrees.
-     */
-    public Item createGeoItem(String name, boolean isPossibleContainer,
-                              boolean isDeletable, double lat, double lon)
-    {
-        Item item = new Item(name, isPossibleContainer, isDeletable, false);
-        item.setPosition(new GeoPosition(lat, lon));
-        initializeItem(item, null);
-        return item;
     }
 
 

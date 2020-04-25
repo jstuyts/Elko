@@ -13,6 +13,7 @@ import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.json.JsonArray;
 import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.JsonObjectSerialization;
+import org.elkoserver.json.JsonWrapping;
 import org.elkoserver.objdb.store.*;
 import org.elkoserver.util.trace.Trace;
 
@@ -22,6 +23,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
+import static org.elkoserver.json.JsonWrapping.wrapWithElkoJsonImplementationIfNeeded;
 
 /**
  * An {@link ObjectStore} implementation that stores objects in a MongoDB NoSQL
@@ -216,17 +218,22 @@ public class MongoObjectStore implements ObjectStore {
         // *that*.  When an object is read from the database, we strip this
         // property off again before we return the object to the application.
 
-        JsonObject pos = obj.getObject("pos", null);;
-        if (pos != null) {
-            String type = pos.getString("type", null);
-            if ("geopos".equals(type)) {
-                double lat = pos.getDouble("lat", 0.0);
-                double lon = pos.getDouble("lon", 0.0);
-                Document qpos = new Document();
-                qpos.put("lat", lat);
-                qpos.put("lon", lon);
-                result.put("_qpos_", qpos);
-            }
+        JsonArray mods = obj.getArray("mods", null);
+        if (mods != null) {
+            mods.iterator().forEachRemaining(mod -> {
+                Object elkoModAsObject = wrapWithElkoJsonImplementationIfNeeded(mod);
+                if (elkoModAsObject instanceof JsonObject) {
+                    JsonObject elkoMod = (JsonObject) elkoModAsObject;
+                    if ("geopos".equals(elkoMod.getString("type", null))) {
+                        double lat = elkoMod.getDouble("lat", 0.0);
+                        double lon = elkoMod.getDouble("lon", 0.0);
+                        Document qpos = new Document();
+                        qpos.put("lat", lat);
+                        qpos.put("lon", lon);
+                        result.put("_qpos_", qpos);
+                    }
+                }
+            });
         }
         // End of ugly modularity boundary violation
 

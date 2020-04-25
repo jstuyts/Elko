@@ -201,7 +201,6 @@ public class User extends BasicObject implements Deliverer {
             result.addParameter("ref", myRef);
         }
         result.addParameter("name", myName);
-        result.addParameterOpt("pos", myPosition);
         if (myModSet != null) {
             JSONLiteralArray mods = myModSet.encode(control);
             if (mods.size() > 0) {

@@ -83,4 +83,8 @@ public class JsonObject {
         }
         return impl.getInt(key);
     }
+
+    public JsonArray getArray(String key, JsonArray defaultValue) {
+        return (JsonArray) wrapWithElkoJsonImplementationIfNeeded(impl.getArray(key, defaultValue == null ? null : defaultValue.impl));
+    }
 }

@@ -3,14 +3,13 @@ package org.elkoserver.server.context.mods.geo;
 import org.elkoserver.foundation.json.JSONMethod;
 import org.elkoserver.json.EncodeControl;
 import org.elkoserver.json.JSONLiteral;
-import org.elkoserver.server.context.BasicObject;
-import org.elkoserver.server.context.Position;
+import org.elkoserver.server.context.*;
 
 /**
  * Position class representing a latitude/longitude position on the surface of
  * the earth.
  */
-public class GeoPosition implements Position {
+public class GeoPosition extends Mod implements UserMod, ItemMod {
     /** Position latitude, in decimal degrees. */
     private final double lat;
     /** Position longitude, in decimal degrees. */
@@ -52,7 +51,7 @@ public class GeoPosition implements Position {
      * @param lon  The new longitude
      */
     public static void setPosition(BasicObject obj, double lat, double lon) {
-        obj.setPosition(new GeoPosition(lat, lon));
+        new GeoPosition(lat, lon).attachTo(obj);
     }
 
     public String toString() {

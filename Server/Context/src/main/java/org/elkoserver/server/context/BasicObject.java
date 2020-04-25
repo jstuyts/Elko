@@ -61,10 +61,6 @@ public abstract class BasicObject
     /** Objects contained by this object. */
     /* protected */ Contents myContents;
 
-    /** Position of object with respect to its container, or null if position
-        is unknown or irrelevant. */
-    /* protected */ Position myPosition;
-
     /** Mods attached to this object. */
     /* protected */ ModSet myModSet;
 
@@ -626,16 +622,6 @@ public abstract class BasicObject
      */
     public void setName(String name) {
         myName = name;
-        markAsChanged();
-    }
-
-    /**
-     * Set this object's position.
-     *
-     * @param pos  New position for the object.
-     */
-    public void setPosition(Position pos) {
-        myPosition = pos;
         markAsChanged();
     }
 

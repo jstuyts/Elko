@@ -8,7 +8,7 @@ import static org.elkoserver.json.JsonWrapping.wrapWithElkoJsonImplementationIfN
 // FIXME: This class is here because:
 // - The toString() has complex behavior. Not sure if this is only for diagnostic purposes or for production use.
 public class JsonArray implements Iterable<Object> {
-    private final com.grack.nanojson.JsonArray impl;
+    final com.grack.nanojson.JsonArray impl;
 
     public JsonArray() {
         super();

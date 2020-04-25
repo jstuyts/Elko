@@ -173,7 +173,6 @@ public class Item extends BasicObject {
     private void baseEncode(JSONLiteral result, EncodeControl control) {
         result.addParameter("ref", myRef);
         result.addParameterOpt("name", myName);
-        result.addParameterOpt("pos", myPosition);
         if (myModSet != null) {
             JSONLiteralArray mods = myModSet.encode(control);
             if (mods.size() > 0) {
