@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":FileObjectStore"))
+    implementation(project(":ObjectDatabase:FileObjectStore"))
     implementation(project(":Server:Context"))
     implementation(project(":ServerManagement"))
 }

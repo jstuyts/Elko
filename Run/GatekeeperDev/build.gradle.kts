@@ -11,7 +11,7 @@ repositories {
 }
 
 dependencies {
-    implementation(project(":MongoObjectStore"))
+    implementation(project(":ObjectDatabase:MongoObjectStore"))
     implementation(project(":Server:Gatekeeper"))
     implementation(project(":ServerManagement"))
 }

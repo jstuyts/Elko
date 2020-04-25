@@ -12,8 +12,8 @@ repositories {
 
 dependencies {
     implementation(project(":Example"))
-    implementation(project(":FileObjectStore"))
-    implementation(project(":MongoObjectStore"))
+    implementation(project(":ObjectDatabase:FileObjectStore"))
+    implementation(project(":ObjectDatabase:MongoObjectStore"))
     implementation(project(":Server:Broker"))
     implementation(project(":Server:Context"))
     implementation(project(":Server:Director"))

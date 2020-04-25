@@ -10,7 +10,7 @@ repositories {
 dependencies {
     implementation(project(":Feature:BasicExamples"))
     implementation(project(":Feature:Capabilities"))
-    implementation(project(":FileObjectStore"))
+    implementation(project(":ObjectDatabase:FileObjectStore"))
     implementation(project(":Server:Repository"))
     implementation(project(":ServerManagement"))
 }
