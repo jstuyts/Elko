@@ -1,8 +1,6 @@
-package org.elkoserver.foundation.actor;
+package org.elkoserver.foundation.net;
 
 import com.grack.nanojson.JsonParserException;
-import org.elkoserver.foundation.net.Communication;
-import org.elkoserver.foundation.net.HTTPFramer;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.JsonObjectSerialization;

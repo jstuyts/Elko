@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.server;
 
-import org.elkoserver.foundation.actor.JSONHTTPFramer;
+import org.elkoserver.foundation.net.JSONHTTPFramer;
 import org.elkoserver.foundation.net.MessageHandlerFactory;
 import org.elkoserver.foundation.net.NetAddr;
 import org.elkoserver.foundation.net.NetworkManager;

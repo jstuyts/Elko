@@ -21,6 +21,7 @@ dependencies {
     implementation(project(":ByteIoFramer:Http"))
     implementation(project(":ByteIoFramer:Rtcp"))
     implementation(project(":ByteIoFramer:WebSocket"))
+    implementation(project(":Communication"))
     implementation(project(":ScalableSsl"))
 }
 

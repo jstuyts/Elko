@@ -14,7 +14,6 @@ dependencies {
     api(project(":Net:Api"))
     api(project(":Server:Context"))
 
-    implementation(project(":Actor"))
     implementation(project(":ByteIoFramer:Json"))
     implementation(project(":ServerCore"))
     implementation(project(":Trace"))
