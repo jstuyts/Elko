@@ -1,6 +1,7 @@
 private val junitVersion = "5.6.1"
 
 object Libraries {
+    val argparse4j = "net.sourceforge.argparse4j:argparse4j:0.8.1"
     val commons_codec = "commons-codec:commons-codec:1.9"
     val jeromq = "org.zeromq:jeromq:0.5.1"
     val junit_jupiter_api = "org.junit.jupiter:junit-jupiter-api:$junitVersion"

@@ -58,7 +58,8 @@ val stopDirectorDev by tasks.registering(JavaExec::class) {
     main = "org.elkoserver.foundation.servermanagement.DirectorShutdown"
     args = mutableListOf(
             "127.0.0.1",
-            "9062"
+            "9062",
+            "-"
     )
     isIgnoreExitValue = true
 }
