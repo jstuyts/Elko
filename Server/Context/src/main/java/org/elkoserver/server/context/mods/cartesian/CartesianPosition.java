@@ -63,5 +63,6 @@ public class CartesianPosition extends Mod implements UserMod, ItemMod {
     public void set(int x, int y) {
         myX = x;
         myY = y;
+        markAsChanged();
     }
 }

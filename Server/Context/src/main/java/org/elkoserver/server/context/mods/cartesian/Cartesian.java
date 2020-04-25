@@ -112,7 +112,7 @@ public class Cartesian extends Mod implements ItemMod {
         }
         myLeft = left;
         myTop = top;
-        item.markAsChanged();
+        markAsChanged();
         context().send(msgMove(item, newContainer, left, top));
     }
 
