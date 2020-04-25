@@ -29,30 +29,30 @@ import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
  */
 public class Contextor extends RefTable {
     /** Database that persistent objects are stored in. */
-    private ObjDB myODB;
+    private final ObjDB myODB;
 
     /** Trace object for diagnostics. */
-    private Trace tr;
+    private final Trace tr;
     private final Timer timer;
 
     /** The server object. */
-    private Server myServer;
+    private final Server myServer;
 
     /** The generic 'session' object for talking to this server. */
-    private Session mySession;
+    private final Session mySession;
 
     /** Sets of entities awaiting objects from the object database, by object
         reference string. */
-    private Map<String, Set<Consumer<Object>>> myPendingGets;
+    private final Map<String, Set<Consumer<Object>>> myPendingGets;
 
     /** Open contexts. */
-    private Set<Context> myContexts;
+    private final Set<Context> myContexts;
 
     /** Cloned contexts, by base reference string. */
-    private HashMapMulti<String, Context> myContextClones;
+    private final HashMapMulti<String, Context> myContextClones;
 
     /** Currently connected users. */
-    private Set<User> myUsers;
+    private final Set<User> myUsers;
 
     /** Send group for currently connected directors. */
     private DirectorGroup myDirectorGroup;
@@ -61,29 +61,29 @@ public class Contextor extends RefTable {
     private PresencerGroup myPresencerGroup;
 
     /** Time user has to enter before being kicked off, in milliseconds. */
-    private int myEntryTimeout;
+    private final int myEntryTimeout;
 
     /** Default enter timeout value, in seconds. */
     private static final int DEFAULT_ENTER_TIMEOUT = 15;
 
     /** Maximum number of users allowed on this server. */
-    private int myLimit;
+    private final int myLimit;
 
     /** Static objects loaded from the ODB and available in all contexts. */
-    private Map<String, Object> myStaticObjects;
+    private final Map<String, Object> myStaticObjects;
 
     /** Context families served by this server.  Names prefixed by '$'
         represent restricted contexts. */
     private Set<String> myContextFamilies;
 
     /** User names gathered from presence notification metadata. */
-    private Map<String, String> myUserNames;
+    private final Map<String, String> myUserNames;
 
     /** Context names gathered from presence notification metadata. */
-    private Map<String, String> myContextNames;
+    private final Map<String, String> myContextNames;
 
     /** Random number generator, for creating unique IDs and sub-IDs. */
-    private static SecureRandom theRandom = new SecureRandom();
+    private static final SecureRandom theRandom = new SecureRandom();
 
     /** Mods on completed objects awaiting notification that they're ready. */
     private List<ObjectCompletionWatcher> myPendingObjectCompletionWatchers;
@@ -243,7 +243,7 @@ public class Contextor extends RefTable {
      */
     private void activateContentsItem(BasicObject container, String subID, Item item) {
         String ref = item.ref() + subID;
-        item.activate(ref, subID, container.isEphemeral(), this, traceFactory);
+        item.activate(ref, subID, container.isEphemeral(), this);
         item.setContainerPrim(container);
         item.objectIsComplete();
     }
@@ -329,7 +329,7 @@ public class Contextor extends RefTable {
      * Common initialization logic for createItem.
      */
     private void initializeItem(Item item, BasicObject container) {
-        item.activate(uniqueID("i"), "", false, this, traceFactory);
+        item.activate(uniqueID("i"), "", false, this);
         item.markAsChanged();
         item.setContainer(container);
     }
@@ -529,7 +529,7 @@ public class Contextor extends RefTable {
     private class ContentsHandler implements Consumer<Object> {
         /** Contents handler for the enclosing container, or null if this is
             the top level. */
-        private ContentsHandler myParentHandler;
+        private final ContentsHandler myParentHandler;
 
         /** Number of objects whose loading is being awaited.  Initially, this
             is the number of contained objects plus two: the container itself,
@@ -558,7 +558,7 @@ public class Contextor extends RefTable {
         /** Runnable that will be invoked with the root of the entire tree of
             contained objects, once all those objects have been successfully
             loaded. */
-        private Consumer<Object> myTopHandler;
+        private final Consumer<Object> myTopHandler;
 
         /**
          * Constructor.
@@ -716,7 +716,7 @@ public class Contextor extends RefTable {
     private class GetContextHandler implements Consumer<Object> {
         /** The ref of the context template.  This is the ref of the object
             that is loaded from the database.*/
-        private String myContextTemplate;
+        private final String myContextTemplate;
 
         /** The ref of the context itself.  This is the base ref of the context
             that actually results.  It will be the same as the template ref if
@@ -724,7 +724,7 @@ public class Contextor extends RefTable {
         private String myContextRef;
 
         /** The director that requested this context to be activated. */
-        private DirectorActor myOpener;
+        private final DirectorActor myOpener;
 
         /**
          * Constructor
@@ -772,7 +772,7 @@ public class Contextor extends RefTable {
                     context.activate(myContextRef, subID,
                                      !myContextRef.equals(myContextTemplate),
                                      Contextor.this, myContextTemplate,
-                                     myOpener, tr, timer, traceFactory);
+                                     myOpener, tr, timer);
                     context.objectIsComplete();
                     notifyPendingObjectCompletionWatchers();
                 } else {
@@ -821,7 +821,7 @@ public class Contextor extends RefTable {
     }
 
     private class GetItemHandler implements Consumer<Object> {
-        private String myItemRef;
+        private final String myItemRef;
 
         GetItemHandler(String itemRef) {
             myItemRef = itemRef;
@@ -830,7 +830,7 @@ public class Contextor extends RefTable {
         public void accept(Object obj) {
             if (obj != null) {
                 Item item = (Item) obj;
-                item.activate(myItemRef, "", false, Contextor.this, traceFactory);
+                item.activate(myItemRef, "", false, Contextor.this);
                 item.objectIsComplete();
 
                 if (item.isReady()) {
@@ -996,8 +996,8 @@ public class Contextor extends RefTable {
      * actually asked for it originally.
      */
     private class ScopedModAttacher implements Consumer<Object> {
-        private String myScope;
-        private Consumer<Object> myOuterHandler;
+        private final String myScope;
+        private final Consumer<Object> myOuterHandler;
         private BasicObject myObj;
 
         /**

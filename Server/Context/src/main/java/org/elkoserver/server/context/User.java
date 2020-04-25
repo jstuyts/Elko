@@ -9,7 +9,6 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.Trace;
-import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * A User represents a connection to someone entered into a context from a
@@ -41,9 +40,6 @@ public class User extends BasicObject implements Deliverer {
     /** The actor that represents the connection to the client. */
     private UserActor myActor;
 
-    /** Connection associated with this user. */
-    private Connection myConnection;
-
     /** Optional watcher for friend presence changes. */
     private PresenceWatcher myPresenceWatcher;
 
@@ -51,7 +47,7 @@ public class User extends BasicObject implements Deliverer {
     private boolean amAnonymous;
 
     /** Flag that user contents are opaque to other users. */
-    private boolean amPrivateContents;
+    private final boolean amPrivateContents;
 
     /** Trace object for diagnostics. */
     private Trace tr;
@@ -97,13 +93,12 @@ public class User extends BasicObject implements Deliverer {
 
     /**
      * Activate a user.
-     *
-     * @param ref  Reference string identifying this user.
+     *  @param ref  Reference string identifying this user.
      * @param subID  Clone sub identity, or the empty string for non-clones.
      * @param contextor  The contextor for this server.
      * @param name  The (revised) name for this user.
      * @param sess  Client session ID for this user's connection to their
-     *    context, or null if the client doesn't care.
+*    context, or null if the client doesn't care.
      * @param isEphemeral  True if this user is ephemeral (won't checkpoint).
      * @param isAnonymous  True if this user is anonymous
      * @param actor  The actor through which this user communicates.
@@ -111,9 +106,9 @@ public class User extends BasicObject implements Deliverer {
      */
     void activate(String ref, String subID, Contextor contextor, String name,
                   String sess, boolean isEphemeral, boolean isAnonymous,
-                  UserActor actor, Trace appTrace, TraceFactory traceFactory)
+                  UserActor actor, Trace appTrace)
     {
-        super.activate(ref, subID, isEphemeral, contextor, traceFactory);
+        super.activate(ref, subID, isEphemeral, contextor);
         tr = appTrace;
         if (name != null) {
             myName = name;

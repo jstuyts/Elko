@@ -1,11 +1,6 @@
 package org.elkoserver.server.context;
 
-import org.elkoserver.foundation.json.Deliverer;
-import org.elkoserver.foundation.json.JSONMethod;
-import org.elkoserver.foundation.json.MessageHandlerException;
-import org.elkoserver.foundation.json.OptBoolean;
-import org.elkoserver.foundation.json.OptInteger;
-import org.elkoserver.foundation.json.OptString;
+import org.elkoserver.foundation.json.*;
 import org.elkoserver.foundation.timer.TimeoutNoticer;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.json.EncodeControl;
@@ -13,14 +8,8 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JSONLiteralArray;
 import org.elkoserver.json.Referenceable;
 import org.elkoserver.util.trace.Trace;
-import org.elkoserver.util.trace.TraceFactory;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
+import java.util.*;
 
 /**
  * A {@link Context} is a place for interaction between connected users.  It
@@ -168,22 +157,21 @@ public class Context extends BasicObject implements Deliverer {
 
     /**
      * Activate a context.
-     *
-     * @param ref  Reference string for the new context.
+     *  @param ref  Reference string for the new context.
      * @param subID  Clone sub identity, or the empty string for non-clones.
      * @param isEphemeral  True if this context is ephemeral (won't checkpoint)
      * @param contextor  Contextor for this server.
      * @param loadedFromRef  Reference string for the context descriptor that
-     *    this context was loaded from
+*    this context was loaded from
      * @param opener Director who requested this context to be opened, or null
-     *    if not relevant.
+*    if not relevant.
      * @param appTrace  Trace object for diagnostics.
      */
     void activate(String ref, String subID, boolean isEphemeral,
                   Contextor contextor, String loadedFromRef,
-                  DirectorActor opener, Trace appTrace, Timer timer, TraceFactory traceFactory)
+                  DirectorActor opener, Trace appTrace, Timer timer)
     {
-        super.activate(ref, subID, isEphemeral, contextor, traceFactory);
+        super.activate(ref, subID, isEphemeral, contextor);
         this.timer = timer;
         tr = appTrace;
         myGroup = new LiveGroup();

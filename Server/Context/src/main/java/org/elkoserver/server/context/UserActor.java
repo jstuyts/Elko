@@ -28,7 +28,7 @@ class UserActor
     implements SourceRetargeter, BasicProtocolActor
 {
     /** The users this actor is the actor for, by context. */
-    private Map<Context, User> myUsers;
+    private final Map<Context, User> myUsers;
 
     /** Counter for assigning emphemeral user IDs. */
     private static int theNextTempID = 1;
@@ -40,20 +40,20 @@ class UserActor
     private Timeout myEntryTimeout;
 
     /** True if reservations are required. */
-    private boolean amAuthRequired;
+    private final boolean amAuthRequired;
 
     /** Protocol being spoken on this actor's connection. */
-    private String myProtocol;
+    private final String myProtocol;
 
     /** Trace object for diagnostics. */
-    private Trace tr;
+    private final Trace tr;
     private final Timer timer;
 
     /** Connection associated with this user. */
-    private Connection myConnection;
+    private final Connection myConnection;
 
     /** The contextor for this server. */
-    private Contextor myContextor;
+    private final Contextor myContextor;
 
     /**
      * Constructor.
@@ -263,11 +263,11 @@ class UserActor
      */
     private class EnterRunnable implements Consumer<Object> {
         private String myUserRef;
-        private boolean amEphemeral;
-        private boolean amAnonymous;
-        private String myEntryName;
-        private String myContextRef;
-        private String mySess;
+        private final boolean amEphemeral;
+        private final boolean amAnonymous;
+        private final String myEntryName;
+        private final String myContextRef;
+        private final String mySess;
         private User myUser;
         private Context myContext;
         private int myComponentCount;
@@ -319,7 +319,7 @@ class UserActor
                     myUsers.put(myContext, myUser);
                     myUser.activate(ref, subID, myContextor, name, mySess,
                                     amEphemeral, amAnonymous, UserActor.this,
-                                    tr, traceFactory);
+                                    tr);
                     myUser.checkpoint();
                     String problem = myUser.enterContext(myContext);
                     myContextor.noteUser(myUser, true);
