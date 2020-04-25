@@ -59,8 +59,6 @@ public class JSONHTTPFramer extends HTTPFramer {
             messageString = ((JSONLiteral) message).sendableString();
         } else if (message instanceof JsonObject) {
             messageString = JsonObjectSerialization.sendableString((JsonObject) message);
-        } else if (message instanceof JsonObject) {
-            messageString = JsonObjectSerialization.sendableString((JsonObject) message);
         } else if (message instanceof String) {
             messageString = "\"" + message + "\"";
         } else {
@@ -93,7 +91,7 @@ public class JSONHTTPFramer extends HTTPFramer {
             returned because the framer always parses one JSON message ahead,
             in order to be able to see the end of the HTTP message string. */
         private Object myLastMessageParsed;
-        private TraceFactory traceFactory;
+        private final TraceFactory traceFactory;
 
         /**
          * Constructor. Strip the form variable name and parse the rest as
