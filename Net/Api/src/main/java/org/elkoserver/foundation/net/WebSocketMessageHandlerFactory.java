@@ -1,10 +1,14 @@
 package org.elkoserver.foundation.net;
 
+import org.elkoserver.util.trace.Trace;
+
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.Arrays;
+import java.util.Set;
 
-import org.elkoserver.util.trace.Trace;
+import static java.util.stream.Collectors.toSet;
 
 /**
  * Message handler factory to provide message handlers that wrap a message
@@ -13,13 +17,13 @@ import org.elkoserver.util.trace.Trace;
 class WebSocketMessageHandlerFactory implements MessageHandlerFactory {
     /** The message handler factory for the messages embedded in the composite
         stream. */
-    private MessageHandlerFactory myInnerFactory;
+    private final MessageHandlerFactory myInnerFactory;
 
     /** The URI of the WebSocket connection point. */
-    private String mySocketURI;
+    private final String mySocketURI;
 
     /** Trace object for message logging. */
-    private Trace trMsg;
+    private final Trace trMsg;
 
     /**
      * Each HTTP message handler wraps an application-level message handler,
@@ -78,7 +82,7 @@ class WebSocketMessageHandlerFactory implements MessageHandlerFactory {
             sendError(connection, "Invalid WebSocket endpoint URI");
         } else if (!"WebSocket".equalsIgnoreCase(request.header("upgrade"))) {
             sendError(connection, "Invalid WebSocket Upgrade header");
-        } else if (!"Upgrade".equalsIgnoreCase(request.header("connection"))) {
+        } else if (!getConnectionValues(request).contains("Upgrade")) {
             sendError(connection, "Invalid WebSocket Connection header");
         } else if (key != null) {
             connection.sendMsg(generateRidiculousHandshake6(key));
@@ -90,6 +94,10 @@ class WebSocketMessageHandlerFactory implements MessageHandlerFactory {
             connection.sendMsg(generateRidiculousHandshake0(key1, key2,
                                                           request.crazyKey()));
         }
+    }
+
+    private Set<String> getConnectionValues(WebSocketRequest request) {
+        return Arrays.stream(request.header("connection").split(",")).map(String::trim).collect(toSet());
     }
 
     private long insaneKeyDecode(String key) {
