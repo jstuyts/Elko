@@ -14,10 +14,13 @@ import java.util.Iterator;
 import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
 
 /**
- * HTTP message framer for JSON messages transported via HTTP.
+ * <p>HTTP message framer for JSON messages transported via HTTP.</p>
  *
  * <p>This class treats the content of each HTTP POST to the /xmit/ URL as a
- * bundle of one or more JSON messages to be handled.
+ * bundle of one or more JSON messages to be handled.</p>
+ *
+ * <p>FIXME: nanomsg parser cannot parse multiple messages in 1 string
+ * </p>
  */
 public class JSONHTTPFramer extends HTTPFramer {
     private final TraceFactory traceFactory;
@@ -84,7 +87,7 @@ public class JSONHTTPFramer extends HTTPFramer {
      * HTTP POST body contains one or more JSON messages.
      */
     private static class JSONBodyUnpacker implements Iterator<Object> {
-        private final String postBody;
+        private String postBody;
         /** Last JSON message parsed.  This will be the next JSON message to be
             returned because the framer always parses one JSON message ahead,
             in order to be able to see the end of the HTTP message string. */
@@ -150,7 +153,9 @@ public class JSONHTTPFramer extends HTTPFramer {
          */
         private Object parseNextMessage() {
             try {
-                return jsonObjectFromString(postBody);
+                JsonObject result = jsonObjectFromString(postBody);
+                postBody = "";
+                return result;
             } catch (JsonParserException e) {
                 if (Communication.TheDebugReplyFlag) {
                     return e;
