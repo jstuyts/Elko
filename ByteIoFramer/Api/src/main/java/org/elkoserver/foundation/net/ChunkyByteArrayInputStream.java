@@ -1,12 +1,12 @@
 package org.elkoserver.foundation.net;
 
+import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.LinkedList;
-
-import org.elkoserver.util.trace.Trace;
-import org.elkoserver.util.trace.TraceFactory;
 
 import static org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII;
 
@@ -81,7 +81,7 @@ public class ChunkyByteArrayInputStream extends InputStream {
     private int myWorkingBufferLength;
 
     /** Additional byte arrays queued to be read. */
-    private LinkedList<byte[]> myPendingBuffers;
+    private final LinkedList<byte[]> myPendingBuffers;
     
     /** A byte array that has been passed to this object by its client but not
         yet copied to storage internal to this object. */
@@ -100,11 +100,11 @@ public class ChunkyByteArrayInputStream extends InputStream {
     private boolean amAtEOF;
 
     /** Buffer for accumulating a line of decoded characters. */
-    private StringBuilder myLine;
+    private final StringBuilder myLine;
 
     /** Flag indicating that WebSocket framing is enabled. */
     private boolean amWebSocketFraming;
-    private TraceFactory traceFactory;
+    private final TraceFactory traceFactory;
 
     /**
      * Constructor.  Initially, no input has been provided.
@@ -214,25 +214,6 @@ public class ChunkyByteArrayInputStream extends InputStream {
             return -1;
         } else {
             return readByteInternal();
-        }
-    }
-
-    /**
-     * Read the next raw byte of data from the input stream.  The byte value is
-     * returned as an int in the range 0 to 255.  If no byte is available, the
-     * value -1 is returned.  This method assumes that the byte is intended to
-     * be used as a raw value, not as part of a potentially multi-byte
-     * character.
-     *
-     * @return the next byte of data, or -1 if the end of the currently
-     *    available input is reached.
-     *
-     */
-    public int readByte() {
-        if (myTotalByteCount < 1) {
-            return -1;
-        } else {
-            return readByteInternal() & 0xFF;
         }
     }
 
@@ -392,7 +373,7 @@ public class ChunkyByteArrayInputStream extends InputStream {
 
     /**
      * Read the next line of UTF-8 encoded characters from the input stream.
-     * Howerver, If a complete line is not available in the buffers, null is
+     * However, If a complete line is not available in the buffers, null is
      * returned.
      *
      * <p>Takes UTF-8 characters from the buffers until a newline (optionally
@@ -408,28 +389,10 @@ public class ChunkyByteArrayInputStream extends InputStream {
         return readLine(true);
     }
 
-    /**
-     * Read a string of UTF-8 encoded characters from the input stream.  Will
-     * read until all currently available characters or 'byteCount' bytes are
-     * consumed, whichever happens first.
-     *
-     * @param byteCount  Number of bytes of "good" UTF-8 data known to be
-     *    available for reading.
-     */
-    public String readUTF8String(int byteCount) throws IOException {
+    public void updateUsefulByteCount(int byteCount) {
         if (myUsefulByteCount < byteCount) {
             myUsefulByteCount = byteCount;
         }
-        myLine.setLength(0);
-        int inChar = readUTF8Char();
-        if (inChar == -1) {
-            return null;
-        }
-        while (inChar != -1) {
-            myLine.append((char) inChar);
-            inChar = readUTF8Char();
-        }
-        return myLine.toString();
     }
 
     /**
@@ -440,11 +403,9 @@ public class ChunkyByteArrayInputStream extends InputStream {
      * regarded as line terminators for purposes of determining the
      * availability of received data in the input buffers).
      *
-     * @param on  New setting for the WebSocket framing flag: true means
-     *    WebSocket framing is enabled, false means it is disabled.
      */
-    void setWebSocketFraming(boolean on) {
-        amWebSocketFraming = on;
+    void enableWebSocketFraming() {
+        amWebSocketFraming = true;
     }
 
     /**

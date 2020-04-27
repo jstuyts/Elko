@@ -1,10 +1,11 @@
 package org.elkoserver.foundation.net;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
+
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Byte I/O framer factory for HTTP requests.  The framing rules implemented
@@ -117,8 +118,15 @@ public class HTTPRequestByteIOFramerFactory implements ByteIOFramerFactory {
                                 myIn.preserveBuffers();
                                 return;
                             } else {
-                                String content = myIn.readUTF8String(bodyLen);
-                                myRequest.setContent(content);
+                                myIn.updateUsefulByteCount(bodyLen);
+                                StringBuilder contentBuilder = new StringBuilder(bodyLen);
+                                InputStreamReader isr = new InputStreamReader(myIn, StandardCharsets.UTF_8);
+                                int character = isr.read();
+                                while (character != -1) {
+                                    contentBuilder.append((char)character);
+                                    character = isr.read();
+                                }
+                                myRequest.setContent(contentBuilder.toString());
                             }
                         }
                         myReceiver.receiveMsg(myRequest);

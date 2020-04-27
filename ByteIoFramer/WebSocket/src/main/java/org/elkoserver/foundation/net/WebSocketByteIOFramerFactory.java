@@ -1,12 +1,12 @@
 package org.elkoserver.foundation.net;
 
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-
+import org.apache.commons.codec.binary.Base64;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.util.trace.Trace;
-import org.apache.commons.codec.binary.Base64;
 import org.elkoserver.util.trace.TraceFactory;
+
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 
 import static org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII;
 
@@ -148,7 +148,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
                         }
                         myReceiver.receiveMsg(myRequest);
                         myWSParseStage = WS_STAGE_MESSAGES;
-                        myIn.setWebSocketFraming(true);
+                        myIn.enableWebSocketFraming();
                         myMessageFramer =
                             new JSONByteIOFramer(trMsg, myReceiver, myLabel,
                                                  myIn);
