@@ -327,7 +327,7 @@ public class Context extends BasicObject implements Deliverer {
      */
     void exitContext(User who) {
         tr.eventi(who + " exits " + this);
-        if (myUsers != null) {
+        if (myUsers != null && myUsers.get(who.baseRef()) != null && myUsers.get(who.baseRef()).ref().equals(who.ref())) {
             myUsers.remove(who.baseRef());
         }
         if (who.isArrived()) {
