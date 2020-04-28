@@ -1,5 +1,9 @@
 **THIS IS A FORK. ORIGINAL DOCUMENTATION BELOW**
 
+A very basic example is working. See [Chat Basic](Run/ChatBasic/README.md).
+
+----
+
 # Elko
 
 ### A server framework for stateful, sessionful applications in the web

@@ -16,6 +16,7 @@ repositories {
 
 dependencies {
     implementation("org.javassist:javassist:3.27.0-GA")
+    implementation("org.mongodb:mongodb-driver:3.4.3")
     implementation(kotlin("stdlib-jdk8"))
 }
 

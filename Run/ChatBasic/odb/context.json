@@ -1,0 +1,11 @@
+{
+  "type": "context",
+  "ref": "context-chat",
+  "name": "Example Chat Room",
+  "capacity": 20,
+  "mods": [
+    {
+      "type": "schat"
+    }
+  ]
+}

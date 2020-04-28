@@ -8,6 +8,6 @@ object Libraries {
     val jetty_server = "org.eclipse.jetty:jetty-server:$jettyVersion"
     val junit_jupiter_api = "org.junit.jupiter:junit-jupiter-api:$junitVersion"
     val junit_jupiter_engine = "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-    val mongodb_driver = "org.mongodb:mongodb-driver:3.4.1"
+    val mongodb_driver = "org.mongodb:mongodb-driver:3.4.3"
     val nanojson = "com.grack:nanojson:1.6"
 }

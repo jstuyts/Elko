@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Elko Chat</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <link rel="shortcut icon" type="image/x-icon" href="chat-logo.ico"/>
+    <link href="https://unpkg.com/tailwindcss@^1.0/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body onload="document.getElementById('root').value = 'http://' + window.location.hostname + ':9001/test'">
+<h1 class="text-3xl p-2">
+    <img src="chat-logo.svg" alt="Logo of chat example" class="inline w-8"> Elko Chat Example
+</h1>
+<div id="loginForm" class="p-2">
+    <div>
+        <label for="root" class="block">Server:</label>
+        <input type="text" id="root" value="" class="border-2 border-orange-400 p-1 rounded w-full max-w-xs"/>
+
+        <label for="userid" class="block mt-4">User:</label>
+        <input type="text" id="userid" value="u-" class="border-2 border-orange-400 p-1 rounded w-full max-w-xs"/>
+
+        <div class="flex items-center justify-between mt-4 max-w-xs">
+            <input id="login" type="button" value="Log in" class="bg-orange-100 border-2 border-orange-400 px-2 py-1 rounded">
+        </div>
+    </div>
+</div>
+<div id="chatForm" class="hidden p-2">
+    <label for="input" class="hidden mr-2">Text:</label>
+    <input type="text" id="input" value="" class="border-2 border-orange-400 p-1 rounded w-full max-w-xs"/>
+    <div class="flex items-center justify-between mt-4 max-w-xs">
+        <input id="speak" type="button" value="Speak" class="bg-orange-100 border-2 border-orange-400 px-2 py-1 rounded">
+        <input id="clear" type="button" value="Clear" class="bg-orange-100 border-2 border-orange-400 px-2 py-1 rounded">
+        <input id="disconnect" type="button" value="Log out" class="bg-orange-100 border-2 border-orange-400 px-2 py-1 rounded">
+    </div>
+    <div id="log" class="bg-orange-100 w-full mt-4 p-2 rounded"></div>
+</div>
+<script src="trace.js"></script>
+<script src="connection.js"></script>
+<script src="session.js"></script>
+<script>
+
+    String.prototype.entityify = function () {
+        return this.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    };
+
+    (function () {
+        const log = document.getElementById('log');
+
+        try {
+            function pushLog(text) {
+                log.innerHTML = '<p class="mb-2">' + text + '</p>' + log.innerHTML;
+            }
+
+            function speak(session, ctxname) {
+                let inputElement = document.getElementById('input');
+                const text = inputElement.value;
+                inputElement.value = '';
+                inputElement.focus();
+                if (text && text.trim() !== "") {
+                    session.send({
+                        to: ctxname,
+                        op: 'say',
+                        speech: text
+                    });
+                }
+            }
+
+            function disconnect(session) {
+                contextReady = false;
+                session.disconnect();
+                pushLog("------ Disconnected ------");
+                document.getElementById('root').disabled = null
+                document.getElementById('userid').disabled = null
+                document.getElementById('login').disabled = null
+                document.getElementById('chatForm').classList.add("hidden");
+                document.getElementById('loginForm').classList.remove("hidden");
+            }
+
+            let root = document.getElementById('root').value;
+            let contextReady = false;
+            const users = [];
+
+            const session = ELKO.session();
+            session.getObject("session").op_exit = function(msg) {
+                window.alert(msg.why);
+                disconnect(session);
+            };
+            const ctxType = session.getType('context');
+            // noinspection JSUnusedGlobalSymbols
+            ctxType.prototype.op_say = function (msg) {
+                const user = users[msg.from];
+                pushLog('<span class="' + (user === session.getUser() ? "text-red-400" : "text-orange-400") +
+                        ' font-bold">' + user.name.entityify() + '</span>: ' + msg.speech.entityify());
+            };
+            // noinspection JSUnusedGlobalSymbols
+            ctxType.prototype.op_ready = function () {
+                contextReady = true;
+                document.getElementById("loginForm").classList.add("hidden")
+                document.getElementById("chatForm").classList.remove("hidden")
+                document.getElementById("input").focus()
+            };
+            ctxType.prototype.op_exit = function () {
+                disconnect(session);
+            };
+            ctxType.prototype.onMake = function () {
+                pushLog("Welcome to " + this.name.entityify());
+            };
+            const userType = session.getType('user');
+            userType.prototype.onMake = function () {
+                if (!session.getUser() || session.getUser().ref !== this.ref) {
+                    const stateLabel = contextReady ? 'has arrived' : 'is here';
+                    pushLog(this.name.entityify() + ' ' + stateLabel + '.');
+                }
+                users[this.ref] = this;
+            };
+            userType.prototype.onDelete = function () {
+                pushLog(this.name.entityify() + ' has left.');
+            };
+
+            document.getElementById('input').addEventListener('keyup',
+                    function (event) {
+                        if ((event.code && event.code === "Enter") || (event.keyCode && event.keyCode === 13)) {
+                            speak(session, "context-chat");
+                        }
+                    });
+            document.getElementById('clear').addEventListener('click',
+                    function () {
+                        log.innerHTML = '';
+                    });
+            document.getElementById('disconnect').addEventListener('click',
+                    function () {
+                        disconnect(session);
+                    });
+            document.getElementById('login').addEventListener('click',
+                    function () {
+                        let rootElement = document.getElementById('root');
+                        let userIdElement = document.getElementById('userid');
+
+                        root = rootElement.value;
+                        session.connectToContext(root, "context-chat", {user: userIdElement.value});
+
+                        rootElement.disabled = 'disabled'
+                        userIdElement.disabled = 'disabled'
+                        document.getElementById('login').blur();
+                        document.getElementById('login').disabled = 'disabled';
+                    });
+            document.getElementById('speak').addEventListener('click',
+                    function () {
+                        speak(session, "context-chat");
+                    });
+        } catch (e) {
+            if (e && typeof e === 'object') {
+                e = JSON.stringify(e);
+            }
+            log.innerHTML = '<h3>' + e.entityify() + '</h3>' + log.innerHTML;
+        }
+    })();
+
+</script>
+</body>
+</html>

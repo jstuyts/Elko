@@ -1,0 +1,16 @@
+{
+    "ref": "classes-chat",
+    "type": "classes",
+    "classes": [
+        {
+            "type": "class",
+            "tag": "schat",
+            "name": "com.example.game.mods.SimpleChat"
+        },
+        {
+            "type": "class",
+            "tag": "pchat",
+            "name": "com.example.game.mods.PrivateChat"
+        }
+    ]
+}
