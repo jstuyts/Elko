@@ -300,7 +300,7 @@ class PendingRequest {
      *
      * @return a JSONLiteralArray containing the encoded 'elem'.
      */
-    private JSONLiteralArray singleElementArray(Object elem) {
+    private JSONLiteralArray singleElementArray(JSONLiteral elem) {
         JSONLiteralArray array = new JSONLiteralArray();
         array.addElement(elem);
         array.finish();

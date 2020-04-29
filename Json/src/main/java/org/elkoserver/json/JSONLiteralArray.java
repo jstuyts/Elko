@@ -107,6 +107,26 @@ public class JSONLiteralArray {
         }
     }
 
+    public void addElement(JSONLiteral jsonLiteral) {
+        addElement((Object)jsonLiteral);
+    }
+
+    public void addElement(JSONLiteralArray jsonLiteralArray) {
+        addElement((Object)jsonLiteralArray);
+    }
+
+    public void addElement(Boolean bool) {
+        addElement((Object)bool);
+    }
+
+    public void addElement(Number number) {
+        addElement((Object)number);
+    }
+
+    public void addElement(String string) {
+        addElement((Object)string);
+    }
+
     /**
      * Add a reference element to an incomplete array.
      *

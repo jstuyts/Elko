@@ -123,6 +123,14 @@ public class JSONLiteral {
         arr.finish();
     }
 
+    public void addParameter(String param, String[] value) {
+        addParameter(param, (Object[])value);
+    }
+
+    public void addParameter(String param, JSONLiteral[] value) {
+        addParameter(param, (Object[])value);
+    }
+
     /**
      * Add a collection parameter to an incomplete literal (as an array).
      *
