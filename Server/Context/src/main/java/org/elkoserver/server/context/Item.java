@@ -13,7 +13,7 @@ import java.util.List;
  */
 public class Item extends BasicObject {
     /** Flag that users may delete this item. */
-    private boolean amDeletable;
+    private final boolean amDeletable;
 
     /** Flag that users may move this item around. */
     private boolean amPortable;
@@ -49,26 +49,24 @@ public class Item extends BasicObject {
 
     /**
      * JSON-driven constructor.
-     *
-     * @param name  The name of the item.
+     *  @param name  The name of the item.
      * @param ref  Nominal reference string for the item (may be overridden).
      * @param mods  Array of mods to attach to the user; can be null if no mods
-     *    are to be attached at initial creation time.
+ *    are to be attached at initial creation time.
      * @param contents  Array of inactive items that will be the initial
-     *    contents of this user, or null if there are no contents now.
+*    contents of this user, or null if there are no contents now.
      * @param in  Optional ref of container holding this item.
      * @param isPossibleContainer  Flag indicating whether the item may be used
-     *    as a container.
+*    as a container.
      * @param isDeletable  Flag indicating whether users may delete this item.
      * @param isPortable  Flag indicating whether users may move this item.
      * @param isClosed  Flag indicating whether this container is closed.
-     * @param pos  Optional position of the item within its container.
      */
     @JSONMethod({ "name", "ref", "mods", "contents", "in", "cont", "deletable",
-                  "portable", "closed", "?pos" })
+                  "portable", "closed" })
     Item(String name, OptString ref, Mod[] mods, Item[] contents, OptString in,
          OptBoolean isPossibleContainer, OptBoolean isDeletable,
-         OptBoolean isPortable, OptBoolean isClosed, Position pos)
+         OptBoolean isPortable, OptBoolean isClosed)
     {
         super(name, mods, isPossibleContainer.value(true), contents);
         myRef = ref.value(null);
