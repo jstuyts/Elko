@@ -14,7 +14,6 @@ dependencies {
     api(Libraries.nanojson)
 
     implementation(project(":Server:Context"))
-    implementation(Libraries.commons_codec)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

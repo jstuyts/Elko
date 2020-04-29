@@ -1,12 +1,12 @@
 package org.elkoserver.foundation.net;
 
-import org.apache.commons.codec.binary.Base64;
 import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import static org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII;
 
@@ -15,19 +15,19 @@ import static org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII;
  * and TCP.
  */
 public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
-    private static Base64 theCodec = new Base64();
+    private static final Base64.Encoder base64Encoder = Base64.getEncoder();
 
-    private Trace trMsg;
+    private final Trace trMsg;
 
     /** The host address of the WebSocket connection point. */
-    private String myHostAddress;
-    private TraceFactory traceFactory;
+    private final String myHostAddress;
+    private final TraceFactory traceFactory;
 
     /** The host address, stripped of port number. */
-    private String myHostName;
+    private final String myHostName;
 
     /** The URI of the WebSocket connection point. */
-    private String mySocketURI;
+    private final String mySocketURI;
 
     /**
      * Constructor.
@@ -64,13 +64,13 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
      */
     private class WebSocketFramer implements ByteIOFramer {
         /** The message receiver that input is being framed for. */
-        private MessageReceiver myReceiver;
+        private final MessageReceiver myReceiver;
         
         /** A label for the connection, for logging. */
-        private String myLabel;
+        private final String myLabel;
 
         /** Input data source. */
-        private ChunkyByteArrayInputStream myIn;
+        private final ChunkyByteArrayInputStream myIn;
 
         /** Lower-level framer once we start actually reading messages. */
         private JSONByteIOFramer myMessageFramer;
@@ -88,7 +88,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
         private static final int WS_STAGE_MESSAGES = 4;
 
         /** HTTP request object under construction, for start handshake. */
-        private WebSocketRequest myRequest;
+        private final WebSocketRequest myRequest;
 
         /**
          * Constructor.
@@ -226,7 +226,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
                         "Upgrade: Websocket\r\n" +
                         "Connection: Upgrade\r\n" +
                         "Sec-WebSocket-Accept: " +
-                            theCodec.encodeToString(handshake.bytes()) +
+                            base64Encoder.encodeToString(handshake.bytes()) +
                             "\r\n\r\n";
                     byte[] headerBytes = header.getBytes(StandardCharsets.US_ASCII);
                     if (trMsg.getDebug() && Trace.ON) {

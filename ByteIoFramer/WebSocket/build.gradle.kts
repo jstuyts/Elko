@@ -16,7 +16,6 @@ dependencies {
     implementation(project(":ByteIoFramer:Json"))
     implementation(project(":Json"))
     implementation(project(":Util"))
-    implementation(Libraries.commons_codec)
     implementation(Libraries.nanojson)
 }
 
