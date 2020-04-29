@@ -13,7 +13,6 @@ import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.json.JsonArray;
 import org.elkoserver.json.JsonObject;
 import org.elkoserver.json.JsonObjectSerialization;
-import org.elkoserver.json.JsonWrapping;
 import org.elkoserver.objdb.store.*;
 import org.elkoserver.util.trace.Trace;
 

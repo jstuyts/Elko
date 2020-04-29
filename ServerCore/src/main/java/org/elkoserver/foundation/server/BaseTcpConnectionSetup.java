@@ -5,7 +5,6 @@ import org.elkoserver.foundation.net.NetAddr;
 import org.elkoserver.foundation.net.NetworkManager;
 import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.server.metadata.AuthDesc;
-import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 

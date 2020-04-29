@@ -4,8 +4,6 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlin.test.assertTrue
-import kotlin.test.fail
 
 internal class BootArgumentsTest {
     @Test
