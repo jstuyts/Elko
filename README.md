@@ -1,5 +1,7 @@
 **THIS IS A FORK. ORIGINAL DOCUMENTATION BELOW**
 
+[![Build Status](https://travis-ci.org/jstuyts/Elko.svg?branch=master)](https://travis-ci.org/jstuyts/Elko)
+
 # ![Logo](corporate-identity/Elko-logo-32.png) Elko
 
 Required tools for building:
