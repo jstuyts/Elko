@@ -1,6 +1,6 @@
 **THIS IS A FORK. ORIGINAL DOCUMENTATION BELOW**
 
-[![Build Status](https://travis-ci.org/jstuyts/Elko.svg?branch=master)](https://travis-ci.org/jstuyts/Elko)
+[![Build Status](https://travis-ci.com/jstuyts/Elko.svg?branch=master)](https://travis-ci.com/jstuyts/Elko)
 
 # ![Logo](corporate-identity/Elko-logo-32.png) Elko
 
