@@ -15,12 +15,18 @@ repositories {
     mavenCentral()
 }
 
+val webFiles by configurations.creating { }
+
 dependencies {
     implementation(project(":Example"))
     implementation(project(":ObjectDatabase:MongoObjectStore"))
     implementation(project(":Run:services:WebServer"))
     implementation(project(":Server:Context"))
     implementation(project(":ServerManagement"))
+
+    webFiles(project(":Presence:JavaScript")) {
+        targetConfiguration = "archives"
+    }
 }
 
 val initializeChatBasicDatabase by tasks.registering {
@@ -100,13 +106,20 @@ val stopChatBasicContext by tasks.registering(JavaExec::class) {
     isIgnoreExitValue = true
 }
 
+val createChatBasicWebRoot by tasks.registering(Copy::class) {
+    from("web")
+    from({ webFiles.resolve().map { zipTree(it) } })
+    into(temporaryDir)
+}
+
 val startChatBasicWebServer by tasks.registering(JavaExec::class) {
     group = "Elko"
+    dependsOn(createChatBasicWebRoot)
 
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.run.services.webserver.StartWebServerKt"
     args = mutableListOf(
-            project.file("web").absolutePath,
+            createChatBasicWebRoot.get().temporaryDir.absolutePath,
             "figleaf",
             "--listen",
             "0.0.0.0",

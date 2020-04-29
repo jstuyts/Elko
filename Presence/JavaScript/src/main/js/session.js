@@ -7,8 +7,6 @@ if (typeof ELKO === 'undefined') {
  */
 ELKO.session = function() {
 
-    const trace = ELKO.trace;
-
     /** Mapping from ref strings to dispatchable objects. */
     let myObjectTable = {};
 
@@ -43,7 +41,7 @@ ELKO.session = function() {
     /** The user object associated with the current session & context. */
     let myUser = null;
 
-    /** The context associtated with the current session */
+    /** The context associated with the current session */
     let myContext = null;
 
     // noinspection JSUnusedGlobalSymbols
@@ -118,9 +116,9 @@ ELKO.session = function() {
                 } else {
                     okToGo = false;
                     if (userinfo.utag) {
-                        trace.error("user info is missing 'uparam'");
+                        console.error("user info is missing 'uparam'");
                     } else {
-                        trace.error("user info is missing 'utag'");
+                        console.error("user info is missing 'utag'");
                     }
                 }
             }
@@ -138,8 +136,7 @@ ELKO.session = function() {
          * @param userinfo  User information object
          * @param template  Optional ref of a template to generate the context
          */
-        connectToContextViaDirector: function (root, context, userinfo,
-                                               template) {
+        connectToContextViaDirector: function (root, context, userinfo, template) {
             const session = this;
             // noinspection JSUnusedGlobalSymbols
             addObject({
@@ -147,7 +144,7 @@ ELKO.session = function() {
                 op_reserve: function (msg) {
                     session.disconnect();
                     if (msg.deny) {
-                        trace.error("reservation failure: " + msg.deny);
+                        console.error("reservation failure: " + msg.deny);
                     } else {
                         userinfo.auth = msg.reservation;
                         session.connectToContext(msg.hostport, context,
@@ -174,7 +171,6 @@ ELKO.session = function() {
          */
         disconnect: function () {
             myConnection.disconnect();
-            delete myConnection;
             myConnection = null;
             myObjectTable = {};
             addObject(sessionObject);
@@ -196,15 +192,15 @@ ELKO.session = function() {
                 if (obj[op]) {
                     obj[op](msg);
                 } else {
-                    trace.error("Server sent message to '" + msg.to +
+                    console.error("Server sent message to '" + msg.to +
                                 "' with unsupported op '" + msg.op + "'");
                 }
             } else {
-                trace.error("Server sent message to unknown object '" +
+                console.error("Server sent message to unknown object '" +
                             msg.to + "'");
             }
         } catch (err) {
-            trace.error("Error '" + err + "' handling message: " + msg);
+            console.error("Error '" + err + "' handling message: " + msg);
         }
     }
 
@@ -216,7 +212,7 @@ ELKO.session = function() {
      * @param error  Tag string indicating the particular error encountered
      */
     function handleError(msg, task, error) {
-        trace.error("Server connection error: '" + msg + "', task=" + task +
+        console.error("Server connection error: '" + msg + "', task=" + task +
                     ", error=" + JSON.stringify(error));
     }
 
@@ -262,9 +258,9 @@ ELKO.session = function() {
         op_make: function (msg) {
             const desc = msg.obj;
             if (!desc.ref) {
-                trace.error("Make with no 'ref' for new object: " + msg);
+                console.error("Make with no 'ref' for new object: " + msg);
             } else if (myObjectTable[desc.ref]) {
-                trace.error("Make for preexisting object '" + desc.ref + "'");
+                console.error("Make for preexisting object '" + desc.ref + "'");
             } else {
                 let newObj = null;
                 if (desc.type) {
@@ -272,11 +268,11 @@ ELKO.session = function() {
                     if (typeDef) {
                         newObj = typeDef.make(desc);
                     } else {
-                        trace.warning("Make specifies unknown object type '" +
+                        console.warn("Make specifies unknown object type '" +
                             desc.type + "' (ignored)");
                     }
                 } else {
-                    trace.warning("Make with no type for new object: " + msg);
+                    console.warn("Make with no type for new object: " + msg);
                 }
                 if (newObj === null) {
                     newObj = makeobj(theBasicObjectPrototype);
@@ -312,16 +308,15 @@ ELKO.session = function() {
             }
         },
         op_delete: function () {
-            let i;
             const container = this.container;
             const contents = container.contents;
-            for (i = 0; i < contents.length; ++i) {
+            for (let i = 0; i < contents.length; ++i) {
                 if (contents[i] === this) {
                     contents.splice(i, 1);
                     break;
                 }
             }
-            for (i in this.mods) {
+            for (let i in this.mods) {
                 const mod = this.mods[i];
                 if (mod.onDelete) {
                     mod.onDelete();
@@ -335,9 +330,9 @@ ELKO.session = function() {
     };
 
     function makeobj(proto) {
-        function empty() { }
-        empty.prototype = proto;
-        return new empty();
+        function Empty() { }
+        Empty.prototype = proto;
+        return new Empty();
     }
 
     /* Define the 'session' object, always present in the environment. */
@@ -345,9 +340,9 @@ ELKO.session = function() {
     sessionObject.ref = "session";
     sessionObject.op_exit = function(msg) {
         if (msg.why) {
-            trace.warning("Session closed by server: " + msg.why);
+            console.warn("Session closed by server: " + msg.why);
         } else {
-            trace.warning(JSON.stringify(msg));
+            console.warn(JSON.stringify(msg));
         }
         myConnection.disconnect();
     };
@@ -358,7 +353,7 @@ ELKO.session = function() {
     const errorObject = {
         ref: "error",
         op_debug: function(msg) {
-            trace.error("Server debug message: " + msg.msg);
+            console.error("Server debug message: " + msg.msg);
         }
     };
     addObject(errorObject);
@@ -373,9 +368,8 @@ ELKO.session = function() {
      * @param proto  Prototype for the new object to inherit from
      */
     function makeBasicObject(obj, desc, proto) {
-        let p;
         const result = makeobj(proto);
-        for (p in obj) {
+        for (let p in obj) {
             if (obj.hasOwnProperty(p)) {
                 result[p] = obj[p];
             }
@@ -449,7 +443,6 @@ ELKO.session = function() {
     }
 
     const userproto = makeobj(theBasicObjectPrototype);
-    // noinspection JSUnusedGlobalSymbols
     userproto.op_ready = function (msg) { };
     addType({type: 'user', make: makeUser, prototype: userproto});
 
