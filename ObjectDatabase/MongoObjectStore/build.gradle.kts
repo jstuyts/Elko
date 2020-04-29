@@ -1,7 +1,7 @@
 import org.elkoserver.develop.gradle.apiclasses.ApiClassesTask
 
 plugins {
-    `java-library`
+    kotlin("jvm")
 }
 
 repositories {
@@ -16,14 +16,11 @@ dependencies {
 
     implementation(project(":JsonMessageHandling"))
     implementation(project(":ObjectDatabase:Api"))
+    implementation(kotlin("stdlib-jdk8"))
     implementation(Libraries.mongodb_driver)
     implementation(Libraries.nanojson)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {
     dependsOn(tasks.classes)
-}
-
-java {
-    sourceCompatibility = JavaVersion.VERSION_11
 }
