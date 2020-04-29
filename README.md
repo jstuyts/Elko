@@ -1,5 +1,7 @@
 **THIS IS A FORK. ORIGINAL DOCUMENTATION BELOW**
 
+# ![Logo](corporate-identity/Elko-logo-32.png) Elko
+
 Required tools for building:
 
 * JDK 11: [Oracle](https://www.oracle.com/java/technologies/javase-downloads.html), [Adopt OpenJDK](https://adoptopenjdk.net/)
@@ -7,6 +9,8 @@ Required tools for building:
 A very basic example is working. See [Chat Basic](Run/ChatBasic/README.md).
 
 ----
+
+Original documentation start here.
 
 # Elko
 
