@@ -19,5 +19,5 @@ val apiClasses by tasks.registering(ApiClassesTask::class) {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_12
+    sourceCompatibility = JavaVersion.VERSION_11
 }

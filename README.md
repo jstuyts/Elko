@@ -1,5 +1,9 @@
 **THIS IS A FORK. ORIGINAL DOCUMENTATION BELOW**
 
+Required tools for building:
+
+* JDK 11: [Oracle](https://www.oracle.com/java/technologies/javase-downloads.html), [Adopt OpenJDK](https://adoptopenjdk.net/)
+
 A very basic example is working. See [Chat Basic](Run/ChatBasic/README.md).
 
 ----

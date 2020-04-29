@@ -1,4 +1,5 @@
 import org.elkoserver.develop.gradle.apiclasses.ApiClassesTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
@@ -21,5 +22,9 @@ val apiClasses by tasks.registering(ApiClassesTask::class) {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_12
+    sourceCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions.jvmTarget = "11"
 }

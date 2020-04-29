@@ -6,17 +6,24 @@ This is a minimal example that should give you an idea of what messages are sent
 
 It provides a single chat room where you can chat as one of three users.
 
+## Required Tools
+
+Required tools for running:
+
+* JDK 11: [Oracle](https://www.oracle.com/java/technologies/javase-downloads.html), [Adopt OpenJDK](https://adoptopenjdk.net/)
+* [MongoDB](https://www.mongodb.com/) or [Vagrant](https://www.vagrantup.com/)
+
 ## Code 
 
 The code for this example can be found in class `SimpleChat` and folder `web`.
 
 ### Server-Side
 
-Note that most code of `SimpleChat` is not used in this example: pushing a URL and private chat are not supported in the web client. So the only interesting functions are `say(User?, String?)` and `msgSay(Referenceable?, Referenceable?, String?)`.
+Note that most code of [`SimpleChat`](../../Example/src/main/kotlin/com/example/game/mods/SimpleChat.kt) is not used in this example: pushing a URL and private chat are not supported in the web client. So the only interesting functions are `say(User?, String?)` and `msgSay(Referenceable?, Referenceable?, String?)`.
 
 ### Client-Side
 
-The client-side code is in `web/index.html`. Look at how the session (`getObject("session")`), context (`ctxType`) and user (`userType`) types are extended for this specific application.
+The client-side code is in [`web/index.html`](web/index.html). Look at how the session (`getObject("session")`), context (`ctxType`) and user (`userType`) types are extended for this specific application.
 
 Generic Elko code can be found in the separate JavaScript files.
 

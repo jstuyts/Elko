@@ -1,3 +1,5 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
 buildscript {
     repositories {
         jcenter()
@@ -20,6 +22,6 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_12
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions.jvmTarget = "11"
 }
