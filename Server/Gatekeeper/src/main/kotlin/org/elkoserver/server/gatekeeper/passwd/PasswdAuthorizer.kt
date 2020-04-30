@@ -1,7 +1,11 @@
 package org.elkoserver.server.gatekeeper.passwd
 
 import org.elkoserver.objdb.ObjDB
-import org.elkoserver.server.gatekeeper.*
+import org.elkoserver.server.gatekeeper.Authorizer
+import org.elkoserver.server.gatekeeper.Gatekeeper
+import org.elkoserver.server.gatekeeper.ReservationResult
+import org.elkoserver.server.gatekeeper.ReservationResultHandler
+import org.elkoserver.server.gatekeeper.SetPasswordResultHandler
 import org.elkoserver.util.trace.TraceFactory
 import java.security.SecureRandom
 import java.util.function.Consumer
@@ -11,12 +15,7 @@ import kotlin.math.abs
  * A simple implementation of the [Authorizer] interface for use with
  * the Elko Gatekeeper.
  */
-class PasswdAuthorizer(private val traceFactory: TraceFactory)
-/**
- * Constructor.  Nothing to do in this case, since all the real
- * initialization work happens in [initialize()][.initialize].
- */
-    : Authorizer {
+class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
     /** The database in which the authorization info is kept.  */
     private var myODB: ObjDB? = null
 
@@ -64,7 +63,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory)
      * @param name  The name of the place.
      * @param context  The context 'name' maps to.
      */
-    fun addPlace(name: String, context: String?) {
+    fun addPlace(name: String, context: String) {
         val place = PlaceDesc(name, context)
         myODB!!.putObject("p-$name", place, null, false, null)
     }
@@ -213,8 +212,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory)
                     failure = "no such actor"
                 }
                 if (failure == null) {
-                    myGatekeeper!!.requestReservation(myProtocol, myContextID,
-                            iid, this)
+                    myGatekeeper!!.requestReservation(myProtocol, myContextID!!, iid!!, this)
                 }
             }
             if (failure != null) {
@@ -243,23 +241,23 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory)
                              newPassword: String,
                              handler: SetPasswordResultHandler) {
         getActor(id, Consumer { obj: Any? ->
-            val failure: String?
-            failure = if (obj != null) {
-                val actor = obj as ActorDesc
-                if (actor.testPassword(oldPassword)) {
-                    if (actor.canSetPass()) {
-                        actor.setPassword(newPassword)
-                        checkpointActor(actor)
-                        null
+            val failure =
+                    if (obj != null) {
+                        val actor = obj as ActorDesc
+                        if (actor.testPassword(oldPassword)) {
+                            if (actor.canSetPass()) {
+                                actor.setPassword(newPassword)
+                                checkpointActor(actor)
+                                null
+                            } else {
+                                "password change not allowed"
+                            }
+                        } else {
+                            "bad password"
+                        }
                     } else {
-                        "password change not allowed"
+                        "no such actor"
                     }
-                } else {
-                    "bad password"
-                }
-            } else {
-                "no such actor"
-            }
             handler.handle(failure)
         })
     }

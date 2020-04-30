@@ -8,7 +8,10 @@ import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
-import java.util.*
+import java.util.Collections
+import java.util.HashMap
+import java.util.HashSet
+import java.util.LinkedList
 import java.util.function.Consumer
 
 /**
@@ -20,7 +23,7 @@ internal class PresenceServer(
         traceFactory: TraceFactory,
         clock: Clock) {
     /** Database that this server stores stuff in.  */
-    private val myODB: ObjDB?
+    private val myODB: ObjDB
 
     /** Table for mapping object references in messages.  */
     private val myRefTable: RefTable
@@ -81,7 +84,7 @@ internal class PresenceServer(
         }
     }
 
-    fun updateDomain(domain: String, conf: JsonObject?, client: PresenceActor) {
+    fun updateDomain(domain: String, conf: JsonObject, client: PresenceActor) {
         val graph = mySocialGraphs[domain]
         if (graph == null) {
             tr.warningi("client " + client +
@@ -92,7 +95,7 @@ internal class PresenceServer(
         }
     }
 
-    fun removeSubscriber(context: String?) {
+    fun removeSubscriber(context: String) {
         for (graph in mySocialGraphs.values) {
             graph.domain().removeSubscriber(context)
         }
@@ -192,9 +195,7 @@ internal class PresenceServer(
         return myUsers[userRef]
     }
 
-    fun objDB(): ObjDB? {
-        return myODB
-    }
+    fun objDB() = myODB
 
     /**
      * Return the object ref table.

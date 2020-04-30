@@ -78,7 +78,6 @@ class Gatekeeper internal constructor(
      * @throws MessageHandlerException if this actor is not authorized to
      * perform administrative operations.
      */
-    @Throws(MessageHandlerException::class)
     fun ensureAuthorizedAdmin(from: BasicProtocolActor) {
         if (from is GatekeeperActor) {
             from.ensureAuthorizedAdmin()
@@ -139,14 +138,11 @@ class Gatekeeper internal constructor(
      * @param handler  Object to handle the reservation result.  When the
      * result becomes available, it will be passed as an instance of [    ].
      */
-    fun requestReservation(protocol: String?, context: String?,
-                           actor: String?, handler: Consumer<Any?>) {
+    fun requestReservation(protocol: String, context: String, actor: String, handler: Consumer<Any?>) {
         if (myDirectorHost == null) {
-            handler.accept(ReservationResult(context, actor,
-                    "no director host specified"))
+            handler.accept(ReservationResult(context, actor, "no director host specified"))
         } else {
-            myDirectorActorFactory.requestReservation(protocol, context, actor,
-                    handler)
+            myDirectorActorFactory.requestReservation(protocol, context, actor, handler)
         }
     }
 
@@ -167,7 +163,7 @@ class Gatekeeper internal constructor(
      *
      * @param host  The new director host.
      */
-    fun setDirectorHost(host: HostDesc?) {
+    fun setDirectorHost(host: HostDesc) {
         if (myDirectorHost != null) {
             myDirectorActorFactory.disconnectDirector()
         }
@@ -206,8 +202,7 @@ class Gatekeeper internal constructor(
             myServer.findService("director-user", DirectorFoundRunnable(),
                     false)
         } else {
-            val directorHost = HostDesc.fromProperties(props,
-                    "conf.gatekeeper.director", traceFactory)
+            val directorHost = HostDesc.fromProperties(props, "conf.gatekeeper.director", traceFactory)
             if (directorHost == null) {
                 tr.errori("no director specified")
             } else {

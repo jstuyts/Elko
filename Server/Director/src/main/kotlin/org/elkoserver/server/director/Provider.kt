@@ -1,0 +1,361 @@
+package org.elkoserver.server.director
+
+import org.elkoserver.util.HashMapMulti
+import org.elkoserver.util.trace.Trace
+import java.util.Collections
+import java.util.HashMap
+import java.util.HashSet
+
+/**
+ * The provider facet of a director actor.  This object represents the state
+ * functionality required when a connected entity is engaging in the provider
+ * protocol.
+ *
+ * @param myDirector  The director that is tracking the provider.
+ * @param myActor  The actor associated with the provider.
+ * @param tr  Trace object for diagnostics.
+ */
+internal class Provider(private val myDirector: Director, private val myActor: DirectorActor, private val tr: Trace) : Comparable<Provider> {
+
+    /** Provider load factor.  */
+    private var myLoadFactor = 0.0
+
+    /** Names of context families served.  */
+    private val myServices: MutableSet<String> = HashSet()
+
+    /** Names of restricted context families served.  */
+    private val myRestrictedServices: MutableSet<String> = HashSet()
+
+    /** Number of users provider is willing to serve (-1 for no limit).  */
+    private var myCapacity = -1
+
+    /** Number of users currently being served.  */
+    private var myUserCount = 0
+
+    /** Host+port for this provider, by protocol.  */
+    private val myHostPorts: MutableMap<String, String> = HashMap()
+
+    /** Contexts currently open, by name.  */
+    private val myContexts: MutableMap<String, OpenContext> = HashMap()
+
+    /** Context clone sets current open, by name.  */
+    private val myCloneSets = HashMapMulti<String, OpenContext>()
+
+    /** Ordinal for consistent non-equality when load factors are equal.  */
+    private val myOrdinal = theNextOrdinal++
+
+    override fun toString() = "P($myOrdinal)"
+
+    /**
+     * Get the actor associated with this provider.
+     *
+     * @return the actor through whom this provider communicates.
+     */
+    fun actor() = myActor
+
+    /**
+     * Compare this provider to another for sorting (comparison is by load
+     * factor).
+     */
+    override fun compareTo(other: Provider): Int {
+        val diff = myLoadFactor - other.myLoadFactor
+        return when {
+            diff < 0.0 -> -1
+            diff > 0.0 -> 1
+            else -> myOrdinal - other.myOrdinal
+        }
+    }
+
+    /**
+     * Add a protocol to the list of protocols this provider will server with.
+     *
+     * @param protocol  Name of the protocol to add.
+     * @param hostPort  Host+port for reaching this provider using 'protocol'.
+     */
+    fun addProtocol(protocol: String, hostPort: String) {
+        myHostPorts[protocol] = hostPort
+    }
+
+    /**
+     * Add a service to the list for this provider.
+     *
+     * @param contextFamily  The name of the context family to add.
+     * @param capacity  The capacity of the provider, or -1 for no limit.
+     */
+    fun addService(contextFamily: String, capacity: Int, restricted: Boolean) {
+        myServices.add(contextFamily)
+        if (restricted) {
+            myRestrictedServices.add(contextFamily)
+        }
+        myCapacity = capacity
+    }
+
+    /**
+     * Obtain this provider's capacity.
+     *
+     * @return the number of users this provider is willing to serve, or -1 if
+     * there is no limit.
+     */
+    fun capacity() = myCapacity
+
+    /**
+     * Get a read-only view of the contexts currently opened by this provider.
+     *
+     * @return a collection of this provider's open contexts.
+     */
+    fun contexts() = Collections.unmodifiableCollection(myContexts.values)
+
+    /**
+     * Clean up when the provider actor disconnects.
+     */
+    fun doDisconnect() {
+        for (context in myContexts.values) {
+            myDirector.removeContext(context)
+        }
+        myDirector.removeProvider(this)
+    }
+
+    /**
+     * Return the "key" for comparing this provider against another for
+     * purposes of duplicate elimination.  The key is the host+port string for
+     * the protocol whose name string is lexically the highest.
+     */
+    fun dupKey(): String? {
+        var candidateProtocol = ""
+        for (protocol in myHostPorts.keys) {
+            if (protocol > candidateProtocol) {
+                candidateProtocol = protocol
+            }
+        }
+        return myHostPorts[candidateProtocol]
+    }
+
+    /**
+     * Test if this provider is running at least one clone of some context.
+     *
+     * @param contextName  Name of the clone set of interest.
+     *
+     * @return true if the named clone set is on this provider somewhere.
+     */
+    fun hasClone(contextName: String) = !myCloneSets.getMulti(contextName).isEmpty
+
+    /**
+     * Test if a user is in some context on this provider.
+     *
+     * @param user  The name of the user to look for.
+     *
+     * @return true if the named user is on this provider somewhere.
+     */
+    fun hasUser(user: String): Boolean {
+        for (context in myContexts.values) {
+            if (context.hasUser(user)) {
+                return true
+            }
+        }
+        return false
+    }
+
+    /**
+     * Return the host+port for reaching this provider via a given protocol.
+     *
+     * @param protocol  The protocol sought.
+     *
+     * @return the host+port for to talk to this provider using 'protocol'.
+     */
+    fun hostPort(protocol: String) = myHostPorts[protocol]
+
+    /**
+     * Get a read-only view of the set of host+ports this provider supports.
+     *
+     * @return a collection of this provider's host+ports.
+     */
+    fun hostPorts() = Collections.unmodifiableCollection(myHostPorts.values)
+
+    /**
+     * Test if this provider is unable to accept more users.
+     *
+     * @return true if this provider has reached its capacity limit.
+     */
+    val isFull: Boolean
+        get() = myCapacity in 0..myUserCount
+
+    /**
+     * Return this provider's load factor.
+     */
+    fun loadFactor() = myLoadFactor
+
+    /**
+     * Test if a given label matches this provider.
+     *
+     * This will be true if the label is this provider's label or one of its
+     * host+port strings.
+     *
+     * @param label  The label to match against.
+     */
+    fun matchLabel(label: String) = myActor.label() == label || myHostPorts.containsValue(label)
+
+    /**
+     * Take note that this provider has closed a context.
+     *
+     * @param name  The context that was closed.
+     */
+    fun noteContextClose(name: String) {
+        var context = myContexts[name]
+        if (context != null) {
+            myDirector.removeContext(context)
+            myContexts.remove(name)
+            if (context.isClone) {
+                myCloneSets.remove(context.cloneSetName(), context)
+            }
+        } else {
+            context = myDirector.getContext(name)
+            if (context != null) {
+                tr.eventi("$myActor reported closure of context $name belonging to another provider (likely dup)")
+            } else {
+                tr.eventi("$myActor reported closure of non-existent context $name")
+            }
+        }
+    }
+
+    /**
+     * Open or close a context's gate, controlling entry of new users.
+     *
+     * @param name  The context whose gate is being controlled.
+     * @param open  True if the gate is being opened, false if closed.
+     * @param reason  String indicating why the gate is being closed; ignored
+     * if the gate is being opened.
+     */
+    fun noteContextGateSetting(name: String, open: Boolean, reason: String) {
+        val context = myContexts[name]
+        if (context != null) {
+            if (open) {
+                context.openGate()
+            } else {
+                context.closeGate(reason)
+            }
+        } else {
+            tr.eventi("$myActor set gate for non-existent context $name")
+        }
+    }
+
+    /**
+     * Take note that this provider has opened a context.
+     *
+     * @param name  The context that was opened.
+     * @param mine  true if this director is the one who asked the context to
+     * open (for use in closing duplicate opens).
+     * @param maxCapacity  The maximum user capacity for the context.
+     * @param baseCapacity  The base capacity for the (clone) context.
+     * @param restricted  true if this context is entry restricted
+     */
+    fun noteContextOpen(name: String, mine: Boolean, maxCapacity: Int,
+                        baseCapacity: Int, restricted: Boolean) {
+        var newContext: OpenContext? = OpenContext(this, name, mine, maxCapacity,
+                baseCapacity, restricted)
+        val oldContext = myDirector.getContext(name)
+        if (oldContext != null) {
+            val dupToClose = oldContext.pickDupToClose(newContext!!)
+            if (dupToClose.isMine) {
+                dupToClose.provider().actor().send(
+                        AdminHandler.msgClose(myDirector.providerHandler(),
+                                dupToClose.name(), null, true))
+            }
+            if (dupToClose === newContext) {
+                newContext = null
+            } else {
+                myDirector.removeContext(oldContext)
+            }
+        }
+        if (newContext != null) {
+            myDirector.addContext(newContext)
+            myContexts[name] = newContext
+            if (newContext.isClone) {
+                myCloneSets.add(newContext.cloneSetName(), newContext)
+            }
+        }
+    }
+
+    /**
+     * Take note that a user has entered one of this provider's contexts.
+     *
+     * @param contextName  The name of the context entered.
+     * @param userName  The name of the user who entered it.
+     */
+    fun noteUserEntry(contextName: String, userName: String) {
+        val context = myContexts[contextName]
+        if (context != null) {
+            context.addUser(userName)
+            myDirector.addUser(userName, context)
+            ++myUserCount
+        } else {
+            tr.errorm("$myActor reported entry of $userName to non-existent context $contextName")
+        }
+    }
+
+    /**
+     * Take note that a user has exited one of this provider's contexts.
+     *
+     * @param contextName  The name of the context exited.
+     * @param userName  The name of the user who exited from it.
+     */
+    fun noteUserExit(contextName: String, userName: String) {
+        val context = myContexts[contextName]
+        if (context != null) {
+            myDirector.removeUser(userName, context)
+            context.removeUser(userName)
+            --myUserCount
+        } else {
+            tr.errorm("$myActor reported exit of $userName from non-existent context $contextName")
+        }
+    }
+
+    /**
+     * Get a read-only view of the set of protocols this provider supports.
+     *
+     * @return a set of this provider's protocols.
+     */
+    fun protocols() = Collections.unmodifiableSet(myHostPorts.keys)
+
+    /**
+     * Get a read-only view of the set of services this provider supports.
+     *
+     * @return a set of this provider's services.
+     */
+    fun services() = Collections.unmodifiableSet(myServices)
+
+    /**
+     * Set this provider's load factor.
+     *
+     * @param loadFactor  The value to set it to.
+     */
+    fun setLoadFactor(loadFactor: Double) {
+        myDirector.removeProvider(this)
+        myLoadFactor = loadFactor.coerceAtLeast(0.0)
+        myDirector.addProvider(this)
+    }
+
+    /**
+     * Test if this provider will provide a particular service.
+     *
+     * @param service  Name of the service desired.
+     * @param protocol  Protocol desired to access it by.
+     * @param isInternal  Flag indicating a request from within the server farm
+     *
+     * @return true if this provider will serve 'service' using 'protocol'.
+     */
+    fun willServe(service: String, protocol: String, isInternal: Boolean) =
+            if (!isInternal && myRestrictedServices.contains(service)) {
+                false
+            } else {
+                myServices.contains(service) && myHostPorts.containsKey(protocol) && !isFull
+            }
+
+    companion object {
+        /** Counter for assigning ordinal values to new providers.  */
+        private var theNextOrdinal = 0
+    }
+
+    init {
+        myDirector.addProvider(this)
+    }
+}
