@@ -83,14 +83,12 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param actor  The actor through which this user communicates.
      * @param appTrace  Trace object for diagnostics.
      */
-    fun activate(ref: String?, subID: String?, contextor: Contextor?, name: String?,
+    fun activate(ref: String, subID: String, contextor: Contextor, name: String,
                  sess: String?, isEphemeral: Boolean, isAnonymous: Boolean,
-                 actor: UserActor?, appTrace: Trace?) {
-        super.activate(ref, subID, isEphemeral, contextor!!)
+                 actor: UserActor, appTrace: Trace) {
+        super.activate(ref, subID, isEphemeral, contextor)
         tr = appTrace
-        if (name != null) {
-            myName = name
-        }
+        myName = name
         mySess = sess
         myActor = actor
         this.isAnonymous = isAnonymous
@@ -104,7 +102,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @param mod  The mod to attach; must be a [UserMod].
      */
-    public override fun attachMod(mod: Mod) {
+    override fun attachMod(mod: Mod) {
         if (mod is UserMod) {
             super.attachMod(mod)
             if (mod is PresenceWatcher) {
@@ -171,11 +169,9 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
             result.addParameter("ref", myRef)
         }
         result.addParameter("name", myName)
-        if (myModSet != null) {
-            val mods = myModSet!!.encode(control)
-            if (mods.size() > 0) {
-                result.addParameter("mods", mods)
-            }
+        val mods = myModSet.encode(control)
+        if (mods.size() > 0) {
+            result.addParameter("mods", mods)
         }
         result.finish()
         return result
@@ -245,7 +241,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
             myGroup.expelMember(this)
             myGroup = LimboGroup.theLimboGroup
             it.exitContext(this)
-            myModSet?.purgeEphemeralMods()
+            myModSet.purgeEphemeralMods()
             myActor!!.exitContext(it)
             myContext = null
             isArrived = false
@@ -385,7 +381,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
             return true
         }
         for (item in obj.contents()) {
-            if (testForEntryKey(item!!, contextRef)) {
+            if (testForEntryKey(item, contextRef)) {
                 return true
             }
         }
@@ -404,7 +400,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return a type tag string for this kind of object; in this case, "user".
      */
-    public override fun type() = "user"
+    override fun type() = "user"
 
     /**
      * Obtain the user this object is currently associated with.

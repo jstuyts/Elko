@@ -22,7 +22,7 @@ internal class ExpirationDate : Comparable<ExpirationDate>, Encodable, ClockUsin
     /** Singleton DateFormat object for parsing timestamp literals.  */
     private var theDateFmt: DateFormat? = null
 
-    private var clock: Clock? = null
+    private lateinit var clock: Clock
 
     /**
      * Direct constructor.  The actual expiration time is represented by a

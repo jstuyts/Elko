@@ -88,8 +88,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
      * Make sure the state of the launch table is saved in persistent form.
      */
     fun checkpoint() {
-        val launcherTable = myLauncherTable
-        launcherTable?.checkpoint(myODB)
+        myLauncherTable?.checkpoint(myODB)
     }
 
     /**
@@ -149,8 +148,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
      */
     fun noteLoadDesc(server: BrokerActor) {
         val client = server.client()
-        val desc = LoadDesc(server.label(), client!!.loadFactor(),
-                client.providerID())
+        val desc = LoadDesc(server.label(), client!!.loadFactor(), client.providerID())
         val msg = AdminHandler.msgLoadDesc(myAdminHandler, desc.encodeAsArray())
         for (watcher in myLoadWatchers) {
             watcher.send(msg)
@@ -292,9 +290,11 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
          */
         fun noteServiceArrival(service: ServiceDesc): Boolean {
             amSuccessful = true
-            if (myTimeout != null && !amKeepWatching) {
-                myTimeout!!.cancel()
-                myTimeout = null
+            myTimeout?.let {
+                if (!amKeepWatching) {
+                    it.cancel()
+                    myTimeout = null
+                }
             }
             myClientHandler.findSuccess(myWaiter, service, myTag)
             return !amKeepWatching
@@ -362,8 +362,9 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
             myODB.addClass("launcher", LauncherTable.Launcher::class.java)
             myODB.getObject("launchertable", null, Consumer { obj: Any? ->
                 if (obj != null) {
-                    myLauncherTable = obj as LauncherTable?
-                    myLauncherTable!!.doStartupLaunches(startMode)
+                    myLauncherTable = (obj as LauncherTable?)?.apply {
+                        doStartupLaunches(startMode)
+                    }
                 } else {
                     tr.warningm("unable to load launcher table")
                     myLauncherTable = LauncherTable("launchertable", arrayOf())

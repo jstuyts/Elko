@@ -39,10 +39,10 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * object table.
      * @param contextor  The contextor for this server.
      */
-    override fun activate(ref: String?, contextor: Contextor?) {
+    override fun activate(ref: String, contextor: Contextor) {
         super.activate(ref, contextor)
         myStatus = "connecting"
-        tr = contextor!!.appTrace()
+        tr = contextor.appTrace()
         contextor.findServiceLink(myServiceName, this)
     }
 

@@ -9,11 +9,12 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
-import org.elkoserver.server.context.ContainerValidity
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.Msg
 import org.elkoserver.server.context.User
+import org.elkoserver.server.context.validContainer
+import kotlin.contracts.ExperimentalContracts
 
 /**
  * Mod to enable creation of notes.  Notes are items with the [Note] mod
@@ -83,6 +84,7 @@ class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: St
      * this mod or if invalid style information is provided or if the
      * proposed container is not valid.
      */
+    @ExperimentalContracts
     @JSONMethod("into", "left", "top", "width", "height", "text", "?style")
     fun makenote(from: User, into: OptString, left: Int, top: Int,
                  width: Int, height: Int, text: String, style: StyleDesc?) {
@@ -92,10 +94,10 @@ class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: St
         val mergedStyle = myStyleOptions.mergeStyle(style)
         if (mergedStyle == null) {
             throw MessageHandlerException("invalid style options")
-        } else if (!ContainerValidity.validContainer(intoObj, from)) {
+        } else if (!validContainer(intoObj, from)) {
             throw MessageHandlerException("invalid destination container $intoRef")
         } else {
-            val item = intoObj!!.createItem("note", false, true)
+            val item = intoObj.createItem("note", false, true)
             Note(text, mergedStyle).run {
                 attachTo(item)
             }

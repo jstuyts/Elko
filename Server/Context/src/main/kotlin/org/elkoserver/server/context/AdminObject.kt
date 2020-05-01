@@ -21,7 +21,7 @@ abstract class AdminObject : BasicProtocolHandler(), InternalObject {
      * object table.
      * @param contextor  The contextor for this server.
      */
-    override fun activate(ref: String?, contextor: Contextor?) {
+    override fun activate(ref: String, contextor: Contextor) {
         myRef = ref
         myContextor = contextor
     }

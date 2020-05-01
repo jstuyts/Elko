@@ -101,7 +101,7 @@ class Item : BasicObject {
      *
      * @param mod  The mod to attach; must be an [ItemMod].
      */
-    public override fun attachMod(mod: Mod) {
+    override fun attachMod(mod: Mod) {
         if (mod is ItemMod) {
             super.attachMod(mod)
         } else {
@@ -174,11 +174,9 @@ class Item : BasicObject {
     private fun baseEncode(result: JSONLiteral, control: EncodeControl) {
         result.addParameter("ref", myRef)
         result.addParameterOpt("name", myName)
-        if (myModSet != null) {
-            val mods = myModSet!!.encode(control)
-            if (mods.size() > 0) {
-                result.addParameter("mods", mods)
-            }
+        val mods = myModSet.encode(control)
+        if (mods.size() > 0) {
+            result.addParameter("mods", mods)
         }
         if (!isContainer) {
             result.addParameter("cont", false)
@@ -354,7 +352,7 @@ class Item : BasicObject {
      *
      * @return a type tag string for this kind of object; in this case, "item".
      */
-    public override fun type() = "item"
+    override fun type() = "item"
 
     /**
      * Obtain the user within which this item is contained, regardless of how

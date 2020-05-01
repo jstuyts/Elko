@@ -1151,10 +1151,8 @@ class Contextor private constructor(odb: ObjDB?, server: Server,
      * @param contents  Array of inactive items to be added to the container.
      */
     fun setContents(container: BasicObject, subID: String, contents: Array<Item>?) {
-        if (contents != null) {
-            for (item in contents) {
-                activateContentsItem(container, subID, item)
-            }
+        contents?.forEach { item ->
+            activateContentsItem(container, subID, item)
         }
     }
 
@@ -1182,8 +1180,8 @@ class Contextor private constructor(odb: ObjDB?, server: Server,
      * @param userHandler  Handler to invoke with the resulting user object or
      * with null if the user object could not be produced.
      */
-    fun synthesizeUser(connection: Connection?, factoryTag: String,
-                       param: JsonObject?, contextRef: String?,
+    fun synthesizeUser(connection: Connection, factoryTag: String,
+                       param: JsonObject?, contextRef: String,
                        contextTemplate: String?,
                        userHandler: Consumer<Any?>) {
         val rawFactory = getStaticObject(factoryTag)

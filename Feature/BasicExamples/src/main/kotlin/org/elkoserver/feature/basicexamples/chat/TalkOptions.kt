@@ -27,7 +27,7 @@ class TalkOptions @JSONMethod("styles") constructor(private val myStyles: StyleO
      *
      * @return true if 'style' is acceptable to this object, false if not.
      */
-    fun allowedStyle(style: StyleDesc?) = myStyles.allowedStyle(style!!)
+    fun allowedStyle(style: StyleDesc) = myStyles.allowedStyle(style)
 
     /**
      * Encode this mod for transmission or persistence.

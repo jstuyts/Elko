@@ -34,14 +34,14 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
      * @param handler   Handler to be called with the result.  The result will
      * be the user object that was produced, or null if none could be.
      */
-    override fun provideUser(contextor: Contextor?, connection: Connection?, param: JsonObject?, handler: Consumer<Any?>?) {
-        val creds = extractCredentials(contextor!!.appTrace(), param!!)
+    override fun provideUser(contextor: Contextor, connection: Connection?, param: JsonObject?, handler: Consumer<Any?>) {
+        val creds = extractCredentials(contextor.appTrace(), param)
         if (creds == null) {
-            handler!!.accept(null)
+            handler.accept(null)
         } else {
             contextor.server().enqueueSlowTask(Callable {
                 contextor.queryObjects(deviceQuery(creds.uuid), null, 0,
-                        DeviceQueryResultHandler(contextor, creds, handler!!))
+                        DeviceQueryResultHandler(contextor, creds, handler))
                 null
             }, null)
         }
@@ -65,8 +65,7 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
                 val uuid = myCreds.uuid
                 myContextor.appTrace().eventi("synthesizing user record for $uuid")
                 val mod = DeviceUserMod(uuid)
-                user = User(name, arrayOf<Mod>(mod), null,
-                        myContextor.uniqueID("u"))
+                user = User(name, arrayOf<Mod>(mod), null, myContextor.uniqueID("u"))
                 user.markAsChanged()
             }
             myHandler.accept(user)
@@ -99,8 +98,9 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
      * @return a credentials object as described by the parameter object given,
      * or null if parameters were missing or invalid somehow.
      */
-    fun extractCredentials(appTrace: Trace,
-                           param: JsonObject): DeviceCredentials? {
+    fun extractCredentials(appTrace: Trace, param: JsonObject?): DeviceCredentials? {
+        checkNotNull(param)
+
         try {
             val uuid = param.getString("uuid")
             if (uuid == null) {

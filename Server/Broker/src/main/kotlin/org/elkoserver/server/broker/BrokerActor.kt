@@ -50,8 +50,7 @@ internal class BrokerActor(connection: Connection?, private val myFactory: Broke
     /**
      * Do the actual work of authorizing an actor.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc,
-                        label: String): Boolean {
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc, label: String): Boolean {
         var success = false
         if (myFactory.verifyAuthorization(auth)) {
             if (handler is AdminHandler) {
@@ -77,9 +76,7 @@ internal class BrokerActor(connection: Connection?, private val myFactory: Broke
     override fun doDisconnect() {
         if (!amLoggedOut) {
             tr.eventm("disconnecting $this")
-            if (myClient != null) {
-                myClient!!.doDisconnect()
-            }
+            myClient?.doDisconnect()
             if (amAdmin) {
                 myBroker.unwatchServices(this)
                 myBroker.unwatchLoad(this)

@@ -211,9 +211,8 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
                     if (serverName == "all" ||
                             client.matchLabel(serverName)) {
                         if (componentShutdown) {
-                            val launcherTable = myBroker.launcherTable()
                             // FIXME: Check if having no launcher table is a state that should be supported.
-                            launcherTable?.setRunSettingOn(serverName)
+                            myBroker.launcherTable()!!.setRunSettingOn(serverName)
                         }
                         actor.send(msg)
                     }

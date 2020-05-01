@@ -41,7 +41,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      */
     private var myExpiration = desc.getLong("expiration", 0L)
 
-    private var clock: Clock? = null
+    private lateinit var clock: Clock
 
     override fun setClock(clock: Clock) {
         this.clock = clock
@@ -99,7 +99,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * use.
      */
     val isExpired: Boolean
-        get() = 0 < myExpiration && myExpiration < clock!!.millis()
+        get() = 0 < myExpiration && myExpiration < clock.millis()
 
     /**
      * Handle a 'delete' message.  This is a request from a client to delete
@@ -253,7 +253,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
         if (newExpiration == 0L && newDuration == 0L) {
             newExpiration = myExpiration
         } else if (newExpiration == 0L) { /* newDuration != 0 */
-            newExpiration = newDuration + clock!!.millis()
+            newExpiration = newDuration + clock.millis()
         } else if (newDuration != 0L) { /* && newExpiration != 0 */
             throw MessageHandlerException("can't specify both duration and expiration")
         }

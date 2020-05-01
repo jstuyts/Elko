@@ -46,17 +46,19 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
                 } else {
                     myOriginalVars
                 }
-        val size = vars!!.size
-        val names = arrayOfNulls<String>(size)
-        val values = arrayOfNulls<String>(size)
-        var i = 0
-        for ((key, value) in vars) {
-            names[i] = key
-            values[i] = value
-            ++i
+        vars?.let {
+            val size = it.size
+            val names = arrayOfNulls<String>(size)
+            val values = arrayOfNulls<String>(size)
+            var i = 0
+            for ((key, value) in it) {
+                names[i] = key
+                values[i] = value
+                ++i
+            }
+            result.addParameter("names", names)
+            result.addParameter("values", values)
         }
-        result.addParameter("names", names)
-        result.addParameter("values", values)
         if (control.toRepository() && amPersistent) {
             result.addParameter("persist", amPersistent)
         }
@@ -182,9 +184,9 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
                 if (amPersistent) {
                     null
                 } else {
-                    val nameCount = names?.size ?: 0
+                    val nameCount = names.size
                     HashMap<String, String>(nameCount, 1.0f).apply {
-                        names?.forEachIndexed { index, name ->
+                        names.forEachIndexed { index, name ->
                             this[name] = values[index]
                         }
                     }

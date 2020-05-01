@@ -42,8 +42,8 @@ class GeoPosition @JSONMethod("lat", "lon") constructor(private val lat: Double,
          * @param lat  The new latitude
          * @param lon  The new longitude
          */
-        fun setPosition(obj: BasicObject?, lat: Double, lon: Double) {
-            GeoPosition(lat, lon).attachTo(obj!!)
+        fun setPosition(obj: BasicObject, lat: Double, lon: Double) {
+            GeoPosition(lat, lon).attachTo(obj)
         }
     }
 }

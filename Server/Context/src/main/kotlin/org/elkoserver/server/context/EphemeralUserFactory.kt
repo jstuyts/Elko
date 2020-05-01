@@ -14,7 +14,7 @@ import org.elkoserver.json.JsonObject
  *
  * @see UserFactory
  */
-internal interface EphemeralUserFactory {
+interface EphemeralUserFactory {
     /**
      * Synthesize a user object.
      *

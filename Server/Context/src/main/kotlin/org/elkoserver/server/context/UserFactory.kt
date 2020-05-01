@@ -30,5 +30,5 @@ interface UserFactory {
      * @param handler  Handler to be called with the result.  The result will
      * be the user object that was produced, or null if none could be.
      */
-    fun provideUser(contextor: Contextor?, connection: Connection?, param: JsonObject?, handler: Consumer<Any?>?)
+    fun provideUser(contextor: Contextor, connection: Connection?, param: JsonObject?, handler: Consumer<Any?>)
 }

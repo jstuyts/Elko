@@ -84,12 +84,12 @@ class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
         if (amAllowPrivate || amAllowPrivatePush) {
             context().registerUserWatcher(
                     object : UserWatcher {
-                        override fun noteUserArrival(who: User?) {
+                        override fun noteUserArrival(who: User) {
                             val privateChat = PrivateChat(amAllowPrivate, amAllowPrivatePush)
-                            privateChat.attachTo(who!!)
+                            privateChat.attachTo(who)
                         }
 
-                        override fun noteUserDeparture(who: User?) {}
+                        override fun noteUserDeparture(who: User) {}
                     })
         }
     }

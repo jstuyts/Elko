@@ -71,7 +71,7 @@ abstract class BasicObject internal constructor(
 
     /** Mods attached to this object.  */ /* protected */
     @JvmField
-    var myModSet: ModSet?
+    var myModSet: ModSet
 
     /** The contextor for this server.  */ /* protected */
     @JvmField
@@ -117,18 +117,14 @@ abstract class BasicObject internal constructor(
      * @param isEphemeral  True if this object is ephemeral (won't checkpoint).
      * @param contextor  The contextor for this server.
      */
-    fun activate(ref: String?, subID: String?, isEphemeral: Boolean, contextor: Contextor) {
+    fun activate(ref: String, subID: String, isEphemeral: Boolean, contextor: Contextor) {
         myRef = ref
         if (isEphemeral) {
             markAsEphemeral()
         }
         myContextor = contextor
-        if (ref != null) {
-            contextor.addRef(this)
-        }
-        if (myModSet != null) {
-            myModSet!!.attachTo(this)
-        }
+        contextor.addRef(this)
+        myModSet.attachTo(this)
         activatePassiveContents(subID)
     }
 
@@ -138,9 +134,9 @@ abstract class BasicObject internal constructor(
      *
      * @param subID  Clone sub identity, or the empty string for non-clones.
      */
-    fun activatePassiveContents(subID: String?) {
+    fun activatePassiveContents(subID: String) {
         assertActivated {
-            it.setContents(this, subID!!, myPassiveContents)
+            it.setContents(this, subID, myPassiveContents)
             myPassiveContents = null
         }
     }
@@ -150,8 +146,8 @@ abstract class BasicObject internal constructor(
      *
      * @param item  The item to add.
      */
-    fun addToContents(item: Item?) {
-        myContents = withContents(myContents, item!!)
+    fun addToContents(item: Item) {
+        myContents = withContents(myContents, item)
         myContentsWatcher?.noteContentsAddition(item)
     }
 
@@ -181,10 +177,8 @@ abstract class BasicObject internal constructor(
         }
     }
 
-    fun detachMod(mod: Mod?) {
-        if (myModSet != null) {
-            myModSet!!.removeMod(mod!!)
-        }
+    fun detachMod(mod: Mod) {
+        myModSet.removeMod(mod)
     }
 
     /**
@@ -222,8 +216,8 @@ abstract class BasicObject internal constructor(
     fun checkpoint(handler: Consumer<Any?>?) {
         if (!isEphemeral) {
             checkpointSelf(handler)
-            if (myCodependents != null) {
-                val codependents: List<BasicObject> = myCodependents!!
+            myCodependents?.let {
+                val codependents: List<BasicObject> = it
                 myCodependents = null
                 for (codep in codependents) {
                     codep.checkpoint()
@@ -242,8 +236,8 @@ abstract class BasicObject internal constructor(
      */
     internal fun checkpointSelf(handler: Consumer<Any?>?) {
         if (!isEphemeral) {
-            if (myContents != null) {
-                for (item in myContents!!) {
+            myContents?.let {
+                for (item in it) {
                     item.checkpointSelf(null)
                 }
             }
@@ -266,8 +260,8 @@ abstract class BasicObject internal constructor(
     fun checkpointWithoutContents() {
         if (!isEphemeral) {
             doCheckpoint(null)
-            if (myCodependents != null) {
-                for (codep in myCodependents!!) {
+            myCodependents?.let {
+                for (codep in it) {
                     codep.checkpoint()
                 }
                 myCodependents = null
@@ -359,7 +353,7 @@ abstract class BasicObject internal constructor(
      */
     fun dropContents() {
         for (item in contents()) {
-            item!!.dropContents()
+            item.dropContents()
             assertActivated { it.remove(item) }
         }
         myContents = null
@@ -390,11 +384,7 @@ abstract class BasicObject internal constructor(
      * @return the mod of the given type, if there is one, else null.
      */
     fun <TMod> getMod(type: Class<TMod>): TMod? {
-        return if (myModSet == null) {
-            null
-        } else {
-            myModSet!!.getMod(type)
-        }
+        return myModSet.getMod(type)
     }
 
     /**
@@ -456,9 +446,7 @@ abstract class BasicObject internal constructor(
      *
      * @return this object's name, or null if it is nameless.
      */
-    fun name(): String? {
-        return myName
-    }
+    fun name() = myName
 
     /**
      * Note another object that needs to be checkpointed when this object is
@@ -487,9 +475,7 @@ abstract class BasicObject internal constructor(
      * synthesized [Mod]s.
      */
     fun objectIsComplete() {
-        if (myModSet != null) {
-            myModSet!!.objectIsComplete()
-        }
+        myModSet.objectIsComplete()
     }
 
     /**
@@ -501,9 +487,9 @@ abstract class BasicObject internal constructor(
      *
      * @param item  The item to remove
      */
-    fun removeFromContents(item: Item?) {
+    fun removeFromContents(item: Item) {
         myContentsWatcher?.noteContentsRemoval(item)
-        myContents = withoutContents(myContents, item!!)
+        myContents = withoutContents(myContents, item)
     }
 
     /**
@@ -638,12 +624,8 @@ abstract class BasicObject internal constructor(
      */
     @Throws(MessageHandlerException::class)
     override fun handleMessage(from: Deliverer, msg: JsonObject) {
-        if (myDefaultDispatchTarget != null) {
-            myDefaultDispatchTarget!!.handleMessage(from, msg)
-        } else {
-            throw MessageHandlerException(
-                    "no message handler method for verb '" + msg.getString("op", null) + "'")
-        }
+        myDefaultDispatchTarget?.handleMessage(from, msg)
+                ?: throw MessageHandlerException("no message handler method for verb '${msg.getString("op", null)}'")
     }
     /* ----- MessageRetargeter interface ---------------------------------- */
     /**
@@ -660,10 +642,8 @@ abstract class BasicObject internal constructor(
             if (type == javaClass) {
                 @Suppress("UNCHECKED_CAST")
                 this as TTarget
-            } else if (myModSet == null) {
-                null
-            } else {
-                myModSet!!.getMod(type)
+            } else run {
+                myModSet.getMod(type)
             }
     /* ----- Referenceable interface --------------------------------------- */
     /**

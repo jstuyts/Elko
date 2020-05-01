@@ -19,7 +19,7 @@ interface UserWatcher {
      *
      * @param who  The user who arrived.
      */
-    fun noteUserArrival(who: User?)
+    fun noteUserArrival(who: User)
 
     /**
      * Do whatever you want when somebody leaves.
@@ -32,5 +32,5 @@ interface UserWatcher {
      *
      * @param who  The user who departed.
      */
-    fun noteUserDeparture(who: User?)
+    fun noteUserDeparture(who: User)
 }

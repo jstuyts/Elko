@@ -37,7 +37,7 @@ class Definer @JSONMethod constructor(raw: JsonObject) : Cap(raw), ItemMod, User
      * item or user descriptor.
      */
     @JSONMethod("into", "ref", "obj")
-    fun define(from: User, into: OptString, ref: OptString, obj: BasicObject?) {
+    fun define(from: User, into: OptString, ref: OptString, obj: BasicObject) {
         ensureReachable(from)
         val intoRef = into.value(null)
         if (intoRef != null) {
@@ -52,7 +52,7 @@ class Definer @JSONMethod constructor(raw: JsonObject) : Cap(raw), ItemMod, User
             }
         }
         val contextor = `object`().contextor()
-        contextor.createObjectRecord(newRef, intoRef, obj!!)
+        contextor.createObjectRecord(newRef, intoRef, obj)
     }
 
     /**

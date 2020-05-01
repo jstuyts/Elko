@@ -148,7 +148,7 @@ internal constructor(name: String,
      * if not relevant.
      * @param appTrace  Trace object for diagnostics.
      */
-    fun activate(ref: String?, subID: String?, isEphemeral: Boolean,
+    fun activate(ref: String, subID: String, isEphemeral: Boolean,
                  contextor: Contextor, loadedFromRef: String?,
                  opener: DirectorActor?, appTrace: Trace?, timer: Timer?) {
         super.activate(ref, subID, isEphemeral, contextor)
@@ -448,10 +448,8 @@ internal constructor(name: String,
      * @param who  The user who arrived
      */
     private fun noteUserArrival(who: User) {
-        if (myUserWatchers != null) {
-            for (watcher in myUserWatchers!!) {
-                watcher.noteUserArrival(who)
-            }
+        myUserWatchers?.forEach { watcher ->
+            watcher.noteUserArrival(who)
         }
     }
 
@@ -462,10 +460,8 @@ internal constructor(name: String,
      * @param who  The user who departed
      */
     private fun noteUserDeparture(who: User) {
-        if (myUserWatchers != null) {
-            for (watcher in myUserWatchers!!) {
+        myUserWatchers?.forEach { watcher ->
                 watcher.noteUserDeparture(who)
-            }
         }
     }
 
@@ -713,7 +709,7 @@ internal constructor(name: String,
         }
 
         private val nextUser: User?
-            private get() {
+            get() {
                 while (myInnerIterator.hasNext()) {
                     val next = myInnerIterator.next()
                     if (next is User) {
@@ -833,11 +829,9 @@ internal constructor(name: String,
             }
         }
         result.addParameter("name", myName)
-        if (myModSet != null) {
-            val mods = myModSet!!.encode(control)
-            if (mods.size() > 0) {
-                result.addParameter("mods", mods)
-            }
+        val mods = myModSet.encode(control)
+        if (mods.size() > 0) {
+            result.addParameter("mods", mods)
         }
         if (control.toRepository() && myUserMods != null) {
             val userMods = JSONLiteralArray(control)

@@ -92,13 +92,13 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
             if (wait == 0) {
                 findFailure(from, service, tag)
             } else {
-                myBroker.waitForService(service!!, from, monitor, wait, false,
+                myBroker.waitForService(service, from, monitor, wait, false,
                         tag)
             }
         } else {
             from.send(msgFind(this, ServiceDesc.encodeArray(services), tag))
             if (monitor) {
-                myBroker.waitForService(service!!, from, true, wait, true, tag)
+                myBroker.waitForService(service, from, true, wait, true, tag)
             }
         }
     }
@@ -141,11 +141,9 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
     @JSONMethod("services")
     fun willserve(from: BrokerActor, services: Array<ServiceDesc>) {
         from.ensureAuthorizedClient()
-        if (services != null) {
-            for (service in services) {
-                if (validServiceDescription(service)) {
-                    from.client()!!.addService(service)
-                }
+        for (service in services) {
+            if (validServiceDescription(service)) {
+                from.client()!!.addService(service)
             }
         }
     }

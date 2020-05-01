@@ -27,7 +27,7 @@ class BankWorker
     /** The bank this worker is the interface to.  */
     private var myBank: Bank? = null
 
-    private var clock: Clock? = null
+    private lateinit var clock: Clock
 
     /**
      * Common state for a request to the banking service.

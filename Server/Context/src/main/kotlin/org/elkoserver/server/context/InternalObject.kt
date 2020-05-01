@@ -14,7 +14,7 @@ internal interface InternalObject : Referenceable {
      * object table.
      * @param contextor  The contextor for this server.
      */
-    fun activate(ref: String?, contextor: Contextor?)
+    fun activate(ref: String, contextor: Contextor)
 
     /**
      * Obtain the contextor for this server.

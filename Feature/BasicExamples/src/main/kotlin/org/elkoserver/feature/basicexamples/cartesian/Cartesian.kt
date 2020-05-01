@@ -7,11 +7,12 @@ import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.BasicObject
-import org.elkoserver.server.context.ContainerValidity
 import org.elkoserver.server.context.Item
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.User
+import org.elkoserver.server.context.validContainer
+import kotlin.contracts.ExperimentalContracts
 
 /**
  * Mod to provide an item with 2D (rectangular) geometry.  This mod may only be
@@ -73,6 +74,7 @@ class Cartesian @JSONMethod("width", "height", "left", "top") constructor(
      * @throws MessageHandlerException if 'from' is not in the same context as
      * this mod or if the proposed destination container is invalid.
      */
+    @ExperimentalContracts
     @JSONMethod("into", "left", "top")
     fun move(from: User, into: OptString, left: Int, top: Int) {
         ensureSameContext(from)
@@ -81,7 +83,7 @@ class Cartesian @JSONMethod("width", "height", "left", "top") constructor(
         val newContainerRef = into.value(null)
         if (newContainerRef != null) {
             newContainer = context()[newContainerRef]
-            if (!ContainerValidity.validContainer(newContainer, from)) {
+            if (!validContainer(newContainer, from)) {
                 throw MessageHandlerException(
                         "invalid move destination container $newContainerRef")
             }
