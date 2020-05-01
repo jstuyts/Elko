@@ -39,10 +39,10 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * object table.
      * @param contextor  The contextor for this server.
      */
-    override fun activate(ref: String, contextor: Contextor) {
+    override fun activate(ref: String?, contextor: Contextor?) {
         super.activate(ref, contextor)
         myStatus = "connecting"
-        tr = contextor.appTrace()
+        tr = contextor!!.appTrace()
         contextor.findServiceLink(myServiceName, this)
     }
 
@@ -284,7 +284,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
             val owner: String,
             /** Array of encumbrance information.  This will be null if the 'encs'
              * parameter of the query was false.  */
-            val encs: Array<EncumbranceDesc>)
+            val encs: Array<EncumbranceDesc>?)
 
     /**
      * Result handler class for the query account request.
@@ -295,7 +295,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
          *
          * @param accounts  Descriptors for the accounts queried.
          */
-        abstract fun result(accounts: Array<AccountDesc?>?)
+        abstract fun result(accounts: Array<AccountDesc>?)
     }
 
     /**
@@ -307,7 +307,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
          *
          * @param currencies  Array of currency descriptors.
          */
-        abstract fun result(currencies: Array<Currency?>?)
+        abstract fun result(currencies: Array<Currency>?)
     }
 
     /**
@@ -674,8 +674,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a cancel key request.
      */
     @JSONMethod("xid", "fail", "desc", "cancel")
-    fun cancelkey(from: ServiceActor?, xid: String, fail: OptString,
-                  desc: OptString, optCancel: OptString) {
+    fun cancelkey(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optCancel: OptString) {
         val handler = handlerForReply("cancelkey", xid, fail, desc) as KeyResultHandler?
         if (handler != null) {
             val cancel = optCancel.value(null)
@@ -692,8 +691,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a delete account request.
      */
     @JSONMethod("xid", "fail", "desc", "account")
-    fun deleteaccount(from: ServiceActor?, xid: String, fail: OptString,
-                      desc: OptString, optAccount: OptString) {
+    fun deleteaccount(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optAccount: OptString) {
         val handler = handlerForReply("deleteaccount", xid, fail, desc) as AccountResultHandler?
         if (handler != null) {
             val account = optAccount.value(null)
@@ -710,8 +708,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a duplicate key request.
      */
     @JSONMethod("xid", "fail", "desc", "newkey")
-    fun dupkey(from: ServiceActor?, xid: String, fail: OptString,
-               desc: OptString, optNewkey: OptString) {
+    fun dupkey(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optNewkey: OptString) {
         val handler = handlerForReply("dupkey", xid, fail, desc) as KeyResultHandler?
         if (handler != null) {
             val newkey = optNewkey.value(null)
@@ -728,8 +725,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to an encumber request.
      */
     @JSONMethod("xid", "fail", "desc", "enc", "srcbal")
-    fun encumber(from: ServiceActor?, xid: String, fail: OptString,
-                 desc: OptString, optEnc: OptString, optSrcbal: OptInteger) {
+    fun encumber(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optEnc: OptString, optSrcbal: OptInteger) {
         val handler = handlerForReply("encumber", xid, fail, desc) as EncumberResultHandler?
         if (handler != null) {
             val enc = optEnc.value(null)
@@ -750,8 +746,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a freeze account request.
      */
     @JSONMethod("xid", "fail", "desc", "account")
-    fun freezeaccount(from: ServiceActor?, xid: String, fail: OptString,
-                      desc: OptString, optAccount: OptString) {
+    fun freezeaccount(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optAccount: OptString) {
         val handler = handlerForReply("freezeaccount", xid, fail, desc) as AccountResultHandler?
         if (handler != null) {
             val account = optAccount.value(null)
@@ -768,8 +763,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to an issue root key request.
      */
     @JSONMethod("xid", "fail", "desc", "rootkey")
-    fun issuerootkey(from: ServiceActor?, xid: String, fail: OptString,
-                     desc: OptString, optRootkey: OptString) {
+    fun issuerootkey(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optRootkey: OptString) {
         val handler = handlerForReply("issuerootkey", xid, fail, desc) as KeyResultHandler?
         if (handler != null) {
             val rootkey = optRootkey.value(null)
@@ -786,8 +780,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a make account request.
      */
     @JSONMethod("xid", "fail", "desc", "?accounts")
-    fun makeaccounts(from: ServiceActor?, xid: String, fail: OptString,
-                     desc: OptString, accounts: Array<String?>?) {
+    fun makeaccounts(from: ServiceActor, xid: String, fail: OptString, desc: OptString, accounts: Array<String?>?) {
         val handler = handlerForReply("makeaccounts", xid, fail, desc) as AccountsResultHandler?
         if (handler != null) {
             if (accounts == null) {
@@ -803,8 +796,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a make currency request.
      */
     @JSONMethod("xid", "fail", "desc", "currency")
-    fun makecurrency(from: ServiceActor?, xid: String, fail: OptString,
-                     desc: OptString, optCurrency: OptString) {
+    fun makecurrency(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optCurrency: OptString) {
         val handler = handlerForReply("makecurrency", xid, fail, desc) as CurrencyResultHandler?
         if (handler != null) {
             val currency = optCurrency.value(null)
@@ -821,8 +813,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a make key request.
      */
     @JSONMethod("xid", "fail", "desc", "newkey")
-    fun makekey(from: ServiceActor?, xid: String, fail: OptString,
-                desc: OptString, optNewkey: OptString) {
+    fun makekey(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optNewkey: OptString) {
         val handler = handlerForReply("makekey", xid, fail, desc) as KeyResultHandler?
         if (handler != null) {
             val newkey = optNewkey.value(null)
@@ -839,8 +830,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a mint request.
      */
     @JSONMethod("xid", "fail", "desc", "dst", "dstbal")
-    fun mint(from: ServiceActor?, xid: String, fail: OptString,
-             desc: OptString, optDst: OptString, optDstbal: OptInteger) {
+    fun mint(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optDst: OptString, optDstbal: OptInteger) {
         val handler = handlerForReply("mint", xid, fail, desc) as BalanceResultHandler?
         if (handler != null) {
             val dst = optDst.value(null)
@@ -861,8 +851,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a query account request.
      */
     @JSONMethod("xid", "fail", "desc", "?accounts")
-    fun queryaccounts(from: ServiceActor?, xid: String, fail: OptString,
-                      desc: OptString, accounts: Array<AccountDesc?>?) {
+    fun queryaccounts(from: ServiceActor, xid: String, fail: OptString, desc: OptString, accounts: Array<AccountDesc>?) {
         val handler = handlerForReply("queryaccounts", xid, fail, desc) as QueryAccountsResultHandler?
         if (handler != null) {
             if (accounts == null) {
@@ -878,8 +867,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a query currencies request.
      */
     @JSONMethod("xid", "fail", "desc", "?currencies")
-    fun querycurrencies(from: ServiceActor?, xid: String, fail: OptString,
-                        desc: OptString, currencies: Array<Currency?>?) {
+    fun querycurrencies(from: ServiceActor, xid: String, fail: OptString, desc: OptString, currencies: Array<Currency>?) {
         val handler = handlerForReply("querycurrencies", xid, fail, desc) as QueryCurrenciesResultHandler?
         handler?.result(currencies)
     }
@@ -888,7 +876,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a query encumbrance request.
      */
     @JSONMethod("xid", "fail", "desc", "enc", "curr", "account", "amount", "expires", "memo")
-    fun queryenc(from: ServiceActor?, xid: String, fail: OptString,
+    fun queryenc(from: ServiceActor, xid: String, fail: OptString,
                  desc: OptString, optEnc: OptString, optCurr: OptString,
                  optAccount: OptString, optAmount: OptInteger,
                  optExpires: OptString, optMemo: OptString) {
@@ -925,7 +913,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a release encumbrance request.
      */
     @JSONMethod("xid", "fail", "desc", "src", "srcbal", "active")
-    fun releaseenc(from: ServiceActor?, xid: String, fail: OptString,
+    fun releaseenc(from: ServiceActor, xid: String, fail: OptString,
                    desc: OptString, optSrc: OptString,
                    optSrcbal: OptInteger, optActive: OptBoolean) {
         val handler = handlerForReply("releaseenc", xid, fail, desc) as ReleaseResultHandler?
@@ -949,7 +937,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to an unfreeze account request.
      */
     @JSONMethod("xid", "fail", "desc", "account")
-    fun unfreezeaccount(from: ServiceActor?, xid: String, fail: OptString,
+    fun unfreezeaccount(from: ServiceActor, xid: String, fail: OptString,
                         desc: OptString, optAccount: OptString) {
         val handler = handlerForReply("unfreezeaccount", xid, fail, desc) as AccountResultHandler?
         if (handler != null) {
@@ -967,7 +955,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to an unmint request.
      */
     @JSONMethod("xid", "fail", "desc", "src", "srcbal")
-    fun unmint(from: ServiceActor?, xid: String, fail: OptString,
+    fun unmint(from: ServiceActor, xid: String, fail: OptString,
                desc: OptString, optSrc: OptString, optSrcbal: OptInteger) {
         val handler = handlerForReply("unmint", xid, fail, desc) as BalanceResultHandler?
         if (handler != null) {
@@ -989,7 +977,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to an unmint encumbrance request.
      */
     @JSONMethod("xid", "fail", "desc", "src", "srcbal")
-    fun unmintenc(from: ServiceActor?, xid: String, fail: OptString,
+    fun unmintenc(from: ServiceActor, xid: String, fail: OptString,
                   desc: OptString, optSrc: OptString,
                   optSrcbal: OptInteger) {
         val handler = handlerForReply("unmintenc", xid, fail, desc) as BalanceResultHandler?
@@ -1012,7 +1000,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a transfer request.
      */
     @JSONMethod("xid", "fail", "desc", "src", "srcbal", "dst", "dstbal")
-    fun xfer(from: ServiceActor?, xid: String, fail: OptString,
+    fun xfer(from: ServiceActor, xid: String, fail: OptString,
              desc: OptString, optSrc: OptString, optSrcbal: OptInteger,
              optDst: OptString, optDstbal: OptInteger) {
         val handler = handlerForReply("xfer", xid, fail, desc) as TransferResultHandler?
@@ -1043,7 +1031,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * JSON message handler for the response to a transfer encumbrance request.
      */
     @JSONMethod("xid", "fail", "desc", "src", "srcbal", "dst", "dstbal")
-    fun xferenc(from: ServiceActor?, xid: String, fail: OptString,
+    fun xferenc(from: ServiceActor, xid: String, fail: OptString,
                 desc: OptString, optSrc: OptString, optSrcbal: OptInteger,
                 optDst: OptString, optDstbal: OptInteger) {
         val handler = handlerForReply("xferenc", xid, fail, desc) as TransferResultHandler?

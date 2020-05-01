@@ -112,7 +112,7 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, traceF
      * @param conf  Domain-specific configuration update parameters.
      */
     @JSONMethod("domain", "conf")
-    fun update(from: PresenceActor, domain: String?, conf: JsonObject?) {
+    fun update(from: PresenceActor, domain: String, conf: JsonObject) {
         from.ensureAuthorizedAdmin()
         myPresenceServer.updateDomain(domain!!, conf!!, from)
     }

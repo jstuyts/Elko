@@ -48,7 +48,7 @@ internal open class UserHandler(private val myDirector: Director, traceFactory: 
      * @param optTag  Optional tag for requestor to match
      */
     @JSONMethod("protocol", "context", "user", "tag")
-    fun reserve(from: DirectorActor, protocol: String?, contextName: String?, user: OptString, optTag: OptString) {
+    fun reserve(from: DirectorActor, protocol: String, contextName: String, user: OptString, optTag: OptString) {
         from.ensureAuthorizedUser()
         val userName = user.value(null)
         val provider: Provider?

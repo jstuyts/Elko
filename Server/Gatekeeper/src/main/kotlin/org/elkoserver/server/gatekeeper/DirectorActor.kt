@@ -91,7 +91,7 @@ internal class DirectorActor(connection: Connection?, dispatcher: MessageDispatc
      * @param optDeny  Error message in the case of failure.
      */
     @JSONMethod("context", "user", "hostport", "reservation", "deny")
-    fun reserve(from: DirectorActor?, context: String, optActor: OptString, optHostport: OptString, optAuth: OptString, optDeny: OptString) {
+    fun reserve(from: DirectorActor, context: String, optActor: OptString, optHostport: OptString, optAuth: OptString, optDeny: OptString) {
         val hostport = optHostport.value(null)
         val auth = optAuth.value(null)
         val deny = optDeny.value(null)

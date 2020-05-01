@@ -84,18 +84,18 @@ class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: St
      * proposed container is not valid.
      */
     @JSONMethod("into", "left", "top", "width", "height", "text", "?style")
-    fun makenote(from: User?, into: OptString, left: Int, top: Int,
-                 width: Int, height: Int, text: String?, style: StyleDesc?) {
+    fun makenote(from: User, into: OptString, left: Int, top: Int,
+                 width: Int, height: Int, text: String, style: StyleDesc?) {
         ensureSameContext(from)
         val intoRef = into.value(null)
-        val intoObj = if (intoRef != null) { context()[intoRef] } else { context() }
+        val intoObj = if (intoRef != null) { context()!![intoRef] } else { context() }
         val mergedStyle = myStyleOptions.mergeStyle(style)
         if (mergedStyle == null) {
             throw MessageHandlerException("invalid style options")
         } else if (!ContainerValidity.validContainer(intoObj, from)) {
             throw MessageHandlerException("invalid destination container $intoRef")
         } else {
-            val item = intoObj.createItem("note", false, true)
+            val item = intoObj!!.createItem("note", false, true)
             Note(text, mergedStyle).run {
                 attachTo(item)
             }
@@ -103,7 +103,7 @@ class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: St
                 attachTo(item)
             }
             item.objectIsComplete()
-            context().send(Msg.msgMake(intoObj, item, from))
+            context()!!.send(Msg.msgMake(intoObj, item, from))
         }
     }
 

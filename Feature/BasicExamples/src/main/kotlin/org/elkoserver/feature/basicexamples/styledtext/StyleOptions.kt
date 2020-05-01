@@ -21,11 +21,11 @@ import org.elkoserver.json.JSONLiteralFactory
  * @param iconHeight  Common height of icons, or -1 if not relevant.
  */
 class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "textStyles", "icons", "iconWidth", "iconHeight") constructor(
-        private val myColors: Array<String>?,
-        private val myBackgroundColors: Array<String>?,
-        private val myBorderColors: Array<String>?,
-        private val myTextStyles: Array<String>?,
-        private val myIcons: Array<String>?,
+        private val myColors: Array<String>,
+        private val myBackgroundColors: Array<String>,
+        private val myBorderColors: Array<String>,
+        private val myTextStyles: Array<String>,
+        private val myIcons: Array<String>,
         iconWidth: OptInteger,
         iconHeight: OptInteger) : Encodable {
     private val myIconWidth: Int = iconWidth.value(-1)

@@ -61,10 +61,10 @@ class PrivateChat(private val amAllowPrivate: Boolean, private val amAllowPush: 
      * this mod or if the 'allowPush' constructor parameter was false.
      */
     @JSONMethod("url", "frame", "features")
-    fun push(from: User, url: String?, frame: OptString, features: OptString) {
+    fun push(from: User, url: String, frame: OptString, features: OptString) {
         if (amAllowPush) {
             ensureSameContext(from)
-            if (!context().isSemiPrivate) {
+            if (!context()!!.isSemiPrivate) {
                 val who = `object`() as User
                 val response = Msg.msgPush(who, from, url, frame.value(null), features.value(null))
                 who.send(response)
@@ -95,10 +95,10 @@ class PrivateChat(private val amAllowPrivate: Boolean, private val amAllowPush: 
      * this mod or if the 'allowPrivate' constructor parameter was false.
      */
     @JSONMethod("text")
-    fun say(from: User, text: String?) {
+    fun say(from: User, text: String) {
         if (amAllowPrivate) {
             ensureSameContext(from)
-            if (!context().isSemiPrivate) {
+            if (!context()!!.isSemiPrivate) {
                 val who = `object`() as User
                 val response = Msg.msgSay(who, from, text)
                 who.send(response)

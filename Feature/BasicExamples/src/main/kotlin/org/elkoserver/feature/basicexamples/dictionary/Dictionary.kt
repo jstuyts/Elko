@@ -21,9 +21,9 @@ import java.util.HashMap
  * @param persist  If true, make sure any changes get saved to disk; if
  *    false (the default), changes are ephemeral.
  */
-class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Array<String>?, values: Array<String>, persist: OptBoolean) : Mod(), GeneralMod {
+class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Array<String>, values: Array<String>, persist: OptBoolean) : Mod(), GeneralMod {
     private val myVars: MutableMap<String, String> = HashMap<String, String>().apply {
-        names?.forEachIndexed { index, name ->
+        names.forEachIndexed { index, name ->
             this[name] = values[index]
         }
     }
@@ -99,7 +99,7 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
         if (amPersistent) {
             markAsChanged()
         }
-        context().send(msgDelvar(`object`(), from, names))
+        context()!!.send(msgDelvar(`object`()!!, from, names))
     }
 
     /**
@@ -140,7 +140,7 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
         if (amPersistent) {
             markAsChanged()
         }
-        context().send(msgSetvar(`object`(), from, names, values))
+        context()!!.send(msgSetvar(`object`()!!, from, names, values))
     }
 
     companion object {

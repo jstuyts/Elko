@@ -54,7 +54,7 @@ class Census @JSONMethod constructor() : Mod(), GeneralMod {
             ensureSameUser(from)
         }
         val response = JSONLiteralFactory.targetVerb(`object`(), "census").apply {
-            addParameter("occupancy", context().userCount())
+            addParameter("occupancy", context()!!.userCount())
             finish()
         }
         from.send(response)

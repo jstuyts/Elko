@@ -74,13 +74,13 @@ class Cartesian @JSONMethod("width", "height", "left", "top") constructor(
      * this mod or if the proposed destination container is invalid.
      */
     @JSONMethod("into", "left", "top")
-    fun move(from: User?, into: OptString, left: Int, top: Int) {
+    fun move(from: User, into: OptString, left: Int, top: Int) {
         ensureSameContext(from)
         val item = `object`() as Item
         var newContainer: BasicObject? = null
         val newContainerRef = into.value(null)
         if (newContainerRef != null) {
-            newContainer = context()[newContainerRef]
+            newContainer = context()!![newContainerRef]
             if (!ContainerValidity.validContainer(newContainer, from)) {
                 throw MessageHandlerException(
                         "invalid move destination container $newContainerRef")
@@ -90,7 +90,7 @@ class Cartesian @JSONMethod("width", "height", "left", "top") constructor(
         myLeft = left
         myTop = top
         markAsChanged()
-        context().send(msgMove(item, newContainer, left, top))
+        context()!!.send(msgMove(item, newContainer, left, top))
     }
 
     companion object {

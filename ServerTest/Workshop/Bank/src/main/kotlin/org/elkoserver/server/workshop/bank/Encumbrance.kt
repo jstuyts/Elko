@@ -30,7 +30,7 @@ internal class Encumbrance(private val myRef: String?, private var myAccount: Ac
      * @param memo  Optional annotation on encumbrance.
      */
     @JSONMethod("ref", "amount", "expires", "memo")
-    constructor(ref: String?, amount: Int, expires: ExpirationDate, memo: OptString) : this(ref, null, amount, expires, memo.value(null))
+    constructor(ref: String, amount: Int, expires: ExpirationDate, memo: OptString) : this(ref, null, amount, expires, memo.value(null))
 
     /**
      * Encode this encumbrance for transmission or persistence.

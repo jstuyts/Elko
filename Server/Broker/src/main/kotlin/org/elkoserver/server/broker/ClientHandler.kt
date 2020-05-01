@@ -82,7 +82,7 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
      * help the client match up requests and responses.
      */
     @JSONMethod("service", "protocol", "wait", "monitor", "tag")
-    fun find(from: BrokerActor, service: String?, optProtocol: OptString, optWait: OptInteger, optMonitor: OptBoolean, optTag: OptString) {
+    fun find(from: BrokerActor, service: String, optProtocol: OptString, optWait: OptInteger, optMonitor: OptBoolean, optTag: OptString) {
         val wait = optWait.value(0)
         val monitor = optMonitor.value(false)
         val tag = optTag.value(null)
@@ -139,7 +139,7 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
      * @param services  Description(s) of the service(s) offered.
      */
     @JSONMethod("services")
-    fun willserve(from: BrokerActor, services: Array<ServiceDesc>?) {
+    fun willserve(from: BrokerActor, services: Array<ServiceDesc>) {
         from.ensureAuthorizedClient()
         if (services != null) {
             for (service in services) {

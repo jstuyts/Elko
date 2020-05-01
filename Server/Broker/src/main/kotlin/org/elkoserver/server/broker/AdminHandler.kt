@@ -147,8 +147,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
      * @param optSelf  true if the this broker itself should be re-init'ed.
      */
     @JSONMethod("server", "self")
-    fun reinit(from: BrokerActor, optServer: OptString,
-               optSelf: OptBoolean) {
+    fun reinit(from: BrokerActor, optServer: OptString, optSelf: OptBoolean) {
         from.ensureAuthorizedAdmin()
         val serverName = optServer.value(null)
         if (serverName != null) {
@@ -178,8 +177,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
      * @param protocol The name of the protocol of interest
      */
     @JSONMethod("service", "protocol")
-    fun servicedesc(from: BrokerActor, service: OptString,
-                    protocol: OptString) {
+    fun servicedesc(from: BrokerActor, service: OptString, protocol: OptString) {
         from.ensureAuthorizedAdmin()
         sendServiceDesc(from, service.value(null), protocol.value("tcp"))
     }
@@ -199,9 +197,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
      * not alter component run settings.
      */
     @JSONMethod("server", "self", "kill", "cluster")
-    fun shutdown(from: BrokerActor, optServer: OptString,
-                 optSelf: OptBoolean, optKill: OptBoolean,
-                 optCluster: OptBoolean) {
+    fun shutdown(from: BrokerActor, optServer: OptString, optSelf: OptBoolean, optKill: OptBoolean, optCluster: OptBoolean) {
         from.ensureAuthorizedAdmin()
         val serverName = optServer.value(null)
         val componentShutdown = !optCluster.value(false)

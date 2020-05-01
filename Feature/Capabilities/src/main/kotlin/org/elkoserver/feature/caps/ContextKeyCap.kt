@@ -27,7 +27,7 @@ class ContextKeyCap @JSONMethod("contexts") constructor(
      * @return true if this capability enables entry to the context designated
      * by 'contextRef', false if not.
      */
-    override fun enablesEntry(contextRef: String): Boolean {
+    override fun enablesEntry(contextRef: String?): Boolean {
         if (isExpired) {
             return false
         }

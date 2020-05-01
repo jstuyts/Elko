@@ -15,17 +15,15 @@ import java.util.function.Consumer
 
 /**
  * Workshop worker object for the bank service.
- */
-class BankWorker
-/**
- * JSON-driven constructor.
  *
  * @param serviceName  The name by which this worker object will be
  * addressed.  If omitted, it defaults to "bank".
  * @param myBankRef  Reference string for the persistent bank object that
  * this worker object provides the interface to.
- */ @JSONMethod("service", "bank") constructor(serviceName: OptString,
-                                               private val myBankRef: String) : WorkerObject(serviceName.value("bank")), ClockUsingObject {
+ */
+class BankWorker
+@JSONMethod("service", "bank") constructor(serviceName: OptString,
+                                           private val myBankRef: String) : WorkerObject(serviceName.value("bank")), ClockUsingObject {
     /** The bank this worker is the interface to.  */
     private var myBank: Bank? = null
 
@@ -136,7 +134,7 @@ class BankWorker
          *
          * @return true if authorization failed, false if not.
          */
-        fun currencyAuthorityFailure(currencies: Array<String?>?): Boolean {
+        fun currencyAuthorityFailure(currencies: Array<String>?): Boolean {
             if (currencies == null) {
                 return false
             }
@@ -157,7 +155,7 @@ class BankWorker
          *
          * @return true if the currencies array was invalid, false if not.
          */
-        fun currencyValidationFailure(currencies: Array<String?>?): Boolean {
+        fun currencyValidationFailure(currencies: Array<String>?): Boolean {
             if (currencies == null || currencies.size == 0) {
                 fail("badcurr", "invalid currency list")
                 return true
@@ -418,9 +416,9 @@ class BankWorker
      * @param amount  Quantity of money to transfer.
      */
     @JSONMethod("key", "xid", "rep", "memo", "src", "dst", "amount")
-    fun xfer(from: WorkshopActor, key: String?, xid: OptString,
-             rep: OptString, memo: OptString, src: String?,
-             dst: String?, amount: Int) {
+    fun xfer(from: WorkshopActor, key: String, xid: OptString,
+             rep: OptString, memo: OptString, src: String,
+             dst: String, amount: Int) {
         val env = init(from, "xfer", key, xid, rep, false, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("xfer")) {
             return
@@ -495,8 +493,8 @@ class BankWorker
      * @param amount  Quantity of money to create.
      */
     @JSONMethod("key", "xid", "rep", "memo", "dst", "amount")
-    fun mint(from: WorkshopActor, key: String?, xid: OptString,
-             rep: OptString, memo: OptString, dst: String?,
+    fun mint(from: WorkshopActor, key: String, xid: OptString,
+             rep: OptString, memo: OptString, dst: String,
              amount: Int) {
         val env = init(from, "mint", key, xid, rep, false, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("mint")) {
@@ -547,8 +545,8 @@ class BankWorker
      * @param amount  Quantity of money to destroy.
      */
     @JSONMethod("key", "xid", "rep", "memo", "src", "amount")
-    fun unmint(from: WorkshopActor, key: String?, xid: OptString,
-               rep: OptString, memo: OptString, src: String?,
+    fun unmint(from: WorkshopActor, key: String, xid: OptString,
+               rep: OptString, memo: OptString, src: String,
                amount: Int) {
         val env = init(from, "unmint", key, xid, rep, false, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("mint")) {
@@ -601,9 +599,9 @@ class BankWorker
      * @param expiresStr  Date after which the encumbrance will be released.
      */
     @JSONMethod("key", "xid", "rep", "memo", "src", "amount", "expires")
-    fun encumber(from: WorkshopActor, key: String?, xid: OptString,
-                 rep: OptString, memo: OptString, src: String?,
-                 amount: Int, expiresStr: String?) {
+    fun encumber(from: WorkshopActor, key: String, xid: OptString,
+                 rep: OptString, memo: OptString, src: String,
+                 amount: Int, expiresStr: String) {
         val env = init(from, "encumber", key, xid, rep, true, memo, false, clock) ?: return
         val expires = env.getValidExpiration(expiresStr, false) ?: return
         if (env.operationAuthorityFailure("xfer")) {
@@ -660,8 +658,8 @@ class BankWorker
      * @param encRef  Ref of the encumbrance to release.
      */
     @JSONMethod("key", "xid", "rep", "memo", "enc")
-    fun releaseenc(from: WorkshopActor, key: String?, xid: OptString,
-                   rep: OptString, memo: OptString, encRef: String?) {
+    fun releaseenc(from: WorkshopActor, key: String, xid: OptString,
+                   rep: OptString, memo: OptString, encRef: String) {
         val env = init(from, "releaseenc", key, xid, rep, false, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("xfer")) {
             return
@@ -709,9 +707,9 @@ class BankWorker
      * @param encRef  Ref of the encumbrance that will be the source of funds.
      */
     @JSONMethod("key", "xid", "rep", "memo", "dst", "enc")
-    fun xferenc(from: WorkshopActor, key: String?, xid: OptString,
-                rep: OptString, memo: OptString, dst: String?,
-                encRef: String?) {
+    fun xferenc(from: WorkshopActor, key: String, xid: OptString,
+                rep: OptString, memo: OptString, dst: String,
+                encRef: String) {
         val env = init(from, "xferenc", key, xid, rep, false, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("xfer")) {
             return
@@ -778,8 +776,8 @@ class BankWorker
      * @param encRef  Ref of the encumbrance that will be the source of funds.
      */
     @JSONMethod("key", "xid", "rep", "memo", "enc")
-    fun unmintenc(from: WorkshopActor, key: String?, xid: OptString,
-                  rep: OptString, memo: OptString, encRef: String?) {
+    fun unmintenc(from: WorkshopActor, key: String, xid: OptString,
+                  rep: OptString, memo: OptString, encRef: String) {
         val env = init(from, "unmintenc", key, xid, rep, false, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("mint")) {
             return
@@ -825,8 +823,8 @@ class BankWorker
      * @param encRef  Ref of the encumbrance that is of interest.
      */
     @JSONMethod("key", "xid", "rep", "memo", "enc")
-    fun queryenc(from: WorkshopActor, key: String?, xid: OptString,
-                 rep: OptString, memo: OptString, encRef: String?) {
+    fun queryenc(from: WorkshopActor, key: String, xid: OptString,
+                 rep: OptString, memo: OptString, encRef: String) {
         val env = init(from, "queryenc", key, xid, rep, true, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("xfer")) {
             return
@@ -874,9 +872,9 @@ class BankWorker
      * @param owner  Ref of the user who is to be the owner of the new account.
      */
     @JSONMethod("key", "xid", "rep", "memo", "currs", "owner")
-    fun makeaccounts(from: WorkshopActor, key: String?, xid: OptString,
-                     rep: OptString, memo: OptString, currs: Array<String?>,
-                     owner: String?) {
+    fun makeaccounts(from: WorkshopActor, key: String, xid: OptString,
+                     rep: OptString, memo: OptString, currs: Array<String>,
+                     owner: String) {
         val env = init(from, "makeaccounts", key, xid, rep, true, memo, true, clock) ?: return
         if (env.operationAuthorityFailure("acct")) {
             return
@@ -910,9 +908,9 @@ class BankWorker
      * @param account  Ref of the account that is to be deleted.
      */
     @JSONMethod("key", "xid", "rep", "memo", "account")
-    fun deleteaccount(from: WorkshopActor, key: String?,
+    fun deleteaccount(from: WorkshopActor, key: String,
                       xid: OptString, rep: OptString, memo: OptString,
-                      account: String?) {
+                      account: String) {
         val env = init(from, "deleteaccount", key, xid, rep, false, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("acct")) {
             return
@@ -957,7 +955,7 @@ class BankWorker
      * @param encs  Flag that is true if reply should include encumbrance info.
      */
     @JSONMethod("key", "xid", "rep", "memo", "accounts", "encs")
-    fun queryaccounts(from: WorkshopActor, key: String?,
+    fun queryaccounts(from: WorkshopActor, key: String,
                       xid: OptString, rep: OptString, memo: OptString,
                       accounts: Array<String>, encs: OptBoolean) {
         val env = init(from, "queryaccounts", key, xid, rep, true, memo, false, clock) ?: return
@@ -1045,9 +1043,9 @@ class BankWorker
      * @param account  Ref of the account to be frozen.
      */
     @JSONMethod("key", "xid", "rep", "memo", "account")
-    fun freezeaccount(from: WorkshopActor, key: String?,
+    fun freezeaccount(from: WorkshopActor, key: String,
                       xid: OptString, rep: OptString, memo: OptString,
-                      account: String?) {
+                      account: String) {
         val env = init(from, "freezeaccount", key, xid, rep, false, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("acct")) {
             return
@@ -1087,9 +1085,9 @@ class BankWorker
      * @param account  Ref of the account to be unfrozen.
      */
     @JSONMethod("key", "xid", "rep", "memo", "account")
-    fun unfreezeaccount(from: WorkshopActor, key: String?,
+    fun unfreezeaccount(from: WorkshopActor, key: String,
                         xid: OptString, rep: OptString, memo: OptString,
-                        account: String?) {
+                        account: String) {
         val env = init(from, "unfreezeaccount", key, xid, rep, false, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("acct")) {
             return
@@ -1128,8 +1126,8 @@ class BankWorker
      * @param curr  Name for the new currency.
      */
     @JSONMethod("key", "xid", "rep", "memo", "curr")
-    fun makecurrency(from: WorkshopActor, key: String?, xid: OptString,
-                     rep: OptString, memo: OptString, curr: String?) {
+    fun makecurrency(from: WorkshopActor, key: String, xid: OptString,
+                     rep: OptString, memo: OptString, curr: String) {
         val env = init(from, "makecurrency", key, xid, rep, false, memo, true, clock) ?: return
         if (env.operationAuthorityFailure("full")) {
             return
@@ -1156,7 +1154,7 @@ class BankWorker
      * @param memo  Transaction annotation, for logging.
      */
     @JSONMethod("key", "xid", "rep", "memo")
-    fun querycurrencies(from: WorkshopActor, key: String?, xid: OptString,
+    fun querycurrencies(from: WorkshopActor, key: String, xid: OptString,
                         rep: OptString, memo: OptString) {
         val env = init(from, "querycurrencies", key, xid, rep, true, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("full")) {
@@ -1190,9 +1188,9 @@ class BankWorker
      * @param optExpires  Date after which the new key will become invalid.
      */
     @JSONMethod("key", "xid", "rep", "memo", "auth", "currs", "expires")
-    fun makekey(from: WorkshopActor, key: String?, xid: OptString,
+    fun makekey(from: WorkshopActor, key: String, xid: OptString,
                 rep: OptString, memo: OptString, auth: String,
-                currs: Array<String?>?, optExpires: OptString) {
+                currs: Array<String>, optExpires: OptString) {
         val env = init(from, "makekey", key, xid, rep, true, memo, true, clock) ?: return
         val requiredAuth: String
         requiredAuth = if (auth == "curr") {
@@ -1231,8 +1229,8 @@ class BankWorker
      * @param cancel  Ref of the key to be cancelled.
      */
     @JSONMethod("key", "xid", "rep", "memo", "cancel")
-    fun cancelkey(from: WorkshopActor, key: String?, xid: OptString,
-                  rep: OptString, memo: OptString, cancel: String?) {
+    fun cancelkey(from: WorkshopActor, key: String, xid: OptString,
+                  rep: OptString, memo: OptString, cancel: String) {
         val env = init(from, "cancelkey", key, xid, rep, false, memo, false, clock) ?: return
         val toCancel = myBank!!.getKey(cancel)
         if (toCancel == null) {
@@ -1262,7 +1260,7 @@ class BankWorker
      * @param optExpires  Date after which the new key will become invalid.
      */
     @JSONMethod("key", "xid", "rep", "memo", "expires")
-    fun dupkey(from: WorkshopActor, key: String?, xid: OptString,
+    fun dupkey(from: WorkshopActor, key: String, xid: OptString,
                rep: OptString, memo: OptString, optExpires: OptString) {
         val env = init(from, "makekey", key, xid, rep, true, memo, true, clock) ?: return
         val expires = env.getValidExpiration(optExpires.value(null), true) ?: return

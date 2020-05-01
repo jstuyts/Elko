@@ -47,7 +47,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
      */
     @JSONMethod("tag", "what")
     operator fun get(from: RepositoryActor, tag: OptString,
-                     what: Array<RequestDesc?>?) {
+                     what: Array<RequestDesc>) {
         myObjectStore.getObjects(what) { results: Array<ObjectDesc> -> from.send(msgGet(this@RepHandler, tag.value(null), results)) }
     }
 
@@ -62,7 +62,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
      */
     @JSONMethod("tag", "what")
     fun put(from: RepositoryActor, tag: OptString,
-            what: Array<PutDesc?>?) {
+            what: Array<PutDesc>) {
         myObjectStore.putObjects(what) { results: Array<ResultDesc> -> from.send(msgPut(this@RepHandler, tag.value(null), results)) }
     }
 
@@ -77,7 +77,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
      */
     @JSONMethod("tag", "what")
     fun update(from: RepositoryActor, tag: OptString,
-               what: Array<UpdateDesc?>?) {
+               what: Array<UpdateDesc>) {
         myObjectStore.updateObjects(what) { results: Array<ResultDesc> -> from.send(msgUpdate(this@RepHandler, tag.value(null), results)) }
     }
 
@@ -92,7 +92,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
      */
     @JSONMethod("tag", "what")
     fun query(from: RepositoryActor, tag: OptString,
-              what: Array<QueryDesc?>?) {
+              what: Array<QueryDesc>) {
         myObjectStore.queryObjects(what) { results: Array<ObjectDesc> -> from.send(msgQuery(this@RepHandler, tag.value(null), results)) }
     }
 
@@ -107,7 +107,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
      */
     @JSONMethod("tag", "what")
     fun remove(from: RepositoryActor, tag: OptString,
-               what: Array<RequestDesc?>?) {
+               what: Array<RequestDesc>) {
         myObjectStore.removeObjects(what) { results: Array<ResultDesc> -> from.send(msgRemove(this@RepHandler, tag.value(null), results)) }
     }
 

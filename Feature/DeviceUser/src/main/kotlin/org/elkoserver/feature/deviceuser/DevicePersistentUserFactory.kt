@@ -18,7 +18,7 @@ import java.util.function.Consumer
  *
  * @param myDevice  The name of the device (IOS, etc).
  */
-open class DevicePersistentUserFactory @JSONMethod("device") internal constructor(val myDevice: String?) : UserFactory {
+open class DevicePersistentUserFactory @JSONMethod("device") internal constructor(private val myDevice: String) : UserFactory {
     /**
      * Produce a user object.
      *
@@ -34,14 +34,14 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
      * @param handler   Handler to be called with the result.  The result will
      * be the user object that was produced, or null if none could be.
      */
-    override fun provideUser(contextor: Contextor, connection: Connection, param: JsonObject, handler: Consumer<Any?>) {
-        val creds = extractCredentials(contextor.appTrace(), param)
+    override fun provideUser(contextor: Contextor?, connection: Connection?, param: JsonObject?, handler: Consumer<Any?>?) {
+        val creds = extractCredentials(contextor!!.appTrace(), param!!)
         if (creds == null) {
-            handler.accept(null)
+            handler!!.accept(null)
         } else {
             contextor.server().enqueueSlowTask(Callable {
                 contextor.queryObjects(deviceQuery(creds.uuid), null, 0,
-                        DeviceQueryResultHandler(contextor, creds, handler))
+                        DeviceQueryResultHandler(contextor, creds, handler!!))
                 null
             }, null)
         }
@@ -51,7 +51,7 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
                                                                 private val myHandler: Consumer<Any?>) : Consumer<Any?> {
         override fun accept(queryResult: Any?) {
             val user: User
-            val result = queryResult as Array<Any>?
+            @Suppress("UNCHECKED_CAST") val result = queryResult as Array<Any>?
             if (result != null && result.isNotEmpty()) {
                 if (result.size > 1) {
                     myContextor.appTrace().warningm("uuid query loaded ${result.size} users, choosing first")

@@ -55,8 +55,8 @@ internal class Account(private val myRef: String?, private var myVersion: Int, p
      * @param deleted  Flag indicating whether or not account is deleted.
      */
     @JSONMethod("ref", "version", "curr", "owner", "memo", "bal", "frozen", "encs", "deleted")
-    constructor(ref: String?, version: Int, currency: String?, owner: String?,
-                memo: String?, totalBalance: Int, frozen: Boolean,
+    constructor(ref: String, version: Int, currency: String, owner: String,
+                memo: String, totalBalance: Int, frozen: Boolean,
                 encumbrances: Array<Encumbrance>, deleted: OptBoolean) : this(ref, version, currency, owner, memo) {
         myTotalBalance = totalBalance
         myAvailBalance = totalBalance

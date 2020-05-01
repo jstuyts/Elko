@@ -71,7 +71,6 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
      * @param context  The context sought.
      * @param user  The user sought.
      */
-    @Throws(MessageHandlerException::class)
     private fun doFind(watch: Boolean, from: DirectorActor, context: OptString,
                        user: OptString) {
         val contextName = context.value(null)
@@ -176,8 +175,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
      * @param context  A context to limit the dump to.
      */
     @JSONMethod("depth", "provider", "context")
-    fun dump(from: DirectorActor, depth: Int, provider: OptString,
-             context: OptString) {
+    fun dump(from: DirectorActor, depth: Int, provider: OptString, context: OptString) {
         from.ensureAuthorizedAdmin()
         val providerName = provider.value(null)
         val contextName = context.value(null)
@@ -269,7 +267,6 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
      * @param user  The user sought.
      */
     @JSONMethod("context", "user")
-    @Throws(MessageHandlerException::class)
     fun find(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
         doFind(false, from, context, user)
@@ -326,8 +323,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
      * @param director  true if this director itself should be re-init'ed.
      */
     @JSONMethod("provider", "director")
-    fun reinit(from: DirectorActor, provider: OptString,
-               director: OptBoolean) {
+    fun reinit(from: DirectorActor, provider: OptString, director: OptBoolean) {
         from.ensureAuthorizedAdmin()
         val providerName = provider.value(null)
         if (providerName != null) {
@@ -371,8 +367,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
      * @param text  The message to send them.
      */
     @JSONMethod("context", "user", "text")
-    fun say(from: DirectorActor, context: OptString, user: OptString,
-            text: String) {
+    fun say(from: DirectorActor, context: OptString, user: OptString, text: String) {
         from.ensureAuthorizedAdmin()
         val contextName = context.value(null)
         val userName = user.value(null)
@@ -393,8 +388,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
      * of cleaning up.
      */
     @JSONMethod("provider", "director", "kill")
-    fun shutdown(from: DirectorActor, provider: OptString,
-                 director: OptBoolean, optKill: OptBoolean) {
+    fun shutdown(from: DirectorActor, provider: OptString, director: OptBoolean, optKill: OptBoolean) {
         from.ensureAuthorizedAdmin()
         val providerName = provider.value(null)
         val kill = optKill.value(false)
@@ -422,7 +416,6 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
      * @param user  The user that was watched.
      */
     @JSONMethod("context", "user")
-    @Throws(MessageHandlerException::class)
     fun unwatch(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
         val contextName = context.value(null)
@@ -451,7 +444,6 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
      * @param user  The user sought.
      */
     @JSONMethod("context", "user")
-    @Throws(MessageHandlerException::class)
     fun watch(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
         doFind(true, from, context, user)

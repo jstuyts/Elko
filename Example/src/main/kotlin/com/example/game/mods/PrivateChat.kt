@@ -13,7 +13,7 @@ class PrivateChat @JSONMethod constructor() : Mod(), UserMod {
     override fun encode(control: EncodeControl) = null
 
     @JSONMethod("speech")
-    fun say(from: User, speech: String?) {
+    fun say(from: User, speech: String) {
         ensureSameContext(from)
         val who = `object`() as User
         val response = SimpleChat.msgSay(who, from, speech)

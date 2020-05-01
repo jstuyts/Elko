@@ -59,7 +59,8 @@ import kotlin.math.abs
  * @param currencies  Array of currencies this bank is managing.
  * @param accountCollection  Optional collection name for account storage.
  */
-internal class Bank @JSONMethod("ref", "rootkey", "keys", "currencies", "collection") constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, currencies: Array<Currency>, accountCollection: OptString) : Encodable, ClockUsingObject, PostInjectionInitializingObject {
+internal class Bank @JSONMethod("ref", "rootkey", "keys", "currencies", "collection")
+constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, currencies: Array<Currency>, accountCollection: OptString) : Encodable, ClockUsingObject, PostInjectionInitializingObject {
     /** Currently defined currencies, by name.  */
     private val myCurrencies: MutableMap<String, Currency> = HashMap()
 
@@ -398,7 +399,7 @@ internal class Bank @JSONMethod("ref", "rootkey", "keys", "currencies", "collect
      *
      * @return a new key created according to the given parameters.
      */
-    fun makeKey(parentKey: Key?, auth: String?, currs: Array<String?>?,
+    fun makeKey(parentKey: Key?, auth: String?, currs: Array<String>?,
                 expires: ExpirationDate?, memo: String?): Key {
         val key = Key(parentKey, generateRef("key"), auth!!, currs, expires!!, memo!!)
         myKeys[key.ref()] = key

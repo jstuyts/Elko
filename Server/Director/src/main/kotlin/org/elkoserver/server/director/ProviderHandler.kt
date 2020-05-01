@@ -55,7 +55,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
      * @param hostPort  Where to connect for service.
      */
     @JSONMethod("protocol", "hostport")
-    fun address(from: DirectorActor, protocol: String?, hostPort: String?) {
+    fun address(from: DirectorActor, protocol: String, hostPort: String) {
         from.ensureAuthorizedProvider()
         from.provider()!!.addProtocol(protocol!!, hostPort!!)
     }
@@ -77,7 +77,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
      * context is restricted (unrestricted by default).
      */
     @JSONMethod("context", "open", "yours", "maxcap", "basecap", "restricted")
-    fun context(from: DirectorActor, context: String?, open: Boolean,
+    fun context(from: DirectorActor, context: String, open: Boolean,
                 mine: Boolean, optMaxCapacity: OptInteger,
                 optBaseCapacity: OptInteger, optRestricted: OptBoolean) {
         from.ensureAuthorizedProvider()
@@ -104,7 +104,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
      * attempt to enter when they fail.
      */
     @JSONMethod("context", "open", "reason")
-    fun gate(from: DirectorActor, context: String?, open: Boolean, optReason: OptString) {
+    fun gate(from: DirectorActor, context: String, open: Boolean, optReason: OptString) {
         from.ensureAuthorizedProvider()
         from.provider()!!.noteContextGateSetting(context!!, open, optReason.value(null))
     }
@@ -134,7 +134,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
      * @param msg  The message to relay to them.
      */
     @JSONMethod("context", "user", "msg")
-    fun relay(from: DirectorActor, context: OptString?, user: OptString?, msg: JsonObject?) {
+    fun relay(from: DirectorActor, context: OptString, user: OptString, msg: JsonObject) {
         from.ensureAuthorizedProvider()
         director().doRelay(from, context!!, user!!, msg!!)
     }
@@ -150,8 +150,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
      * @param on  true on entry, false on exit.
      */
     @JSONMethod("context", "user", "on")
-    fun user(from: DirectorActor, context: String?, user: String?,
-             on: Boolean) {
+    fun user(from: DirectorActor, context: String, user: String, on: Boolean) {
         from.ensureAuthorizedProvider()
         if (on) {
             from.provider()!!.noteUserEntry(context!!, user!!)
@@ -172,7 +171,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
      * class of contexts to reservations made internally.
      */
     @JSONMethod("context", "capacity", "restricted")
-    fun willserve(from: DirectorActor, context: String?, capacity: OptInteger, restricted: OptBoolean) {
+    fun willserve(from: DirectorActor, context: String, capacity: OptInteger, restricted: OptBoolean) {
         from.ensureAuthorizedProvider()
         from.provider()!!.addService(context!!, capacity.value(-1), restricted.value(false))
     }

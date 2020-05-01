@@ -18,7 +18,7 @@ import org.elkoserver.server.context.User
  * @param myText  The text of this note.
  * @param myStyle  How its text is to be displayed.
  */
-class Note @JSONMethod("text", "style") constructor(private var myText: String?, private var myStyle: StyleDesc?) : Mod(), ItemMod {
+class Note @JSONMethod("text", "style") constructor(private var myText: String, private var myStyle: StyleDesc) : Mod(), ItemMod {
 
     /**
      * Encode this mod for transmission or persistence.
@@ -57,14 +57,14 @@ class Note @JSONMethod("text", "style") constructor(private var myText: String?,
      * this mod or if invalid style information is provided.
      */
     @JSONMethod("text", "?style")
-    fun edit(from: User?, text: OptString, style: StyleDesc?) {
+    fun edit(from: User, text: OptString, style: StyleDesc?) {
         ensureSameContext(from)
-        var style = style
-        if (style != null) {
-            style = myStyle!!.mergeStyle(style)
-            val rules = context().getMod(NoteMaker::class.java)
-            myStyle = if (rules != null && rules.allowedStyle(style)) {
-                style
+        var actualStyle = style
+        if (actualStyle != null) {
+            actualStyle = myStyle!!.mergeStyle(actualStyle)
+            val rules = context()!!.getMod(NoteMaker::class.java)
+            myStyle = if (rules != null && rules.allowedStyle(actualStyle)) {
+                actualStyle
             } else {
                 throw MessageHandlerException("invalid style choice")
             }
@@ -73,9 +73,9 @@ class Note @JSONMethod("text", "style") constructor(private var myText: String?,
         if (newText != null) {
             myText = newText
         }
-        if (style != null || newText != null) {
+        if (actualStyle != null || newText != null) {
             markAsChanged()
-            context().send(msgEdit(`object`(), newText, style))
+            context()!!.send(msgEdit(`object`()!!, newText, actualStyle))
         }
     }
 

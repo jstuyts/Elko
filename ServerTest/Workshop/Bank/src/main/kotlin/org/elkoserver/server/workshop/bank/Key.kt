@@ -20,12 +20,12 @@ import java.util.Arrays.binarySearch
  * @param myMemo  Annotation on key.
  */
 internal class Key(
-        private var myParent: Key?, private val myRef: String?, private val myAuth: String, currencies: Array<String?>?,
+        private var myParent: Key?, private val myRef: String?, private val myAuth: String, currencies: Array<String>?,
         private val myExpires: ExpirationDate, private val myMemo: String) : Encodable {
 
     /** Currencies upon which this key authorizes action, or null if the key is
      * not scoped by currency.  */
-    private val myCurrencies: Array<String?>?
+    private val myCurrencies: Array<String>?
 
     /** Ref of parent key.  Note that this field is valid only during the
      * extended key decode/construction process, and must be null in a
@@ -43,7 +43,7 @@ internal class Key(
      * @param memo  Annotation on key.
      */
     @JSONMethod("parent", "ref", "auth", "?currs", "expires", "memo")
-    constructor(parentRef: String?, ref: String?, auth: String, currencies: Array<String?>?,
+    constructor(parentRef: String, ref: String, auth: String, currencies: Array<String>?,
                 expires: ExpirationDate, memo: OptString) : this(null, ref, auth, currencies, expires, memo.value(null)) {
         myParentRef = parentRef
     }

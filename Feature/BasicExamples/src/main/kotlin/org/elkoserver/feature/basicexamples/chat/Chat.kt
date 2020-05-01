@@ -82,14 +82,14 @@ class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
      */
     override fun objectIsComplete() {
         if (amAllowPrivate || amAllowPrivatePush) {
-            context().registerUserWatcher(
+            context()!!.registerUserWatcher(
                     object : UserWatcher {
-                        override fun noteUserArrival(who: User) {
+                        override fun noteUserArrival(who: User?) {
                             val privateChat = PrivateChat(amAllowPrivate, amAllowPrivatePush)
-                            privateChat.attachTo(who)
+                            privateChat.attachTo(who!!)
                         }
 
-                        override fun noteUserDeparture(who: User) {}
+                        override fun noteUserDeparture(who: User?) {}
                     })
         }
     }
@@ -117,16 +117,15 @@ class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
      * this mod or if the 'allowPush' configuration was parameter false.
      */
     @JSONMethod("url", "frame", "features")
-    fun push(from: User, url: String?, frame: OptString,
-             features: OptString) {
+    fun push(from: User, url: String, frame: OptString, features: OptString) {
         if (amAllowPush) {
             ensureSameContext(from)
             val response = Msg.msgPush(context(), from, url, frame.value(null),
                     features.value(null))
-            if (context().isSemiPrivate) {
+            if (context()!!.isSemiPrivate) {
                 from.send(response)
             } else {
-                context().send(response)
+                context()!!.send(response)
             }
         } else {
             throw MessageHandlerException("push not allowed")
@@ -154,14 +153,14 @@ class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
      * this mod or if the 'allowChat' configuration parameter was false.
      */
     @JSONMethod("text")
-    fun say(from: User, text: String?) {
+    fun say(from: User, text: String) {
         if (amAllowChat) {
             ensureSameContext(from)
             val response = Msg.msgSay(context(), from, text)
-            if (context().isSemiPrivate) {
+            if (context()!!.isSemiPrivate) {
                 from.send(response)
             } else {
-                context().send(response)
+                context()!!.send(response)
             }
         } else {
             throw MessageHandlerException("chat not allowed")

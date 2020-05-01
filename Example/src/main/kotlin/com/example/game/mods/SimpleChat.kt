@@ -30,13 +30,13 @@ class SimpleChat @JSONMethod("allowpush") constructor(allowPush: OptBoolean) : M
             }
 
     override fun objectIsComplete() {
-        context().registerUserWatcher(
+        context()!!.registerUserWatcher(
                 object : UserWatcher {
-                    override fun noteUserArrival(who: User) {
-                        PrivateChat().attachTo(who)
+                    override fun noteUserArrival(who: User?) {
+                        PrivateChat().attachTo(who!!)
                     }
 
-                    override fun noteUserDeparture(who: User) {}
+                    override fun noteUserDeparture(who: User?) {}
                 }
         )
     }
@@ -45,16 +45,16 @@ class SimpleChat @JSONMethod("allowpush") constructor(allowPush: OptBoolean) : M
     fun push(from: User, url: String, frame: OptString) {
         if (amAllowingPush) {
             ensureSameContext(from)
-            context().send(msgPush(context(), from, url, frame.value(null)))
+            context()!!.send(msgPush(context()!!, from, url, frame.value(null)))
         } else {
             throw MessageHandlerException("push not allowed here")
         }
     }
 
     @JSONMethod("speech")
-    fun say(from: User?, speech: String?) {
+    fun say(from: User, speech: String) {
         ensureSameContext(from)
-        context().send(msgSay(context(), from, speech))
+        context()!!.send(msgSay(context(), from, speech))
     }
 
     companion object {

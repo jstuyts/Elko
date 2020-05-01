@@ -54,7 +54,7 @@ internal class ClientHandler(private val myPresenceServer: PresenceServer, trace
      * @param contextMeta  Optional context metadata.
      */
     @JSONMethod("context", "user", "on", "?umeta", "?cmeta")
-    fun user(from: PresenceActor, context: String?, user: String?,
+    fun user(from: PresenceActor, context: String, user: String,
              on: Boolean, userMeta: JsonObject?, contextMeta: JsonObject?) {
         from.ensureAuthorizedClient()
         val client = from.client()
@@ -83,7 +83,7 @@ internal class ClientHandler(private val myPresenceServer: PresenceServer, trace
      * visible outside the context
      */
     @JSONMethod("context", "?domains", "visible")
-    fun subscribe(from: PresenceActor, context: String?, domains: Array<String?>?, visible: OptBoolean) {
+    fun subscribe(from: PresenceActor, context: String, domains: Array<String>?, visible: OptBoolean) {
         if (domains != null) {
             for (domain in domains) {
                 from.client().subscribeToUpdates(context, domain)
@@ -103,7 +103,7 @@ internal class ClientHandler(private val myPresenceServer: PresenceServer, trace
      * @param context  The context who is no longer interested
      */
     @JSONMethod("context")
-    fun unsubscribe(from: PresenceActor, context: String?) {
+    fun unsubscribe(from: PresenceActor, context: String) {
         from.client().unsubscribeToUpdates(context!!)
         from.client().noteInvisibleContext(context)
     }

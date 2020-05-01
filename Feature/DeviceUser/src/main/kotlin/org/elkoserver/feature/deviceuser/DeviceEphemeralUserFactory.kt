@@ -13,7 +13,7 @@ import java.util.function.Consumer
  *
  * @param device  The name of the device (IOS, etc).
  */
-class DeviceEphemeralUserFactory @JSONMethod("device") constructor(device: String?) : DevicePersistentUserFactory(device) {
+class DeviceEphemeralUserFactory @JSONMethod("device") constructor(device: String) : DevicePersistentUserFactory(device) {
     /**
      * Synthesize an ephemeral user object based on user description info
      * fetched from the Device.
@@ -26,13 +26,13 @@ class DeviceEphemeralUserFactory @JSONMethod("device") constructor(device: Strin
      * @param handler  Handler to invoke with the resulting user object, or
      * with null if the user object could not be produced.
      */
-    override fun provideUser(contextor: Contextor, connection: Connection, param: JsonObject, handler: Consumer<Any?>) {
-        val user = (extractCredentials(contextor.appTrace(), param)?.let { creds ->
+    override fun provideUser(contextor: Contextor?, connection: Connection?, param: JsonObject?, handler: Consumer<Any?>?) {
+        val user = (extractCredentials(contextor!!.appTrace(), param!!)?.let { creds ->
             User(creds.name, null, null, null).apply {
                 markAsEphemeral()
                 objectIsComplete()
             }
         })
-        handler.accept(user)
+        handler!!.accept(user)
     }
 }

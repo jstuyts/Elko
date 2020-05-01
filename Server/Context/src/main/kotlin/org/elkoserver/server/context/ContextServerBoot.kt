@@ -11,31 +11,32 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
-import java.util.*
+import java.util.LinkedList
 
 /**
  * The Elko boot class for the Context Server, the basis of Elko applications
  * built on the context/user/item object model.
  */
+@Suppress("unused")
 class ContextServerBoot : Bootable {
     private lateinit var traceFactory: TraceFactory
     private lateinit var tr: Trace
     private lateinit var timer: Timer
-    private var myContextor: Contextor? = null
+    private lateinit var myContextor: Contextor
+
     override fun boot(props: ElkoProperties, traceFactory: TraceFactory, clock: Clock) {
         this.traceFactory = traceFactory
         tr = traceFactory.trace("cont")
         this.timer = Timer(traceFactory, clock)
         val server = Server(props, "context", tr, timer, clock, traceFactory)
         myContextor = Contextor(server, tr, timer, traceFactory, clock)
-        if (server.startListeners("conf.listen",
-                        ContextServiceFactory()) == 0) {
+        if (server.startListeners("conf.listen", ContextServiceFactory()) == 0) {
             tr.fatalError("no listeners specified")
         }
         val directors = scanHostList(props, "conf.register")
-        myContextor!!.registerWithDirectors(directors, server.listeners())
+        myContextor.registerWithDirectors(directors, server.listeners())
         val presencers = scanHostList(props, "conf.presence")
-        myContextor!!.registerWithPresencers(presencers)
+        myContextor.registerWithPresencers(presencers)
     }
 
     private inner class ContextServiceFactory : ServiceFactory {
@@ -53,11 +54,7 @@ class ContextServerBoot : Bootable {
          * @param protocol  The protocol (TCP, HTTP, etc.) that connections
          * made to the new listener are expected to speak
          */
-        override fun provideFactory(label: String,
-                                    auth: AuthDesc,
-                                    allow: Set<String>,
-                                    serviceNames: MutableList<String>,
-                                    protocol: String): MessageHandlerFactory? {
+        override fun provideFactory(label: String, auth: AuthDesc, allow: Set<String>, serviceNames: MutableList<String>, protocol: String): MessageHandlerFactory? {
             return if (allow.contains("internal")) {
                 serviceNames.add("context-internal")
                 InternalActorFactory(myContextor, auth, tr, traceFactory)
@@ -87,7 +84,7 @@ class ContextServerBoot : Bootable {
      * @return a list of host descriptors for the configured collection of host
      * information extracted from the properties.
      */
-    private fun scanHostList(props: ElkoProperties, propRoot: String): List<HostDesc> {
+    private fun scanHostList(props: ElkoProperties, propRoot: String): MutableList<HostDesc> {
         var index = 0
         val hosts: MutableList<HostDesc> = LinkedList()
         while (true) {

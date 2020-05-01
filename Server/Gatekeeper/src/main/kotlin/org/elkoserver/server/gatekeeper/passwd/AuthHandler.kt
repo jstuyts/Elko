@@ -88,7 +88,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param context  The context that it maps to.
      */
     @JSONMethod("name", "context")
-    fun createplace(from: BasicProtocolActor?, name: String, context: String) {
+    fun createplace(from: BasicProtocolActor, name: String, context: String) {
         myGatekeeper.ensureAuthorizedAdmin(from!!)
         myAuthorizer.addPlace(name, context)
     }
@@ -118,7 +118,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param name  The name of the entry to be deleted.
      */
     @JSONMethod("name")
-    fun deleteplace(from: BasicProtocolActor?, name: String?) {
+    fun deleteplace(from: BasicProtocolActor?, name: String) {
         myGatekeeper.ensureAuthorizedAdmin(from!!)
         myAuthorizer.removePlace(name!!)
     }
@@ -172,7 +172,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param canSetPass  The (new) permission setting.
      */
     @JSONMethod("id", "cansetpass")
-    fun setcansetpass(from: BasicProtocolActor?, id: String?, canSetPass: Boolean) {
+    fun setcansetpass(from: BasicProtocolActor, id: String, canSetPass: Boolean) {
         myGatekeeper.ensureAuthorizedAdmin(from!!)
         myAuthorizer.getActor(id!!, Consumer { obj: Any? ->
             if (obj != null) {
@@ -196,7 +196,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * to remove).
      */
     @JSONMethod("id", "iid")
-    fun setiid(from: BasicProtocolActor?, id: String?, optInternalID: OptString) {
+    fun setiid(from: BasicProtocolActor, id: String, optInternalID: OptString) {
         myGatekeeper.ensureAuthorizedAdmin(from!!)
         myAuthorizer.getActor(id!!, Consumer { obj: Any? ->
             if (obj != null) {
@@ -221,7 +221,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * remove).
      */
     @JSONMethod("id", "name")
-    fun setname(from: BasicProtocolActor?, id: String?, optName: OptString) {
+    fun setname(from: BasicProtocolActor, id: String, optName: OptString) {
         myGatekeeper.ensureAuthorizedAdmin(from!!)
         myAuthorizer.getActor(id!!, Consumer { obj: Any? ->
             if (obj != null) {
@@ -246,7 +246,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * omitted to remove).
      */
     @JSONMethod("id", "password")
-    fun setpassword(from: BasicProtocolActor?, id: String?, optPassword: OptString) {
+    fun setpassword(from: BasicProtocolActor, id: String, optPassword: OptString) {
         myGatekeeper.ensureAuthorizedAdmin(from!!)
         myAuthorizer.getActor(id!!, Consumer { obj: Any? ->
             if (obj != null) {

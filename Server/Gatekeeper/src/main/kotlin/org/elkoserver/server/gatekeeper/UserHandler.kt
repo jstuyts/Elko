@@ -42,7 +42,7 @@ internal class UserHandler(private val myGatekeeper: Gatekeeper, traceFactory: T
      * @param password  Password for entry, when relevant.
      */
     @JSONMethod("protocol", "context", "id", "name", "password")
-    fun reserve(from: GatekeeperActor, protocol: String?, context: String?, id: OptString, name: OptString, password: OptString) {
+    fun reserve(from: GatekeeperActor, protocol: String, context: String, id: OptString, name: OptString, password: OptString) {
         val idStr = id.value(null)
         myGatekeeper.authorizer()!!.reserve(
                 protocol!!, context!!, idStr, name.value(null), password.value(null),
