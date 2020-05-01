@@ -117,6 +117,25 @@
                 pushLog(this.name.entityify() + ' has left.');
             };
 
+            let logIn = function () {
+                let rootElement = document.getElementById('root');
+                let userIdElement = document.getElementById('userid');
+
+                root = rootElement.value;
+                session.connectToContext(root, "context-chat", {user: userIdElement.value});
+
+                rootElement.disabled = 'disabled'
+                userIdElement.disabled = 'disabled'
+                document.getElementById('login').blur();
+                document.getElementById('login').disabled = 'disabled';
+            };
+
+            document.getElementById('userid').addEventListener('keyup',
+                    function (event) {
+                        if ((event.code && event.code === "Enter") || (event.keyCode && event.keyCode === 13)) {
+                            logIn();
+                        }
+                    });
             document.getElementById('input').addEventListener('keyup',
                     function (event) {
                         if ((event.code && event.code === "Enter") || (event.keyCode && event.keyCode === 13)) {
@@ -132,18 +151,7 @@
                         disconnect(session);
                     });
             document.getElementById('login').addEventListener('click',
-                    function () {
-                        let rootElement = document.getElementById('root');
-                        let userIdElement = document.getElementById('userid');
-
-                        root = rootElement.value;
-                        session.connectToContext(root, "context-chat", {user: userIdElement.value});
-
-                        rootElement.disabled = 'disabled'
-                        userIdElement.disabled = 'disabled'
-                        document.getElementById('login').blur();
-                        document.getElementById('login').disabled = 'disabled';
-                    });
+                    logIn);
             document.getElementById('speak').addEventListener('click',
                     function () {
                         speak(session, "context-chat");
