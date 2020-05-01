@@ -99,9 +99,6 @@ public class ChunkyByteArrayInputStream extends InputStream {
     /** Flag indicating an actual EOF in the input. */
     private boolean amAtEOF;
 
-    /** Buffer for accumulating a line of decoded characters. */
-    private final StringBuilder myLine;
-
     /** Flag indicating that WebSocket framing is enabled. */
     private boolean amWebSocketFraming;
     private final TraceFactory traceFactory;
@@ -118,7 +115,6 @@ public class ChunkyByteArrayInputStream extends InputStream {
         myUsefulByteCount = 0;
         amAtEOF = false;
         amWebSocketFraming = false;
-        myLine = new StringBuilder(1000);
     }
     
     /**
@@ -351,7 +347,7 @@ public class ChunkyByteArrayInputStream extends InputStream {
      * @throws EOFException if the true end of input is reached.
      */
     private String readLine(boolean doUTF8) throws IOException {
-        myLine.setLength(0);
+        StringBuilder myLine = new StringBuilder(1000);
         int inCharCode = doUTF8 ? readUTF8Char() : read();
         if (inCharCode == -1) {
             return null;
