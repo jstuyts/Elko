@@ -41,18 +41,18 @@ class Definer @JSONMethod constructor(raw: JsonObject) : Cap(raw), ItemMod, User
         ensureReachable(from)
         val intoRef = into.value(null)
         if (intoRef != null) {
-            if (context()!![intoRef] != null) {
+            if (context()[intoRef] != null) {
                 throw MessageHandlerException("container $intoRef is loaded")
             }
         }
         val newRef = ref.value(null)
         if (newRef != null) {
-            if (context()!![newRef] != null) {
+            if (context()[newRef] != null) {
                 throw MessageHandlerException("proposed ref $newRef is loaded")
             }
         }
-        val contextor = `object`()!!.contextor()
-        contextor!!.createObjectRecord(newRef, intoRef, obj!!)
+        val contextor = `object`().contextor()
+        contextor.createObjectRecord(newRef, intoRef, obj!!)
     }
 
     /**

@@ -80,7 +80,7 @@ class Cartesian @JSONMethod("width", "height", "left", "top") constructor(
         var newContainer: BasicObject? = null
         val newContainerRef = into.value(null)
         if (newContainerRef != null) {
-            newContainer = context()!![newContainerRef]
+            newContainer = context()[newContainerRef]
             if (!ContainerValidity.validContainer(newContainer, from)) {
                 throw MessageHandlerException(
                         "invalid move destination container $newContainerRef")
@@ -90,7 +90,7 @@ class Cartesian @JSONMethod("width", "height", "left", "top") constructor(
         myLeft = left
         myTop = top
         markAsChanged()
-        context()!!.send(msgMove(item, newContainer, left, top))
+        context().send(msgMove(item, newContainer, left, top))
     }
 
     companion object {

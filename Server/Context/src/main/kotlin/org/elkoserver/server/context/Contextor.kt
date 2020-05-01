@@ -1153,7 +1153,7 @@ class Contextor private constructor(odb: ObjDB?, server: Server,
     fun setContents(container: BasicObject, subID: String, contents: Array<Item>?) {
         if (contents != null) {
             for (item in contents) {
-                item?.let { activateContentsItem(container, subID, it) }
+                activateContentsItem(container, subID, item)
             }
         }
     }

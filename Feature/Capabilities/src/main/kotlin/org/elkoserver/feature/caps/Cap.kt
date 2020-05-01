@@ -85,7 +85,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      *
      * @throws MessageHandlerException if the test fails.
      */
-    fun ensureValid(from: User?) {
+    fun ensureValid(from: User) {
         ensureReachable(from)
         if (isExpired) {
             throw MessageHandlerException("capability expired")
@@ -143,7 +143,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
     @JSONMethod("label")
     fun setlabel(from: User, label: String) {
         ensureReachable(from)
-        `object`()!!.setName(label)
+        `object`().setName(label)
     }
 
     /**
@@ -171,7 +171,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
         if (!amTransferrable) {
             throw MessageHandlerException("attempt to transfer non-transferrable capability")
         }
-        val newHolder = context()!![destRef]
+        val newHolder = context()[destRef]
         if (newHolder == null || newHolder is Item) {
             // XXX TODO IMPORTANT: doesn't work if dest is offline
             throw MessageHandlerException("invalid transfer destination $destRef")
@@ -234,7 +234,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
         container = if (destRef == null) {
             from
         } else {
-            context()!![destRef]
+            context()[destRef]
         }
         if (container == null) {
             throw MessageHandlerException("can't find spawn destination $destRef")
@@ -268,7 +268,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
         if (!expireOK) {
             throw MessageHandlerException("illegal rights amplification")
         }
-        val capItem = container.createItem(`object`()!!.name()!!, false, true)
+        val capItem = container.createItem(`object`().name()!!, false, true)
         try {
             clone() as Cap
         } catch (e: CloneNotSupportedException) {

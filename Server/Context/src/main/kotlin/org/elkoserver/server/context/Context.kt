@@ -229,8 +229,10 @@ internal constructor(name: String,
                 tr!!.eventi("shutting down $this")
                 noteContextShutdown()
                 checkpoint()
-                myContextor!!.remove(this)
-                myContextor!!.noteContext(this, false)
+                assertActivated {
+                    it.remove(this)
+                    it.noteContext(this, false)
+                }
             }
         }
     }
@@ -242,7 +244,7 @@ internal constructor(name: String,
      */
     fun closeGate(reason: String?) {
         myGateClosedReason = reason ?: "context closed to new entries"
-        myContextor!!.noteContextGate(this, false, reason)
+        assertActivated { it.noteContextGate(this, false, reason) }
     }
 
     /**
@@ -290,7 +292,7 @@ internal constructor(name: String,
                 }
                 myUsers!![who.baseRef()] = who
             }
-            sendContextDescription(who, myContextor!!.session())
+            sendContextDescription(who, assertActivated { it.session() })
             noteUserArrival(who)
             tr!!.eventi("$who enters $this")
             null
@@ -378,7 +380,7 @@ internal constructor(name: String,
         return if (ref == "context") {
             this
         } else {
-            myContextor!![ref] as BasicObject
+            assertActivated { it[ref] as BasicObject }
         }
     }
 
@@ -390,8 +392,8 @@ internal constructor(name: String,
      * @return the static object corresponding to 'ref', or null if there is no
      * such object in the server's static object table.
      */
-    fun getStaticObject(ref: String?): Any? {
-        return myContextor!!.getStaticObject(ref!!)
+    fun getStaticObject(ref: String): Any? {
+        return assertActivated { it.getStaticObject(ref) }
     }
 
     /**
@@ -399,9 +401,7 @@ internal constructor(name: String,
      *
      * @return the send group for this context.
      */
-    fun group(): SendGroup? {
-        return myGroup
-    }
+    fun group(): SendGroup? = myGroup
 
     /**
      * Test if this context may be used as a template for other contexts.
@@ -480,10 +480,7 @@ internal constructor(name: String,
      */
     fun observePresenceChange(observerRef: String, domain: String?,
                               whoRef: String, whereRef: String, on: Boolean) {
-        if (myPresenceWatcher != null) {
-            myPresenceWatcher!!.notePresenceChange(observerRef, domain, whoRef,
-                    whereRef, on)
-        }
+        myPresenceWatcher?.notePresenceChange(observerRef, domain, whoRef, whereRef, on)
         val observer = myUsers!![observerRef]
         if (observer != null) {
             observer.observePresenceChange(observerRef, domain, whoRef,
@@ -511,7 +508,7 @@ internal constructor(name: String,
      */
     fun openGate() {
         myGateClosedReason = null
-        myContextor!!.noteContextGate(this, true, null)
+        assertActivated { it.noteContextGate(this, true, null) }
     }
 
     /**
@@ -596,7 +593,7 @@ internal constructor(name: String,
      */
     private inner class ContextEventThunk internal constructor(private val myThunk: Runnable) : Runnable, TimeoutNoticer {
         override fun noticeTimeout() {
-            myContextor!!.server().enqueue(this)
+            assertActivated { it.server().enqueue(this) }
         }
 
         override fun run() {
@@ -759,9 +756,7 @@ internal constructor(name: String,
      *
      * @return the context itself.
      */
-    override fun context(): Context {
-        return this
-    }
+    override fun context() = this
 
     /**
      * Test if this object is a container.  (Note: in this case, it is.)

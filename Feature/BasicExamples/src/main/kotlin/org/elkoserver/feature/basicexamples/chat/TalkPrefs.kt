@@ -58,7 +58,7 @@ class TalkPrefs @JSONMethod("style") constructor(private var myStyle: StyleDesc)
      * Application code should not call this method.
      */
     override fun objectIsComplete() {
-        val rules = context()!!.getMod(TalkOptions::class.java)
+        val rules = context().getMod(TalkOptions::class.java)
         if (rules != null) {
             myStyle = rules.newStyle()
         }
@@ -103,10 +103,10 @@ class TalkPrefs @JSONMethod("style") constructor(private var myStyle: StyleDesc)
                 null,
                 newTextStyle ?: myStyle.textStyle(),
                 newIcon ?: myStyle.icon())
-        val rules = context()!!.getMod(TalkOptions::class.java)
+        val rules = context().getMod(TalkOptions::class.java)
         if (rules == null || rules.allowedStyle(style)) {
             myStyle = style
-            context()!!.send(msgStyle(`object`()!!, newColor, newBackgroundColor,
+            context().send(msgStyle(`object`(), newColor, newBackgroundColor,
                     newIcon, newTextStyle))
         }
     }

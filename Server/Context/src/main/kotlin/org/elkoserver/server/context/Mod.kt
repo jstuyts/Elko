@@ -50,10 +50,8 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
     }
 
     fun detach() {
-        if (myObject != null) {
-            myObject!!.detachMod(this)
-            myObject = null
-        }
+        myObject?.detachMod(this)
+        myObject = null
     }
 
     /**
@@ -72,13 +70,15 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      *
      * @throws MessageHandlerException if the test fails.
      */
-    protected fun ensureReachable(who: User?) {
-        val holder = myObject!!.user()
-        if (holder !== who) {
-            if (holder == null) {
-                ensureSameContext(who)
-            } else {
-                throw MessageHandlerException("user $who attempted operation on non-reachable object $myObject")
+    protected fun ensureReachable(who: User) {
+        assertAttached {
+            val holder = it.user()
+            if (holder !== who) {
+                if (holder == null) {
+                    ensureSameContext(who)
+                } else {
+                    throw MessageHandlerException("user $who attempted operation on non-reachable object $it")
+                }
             }
         }
     }
@@ -93,9 +93,11 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      * @throws MessageHandlerException if the test fails.
      */
     protected fun ensureHolding(who: User) {
-        val holder = myObject!!.user()
-        if (holder !== who) {
-            throw MessageHandlerException("user $who attempted operation on non-held object $myObject")
+        assertAttached {
+            val holder = it.user()
+            if (holder !== who) {
+                throw MessageHandlerException("user $who attempted operation on non-held object $it")
+            }
         }
     }
 
@@ -109,8 +111,10 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      * @throws MessageHandlerException if the test fails.
      */
     protected fun ensureSameUser(who: User) {
-        if (who !== myObject) {
-            throw MessageHandlerException("user $who attempted operation on $myObject instead of self")
+        assertAttached {
+            if (who !== it) {
+                throw MessageHandlerException("user $who attempted operation on $it instead of self")
+            }
         }
     }
 
@@ -124,8 +128,10 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      *
      * @throws MessageHandlerException if the test fails.
      */
-    protected fun ensureSameContext(who: User?) {
-        myObject!!.ensureSameContext(who!!)
+    protected fun ensureSameContext(who: User) {
+        assertAttached {
+            it.ensureSameContext(who)
+        }
     }
 
     /**
@@ -138,8 +144,10 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      * @throws MessageHandlerException if the test fails.
      */
     protected fun ensureInContext(who: User) {
-        if (who.context() !== myObject!!.container() && who.context() !== myObject) {
-            throw MessageHandlerException("user $who attempted operation on object $myObject that is not in the user's context")
+        assertAttached {
+            if (who.context() !== it.container() && who.context() !== it) {
+                throw MessageHandlerException("user $who attempted operation on object $it that is not in the user's context")
+            }
         }
     }
 
@@ -151,14 +159,14 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      * is located, at whatever level of container nesting, or null if it is
      * not held by anything.
      */
-    protected fun holder() = myObject!!.holder()
+    protected fun holder() = assertAttached { it.holder() }
 
     /**
      * Mark the object to which this mod is attached as having been changed and
      * thus in need of checkpointing.
      */
     protected fun markAsChanged() {
-        myObject!!.markAsChanged()
+        assertAttached { it.markAsChanged() }
     }
 
     /**
@@ -173,7 +181,7 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      *
      * @return the object to which this mod is attached.
      */
-    fun `object`() = myObject
+    fun `object`() = assertAttached { it }
 
     /**
      * Obtain the context in which the object this mod is attached to is
@@ -183,5 +191,8 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      * @return the context in which this mod is located, or null if it is not
      * in any context.
      */
-    fun context() = myObject!!.context()
+    fun context() = assertAttached { it.context() }
+
+    private fun <TResult> assertAttached(myObjectConsumer: (BasicObject) -> TResult) =
+            myObject?.let(myObjectConsumer) ?: throw IllegalStateException("Not attached")
 }

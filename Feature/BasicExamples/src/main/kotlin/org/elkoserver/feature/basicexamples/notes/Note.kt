@@ -61,8 +61,8 @@ class Note @JSONMethod("text", "style") constructor(private var myText: String, 
         ensureSameContext(from)
         var actualStyle = style
         if (actualStyle != null) {
-            actualStyle = myStyle!!.mergeStyle(actualStyle)
-            val rules = context()!!.getMod(NoteMaker::class.java)
+            actualStyle = myStyle.mergeStyle(actualStyle)
+            val rules = context().getMod(NoteMaker::class.java)
             myStyle = if (rules != null && rules.allowedStyle(actualStyle)) {
                 actualStyle
             } else {
@@ -75,7 +75,7 @@ class Note @JSONMethod("text", "style") constructor(private var myText: String, 
         }
         if (actualStyle != null || newText != null) {
             markAsChanged()
-            context()!!.send(msgEdit(`object`()!!, newText, actualStyle))
+            context().send(msgEdit(`object`(), newText, actualStyle))
         }
     }
 

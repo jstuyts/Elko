@@ -31,7 +31,7 @@ class Prop @JSONMethod("kind") constructor(private val myKind: String) : Mod(), 
         assertWithinGrabDistance(dx, dy, item)
         item.setContainer(from)
         itemPos.detach()
-        context()!!.sendToNeighbors(from, Msg.msgDelete(item))
+        context().sendToNeighbors(from, Msg.msgDelete(item))
         from.send(msgMove(item, 0, 0, from))
     }
 
@@ -49,7 +49,7 @@ class Prop @JSONMethod("kind") constructor(private val myKind: String) : Mod(), 
             itemPos.set(userPos.x(), userPos.y())
         }
         item.setContainer(context())
-        item.sendObjectDescription(context()!!.neighbors(from), context())
+        item.sendObjectDescription(context().neighbors(from), context())
         from.send(msgMove(item, userPos.x(), userPos.y(), context()))
     }
 

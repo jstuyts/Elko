@@ -82,7 +82,7 @@ class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
      */
     override fun objectIsComplete() {
         if (amAllowPrivate || amAllowPrivatePush) {
-            context()!!.registerUserWatcher(
+            context().registerUserWatcher(
                     object : UserWatcher {
                         override fun noteUserArrival(who: User?) {
                             val privateChat = PrivateChat(amAllowPrivate, amAllowPrivatePush)
@@ -122,10 +122,10 @@ class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
             ensureSameContext(from)
             val response = Msg.msgPush(context(), from, url, frame.value(null),
                     features.value(null))
-            if (context()!!.isSemiPrivate) {
+            if (context().isSemiPrivate) {
                 from.send(response)
             } else {
-                context()!!.send(response)
+                context().send(response)
             }
         } else {
             throw MessageHandlerException("push not allowed")
@@ -157,10 +157,10 @@ class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
         if (amAllowChat) {
             ensureSameContext(from)
             val response = Msg.msgSay(context(), from, text)
-            if (context()!!.isSemiPrivate) {
+            if (context().isSemiPrivate) {
                 from.send(response)
             } else {
-                context()!!.send(response)
+                context().send(response)
             }
         } else {
             throw MessageHandlerException("chat not allowed")

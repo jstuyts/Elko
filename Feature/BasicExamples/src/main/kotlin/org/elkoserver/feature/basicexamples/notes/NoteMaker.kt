@@ -88,7 +88,7 @@ class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: St
                  width: Int, height: Int, text: String, style: StyleDesc?) {
         ensureSameContext(from)
         val intoRef = into.value(null)
-        val intoObj = if (intoRef != null) { context()!![intoRef] } else { context() }
+        val intoObj = if (intoRef != null) { context()[intoRef] } else { context() }
         val mergedStyle = myStyleOptions.mergeStyle(style)
         if (mergedStyle == null) {
             throw MessageHandlerException("invalid style options")
@@ -103,7 +103,7 @@ class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: St
                 attachTo(item)
             }
             item.objectIsComplete()
-            context()!!.send(Msg.msgMake(intoObj, item, from))
+            context().send(Msg.msgMake(intoObj, item, from))
         }
     }
 

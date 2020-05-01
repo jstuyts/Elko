@@ -99,7 +99,7 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
         if (amPersistent) {
             markAsChanged()
         }
-        context()!!.send(msgDelvar(`object`()!!, from, names))
+        context().send(msgDelvar(`object`(), from, names))
     }
 
     /**
@@ -140,7 +140,7 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
         if (amPersistent) {
             markAsChanged()
         }
-        context()!!.send(msgSetvar(`object`()!!, from, names, values))
+        context().send(msgSetvar(`object`(), from, names, values))
     }
 
     companion object {

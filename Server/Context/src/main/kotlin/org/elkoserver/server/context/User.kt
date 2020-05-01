@@ -136,7 +136,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return the context the user is in.
      */
-    override fun context() = myContext!!
+    override fun context() = assertInContext { it }
 
     /**
      * Do the actual work of exiting a user from their context and
@@ -148,8 +148,10 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
             amExited = true
             if (amEntered) {
                 checkpoint()
-                myContextor!!.remove(this)
-                myContextor!!.noteUser(this, false)
+                assertActivated {
+                    it.remove(this)
+                    it.noteUser(this, false)
+                }
                 exitCurrentContext()
             }
         }
@@ -190,17 +192,19 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
     fun enterContext(context: Context): String? {
         exitCurrentContext()
         myContext = context
-        val problem = myContext!!.enterContext(this)
+        val problem = context.enterContext(this)
         return if (problem == null) {
             isArrived = true
             myGroup.expelMember(this)
             myGroup = context.group()!!
             myGroup.admitMember(this)
-            myContext!!.attachUserMods(this)
+            context.attachUserMods(this)
             objectIsComplete()
-            myContextor!!.notifyPendingObjectCompletionWatchers()
+            assertActivated {
+                it.notifyPendingObjectCompletionWatchers()
+            }
             sendUserDescription(this, context, true)
-            if (!myContext!!.isSemiPrivate) {
+            if (!context.isSemiPrivate) {
                 sendUserDescription(neighbors(), context, false)
             }
             null
@@ -237,14 +241,12 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * Remove the user from the current context.
      */
     private fun exitCurrentContext() {
-        if (myContext != null) {
+        myContext?.let {
             myGroup.expelMember(this)
             myGroup = LimboGroup.theLimboGroup
-            myContext!!.exitContext(this)
-            if (myModSet != null) {
-                myModSet!!.purgeEphemeralMods()
-            }
-            myActor!!.exitContext(myContext)
+            it.exitContext(this)
+            myModSet?.purgeEphemeralMods()
+            myActor!!.exitContext(it)
             myContext = null
             isArrived = false
         }
@@ -260,7 +262,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      */
     fun exitWithContextChange(contextRef: String, hostPort: String?, reservation: String?) {
         checkpoint(Consumer<Any?> { ignored: Any? ->
-            send(msgPushContext(myContextor!!.session(), contextRef, hostPort, reservation))
+            assertActivated { send(msgPushContext(it.session(), contextRef, hostPort, reservation)) }
         })
     }
 
@@ -299,10 +301,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      */
     fun observePresenceChange(observerRef: String?, domain: String?,
                               whoRef: String?, whereRef: String?, on: Boolean) {
-        if (myPresenceWatcher != null) {
-            myPresenceWatcher!!.notePresenceChange(observerRef, domain, whoRef,
-                    whereRef, on)
-        }
+        myPresenceWatcher?.notePresenceChange(observerRef, domain, whoRef, whereRef, on)
     }
 
     /**
@@ -321,7 +320,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param contextRef  The ref of the context to push them to.
      */
     fun pushNewContext(contextRef: String?) {
-        myContextor!!.pushNewContext(this, contextRef)
+        assertActivated { it.pushNewContext(this, contextRef) }
     }
 
     /**
@@ -436,4 +435,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
         myRef = ref
         myGroup.admitMember(this)
     }
+
+    private fun <TResult> assertInContext(contextConsumer: (Context) -> TResult) =
+            myContext?.let(contextConsumer) ?: throw IllegalStateException("Not in a context")
 }

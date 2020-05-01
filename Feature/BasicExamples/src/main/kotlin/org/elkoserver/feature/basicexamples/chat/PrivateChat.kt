@@ -64,7 +64,7 @@ class PrivateChat(private val amAllowPrivate: Boolean, private val amAllowPush: 
     fun push(from: User, url: String, frame: OptString, features: OptString) {
         if (amAllowPush) {
             ensureSameContext(from)
-            if (!context()!!.isSemiPrivate) {
+            if (!context().isSemiPrivate) {
                 val who = `object`() as User
                 val response = Msg.msgPush(who, from, url, frame.value(null), features.value(null))
                 who.send(response)
@@ -98,7 +98,7 @@ class PrivateChat(private val amAllowPrivate: Boolean, private val amAllowPush: 
     fun say(from: User, text: String) {
         if (amAllowPrivate) {
             ensureSameContext(from)
-            if (!context()!!.isSemiPrivate) {
+            if (!context().isSemiPrivate) {
                 val who = `object`() as User
                 val response = Msg.msgSay(who, from, text)
                 who.send(response)

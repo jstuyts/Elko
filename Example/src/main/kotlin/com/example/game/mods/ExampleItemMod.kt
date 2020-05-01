@@ -32,13 +32,13 @@ class ExampleItemMod @JSONMethod("str1", "str2", "int1", "int2") constructor(
     @JSONMethod("arg", "otherarg")
     fun itemverb1(from: User, arg: String, otherArg: OptString) {
         ensureSameContext(from)
-        context()!!.send(msgItemVerb1(context()!!, from, arg, otherArg.value(null)))
+        context().send(msgItemVerb1(context(), from, arg, otherArg.value(null)))
     }
 
     @JSONMethod("arg", "otherarg")
     fun itemverb2(from: User, arg: String, otherArg: OptString) {
         ensureSameContext(from)
-        context()!!.send(msgItemVerb2(context()!!, arg, otherArg.value(null)))
+        context().send(msgItemVerb2(context(), arg, otherArg.value(null)))
     }
 
     companion object {

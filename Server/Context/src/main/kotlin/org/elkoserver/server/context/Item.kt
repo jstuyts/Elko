@@ -105,15 +105,13 @@ class Item : BasicObject {
         if (mod is ItemMod) {
             super.attachMod(mod)
         } else {
-            context()!!.trace()!!.errorm(
-                    "attempt to attach non-ItemMod $mod to $this")
+            context().trace()!!.errorm("attempt to attach non-ItemMod $mod to $this")
         }
         if (mod is ContainerWatcher) {
             if (myContainerWatcher == null) {
                 myContainerWatcher = mod
             } else {
-                context()!!.trace()!!.errorm("ContainerWatcher mod " + mod +
-                        " added to " + this + ", which already has one")
+                context().trace()!!.errorm("ContainerWatcher mod $mod added to $this, which already has one")
             }
         }
     }
@@ -130,7 +128,7 @@ class Item : BasicObject {
             isClosed = true
             markAsChanged()
             for (item in contents()) {
-                context()!!.send(msgDelete(item))
+                context().send(msgDelete(item))
             }
             dropContents()
         }
@@ -152,12 +150,7 @@ class Item : BasicObject {
      * @return the context in which this item is located, at whatever level of
      * container nesting, or null if it is not in any context.
      */
-    override fun context() =
-            if (myContainer == null) {
-                null
-            } else {
-                myContainer!!.context()
-            }
+    override fun context() = assertInContainer { it.context() }
 
     /**
      * Delete this item (and, by implication, its contents).  The caller is
@@ -168,14 +161,14 @@ class Item : BasicObject {
         /* copy contents list to avoid concurrent modification problems */
         val copy: MutableList<Item> = LinkedList()
         for (item in contents()) {
-            copy.add(item!!)
+            copy.add(item)
         }
         for (item in copy) {
             item.delete()
         }
         setContainer(null)
         markAsDeleted()
-        myContextor!!.remove(this)
+        assertActivated { it.remove(this) }
     }
 
     private fun baseEncode(result: JSONLiteral, control: EncodeControl) {
@@ -198,9 +191,7 @@ class Item : BasicObject {
             result.addParameter("portable", true)
         }
         if (control.toRepository()) {
-            if (myContainer != null) {
-                result.addParameter("in", myContainer!!.baseRef())
-            }
+            myContainer?.let { result.addParameter("in", it.baseRef()) }
             if (isDeletable) {
                 result.addParameter("deletable", true)
             }
@@ -231,12 +222,10 @@ class Item : BasicObject {
      * anything.
      */
     override fun holder(): BasicObject? =
-            if (myContainer == null) {
-                null
-            } else if (myContainer is Item) {
-                myContainer!!.holder()
-            } else {
-                myContainer
+            when (val currentContainer = myContainer) {
+                null -> null
+                is Item -> currentContainer.holder()
+                else -> currentContainer
             }
 
     /**
@@ -250,12 +239,13 @@ class Item : BasicObject {
         if (isContainer && isClosed) {
             isClosed = false
             markAsChanged()
-            myContextor!!.loadItemContents(this, Consumer<Any?>  { obj: Any? ->
-                activatePassiveContents("")
-                myContextor!!.notifyPendingObjectCompletionWatchers()
-                sendContentsDescription(context()!!, this@Item,
-                        myContents)
-            })
+            assertActivated {
+                it.loadItemContents(this, Consumer<Any?> { obj: Any? ->
+                    activatePassiveContents("")
+                    it.notifyPendingObjectCompletionWatchers()
+                    sendContentsDescription(context(), this@Item, myContents)
+                })
+            }
         }
     }
 
@@ -320,24 +310,22 @@ class Item : BasicObject {
      */
     fun setContainer(container: BasicObject?) {
         val oldContainer = myContainer
-        if (myContainer != null) {
-            myContainer!!.markAsChanged()
-            myContainer!!.noteCodependent(this)
-            noteCodependent(myContainer!!)
+        myContainer?.let {
+            it.markAsChanged()
+            it.noteCodependent(this)
+            noteCodependent(it)
             if (container != null) {
-                myContainer!!.noteCodependent(container)
-                container.noteCodependent(myContainer!!)
+                it.noteCodependent(container)
+                container.noteCodependent(it)
             }
         }
         setContainerPrim(container)
-        if (myContainer != null) {
-            myContainer!!.markAsChanged()
-            myContainer!!.noteCodependent(this)
-            noteCodependent(myContainer!!)
+        myContainer?.let {
+            it.markAsChanged()
+            it.noteCodependent(this)
+            noteCodependent(it)
         }
-        if (myContainerWatcher != null) {
-            myContainerWatcher!!.noteContainerChange(oldContainer, container)
-        }
+        myContainerWatcher?.noteContainerChange(oldContainer, container)
     }
 
     /**
@@ -349,13 +337,9 @@ class Item : BasicObject {
      * that it should now have no container.
      */
     fun setContainerPrim(container: BasicObject?) {
-        if (myContainer != null) {
-            myContainer!!.removeFromContents(this)
-        }
+        myContainer?.removeFromContents(this)
         myContainer = container
-        if (myContainer != null) {
-            myContainer!!.addToContents(this)
-        }
+        myContainer?.addToContents(this)
     }
 
     /**
@@ -401,4 +385,7 @@ class Item : BasicObject {
             delete()
         }
     }
+
+    private fun <TResult> assertInContainer(containerConsumer: (BasicObject) -> TResult) =
+            myContainer?.let(containerConsumer) ?: throw IllegalStateException("Not in a container")
 }

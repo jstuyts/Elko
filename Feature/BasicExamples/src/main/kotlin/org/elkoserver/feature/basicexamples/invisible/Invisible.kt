@@ -40,6 +40,6 @@ class Invisible @JSONMethod internal constructor() : Mod(), ObjectCompletionWatc
      * Application code should not call this method.
      */
     override fun objectIsComplete() {
-        `object`()!!.setVisibility(BasicObject.VIS_NONE)
+        `object`().setVisibility(BasicObject.VIS_NONE)
     }
 }

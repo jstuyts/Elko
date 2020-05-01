@@ -106,7 +106,7 @@ abstract class BasicObject internal constructor(
     fun resolvePendingInit() {
         --myUnfinishedInitCount
         if (myUnfinishedInitCount <= 0) {
-            myContextor!!.resolvePendingInit(this)
+            assertActivated { it.resolvePendingInit(this)  }
         }
     }
 
@@ -117,8 +117,7 @@ abstract class BasicObject internal constructor(
      * @param isEphemeral  True if this object is ephemeral (won't checkpoint).
      * @param contextor  The contextor for this server.
      */
-    fun activate(ref: String?, subID: String?, isEphemeral: Boolean,
-                 contextor: Contextor) {
+    fun activate(ref: String?, subID: String?, isEphemeral: Boolean, contextor: Contextor) {
         myRef = ref
         if (isEphemeral) {
             markAsEphemeral()
@@ -140,8 +139,10 @@ abstract class BasicObject internal constructor(
      * @param subID  Clone sub identity, or the empty string for non-clones.
      */
     fun activatePassiveContents(subID: String?) {
-        myContextor!!.setContents(this, subID!!, myPassiveContents)
-        myPassiveContents = null
+        assertActivated {
+            it.setContents(this, subID!!, myPassiveContents)
+            myPassiveContents = null
+        }
     }
 
     /**
@@ -151,9 +152,7 @@ abstract class BasicObject internal constructor(
      */
     fun addToContents(item: Item?) {
         myContents = withContents(myContents, item!!)
-        if (myContentsWatcher != null) {
-            myContentsWatcher!!.noteContentsAddition(item)
-        }
+        myContentsWatcher?.noteContentsAddition(item)
     }
 
     /**
@@ -163,14 +162,12 @@ abstract class BasicObject internal constructor(
      */
     open fun attachMod(mod: Mod) {
         myModSet = withMod(myModSet, mod)
-        if (myContextor != null) {
-            myContextor!!.addClass(mod.javaClass)
-        }
+        myContextor?.addClass(mod.javaClass)
         if (mod is DefaultDispatchTarget) {
             if (myDefaultDispatchTarget == null) {
                 myDefaultDispatchTarget = mod
             } else {
-                context()!!.trace()!!.errorm("DefaultDispatchTarget mod " + mod +
+                context().trace()!!.errorm("DefaultDispatchTarget mod " + mod +
                         " added to " + this + ", which already has one")
             }
         }
@@ -178,7 +175,7 @@ abstract class BasicObject internal constructor(
             if (myContentsWatcher == null) {
                 myContentsWatcher = mod
             } else {
-                context()!!.trace()!!.errorm("ContentsWatcher mod " + mod +
+                context().trace()!!.errorm("ContentsWatcher mod " + mod +
                         " added to " + this + ", which already has one")
             }
         }
@@ -300,7 +297,7 @@ abstract class BasicObject internal constructor(
      * @return an iterable that iterates over this object's contents.
      */
     @Suppress("UNCHECKED_CAST")
-    fun contents(): Iterable<Item?> = Objects.requireNonNullElse<Iterable<Item?>>(myContents, emptyList())
+    fun contents(): Iterable<Item> = Objects.requireNonNullElse<Iterable<Item>>(myContents, emptyList())
 
     /**
      * Obtain the context in which this object is located, regardless of how
@@ -309,14 +306,14 @@ abstract class BasicObject internal constructor(
      * @return the context in which this object is located, at whatever level
      * of container nesting, or null if it is not in any context.
      */
-    abstract fun context(): Context?
+    abstract fun context(): Context
 
     /**
      * Obtain the contextor that created this object.
      *
      * @return the contextor associated with this object.
      */
-    fun contextor() = myContextor
+    fun contextor() = assertActivated { it }
 
     /**
      * Create a [Item] directly (i.e., create it at runtime rather than
@@ -332,11 +329,8 @@ abstract class BasicObject internal constructor(
      *
      * @return a new [Item] object as described by the parameters.
      */
-    fun createItem(name: String, isPossibleContainer: Boolean,
-                   isDeletable: Boolean): Item {
-        return myContextor!!.createItem(name, this, isPossibleContainer,
-                isDeletable)
-    }
+    fun createItem(name: String, isPossibleContainer: Boolean, isDeletable: Boolean) =
+            assertActivated { it.createItem(name, this, isPossibleContainer, isDeletable) }
 
     /**
      * Do the actual work of writing this object's changed state to the object
@@ -347,10 +341,12 @@ abstract class BasicObject internal constructor(
     private fun doCheckpoint(handler: Consumer<Any?>?) {
         if (amChanged) {
             amChanged = false
-            if (amDeleted) {
-                myContextor!!.writeObjectDelete(baseRef(), handler)
-            } else {
-                myContextor!!.writeObjectState(baseRef(), this, handler)
+            assertActivated {
+                if (amDeleted) {
+                    it.writeObjectDelete(baseRef(), handler)
+                } else {
+                    it.writeObjectState(baseRef(), this, handler)
+                }
             }
         } else {
             handler?.accept(null)
@@ -364,7 +360,7 @@ abstract class BasicObject internal constructor(
     fun dropContents() {
         for (item in contents()) {
             item!!.dropContents()
-            myContextor!!.remove(item)
+            assertActivated { it.remove(item) }
         }
         myContents = null
     }
@@ -506,9 +502,7 @@ abstract class BasicObject internal constructor(
      * @param item  The item to remove
      */
     fun removeFromContents(item: Item?) {
-        if (myContentsWatcher != null) {
-            myContentsWatcher!!.noteContentsRemoval(item)
-        }
+        myContentsWatcher?.noteContentsRemoval(item)
         myContents = withoutContents(myContents, item!!)
     }
 
@@ -539,8 +533,8 @@ abstract class BasicObject internal constructor(
      *
      * @param message  The message to send.
      */
-    fun sendToClones(message: JSONLiteral?) {
-        myContextor!!.relay(this, message!!)
+    fun sendToClones(message: JSONLiteral) {
+        assertActivated {  it.relay(this, message) }
     }
 
     /**
@@ -708,4 +702,7 @@ abstract class BasicObject internal constructor(
         myPassiveContents = contents
         myModSet = ModSet(mods)
     }
+
+    protected fun <TResult> assertActivated(myContextorConsumer: (Contextor) -> TResult) =
+            myContextor?.let(myContextorConsumer) ?: throw IllegalStateException("Not activated")
 }

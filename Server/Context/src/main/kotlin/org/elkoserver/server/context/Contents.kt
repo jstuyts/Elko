@@ -4,7 +4,6 @@ import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteralArray
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.EmptyIterator
 import java.util.LinkedList
 
 /**
@@ -12,7 +11,7 @@ import java.util.LinkedList
  *
  * An object only acquires one of these if it actually contains stuff.
  */
-class Contents private constructor(private val myContents: MutableList<Item>? = LinkedList()) : Iterable<Item?> {
+class Contents private constructor(private val myContents: MutableList<Item> = LinkedList()) : Iterable<Item> {
 
     /**
      * Add an item to these contents.
@@ -20,7 +19,7 @@ class Contents private constructor(private val myContents: MutableList<Item>? = 
      * @param item  The item to add.
      */
     private fun add(item: Item) {
-        myContents!!.add(item)
+        myContents.add(item)
     }
 
     /**
@@ -33,13 +32,11 @@ class Contents private constructor(private val myContents: MutableList<Item>? = 
      */
     fun encode(control: EncodeControl) =
             JSONLiteralArray(control).apply {
-                if (myContents != null) {
-                    for (elem in myContents) {
-                        if (control.toClient()) {
-                            addElement(elem.ref())
-                        } else if (!elem.isEphemeral) {
-                            addElement(elem.baseRef())
-                        }
+                for (elem in myContents) {
+                    if (control.toClient()) {
+                        addElement(elem.ref())
+                    } else if (!elem.isEphemeral) {
+                        addElement(elem.baseRef())
                     }
                 }
                 finish()
@@ -50,7 +47,7 @@ class Contents private constructor(private val myContents: MutableList<Item>? = 
      *
      * @return an iterator over the items contained by this contents object.
      */
-    override fun iterator() = myContents?.iterator() ?: EmptyIterator.emptyIterator()
+    override fun iterator() = myContents.iterator()
 
     /**
      * Remove an item from these contents.
@@ -60,7 +57,7 @@ class Contents private constructor(private val myContents: MutableList<Item>? = 
      * @return true if the contents became empty as a result.
      */
     private fun remove(item: Item): Boolean {
-        myContents!!.remove(item)
+        myContents.remove(item)
         return myContents.isEmpty()
     }
 
@@ -71,10 +68,8 @@ class Contents private constructor(private val myContents: MutableList<Item>? = 
      * @param maker  Maker object to address message to.
      */
     private fun sendContentsDescription(to: Deliverer, maker: Referenceable) {
-        if (myContents != null) {
-            for (elem in myContents) {
-                elem.sendItemDescription(to, maker, false)
-            }
+        for (elem in myContents) {
+            elem.sendItemDescription(to, maker, false)
         }
     }
 
@@ -82,7 +77,7 @@ class Contents private constructor(private val myContents: MutableList<Item>? = 
         /** Marker object representing the "contents" of objects that are not
          * allowed to be containers.  */
         @JvmField
-        val theVoidContents = Contents(null)
+        val theVoidContents = Contents()
 
         /**
          * Transmit contents as a series of 'make' messages.

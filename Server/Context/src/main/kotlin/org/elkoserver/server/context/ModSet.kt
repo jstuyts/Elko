@@ -14,7 +14,7 @@ class ModSet private constructor() {
     private val myMods: MutableMap<Class<*>, Mod> = HashMap()
 
     /** Auxiliary mods table, to lookup mods by superclass.  */
-    private var mySuperMods: MutableMap<Class<*>, Mod>? = null
+    private var mySuperMods: MutableMap<Class<*>, Mod> = HashMap()
 
     /**
      * Constructor.
@@ -39,10 +39,7 @@ class ModSet private constructor() {
         myMods[modClass] = mod
         modClass = modClass.superclass
         while (modClass != Mod::class.java && Mod::class.java.isAssignableFrom(modClass)) {
-            if (mySuperMods == null) {
-                mySuperMods = HashMap()
-            }
-            mySuperMods!![modClass] = mod
+            mySuperMods[modClass] = mod
             modClass = modClass.superclass
         }
     }
@@ -57,7 +54,7 @@ class ModSet private constructor() {
         myMods.forEach { (modClass: Class<*>, mod: Mod) ->
             var modClassX = modClass
             while (modClassX != Mod::class.java && Mod::class.java.isAssignableFrom(modClassX)) {
-                mySuperMods!![modClassX] = mod
+                mySuperMods[modClassX] = mod
                 modClassX = modClassX.superclass
             }
         }
@@ -102,9 +99,9 @@ class ModSet private constructor() {
      */
     fun <TMod> getMod(type: Class<TMod>): TMod? {
         @Suppress("UNCHECKED_CAST") var result = myMods[type] as TMod?
-        if (result == null && mySuperMods != null) {
+        if (result == null) {
             @Suppress("UNCHECKED_CAST")
-            result = mySuperMods!![type] as TMod?
+            result = mySuperMods[type] as TMod?
         }
         return result
     }
@@ -118,11 +115,11 @@ class ModSet private constructor() {
     fun objectIsComplete() {
         for (mod in myMods.values) {
             if (mod is ObjectCompletionWatcher) {
-                mod.`object`()!!.contextor()!!.addPendingObjectCompletionWatcher(
+                mod.`object`().contextor().addPendingObjectCompletionWatcher(
                         mod as ObjectCompletionWatcher)
             }
             if (mod is ContextShutdownWatcher) {
-                mod.context()!!.registerContextShutdownWatcher(
+                mod.context().registerContextShutdownWatcher(
                         mod as ContextShutdownWatcher)
             }
         }
