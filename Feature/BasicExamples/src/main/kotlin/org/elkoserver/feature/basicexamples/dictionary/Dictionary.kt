@@ -47,17 +47,8 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
                     myOriginalVars
                 }
         vars?.let {
-            val size = it.size
-            val names = arrayOfNulls<String>(size)
-            val values = arrayOfNulls<String>(size)
-            var i = 0
-            for ((key, value) in it) {
-                names[i] = key
-                values[i] = value
-                ++i
-            }
-            result.addParameter("names", names)
-            result.addParameter("values", values)
+            result.addParameter("names", it.keys.toTypedArray())
+            result.addParameter("values", it.values.toTypedArray())
         }
         if (control.toRepository() && amPersistent) {
             result.addParameter("persist", amPersistent)

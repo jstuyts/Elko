@@ -195,8 +195,7 @@ class FileObjectStore : ObjectStore {
         for (req in what) {
             resultList.addAll(doGet(req.ref()))
         }
-        val results = resultList.toTypedArray()
-        handler.handle(results)
+        handler.handle(resultList.toTypedArray())
     }
 
     /**
@@ -219,10 +218,7 @@ class FileObjectStore : ObjectStore {
      * failure indicators), when available.
      */
     override fun putObjects(what: Array<PutDesc>, handler: RequestResultHandler) {
-        val results = arrayOfNulls<ResultDesc>(what.size)
-        for (i in what.indices) {
-            results[i] = doPut(what[i].ref(), what[i].obj(), what[i].isRequireNew)
-        }
+        val results = Array(what.size) { doPut(what[it].ref(), what[it].obj(), what[it].isRequireNew)}
         handler.handle(results)
     }
 
@@ -247,12 +243,8 @@ class FileObjectStore : ObjectStore {
      * @param handler  Object to receive results (i.e., operation success or
      * failure indicators), when available.
      */
-    override fun removeObjects(what: Array<RequestDesc>,
-                               handler: RequestResultHandler) {
-        val results = arrayOfNulls<ResultDesc>(what.size)
-        for (i in what.indices) {
-            results[i] = doRemove(what[i].ref())
-        }
+    override fun removeObjects(what: Array<RequestDesc>, handler: RequestResultHandler) {
+        val results = Array(what.size) { doRemove(what[it].ref()) }
         handler.handle(results)
     }
 

@@ -42,18 +42,8 @@ class BankWorker
     private inner class RequestEnv(
             val from: WorkshopActor,
             val verb: String,
-            val key: Key,
-            xid: String, rep: String, memo: String, clock: Clock) {
-
-        /** Client-side transaction ID.  This will be echoed in the reply.  */
-        val xid: String?
-
-        /** Object to address any reply to, or null if no reply is desired.  */
-        val rep: String?
-
-        /** Optional text notation for logging.  Null if elided.  */
-        val memo: String
-        private val clock: Clock
+            val key: Key?,
+            val xid: String?, val rep: String?, val memo: String?, private val clock: Clock) {
 
         /**
          * Test if a write status represents a failure.  Send a failure reply
@@ -118,7 +108,7 @@ class BankWorker
          * @return true if authorization failed, false if not.
          */
         fun currencyAuthorityFailure(currency: String?) =
-                if (!key.allowsCurrency(currency)) {
+                if (!key!!.allowsCurrency(currency)) {
                     fail("autherr", "bad authorization key")
                     true
                 } else {
@@ -258,7 +248,7 @@ class BankWorker
                                limitToKey: Boolean): ExpirationDate? {
             val expires: ExpirationDate
             expires = if (expiresStr == null && limitToKey) {
-                key.expires()
+                key!!.expires()
             } else {
                 try {
                     ExpirationDate(expiresStr!!, clock)
@@ -270,7 +260,7 @@ class BankWorker
             return if (expires == null) {
                 fail("badexpiry", "invalid 'expires' parameter")
                 null
-            } else if (limitToKey && key.expires().compareTo(expires) < 0) {
+            } else if (limitToKey && key!!.expires().compareTo(expires) < 0) {
                 fail("badexpiry", "expiration time exceeds authority")
                 null
             } else if (expires.isExpired) {
@@ -290,7 +280,7 @@ class BankWorker
          * @return true if authorization failed, false if not.
          */
         fun operationAuthorityFailure(operation: String?): Boolean {
-            return if (!key.allowsOperation(operation!!)) {
+            return if (!key!!.allowsOperation(operation!!)) {
                 fail("autherr", "bad authorization key")
                 true
             } else {
@@ -298,12 +288,6 @@ class BankWorker
             }
         }
 
-        init {
-            this.xid = xid
-            this.rep = rep
-            this.memo = memo
-            this.clock = clock
-        }
     }
 
     override fun setClock(clock: Clock) {
@@ -349,7 +333,7 @@ class BankWorker
      */
     private fun init(from: WorkshopActor, verb: String, keyRef: String?,
                      optXid: OptString, optRep: OptString, repRequired: Boolean,
-                     optMemo: OptString, memoRequired: Boolean, clock: Clock?): RequestEnv? {
+                     optMemo: OptString, memoRequired: Boolean, clock: Clock): RequestEnv? {
         from.ensureAuthorizedClient()
         val xid = optXid.value(null)
         val rep = optRep.value(null)
@@ -357,11 +341,8 @@ class BankWorker
         if (rep == null && repRequired) {
             return null
         }
-        var key: Key? = null
-        if (myBank != null) {
-            key = myBank!!.getKey(keyRef)
-        }
-        val env = RequestEnv(from, verb, key!!, xid, rep!!, memo!!, clock!!)
+        val key = myBank?.getKey(keyRef)
+        val env = RequestEnv(from, verb, key, xid, rep, memo, clock)
         if (myBank == null) {
             env.fail("unready", "bank object not yet loaded")
             return null
@@ -915,7 +896,7 @@ class BankWorker
         if (env.operationAuthorityFailure("acct")) {
             return
         }
-        myBank!!.withAccount(account!!, object : AccountUpdater {
+        myBank!!.withAccount(account, object : AccountUpdater {
             override fun modify(account: Account?): Boolean {
                 if (env.invalidAccountFailure(account, "src")) {
                     return false
@@ -1019,7 +1000,8 @@ class BankWorker
                     reply.finish()
                     from.send(reply)
                 }
-                /* Don't write, hence even success is a form of failure. */return false
+                /* Don't write, hence even success is a form of failure. */
+                return false
             }
 
             override fun complete(failure: String?) {
@@ -1237,7 +1219,7 @@ class BankWorker
             env.fail("badkey", "invalid key specified by 'cancel' parameter")
             return
         }
-        if (!toCancel.hasAncestor(env.key)) {
+        if (!toCancel.hasAncestor(env.key!!)) {
             env.fail("autherr", "bad authorization key")
             return
         }
@@ -1264,7 +1246,7 @@ class BankWorker
                rep: OptString, memo: OptString, optExpires: OptString) {
         val env = init(from, "makekey", key, xid, rep, true, memo, true, clock) ?: return
         val expires = env.getValidExpiration(optExpires.value(null), true) ?: return
-        val newKey = myBank!!.makeKey(env.key, env.key.auth(),
+        val newKey = myBank!!.makeKey(env.key, env.key!!.auth(),
                 env.key.currencies(), expires, env.memo)
         val reply = env.beginReply()
         reply.addParameter("newkey", newKey.ref())

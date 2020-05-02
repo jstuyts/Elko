@@ -378,8 +378,7 @@ class MongoObjectStore : ObjectStore {
             resultList.addAll(doGet(req.ref(),
                     getCollection(req.collectionName())))
         }
-        val results = resultList.toTypedArray()
-        handler.handle(results)
+        handler.handle(resultList.toTypedArray())
     }
 
     /**
@@ -391,11 +390,9 @@ class MongoObjectStore : ObjectStore {
      * failure indicators), when available.
      */
     override fun putObjects(what: Array<PutDesc>, handler: RequestResultHandler) {
-        val results = arrayOfNulls<ResultDesc>(what.size)
-        for (i in what.indices) {
-            val collection = getCollection(what[i].collectionName())
-            results[i] = doPut(what[i].ref(), what[i].obj(), collection,
-                    what[i].isRequireNew)
+        val results = Array(what.size) {
+            val collection = getCollection(what[it].collectionName())
+            doPut(what[it].ref(), what[it].obj(), collection, what[it].isRequireNew)
         }
         handler.handle(results)
     }
@@ -409,13 +406,10 @@ class MongoObjectStore : ObjectStore {
      * @param handler  Object to receive results (i.e., operation success or
      * failure indicators), when available.
      */
-    override fun updateObjects(what: Array<UpdateDesc>,
-                               handler: RequestResultHandler) {
-        val results = arrayOfNulls<UpdateResultDesc>(what.size)
-        for (i in what.indices) {
-            val collection = getCollection(what[i].collectionName())
-            results[i] = doUpdate(what[i].ref(), what[i].version(),
-                    what[i].obj(), collection)
+    override fun updateObjects(what: Array<UpdateDesc>, handler: RequestResultHandler) {
+        val results = Array(what.size) {
+            val collection = getCollection(what[it].collectionName())
+            doUpdate(what[it].ref(), what[it].version(), what[it].obj(), collection)
         }
         handler.handle(results)
     }
@@ -483,8 +477,7 @@ class MongoObjectStore : ObjectStore {
             resultList.addAll(doQuery(req.template(), collection,
                     req.maxResults()))
         }
-        val results = resultList.toTypedArray()
-        handler.handle(results)
+        handler.handle(resultList.toTypedArray())
     }
 
     /**
@@ -495,13 +488,8 @@ class MongoObjectStore : ObjectStore {
      * @param handler  Object to receive results (i.e., operation success or
      * failure indicators), when available.
      */
-    override fun removeObjects(what: Array<RequestDesc>,
-                               handler: RequestResultHandler) {
-        val results = arrayOfNulls<ResultDesc>(what.size)
-        for (i in what.indices) {
-            results[i] = doRemove(what[i].ref(),
-                    getCollection(what[i].collectionName()))
-        }
+    override fun removeObjects(what: Array<RequestDesc>, handler: RequestResultHandler) {
+        val results = Array(what.size) {doRemove(what[it].ref(), getCollection(what[it].collectionName())) }
         handler.handle(results)
     }
 

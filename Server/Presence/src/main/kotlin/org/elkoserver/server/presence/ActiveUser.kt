@@ -24,7 +24,7 @@ internal class ActiveUser(private val myRef: String) {
 
     /** Current online presences of this user, stored in the form of an array
      * of the refs of the contexts in which they are present.  */
-    private var myPresences: Array<String?> = arrayOfNulls(0)
+    private var myPresences: Array<String?> = arrayOf()
 
     /** The members of the user's social graph, or null if not yet loaded, by
      * domain index.  Note: these are called 'friends' because the word is
@@ -54,8 +54,7 @@ internal class ActiveUser(private val myRef: String) {
            data structure. */
         if (myPresences.isEmpty()) {
             /* Start with a single element array, to hold the one presence. */
-            myPresences = arrayOfNulls(1)
-            myPresences[0] = context
+            myPresences = arrayOf(context)
         } else {
             /* If there are existing presences, scan the presences array for a
                null entry, so that we can reuse an existing slot in the array
@@ -76,11 +75,7 @@ internal class ActiveUser(private val myRef: String) {
                    new entry at the end. We expand by just one because, as with
                    the justification for using an array in the first place, the
                    size is unlikely to grow further. */
-                val newPresences = arrayOfNulls<String>(myPresences.size + 1)
-                System.arraycopy(myPresences, 0, newPresences, 0,
-                        myPresences.size)
-                newPresences[myPresences.size] = context
-                myPresences = newPresences
+                myPresences = arrayOf(*myPresences, context)
             }
         }
         /* If the social graph is loaded, perform the notifications associated
