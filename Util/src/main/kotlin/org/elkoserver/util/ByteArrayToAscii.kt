@@ -1,7 +1,6 @@
-package org.elkoserver.util;
+package org.elkoserver.util
 
-public class ByteArrayToAscii {
-
+object ByteArrayToAscii {
     /**
      * Convert an array of bytes into a string suitable for output to a log.
      *
@@ -19,19 +18,19 @@ public class ByteArrayToAscii {
      * @param length  Number of bytes to convert.
      *
      * @return a String rendering the indicated bytes in a legible form
-     *    suitable for logging.
+     * suitable for logging.
      */
-    public static String byteArrayToASCII(byte[] buf, int offset, int length) {
-        StringBuilder chars = new StringBuilder(length);
-        for (int i = 0; i < length; ++i) {
-            byte b = buf[offset + i];
-            if ((' ' <= b && b <= '~') ||
-                    b == '\n' || b == '\r' || b == '\t') {
-                chars.append((char) b);
+    @JvmStatic
+    fun byteArrayToASCII(buf: ByteArray, offset: Int, length: Int): String {
+        val chars = StringBuilder(length)
+        for (i in 0 until length) {
+            val b = buf[offset + i]
+            if (' '.toByte() <= b && b <= '~'.toByte() || b == '\n'.toByte() || b == '\r'.toByte() || b == '\t'.toByte()) {
+                chars.append(b.toChar())
             } else {
-                chars.append(String.format("\\x%02x", b));
+                chars.append(String.format("\\x%02x", b))
             }
         }
-        return chars.toString();
+        return chars.toString()
     }
 }

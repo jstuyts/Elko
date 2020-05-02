@@ -2,6 +2,7 @@ import org.elkoserver.develop.gradle.apiclasses.ApiClassesTask
 
 plugins {
     `java-library`
+    kotlin("jvm")
 }
 
 repositories {
@@ -27,6 +28,7 @@ dependencies {
     implementation(project(":ObjectDatabase:Remote"))
     implementation(project(":Running"))
     implementation(project(":Util"))
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

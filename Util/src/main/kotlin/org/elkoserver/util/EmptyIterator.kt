@@ -1,47 +1,33 @@
-package org.elkoserver.util;
+package org.elkoserver.util
 
-import java.util.Iterator;
-import java.util.NoSuchElementException;
+import java.util.NoSuchElementException
 
 /**
  * Iterator for a collection of no elements.  This is sort of the Iterator
  * equivalent of a null pointer.
  */
-public class EmptyIterator<V> implements Iterator<V> {
-
-    @SuppressWarnings("rawtypes")
-    private static final EmptyIterator INSTANCE = new EmptyIterator<>();
-
-    @SuppressWarnings("unchecked")
-    public static <TElement> EmptyIterator<TElement> emptyIterator() {
-        return (EmptyIterator<TElement>) INSTANCE;
-    }
-
-    /**
-     * Constructor.
-     */
-    private EmptyIterator() {
-    }
-
+class EmptyIterator<V>
+/**
+ * Constructor.
+ */
+private constructor() : MutableIterator<V> {
     /**
      * Returns true if the iteration has more elements.
      *
      * @return false (since, by definition, there are no elements).
      */
-    public boolean hasNext() {
-        return false;
-    }
+    override fun hasNext() = false
 
     /**
      * Returns the next element in the iteration.
      *
      * @return the next element in the iteration (actually, this will never
-     *    happen; it will always throw).
+     * happen; it will always throw).
      *
      * @throws NoSuchElementException  iteration has no more elements (always).
      */
-    public V next() {
-        throw new NoSuchElementException();
+    override fun next(): V {
+        throw NoSuchElementException()
     }
 
     /**
@@ -50,9 +36,18 @@ public class EmptyIterator<V> implements Iterator<V> {
      * element.
      *
      * @throws IllegalStateException since there are no elements in this
-     *    collection.
+     * collection.
      */
-    public void remove() {
-        throw new IllegalStateException();
+    override fun remove() {
+        throw IllegalStateException()
+    }
+
+    companion object {
+        private val INSTANCE: EmptyIterator<*> = EmptyIterator<Any>()
+
+        @JvmStatic
+        fun <TElement> emptyIterator(): EmptyIterator<TElement> {
+            return INSTANCE as EmptyIterator<TElement>
+        }
     }
 }

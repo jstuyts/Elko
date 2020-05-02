@@ -205,7 +205,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
             myDirector.removeContext(context)
             myContexts.remove(name)
             if (context.isClone) {
-                myCloneSets.remove(context.cloneSetName(), context)
+                myCloneSets.remove(context.cloneSetName()!!, context)
             }
         } else {
             context = myDirector.getContext(name)
@@ -270,7 +270,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
             myDirector.addContext(newContext)
             myContexts[name] = newContext
             if (newContext.isClone) {
-                myCloneSets.add(newContext.cloneSetName(), newContext)
+                myCloneSets.add(newContext.cloneSetName()!!, newContext)
             }
         }
     }

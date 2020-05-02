@@ -834,12 +834,12 @@ class Contextor private constructor(odb: ObjDB?, server: Server,
         if (open) {
             myContexts.add(context)
             if (context.baseCapacity() > 0) {
-                myContextClones.add(context.baseRef(), context)
+                myContextClones.add(context.baseRef()!!, context)
             }
         } else {
             myContexts.remove(context)
             if (context.baseCapacity() > 0) {
-                myContextClones.remove(context.baseRef(), context)
+                myContextClones.remove(context.baseRef()!!, context)
             }
         }
         if (myDirectorGroup != null) {
