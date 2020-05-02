@@ -4,7 +4,7 @@ package org.elkoserver.server.context
  * Utility base class for internal objects, providing a general implementation
  * of the InternalObject interface that should be suitable for most uses.
  */
-internal abstract class BasicInternalObject : InternalObject {
+abstract class BasicInternalObject : InternalObject {
     /** The contextor for this server.  */
     private var myContextor: Contextor? = null
 
