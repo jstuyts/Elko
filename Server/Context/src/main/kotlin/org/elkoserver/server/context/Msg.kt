@@ -20,7 +20,7 @@ object Msg {
      * deleted).
      */
     @JvmStatic
-    fun msgDelete(target: Referenceable?) =
+    fun msgDelete(target: Referenceable) =
             JSONLiteralFactory.targetVerb(target, "delete").apply {
                 finish()
             }
@@ -34,7 +34,7 @@ object Msg {
      * @param op  Operation to be performed.
      * @param error  Contents of the error message.
      */
-    fun msgError(target: Referenceable?, op: String?, error: String?) =
+    fun msgError(target: Referenceable, op: String, error: String?) =
             JSONLiteralFactory.targetVerb(target, op).apply {
                 addParameter("error", error)
                 finish()
@@ -49,7 +49,7 @@ object Msg {
      * @param reload  True if client should attempt a reload.
      */
     @JvmStatic
-    fun msgExit(target: Referenceable?, why: String?, whyCode: String?, reload: Boolean) =
+    fun msgExit(target: Referenceable, why: String?, whyCode: String?, reload: Boolean) =
             JSONLiteralFactory.targetVerb(target, "exit").apply {
                 addParameterOpt("why", why)
                 addParameterOpt("whycode", whyCode)
@@ -72,7 +72,7 @@ object Msg {
      */
     @JvmOverloads
     @JvmStatic
-    fun msgMake(target: Referenceable?, obj: BasicObject?, maker: User? = null, you: Boolean = false, sess: String? = null) =
+    fun msgMake(target: Referenceable, obj: BasicObject?, maker: User? = null, you: Boolean = false, sess: String? = null) =
             JSONLiteralFactory.targetVerb(target, "make").apply {
                 addParameter("obj", obj as Encodable?)
                 addParameterOpt("maker", maker as Referenceable?)
@@ -99,7 +99,7 @@ object Msg {
      * @param sess  The client context session ID, or null if there is none.
      */
     @JvmStatic
-    fun msgMake(target: Referenceable?, obj: BasicObject?, sess: String?) = msgMake(target, obj, null, false, sess)
+    fun msgMake(target: Referenceable, obj: BasicObject?, sess: String?) = msgMake(target, obj, null, false, sess)
 
     /**
      * Create a 'push' message.  This directs a client to push the browser to a
@@ -116,7 +116,7 @@ object Msg {
      * @param features  Features string to associate with the URL, or null if
      * not relevant.
      */
-    fun msgPush(target: Referenceable?, from: Referenceable?, url: String?, frame: String?, features: String?) =
+    fun msgPush(target: Referenceable, from: Referenceable, url: String?, frame: String?, features: String?) =
             JSONLiteralFactory.targetVerb(target, "push").apply {
                 addParameterOpt("from", from)
                 addParameter("url", url)
@@ -131,7 +131,7 @@ object Msg {
      * @param target  Object the message is being sent to.
      */
     @JvmStatic
-    fun msgReady(target: Referenceable?) =
+    fun msgReady(target: Referenceable) =
             JSONLiteralFactory.targetVerb(target, "ready").apply {
                 finish()
             }
@@ -146,7 +146,7 @@ object Msg {
      * @param text  The text to be said.
      */
     @JvmStatic
-    fun msgSay(target: Referenceable?, from: Referenceable?, text: String?) =
+    fun msgSay(target: Referenceable, from: Referenceable?, text: String?) =
             JSONLiteralFactory.targetVerb(target, "say").apply {
                 addParameterOpt("from", from)
                 addParameter("text", text)

@@ -1,10 +1,6 @@
 package org.elkoserver.foundation.json
 
 import org.elkoserver.foundation.json.ObjectDecoder.Companion.decode
-import org.elkoserver.foundation.json.OptDouble
-import org.elkoserver.foundation.json.OptInteger
-import org.elkoserver.foundation.json.OptString
-import org.elkoserver.foundation.json.OptionalParameter
 import org.elkoserver.foundation.json.OptionalParameter.Companion.missingValue
 import org.elkoserver.json.JsonArray
 import org.elkoserver.json.JsonObject

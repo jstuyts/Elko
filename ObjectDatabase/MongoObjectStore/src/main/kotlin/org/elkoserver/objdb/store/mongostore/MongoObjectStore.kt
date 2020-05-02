@@ -178,7 +178,7 @@ class MongoObjectStore : ObjectStore {
 
     private fun jsonLiteralToDBObject(objStr: String, ref: String): Document? {
         val obj: JsonObject = try {
-            JsonParsing.jsonObjectFromString(objStr)
+            JsonParsing.jsonObjectFromString(objStr)!!
         } catch (e: JsonParserException) {
             return null
         }
@@ -244,7 +244,7 @@ class MongoObjectStore : ObjectStore {
     private fun jsonArrayToDBArray(arr: JsonArray): ArrayList<Any> {
         val result = ArrayList<Any>(arr.size())
         for (elem in arr) {
-            result.add(valueToDBValue(elem))
+            result.add(valueToDBValue(elem!!))
         }
         return result
     }

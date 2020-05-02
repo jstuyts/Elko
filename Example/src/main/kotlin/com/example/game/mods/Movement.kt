@@ -54,7 +54,7 @@ class Movement @JSONMethod("minx", "miny", "maxx", "maxy") constructor(
 
     companion object {
         @JvmStatic
-        fun msgMove(who: Referenceable?, x: Int, y: Int, into: Referenceable?) =
+        fun msgMove(who: Referenceable, x: Int, y: Int, into: Referenceable?) =
                 targetVerb(who, "move").apply {
                     addParameter("x", x)
                     addParameter("y", y)

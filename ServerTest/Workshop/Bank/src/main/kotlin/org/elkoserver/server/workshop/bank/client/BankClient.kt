@@ -100,7 +100,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
     /**
      * Internal class to hold onto a request under construction.
      */
-    private inner class BankRequest internal constructor(op: String?, key: String?, memo: String?) {
+    private inner class BankRequest internal constructor(op: String, key: String?, memo: String?) {
         val msg: JSONLiteral
         private val myXid: String = "x" + myXidCounter++
 

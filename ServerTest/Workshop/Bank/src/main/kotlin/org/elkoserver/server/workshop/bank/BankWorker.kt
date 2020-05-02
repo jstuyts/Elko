@@ -93,7 +93,7 @@ class BankWorker
          * @return an open JSON literal as described.
          */
         fun beginReply() =
-                JSONLiteralFactory.targetVerb(rep, verb).apply {
+                JSONLiteralFactory.targetVerb(rep!!, verb).apply {
                     if (xid != null) {
                         addParameter("xid", xid)
                     }

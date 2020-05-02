@@ -280,7 +280,7 @@ class Item : BasicObject {
      * transmission in this manner only overrides the invisibility of this
      * item itself and not that of any other items that it may contain.
      */
-    fun sendItemDescription(to: Deliverer, maker: Referenceable?, force: Boolean) {
+    fun sendItemDescription(to: Deliverer, maker: Referenceable, force: Boolean) {
         if (force || visibleTo(to)) {
             to.send(msgMake(maker, this))
             sendContentsDescription(to, this, myContents)
@@ -294,7 +294,7 @@ class Item : BasicObject {
      * @param to  Where to send the description.
      * @param maker  Maker object to address the message(s) to.
      */
-    override fun sendObjectDescription(to: Deliverer?, maker: Referenceable?) {
+    override fun sendObjectDescription(to: Deliverer?, maker: Referenceable) {
         sendItemDescription(to!!, maker, false)
     }
 

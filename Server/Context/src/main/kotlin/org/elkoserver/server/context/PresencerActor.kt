@@ -62,7 +62,7 @@ internal class PresencerActor(connection: Connection?, dispatcher: MessageDispat
     internal class GToUDomainInfo @JSONMethod("domain", "friends") internal constructor(val domain: String, val friends: Array<GToUFriendInfo>)
 
     internal class GToUFriendInfo @JSONMethod("user", "?umeta", "ctx", "?cmeta") internal constructor(val user: String, val userMeta: JsonObject, val context: String,
-                                                                                                                                                        val contextMeta: JsonObject)
+                                                                                                      val contextMeta: JsonObject)
 
     /**
      * Handle the 'utog' verb.

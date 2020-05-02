@@ -1,5 +1,6 @@
 plugins {
     java
+    kotlin("jvm")
 }
 
 repositories {
@@ -10,6 +11,7 @@ repositories {
 dependencies {
     implementation(project(":ServerCore"))
     implementation(project(":Trace"))
+    implementation(kotlin("stdlib-jdk8"))
     implementation(Libraries.mongodb_driver)
     implementation(Libraries.nanojson)
 }

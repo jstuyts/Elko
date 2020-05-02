@@ -1,4 +1,4 @@
-package org.elkoserver.json;
+package org.elkoserver.json
 
 /**
  * Control object for regulating the behavior of an encoding operation.  When
@@ -13,62 +13,46 @@ package org.elkoserver.json;
  * class exists to provide a place to extend the range of options, though the
  * base case only supports the client vs. repository distinction.
  */
-public abstract class EncodeControl {
-    /** A global, encoding control representing the intention to encode for the
-        client. */
-    public static final EncodeControl forClient =
-        new ForClientEncodeControl();
-
-    /** A global, encoding control representing the intention to encode for the
-        repository. */
-    public static final EncodeControl forRepository =
-        new ForRepositoryEncodeControl();
-
-    /**
-     * Private constructor.
-     */
-    private EncodeControl() {
-    }
-
+sealed class EncodeControl {
     /**
      * Test if this controller says to encode for the client.
      *
      * @return true if this should be a client encoding.
      */
-    public abstract boolean toClient();
+    abstract fun toClient(): Boolean
 
     /**
      * Test if this controller says to encode for the repository.
      *
      * @return true if this should be a repository encoding.
      */
-    public abstract boolean toRepository();
+    abstract fun toRepository(): Boolean
 
     /** A global, encoding control representing the intention to encode for the
-     client. */
-    private static class ForClientEncodeControl extends EncodeControl {
-        @Override
-        public boolean toClient() {
-            return true;
-        }
+     * client.  */
+    private object ForClientEncodeControl : EncodeControl() {
+        override fun toClient() = true
 
-        @Override
-        public boolean toRepository() {
-            return false;
-        }
+        override fun toRepository() = false
     }
 
     /** A global, encoding control representing the intention to encode for the
-     repository. */
-    private static class ForRepositoryEncodeControl extends EncodeControl {
-        @Override
-        public boolean toClient() {
-            return false;
-        }
+     * repository.  */
+    private object ForRepositoryEncodeControl : EncodeControl() {
+        override fun toClient() = false
 
-        @Override
-        public boolean toRepository() {
-            return true;
-        }
+        override fun toRepository() = true
+    }
+
+    companion object {
+        /** A global, encoding control representing the intention to encode for the
+         * client.  */
+        @JvmField
+        val forClient: EncodeControl = ForClientEncodeControl
+
+        /** A global, encoding control representing the intention to encode for the
+         * repository.  */
+        @JvmField
+        val forRepository: EncodeControl = ForRepositoryEncodeControl
     }
 }

@@ -80,7 +80,7 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
      * @throws JsonParserException if the decrypted JSON literal is invalid
      */
     fun decryptJSONObject(str: String): JsonObject {
-        return JsonParsing.jsonObjectFromString(decrypt(str))
+        return JsonParsing.jsonObjectFromString(decrypt(str))!!
     }
 
     /**

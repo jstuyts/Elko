@@ -499,7 +499,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         /**
          * Generate a 'close' message.
          */
-        fun msgClose(target: Referenceable?, contextName: String?, userName: String?, isDup: Boolean) =
+        fun msgClose(target: Referenceable, contextName: String?, userName: String?, isDup: Boolean) =
                 JSONLiteralFactory.targetVerb(target, "close").apply {
                     addParameterOpt("context", contextName)
                     addParameterOpt("user", userName)

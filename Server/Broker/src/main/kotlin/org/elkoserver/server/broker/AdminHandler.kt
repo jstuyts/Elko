@@ -284,7 +284,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
         /**
          * Generate a 'loaddesc' message.
          */
-        fun msgLoadDesc(target: Referenceable?, desc: JSONLiteralArray?) =
+        fun msgLoadDesc(target: Referenceable, desc: JSONLiteralArray?) =
                 JSONLiteralFactory.targetVerb(target, "loaddesc").apply {
                     addParameter("desc", desc)
                     finish()
@@ -301,7 +301,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
         /**
          * Generate a 'servicedesc' message.
          */
-        fun msgServiceDesc(target: Referenceable?, desc: JSONLiteralArray?, on: Boolean) =
+        fun msgServiceDesc(target: Referenceable, desc: JSONLiteralArray?, on: Boolean) =
                 JSONLiteralFactory.targetVerb(target, "servicedesc").apply {
                     addParameter("desc", desc)
                     addParameter("on", on)

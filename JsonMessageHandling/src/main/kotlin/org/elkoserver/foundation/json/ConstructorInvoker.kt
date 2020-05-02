@@ -1,6 +1,5 @@
 package org.elkoserver.foundation.json
 
-import org.elkoserver.foundation.json.ParameterMismatchException
 import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.TraceFactory
 import java.lang.reflect.Constructor

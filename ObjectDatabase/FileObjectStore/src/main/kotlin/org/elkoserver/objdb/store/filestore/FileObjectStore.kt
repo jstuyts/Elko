@@ -105,7 +105,7 @@ class FileObjectStore : ObjectStore {
                 objReader.close()
                 obj = String(buf)
                 val jsonObj = JsonParsing.jsonObjectFromString(obj)
-                contents = doGetContents(jsonObj)
+                contents = doGetContents(jsonObj!!)
             } else {
                 failure = "not found"
             }

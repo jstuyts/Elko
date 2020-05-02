@@ -610,7 +610,7 @@ internal constructor(name: String,
      * @param to  Where to send the description.
      * @param maker  Maker object to address the message(s) to.
      */
-    override fun sendObjectDescription(to: Deliverer?, maker: Referenceable?) {
+    override fun sendObjectDescription(to: Deliverer?, maker: Referenceable) {
         sendContextDescription(to, maker)
     }
 
@@ -620,7 +620,7 @@ internal constructor(name: String,
      * @param to  Where to send the description.
      * @param maker  Maker object to address message to.
      */
-    private fun sendContextDescription(to: Deliverer?, maker: Referenceable?) {
+    private fun sendContextDescription(to: Deliverer?, maker: Referenceable) {
         var sess: String? = null
         if (to is User) {
             sess = to.sess()

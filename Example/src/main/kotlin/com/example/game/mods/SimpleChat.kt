@@ -67,7 +67,7 @@ class SimpleChat @JSONMethod("allowpush") constructor(allowPush: OptBoolean) : M
                     finish()
                 }
 
-        fun msgSay(target: Referenceable?, from: Referenceable?, speech: String?) =
+        fun msgSay(target: Referenceable, from: Referenceable, speech: String?) =
                 targetVerb(target, "say").apply {
                     addParameter("from", from)
                     addParameter("speech", speech)

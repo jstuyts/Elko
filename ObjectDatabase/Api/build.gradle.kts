@@ -2,6 +2,7 @@ import org.elkoserver.develop.gradle.apiclasses.ApiClassesTask
 
 plugins {
     `java-library`
+    kotlin("jvm")
 }
 
 repositories {
@@ -12,6 +13,8 @@ repositories {
 dependencies {
     api(project(":JsonMessageHandling"))
     api(Libraries.nanojson)
+
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

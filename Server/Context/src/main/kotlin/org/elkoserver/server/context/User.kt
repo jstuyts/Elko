@@ -229,7 +229,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * immediately try to enter again), false if not.
      */
     fun exitContext(why: String?, whyCode: String?, reload: Boolean) {
-        send(msgExit(myContext, why, whyCode, reload))
+        assertInContext { send(msgExit(it, why, whyCode, reload)) }
         disconnect()
     }
 
@@ -336,7 +336,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param to  Where to send the description.
      * @param maker  Maker object to address the message(s) to.
      */
-    override fun sendObjectDescription(to: Deliverer?, maker: Referenceable?) {
+    override fun sendObjectDescription(to: Deliverer?, maker: Referenceable) {
         sendUserDescription(to!!, maker, false)
     }
 
@@ -348,8 +348,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param you  If true, user description is being sent to the user being
      * described.
      */
-    fun sendUserDescription(to: Deliverer, maker: Referenceable?,
-                            you: Boolean) {
+    fun sendUserDescription(to: Deliverer, maker: Referenceable, you: Boolean) {
         to.send(msgMake(maker, this, null, you, null))
         if (!amPrivateContents || to === this) {
             sendContentsDescription(to, this, myContents)

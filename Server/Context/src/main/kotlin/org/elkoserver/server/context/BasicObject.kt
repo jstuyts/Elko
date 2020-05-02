@@ -498,8 +498,7 @@ abstract class BasicObject internal constructor(
      * @param to  Where to send the description.
      * @param maker  Maker object to address the message(s) to.
      */
-    abstract fun sendObjectDescription(to: Deliverer?,
-                                       maker: Referenceable?)
+    abstract fun sendObjectDescription(to: Deliverer?, maker: Referenceable)
 
     /**
      * Send a JSON message to all other clones of this object.  The message
