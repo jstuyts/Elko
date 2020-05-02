@@ -141,7 +141,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
      * available.
      */
     override fun reserve(protocol: String, context: String, id: String?,
-                         name: String, password: String,
+                         name: String?, password: String?,
                          handler: ReservationResultHandler) {
         if (id == null && !amAnonymousOK) {
             handler.handleFailure("anonymous reservations not allowed")
@@ -154,7 +154,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
     }
 
     private inner class ReserveRunnable internal constructor(private val myHandler: ReservationResultHandler, private val myProtocol: String,
-                                                             private val myContextName: String, private var myID: String?, private var myName: String?, private val myPassword: String) : Consumer<Any?> {
+                                                             private val myContextName: String, private var myID: String?, private var myName: String?, private val myPassword: String?) : Consumer<Any?> {
         private var myComponentCount = 0
         private var myActor: ActorDesc? = null
         private var myContextID: String? = null
@@ -237,8 +237,8 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
      * @param newPassword  The new password.
      * @param handler  Object to receive results, when done.
      */
-    override fun setPassword(id: String, oldPassword: String,
-                             newPassword: String,
+    override fun setPassword(id: String, oldPassword: String?,
+                             newPassword: String?,
                              handler: SetPasswordResultHandler) {
         getActor(id, Consumer { obj: Any? ->
             val failure =

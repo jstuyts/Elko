@@ -42,8 +42,8 @@ interface Authorizer {
      * @param handler  Object to receive results of reservation check, once
      * available.
      */
-    fun reserve(protocol: String, context: String, id: String?, name: String,
-                password: String, handler: ReservationResultHandler)
+    fun reserve(protocol: String, context: String, id: String?, name: String?,
+                password: String?, handler: ReservationResultHandler)
 
     /**
      * Service a request to change a user's password.  This method will be
@@ -57,7 +57,7 @@ interface Authorizer {
      * @param newPassword  The new password.
      * @param handler  Object to receive results, when done.
      */
-    fun setPassword(id: String, oldPassword: String, newPassword: String,
+    fun setPassword(id: String, oldPassword: String?, newPassword: String?,
                     handler: SetPasswordResultHandler)
 
     /**

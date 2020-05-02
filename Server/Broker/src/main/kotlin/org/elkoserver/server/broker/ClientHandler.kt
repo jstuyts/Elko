@@ -41,7 +41,7 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
      * @param service  The name of the service that was not found.
      * @param tag  Arbitrary tag for matching requests with responses.
      */
-    fun findFailure(who: BrokerActor, service: String?, tag: String) {
+    fun findFailure(who: BrokerActor, service: String?, tag: String?) {
         val desc = ServiceDesc(service, "no such service")
         who.send(msgFind(this, desc.encodeAsArray(), tag))
     }
@@ -54,7 +54,7 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
      * @param service  The service that was found.
      * @param tag  Arbitrary tag for matching requests with responses.
      */
-    fun findSuccess(who: BrokerActor, service: ServiceDesc, tag: String) {
+    fun findSuccess(who: BrokerActor, service: ServiceDesc, tag: String?) {
         who.send(msgFind(this, service.encodeAsArray(), tag))
     }
 
@@ -85,15 +85,14 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
     fun find(from: BrokerActor, service: String, optProtocol: OptString, optWait: OptInteger, optMonitor: OptBoolean, optTag: OptString) {
         val wait = optWait.value(0)
         val monitor = optMonitor.value(false)
-        val tag = optTag.value(null)
+        val tag = optTag.value<String?>(null)
         val protocol = optProtocol.value("tcp")
         val services = myBroker.services(service, protocol)
         if (!services.iterator().hasNext()) {
             if (wait == 0) {
                 findFailure(from, service, tag)
             } else {
-                myBroker.waitForService(service, from, monitor, wait, false,
-                        tag)
+                myBroker.waitForService(service, from, monitor, wait, false, tag)
             }
         } else {
             from.send(msgFind(this, ServiceDesc.encodeArray(services), tag))
@@ -170,7 +169,7 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
         /**
          * Generate a 'find' message.
          */
-        private fun msgFind(target: Referenceable, desc: JSONLiteralArray, tag: String) =
+        private fun msgFind(target: Referenceable, desc: JSONLiteralArray, tag: String?) =
                 JSONLiteralFactory.targetVerb(target, "find").apply {
                     addParameter("desc", desc)
                     addParameterOpt("tag", tag)

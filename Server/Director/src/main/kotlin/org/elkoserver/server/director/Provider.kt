@@ -225,7 +225,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
      * @param reason  String indicating why the gate is being closed; ignored
      * if the gate is being opened.
      */
-    fun noteContextGateSetting(name: String, open: Boolean, reason: String) {
+    fun noteContextGateSetting(name: String, open: Boolean, reason: String?) {
         val context = myContexts[name]
         if (context != null) {
             if (open) {

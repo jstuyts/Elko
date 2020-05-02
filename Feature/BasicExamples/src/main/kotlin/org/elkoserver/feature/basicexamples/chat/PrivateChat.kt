@@ -66,7 +66,7 @@ class PrivateChat(private val amAllowPrivate: Boolean, private val amAllowPush: 
             ensureSameContext(from)
             if (!context().isSemiPrivate) {
                 val who = `object`() as User
-                val response = Msg.msgPush(who, from, url, frame.value(null), features.value(null))
+                val response = Msg.msgPush(who, from, url, frame.value<String?>(null), features.value<String?>(null))
                 who.send(response)
                 if (from !== who) {
                     from.send(response)

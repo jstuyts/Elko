@@ -60,7 +60,7 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
      *
      * @param reason  String describing why this is being done.
      */
-    fun closeGate(reason: String) {
+    fun closeGate(reason: String?) {
         myGateClosedReason = Objects.requireNonNullElse(reason, "context closed to new entries")
     }
 

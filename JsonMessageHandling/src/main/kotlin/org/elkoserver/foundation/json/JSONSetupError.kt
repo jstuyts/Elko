@@ -1,26 +1,22 @@
-package org.elkoserver.foundation.json;
+package org.elkoserver.foundation.json
 
 /**
  * An error somewhere in the process of performing the reflection operations to
  * prepare to invoke methods or constructors from a JSON object.  This error
- * will happen only if the {@link JSONMethod} annotations on a JSON driven
+ * will happen only if the [JSONMethod] annotations on a JSON driven
  * method or constructor are incorrectly specified; this should never happen
  * during normal operation as a result of message receipt.
  */
-class JSONSetupError extends Error {
+internal class JSONSetupError : Error {
     /**
      * Construct a JSONSetupError with no specified detail message.
      */
-    public JSONSetupError() {
-        super();
-    }
+    constructor() : super() {}
 
     /**
      * Construct a JSONSetupError with the specified detail message.
      *
      * @param message  The detail message.
      */
-    public JSONSetupError(String message) {
-        super(message);
-    }
+    constructor(message: String?) : super(message) {}
 }

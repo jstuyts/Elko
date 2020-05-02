@@ -16,7 +16,7 @@ class ExampleItemMod @JSONMethod("str1", "str2", "int1", "int2") constructor(
         optString2: OptString,
         int1: Int,
         optInt2: OptInteger) : Mod(), ItemMod {
-    private val myString2: String = optString2.value(null)
+    private val myString2: String? = optString2.value<String?>(null)
     private val myInt1: Int = int1
     private val myInt2: Int = optInt2.value(0)
 
@@ -32,17 +32,17 @@ class ExampleItemMod @JSONMethod("str1", "str2", "int1", "int2") constructor(
     @JSONMethod("arg", "otherarg")
     fun itemverb1(from: User, arg: String, otherArg: OptString) {
         ensureSameContext(from)
-        context().send(msgItemVerb1(context(), from, arg, otherArg.value(null)))
+        context().send(msgItemVerb1(context(), from, arg, otherArg.value<String?>(null)))
     }
 
     @JSONMethod("arg", "otherarg")
     fun itemverb2(from: User, arg: String, otherArg: OptString) {
         ensureSameContext(from)
-        context().send(msgItemVerb2(context(), arg, otherArg.value(null)))
+        context().send(msgItemVerb2(context(), arg, otherArg.value<String?>(null)))
     }
 
     companion object {
-        private fun msgItemVerb1(target: Referenceable, from: Referenceable, arg: String, otherArg: String) =
+        private fun msgItemVerb1(target: Referenceable, from: Referenceable, arg: String, otherArg: String?) =
                 targetVerb(target, "itemverb1").apply {
                     addParameter("from", from)
                     addParameter("arg", arg)
@@ -50,7 +50,7 @@ class ExampleItemMod @JSONMethod("str1", "str2", "int1", "int2") constructor(
                     finish()
                 }
 
-        private fun msgItemVerb2(target: Referenceable, arg: String, otherArg: String) =
+        private fun msgItemVerb2(target: Referenceable, arg: String, otherArg: String?) =
                 targetVerb(target, "itemverb2").apply {
                     addParameter("arg", arg)
                     addParameterOpt("otherarg", otherArg)

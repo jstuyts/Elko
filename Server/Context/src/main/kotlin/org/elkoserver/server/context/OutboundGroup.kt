@@ -30,7 +30,7 @@ import java.util.function.Consumer
  */
 abstract class OutboundGroup(propRoot: String,
                                       private val myServer: Server, contextor: Contextor,
-                                      hosts: MutableList<HostDesc>, appTrace: Trace, protected val timer: Timer, protected val traceFactory: TraceFactory, clock: Clock?) : LiveGroup() {
+                                      hosts: MutableList<HostDesc>, appTrace: Trace, protected val timer: Timer, protected val traceFactory: TraceFactory, clock: Clock) : LiveGroup() {
     /** The statically configured external servers in this group.  */
     private val myHosts: List<HostDesc>
 
@@ -57,7 +57,7 @@ abstract class OutboundGroup(propRoot: String,
      *
      * @return this group's actor class.
      */
-    abstract fun actorClass(): Class<*>?
+    abstract fun actorClass(): Class<*>
 
     /**
      * Open connections to statically configured external servers, try to find

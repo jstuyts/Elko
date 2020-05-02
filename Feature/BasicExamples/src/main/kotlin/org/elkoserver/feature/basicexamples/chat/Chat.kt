@@ -120,8 +120,8 @@ class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
     fun push(from: User, url: String, frame: OptString, features: OptString) {
         if (amAllowPush) {
             ensureSameContext(from)
-            val response = Msg.msgPush(context(), from, url, frame.value(null),
-                    features.value(null))
+            val response = Msg.msgPush(context(), from, url, frame.value<String?>(null),
+                    features.value<String?>(null))
             if (context().isSemiPrivate) {
                 from.send(response)
             } else {

@@ -64,8 +64,8 @@ class Session(private val myContextor: Contextor, server: Server, traceFactory: 
     @JSONMethod("what", "password", "context")
     fun dump(from: Deliverer, what: String, testPassword: OptString, optContext: OptString) {
         val password = myServer.props().getProperty("conf.context.shutdownpassword", null)
-        val contextRef = optContext.value(null)
-        if (password == null || password == testPassword.value(null)) {
+        val contextRef = optContext.value<String?>(null)
+        if (password == null || password == testPassword.value<String?>(null)) {
             val reply = JSONLiteralFactory.targetVerb("session", "dump")
             reply.addParameter("what", what)
             when (what) {
@@ -123,11 +123,11 @@ class Session(private val myContextor: Contextor, server: Server, traceFactory: 
             throw MessageHandlerException("already in a context")
         } else  /* if (from instanceof UserActor) */ {
             val fromActor = from as UserActor
-            fromActor.enterContext(user.value(null), name.value(null), context,
-                    contextTemplate.value(null),
-                    sess.value(null), auth.value(null),
-                    utag.value(null), uparam,
-                    debug.value(false), scope.value(null))
+            fromActor.enterContext(user.value<String?>(null), name.value<String?>(null), context,
+                    contextTemplate.value<String?>(null),
+                    sess.value<String?>(null), auth.value<String?>(null),
+                    utag.value<String?>(null), uparam,
+                    debug.value(false), scope.value<String?>(null))
         }
     }
 
@@ -157,7 +157,7 @@ class Session(private val myContextor: Contextor, server: Server, traceFactory: 
             fromUser = from
         }
         val password = myServer.props().getProperty("conf.context.shutdownpassword", null)
-        if (password == null || password == testPassword.value(null)) {
+        if (password == null || password == testPassword.value<String?>(null)) {
             myContextor.shutdownServer(kill.value(false))
             if (fromUser != null) {
                 fromUser.exitContext("server shutting down", "shutdown", false)

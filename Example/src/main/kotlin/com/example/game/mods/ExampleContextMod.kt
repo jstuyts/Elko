@@ -23,11 +23,11 @@ class ExampleContextMod @JSONMethod constructor() : Mod(), ContextMod {
     @JSONMethod("arg", "otherarg")
     fun ctxverb(from: User, arg: String, otherArg: OptString) {
         ensureSameContext(from)
-        context().send(msgCtxVerb(context(), from, arg, otherArg.value(null)))
+        context().send(msgCtxVerb(context(), from, arg, otherArg.value<String?>(null)))
     }
 
     companion object {
-        private fun msgCtxVerb(target: Referenceable, from: Referenceable, arg: String, otherArg: String) =
+        private fun msgCtxVerb(target: Referenceable, from: Referenceable, arg: String, otherArg: String?) =
                 targetVerb(target, "ctxverb").apply {
                     addParameter("from", from)
                     addParameter("arg", arg)

@@ -94,10 +94,10 @@ class TalkPrefs @JSONMethod("style") constructor(private var myStyle: StyleDesc)
     fun style(from: User, color: OptString, backgroundColor: OptString,
               icon: OptString, textStyle: OptString) {
         ensureSameUser(from)
-        val newColor = color.value(null)
-        val newBackgroundColor = backgroundColor.value(null)
-        val newIcon = icon.value(null)
-        val newTextStyle = textStyle.value(null)
+        val newColor = color.value<String?>(null)
+        val newBackgroundColor = backgroundColor.value<String?>(null)
+        val newIcon = icon.value<String?>(null)
+        val newTextStyle = textStyle.value<String?>(null)
         val style = StyleDesc(newColor ?: myStyle.color(),
                 newBackgroundColor ?: myStyle.backgroundColor(),
                 null,

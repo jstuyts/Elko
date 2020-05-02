@@ -106,7 +106,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
     @JSONMethod("context", "open", "reason")
     fun gate(from: DirectorActor, context: String, open: Boolean, optReason: OptString) {
         from.ensureAuthorizedProvider()
-        from.provider()!!.noteContextGateSetting(context!!, open, optReason.value(null))
+        from.provider()!!.noteContextGateSetting(context, open, optReason.value<String?>(null))
     }
 
     /**

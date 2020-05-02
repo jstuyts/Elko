@@ -48,7 +48,7 @@ internal class AdminHandler(private val myGatekeeper: Gatekeeper, traceFactory: 
     @JSONMethod("hostport", "?auth")
     fun director(from: GatekeeperActor, hostport: OptString, auth: AuthDesc?) {
         from.ensureAuthorizedAdmin()
-        val hostportStr = hostport.value(null)
+        val hostportStr = hostport.value<String?>(null)
         if (hostportStr != null) {
             myGatekeeper.setDirectorHost(HostDesc("tcp", false, hostportStr, AuthDesc.theOpenAuth, -1))
         }

@@ -22,11 +22,11 @@ class ExampleUserMod @JSONMethod constructor() : Mod(), UserMod {
     @JSONMethod("arg", "otherarg")
     fun userverb(from: User, arg: String, otherArg: OptString) {
         ensureSameUser(from)
-        from.send(msgUserVerb(from, arg, otherArg.value(null)))
+        from.send(msgUserVerb(from, arg, otherArg.value<String?>(null)))
     }
 
     companion object {
-        private fun msgUserVerb(target: Referenceable, arg: String, otherArg: String) =
+        private fun msgUserVerb(target: Referenceable, arg: String, otherArg: String?) =
                 targetVerb(target, "userverb").apply {
                     addParameter("arg", arg)
                     addParameterOpt("otherarg", otherArg)

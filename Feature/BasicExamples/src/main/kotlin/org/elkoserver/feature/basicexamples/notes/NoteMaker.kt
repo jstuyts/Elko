@@ -89,7 +89,7 @@ class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: St
     fun makenote(from: User, into: OptString, left: Int, top: Int,
                  width: Int, height: Int, text: String, style: StyleDesc?) {
         ensureSameContext(from)
-        val intoRef = into.value(null)
+        val intoRef = into.value<String?>(null)
         val intoObj = if (intoRef != null) { context()[intoRef] } else { context() }
         val mergedStyle = myStyleOptions.mergeStyle(style)
         if (mergedStyle == null) {

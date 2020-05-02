@@ -29,7 +29,7 @@ import java.util.NoSuchElementException
  * @param host  Host description for this connection.
  */
 class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
-                             private val myGroup: DirectorGroup, host: HostDesc, private val timer: Timer, traceFactory: TraceFactory?) : NonRoutingActor(connection, dispatcher, traceFactory) {
+                    private val myGroup: DirectorGroup, host: HostDesc, private val timer: Timer, traceFactory: TraceFactory?) : NonRoutingActor(connection, dispatcher, traceFactory) {
 
     /** Map from tag strings to users awaiting reservations.  */
     private val myPendingReservationRequests: MutableMap<String, User> = HashMap()
@@ -62,8 +62,8 @@ class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
         private var myMode = 0
         private val myContexts: Iterator<DispatchTarget>
         private var myUsers: Iterator<DispatchTarget>
-        private val myContextRef: String
-        private val myUserRef: String
+        private val myContextRef: String?
+        private val myUserRef: String?
         private var myActiveContext: Context? = null
         private var myNextResult: Any? = null
 
@@ -139,8 +139,8 @@ class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
         }
 
         init {
-            myContextRef = context.value(null)
-            myUserRef = user.value(null)
+            myContextRef = context.value<String?>(null)
+            myUserRef = user.value<String?>(null)
             myContexts = lookupClones(myContextRef).iterator()
             myUsers = lookupClones(myUserRef).iterator()
             if (myContexts.hasNext()) {
@@ -225,8 +225,8 @@ class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
      */
     @JSONMethod("context", "user", "reservation")
     fun doreserve(from: DirectorActor, context: String, user: OptString, reservation: String) {
-        myGroup.addReservation(Reservation(user.value(null), context!!,
-                reservation!!, myGroup.reservationTimeout(), from, timer, traceFactory))
+        myGroup.addReservation(Reservation(user.value<String?>(null), context,
+                reservation, myGroup.reservationTimeout(), from, timer, traceFactory))
     }
 
     /**
@@ -277,10 +277,10 @@ class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
     fun reserve(from: DirectorActor, context: String, optUser: OptString,
                 optHostPort: OptString, optReservation: OptString,
                 optDeny: OptString, optTag: OptString) {
-        val tag = optTag.value(null)
-        val hostPort = optHostPort.value(null)
-        val reservation = optReservation.value(null)
-        val deny = optDeny.value(null)
+        val tag = optTag.value<String?>(null)
+        val hostPort = optHostPort.value<String?>(null)
+        val reservation = optReservation.value<String?>(null)
+        val deny = optDeny.value<String?>(null)
         if (tag != null) {
             val who = myPendingReservationRequests.remove(tag)
             if (who == null) {
@@ -295,7 +295,7 @@ class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
                 who.exitContext("no reservation for next context", "dirfail",
                         false)
             } else {
-                who.exitWithContextChange(context!!, hostPort, reservation)
+                who.exitWithContextChange(context, hostPort, reservation)
             }
         } else {
             traceFactory.comm.warningi("received reservation reply without tag")

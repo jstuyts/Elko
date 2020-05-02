@@ -279,7 +279,7 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
     override fun findEffectiveSource(target: DispatchTarget): Deliverer? =
             if (target is BasicObject) {
                 val context = target.context()
-                myUsers[context]!!
+                myUsers[context]
             } else {
                 this
             }

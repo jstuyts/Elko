@@ -43,9 +43,9 @@ internal class UserHandler(private val myGatekeeper: Gatekeeper, traceFactory: T
      */
     @JSONMethod("protocol", "context", "id", "name", "password")
     fun reserve(from: GatekeeperActor, protocol: String, context: String, id: OptString, name: OptString, password: OptString) {
-        val idStr = id.value(null)
+        val idStr = id.value<String?>(null)
         myGatekeeper.authorizer()!!.reserve(
-                protocol!!, context!!, idStr, name.value(null), password.value(null),
+                protocol, context, idStr, name.value<String?>(null), password.value<String?>(null),
                 object : ReservationResultHandler {
                     override fun handleReservation( actor: String?, context: String?, name: String?, hostport: String?, auth: String?) {
                         from.send(msgReserve(this@UserHandler, idStr, context, actor, name, hostport, auth, null))
@@ -71,8 +71,8 @@ internal class UserHandler(private val myGatekeeper: Gatekeeper, traceFactory: T
     fun setpassword(from: GatekeeperActor, id: String, oldpassword: OptString, newpassword: OptString) {
         myGatekeeper.authorizer()!!.setPassword(
                 id,
-                oldpassword.value(null),
-                newpassword.value(null),
+                oldpassword.value<String?>(null),
+                newpassword.value<String?>(null),
                 object : SetPasswordResultHandler {
                     override fun handle(failure: String?) {
                         from.send(msgSetPassword(this@UserHandler, id, failure))
@@ -93,7 +93,7 @@ internal class UserHandler(private val myGatekeeper: Gatekeeper, traceFactory: T
          * @param auth  Authorization code for entry, or null in error case.
          * @param deny  Error message in error case, or null in normal case.
          */
-        private fun msgReserve(target: Referenceable, id: String, context: String?, actor: String?, name: String?, hostPort: String?, auth: String?, deny: String?) =
+        private fun msgReserve(target: Referenceable, id: String?, context: String?, actor: String?, name: String?, hostPort: String?, auth: String?, deny: String?) =
                 JSONLiteralFactory.targetVerb(target, "reserve").apply {
                     addParameterOpt("id", id)
                     addParameter("context", context)

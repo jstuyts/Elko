@@ -133,7 +133,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
     @JSONMethod("server")
     fun loaddesc(from: BrokerActor, optServer: OptString) {
         from.ensureAuthorizedAdmin()
-        sendLoadDesc(from, optServer.value(null))
+        sendLoadDesc(from, optServer.value<String?>(null))
     }
 
     /**
@@ -149,7 +149,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
     @JSONMethod("server", "self")
     fun reinit(from: BrokerActor, optServer: OptString, optSelf: OptBoolean) {
         from.ensureAuthorizedAdmin()
-        val serverName = optServer.value(null)
+        val serverName = optServer.value<String?>(null)
         if (serverName != null) {
             val msg = msgReinit(myBroker.clientHandler())
             for (actor in myBroker.actors()) {
@@ -179,7 +179,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
     @JSONMethod("service", "protocol")
     fun servicedesc(from: BrokerActor, service: OptString, protocol: OptString) {
         from.ensureAuthorizedAdmin()
-        sendServiceDesc(from, service.value(null), protocol.value("tcp"))
+        sendServiceDesc(from, service.value<String?>(null), protocol.value("tcp"))
     }
 
     /**
@@ -199,7 +199,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
     @JSONMethod("server", "self", "kill", "cluster")
     fun shutdown(from: BrokerActor, optServer: OptString, optSelf: OptBoolean, optKill: OptBoolean, optCluster: OptBoolean) {
         from.ensureAuthorizedAdmin()
-        val serverName = optServer.value(null)
+        val serverName = optServer.value<String?>(null)
         val componentShutdown = !optCluster.value(false)
         var kill = optKill.value(false)
         if (serverName != null) {

@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.json;
+package org.elkoserver.foundation.json
 
 /**
  * Interface for an object that can be a source of JSON messages on behalf of
@@ -9,9 +9,10 @@ package org.elkoserver.foundation.json;
  * the opportunity to substitute some object other than itself as the 'from'
  * parameter to the message handler.
  *
- * <p>Compare and contrast with {@link MessageRetargeter}.
+ *
+ * Compare and contrast with [MessageRetargeter].
  */
-public interface SourceRetargeter {
+interface SourceRetargeter {
     /**
      * Designate an object that should be treated as the source of a message
      * instead of this object.
@@ -19,7 +20,7 @@ public interface SourceRetargeter {
      * @param target  The object to which the message is addressed.
      *
      * @return an object that should be presented to the message handler as the
-     *    source of a message to 'target' in place of this object.
+     * source of a message to 'target' in place of this object.
      */
-    Deliverer findEffectiveSource(DispatchTarget target);
+    fun findEffectiveSource(target: DispatchTarget): Deliverer?
 }

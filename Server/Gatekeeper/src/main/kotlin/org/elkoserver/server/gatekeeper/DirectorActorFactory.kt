@@ -23,7 +23,7 @@ import java.util.function.Consumer
  * @param tr  Trace object for diagnostics.
  */
 internal class DirectorActorFactory(private val myNetworkManager: NetworkManager, private val myGatekeeper: Gatekeeper,
-                                    private val tr: Trace, private val timer: Timer, private val traceFactory: TraceFactory, clock: Clock?) : MessageHandlerFactory {
+                                    private val tr: Trace, private val timer: Timer, private val traceFactory: TraceFactory, clock: Clock) : MessageHandlerFactory {
     /** Descriptor for the director host.  */
     private var myDirectorHost: HostDesc? = null
 

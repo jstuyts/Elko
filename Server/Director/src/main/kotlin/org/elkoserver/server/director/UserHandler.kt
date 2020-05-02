@@ -50,17 +50,17 @@ internal open class UserHandler(private val myDirector: Director, traceFactory: 
     @JSONMethod("protocol", "context", "user", "tag")
     fun reserve(from: DirectorActor, protocol: String, contextName: String, user: OptString, optTag: OptString) {
         from.ensureAuthorizedUser()
-        val userName = user.value(null)
+        val userName = user.value<String?>(null)
         val provider: Provider?
-        val tag = optTag.value(null)
+        val tag = optTag.value<String?>(null)
 
         /* See if somebody is serving the requested context. */
-        var context = myDirector.getContext(contextName!!)
+        var context = myDirector.getContext(contextName)
 
         /* If nobody is serving it, look for somebody serving a clone. */
         var actualContextName = contextName
         if (context == null) {
-            for (clone in myDirector.contextClones(actualContextName!!)) {
+            for (clone in myDirector.contextClones(actualContextName)) {
                 if (!clone.isFullClone && !clone.provider().isFull && !clone.gateIsClosed()) {
                     context = clone
                     actualContextName = clone.name()
@@ -93,7 +93,7 @@ internal open class UserHandler(private val myDirector: Director, traceFactory: 
                 context.provider()
             }
         }
-        val hostPort = provider.hostPort(protocol!!)
+        val hostPort = provider.hostPort(protocol)
         if (hostPort != null) {
             /* Issue reservation to provider and user. */
             val reservation = "" + abs(theRandom.nextLong())
@@ -109,7 +109,7 @@ internal open class UserHandler(private val myDirector: Director, traceFactory: 
         /** Random number generator, for reservations.  */
         private val theRandom = SecureRandom()
 
-        private fun msgDoReserve(target: Referenceable, context: String?, user: String, reservation: String) =
+        private fun msgDoReserve(target: Referenceable, context: String?, user: String?, reservation: String) =
                 JSONLiteralFactory.targetVerb(target, "doreserve").apply {
                     addParameter("context", context)
                     addParameterOpt("user", user)
@@ -117,7 +117,7 @@ internal open class UserHandler(private val myDirector: Director, traceFactory: 
                     finish()
                 }
 
-        private fun msgReserve(target: Referenceable, context: String?, user: String, hostPort: String?, reservation: String?, deny: String?, tag: String) =
+        private fun msgReserve(target: Referenceable, context: String?, user: String?, hostPort: String?, reservation: String?, deny: String?, tag: String?) =
                 JSONLiteralFactory.targetVerb(target, "reserve").apply {
                     addParameter("context", context)
                     addParameterOpt("user", user)

@@ -161,8 +161,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         myOldServiceActors = new LinkedList<>();
         myServiceRefTable = null;
 
-        myDispatcher = new MessageDispatcher(
-            AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock);
+        myDispatcher = new MessageDispatcher(AlwaysBaseTypeResolver.INSTANCE, traceFactory, clock);
         myDispatcher.addClass(BrokerActor.class);
         myPendingFinds = new HashMapMulti<>();
         myBrokerActor = null;

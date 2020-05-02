@@ -73,8 +73,8 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
      */
     private fun doFind(watch: Boolean, from: DirectorActor, context: OptString,
                        user: OptString) {
-        val contextName = context.value(null)
-        val userName = user.value(null)
+        val contextName = context.value<String?>(null)
+        val userName = user.value<String?>(null)
         if (userName != null && contextName != null) {
             throw MessageHandlerException(
                     "context and user parameters are mutually exclusive")
@@ -157,8 +157,8 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
     @JSONMethod("context", "user")
     fun close(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
-        val contextName = context.value(null)
-        val userName = user.value(null)
+        val contextName = context.value<String?>(null)
+        val userName = user.value<String?>(null)
         val msg = msgClose(myDirector.providerHandler(), contextName,
                 userName, false)
         myDirector.targetedBroadCast(null, contextName, userName, msg)
@@ -177,8 +177,8 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
     @JSONMethod("depth", "provider", "context")
     fun dump(from: DirectorActor, depth: Int, provider: OptString, context: OptString) {
         from.ensureAuthorizedAdmin()
-        val providerName = provider.value(null)
-        val contextName = context.value(null)
+        val providerName = provider.value<String?>(null)
+        val contextName = context.value<String?>(null)
         var numProviders = 0
         var numContexts = 0
         var numUsers = 0
@@ -325,7 +325,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
     @JSONMethod("provider", "director")
     fun reinit(from: DirectorActor, provider: OptString, director: OptBoolean) {
         from.ensureAuthorizedAdmin()
-        val providerName = provider.value(null)
+        val providerName = provider.value<String?>(null)
         if (providerName != null) {
             val msg = msgReinit(myDirector.providerHandler())
             for (subj in myDirector.providers()) {
@@ -369,8 +369,8 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
     @JSONMethod("context", "user", "text")
     fun say(from: DirectorActor, context: OptString, user: OptString, text: String) {
         from.ensureAuthorizedAdmin()
-        val contextName = context.value(null)
-        val userName = user.value(null)
+        val contextName = context.value<String?>(null)
+        val userName = user.value<String?>(null)
         val msg = msgSay(myDirector.providerHandler(), contextName,
                 userName, text)
         myDirector.targetedBroadCast(null, contextName, userName, msg)
@@ -390,7 +390,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
     @JSONMethod("provider", "director", "kill")
     fun shutdown(from: DirectorActor, provider: OptString, director: OptBoolean, optKill: OptBoolean) {
         from.ensureAuthorizedAdmin()
-        val providerName = provider.value(null)
+        val providerName = provider.value<String?>(null)
         val kill = optKill.value(false)
         if (providerName != null) {
             val msg = msgShutdown(myDirector.providerHandler(), kill)
@@ -418,8 +418,8 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
     @JSONMethod("context", "user")
     fun unwatch(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
-        val contextName = context.value(null)
-        val userName = user.value(null)
+        val contextName = context.value<String?>(null)
+        val userName = user.value<String?>(null)
         if (contextName != null && userName != null) {
             throw MessageHandlerException(
                     "context and user parameters are mutually exclusive")
@@ -573,7 +573,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         /**
          * Generate a 'say' message.
          */
-        private fun msgSay(target: Referenceable, contextName: String, userName: String, text: String) =
+        private fun msgSay(target: Referenceable, contextName: String?, userName: String?, text: String) =
                 JSONLiteralFactory.targetVerb(target, "say").apply {
                     addParameterOpt("context", contextName)
                     addParameterOpt("user", userName)

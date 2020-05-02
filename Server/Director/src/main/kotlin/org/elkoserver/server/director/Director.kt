@@ -27,7 +27,7 @@ import java.util.TreeMap
  */
 internal class Director(private val myServer: Server, private val tr: Trace, traceFactory: TraceFactory, clock: Clock?) {
     /** Table for mapping object references in messages.  */
-    private val myRefTable = RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock)
+    private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false
@@ -133,8 +133,8 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
      * @param msg  The message to relay.
      */
     fun doRelay(from: DirectorActor?, optContext: OptString, optUser: OptString, msg: JsonObject) {
-        val contextName = optContext.value(null)
-        val userName = optUser.value(null)
+        val contextName = optContext.value<String?>(null)
+        val userName = optUser.value<String?>(null)
         val relay = msgRelay(myProviderHandler, contextName, userName, msg)
         targetedBroadCast(from?.provider(), contextName, userName, relay)
     }
@@ -314,7 +314,7 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
      *
      * @throws MessageHandlerException if there was a problem doing this.
      */
-    fun targetedBroadCast(omitProvider: Provider?, contextRef: String?, userRef: String?, msg: JSONLiteral?) {
+    fun targetedBroadCast(omitProvider: Provider?, contextRef: String?, userRef: String?, msg: JSONLiteral) {
         var context: OpenContext? = null
         var clones: HashSetMulti<OpenContext>? = null
         if (contextRef != null) {
@@ -463,7 +463,7 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
         /**
          * Generate a 'relay' message.
          */
-        private fun msgRelay(target: Referenceable, contextName: String, userName: String, relay: JsonObject) =
+        private fun msgRelay(target: Referenceable, contextName: String?, userName: String?, relay: JsonObject) =
                 JSONLiteralFactory.targetVerb(target, "relay").apply {
                     addParameterOpt("context", contextName)
                     addParameterOpt("user", userName)

@@ -68,7 +68,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param ref  Optional reference string for this user object.
      */
     @JSONMethod("name", "?mods", "?contents", "ref")
-    internal constructor(name: OptString, mods: Array<Mod>?, contents: Array<Item>?, ref: OptString) : this(name.value(null), mods, contents, ref.value(null))
+    internal constructor(name: OptString, mods: Array<Mod>?, contents: Array<Item>?, ref: OptString) : this(name.value<String?>(null), mods, contents, ref.value<String?>(null))
 
     /**
      * Activate a user.

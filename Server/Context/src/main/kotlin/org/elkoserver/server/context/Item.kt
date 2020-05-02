@@ -88,7 +88,7 @@ class Item : BasicObject {
     internal constructor(name: String, ref: OptString, mods: Array<Mod>, contents: Array<Item>, `in`: OptString,
                          isPossibleContainer: OptBoolean, isDeletable: OptBoolean,
                          isPortable: OptBoolean, isClosed: OptBoolean) : super(name, mods, isPossibleContainer.value(true), contents) {
-        myRef = ref.value(null)
+        myRef = ref.value<String?>(null)
         this.isDeletable = isDeletable.value(false)
         this.isPortable = isPortable.value(false)
         this.isClosed = isClosed.value(false)

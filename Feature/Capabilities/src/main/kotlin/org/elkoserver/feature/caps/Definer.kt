@@ -39,13 +39,13 @@ class Definer @JSONMethod constructor(raw: JsonObject) : Cap(raw), ItemMod, User
     @JSONMethod("into", "ref", "obj")
     fun define(from: User, into: OptString, ref: OptString, obj: BasicObject) {
         ensureReachable(from)
-        val intoRef = into.value(null)
+        val intoRef = into.value<String?>(null)
         if (intoRef != null) {
             if (context()[intoRef] != null) {
                 throw MessageHandlerException("container $intoRef is loaded")
             }
         }
-        val newRef = ref.value(null)
+        val newRef = ref.value<String?>(null)
         if (newRef != null) {
             if (context()[newRef] != null) {
                 throw MessageHandlerException("proposed ref $newRef is loaded")

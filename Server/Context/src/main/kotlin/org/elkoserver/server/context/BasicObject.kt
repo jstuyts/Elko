@@ -622,7 +622,6 @@ abstract class BasicObject internal constructor(
      * @throws MessageHandlerException if there was a problem handling the
      * message.
      */
-    @Throws(MessageHandlerException::class)
     override fun handleMessage(from: Deliverer, msg: JsonObject) {
         myDefaultDispatchTarget?.handleMessage(from, msg)
                 ?: throw MessageHandlerException("no message handler method for verb '${msg.getString("op", null)}'")
@@ -638,12 +637,12 @@ abstract class BasicObject internal constructor(
      * @return an object that can handle messages for class 'type', or null if
      * this object doesn't handle messages for that class.
      */
-    override fun <TTarget : DispatchTarget?> findActualTarget(type: Class<TTarget>) =
+    override fun <TTarget : DispatchTarget> findActualTarget(type: Class<TTarget>): TTarget? =
             if (type == javaClass) {
                 @Suppress("UNCHECKED_CAST")
                 this as TTarget
-            } else run {
-                myModSet.getMod(type)
+            } else {
+                myModSet.getMod(type) as TTarget?
             }
     /* ----- Referenceable interface --------------------------------------- */
     /**

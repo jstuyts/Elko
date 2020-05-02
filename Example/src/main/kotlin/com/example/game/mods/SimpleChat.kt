@@ -45,7 +45,7 @@ class SimpleChat @JSONMethod("allowpush") constructor(allowPush: OptBoolean) : M
     fun push(from: User, url: String, frame: OptString) {
         if (amAllowingPush) {
             ensureSameContext(from)
-            context().send(msgPush(context(), from, url, frame.value(null)))
+            context().send(msgPush(context(), from, url, frame.value<String?>(null)))
         } else {
             throw MessageHandlerException("push not allowed here")
         }
@@ -59,7 +59,7 @@ class SimpleChat @JSONMethod("allowpush") constructor(allowPush: OptBoolean) : M
 
     companion object {
         private fun msgPush(target: Referenceable, from: Referenceable,
-                            url: String, frame: String) =
+                            url: String, frame: String?) =
                 targetVerb(target, "push").apply {
                     addParameter("from", from)
                     addParameter("url", url)

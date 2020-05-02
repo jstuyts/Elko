@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.json;
+package org.elkoserver.foundation.json
 
 /**
  * An exception somewhere in the process of performing the reflection
@@ -6,20 +6,16 @@ package org.elkoserver.foundation.json;
  * This may occur, for example, as the result of receiving a malformed JSON
  * message.
  */
-class JSONInvocationException extends Exception {
+internal class JSONInvocationException : Exception {
     /**
      * Construct a JSONInvocationException with no specified detail message.
      */
-    public JSONInvocationException() {
-        super();
-    }
+    constructor() : super() {}
 
     /**
      * Construct a JSONInvocationException with the specified detail message.
      *
      * @param message  The detail message.
      */
-    public JSONInvocationException(String message) {
-        super(message);
-    }
+    constructor(message: String?) : super(message) {}
 }

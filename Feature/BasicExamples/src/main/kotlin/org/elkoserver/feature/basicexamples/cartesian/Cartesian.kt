@@ -80,7 +80,7 @@ class Cartesian @JSONMethod("width", "height", "left", "top") constructor(
         ensureSameContext(from)
         val item = `object`() as Item
         var newContainer: BasicObject? = null
-        val newContainerRef = into.value(null)
+        val newContainerRef = into.value<String?>(null)
         if (newContainerRef != null) {
             newContainer = context()[newContainerRef]
             if (!validContainer(newContainer, from)) {

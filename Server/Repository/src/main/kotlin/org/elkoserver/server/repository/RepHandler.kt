@@ -48,7 +48,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
     @JSONMethod("tag", "what")
     operator fun get(from: RepositoryActor, tag: OptString,
                      what: Array<RequestDesc>) {
-        myObjectStore.getObjects(what) { results: Array<ObjectDesc> -> from.send(msgGet(this@RepHandler, tag.value(null), results)) }
+        myObjectStore.getObjects(what) { results: Array<ObjectDesc> -> from.send(msgGet(this@RepHandler, tag.value<String?>(null), results)) }
     }
 
     /**
@@ -63,7 +63,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
     @JSONMethod("tag", "what")
     fun put(from: RepositoryActor, tag: OptString,
             what: Array<PutDesc>) {
-        myObjectStore.putObjects(what) { results: Array<ResultDesc> -> from.send(msgPut(this@RepHandler, tag.value(null), results)) }
+        myObjectStore.putObjects(what) { results: Array<ResultDesc> -> from.send(msgPut(this@RepHandler, tag.value<String?>(null), results)) }
     }
 
     /**
@@ -78,7 +78,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
     @JSONMethod("tag", "what")
     fun update(from: RepositoryActor, tag: OptString,
                what: Array<UpdateDesc>) {
-        myObjectStore.updateObjects(what) { results: Array<ResultDesc> -> from.send(msgUpdate(this@RepHandler, tag.value(null), results)) }
+        myObjectStore.updateObjects(what) { results: Array<ResultDesc> -> from.send(msgUpdate(this@RepHandler, tag.value<String?>(null), results)) }
     }
 
     /**
@@ -93,7 +93,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
     @JSONMethod("tag", "what")
     fun query(from: RepositoryActor, tag: OptString,
               what: Array<QueryDesc>) {
-        myObjectStore.queryObjects(what) { results: Array<ObjectDesc> -> from.send(msgQuery(this@RepHandler, tag.value(null), results)) }
+        myObjectStore.queryObjects(what) { results: Array<ObjectDesc> -> from.send(msgQuery(this@RepHandler, tag.value<String?>(null), results)) }
     }
 
     /**
@@ -108,7 +108,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
     @JSONMethod("tag", "what")
     fun remove(from: RepositoryActor, tag: OptString,
                what: Array<RequestDesc>) {
-        myObjectStore.removeObjects(what) { results: Array<ResultDesc> -> from.send(msgRemove(this@RepHandler, tag.value(null), results)) }
+        myObjectStore.removeObjects(what) { results: Array<ResultDesc> -> from.send(msgRemove(this@RepHandler, tag.value<String?>(null), results)) }
     }
 
     companion object {
@@ -119,7 +119,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
          * @param tag  Client tag for matching replies.
          * @param results  Object results.
          */
-        private fun msgGet(target: Referenceable, tag: String, results: Array<ObjectDesc>) =
+        private fun msgGet(target: Referenceable, tag: String?, results: Array<ObjectDesc>) =
                 JSONLiteralFactory.targetVerb(target, "get").apply {
                     addParameterOpt("tag", tag)
                     addParameter("results", results)
@@ -133,7 +133,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
          * @param tag  Client tag for matching replies.
          * @param results  Status results.
          */
-        private fun msgPut(target: Referenceable, tag: String, results: Array<ResultDesc>) =
+        private fun msgPut(target: Referenceable, tag: String?, results: Array<ResultDesc>) =
                 JSONLiteralFactory.targetVerb(target, "put").apply {
                     addParameterOpt("tag", tag)
                     addParameter("results", results)
@@ -147,7 +147,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
          * @param tag  Client tag for matching replies.
          * @param results  Status results.
          */
-        private fun msgUpdate(target: Referenceable, tag: String, results: Array<ResultDesc>) =
+        private fun msgUpdate(target: Referenceable, tag: String?, results: Array<ResultDesc>) =
                 JSONLiteralFactory.targetVerb(target, "update").apply {
                     addParameterOpt("tag", tag)
                     addParameter("results", results)
@@ -161,7 +161,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
          * @param tag  Client tag for matching replies.
          * @param results  Object results.
          */
-        private fun msgQuery(target: Referenceable, tag: String, results: Array<ObjectDesc>) =
+        private fun msgQuery(target: Referenceable, tag: String?, results: Array<ObjectDesc>) =
                 JSONLiteralFactory.targetVerb(target, "query").apply {
                     addParameterOpt("tag", tag)
                     addParameter("results", results)
@@ -175,7 +175,7 @@ internal class RepHandler(repository: Repository, traceFactory: TraceFactory?) :
          * @param tag  Client tag for matching replies.
          * @param results  Status results.
          */
-        private fun msgRemove(target: Referenceable, tag: String, results: Array<ResultDesc>) =
+        private fun msgRemove(target: Referenceable, tag: String?, results: Array<ResultDesc>) =
                 JSONLiteralFactory.targetVerb(target, "remove").apply {
                     addParameterOpt("tag", tag)
                     addParameter("results", results)

@@ -1,24 +1,20 @@
-package org.elkoserver.foundation.json;
+package org.elkoserver.foundation.json
 
 /**
  * An exception in the execution of a JSON method.
  */
-public class MessageHandlerException extends Exception {
+class MessageHandlerException : Exception {
     /**
      * Construct a MessageHandlerException with no specified detail message.
      */
-    public MessageHandlerException() {
-        super();
-    }
+    constructor() : super() {}
 
     /**
      * Construct a MessageHandlerException with the specified detail message.
      *
      * @param message  The detail message.
      */
-    public MessageHandlerException(String message) {
-        super(message);
-    }
+    constructor(message: String?) : super(message) {}
 
     /**
      * Construct a MessageHandlerException wrapping some other kind of
@@ -27,7 +23,5 @@ public class MessageHandlerException extends Exception {
      * @param message  The detail message.
      * @param nested  Other exception to wrap.
      */
-    public MessageHandlerException(String message, Throwable nested) {
-        super(message, nested);
-    }
+    constructor(message: String?, nested: Throwable?) : super(message, nested) {}
 }

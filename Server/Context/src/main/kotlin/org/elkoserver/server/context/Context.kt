@@ -66,22 +66,22 @@ internal constructor(name: String,
     private var myGroup: LiveGroup? = null
 
     /** Maximum number of users allowed in the context before it clones.  */
-    private val myBaseCapacity: Int
+    private val myBaseCapacity = baseCapacity.value(-1)
 
     /** True if users in this context can't see one another.  */
-    val isSemiPrivate: Boolean
+    val isSemiPrivate: Boolean = isSemiPrivate.value(false)
 
     /** True if entry to this context is access controlled.  */
-    val isRestricted: Boolean
+    val isRestricted: Boolean = isEntryRestricted.value(false)
 
     /** True if anonymous users are allowed in this context.  */
-    private val amAllowAnonymous: Boolean
+    private val amAllowAnonymous: Boolean = isAllowAnonymous.value(false)
 
     /** True if this context's contents aren't managed by the context itself  */
-    private val amContentAgnostic: Boolean
+    private val amContentAgnostic: Boolean = isContentAgnostic.value(false)
 
     /** True if this context may be used as a template for other contexts  */
-    private val amAllowableTemplate: Boolean
+    private val amAllowableTemplate: Boolean = isAllowableTemplate.value(false)
 
     /**
      * Test if this context may be used as a template for other contexts but
@@ -90,14 +90,15 @@ internal constructor(name: String,
      * @return true iff this context is a mandatory template context.
      */
     /** True if this context may only be used as a template  */
-    val isMandatoryTemplate: Boolean
+    val isMandatoryTemplate: Boolean = isMandatoryTemplate.value(false)
 
     /** Mods to attach to users when they arrive.  */
-    private val myUserMods: Array<Mod>?
+    private val myUserMods: Array<Mod>? = userMods
 
     /** Presence domains that this context subscribes to.  Empty if not
      * subscribing to any, null if not providing presence information.  */
-    private val mySubscriptions: Array<String>?
+    private val mySubscriptions: Array<String>? = subscribe
+
     /* Fields below here only apply to active contexts. */
     /** Number of users currently in the context.  */
     private var myUserCount = 0
@@ -461,7 +462,7 @@ internal constructor(name: String,
      */
     private fun noteUserDeparture(who: User) {
         myUserWatchers?.forEach { watcher ->
-                watcher.noteUserDeparture(who)
+            watcher.noteUserDeparture(who)
         }
     }
 
@@ -663,7 +664,11 @@ internal constructor(name: String,
      * @return a Deliverer that wraps Context.sendToNeighbors
      */
     fun neighbors(exclude: Deliverer?): Deliverer {
-        return Deliverer { message: JSONLiteral? -> sendToNeighbors(exclude, message) }
+        return object : Deliverer {
+            override fun send(message: JSONLiteral) {
+                sendToNeighbors(exclude, message)
+            }
+        }
     }
 
     /**
@@ -855,10 +860,12 @@ internal constructor(name: String,
          * @return a Deliverer that wraps toList
          */
         fun toList(toList: List<BasicObject>): Deliverer {
-            return Deliverer { message: JSONLiteral? ->
-                for (to in toList) {
-                    val toUser = to as User
-                    toUser.send(message!!)
+            return object : Deliverer {
+                override fun send(message: JSONLiteral) {
+                    for (to in toList) {
+                        val toUser = to as User
+                        toUser.send(message)
+                    }
                 }
             }
         }
@@ -875,11 +882,13 @@ internal constructor(name: String,
          */
         fun toListExcluding(toList: List<BasicObject>,
                             exclude: Deliverer): Deliverer {
-            return Deliverer { message: JSONLiteral? ->
-                for (to in toList) {
-                    val toUser = to as User
-                    if (toUser != exclude) {
-                        toUser.send(message!!)
+            return object : Deliverer {
+                override fun send(message: JSONLiteral) {
+                    for (to in toList) {
+                        val toUser = to as User
+                        if (toUser != exclude) {
+                            toUser.send(message)
+                        }
                     }
                 }
             }
@@ -887,20 +896,11 @@ internal constructor(name: String,
     }
 
     init {
-        myBaseCapacity = baseCapacity.value(-1)
-        this.isSemiPrivate = isSemiPrivate.value(false)
-        isRestricted = isEntryRestricted.value(false)
-        amAllowAnonymous = isAllowAnonymous.value(false)
-        amContentAgnostic = isContentAgnostic.value(false)
-        amAllowableTemplate = isAllowableTemplate.value(false)
-        this.isMandatoryTemplate = isMandatoryTemplate.value(false)
         if (isEphemeral.value(false)) {
             markAsEphemeral()
         }
         if (!isMultiEntry.value(false)) {
             myUsers = HashMap()
         }
-        myUserMods = userMods
-        mySubscriptions = subscribe
     }
 }

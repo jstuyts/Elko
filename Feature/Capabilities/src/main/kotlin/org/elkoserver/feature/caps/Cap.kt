@@ -229,7 +229,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
               deleteable: OptBoolean, duration: OptInteger,
               expiration: OptInteger) {
         ensureReachable(from)
-        val destRef = dest.value(null)
+        val destRef = dest.value<String?>(null)
         val container: BasicObject?
         container = if (destRef == null) {
             from

@@ -21,7 +21,7 @@ import java.util.Arrays.binarySearch
  */
 internal class Key(
         private var myParent: Key?, private val myRef: String?, private val myAuth: String, currencies: Array<String>?,
-        private val myExpires: ExpirationDate, private val myMemo: String) : Encodable {
+        private val myExpires: ExpirationDate, private val myMemo: String?) : Encodable {
 
     /** Currencies upon which this key authorizes action, or null if the key is
      * not scoped by currency.  */
@@ -44,7 +44,7 @@ internal class Key(
      */
     @JSONMethod("parent", "ref", "auth", "?currs", "expires", "memo")
     constructor(parentRef: String, ref: String, auth: String, currencies: Array<String>?,
-                expires: ExpirationDate, memo: OptString) : this(null, ref, auth, currencies, expires, memo.value(null)) {
+                expires: ExpirationDate, memo: OptString) : this(null, ref, auth, currencies, expires, memo.value<String?>(null)) {
         myParentRef = parentRef
     }
 

@@ -1010,8 +1010,7 @@ class Contextor private constructor(odb: ObjDB?, server: Server,
      * @param listeners  List of HostDesc objects describing active
      * listeners to register with the indicated directors.
      */
-    fun registerWithDirectors(directors: MutableList<HostDesc>,
-                              listeners: List<HostDesc>) {
+    fun registerWithDirectors(directors: MutableList<HostDesc>, listeners: List<HostDesc>) {
         val group = DirectorGroup(myServer, this, directors, listeners, tr, timer, traceFactory, clock)
         if (group.isLive) {
             myDirectorGroup = group

@@ -80,7 +80,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
     private var myTrace: Trace? = null
 
     /** MongoDB collection into which account data will be stored.  */
-    private val myAccountCollection: String
+    private val myAccountCollection: String?
     private lateinit var clock: Clock
     override fun setClock(clock: Clock) {
         this.clock = clock
@@ -628,7 +628,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
         for (key in keys) {
             myKeys[key.ref()] = key
         }
-        myAccountCollection = accountCollection.value(null)
-        myRootKeyRef = rootKeyRef.value(null)
+        myAccountCollection = accountCollection.value<String?>(null)
+        myRootKeyRef = rootKeyRef.value<String?>(null)
     }
 }

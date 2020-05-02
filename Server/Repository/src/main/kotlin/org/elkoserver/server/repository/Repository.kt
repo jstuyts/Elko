@@ -16,7 +16,7 @@ import java.time.Clock
  */
 internal class Repository(private val myServer: Server, appTrace: Trace?, traceFactory: TraceFactory?, clock: Clock?) {
     /** Table for mapping object references in messages.  */
-    internal val myRefTable = RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock)
+    internal val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
     /** Local object storage module.  */
     internal val myObjectStore = createAndInitializeObjectStore(myServer.props(), "conf.rep", appTrace!!)

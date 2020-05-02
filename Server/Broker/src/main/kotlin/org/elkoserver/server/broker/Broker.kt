@@ -27,7 +27,7 @@ import java.util.function.Consumer
  */
 internal class Broker(private val myServer: Server, private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory?, clock: Clock?) {
     /** Table for mapping object references in messages.  */
-    private val myRefTable = RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock)
+    private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
     /** Database for configuration data.  */
     private val myODB: ObjDB?
@@ -257,9 +257,8 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
      * match up requests and responses.
      */
     fun waitForService(service: String, who: BrokerActor, keepWatching: Boolean,
-                       timeout: Int, failOK: Boolean, tag: String) {
-        val waiter = WaiterForService(service, who, keepWatching, timeout, failOK,
-                tag, timer)
+                       timeout: Int, failOK: Boolean, tag: String?) {
+        val waiter = WaiterForService(service, who, keepWatching, timeout, failOK, tag, timer)
         myWaiters.add(service, waiter)
     }
 
@@ -277,7 +276,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
      *    to match up requests and responses.
      */
     private inner class WaiterForService internal constructor(private val myService: String, private val myWaiter: BrokerActor,
-                                                              private val amKeepWatching: Boolean, timeout: Int, private var amSuccessful: Boolean, private val myTag: String, timer: Timer) : TimeoutNoticer {
+                                                              private val amKeepWatching: Boolean, timeout: Int, private var amSuccessful: Boolean, private val myTag: String?, timer: Timer) : TimeoutNoticer {
         private var myTimeout: Timeout? = null
 
         /**

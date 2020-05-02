@@ -23,7 +23,7 @@ import java.util.function.Consumer
  */
 class BankWorker
 @JSONMethod("service", "bank") constructor(serviceName: OptString,
-                                           private val myBankRef: String) : WorkerObject(serviceName.value("bank")), ClockUsingObject {
+                                                                                             private val myBankRef: String) : WorkerObject(serviceName.value("bank")), ClockUsingObject {
     /** The bank this worker is the interface to.  */
     private var myBank: Bank? = null
 
@@ -335,9 +335,9 @@ class BankWorker
                      optXid: OptString, optRep: OptString, repRequired: Boolean,
                      optMemo: OptString, memoRequired: Boolean, clock: Clock): RequestEnv? {
         from.ensureAuthorizedClient()
-        val xid = optXid.value(null)
-        val rep = optRep.value(null)
-        val memo = optMemo.value(null)
+        val xid = optXid.value<String?>(null)
+        val rep = optRep.value<String?>(null)
+        val memo = optMemo.value<String?>(null)
         if (rep == null && repRequired) {
             return null
         }
@@ -1192,7 +1192,7 @@ class BankWorker
         if (env.currencyAuthorityFailure(currs)) {
             return
         }
-        val expires = env.getValidExpiration(optExpires.value(null), true) ?: return
+        val expires = env.getValidExpiration(optExpires.value<String?>(null), true) ?: return
         val newKey = myBank!!.makeKey(env.key, auth, currs, expires, env.memo)
         val reply = env.beginReply()
         reply.addParameter("newkey", newKey.ref())
@@ -1245,7 +1245,7 @@ class BankWorker
     fun dupkey(from: WorkshopActor, key: String, xid: OptString,
                rep: OptString, memo: OptString, optExpires: OptString) {
         val env = init(from, "makekey", key, xid, rep, true, memo, true, clock) ?: return
-        val expires = env.getValidExpiration(optExpires.value(null), true) ?: return
+        val expires = env.getValidExpiration(optExpires.value<String?>(null), true) ?: return
         val newKey = myBank!!.makeKey(env.key, env.key!!.auth(),
                 env.key.currencies(), expires, env.memo)
         val reply = env.beginReply()

@@ -86,9 +86,9 @@ class ActorDesc : Encodable {
     constructor(id: String, optInternalID: OptString, optName: OptString,
                 optPassword: OptString, optCanSetPass: OptBoolean) {
         myID = id
-        myInternalID = optInternalID.value(null)
-        myName = optName.value(null)
-        myPassword = optPassword.value(null)
+        myInternalID = optInternalID.value<String?>(null)
+        myName = optName.value<String?>(null)
+        myPassword = optPassword.value<String?>(null)
         if (myPassword == null) {
             mySalt = null
         } else {
@@ -198,7 +198,7 @@ class ActorDesc : Encodable {
      *
      * @param internalID  New internal ID.
      */
-    fun setInternalID(internalID: String) {
+    fun setInternalID(internalID: String?) {
         myInternalID = if ("" == internalID) {
             null
         } else {
@@ -211,7 +211,7 @@ class ActorDesc : Encodable {
      *
      * @param name  New name.
      */
-    fun setName(name: String) {
+    fun setName(name: String?) {
         myName = if ("" == name) {
             null
         } else {

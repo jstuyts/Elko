@@ -22,7 +22,7 @@ import java.time.Clock
  * @param appTrace  Trace object for diagnostics.
  */
 internal class PresencerGroup(server: Server, contextor: Contextor,
-                              presencers: MutableList<HostDesc>, appTrace: Trace, timer: Timer, traceFactory: TraceFactory, clock: Clock?)
+                              presencers: MutableList<HostDesc>, appTrace: Trace, timer: Timer, traceFactory: TraceFactory, clock: Clock)
     : OutboundGroup("conf.presence", server, contextor, presencers, appTrace, timer, traceFactory, clock) {
     /* ----- required OutboundGroup methods ----- */
     /**
@@ -53,7 +53,7 @@ internal class PresencerGroup(server: Server, contextor: Contextor,
      * @return a new Actor object for use on this new connection
      */
     override fun provideActor(connection: Connection?, dispatcher: MessageDispatcher?,
-                                     host: HostDesc?): Actor {
+                              host: HostDesc?): Actor {
         val presencer = PresencerActor(connection, dispatcher, this, host!!, traceFactory)
         updatePresencer(presencer)
         return presencer

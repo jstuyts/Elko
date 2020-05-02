@@ -282,7 +282,7 @@ internal class PresenceServer(
     }
 
     init {
-        myRefTable = RefTable(AlwaysBaseTypeResolver.theAlwaysBaseTypeResolver, traceFactory, clock)
+        myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
         myClientHandler = ClientHandler(this, traceFactory)
         myRefTable.addRef(myClientHandler)
         val myAdminHandler = AdminHandler(this, traceFactory)
