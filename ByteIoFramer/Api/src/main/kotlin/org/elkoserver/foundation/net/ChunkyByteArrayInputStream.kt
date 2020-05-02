@@ -1,20 +1,18 @@
-package org.elkoserver.foundation.net;
+package org.elkoserver.foundation.net
 
-import org.elkoserver.util.trace.Trace;
-import org.elkoserver.util.trace.TraceFactory;
-
-import java.io.EOFException;
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.LinkedList;
-
-import static org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII;
+import org.elkoserver.util.ByteArrayToAscii
+import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.TraceFactory
+import java.io.EOFException
+import java.io.IOException
+import java.io.InputStream
+import java.util.LinkedList
 
 /**
  * Input stream similar to ByteArrayInputStream but backed by an ongoing series
  * of byte arrays that can be added to during the stream object's lifetime.
  */
-public class ChunkyByteArrayInputStream extends InputStream {
+class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : InputStream() {
     /*
      * This object embodies a couple of assumptions about the nature of what is
      * being read and how this stream is being used:
@@ -70,90 +68,74 @@ public class ChunkyByteArrayInputStream extends InputStream {
      * pragmatic concerns; the consumer of the input from this stream MUST be
      * coded in awareness of what is being done here.
      */
+    /** Byte buffer currently being read from.  */
+    private var myWorkingBuffer: ByteArray?
 
-    /** Byte buffer currently being read from. */
-    private byte[] myWorkingBuffer;
+    /** Position of the next byte to read from the working buffer.  */
+    private var myWorkingBufferIdx = 0
 
-    /** Position of the next byte to read from the working buffer. */
-    private int myWorkingBufferIdx;
+    /** Number of bytes in working buffer that may be read.  */
+    private var myWorkingBufferLength = 0
 
-    /** Number of bytes in working buffer that may be read. */
-    private int myWorkingBufferLength;
+    /** Additional byte arrays queued to be read.  */
+    private val myPendingBuffers: LinkedList<ByteArray>
 
-    /** Additional byte arrays queued to be read. */
-    private final LinkedList<byte[]> myPendingBuffers;
-    
     /** A byte array that has been passed to this object by its client but not
-        yet copied to storage internal to this object. */
-    private byte[] myClientBuffer;
+     * yet copied to storage internal to this object.  */
+    private var myClientBuffer: ByteArray?
 
-    /** Number of bytes in client buffer that may be used. */
-    private int myClientBufferLength;
-    
-    /** Number of bytes fed in that haven't yet been read. */
-    private int myTotalByteCount;
+    /** Number of bytes in client buffer that may be used.  */
+    private var myClientBufferLength = 0
 
-    /** Number of unread bytes that can actually be returned right now. */
-    private int myUsefulByteCount;
-    
-    /** Flag indicating an actual EOF in the input. */
-    private boolean amAtEOF;
+    /** Number of bytes fed in that haven't yet been read.  */
+    private var myTotalByteCount: Int
 
-    /** Flag indicating that WebSocket framing is enabled. */
-    private boolean amWebSocketFraming;
-    private final TraceFactory traceFactory;
+    /** Number of unread bytes that can actually be returned right now.  */
+    private var myUsefulByteCount: Int
 
-    /**
-     * Constructor.  Initially, no input has been provided.
-     */
-    public ChunkyByteArrayInputStream(TraceFactory traceFactory) {
-        this.traceFactory = traceFactory;
-        myPendingBuffers = new LinkedList<>();
-        myWorkingBuffer = null;
-        myClientBuffer = null;
-        myTotalByteCount = 0;
-        myUsefulByteCount = 0;
-        amAtEOF = false;
-        amWebSocketFraming = false;
-    }
-    
+    /** Flag indicating an actual EOF in the input.  */
+    private var amAtEOF: Boolean
+
+    /** Flag indicating that WebSocket framing is enabled.  */
+    private var amWebSocketFraming: Boolean
+
     /**
      * Be given a buffer full of input bytes.
      *
-     * <p>Note: this class assumes that it may continue to freely make direct
+     *
+     * Note: this class assumes that it may continue to freely make direct
      * use of the contents of the byte buffer that is given to this method
-     * (i.e., without copying it to internal storage) until {@link
-     * #preserveBuffers} is called; after that, the buffer contents may be
+     * (i.e., without copying it to internal storage) until [ ][.preserveBuffers] is called; after that, the buffer contents may be
      * modified externally.  This is somewhat delicate, but eliminates a vast
-     * amount of unnecessary byte array allocation and copying.</p>
+     * amount of unnecessary byte array allocation and copying.
      *
      * @param buf  The bytes themselves.
      * @param length  Number of bytes in 'buf' to read (&lt;= buf.length).
      */
-    public void addBuffer(byte[] buf, int length) {
-        if (traceFactory.comm.getDebug() && Trace.ON) {
+    fun addBuffer(buf: ByteArray, length: Int) {
+        if (traceFactory.comm.debug && Trace.ON) {
             if (length == 0) {
-                traceFactory.comm.debugm("receiving 0 bytes: || (EOF)");
+                traceFactory.comm.debugm("receiving 0 bytes: || (EOF)")
             } else {
                 traceFactory.comm.debugm("receiving " + length + " bytes: |" +
-                                  byteArrayToASCII(buf, 0, length) + "|");
+                        ByteArrayToAscii.byteArrayToASCII(buf, 0, length) + "|")
             }
         }
         if (length == 0) {
-            amAtEOF = true;
+            amAtEOF = true
         } else {
-            preserveBuffers(); /* save previous client buffer */
-            myClientBuffer = buf;
-            myClientBufferLength = length;
-            for (int i = 0; i < length; ++i) {
-                if (buf[i] == '\n' || (amWebSocketFraming && buf[i] == -1)) {
-                    myUsefulByteCount = myTotalByteCount + i + 1;
+            preserveBuffers() /* save previous client buffer */
+            myClientBuffer = buf
+            myClientBufferLength = length
+            for (i in 0 until length) {
+                if (buf[i] == '\n'.toByte() || amWebSocketFraming && buf[i] == (-1).toByte()) {
+                    myUsefulByteCount = myTotalByteCount + i + 1
                 }
             }
-            myTotalByteCount += length;
+            myTotalByteCount += length
         }
     }
-    
+
     /**
      * Get the number of bytes that can be read from this input stream without
      * blocking.  Since this class never actually blocks, this is just the
@@ -161,55 +143,48 @@ public class ChunkyByteArrayInputStream extends InputStream {
      *
      * @return the number of bytes that can be read from this input stream.
      */
-    public int available() {
-        return myTotalByteCount;
+    override fun available(): Int {
+        return myTotalByteCount
     }
-    
+
     /**
-     * Copy any unread portions of the client buffer passed to {@link
-     * #addBuffer}.  This has the side effect of passing responsibility for the
+     * Copy any unread portions of the client buffer passed to [ ][.addBuffer].  This has the side effect of passing responsibility for the
      * client buffer back to the client.  This indirection minimizes
      * unnecessary byte array allocation and copying.
      */
-    public void preserveBuffers() {
+    fun preserveBuffers() {
         if (myClientBuffer != null) {
-            if (myWorkingBuffer == myClientBuffer) {
-                byte[] saveBuffer =
-                    new byte[myWorkingBufferLength - myWorkingBufferIdx];
-                System.arraycopy(myWorkingBuffer, myWorkingBufferIdx,
-                                 saveBuffer,      0,
-                                 saveBuffer.length);
-                myWorkingBuffer = saveBuffer;
-                myWorkingBufferLength = saveBuffer.length;
-                myWorkingBufferIdx = 0;
+            if (myWorkingBuffer === myClientBuffer) {
+                val saveBuffer = myWorkingBuffer!!.copyOfRange(myWorkingBufferIdx, myWorkingBufferLength)
+                myWorkingBuffer = saveBuffer
+                myWorkingBufferLength = saveBuffer.size
+                myWorkingBufferIdx = 0
             } else {
-                byte[] saveBuffer = new byte[myClientBufferLength];
-                System.arraycopy(myClientBuffer, 0,
-                                 saveBuffer,     0,
-                                 saveBuffer.length);
-                myPendingBuffers.add(saveBuffer);
+                val saveBuffer = byteArrayOf(*myClientBuffer!!)
+                myPendingBuffers.add(saveBuffer)
             }
-            myClientBuffer = null;
+            myClientBuffer = null
         }
     }
-    
+
     /**
      * Read the next byte of data from the input stream.  The byte value is
      * returned as an int in the range 0 to 255.  If no byte is available,
      * the value -1 is returned.
      *
      * @return the next byte of data, or -1 if the end of the currently
-     *    available input is reached.
+     * available input is reached.
      *
      * @throws IOException if an incomplete line is in the buffers upon the
-     *    true end of input.
+     * true end of input.
      * @throws EOFException if the true end of input is reached normally
      */
-    public int read() throws IOException {
-        if (testEnd()) {
-            return -1;
+    @Throws(IOException::class)
+    override fun read(): Int {
+        return if (testEnd()) {
+            -1
         } else {
-            return readByteInternal();
+            readByteInternal()
         }
     }
 
@@ -220,31 +195,32 @@ public class ChunkyByteArrayInputStream extends InputStream {
      *
      * @return the next byte of data.
      */
-    private int readByteInternal() {
+    private fun readByteInternal(): Int {
         if (myWorkingBuffer == null) {
-            if (myPendingBuffers.size() > 0) {
-                myWorkingBuffer = myPendingBuffers.removeFirst();
-                myWorkingBufferLength = myWorkingBuffer.length;
+            if (myPendingBuffers.size > 0) {
+                val nextBuffer = myPendingBuffers.removeFirst()
+                myWorkingBuffer = nextBuffer
+                myWorkingBufferLength = nextBuffer.size
             } else if (myClientBuffer != null) {
-                myWorkingBuffer = myClientBuffer;
-                myWorkingBufferLength = myClientBufferLength;
+                myWorkingBuffer = myClientBuffer
+                myWorkingBufferLength = myClientBufferLength
             } else {
-                return -1;
+                return -1
             }
-            myWorkingBufferIdx = 0;
+            myWorkingBufferIdx = 0
         }
-        int result = myWorkingBuffer[myWorkingBufferIdx++];
+        val result = myWorkingBuffer!![myWorkingBufferIdx++].toInt()
         if (myWorkingBufferIdx >= myWorkingBufferLength) {
-            if (myWorkingBuffer == myClientBuffer) {
-                myClientBuffer = null;
+            if (myWorkingBuffer === myClientBuffer) {
+                myClientBuffer = null
             }
-            myWorkingBuffer = null;
+            myWorkingBuffer = null
         }
-        --myTotalByteCount;
+        --myTotalByteCount
         if (myUsefulByteCount > 0) {
-            --myUsefulByteCount;
+            --myUsefulByteCount
         }
-        return result & 0xFF;
+        return result and 0xFF
     }
 
     /**
@@ -255,18 +231,17 @@ public class ChunkyByteArrayInputStream extends InputStream {
      * @param count  The number of bytes desired
      *
      * @return an array of 'count' bytes, or null if that many bytes are not
-     *    currently available.
-     *
+     * currently available.
      */
-    public byte[] readBytes(int count) {
-        if (myTotalByteCount < count) {
-            return null;
+    fun readBytes(count: Int): ByteArray? {
+        return if (myTotalByteCount < count) {
+            null
         } else {
-            byte[] result = new byte[count];
-            for (int i = 0; i < count; ++i) {
-                result[i] = (byte) readByteInternal();
+            val result = ByteArray(count)
+            for (i in 0 until count) {
+                result[i] = readByteInternal().toByte()
             }
-            return result;
+            result
         }
     }
 
@@ -276,45 +251,46 @@ public class ChunkyByteArrayInputStream extends InputStream {
      * are still bytes remaining in the input stream.
      *
      * @return the next character in the input, or -1 if the end of the
-     *    currently available input is reached.
+     * currently available input is reached.
      *
      * @throws IOException if an incomplete line is in the buffers upon
-     *    encountering the true end of input.
+     * encountering the true end of input.
      */
-    private int readUTF8Char() throws IOException {
-        int byteA = read();
+    @Throws(IOException::class)
+    private fun readUTF8Char(): Int {
+        val byteA = read()
         if (byteA == -1) {
             /* EOF */
-            return -1;
+            return -1
         } else if (amWebSocketFraming && byteA == 0x00) {
             /* WebSocket start-of-frame: return a nul; it will be ignored */
-            return 0;
+            return 0
         } else if (amWebSocketFraming && byteA == 0xFF) {
             /* WebSocket end-of-frame: pretend it's a newline */
-            return '\n';
-        } else if ((byteA & 0x80) == 0) {
+            return '\n'.toInt()
+        } else if (byteA and 0x80 == 0) {
             /* One byte UTF-8 character */
-            return byteA;
-        } else if ((byteA & 0xE0) == 0xC0) {
+            return byteA
+        } else if (byteA and 0xE0 == 0xC0) {
             /* Two byte UTF-8 character */
-            int byteB = read();
-            if ((byteB & 0xC0) == 0x80) {
-                return ((byteA & 0x1F) << 6) |
-                        (byteB & 0x3F);
+            val byteB = read()
+            if (byteB and 0xC0 == 0x80) {
+                return byteA and 0x1F shl 6 or
+                        (byteB and 0x3F)
             }
-        } else if ((byteA & 0xF0) == 0xE0) {
+        } else if (byteA and 0xF0 == 0xE0) {
             /* Three byte UTF-8 character */
-            int byteB = read();
-            if ((byteB & 0xC0) == 0x80) {
-                int byteC = read();
-                if ((byteC & 0xC0) == 0x80) {
-                    return ((byteA & 0x0F) << 12) |
-                           ((byteB & 0x3F) <<  6) |
-                            (byteC & 0x3F);
+            val byteB = read()
+            if (byteB and 0xC0 == 0x80) {
+                val byteC = read()
+                if (byteC and 0xC0 == 0x80) {
+                    return byteA and 0x0F shl 12 or
+                            (byteB and 0x3F shl 6) or
+                            (byteC and 0x3F)
                 }
             }
         }
-        throw new IOException("bad UTF-8 encoding");
+        throw IOException("bad UTF-8 encoding")
     }
 
     /**
@@ -322,47 +298,50 @@ public class ChunkyByteArrayInputStream extends InputStream {
      * However, if a complete line is not available in the buffers, null is
      * returned.
      *
-     * <p>Takes ASCII characters from the buffers until a newline (optionally
+     *
+     * Takes ASCII characters from the buffers until a newline (optionally
      * preceded by a carriage return) is read, at which point the line is
      * returned as a String, not including the line terminator character(s).
      *
      * @return the next line of ASCII characters in the input, or null if
-     *    another complete line is not currently available.
+     * another complete line is not currently available.
      *
      * @throws EOFException if the true end of input is reached.
      */
-    public String readASCIILine() throws IOException {
-        return readLine(false);
+    @Throws(IOException::class)
+    fun readASCIILine(): String? {
+        return readLine(false)
     }
 
     /**
      * Common read logic for readASCIILine() and readUTF8Line().
      *
      * @param doUTF8  If true, read UTF-8 characters; if false, read ASCII
-     *    characters.
+     * characters.
      *
      * @return the next line of characters in the input according the doUTF8
-     *    flag, or null if another complete line is not currently available.
+     * flag, or null if another complete line is not currently available.
      *
      * @throws EOFException if the true end of input is reached.
      */
-    private String readLine(boolean doUTF8) throws IOException {
-        StringBuilder myLine = new StringBuilder(1000);
-        int inCharCode = doUTF8 ? readUTF8Char() : read();
-        if (inCharCode == -1) {
-            return null;
+    @Throws(IOException::class)
+    private fun readLine(doUTF8: Boolean): String? {
+        val myLine = StringBuilder(1000)
+        val inCharCode = if (doUTF8) readUTF8Char() else read()
+        return if (inCharCode == -1) {
+            null
         } else {
-            char inChar = (char) inCharCode;
+            var inChar = inCharCode.toChar()
             if (inChar == '\n') {
-                return "";
+                ""
             } else {
                 do {
-                    if (inChar != '\r' && inChar != 0) {
-                        myLine.append(inChar);
+                    if (inChar != '\r' && inChar.toInt() != 0) {
+                        myLine.append(inChar)
                     }
-                    inChar = (char) (doUTF8 ? readUTF8Char() : read());
-                } while (inChar != '\n');
-                return myLine.toString();
+                    inChar = (if (doUTF8) readUTF8Char() else read()).toChar()
+                } while (inChar != '\n')
+                myLine.toString()
             }
         }
     }
@@ -372,22 +351,24 @@ public class ChunkyByteArrayInputStream extends InputStream {
      * However, If a complete line is not available in the buffers, null is
      * returned.
      *
-     * <p>Takes UTF-8 characters from the buffers until a newline (optionally
+     *
+     * Takes UTF-8 characters from the buffers until a newline (optionally
      * preceded by a carriage return) is read, at which point the line is
      * returned as a String, not including the line terminator character(s).
      *
      * @return the next line of UTF-8 characters in the input, or null if
-     *    another complete line is not currently available.
+     * another complete line is not currently available.
      *
      * @throws EOFException if the true end of input is reached.
      */
-    public String readUTF8Line() throws IOException {
-        return readLine(true);
+    @Throws(IOException::class)
+    fun readUTF8Line(): String? {
+        return readLine(true)
     }
 
-    public void updateUsefulByteCount(int byteCount) {
+    fun updateUsefulByteCount(byteCount: Int) {
         if (myUsefulByteCount < byteCount) {
-            myUsefulByteCount = byteCount;
+            myUsefulByteCount = byteCount
         }
     }
 
@@ -400,32 +381,46 @@ public class ChunkyByteArrayInputStream extends InputStream {
      * availability of received data in the input buffers).
      *
      */
-    void enableWebSocketFraming() {
-        amWebSocketFraming = true;
+    fun enableWebSocketFraming() {
+        amWebSocketFraming = true
     }
 
     /**
      * Test for the end of available input.
      *
      * @return true if no more input is available at this time, false if input
-     *    is available.
+     * is available.
      *
      * @throws IOException if the true EOF is reached prior to an end of line.
      * @throws EOFException if the true EOF is reached properly.
      */
-    private boolean testEnd() throws IOException {
-        if (myUsefulByteCount == 0) {
+    @Throws(IOException::class)
+    private fun testEnd(): Boolean {
+        return if (myUsefulByteCount == 0) {
             if (amAtEOF) {
                 if (myTotalByteCount > 0) {
-                    throw new IOException("undecodeable bytes left over");
+                    throw IOException("undecodeable bytes left over")
                 } else {
-                    throw new EOFException();
+                    throw EOFException()
                 }
             } else {
-                return true;
+                true
             }
         } else {
-            return false;
+            false
         }
+    }
+
+    /**
+     * Constructor.  Initially, no input has been provided.
+     */
+    init {
+        myPendingBuffers = LinkedList()
+        myWorkingBuffer = null
+        myClientBuffer = null
+        myTotalByteCount = 0
+        myUsefulByteCount = 0
+        amAtEOF = false
+        amWebSocketFraming = false
     }
 }

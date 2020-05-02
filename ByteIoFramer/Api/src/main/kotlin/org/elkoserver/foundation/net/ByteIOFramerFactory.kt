@@ -1,16 +1,15 @@
-package org.elkoserver.foundation.net;
+package org.elkoserver.foundation.net
 
 /**
  * Interface supporting protocol-specific message framing on a connection,
  * to frame inchoate streams of bytes into processable units.
  */
-public interface ByteIOFramerFactory {
+interface ByteIOFramerFactory {
     /**
      * Provide an I/O framer for a new connection.
      *
      * @param receiver  Object to deliver received messages to.
      * @param label  A printable label identifying the associated connection.
      */
-    ByteIOFramer provideFramer(MessageReceiver receiver, String label);
+    fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer
 }
-
