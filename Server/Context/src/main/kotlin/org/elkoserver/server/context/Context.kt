@@ -19,7 +19,6 @@ import org.elkoserver.server.context.Msg.msgExit
 import org.elkoserver.server.context.Msg.msgMake
 import org.elkoserver.server.context.Msg.msgReady
 import org.elkoserver.util.trace.Trace
-import java.util.HashMap
 import java.util.LinkedList
 import java.util.NoSuchElementException
 

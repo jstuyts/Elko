@@ -1,8 +1,5 @@
 package org.elkoserver.server.presence
 
-import java.util.ArrayList
-import java.util.HashMap
-
 internal class Domain(private val myName: String) {
     private val myIndex: Int
     private val mySubscribers: MutableMap<String, PresenceActor> = HashMap()

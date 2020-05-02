@@ -6,7 +6,6 @@ import org.elkoserver.json.JsonParsing
 import org.elkoserver.util.trace.TraceFactory
 import java.lang.reflect.Constructor
 import java.time.Clock
-import java.util.HashMap
 
 /**
  * A producer of some class of Java objects from JSON-encoded object

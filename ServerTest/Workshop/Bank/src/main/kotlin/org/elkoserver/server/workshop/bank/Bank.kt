@@ -13,7 +13,6 @@ import org.elkoserver.server.workshop.Workshop
 import org.elkoserver.util.trace.Trace
 import java.security.SecureRandom
 import java.time.Clock
-import java.util.HashMap
 import java.util.function.Consumer
 import kotlin.math.abs
 

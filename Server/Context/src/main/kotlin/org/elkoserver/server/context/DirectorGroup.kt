@@ -14,7 +14,6 @@ import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
 import java.util.Collections
 import java.util.ConcurrentModificationException
-import java.util.HashMap
 
 /**
  * Outbound group containing all the connected directors.

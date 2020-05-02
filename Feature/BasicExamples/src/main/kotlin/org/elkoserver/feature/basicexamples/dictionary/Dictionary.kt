@@ -10,7 +10,6 @@ import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.User
-import java.util.HashMap
 
 /**
  * Mod to associate a server-moderated hashtable with its object.  This mod
@@ -47,8 +46,8 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
                     myOriginalVars
                 }
         vars?.let {
-            result.addParameter("names", it.keys.toTypedArray())
-            result.addParameter("values", it.values.toTypedArray())
+            result.addParameter("names", it.keys.toTypedArray() as Array<String?>)
+            result.addParameter("values", it.values.toTypedArray() as Array<String?>)
         }
         if (control.toRepository() && amPersistent) {
             result.addParameter("persist", amPersistent)

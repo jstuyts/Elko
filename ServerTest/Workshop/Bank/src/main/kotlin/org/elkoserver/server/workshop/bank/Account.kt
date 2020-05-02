@@ -6,7 +6,6 @@ import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.server.workshop.Workshop
-import java.util.HashMap
 import java.util.TreeSet
 import java.util.function.Consumer
 

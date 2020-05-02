@@ -1,7 +1,5 @@
 package org.elkoserver.server.director
 
-import java.util.HashSet
-
 /**
  * The admin facet of a director actor.  This object represents the state
  * functionality required when a connected entity is engaging in the admin

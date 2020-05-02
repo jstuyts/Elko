@@ -25,7 +25,6 @@ import org.elkoserver.objdb.store.ResultDesc
 import org.elkoserver.objdb.store.UpdateDesc
 import org.elkoserver.objdb.store.UpdateResultDesc
 import org.elkoserver.util.trace.Trace
-import java.util.ArrayList
 import java.util.LinkedList
 
 /**

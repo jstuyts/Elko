@@ -3,8 +3,6 @@ package org.elkoserver.server.director
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
 import java.util.Collections
-import java.util.HashMap
-import java.util.HashSet
 
 /**
  * The provider facet of a director actor.  This object represents the state

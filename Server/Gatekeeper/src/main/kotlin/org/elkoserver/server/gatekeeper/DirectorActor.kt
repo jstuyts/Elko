@@ -10,7 +10,6 @@ import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.TraceFactory
-import java.util.HashMap
 import java.util.function.Consumer
 
 /**

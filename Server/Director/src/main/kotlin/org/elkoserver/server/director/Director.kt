@@ -15,7 +15,6 @@ import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
 import java.util.Collections
-import java.util.HashMap
 import java.util.LinkedList
 import java.util.TreeMap
 

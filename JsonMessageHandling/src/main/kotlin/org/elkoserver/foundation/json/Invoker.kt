@@ -9,7 +9,6 @@ import java.lang.reflect.AccessibleObject
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Member
 import java.time.Clock
-import java.util.HashMap
 
 /**
  * Precomputed Java reflection information needed invoke a method or

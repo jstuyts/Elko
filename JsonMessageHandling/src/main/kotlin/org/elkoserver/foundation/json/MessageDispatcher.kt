@@ -4,8 +4,6 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.TraceFactory
 import java.lang.reflect.Modifier
 import java.time.Clock
-import java.util.HashMap
-import java.util.HashSet
 
 /**
  * A collection of precomputed Java reflection information that can dispatch

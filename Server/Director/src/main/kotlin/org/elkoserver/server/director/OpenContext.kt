@@ -4,7 +4,6 @@ import org.elkoserver.server.director.Director.Companion.isUserClone
 import org.elkoserver.server.director.Director.Companion.userCloneSetName
 import org.elkoserver.util.HashSetMulti
 import java.util.Collections
-import java.util.HashSet
 
 /**
  * Information describing an open context.

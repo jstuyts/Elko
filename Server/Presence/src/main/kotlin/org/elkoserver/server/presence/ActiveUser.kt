@@ -6,8 +6,6 @@ import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralArray
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonObject
-import java.util.ArrayList
-import java.util.HashMap
 import java.util.LinkedList
 
 /**

@@ -1,13 +1,12 @@
 package org.elkoserver.util
 
 import org.elkoserver.util.EmptyIterator.Companion.emptyIterator
-import java.util.HashMap
 
 /**
  * A hash "set" that objects can be added to multiple times.  An object must be
  * removed an equal number of times before it disappears.
  *
- * This class is to [HashMapMulti] as [HashSet][java.util.HashSet]
+ * This class is to [HashMapMulti] as [HashSet][HashSet]
  * is to [HashMap], but note that it does not truly implement the set
  * abstraction since the number of times a value is entered is significant.
  */

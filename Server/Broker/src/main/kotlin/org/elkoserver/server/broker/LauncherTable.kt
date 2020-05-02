@@ -9,7 +9,6 @@ import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import java.io.IOException
-import java.util.HashMap
 import java.util.LinkedList
 import java.util.StringTokenizer
 

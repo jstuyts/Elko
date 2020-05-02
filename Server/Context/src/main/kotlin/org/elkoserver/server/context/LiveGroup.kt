@@ -3,7 +3,6 @@ package org.elkoserver.server.context
 import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.json.JSONLiteral
 import java.util.Collections
-import java.util.HashSet
 
 /**
  * The normal, ordinary implementation of [SendGroup].

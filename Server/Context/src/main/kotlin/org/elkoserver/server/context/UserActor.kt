@@ -14,7 +14,6 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Msg.msgExit
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
-import java.util.HashMap
 import java.util.LinkedList
 import java.util.function.Consumer
 

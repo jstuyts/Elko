@@ -2,7 +2,6 @@ package org.elkoserver.server.context
 
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteralArray
-import java.util.HashMap
 
 /**
  * Collection class to hold all the mods attached to a basic object.

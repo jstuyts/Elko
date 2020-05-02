@@ -10,7 +10,6 @@ import org.zeromq.SocketType
 import org.zeromq.ZMQ
 import java.io.IOException
 import java.time.Clock
-import java.util.HashMap
 
 /**
  * @param myNetworkManager  Network manager for this server.

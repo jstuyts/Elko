@@ -12,7 +12,6 @@ import org.elkoserver.server.context.AdminObject
 import org.elkoserver.server.context.Contextor
 import org.elkoserver.server.workshop.bank.Currency
 import org.elkoserver.util.trace.Trace
-import java.util.HashMap
 import java.util.function.Consumer
 
 /**

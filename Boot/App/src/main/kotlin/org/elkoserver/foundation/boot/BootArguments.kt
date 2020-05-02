@@ -1,8 +1,6 @@
 package org.elkoserver.foundation.boot
 
 import org.elkoserver.foundation.properties.ElkoProperties
-import java.util.ArrayList
-import java.util.HashMap
 
 internal class BootArguments internal constructor(vararg arguments: String) {
     internal val mainClassName: String

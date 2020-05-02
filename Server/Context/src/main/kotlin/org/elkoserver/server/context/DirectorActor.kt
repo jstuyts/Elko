@@ -16,7 +16,6 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Msg.msgSay
 import org.elkoserver.util.trace.TraceFactory
-import java.util.HashMap
 import java.util.LinkedList
 import java.util.NoSuchElementException
 

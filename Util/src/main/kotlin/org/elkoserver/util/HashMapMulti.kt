@@ -1,7 +1,6 @@
 package org.elkoserver.util
 
 import java.util.ConcurrentModificationException
-import java.util.HashMap
 
 /**
  * A hashtable-like collection that maps each key to a set of items rather than
@@ -21,11 +20,7 @@ class HashMapMulti<K, V> {
      * @param value  The value that should be added to 'key's value set
      */
     fun add(key: K, value: V) {
-        var set = myMap[key]
-        if (set == null) {
-            set = HashSetMulti()
-            myMap[key] = set
-        }
+        val set = myMap.computeIfAbsent(key, { HashSetMulti() })
         set.add(value)
         ++myVersionNumber
     }
@@ -37,9 +32,7 @@ class HashMapMulti<K, V> {
      *
      * @return true if this map has one or more values for key, false if not.
      */
-    fun containsKey(key: K): Boolean {
-        return myMap.containsKey(key)
-    }
+    fun containsKey(key: K) = myMap.containsKey(key)
 
     /**
      * Return the set of values for some key.  Note that a set will always be
@@ -50,22 +43,14 @@ class HashMapMulti<K, V> {
      *
      * @return a set of the values for 'key'.
      */
-    fun getMulti(key: K): HashSetMulti<V> {
-        var result = myMap[key]
-        if (result == null) {
-            result = HashSetMulti.emptySet()
-        }
-        return result
-    }
+    fun getMulti(key: K) = myMap[key] ?: HashSetMulti.emptySet()
 
     /**
      * Get the set of keys for this map.
      *
      * @return the keys for this map.
      */
-    fun keys(): Set<K> {
-        return myMap.keys
-    }
+    fun keys() = myMap.keys
 
     /**
      * Remove a value from a key's value set.
@@ -75,10 +60,9 @@ class HashMapMulti<K, V> {
      * set
      */
     fun remove(key: K, value: V) {
-        val set = myMap[key]
-        if (set != null) {
-            set.remove(value)
-            if (set.isEmpty) {
+        myMap[key]?.let {
+            it.remove(value)
+            if (it.isEmpty) {
                 myMap.remove(key)
             }
         }
@@ -105,29 +89,27 @@ class HashMapMulti<K, V> {
         override fun iterator() = HashMapMultiValueIterator()
     }
 
-    private inner class HashMapMultiValueIterator internal constructor() : MutableIterator<V> {
+    private inner class HashMapMultiValueIterator internal constructor() : Iterator<V> {
         private val mySetIter: Iterator<HashSetMulti<V>>
         private var myValueIter: Iterator<V>? = null
         private var myNext: V? = null
         private val myStartVersionNumber: Int = myVersionNumber
         override fun hasNext(): Boolean {
-            if (myVersionNumber != myStartVersionNumber) {
-                throw ConcurrentModificationException()
-            }
+            assertNotConcurrentlyModified()
             return myNext != null
         }
 
         override fun next(): V {
-            if (myVersionNumber != myStartVersionNumber) {
-                throw ConcurrentModificationException()
-            }
+            assertNotConcurrentlyModified()
             val result = myNext!!
             advance()
             return result
         }
 
-        override fun remove() {
-            throw UnsupportedOperationException()
+        private fun assertNotConcurrentlyModified() {
+            if (myVersionNumber != myStartVersionNumber) {
+                throw ConcurrentModificationException()
+            }
         }
 
         private fun advance() {
