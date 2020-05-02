@@ -11,7 +11,7 @@ import java.util.HashSet
  * A collection of precomputed Java reflection information that can dispatch
  * JSON messages to methods of the appropriate classes.
  *
- * @param resolver Type resolver for the type tags of JSON encoded message
+ * @param myResolver Type resolver for the type tags of JSON encoded message
  *    parameter objects.
  */
 class MessageDispatcher(private val myResolver: TypeResolver?, private val traceFactory: TraceFactory, private val clock: Clock) {
@@ -70,7 +70,7 @@ class MessageDispatcher(private val myResolver: TypeResolver?, private val trace
                             " does not have return type void")
                 }
                 val paramTypes = method.parameterTypes
-                if (paramTypes.size == 0 ||
+                if (paramTypes.isEmpty() ||
                         !Deliverer::class.java.isAssignableFrom(paramTypes[0])) {
                     throw JSONSetupError("class " + targetClass.name +
                             " JSON message handler method " + method.name +
@@ -127,22 +127,22 @@ class MessageDispatcher(private val myResolver: TypeResolver?, private val trace
     @Throws(MessageHandlerException::class)
     fun dispatchMessage(from: Deliverer?, target: DispatchTarget?,
                         message: JsonObject) {
-        var from = from
+        var actualFrom = from
         val verb = message.getString("op", null)
         if (verb != null) {
             var invoker = myInvokers[verb]
             while (invoker != null) {
                 val actualTarget = invoker.findActualTarget(target)
                 if (actualTarget != null) {
-                    if (from is SourceRetargeter) {
-                        from = (from as SourceRetargeter).findEffectiveSource(
+                    if (actualFrom is SourceRetargeter) {
+                        actualFrom = (actualFrom as SourceRetargeter).findEffectiveSource(
                                 target!!)
                     }
-                    if (from == null) {
+                    if (actualFrom == null) {
                         throw MessageHandlerException(
                                 "invalid message target")
                     }
-                    invoker.handle(actualTarget, from, message, myResolver)
+                    invoker.handle(actualTarget, actualFrom, message, myResolver)
                     return
                 } else {
                     invoker = invoker.next()
@@ -150,10 +150,10 @@ class MessageDispatcher(private val myResolver: TypeResolver?, private val trace
             }
             if (target is DefaultDispatchTarget) {
                 val defaultTarget = target as DefaultDispatchTarget
-                if (from is SourceRetargeter) {
-                    from = (from as SourceRetargeter).findEffectiveSource(target)
+                if (actualFrom is SourceRetargeter) {
+                    actualFrom = (actualFrom as SourceRetargeter).findEffectiveSource(target)
                 }
-                defaultTarget.handleMessage(from!!, message)
+                defaultTarget.handleMessage(actualFrom!!, message)
             } else {
                 throw MessageHandlerException(
                         "no message handler method for verb '$verb'")
