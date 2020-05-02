@@ -7,6 +7,7 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timeout
+import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
@@ -133,7 +134,11 @@ internal class GatekeeperActor(connection: Connection?, private val myFactory: G
     override fun toString() = myLabel ?: super.toString()
 
     init {
-        myActionTimeout = timer.after(actionTime.toLong(), this::disconnectAfterTimeout)
+        myActionTimeout = timer.after(actionTime.toLong(), object : TimeoutNoticer {
+            override fun noticeTimeout() {
+                disconnectAfterTimeout()
+            }
+        })
     }
 
     private fun disconnectAfterTimeout() {

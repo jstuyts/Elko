@@ -1,7 +1,9 @@
 import org.elkoserver.develop.gradle.apiclasses.ApiClassesTask
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 plugins {
     `java-library`
+    kotlin("jvm")
 }
 
 repositories {
@@ -11,6 +13,8 @@ repositories {
 
 dependencies {
     api(project(":Trace"))
+
+    implementation(kotlin("stdlib-jdk8"))
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {
@@ -19,4 +23,8 @@ val apiClasses by tasks.registering(ApiClassesTask::class) {
 
 java {
     sourceCompatibility = JavaVersion.VERSION_11
+}
+
+tasks.withType<KotlinCompile>().configureEach {
+    kotlinOptions.jvmTarget = "11"
 }

@@ -10,6 +10,7 @@ import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
+import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonObject
@@ -254,12 +255,12 @@ class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
     fun pushNewContext(who: User, contextRef: String) {
         val tag = "" + myNextReservationTag++
         myPendingReservationRequests[tag] = who
-        timer.after(
-                INTERNAL_RESERVATION_TIMEOUT.toLong()
-        ) {
-            val user = myPendingReservationRequests.remove(tag)
-            user?.exitContext("no response", "badres", false)
-        }
+        timer.after(INTERNAL_RESERVATION_TIMEOUT.toLong(), object : TimeoutNoticer {
+            override fun noticeTimeout() {
+                val user = myPendingReservationRequests.remove(tag)
+                user?.exitContext("no response", "badres", false)
+            }
+        })
         send(msgReserve(this, who.protocol(), contextRef, who.baseRef()!!, tag))
     }
 

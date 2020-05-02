@@ -9,6 +9,7 @@ import org.elkoserver.foundation.json.SourceRetargeter
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timeout
+import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Msg.msgExit
@@ -28,7 +29,7 @@ import java.util.function.Consumer
  * @param tr  Trace object for diagnostics.
  */
 class UserActor(private val myConnection: Connection, private val myContextor: Contextor, private val amAuthRequired: Boolean,
-                         private val myProtocol: String, private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory?) : RoutingActor(myConnection, myContextor, traceFactory), SourceRetargeter, BasicProtocolActor {
+                private val myProtocol: String, private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory?) : RoutingActor(myConnection, myContextor, traceFactory), SourceRetargeter, BasicProtocolActor {
     /** The users this actor is the actor for, by context.  */
     private val myUsers: MutableMap<Context, User> = HashMap()
 
@@ -295,14 +296,14 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
      * timeout trips before the user acts, the user will be disconnected.
      */
     private fun startEntryTimeout() {
-        myEntryTimeout = timer.after(
-                myContextor.entryTimeout().toLong()
-        ) {
-            if (myEntryTimeout != null) {
-                myEntryTimeout = null
-                abruptExit("entry timeout", "timeout")
+        myEntryTimeout = timer.after(myContextor.entryTimeout().toLong(), object : TimeoutNoticer {
+            override fun noticeTimeout() {
+                if (myEntryTimeout != null) {
+                    myEntryTimeout = null
+                    abruptExit("entry timeout", "timeout")
+                }
             }
-        }
+        })
     }
 
     /**
