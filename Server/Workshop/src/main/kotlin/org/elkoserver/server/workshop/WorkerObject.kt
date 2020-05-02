@@ -31,9 +31,7 @@ abstract class WorkerObject protected constructor(private val myServiceName: Str
         if (ref != null) {
             workshop.addRef(this)
         }
-        if (myServiceName != null) {
-            workshop.registerService(myServiceName)
-        }
+        myServiceName?.let { workshop.registerService(it) }
         activate()
     }
 

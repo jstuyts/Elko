@@ -14,7 +14,6 @@ import org.elkoserver.server.context.Contents.Companion.withoutContents
 import org.elkoserver.server.context.Contextor.Companion.extractBaseRef
 import org.elkoserver.server.context.ModSet.Companion.withMod
 import java.util.LinkedList
-import java.util.Objects
 import java.util.function.Consumer
 
 /**
@@ -291,7 +290,7 @@ abstract class BasicObject internal constructor(
      * @return an iterable that iterates over this object's contents.
      */
     @Suppress("UNCHECKED_CAST")
-    fun contents(): Iterable<Item> = Objects.requireNonNullElse<Iterable<Item>>(myContents, emptyList())
+    fun contents(): Iterable<Item> = myContents ?: emptyList()
 
     /**
      * Obtain the context in which this object is located, regardless of how

@@ -10,7 +10,8 @@ import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
-import java.util.*
+import java.util.LinkedList
+import java.util.StringTokenizer
 import java.util.function.Consumer
 
 /**
@@ -111,7 +112,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      *
      * @param serviceName  The name of the service to register
      */
-    fun registerService(serviceName: String?) {
+    fun registerService(serviceName: String) {
         val services = myServer.services()
         val newServices: MutableList<ServiceDesc> = LinkedList()
         for (service in services) {

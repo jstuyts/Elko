@@ -404,9 +404,8 @@ class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
         myGroup.admitMember(this)
         send(Actor.msgAuth(this, host.auth(), myGroup.contextor().serverName()))
         for (listener in myGroup.listeners()) {
-            if ("reservation" == listener.auth().mode()) {
-                send(msgAddress(this, listener.protocol(),
-                        listener.hostPort()))
+            if ("reservation" == listener.auth()!!.mode()) {
+                send(msgAddress(this, listener.protocol()!!, listener.hostPort()!!))
             }
         }
         for (family in myGroup.contextor().contextFamilies()) {

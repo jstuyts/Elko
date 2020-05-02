@@ -5,7 +5,6 @@ import org.elkoserver.server.director.Director.Companion.userCloneSetName
 import org.elkoserver.util.HashSetMulti
 import java.util.Collections
 import java.util.HashSet
-import java.util.Objects
 
 /**
  * Information describing an open context.
@@ -61,7 +60,7 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
      * @param reason  String describing why this is being done.
      */
     fun closeGate(reason: String?) {
-        myGateClosedReason = Objects.requireNonNullElse(reason, "context closed to new entries")
+        myGateClosedReason = reason ?: "context closed to new entries"
     }
 
     /**

@@ -42,8 +42,8 @@ class Gatekeeper internal constructor(
     /** Object for managing director connections.  */
     private val myDirectorActorFactory: DirectorActorFactory
 
-    private inner class DirectorFoundRunnable : Consumer<Any> {
-        override fun accept(obj: Any) {
+    private inner class DirectorFoundRunnable : Consumer<Any?> {
+        override fun accept(obj: Any?) {
             val desc = obj as Array<ServiceDesc>
             if (desc[0].failure() != null) {
                 tr.errorm("unable to find director: " + desc[0].failure())

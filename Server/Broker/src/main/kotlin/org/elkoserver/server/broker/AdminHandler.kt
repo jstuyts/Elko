@@ -64,8 +64,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
             val client = actor.client()
             if (client != null) {
                 if (what == null || client.matchLabel(what)) {
-                    val desc = LoadDesc(actor.label(), client.loadFactor(),
-                            client.providerID())
+                    val desc = LoadDesc(actor.label()!!, client.loadFactor(), client.providerID())
                     array.addElement(desc)
                 }
             }

@@ -41,7 +41,7 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
      * @param service  The name of the service that was not found.
      * @param tag  Arbitrary tag for matching requests with responses.
      */
-    fun findFailure(who: BrokerActor, service: String?, tag: String?) {
+    fun findFailure(who: BrokerActor, service: String, tag: String?) {
         val desc = ServiceDesc(service, "no such service")
         who.send(msgFind(this, desc.encodeAsArray(), tag))
     }

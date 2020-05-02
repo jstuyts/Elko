@@ -1,11 +1,11 @@
-package org.elkoserver.foundation.server.metadata;
+package org.elkoserver.foundation.server.metadata
 
-import java.util.function.Consumer;
+import java.util.function.Consumer
 
 /**
  * Interface for using the broker to find external services.
  */
-public interface ServiceFinder {
+interface ServiceFinder {
     /**
      * Issue a request for service information to the broker.
      *
@@ -13,7 +13,5 @@ public interface ServiceFinder {
      * @param handler  Object to receive the asynchronous result(s).
      * @param monitor  If true, keep watching for more results after the first.
      */
-    void findService(String service, Consumer<Object> handler,
-                     boolean monitor);
+    fun findService(service: String?, handler: Consumer<Any?>?, monitor: Boolean)
 }
-

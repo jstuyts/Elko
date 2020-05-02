@@ -28,8 +28,8 @@ import java.util.HashMap
  * @param appTrace  Trace object for diagnostics.
  */
 class DirectorGroup(server: Server, contextor: Contextor?,
-                             directors: MutableList<HostDesc>, listeners: List<HostDesc>,
-                             appTrace: Trace?, timer: Timer?, traceFactory: TraceFactory?, clock: Clock) : OutboundGroup("conf.register", server, contextor!!, directors, appTrace!!, timer!!, traceFactory!!, clock) {
+                    directors: MutableList<HostDesc>, listeners: List<HostDesc>,
+                    appTrace: Trace?, timer: Timer?, traceFactory: TraceFactory?, clock: Clock) : OutboundGroup("conf.register", server, contextor!!, directors, appTrace!!, timer!!, traceFactory!!, clock) {
     private val myListeners: List<HostDesc>
 
     /** Iterator for cycling through arbitrary relays.  */

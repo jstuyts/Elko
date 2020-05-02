@@ -14,7 +14,6 @@ import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
-import java.util.Collections
 import java.util.HashSet
 import java.util.LinkedList
 import java.util.function.Consumer
@@ -63,7 +62,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
      *
      * @return the set of connected actors.
      */
-    fun actors() = Collections.unmodifiableSet(myActors)
+    fun actors(): Set<BrokerActor> = myActors
 
     /**
      * Add a new actor to the table of connected actors.
@@ -80,7 +79,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
      * @param service  Description of the service to add.
      */
     fun addService(service: ServiceDesc) {
-        myServices.add(serviceKey(service.service(), service.protocol()), service)
+        myServices.add(serviceKey(service.service(), service.protocol()!!), service)
         noteServiceArrival(service)
     }
 
@@ -148,7 +147,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
      */
     fun noteLoadDesc(server: BrokerActor) {
         val client = server.client()
-        val desc = LoadDesc(server.label(), client!!.loadFactor(), client.providerID())
+        val desc = LoadDesc(server.label()!!, client!!.loadFactor(), client.providerID())
         val msg = AdminHandler.msgLoadDesc(myAdminHandler, desc.encodeAsArray())
         for (watcher in myLoadWatchers) {
             watcher.send(msg)
@@ -195,7 +194,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
      * @param service  Description of the service to remove.
      */
     fun removeService(service: ServiceDesc) {
-        myServices.remove(serviceKey(service.service(), service.protocol()), service)
+        myServices.remove(serviceKey(service.service(), service.protocol()!!), service)
         noteServiceDeparture(service)
     }
 
