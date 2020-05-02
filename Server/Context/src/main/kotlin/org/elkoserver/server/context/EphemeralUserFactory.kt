@@ -35,7 +35,7 @@ interface EphemeralUserFactory {
      * the factory and the contents of the param parameter, or null if no
      * such User object could be produced.
      */
-    fun provideUser(contextor: Contextor?, connection: Connection?,
+    fun provideUser(contextor: Contextor, connection: Connection?,
                     param: JsonObject?, contextRef: String?,
                     contextTemplate: String?): User?
 }
