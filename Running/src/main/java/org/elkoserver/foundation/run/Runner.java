@@ -223,7 +223,7 @@ public class Runner implements Runnable {
                     if (myQ.hasMoreElements()) {
                         continue;
                     }
-                    if (tr.getDebug() && Trace.ON) {
+                    if (tr.getDebug()) {
                         tr.debugm
                           ("RunQ empty after " + msgCount +
                            " messages.  sleeping now.");

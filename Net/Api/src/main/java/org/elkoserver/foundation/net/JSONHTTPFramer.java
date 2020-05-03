@@ -160,7 +160,7 @@ public class JSONHTTPFramer extends HTTPFramer {
                 if (Communication.TheDebugReplyFlag) {
                     return e;
                 }
-                if (traceFactory.comm.getWarning() && Trace.ON) {
+                if (traceFactory.comm.getWarning()) {
                     traceFactory.comm.warningm("syntax error in JSON message: " +
                                         e.getMessage());
                 }

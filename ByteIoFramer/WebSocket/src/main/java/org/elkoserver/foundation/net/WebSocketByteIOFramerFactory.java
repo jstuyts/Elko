@@ -183,7 +183,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
             }
             if (msg instanceof String) {
                 String msgString = (String) msg;
-                if (trMsg.getEvent() && Trace.ON) {
+                if (trMsg.getEvent()) {
                     trMsg.msgi(myLabel, false, msgString);
                 }
                 byte[] msgBytes = msgString.getBytes(StandardCharsets.UTF_8);
@@ -191,7 +191,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
                 frame[0] = 0x00;
                 System.arraycopy(msgBytes, 0, frame, 1, msgBytes.length);
                 frame[frame.length - 1] = (byte) 0xFF;
-                if (trMsg.getDebug() && Trace.ON) {
+                if (trMsg.getDebug()) {
                     trMsg.debugm("WS sending msg: " + msg);
                 }
                 return frame;
@@ -214,7 +214,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
                                      headerBytes.length);
                     System.arraycopy(handshakeBytes, 0, reply,
                                     headerBytes.length, handshakeBytes.length);
-                    if (trMsg.getDebug() && Trace.ON) {
+                    if (trMsg.getDebug()) {
                         trMsg.debugm("WS sending handshake:\n" + header +
                             byteArrayToASCII(handshakeBytes, 0,
                                                    handshakeBytes.length));
@@ -229,7 +229,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
                             base64Encoder.encodeToString(handshake.bytes()) +
                             "\r\n\r\n";
                     byte[] headerBytes = header.getBytes(StandardCharsets.US_ASCII);
-                    if (trMsg.getDebug() && Trace.ON) {
+                    if (trMsg.getDebug()) {
                         trMsg.debugm("WS sending handshake:\n" + header);
                     }
                     return headerBytes;
@@ -244,7 +244,7 @@ public class WebSocketByteIOFramerFactory implements ByteIOFramerFactory {
                     "Access-Control-Allow-Origin: *\r\n" +
                     "Content-Length: " + reply.length() + "\r\n\r\n" +
                     reply;
-                if (trMsg.getDebug() && Trace.ON) {
+                if (trMsg.getDebug()) {
                     trMsg.debugm("WS sending error:\n" + reply);
                 }
                 return reply.getBytes(StandardCharsets.US_ASCII);

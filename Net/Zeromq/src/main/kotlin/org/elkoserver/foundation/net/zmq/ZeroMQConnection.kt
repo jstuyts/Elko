@@ -9,7 +9,6 @@ import org.elkoserver.foundation.net.MessageReceiver
 import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.zeromq.ZMQ
 import java.io.IOException
@@ -42,7 +41,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
      * Shut down the connection.  Any queued messages will be sent.
      */
     override fun close() {
-        if (traceFactory.comm.debug && Trace.ON) {
+        if (traceFactory.comm.debug) {
             traceFactory.comm.debugm("$this close")
         }
 
@@ -65,7 +64,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
     private fun closeIsDone(reason: Throwable) {
         mySocket.close()
         myMgr.connectionCount(-1)
-        if (traceFactory.comm.event && Trace.ON) {
+        if (traceFactory.comm.event) {
             traceFactory.comm.eventm("$this died: $reason")
         }
         connectionDied(reason)
@@ -160,7 +159,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
             closeIsDone(closeException)
         } else if (!myOutputQueue.hasMoreElements()) {
             myThread.unwatchSocket(mySocket)
-            if (traceFactory.comm.debug && Trace.ON) {
+            if (traceFactory.comm.debug) {
                 traceFactory.comm.debugm("$this set poll off")
             }
         }
@@ -173,7 +172,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
      * String, but this is not required.
      */
     private fun enqueueSentMessage(message: Any) {
-        if (traceFactory.comm.verbose && Trace.ON) {
+        if (traceFactory.comm.verbose) {
             traceFactory.comm.verbosem("enqueue $message")
         }
 
@@ -221,7 +220,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
     override fun run() {
         if (myOutputQueue.hasMoreElements()) {
             myThread.watchSocket(mySocket, ZMQ.Poller.POLLOUT)
-            if (traceFactory.comm.debug && Trace.ON) {
+            if (traceFactory.comm.debug) {
                 traceFactory.comm.debugm("$this set poller for write")
             }
         }
@@ -237,7 +236,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
      */
     override fun sendMsg(message: Any) {
         if (amSendMode) {
-            if (traceFactory.comm.debug && Trace.ON) {
+            if (traceFactory.comm.debug) {
                 traceFactory.comm.debugm("$this enqueueing message")
             }
             enqueueSentMessage(message)
@@ -285,7 +284,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
         /* Printable form of the address this connection is connected to. */
         myFramer = framerFactory.provideFramer(this, label())
         enqueueHandlerFactory(handlerFactory)
-        if (traceFactory.comm.event && Trace.ON) {
+        if (traceFactory.comm.event) {
             traceFactory.comm.eventm("$this new ZMQ connection with $remoteAddr")
         }
     }

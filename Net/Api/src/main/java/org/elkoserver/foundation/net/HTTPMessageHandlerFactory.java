@@ -1,13 +1,12 @@
 package org.elkoserver.foundation.net;
 
+import org.elkoserver.foundation.properties.ElkoProperties;
+import org.elkoserver.foundation.timer.Timer;
+import org.elkoserver.util.trace.TraceFactory;
+
 import java.time.Clock;
 import java.util.HashMap;
 import java.util.Map;
-
-import org.elkoserver.foundation.properties.ElkoProperties;
-import org.elkoserver.foundation.timer.Timer;
-import org.elkoserver.util.trace.Trace;
-import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * Message handler factory to provide message handlers that wrap a message
@@ -148,7 +147,7 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
         HTTPSessionConnection session = new HTTPSessionConnection(this, timer, clock, traceFactory);
 
         associateTCPConnection(session, connection);
-        if (traceFactory.comm.getEvent() && Trace.ON) {
+        if (traceFactory.comm.getEvent()) {
             traceFactory.comm.eventm(session + " connect over " + connection);
         }
         String reply = myHTTPFramer.makeConnectReply(session.sessionID());
@@ -199,7 +198,7 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
      * @return true if an HTTP reply was sent.
      */
     private boolean doError(Connection connection, String uri) {
-        if (traceFactory.comm.getUsage() && Trace.ON) {
+        if (traceFactory.comm.getUsage()) {
             traceFactory.comm.usagem(connection +
                               " received invalid URI in HTTP request " + uri);
         }
@@ -315,7 +314,7 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
      *    header information.
      */
     void handleOPTIONS(Connection connection, HTTPRequest request) {
-        if (traceFactory.comm.getEvent() && Trace.ON) {
+        if (traceFactory.comm.getEvent()) {
             traceFactory.comm.eventm("OPTIONS request over " + connection);
         }
         HTTPOptionsReply reply = new HTTPOptionsReply(request);
@@ -392,7 +391,7 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
         if (session != null) {
             return session;
         }
-        if (traceFactory.comm.getUsage() && Trace.ON) {
+        if (traceFactory.comm.getUsage()) {
             traceFactory.comm.usagem(connection + " received invalid session ID " +
                               uri.sessionID);
         }
@@ -473,12 +472,12 @@ class HTTPMessageHandlerFactory implements MessageHandlerFactory {
         
         if (session != null) {
             session.dissociateTCPConnection(connection);
-            if (traceFactory.comm.getEvent() && Trace.ON) {
+            if (traceFactory.comm.getEvent()) {
                 traceFactory.comm.eventm(connection + " lost under " + session +
                                   ": " + reason);
             }
         } else {
-            if (traceFactory.comm.getEvent() && Trace.ON) {
+            if (traceFactory.comm.getEvent()) {
                 traceFactory.comm.eventm(connection +
                                   " lost under no known HTTP session: " +
                                   reason);

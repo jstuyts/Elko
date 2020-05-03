@@ -1,8 +1,5 @@
 package org.elkoserver.foundation.net;
 
-import java.security.SecureRandom;
-import java.util.LinkedList;
-
 import org.elkoserver.foundation.timer.Clock;
 import org.elkoserver.foundation.timer.Timeout;
 import org.elkoserver.foundation.timer.Timer;
@@ -10,6 +7,9 @@ import org.elkoserver.json.JSONLiteral;
 import org.elkoserver.json.JsonObject;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
+
+import java.security.SecureRandom;
+import java.util.LinkedList;
 
 /**
  * An implementation of {@link Connection} that virtualizes a continuous
@@ -95,7 +95,7 @@ public class RTCPSessionConnection extends ConnectionBase
         mySessionID = "" + sessionID;
         mySessionFactory.addSession(this);
         myLastActivityTime = clock.millis();
-        if (traceFactory.comm.getEvent() && Trace.ON) {
+        if (traceFactory.comm.getEvent()) {
             traceFactory.comm.eventi(this + " new connection session " + mySessionID);
         }
         myServerSendSeqNum = 0;
@@ -132,7 +132,7 @@ public class RTCPSessionConnection extends ConnectionBase
             myDisconnectedTimeout.cancel();
             myDisconnectedTimeout = null;
         }
-        if (traceFactory.comm.getDebug() && Trace.ON) {
+        if (traceFactory.comm.getDebug()) {
             traceFactory.comm.debugm("acquire " + connection + " for " + this);
         }
     }
@@ -146,7 +146,7 @@ public class RTCPSessionConnection extends ConnectionBase
     void clientAck(int clientRecvSeqNum) {
         long timeInactive = clock.millis() - myLastActivityTime;
         noteClientActivity();
-        if (traceFactory.comm.getDebug() && Trace.ON) {
+        if (traceFactory.comm.getDebug()) {
             traceFactory.comm.debugm(this + " ack " + clientRecvSeqNum);
         }
         discardAcknowledgedMessages(clientRecvSeqNum);
@@ -201,7 +201,7 @@ public class RTCPSessionConnection extends ConnectionBase
             myQueueBacklog -= peek.message.length();
             myQueue.remove();
         }
-        if (traceFactory.comm.getDebug() && Trace.ON) {
+        if (traceFactory.comm.getDebug()) {
             traceFactory.comm.debugm(this + " queue backlog decreased to " + myQueueBacklog);
         }
     }
@@ -247,7 +247,7 @@ public class RTCPSessionConnection extends ConnectionBase
      */
     private void noticeDisconnectedTimeout() {
         if (!amClosing && myLiveConnection == null) {
-            if (traceFactory.comm.getEvent() && Trace.ON) {
+            if (traceFactory.comm.getEvent()) {
                 traceFactory.comm.eventm(this + ": disconnected session timeout");
             }
             close();
@@ -273,18 +273,18 @@ public class RTCPSessionConnection extends ConnectionBase
     private void noticeInactivityTick() {
         long timeInactive = clock.millis() - myLastActivityTime;
         if (timeInactive > myInactivityTimeoutInterval) {
-            if (traceFactory.comm.getEvent() && Trace.ON) {
+            if (traceFactory.comm.getEvent()) {
                 traceFactory.comm.eventm(this + " tick: RTCP session timeout");
             }
             close();
         } else if (timeInactive > myInactivityTimeoutInterval/2) {
-            if (traceFactory.comm.getDebug() && Trace.ON) {
+            if (traceFactory.comm.getDebug()) {
                 traceFactory.comm.debugm(this + " tick: RTCP session acking");
             }
             String ack = mySessionFactory.makeAck(myClientSendSeqNum);
             sendMsg(ack);
         } else {
-            if (traceFactory.comm.getDebug() && Trace.ON) {
+            if (traceFactory.comm.getDebug()) {
                 traceFactory.comm.debugm(this + " tick: RTCP session waiting");
             }
         }
@@ -309,7 +309,7 @@ public class RTCPSessionConnection extends ConnectionBase
             discardAcknowledgedMessages(request.clientRecvSeqNum());
             JsonObject message = (JsonObject) request.nextMessage();
             while (message != null) {
-                if (trMsg.getEvent() && Trace.ON) {
+                if (trMsg.getEvent()) {
                     trMsg.msgi(this, true, message);
                 }
                 enqueueReceivedMessage(message);
@@ -333,7 +333,7 @@ public class RTCPSessionConnection extends ConnectionBase
                 mySessionFactory.makeMessage(elem.seqNum,
                                              myClientSendSeqNum,
                                              elem.message.sendableString());
-            if (traceFactory.comm.getDebug() && Trace.ON) {
+            if (traceFactory.comm.getDebug()) {
                 traceFactory.comm.debugm(this + " resend " + elem.seqNum);
             }
             myLiveConnection.sendMsg(messageString);
@@ -357,7 +357,7 @@ public class RTCPSessionConnection extends ConnectionBase
             RTCPMessage qMsg =
                     new RTCPMessage(myServerSendSeqNum, jsonMessage);
             myQueueBacklog += jsonMessage.length();
-            if (traceFactory.comm.getDebug() && Trace.ON) {
+            if (traceFactory.comm.getDebug()) {
                 traceFactory.comm.debugm(this + " queue backlog increased to " + myQueueBacklog);
             }
             if (myQueueBacklog > mySessionFactory.sessionBacklogLimit()) {
@@ -369,16 +369,16 @@ public class RTCPSessionConnection extends ConnectionBase
                 mySessionFactory.makeMessage(myServerSendSeqNum,
                                              myClientSendSeqNum,
                                              jsonMessage.sendableString());
-            if (trMsg.getDebug() && Trace.ON) {
+            if (trMsg.getDebug()) {
                 trMsg.debugm(myLiveConnection + " <| " + myServerSendSeqNum + " " + myClientSendSeqNum);
             }
-            if (trMsg.getEvent() && Trace.ON) {
+            if (trMsg.getEvent()) {
                 trMsg.msgi(this, false, message);
             }
         } else if (message instanceof String) {
             messageString = (String) message;
             if (myLiveConnection != null) {
-                if (trMsg.getDebug() && Trace.ON) {
+                if (trMsg.getDebug()) {
                     trMsg.debugm(myLiveConnection + " <| " +
                                  messageString.trim());
                 }
@@ -424,7 +424,7 @@ public class RTCPSessionConnection extends ConnectionBase
         if (myLiveConnection == connection) {
             myLiveConnection = null;
             noteClientActivity();
-            if (traceFactory.comm.getEvent() && Trace.ON) {
+            if (traceFactory.comm.getEvent()) {
                 traceFactory.comm.eventm(this + " lost " + connection);
             }
         }

@@ -1,7 +1,6 @@
 package org.elkoserver.foundation.net;
 
 import org.elkoserver.foundation.run.Runner;
-import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
 import java.time.Clock;
@@ -52,7 +51,7 @@ public abstract class ConnectionBase implements Connection {
      */
     protected void connectionDied(Throwable reason) {
         if (myMessageHandler != null) {
-            if (traceFactory.comm.getDebug() && Trace.ON) {
+            if (traceFactory.comm.getDebug()) {
                 traceFactory.comm.debugm(this + " calls connectionDied in " +
                                   myMessageHandler);
             }
@@ -100,7 +99,7 @@ public abstract class ConnectionBase implements Connection {
         
         public void run() {
             if (myMessageHandler != null) {
-                if (traceFactory.comm.getVerbose() && Trace.ON) {
+                if (traceFactory.comm.getVerbose()) {
                     traceFactory.comm.verbosem(ConnectionBase.this +
                         " calls processMessage in " + myMessageHandler);
                 }
@@ -138,7 +137,7 @@ public abstract class ConnectionBase implements Connection {
             myMessageHandler =
                 myHandlerFactory.provideMessageHandler(ConnectionBase.this);
             if (myMessageHandler == null) {
-                if (traceFactory.comm.getDebug() && Trace.ON) {
+                if (traceFactory.comm.getDebug()) {
                     traceFactory.comm.debugm(this + " connection setup failed");
                 }
                 close();

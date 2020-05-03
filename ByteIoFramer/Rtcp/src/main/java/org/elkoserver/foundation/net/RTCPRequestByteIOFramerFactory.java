@@ -109,7 +109,7 @@ public class RTCPRequestByteIOFramerFactory implements ByteIOFramerFactory {
                             myIn.preserveBuffers();
                             return;
                         } else if (line.length() != 0) {
-                            if (trMsg.getDebug() && Trace.ON) {
+                            if (trMsg.getDebug()) {
                                 trMsg.debugm(myLabel + " |> " + line);
                             }
                             myRequest.parseRequestLine(line);
@@ -180,7 +180,7 @@ public class RTCPRequestByteIOFramerFactory implements ByteIOFramerFactory {
 
             if (message instanceof String) {
                 reply = (String) message;
-                if (trMsg.getVerbose() && Trace.ON) {
+                if (trMsg.getVerbose()) {
                     trMsg.verbosem("to=" + myLabel + " writeMessage=" +
                                    reply.length());
                 }
@@ -188,7 +188,7 @@ public class RTCPRequestByteIOFramerFactory implements ByteIOFramerFactory {
                 throw new IOException("unwritable message type: " +
                                       message.getClass());
             }
-            if (trMsg.getDebug() && Trace.ON) {
+            if (trMsg.getDebug()) {
                 trMsg.debugm("RTCP sending:\n" + reply);
             }
             return reply.getBytes(StandardCharsets.UTF_8);

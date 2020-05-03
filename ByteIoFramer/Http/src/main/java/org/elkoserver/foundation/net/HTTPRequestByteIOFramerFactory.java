@@ -1,6 +1,5 @@
 package org.elkoserver.foundation.net;
 
-import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
 import java.io.IOException;
@@ -163,7 +162,7 @@ public class HTTPRequestByteIOFramerFactory implements ByteIOFramerFactory {
 
             if (message instanceof String) {
                 reply = (String) message;
-                if (traceFactory.comm.getVerbose() && Trace.ON) {
+                if (traceFactory.comm.getVerbose()) {
                     traceFactory.comm.verbosem("to=" + myLabel +
                                         " writeMessage=" + reply.length());
                 }
@@ -195,7 +194,7 @@ public class HTTPRequestByteIOFramerFactory implements ByteIOFramerFactory {
                 throw new IOException("unwritable message type: " +
                                       message.getClass());
             }
-            if (traceFactory.comm.getDebug() && Trace.ON) {
+            if (traceFactory.comm.getDebug()) {
                 traceFactory.comm.debugm("HTTP sending:\n" + reply);
             }
             return reply.getBytes(StandardCharsets.UTF_8);

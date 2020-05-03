@@ -2,7 +2,6 @@ package org.elkoserver.foundation.net;
 
 import org.elkoserver.foundation.timer.Timeout;
 import org.elkoserver.foundation.timer.Timer;
-import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
 import static java.util.Locale.ENGLISH;
@@ -106,9 +105,9 @@ class HTTPMessageHandler implements MessageHandler {
         }
 
         HTTPRequest message = (HTTPRequest) rawMessage;
-        if (traceFactory.comm.getVerbose() && Trace.ON) {
+        if (traceFactory.comm.getVerbose()) {
             traceFactory.comm.verbosem(connection + " " + message);
-        } else if (traceFactory.comm.getDebug() && Trace.ON) {
+        } else if (traceFactory.comm.getDebug()) {
             traceFactory.comm.debugm(connection + " |> " + message.URI());
         }
 
@@ -124,7 +123,7 @@ class HTTPMessageHandler implements MessageHandler {
                 myFactory.handleOPTIONS(connection, message);
                 break;
             default:
-                if (traceFactory.comm.getUsage() && Trace.ON) {
+                if (traceFactory.comm.getUsage()) {
                     traceFactory.comm.usagem("Received invalid HTTP method " +
                             message.method() + " from " + connection);
                 }

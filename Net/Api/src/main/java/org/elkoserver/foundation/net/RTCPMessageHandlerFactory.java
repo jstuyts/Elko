@@ -1,13 +1,13 @@
 package org.elkoserver.foundation.net;
 
-import java.time.Clock;
-import java.util.HashMap;
-import java.util.Map;
-
 import org.elkoserver.foundation.properties.ElkoProperties;
 import org.elkoserver.foundation.timer.Timer;
 import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
+
+import java.time.Clock;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * Message handler factory to provide message handlers that wrap a message
@@ -169,7 +169,7 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
      * @param errorTag  The error tag string from the request
      */
     void doError(Connection connection, String errorTag) {
-        if (trMsg.getUsage() && Trace.ON) {
+        if (trMsg.getUsage()) {
             String aux = "";
             trMsg.usagem(connection + " received error request " + errorTag +
                          aux);
@@ -215,7 +215,7 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
             session = getSession(sessionID);
             if (session != null) {
                 acquireTCPConnection(session, connection);
-                if (trMsg.getEvent() && Trace.ON) {
+                if (trMsg.getEvent()) {
                     trMsg.eventm(session + " resume " + session.sessionID());
                 }
                 sendWithLog(connection,
@@ -245,7 +245,7 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
         } else {
             session = new RTCPSessionConnection(this, timer, clock, traceFactory);
             acquireTCPConnection(session, connection);
-            if (trMsg.getEvent() && Trace.ON) {
+            if (trMsg.getEvent()) {
                 trMsg.eventm(session + " start " + session.sessionID());
             }
             reply = makeStartReply(session.sessionID());
@@ -394,7 +394,7 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
      * @param msg  The message to send.
      */
     private void sendWithLog(Connection connection, String msg) {
-        if (trMsg.getDebug() && Trace.ON) {
+        if (trMsg.getDebug()) {
             trMsg.debugm(connection + " <| " + msg.trim());
         }
         connection.sendMsg(msg);
@@ -458,12 +458,12 @@ class RTCPMessageHandlerFactory implements MessageHandlerFactory {
         
         if (session != null) {
             session.loseTCPConnection(connection);
-            if (trMsg.getEvent() && Trace.ON) {
+            if (trMsg.getEvent()) {
                 trMsg.eventm(connection + " lost under " + session + "-" +
                                   session.sessionID() + ": " + reason);
             }
         } else {
-            if (trMsg.getEvent() && Trace.ON) {
+            if (trMsg.getEvent()) {
                 trMsg.eventm(connection +
                              " lost under no known RTCP session: " + reason);
             }

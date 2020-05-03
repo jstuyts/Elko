@@ -62,7 +62,7 @@ class WebSocketMessageHandlerFactory implements MessageHandlerFactory {
      * @param problem  The error that is being reported
      */
     private void sendError(Connection connection, String problem) {
-        if (trMsg.getUsage() && Trace.ON) {
+        if (trMsg.getUsage()) {
             trMsg.usagem(connection +
                 " received invalid WebSocket connection startup: " + problem);
         }

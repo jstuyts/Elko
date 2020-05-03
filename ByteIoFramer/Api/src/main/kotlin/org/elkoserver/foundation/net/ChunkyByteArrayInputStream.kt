@@ -1,7 +1,6 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.util.ByteArrayToAscii
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.io.EOFException
 import java.io.IOException
@@ -113,7 +112,7 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
      * @param length  Number of bytes in 'buf' to read (&lt;= buf.length).
      */
     fun addBuffer(buf: ByteArray, length: Int) {
-        if (traceFactory.comm.debug && Trace.ON) {
+        if (traceFactory.comm.debug) {
             if (length == 0) {
                 traceFactory.comm.debugm("receiving 0 bytes: || (EOF)")
             } else {

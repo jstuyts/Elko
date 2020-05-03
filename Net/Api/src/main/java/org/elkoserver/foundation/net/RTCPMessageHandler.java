@@ -2,7 +2,6 @@ package org.elkoserver.foundation.net;
 
 import org.elkoserver.foundation.timer.Timeout;
 import org.elkoserver.foundation.timer.Timer;
-import org.elkoserver.util.trace.Trace;
 import org.elkoserver.util.trace.TraceFactory;
 
 /**
@@ -89,7 +88,7 @@ class RTCPMessageHandler implements MessageHandler {
         }
 
         RTCPRequest message = (RTCPRequest) rawMessage;
-        if (traceFactory.comm.getDebug() && Trace.ON) {
+        if (traceFactory.comm.getDebug()) {
             traceFactory.comm.debugm(connection + " " + message);
         }
         

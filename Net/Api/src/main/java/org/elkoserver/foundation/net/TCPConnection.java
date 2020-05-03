@@ -1,5 +1,10 @@
 package org.elkoserver.foundation.net;
 
+import org.elkoserver.foundation.run.Queue;
+import org.elkoserver.foundation.run.Runner;
+import org.elkoserver.util.trace.Trace;
+import org.elkoserver.util.trace.TraceFactory;
+
 import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
@@ -8,11 +13,6 @@ import java.nio.channels.SelectionKey;
 import java.nio.channels.SocketChannel;
 import java.time.Clock;
 import java.util.concurrent.Callable;
-
-import org.elkoserver.foundation.run.Queue;
-import org.elkoserver.foundation.run.Runner;
-import org.elkoserver.util.trace.Trace;
-import org.elkoserver.util.trace.TraceFactory;
 
 /**
  * An implementation of {@link Connection} that manages a non-blocking TCP
@@ -110,7 +110,7 @@ public class TCPConnection
         myOutputQueue = new Queue<>();
         mySelectThread = selectThread;
         enqueueHandlerFactory(handlerFactory);
-        if (myTrace.getEvent() && Trace.ON) {
+        if (myTrace.getEvent()) {
             myTrace.eventi(this + " new connection from " + myRemoteAddr);
         }
     }
@@ -124,7 +124,7 @@ public class TCPConnection
     public Object call() {
         if (myOutputQueue.hasMoreElements() && myKey.isValid()) {
             myKey.interestOps(myKey.interestOps() | SelectionKey.OP_WRITE);
-            if (myTrace.getDebug() && Trace.ON) {
+            if (myTrace.getDebug()) {
                 myTrace.debugm(this + " set selectkey Read/Write");
             }
         }
@@ -138,7 +138,7 @@ public class TCPConnection
      * Shut down the connection.  Any queued messages will be sent.
      */
     public void close() {
-        if (myTrace.getDebug() && Trace.ON) {
+        if (myTrace.getDebug()) {
             myTrace.debugm(this + " close");
         }
 
@@ -170,7 +170,7 @@ public class TCPConnection
         }
         myKey.attach(null);
         myMgr.connectionCount(-1);
-        if (myTrace.getEvent() && Trace.ON) {
+        if (myTrace.getEvent()) {
             myTrace.eventi(this + " died: " + reason);
         }
         Object message = myOutputQueue.optDequeue();
@@ -206,7 +206,7 @@ public class TCPConnection
                                               myInputBuffer.position());
                         myInputBuffer.clear();
                     } else {
-                        if (myTrace.getEvent() && Trace.ON) {
+                        if (myTrace.getEvent()) {
                             myTrace.debugm(this + " zero length read");
                         }
                     }
@@ -258,7 +258,7 @@ public class TCPConnection
             if (myOutputBuffer != null) {
                 int before = myOutputBuffer.remaining();
                 int wrote = myChannel.write(myOutputBuffer);
-                if (myTrace.getEvent() && Trace.ON) {
+                if (myTrace.getEvent()) {
                     myTrace.debugm(this + " wrote " + wrote + " bytes of " + before);
                 }
                 if (myOutputBuffer.remaining() == 0) {
@@ -267,7 +267,7 @@ public class TCPConnection
             } else if (amSecure) {
                 /* ScalableSSL sometimes requires us to do empty writes to pump
                    SSL protocol handshaking. */
-                if (myTrace.getEvent() && Trace.ON) {
+                if (myTrace.getEvent()) {
                     myTrace.debugm(this + " SSL empty write");
                 }
                 myChannel.write(theEmptyBuffer);
@@ -281,7 +281,7 @@ public class TCPConnection
         } else if (myOutputBuffer == null) {
             if (!myOutputQueue.hasMoreElements()) {
                 myKey.interestOps(myKey.interestOps() &~SelectionKey.OP_WRITE);
-                if (myTrace.getDebug() && Trace.ON) {
+                if (myTrace.getDebug()) {
                     myTrace.debugm(this + " set selectkey ReadOnly");
                 }
             }
@@ -295,7 +295,7 @@ public class TCPConnection
      *    String, but this is not required.
      */
     private void enqueueSentMessage(Object message) {
-        if (myTrace.getVerbose() && Trace.ON) {
+        if (myTrace.getVerbose()) {
             myTrace.verbosem("enqueue " + message);
         }
 
@@ -379,7 +379,7 @@ public class TCPConnection
      * @param message  The message to be sent.
      */
     public void sendMsg(Object message) {
-        if (myTrace.getDebug() && Trace.ON) {
+        if (myTrace.getDebug()) {
             myTrace.debugm(this + " enqueueing message: " + message);
         }
         enqueueSentMessage(message);

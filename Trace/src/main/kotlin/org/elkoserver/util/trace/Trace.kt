@@ -375,16 +375,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
         if (world) recordInfoMessage(message, Level.WORLD)
     }
 
-    companion object {
-        /**
-         * This variable statically controls whether tracing is enabled at all.  By
-         * compiling against a version of this class that has this variable set to
-         * <tt>false</tt> and testing this prior to invoking trace operations, one
-         * can arrange to have the trace calls removed by the compiler.
-         */
-        const val ON = true
-    }
-
     init {
         updateThresholdFlags()
     }
