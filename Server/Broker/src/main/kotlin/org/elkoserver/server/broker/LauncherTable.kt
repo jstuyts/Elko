@@ -21,10 +21,11 @@ import java.util.StringTokenizer
  * @param launchers  Array of launcher configurations.
  */
 internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private val myRef: String, launchers: Array<Launcher>) : Encodable {
+
     /**
      * Map from launcher names to launcher descriptors.
      */
-    private val myLaunchers: MutableMap<String, Launcher> = HashMap()
+    internal val myLaunchers: MutableMap<String, Launcher> = HashMap()
 
     /**
      * Dirty flag for checkpointing changes to launcher settings.
@@ -113,7 +114,6 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
      * whether the component should be started when the startup mode is
      * Initial.
      *
-     *
      * This method is has no effect if the named component doesn't exist.
      *
      * @param component The name of the component.
@@ -132,7 +132,6 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
      * Set the "run setting" flag for a component.  This flag controls
      * whether the component should be started when the startup mode is
      * Restart or Recover.
-     *
      *
      * This method is has no effect if the named component doesn't exist.
      *
@@ -157,6 +156,7 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
     internal class Launcher @JSONMethod("name", "script", "initial", "on") constructor(
             private val myComponentName: String,
             private val myLaunchScript: String, optInitial: OptBoolean, optRunSetting: OptBoolean) : Encodable {
+        internal lateinit var tr: Trace
 
         /**
          * Flag that is true if this launcher should be executed when starting
@@ -209,11 +209,11 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
                         exploded.add(parser.nextToken())
                     }
                     ProcessBuilder(exploded).start()
-                    tr!!.eventm("start process '$myComponentName'")
+                    tr.eventm("start process '$myComponentName'")
                     isRunSettingOn = true
                     null
                 } catch (e: IOException) {
-                    tr!!.eventm("process launch '" + myComponentName + "' failed: " +
+                    tr.eventm("process launch '" + myComponentName + "' failed: " +
                             e)
                     "fail $myComponentName $e"
                 }
@@ -225,11 +225,6 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
     }
 
     companion object {
-        /**
-         * Trace object for error messages and logging.
-         */
-        private var tr: Trace? = null
-
         /* Possible startup modes.  Initial mode starts up a clean server from
        scratch based on configured initialization parameters.  Restart restarts
        a previously stopped server.  Recover starts up a previously crashed
@@ -237,16 +232,6 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
         const val START_INITIAL = 1
         const val START_RECOVER = 2
         const val START_RESTART = 3
-
-        /**
-         * Assign the trace object.  Note that this is static.
-         *
-         * @param appTrace The trace object to use.
-         */
-        @JvmStatic
-        fun setTrace(appTrace: Trace?) {
-            tr = appTrace
-        }
     }
 
     init {

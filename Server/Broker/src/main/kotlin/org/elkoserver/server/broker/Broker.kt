@@ -9,7 +9,6 @@ import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.objdb.ObjDB
-import org.elkoserver.server.broker.LauncherTable.Companion.setTrace
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
@@ -269,7 +268,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
      *    appears.
      * @param timeout  How long to wait before giving up, in seconds
      *    (negative to wait forever).
-     * @param failOK  Flag that is true if failure *is* an option.
+     * @param amSuccessful  Flag that is true if failure *is* an option.
      * @param myTag  Arbitrary tag that will be sent back with the response,
      *    to match up requests and responses.
      */
@@ -351,7 +350,6 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
                 LauncherTable.START_RECOVER
             }
         }
-        setTrace(tr)
         myLauncherTable = null
         myODB = myServer.openObjectDatabase("conf.broker")
         if (myODB != null) {
@@ -360,6 +358,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
             myODB.getObject("launchertable", null, Consumer { obj: Any? ->
                 if (obj != null) {
                     myLauncherTable = (obj as LauncherTable?)?.apply {
+                        myLaunchers.values.forEach { it.tr = this@Broker.tr }
                         doStartupLaunches(startMode)
                     }
                 } else {
