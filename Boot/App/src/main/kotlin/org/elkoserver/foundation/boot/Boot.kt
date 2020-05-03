@@ -8,7 +8,9 @@ import org.elkoserver.util.trace.exceptionreporting.ExceptionReporter
 import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.trace.TraceExceptionNoticer
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.GorgelImpl
+import org.slf4j.Logger.ROOT_LOGGER_NAME
 import org.slf4j.LoggerFactory
+import org.slf4j.MarkerFactory
 import java.lang.reflect.InvocationTargetException
 import java.net.InetAddress
 import java.time.Clock
@@ -115,7 +117,7 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
             Thread(threadGroup, boot, "Elko Server Boot").start()
         }
 
-        private fun initializeGorgel(bootArguments: BootArguments): GorgelImpl {
+        private fun initializeGorgel(bootArguments: BootArguments): Gorgel {
             val serverType = bootArguments.bootProperties.getProperty("gorgel.system.type")
                     ?: bootArguments.mainClassName.substringAfterLast('.')
 
@@ -138,7 +140,7 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
                 LoggerFactory.getLogger(Boot::class.java).warn("No Gorgel configuration file specified in 'gorgel.configuration.file'. Falling back to built-in configuration, which logs everything at level DEBUG or more severe to this file.")
             }
 
-            return GorgelImpl(LoggerFactory.getLogger("$serverType.$serverIdentifier"))
+            return GorgelImpl(LoggerFactory.getLogger(ROOT_LOGGER_NAME), MarkerFactory.getIMarkerFactory(), serverType, serverIdentifier)
         }
 
         private fun createTraceFactory(bootArguments: BootArguments, clock: Clock): TraceFactory {

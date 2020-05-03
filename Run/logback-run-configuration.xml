@@ -4,9 +4,31 @@
         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
         xsi:schemaLocation="http://ch.qos.logback/xml/ns/logback https://raw.githubusercontent.com/enricopulatzo/logback-XSD/master/src/main/xsd/logback.xsd">
 
+    <!--
+        Note: make sure the projects using this configuration file have an (implementation) dependency on the Logstash
+        Logback encoder:
+            implementation(Libraries.logstash_logback_encoder)
+    -->
+
     <timestamp key="bySecond" datePattern="yyyyMMdd'T'HHmmss"/>
 
-    <appender name="RUNLOG" class="ch.qos.logback.core.FileAppender">
+    <appender name="JSONLOG" class="ch.qos.logback.core.FileAppender">
+        <file>${user.dir}/logs/${elko.server.type}-${elko.server.identifier}-${bySecond}.json.log</file>
+
+        <encoder class="net.logstash.logback.encoder.LoggingEventCompositeJsonEncoder">
+            <providers>
+                <timestamp/>
+                <threadName/>
+                <loggerName/>
+                <logLevel/>
+                <message/>
+                <stackTrace/>
+                <tags/>
+            </providers>
+        </encoder>
+    </appender>
+
+    <appender name="TEXTLOG" class="ch.qos.logback.core.FileAppender">
         <file>${user.dir}/logs/${elko.server.type}-${elko.server.identifier}-${bySecond}.log</file>
 
         <encoder>
@@ -15,7 +37,8 @@
     </appender>
 
     <root level="DEBUG">
-        <appender-ref ref="RUNLOG"/>
+        <appender-ref ref="JSONLOG"/>
+        <appender-ref ref="TEXTLOG"/>
     </root>
 
     <logger name="org.mongodb" level="WARN"/>
