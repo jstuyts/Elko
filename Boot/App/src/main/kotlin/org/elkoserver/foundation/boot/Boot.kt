@@ -140,7 +140,8 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
                 LoggerFactory.getLogger(Boot::class.java).warn("No Gorgel configuration file specified in 'gorgel.configuration.file'. Falling back to built-in configuration, which logs everything at level DEBUG or more severe to this file.")
             }
 
-            return GorgelImpl(LoggerFactory.getLogger(ROOT_LOGGER_NAME), MarkerFactory.getIMarkerFactory(), serverType, serverIdentifier)
+            val loggerFactory = LoggerFactory.getILoggerFactory()
+            return GorgelImpl(loggerFactory.getLogger(ROOT_LOGGER_NAME), loggerFactory, MarkerFactory.getIMarkerFactory(), serverType, serverIdentifier)
         }
 
         private fun createTraceFactory(bootArguments: BootArguments, clock: Clock): TraceFactory {

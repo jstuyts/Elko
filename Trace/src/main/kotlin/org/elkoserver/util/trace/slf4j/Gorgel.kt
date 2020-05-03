@@ -2,6 +2,7 @@ package org.elkoserver.util.trace.slf4j
 
 import org.slf4j.Logger
 import org.slf4j.Marker
+import kotlin.reflect.KClass
 
 /**
  * Logger with (optional) static tags (implemented as a [Marker]), which will be passed to each log method.
@@ -226,9 +227,17 @@ abstract class Gorgel protected constructor(protected val logger: Logger, protec
 
     abstract fun getChild(childName: String): Gorgel
 
+    abstract fun getChild(theClass: KClass<*>): Gorgel
+
     abstract fun getChild(childName: String, tag: String): Gorgel
+
+    abstract fun getChild(theClass: KClass<*>, tag: String): Gorgel
 
     abstract fun getChild(childName: String, firstTag: String, secondTag: String): Gorgel
 
+    abstract fun getChild(theClass: KClass<*>, firstTag: String, secondTag: String): Gorgel
+
     abstract fun getChild(childName: String, vararg tags: String): Gorgel
+
+    abstract fun getChild(theClass: KClass<*>, vararg tags: String): Gorgel
 }
