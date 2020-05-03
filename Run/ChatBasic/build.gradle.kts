@@ -13,6 +13,9 @@ val collectionName = "chats"
 repositories {
     jcenter()
     mavenCentral()
+    maven {
+        url = uri("https://dl.bintray.com/squins/Squins")
+    }
 }
 
 val webFiles by configurations.creating { }

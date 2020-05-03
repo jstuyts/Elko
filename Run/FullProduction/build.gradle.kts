@@ -8,6 +8,9 @@ val actualMongodbHostAndPort = mongodbHostAndPort ?: "localhost:27017"
 repositories {
     jcenter()
     mavenCentral()
+    maven {
+        url = uri("https://dl.bintray.com/squins/Squins")
+    }
 }
 
 dependencies {

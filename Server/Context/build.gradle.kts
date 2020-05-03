@@ -8,6 +8,9 @@ plugins {
 repositories {
     jcenter()
     mavenCentral()
+    maven {
+        url = uri("https://dl.bintray.com/squins/Squins")
+    }
 }
 
 dependencies {
@@ -25,6 +28,7 @@ dependencies {
 
     implementation(project(":Util"))
     implementation(kotlin("stdlib-jdk8"))
+    implementation(Libraries.ooverkommelig)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {
