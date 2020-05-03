@@ -18,6 +18,7 @@ dependencies {
     implementation(project(":Server:Director"))
     implementation(project(":Server:Gatekeeper"))
     implementation(project(":ServerManagement"))
+    implementation(Libraries.logstash_logback_encoder)
 }
 
 val brokerDataDirectory by tasks.registering {
@@ -49,6 +50,9 @@ val startClusterManagedBroker by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=broker",
+            "gorgel.system.identifier=cluster-managed",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_brok=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=broker",
@@ -96,6 +100,9 @@ val startClusterManagedContext by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=context",
+            "gorgel.system.identifier=cluster-managed",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_cont=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=ContextServer",
@@ -150,6 +157,9 @@ val startClusterManagedDirector by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=director",
+            "gorgel.system.identifier=cluster-managed",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_dire=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=director",
@@ -193,6 +203,9 @@ val startClusterManagedGatekeeper by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=gatekeeper",
+            "gorgel.system.identifier=cluster-managed",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_gate=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=gatekeeper",

@@ -14,6 +14,7 @@ dependencies {
     implementation(kotlin("stdlib-jdk8"))
     implementation(Libraries.argparse4j)
     implementation(Libraries.jetty_server)
+    implementation(Libraries.logstash_logback_encoder)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

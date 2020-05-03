@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":ObjectDatabase:MongoObjectStore"))
     implementation(project(":Server:Gatekeeper"))
     implementation(project(":ServerManagement"))
+    implementation(Libraries.logstash_logback_encoder)
 }
 
 val startGatekeeperDev by tasks.registering(JavaExec::class) {
@@ -22,6 +23,9 @@ val startGatekeeperDev by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=gatekeeper",
+            "gorgel.system.identifier=dev",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_gate=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=gatelog",

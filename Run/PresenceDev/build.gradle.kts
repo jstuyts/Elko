@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":ObjectDatabase:MongoObjectStore"))
     implementation(project(":Server:Presence"))
     implementation(project(":ServerManagement"))
+    implementation(Libraries.logstash_logback_encoder)
 }
 
 val startPresenceDev by tasks.registering(JavaExec::class) {
@@ -22,6 +23,9 @@ val startPresenceDev by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=presence",
+            "gorgel.system.identifier=dev",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_pres=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=prelog",

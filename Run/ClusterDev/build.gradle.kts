@@ -14,6 +14,7 @@ dependencies {
     implementation(project(":ObjectDatabase:FileObjectStore"))
     implementation(project(":Server:Context"))
     implementation(project(":ServerManagement"))
+    implementation(Libraries.logstash_logback_encoder)
 }
 
 val startClusterDevContext1 by tasks.registering(JavaExec::class) {
@@ -22,6 +23,9 @@ val startClusterDevContext1 by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=context",
+            "gorgel.system.identifier=cluster-dev-1",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_cont=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=cont1log",
@@ -80,6 +84,9 @@ val startClusterDevContext2 by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=context",
+            "gorgel.system.identifier=cluster-dev-2",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_cont=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=cont2log",

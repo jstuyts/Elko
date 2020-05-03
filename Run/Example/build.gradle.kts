@@ -19,6 +19,7 @@ dependencies {
     implementation(project(":Server:Director"))
     implementation(project(":Server:Workshop"))
     implementation(project(":ServerManagement"))
+    implementation(Libraries.logstash_logback_encoder)
 }
 
 val brokerDataDirectory by tasks.registering {
@@ -50,6 +51,9 @@ val startExampleBroker by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=broker",
+            "gorgel.system.identifier=example",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_brok=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=brok",
@@ -113,6 +117,9 @@ val startExampleContext by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=context",
+            "gorgel.system.identifier=example",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_cont=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=cont",
@@ -176,6 +183,9 @@ val startExampleDirector by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=director",
+            "gorgel.system.identifier=example",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_dire=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=dire",
@@ -231,6 +241,9 @@ val startExampleWorkshop by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=workshop",
+            "gorgel.system.identifier=example",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_work=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=work",
