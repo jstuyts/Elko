@@ -1,11 +1,16 @@
 package org.elkoserver.foundation.boot
 
+import ch.qos.logback.classic.util.ContextInitializer
 import org.elkoserver.util.trace.TraceController
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.acceptor.file.TraceLog
 import org.elkoserver.util.trace.exceptionreporting.ExceptionReporter
 import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.trace.TraceExceptionNoticer
+import org.elkoserver.util.trace.slf4j.Gorgel
+import org.elkoserver.util.trace.slf4j.GorgelImpl
+import org.slf4j.LoggerFactory
 import java.lang.reflect.InvocationTargetException
+import java.net.InetAddress
 import java.time.Clock
 
 /**
@@ -31,7 +36,7 @@ import java.time.Clock
  * @param myExceptionReporter The exception manager
  * @param bootArguments Command line arguments per Java language spec
  */
-private class Boot private constructor(private val myExceptionReporter: ExceptionReporter, private val bootArguments: BootArguments, private val traceFactory: TraceFactory) : Runnable {
+private class Boot private constructor(private val myExceptionReporter: ExceptionReporter, private val bootArguments: BootArguments, private val gorgel: Gorgel, private val traceFactory: TraceFactory) : Runnable {
 
     /**
      * The run method mandated by the [Thread] class.  This method is
@@ -80,7 +85,7 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
         } catch (e: InvocationTargetException) {
             throw IllegalStateException("Error occurred during construction of class", e.cause)
         }
-        starter.boot(bootArguments.bootProperties, traceFactory, Clock.systemDefaultZone())
+        starter.boot(bootArguments.bootProperties, gorgel, traceFactory, Clock.systemDefaultZone())
     }
 
     companion object {
@@ -102,11 +107,38 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
         private fun tryToBoot(arguments: Array<out String>) {
             val bootArguments = BootArguments(*arguments)
             val clock = Clock.systemDefaultZone()
+            val gorgel = initializeGorgel(bootArguments)
             val traceFactory = createTraceFactory(bootArguments, clock)
             val exceptionReporter = ExceptionReporter(TraceExceptionNoticer(traceFactory.exception))
             val threadGroup = EMThreadGroup("Elko Thread Group", exceptionReporter)
-            val boot = Boot(exceptionReporter, bootArguments, traceFactory)
+            val boot = Boot(exceptionReporter, bootArguments, gorgel, traceFactory)
             Thread(threadGroup, boot, "Elko Server Boot").start()
+        }
+
+        private fun initializeGorgel(bootArguments: BootArguments): GorgelImpl {
+            val serverType = bootArguments.bootProperties.getProperty("gorgel.system.type")
+                    ?: bootArguments.mainClassName.substringAfterLast('.')
+
+            val serverIdentifier = bootArguments.bootProperties.getProperty("gorgel.system.identifier")
+                    ?: bootArguments.bootProperties.stringPropertyNames().firstOrNull { it.endsWith(".name") }?.let {
+                        bootArguments.bootProperties.getProperty(it)
+                    }
+                    ?: InetAddress.getLocalHost().hostName
+
+            val configuredLogbackConfigurationFilePath = bootArguments.bootProperties.getProperty("gorgel.configuration.file")
+            val logbackConfigurationFilePath = configuredLogbackConfigurationFilePath
+                    ?: "org/elkoserver/foundation/boot/logback-boot-default-configuration.xml"
+            System.setProperty(ContextInitializer.CONFIG_FILE_PROPERTY, logbackConfigurationFilePath)
+
+            // Set properties so they can be used in the Logback configuration file
+            System.setProperty("elko.server.type", serverType)
+            System.setProperty("elko.server.identifier", serverIdentifier)
+
+            if (configuredLogbackConfigurationFilePath == null) {
+                LoggerFactory.getLogger(Boot::class.java).warn("No Gorgel configuration file specified in 'gorgel.configuration.file'. Falling back to built-in configuration, which logs everything at level DEBUG or more severe to this file.")
+            }
+
+            return GorgelImpl(LoggerFactory.getLogger("$serverType.$serverIdentifier"))
         }
 
         private fun createTraceFactory(bootArguments: BootArguments, clock: Clock): TraceFactory {

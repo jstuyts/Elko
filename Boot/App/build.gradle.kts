@@ -16,6 +16,7 @@ dependencies {
 
     implementation(project(":Boot:Api", "default"))
     implementation(kotlin("stdlib-jdk8"))
+    implementation(Libraries.logback_classic)
 
     testImplementation(Libraries.junit_jupiter_api)
     testImplementation(kotlin("test-junit5"))

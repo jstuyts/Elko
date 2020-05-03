@@ -9,6 +9,7 @@ import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 
 /**
@@ -26,7 +27,7 @@ class GatekeeperBoot : Bootable {
     /** How long user has before being kicked off, in milliseconds.  */
     private var myActionTimeout = 0
 
-    override fun boot(props: ElkoProperties, traceFactory: TraceFactory, clock: Clock) {
+    override fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
         this.traceFactory = traceFactory
         tr = traceFactory.trace("gate")
         timer = Timer(traceFactory, clock)

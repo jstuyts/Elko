@@ -10,6 +10,7 @@ import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.LinkedList
 
@@ -24,7 +25,7 @@ class ContextServerBoot : Bootable {
     private lateinit var timer: Timer
     private lateinit var myContextor: Contextor
 
-    override fun boot(props: ElkoProperties, traceFactory: TraceFactory, clock: Clock) {
+    override fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
         this.traceFactory = traceFactory
         tr = traceFactory.trace("cont")
         this.timer = Timer(traceFactory, clock)

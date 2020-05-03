@@ -13,6 +13,7 @@ repositories {
 
 dependencies {
     api(project(":Properties"))
+    api(Libraries.slf4j_api)
 
     implementation(kotlin("stdlib-jdk8"))
 }

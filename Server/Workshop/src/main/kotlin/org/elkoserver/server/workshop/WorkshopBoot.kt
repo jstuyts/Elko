@@ -9,6 +9,7 @@ import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 
 /**
@@ -21,7 +22,7 @@ class WorkshopBoot : Bootable {
     private lateinit var myWorkshop: Workshop
     private lateinit var traceFactory: TraceFactory
 
-    override fun boot(props: ElkoProperties, traceFactory: TraceFactory, clock: Clock) {
+    override fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
         this.traceFactory = traceFactory
         tr = traceFactory.trace("work")
         val timer = Timer(traceFactory, clock)

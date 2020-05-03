@@ -2,6 +2,7 @@ package org.elkoserver.foundation.boot
 
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 
 /**
@@ -16,5 +17,5 @@ interface Bootable {
      * @param props  Properties specified by the command line, environment
      * variables, and property files.
      */
-    fun boot(props: ElkoProperties, traceFactory: TraceFactory, clock: Clock)
+    fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock)
 }

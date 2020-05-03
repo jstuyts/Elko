@@ -43,6 +43,9 @@ val startChatBasicContext by tasks.registering(JavaExec::class) {
     classpath = sourceSets["main"].runtimeClasspath
     main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
     args = mutableListOf(
+            "gorgel.system.type=context",
+            "gorgel.system.identifier=chat-basic",
+            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
             "trace_cont=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=contlog",
