@@ -33,19 +33,19 @@ import java.util.function.Consumer;
 public class Server implements ConnectionCountMonitor, ServiceFinder
 {
     /** The properties settings. */
-    private ElkoProperties myProps;
+    private final ElkoProperties myProps;
 
     /** The name of this server (for logging). */
-    private String myServerName;
+    private final String myServerName;
 
     /** Name of service, to distinguish variants of same service type. */
     private String myServiceName;
 
     /** Network manager, for setting up network communications. */
-    private NetworkManager myNetworkManager;
+    private final NetworkManager myNetworkManager;
 
     /** List of ServiceDesc objects describing services this server offers. */
-    private List<ServiceDesc> myServices = new LinkedList<>();
+    private final List<ServiceDesc> myServices = new LinkedList<>();
 
     /** List of host information for this server's configured listeners. */
     private List<HostDesc> myListeners = null;
@@ -54,14 +54,14 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
     private BrokerActor myBrokerActor;
 
     /** Host description for connection to broker, if there is one. */
-    private HostDesc myBrokerHost;
+    private final HostDesc myBrokerHost;
 
     /** Message dispatcher for broker connections. */
-    private MessageDispatcher myDispatcher;
+    private final MessageDispatcher myDispatcher;
 
     /** Table of 'find' requests that have been issued to the broker, for which
         responses are still pending.  Indexed by the service name queried. */
-    private HashMapMulti<String, ServiceQuery> myPendingFinds;
+    private final HashMapMulti<String, ServiceQuery> myPendingFinds;
 
     /** Counter to generate tags for 'find' requests to the broker. */
     private static int theNextFindTag = 0;
@@ -70,25 +70,25 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
     private int myConnectionCount = 0;
 
     /** Objects to be notified when the server is shutting down. */
-    private List<ShutdownWatcher> myShutdownWatchers = new LinkedList<>();
+    private final List<ShutdownWatcher> myShutdownWatchers = new LinkedList<>();
 
     /** Objects to be notified when the server is reinitialized. */
-    private List<ReinitWatcher> myReinitWatchers = new LinkedList<>();
+    private final List<ReinitWatcher> myReinitWatchers = new LinkedList<>();
 
     /** Accumulator tracking system load. */
-    private ServerLoadMonitor myLoadMonitor;
+    private final ServerLoadMonitor myLoadMonitor;
 
     /** Trace object for event logging. */
-    private Trace tr;
+    private final Trace tr;
 
     /** Trace object for mandatory startup and shutdown messages. */
-    private Trace trServer;
+    private final Trace trServer;
 
     /** Run queue that the server services its clients in. */
-    private Runner myMainRunner;
+    private final Runner myMainRunner;
 
     /** Thread pool isolation for external blocking tasks. */
-    private SlowServiceRunner mySlowRunner;
+    private final SlowServiceRunner mySlowRunner;
 
     /** Flag that server is in the midst of trying to shut down. */
     private boolean amShuttingDown = false;
@@ -97,13 +97,13 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
     private static final int DEFAULT_SLOW_THREADS = 5;
 
     /** Map from external service names to links to the services. */
-    private Map<String, ServiceLink> myServiceLinksByService;
+    private final Map<String, ServiceLink> myServiceLinksByService;
 
     /** Map from external service provider IDs to connected actors. */
-    private Map<Integer, ServiceActor> myServiceActorsByProviderID;
+    private final Map<Integer, ServiceActor> myServiceActorsByProviderID;
 
     /** Active service actors associated with broken broker connections. */
-    private List<ServiceActor> myOldServiceActors;
+    private final List<ServiceActor> myOldServiceActors;
 
     /* RefTable to dispatching messages incoming from external services. */
     private RefTable myServiceRefTable;
@@ -205,8 +205,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
     private class BrokerMessageHandlerFactory implements MessageHandlerFactory
     {
         public MessageHandler provideMessageHandler(Connection connection) {
-            return new BrokerActor(connection, myDispatcher, Server.this,
-                                   myBrokerHost, traceFactory);
+            return new BrokerActor(connection, myDispatcher, Server.this, myBrokerHost, traceFactory);
         }
     }
 
@@ -323,17 +322,17 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         implements Consumer<Object>, MessageHandlerFactory
     {
         /** Handler to receive connection to service, once there is one. */
-        private Consumer<Object> myInnerHandler;
+        private final Consumer<Object> myInnerHandler;
 
         /** Optional arbitrary label to attach to new connection. */
-        private String myLabel;
+        private final String myLabel;
 
         /** Service descriptor from the broker, once we have one. */
         private ServiceDesc myDesc;
 
         /** A service link to be associated with the connection, or null if a
             new link should be allocated. */
-        private ServiceLink myLink;
+        private final ServiceLink myLink;
 
         /**
          * Constructor.
