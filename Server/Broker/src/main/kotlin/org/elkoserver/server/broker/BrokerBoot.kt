@@ -6,10 +6,13 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
+import org.ooverkommelig.ConstantDefinition
+import org.ooverkommelig.ObjectGraphConfiguration
+import org.ooverkommelig.ObjectGraphLogger
+import org.ooverkommelig.ProvidedAdministration
 import java.time.Clock
 
 /**
@@ -27,9 +30,18 @@ class BrokerBoot : Bootable {
     private lateinit var myBroker: Broker
 
     override fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
+        val myGorgel = gorgel.getChild(BrokerBoot::class)
         this.traceFactory = traceFactory
         tr = traceFactory.trace("brok")
-        val timer = Timer(traceFactory, clock)
+        val brokerServerGraph = BrokerServerOgd(object : BrokerServerOgd.Provided, ProvidedAdministration() {
+            override fun clock() = ConstantDefinition(clock)
+            override fun traceFactory() = ConstantDefinition(traceFactory)
+        }, ObjectGraphConfiguration(object : ObjectGraphLogger {
+            override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
+                myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)
+            }
+        })).Graph()
+        val timer = brokerServerGraph.timer()
         val server = Server(props, "broker", tr, timer, clock, traceFactory)
         myBroker = Broker(server, tr, timer, traceFactory, clock)
         if (server.startListeners("conf.listen",

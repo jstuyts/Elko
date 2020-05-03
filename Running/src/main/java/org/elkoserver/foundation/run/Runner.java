@@ -244,6 +244,7 @@ public class Runner implements Runnable {
                    *any* extra overhead on the normal case. */
                 --theRunnerCount;
                 if (theRunnerCount == 0) {
+                    // FIXME: Never use "exit(...)" for an orderly shutdown.
                     System.exit(0);
                 }
                 return;

@@ -121,14 +121,12 @@ public class HTTPSessionConnection extends ConnectionBase
 
         mySelectTimeoutInterval = mySessionFactory.selectTimeout(false);
         mySelectClock =
-            timer.every((mySelectTimeoutInterval + 1000) / 4,
-                    ignored -> noticeSelectTick());
+            timer.every((mySelectTimeoutInterval + 1000) / 4, ignored -> noticeSelectTick());
         mySelectClock.start();
 
         mySessionTimeoutInterval = mySessionFactory.sessionTimeout(false);
         myInactivityClock =
-            timer.every(mySessionTimeoutInterval + 1000,
-                    ignored -> noticeInactivityTick());
+            timer.every(mySessionTimeoutInterval + 1000, ignored -> noticeInactivityTick());
         myInactivityClock.start();
 
         enqueueHandlerFactory(mySessionFactory.innerFactory());

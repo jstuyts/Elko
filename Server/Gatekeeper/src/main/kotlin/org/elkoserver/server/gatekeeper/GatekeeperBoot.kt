@@ -10,6 +10,10 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
+import org.ooverkommelig.ConstantDefinition
+import org.ooverkommelig.ObjectGraphConfiguration
+import org.ooverkommelig.ObjectGraphLogger
+import org.ooverkommelig.ProvidedAdministration
 import java.time.Clock
 
 /**
@@ -28,9 +32,18 @@ class GatekeeperBoot : Bootable {
     private var myActionTimeout = 0
 
     override fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
+        val myGorgel = gorgel.getChild(GatekeeperBoot::class)
         this.traceFactory = traceFactory
         tr = traceFactory.trace("gate")
-        timer = Timer(traceFactory, clock)
+        val gatekeeperServerGraph = GatekeeperServerOgd(object : GatekeeperServerOgd.Provided, ProvidedAdministration() {
+            override fun clock() = ConstantDefinition(clock)
+            override fun traceFactory() = ConstantDefinition(traceFactory)
+        }, ObjectGraphConfiguration(object : ObjectGraphLogger {
+            override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
+                myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)
+            }
+        })).Graph()
+        val timer = gatekeeperServerGraph.timer()
         val server = Server(props, "gatekeeper", tr, timer, clock, traceFactory)
         myGatekeeper = Gatekeeper(server, tr, timer, traceFactory, clock)
         myActionTimeout = 1000 * props.intProperty("conf.gatekeeper.actiontimeout", DEFAULT_ACTION_TIMEOUT)

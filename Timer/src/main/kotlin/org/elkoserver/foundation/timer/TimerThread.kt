@@ -2,15 +2,13 @@ package org.elkoserver.foundation.timer
 
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.exceptionreporting.ExceptionReporter
-import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.trace.TraceExceptionNoticer
 import java.time.Clock
 import java.util.TreeMap
 
 /**
  * Thread to handle timeouts and clocks.
  */
-internal class TimerThread(traceFactory: TraceFactory, private val clock: Clock) : Thread("Elko Timer") {
-    private val exceptionReporter: ExceptionReporter
+internal class TimerThread(traceFactory: TraceFactory, private val clock: Clock, private val exceptionReporter: ExceptionReporter) : Thread("Elko Timer") {
 
     /**
      * Collection of pending timer events, sorted by time
@@ -183,6 +181,5 @@ internal class TimerThread(traceFactory: TraceFactory, private val clock: Clock)
 
     init {
         priority = MAX_PRIORITY
-        exceptionReporter = ExceptionReporter(TraceExceptionNoticer(traceFactory.exception))
     }
 }

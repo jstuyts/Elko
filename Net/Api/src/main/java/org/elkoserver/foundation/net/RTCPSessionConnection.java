@@ -111,8 +111,7 @@ public class RTCPSessionConnection extends ConnectionBase
         myInactivityTimeoutInterval =
             mySessionFactory.sessionInactivityTimeout(false);
         myInactivityClock =
-            timer.every(myInactivityTimeoutInterval/2 + 1000,
-                    ignored -> noticeInactivityTick());
+            timer.every(myInactivityTimeoutInterval/2 + 1000, ignored -> noticeInactivityTick());
         myInactivityClock.start();
 
         enqueueHandlerFactory(mySessionFactory.innerFactory());
@@ -234,8 +233,7 @@ public class RTCPSessionConnection extends ConnectionBase
             myLiveConnection = null;
             tcpConnectionDied(connection);
             myDisconnectedTimeout =
-                timer.after(myDisconnectedTimeoutInterval,
-                        this::noticeDisconnectedTimeout);
+                timer.after(myDisconnectedTimeoutInterval, this::noticeDisconnectedTimeout);
         }
     }
 

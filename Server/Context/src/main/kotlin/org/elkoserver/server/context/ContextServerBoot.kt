@@ -21,7 +21,6 @@ class ContextServerBoot : Bootable {
         val contextServerGraph = ContextServerOgd(object : ContextServerOgd.Provided, ProvidedAdministration() {
             override fun clock() = ConstantDefinition(clock)
             override fun props() = ConstantDefinition(props)
-            override fun rootGorgel() = ConstantDefinition(gorgel)
             override fun traceFactory() = ConstantDefinition(traceFactory)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {
             override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {

@@ -68,8 +68,7 @@ public class ConnectionRetrier
         myRetryHandlerFactory = connection -> {
             if (connection == null) {
                 if (myKeepTryingFlag) {
-                    timer.after(myHost.retryInterval() * 1000,
-                                           myRetryTimeout);
+                    timer.after(myHost.retryInterval() * 1000, myRetryTimeout);
                 }
                 return null;
             } else {

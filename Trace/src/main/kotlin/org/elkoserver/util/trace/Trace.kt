@@ -75,6 +75,7 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      *
      * @param message  The error message to die with.
      */
+    @Deprecated("Exits the process immediately")
     fun fatalError(message: String): Nothing {
         errorm(message)
         exitProcess(1)
@@ -87,6 +88,7 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      * @param message  The error message to die with.
      * @param obj  Object to report with <tt>message</tt>.
      */
+    @Deprecated("Exits the process immediately")
     fun fatalError(message: String, obj: Any): Nothing {
         errorm(message, obj)
         exitProcess(1)

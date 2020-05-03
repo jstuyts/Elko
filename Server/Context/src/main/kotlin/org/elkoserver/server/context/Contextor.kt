@@ -26,65 +26,48 @@ import java.util.function.Consumer
 /**
  * Main state data structure in a Context Server.
  */
-class Contextor private constructor(odb: ObjDB?, server: Server,
-                                    private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory, clock: Clock) : RefTable(odb, traceFactory, clock) {
-    /** Database that persistent objects are stored in.  */
-    private val myODB: ObjDB
-
-    /** The server object.  */
-    private val myServer: Server
+class Contextor internal constructor(
+        private val myODB: ObjDB,
+        private val myServer: Server,
+        private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory, clock: Clock, private val myEntryTimeout: Int, private val myLimit: Int) : RefTable(myODB, traceFactory, clock) {
 
     /** The generic 'session' object for talking to this server.  */
-    private val mySession: Session
+    private val mySession: Session = Session(this, myServer, traceFactory)
 
     /** Sets of entities awaiting objects from the object database, by object
      * reference string.  */
-    private val myPendingGets: MutableMap<String?, MutableSet<Consumer<Any?>>>
+    private val myPendingGets: MutableMap<String?, MutableSet<Consumer<Any?>>> = HashMap()
 
     /** Open contexts.  */
-    private val myContexts: MutableSet<Context>
+    private val myContexts: MutableSet<Context> = HashSet()
 
     /** Cloned contexts, by base reference string.  */
-    private val myContextClones: HashMapMulti<String, Context>
+    private val myContextClones: HashMapMulti<String, Context> = HashMapMulti()
 
     /** Currently connected users.  */
-    private val myUsers: MutableSet<User>
+    private val myUsers: MutableSet<User> = HashSet()
 
     /** Send group for currently connected directors.  */
-    private var myDirectorGroup: DirectorGroup?
+    private var myDirectorGroup: DirectorGroup? = null
 
     /** Send group for currently connected presence servers.  */
-    private var myPresencerGroup: PresencerGroup?
-
-    /** Time user has to enter before being kicked off, in milliseconds.  */
-    private val myEntryTimeout: Int
-
-    /** Maximum number of users allowed on this server.  */
-    private val myLimit: Int
+    private var myPresencerGroup: PresencerGroup? = null
 
     /** Static objects loaded from the ODB and available in all contexts.  */
-    private val myStaticObjects: MutableMap<String, Any>
+    private val myStaticObjects: MutableMap<String, Any> = HashMap()
 
     /** Context families served by this server.  Names prefixed by '$'
      * represent restricted contexts.  */
     private var myContextFamilies: MutableSet<String>? = null
 
     /** User names gathered from presence notification metadata.  */
-    private val myUserNames: MutableMap<String, String>
+    private val myUserNames: MutableMap<String, String> = HashMap()
 
     /** Context names gathered from presence notification metadata.  */
-    private val myContextNames: MutableMap<String, String>
+    private val myContextNames: MutableMap<String, String> = HashMap()
 
     /** Mods on completed objects awaiting notification that they're ready.  */
-    private var myPendingObjectCompletionWatchers: MutableList<ObjectCompletionWatcher>?
-
-    /**
-     * Constructor.
-     *
-     * @param server  Server object.
-     * @param appTrace  Trace object for diagnostics.
-     */
-    internal constructor(server: Server, appTrace: Trace, timer: Timer, traceFactory: TraceFactory, clock: Clock) : this(server.openObjectDatabase("conf.context"), server, appTrace, timer, traceFactory, clock) {}
+    private var myPendingObjectCompletionWatchers: MutableList<ObjectCompletionWatcher>? = null
 
     private fun initializeContextFamilies() {
         myContextFamilies = HashSet<String>().apply {
@@ -1221,6 +1204,7 @@ class Contextor private constructor(odb: ObjDB?, server: Server,
      * @return the current set of open users.
      */
     fun users() = Collections.unmodifiableSet(myUsers)
+
     /**
      * Record an object deletion in the object database, with completion
      * handler.
@@ -1228,27 +1212,17 @@ class Contextor private constructor(odb: ObjDB?, server: Server,
      * @param ref  Reference string designating the deleted object.
      * @param handler  Completion handler.
      */
-    /**
-     * Record an object deletion in the object database.
-     *
-     * @param ref  Reference string designating the deleted object.
-     */
     @JvmOverloads
     fun writeObjectDelete(ref: String?, handler: Consumer<Any?>? = null) {
         myODB.removeObject(ref, null, handler)
     }
+
     /**
      * Write an object's state to the object database, with completion handler.
      *
      * @param ref  Reference string of the object to write.
      * @param state  The object state to be written.
      * @param handler  Completion handler
-     */
-    /**
-     * Write an object's state to the object database.
-     *
-     * @param ref  Reference string of the object to write.
-     * @param state  The object state to be written.
      */
     @JvmOverloads
     fun writeObjectState(ref: String?, state: BasicObject?, handler: Consumer<Any?>? = null) {
@@ -1257,7 +1231,7 @@ class Contextor private constructor(odb: ObjDB?, server: Server,
 
     companion object {
         /** Default enter timeout value, in seconds.  */
-        private const val DEFAULT_ENTER_TIMEOUT = 15
+        private const val DEFAULT_ENTER_TIMEOUT_IN_SECONDS = 15
 
         /** Random number generator, for creating unique IDs and sub-IDs.  */
         private val theRandom = SecureRandom()
@@ -1370,36 +1344,11 @@ class Contextor private constructor(odb: ObjDB?, server: Server,
      * @param appTrace  Trace object for diagnostics.
      */
     init {
-        if (odb == null) {
-            tr.fatalError("no database specified")
-            throw IllegalStateException()
-        }
-        myODB = odb
-        myODB.addClass("context", Context::class.java)
-        myODB.addClass("item", Item::class.java)
-        myODB.addClass("user", User::class.java)
-        myODB.addClass("serverdesc", ServerDesc::class.java)
-        mySession = Session(this, server, traceFactory)
         addRef(mySession)
-        myServer = server
-        server.setServiceRefTable(this)
-        myEntryTimeout = 1000 *
-                server.props().intProperty("conf.context.entrytimeout",
-                        DEFAULT_ENTER_TIMEOUT)
-        myLimit = server.props().intProperty("conf.context.userlimit", 0)
-        myContexts = HashSet()
-        myContextClones = HashMapMulti()
-        myUsers = HashSet()
-        myDirectorGroup = null
-        myPresencerGroup = null
-        myUserNames = HashMap()
-        myContextNames = HashMap()
-        myPendingObjectCompletionWatchers = null
+        myServer.setServiceRefTable(this)
         initializeContextFamilies()
-        myPendingGets = HashMap()
-        myStaticObjects = HashMap()
-        loadStaticObjects(server.props().getProperty("conf.context.statics"))
-        server.registerShutdownWatcher {
+        loadStaticObjects(myServer.props().getProperty("conf.context.statics"))
+        myServer.registerShutdownWatcher {
 
             /* List copy to avert ConcurrentModificationException */
             val saveUsers: List<User> = LinkedList(myUsers)

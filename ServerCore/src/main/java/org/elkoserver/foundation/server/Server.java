@@ -45,10 +45,10 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
     private NetworkManager myNetworkManager;
 
     /** List of ServiceDesc objects describing services this server offers. */
-    private List<ServiceDesc> myServices;
+    private List<ServiceDesc> myServices = new LinkedList<>();
 
     /** List of host information for this server's configured listeners. */
-    private List<HostDesc> myListeners;
+    private List<HostDesc> myListeners = null;
 
     /** Connection to the broker, if there is one. */
     private BrokerActor myBrokerActor;
@@ -67,13 +67,13 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
     private static int theNextFindTag = 0;
 
     /** Number of active connections. */
-    private int myConnectionCount;
+    private int myConnectionCount = 0;
 
     /** Objects to be notified when the server is shutting down. */
-    private List<ShutdownWatcher> myShutdownWatchers;
+    private List<ShutdownWatcher> myShutdownWatchers = new LinkedList<>();
 
     /** Objects to be notified when the server is reinitialized. */
-    private List<ReinitWatcher> myReinitWatchers;
+    private List<ReinitWatcher> myReinitWatchers = new LinkedList<>();
 
     /** Accumulator tracking system load. */
     private ServerLoadMonitor myLoadMonitor;
@@ -91,7 +91,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
     private SlowServiceRunner mySlowRunner;
 
     /** Flag that server is in the midst of trying to shut down. */
-    private boolean amShuttingDown;
+    private boolean amShuttingDown = false;
 
     /** Default value for max number of threads in slow service thread pool. */
     private static final int DEFAULT_SLOW_THREADS = 5;
@@ -123,17 +123,9 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
         this.traceFactory = traceFactory;
         this.clock = clock;
         myProps = props;
-        myConnectionCount = 0;
         myMainRunner = Runner.currentRunner(traceFactory);
         mySlowRunner =
-            new SlowServiceRunner(myMainRunner,
-                                  props.intProperty("conf.slowthreads",
-                                                    DEFAULT_SLOW_THREADS));
-        amShuttingDown = false;
-        myShutdownWatchers = new LinkedList<>();
-        myReinitWatchers = new LinkedList<>();
-        myListeners = null;
-        myServices = new LinkedList<>();
+            new SlowServiceRunner(myMainRunner, props.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS));
 
         tr = appTrace;
         trServer = traceFactory.trace("server");
@@ -636,6 +628,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      */
     public void shutdown(boolean kill) {
         if (kill) {
+            // FIXME: Never kill a process, but always shut down cleanly.
             System.exit(0);
         } else if (!amShuttingDown) {
             amShuttingDown = true;

@@ -1,7 +1,5 @@
 package org.elkoserver.foundation.timer
 
-import org.elkoserver.util.trace.TraceFactory
-
 /**
  * The master control object for scheduling timed events using timeouts and
  * clocks.  One-time events (controlled by [Timeout] objects) may be
@@ -18,9 +16,7 @@ import org.elkoserver.util.trace.TraceFactory
  * lets you specify times with millisecond precision, millisecond accuracy in
  * practice should not be assumed.
  */
-class Timer(traceFactory: TraceFactory, clock: java.time.Clock) {
-    /** The timer thread  */
-    private val myThread: TimerThread = TimerThread(traceFactory, clock)
+class Timer internal constructor(private val myThread: TimerThread) {
 
     /**
      * Sets a timeout for the specified number of milliseconds.  After the
@@ -34,8 +30,8 @@ class Timer(traceFactory: TraceFactory, clock: java.time.Clock) {
      *
      * @see TimeoutNoticer
      */
-    fun after(millis: Long, target: TimeoutNoticer?): Timeout {
-        val newTimeout = Timeout(myThread, target!!)
+    fun after(millis: Long, target: TimeoutNoticer): Timeout {
+        val newTimeout = Timeout(myThread, target)
         myThread.setTimeout(false, millis, newTimeout)
         return newTimeout
     }
@@ -51,9 +47,5 @@ class Timer(traceFactory: TraceFactory, clock: java.time.Clock) {
      *
      * @see TickNoticer
      */
-    fun every(resolution: Long, target: TickNoticer?) = Clock(myThread, resolution, target!!)
-
-    init {
-        myThread.start()
-    }
+    fun every(resolution: Long, target: TickNoticer) = Clock(myThread, resolution, target)
 }

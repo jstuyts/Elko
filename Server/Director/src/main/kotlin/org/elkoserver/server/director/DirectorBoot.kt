@@ -6,10 +6,13 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
+import org.ooverkommelig.ConstantDefinition
+import org.ooverkommelig.ObjectGraphConfiguration
+import org.ooverkommelig.ObjectGraphLogger
+import org.ooverkommelig.ProvidedAdministration
 import java.time.Clock
 
 /**
@@ -24,9 +27,18 @@ class DirectorBoot : Bootable {
     private lateinit var myDirector: Director
 
     override fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
+        val myGorgel = gorgel.getChild(DirectorBoot::class)
         this.traceFactory = traceFactory
         tr = traceFactory.trace("dire")
-        val timer = Timer(traceFactory, clock)
+        val directorServerGraph = DirectorServerOgd(object : DirectorServerOgd.Provided, ProvidedAdministration() {
+            override fun clock() = ConstantDefinition(clock)
+            override fun traceFactory() = ConstantDefinition(traceFactory)
+        }, ObjectGraphConfiguration(object : ObjectGraphLogger {
+            override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
+                myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)
+            }
+        })).Graph()
+        val timer = directorServerGraph.timer()
         val server = Server(props, "director", tr, timer, clock, traceFactory)
         myDirector = Director(server, tr, traceFactory, clock)
         if (server.startListeners("conf.listen",
