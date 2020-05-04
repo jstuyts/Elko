@@ -148,7 +148,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * @param handler  Callback that will be invoked with the object in
      * question, or null if the object was not available.
      */
-    fun getObject(ref: String?, handler: Consumer<Any?>?) {
+    fun getObject(ref: String, handler: Consumer<Any?>) {
         myODB.getObject(ref, null, handler)
     }
 
@@ -160,7 +160,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * @param handler  Callback that will be invoked with the object in
      * question, or null if the object was not available.
      */
-    fun getObject(ref: String?, collection: String?, handler: Consumer<Any?>?) {
+    fun getObject(ref: String, collection: String?, handler: Consumer<Any?>) {
         myODB.getObject(ref, collection, handler)
     }
 
@@ -173,8 +173,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * @param handler  Callback that will be invoked with a results array, or
      * null if the query failed.
      */
-    fun queryObjects(query: JsonObject?, maxResults: Int,
-                     handler: Consumer<Any?>?) {
+    fun queryObjects(query: JsonObject, maxResults: Int, handler: Consumer<Any?>) {
         myODB.queryObjects(query, null, maxResults, handler)
     }
 
@@ -188,8 +187,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * @param handler  Callback that will be invoked with a results array, or
      * null if the query failed.
      */
-    fun queryObjects(query: JsonObject?, collection: String?,
-                     maxResults: Int, handler: Consumer<Any?>?) {
+    fun queryObjects(query: JsonObject, collection: String?, maxResults: Int, handler: Consumer<Any?>) {
         myODB.queryObjects(query, collection, maxResults, handler)
     }
 
@@ -199,7 +197,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * @param ref  Ref of the object to write.
      * @param object  The object itself.
      */
-    fun putObject(ref: String?, `object`: Encodable?) {
+    fun putObject(ref: String, `object`: Encodable) {
         myODB.putObject(ref, `object`, null, false, null)
     }
 
@@ -214,8 +212,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * the operation; the result will be null if the operation suceeded, or
      * an error string if the operation failed.
      */
-    fun putObject(ref: String?, `object`: Encodable?, collection: String?,
-                  resultHandler: Consumer<Any?>?) {
+    fun putObject(ref: String, `object`: Encodable, collection: String?, resultHandler: Consumer<Any?>?) {
         myODB.putObject(ref, `object`, collection, false, resultHandler)
     }
 
@@ -229,8 +226,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * the operation; the result will be null if the operation suceeded, or
      * an error string if the operation failed.
      */
-    fun updateObject(ref: String?, version: Int, `object`: Encodable?,
-                     resultHandler: Consumer<Any?>?) {
+    fun updateObject(ref: String, version: Int, `object`: Encodable, resultHandler: Consumer<Any?>?) {
         myODB.updateObject(ref, version, `object`, null, resultHandler)
     }
 
@@ -245,8 +241,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * the operation; the result will be null if the operation suceeded, or
      * an error string if the operation failed.
      */
-    fun updateObject(ref: String?, version: Int, `object`: Encodable?,
-                     collection: String?, resultHandler: Consumer<Any?>?) {
+    fun updateObject(ref: String, version: Int, `object`: Encodable, collection: String?, resultHandler: Consumer<Any?>?) {
         myODB.updateObject(ref, version, `object`, collection, resultHandler)
     }
 
@@ -255,7 +250,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      *
      * @param ref  The ref of the object to be deleted.
      */
-    fun removeObject(ref: String?) {
+    fun removeObject(ref: String) {
         myODB.removeObject(ref, null, null)
     }
 

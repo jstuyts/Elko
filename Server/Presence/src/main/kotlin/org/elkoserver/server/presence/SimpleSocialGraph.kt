@@ -3,6 +3,7 @@ package org.elkoserver.server.presence
 import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
+import java.util.function.Consumer
 
 internal class SimpleSocialGraph : SocialGraph {
     /** Database that social graph is stored in.  */
@@ -44,17 +45,19 @@ internal class SimpleSocialGraph : SocialGraph {
      * @param user  The user whose social graph should be fetched.
      */
     override fun loadUserGraph(user: ActiveUser) {
-        myODB.getObject(myPrefix + "-" + user.ref(), null) { obj: Any? ->
-            if (obj != null) {
-                val desc = obj as UserGraphDesc
-                val friends = Iterable { ArrayIterator(desc.friends) }
-                user.userGraphIsReady(friends, myDomain, myMaster)
-            } else {
-                user.userGraphIsReady(null, myDomain, myMaster)
-                tr.warningi("no social graph info for user " +
-                        user.ref() + " in domain " + myDomain.name())
-            }
-        }
+        myODB.getObject(myPrefix + "-" + user.ref(), null, object : Consumer<Any?> {
+            override fun accept(obj: Any?) {
+                    if (obj != null) {
+                        val desc = obj as UserGraphDesc
+                        val friends = Iterable { ArrayIterator(desc.friends) }
+                        user.userGraphIsReady(friends, myDomain, myMaster)
+                    } else {
+                        user.userGraphIsReady(null, myDomain, myMaster)
+                        tr.warningi("no social graph info for user " +
+                                user.ref() + " in domain " + myDomain.name())
+                    }
+                }
+        })
     }
 
     override fun shutdown() {}

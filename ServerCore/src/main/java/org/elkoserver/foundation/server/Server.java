@@ -269,20 +269,16 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      * @param handler  Object to receive the asynchronous result(s).
      * @param monitor  If true, keep watching for more results after the first.
      */
-    public void findService(String service, Consumer<Object> handler,
-                            boolean monitor)
+    public void findService(String service, Consumer<Object> handler, boolean monitor)
     {
         if (myBrokerHost != null) {
             String tag = "" + (theNextFindTag++);
-            myPendingFinds.add(service,
-                               new ServiceQuery(service, handler, monitor,
-                                                tag));
+            myPendingFinds.add(service, new ServiceQuery(service, handler, monitor, tag));
             if (myBrokerActor != null) {
                 myBrokerActor.findService(service, monitor, tag);
             }
         } else {
-            tr.errori("can't find service " + service +
-                      ", no broker specified");
+            tr.errori("can't find service " + service + ", no broker specified");
         }
     }
 

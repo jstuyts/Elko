@@ -37,8 +37,7 @@ internal class Account(private val myRef: String?, private var myVersion: Int, p
     private val myEncumbrancesByRef: MutableMap<String, Encumbrance> = HashMap()
 
     /** Flag indicating that this account has been deleted.  */
-    var isDeleted = false
-        private set
+    private var isDeleted = false
 
     /**
      * JSON-driven constructor.
@@ -116,14 +115,12 @@ internal class Account(private val myRef: String?, private var myVersion: Int, p
      * @param resultHandler  Handler that will be invoked with status of
      * write, after completion.
      */
-    fun checkpoint(workshop: Workshop, collection: String?,
-                   resultHandler: Consumer<Any?>?) {
+    fun checkpoint(workshop: Workshop, collection: String?, resultHandler: Consumer<Any?>?) {
         if (myVersion == 0) {
             myVersion = 1
-            workshop.putObject(myRef, this, collection, resultHandler)
+            workshop.putObject(myRef!!, this, collection, resultHandler)
         } else {
-            workshop.updateObject(myRef, myVersion++, this, collection,
-                    resultHandler)
+            workshop.updateObject(myRef!!, myVersion++, this, collection, resultHandler)
         }
     }
 

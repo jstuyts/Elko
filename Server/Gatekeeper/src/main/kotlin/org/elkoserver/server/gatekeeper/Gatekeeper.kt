@@ -42,8 +42,8 @@ class Gatekeeper internal constructor(
     /** Object for managing director connections.  */
     private val myDirectorActorFactory: DirectorActorFactory
 
-    private inner class DirectorFoundRunnable : Consumer<Any?> {
-        override fun accept(obj: Any?) {
+    private inner class DirectorFoundRunnable : Consumer<Any> {
+        override fun accept(obj: Any) {
             val desc = obj as Array<ServiceDesc>
             if (desc[0].failure() != null) {
                 tr.errorm("unable to find director: " + desc[0].failure())
@@ -199,8 +199,7 @@ class Gatekeeper internal constructor(
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
         myDirectorHost = null
         if (props.testProperty("conf.gatekeeper.director.auto")) {
-            myServer.findService("director-user", DirectorFoundRunnable(),
-                    false)
+            myServer.findService("director-user", DirectorFoundRunnable(), false)
         } else {
             val directorHost = HostDesc.fromProperties(props, "conf.gatekeeper.director", traceFactory)
             if (directorHost == null) {

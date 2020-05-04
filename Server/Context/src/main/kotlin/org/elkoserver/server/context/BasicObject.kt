@@ -187,8 +187,8 @@ abstract class BasicObject internal constructor(
      * @return the base reference string for this object, if it is a clone.  If
      * it is not a clone, the reference string itself will be returned.
      */
-    fun baseRef(): String? {
-        return extractBaseRef(myRef)
+    fun baseRef(): String {
+        return extractBaseRef(myRef!!)
     }
 
     /**

@@ -53,7 +53,7 @@ public class ObjDBLocal extends ObjDBBase {
     public ObjDBLocal(ElkoProperties props, String propRoot, Trace appTrace, TraceFactory traceFactory, Clock clock) {
         super(appTrace, traceFactory, clock);
 
-        myObjectStore = ObjectStoreFactory.createAndInitializeObjectStore(props, propRoot, tr);
+        myObjectStore = ObjectStoreFactory.createAndInitializeObjectStore(props, propRoot, getTr());
 
         myReturnRunner = Runner.currentRunner(traceFactory);
         myRunner = new Runner("Elko RunQueue LocalObjDB", traceFactory);
@@ -71,8 +71,7 @@ public class ObjDBLocal extends ObjDBBase {
      *    be the object requested, or null if the object could not be
      *    retrieved.
      */
-    public void getObject(String ref, String collectionName,
-                          Consumer<Object> handler) {
+    public void getObject(String ref, String collectionName, Consumer<Object> handler) {
         myRunner.enqueue(new GetCallHandler(ref, collectionName, handler));
     }
 
@@ -101,7 +100,7 @@ public class ObjDBLocal extends ObjDBBase {
                 if (failure == null) {
                     obj = decodeObject(myRef, results);
                 } else {
-                    tr.errorm("object store error getting " + myRef + ": " +
+                    getTr().errorm("object store error getting " + myRef + ": " +
                               failure);
                     obj = null;
                 }
@@ -274,8 +273,7 @@ public class ObjDBLocal extends ObjDBBase {
                 if (failure == null) {
                     objs = decodeObjectSet(results);
                 } else {
-                    tr.errorm("object store error getting query results: " +
-                              failure);
+                    getTr().errorm("object store error getting query results: " + failure);
                     objs = null;
                 }
             }

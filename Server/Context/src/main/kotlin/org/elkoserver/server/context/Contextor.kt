@@ -274,7 +274,7 @@ class Contextor internal constructor(
      *
      * @param ref  Reference string identifying the user to be deleted.
      */
-    fun deleteUserRecord(ref: String?) {
+    fun deleteUserRecord(ref: String) {
         myODB.removeObject(ref, null, null)
     }
 
@@ -542,7 +542,7 @@ class Contextor internal constructor(
      */ internal constructor(
             /** The ref of the context template.  This is the ref of the object
              * that is loaded from the database. */
-            private val myContextTemplate: String?,
+            private val myContextTemplate: String,
             /** The ref of the context itself.  This is the base ref of the context
              * that actually results.  It will be the same as the template ref if
              * the context is not actually templated.  */
@@ -971,8 +971,7 @@ class Contextor internal constructor(
      *
      * XXX Is this a POLA (Principle of Least Authority) violation??
      */
-    fun queryObjects(template: JsonObject?, collectionName: String?,
-                     maxResults: Int, handler: Consumer<Any?>?) {
+    fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>?) {
         myODB.queryObjects(template, collectionName, maxResults, handler)
     }
 
@@ -1089,7 +1088,7 @@ class Contextor internal constructor(
      * @param ref  The reference string for the object that arrived.
      * @param obj  The object itself, or null if it could not be obtained.
      */
-    private fun resolvePendingGet(ref: String?, obj: Any?) {
+    private fun resolvePendingGet(ref: String, obj: Any?) {
         var actualRef = ref
         actualRef = extractBaseRef(actualRef)
         val handlerSet: Set<Consumer<Any?>>? = myPendingGets[actualRef]
@@ -1213,7 +1212,7 @@ class Contextor internal constructor(
      * @param handler  Completion handler.
      */
     @JvmOverloads
-    fun writeObjectDelete(ref: String?, handler: Consumer<Any?>? = null) {
+    fun writeObjectDelete(ref: String, handler: Consumer<Any?>? = null) {
         myODB.removeObject(ref, null, handler)
     }
 
@@ -1225,7 +1224,7 @@ class Contextor internal constructor(
      * @param handler  Completion handler
      */
     @JvmOverloads
-    fun writeObjectState(ref: String?, state: BasicObject?, handler: Consumer<Any?>? = null) {
+    fun writeObjectState(ref: String, state: BasicObject, handler: Consumer<Any?>? = null) {
         myODB.putObject(ref, state, null, false, handler)
     }
 
@@ -1247,8 +1246,8 @@ class Contextor internal constructor(
          * returned).
          */
         @JvmStatic
-        fun extractBaseRef(ref: String?): String? {
-            var dash = ref!!.indexOf('-')
+        fun extractBaseRef(ref: String): String {
+            var dash = ref.indexOf('-')
             dash = ref.indexOf('-', dash + 1)
             return if (dash < 0) {
                 ref
