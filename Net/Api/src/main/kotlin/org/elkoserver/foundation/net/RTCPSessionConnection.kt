@@ -77,14 +77,10 @@ class RTCPSessionConnection private constructor(
      * @param connection  The TCP connection used.
      */
     fun acquireTCPConnection(connection: Connection) {
-        if (myLiveConnection != null) {
-            myLiveConnection!!.close()
-        }
+        myLiveConnection?.close()
         myLiveConnection = connection
-        if (myDisconnectedTimeout != null) {
-            myDisconnectedTimeout!!.cancel()
-            myDisconnectedTimeout = null
-        }
+        myDisconnectedTimeout?.cancel()
+        myDisconnectedTimeout = null
         if (traceFactory.comm.debug) {
             traceFactory.comm.debugm("acquire $connection for $this")
         }
@@ -362,8 +358,7 @@ class RTCPSessionConnection private constructor(
      * @return a printable representation of this connection.
      */
     override fun toString(): String {
-        val tag: String
-        tag = if (myLiveConnection != null) {
+        val tag = if (myLiveConnection != null) {
             myLiveConnection.toString()
         } else {
             "*"

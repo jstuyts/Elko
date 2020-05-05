@@ -10,29 +10,30 @@ import java.util.HashMap
  * Message handler factory to provide message handlers that wrap a message
  * stream inside a series of RTCP requests.
  *
- *
  * RTCP builds a message channel that can span a series of successive TCP
  * connections, allowing a session to be interrupted by connection failure and
  * then resumed without loss of session state.
+ *
+ * Each RTCP message handler wraps an application-level message handler,
+ * which is the entity that will actually process the messages extracted
+ * from the RTCP requests, so the RTCP message handler factory needs to
+ * wrap the application-level message handler factory.
+ *
+ * @param myInnerFactory  The application-level message handler factory that
+ * is to be wrapped by this.
+ * @param trMsg   Trace object for logging message traffic
+ * @param myManager  Network manager for this server.
  */
 internal class RTCPMessageHandlerFactory(
-        /** The message handler factory for the messages embedded in the composite
-         * stream.  */
         private val myInnerFactory: MessageHandlerFactory,
-        msgTrace: Trace,
-        manager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) : MessageHandlerFactory {
-
-    /** Trace object for logging message traffic.  */
-    private val trMsg: Trace
+        private val trMsg: Trace,
+        private val myManager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) : MessageHandlerFactory {
 
     /** Table of current sessions, indexed by session ID.  */
-    private val mySessions: MutableMap<String, RTCPSessionConnection>
+    private val mySessions = HashMap<String, RTCPSessionConnection>()
 
     /** Table of current sessions, indexed by TCP connection.  */
-    private val mySessionsByConnection: MutableMap<Connection, RTCPSessionConnection>
-
-    /** Network manager for this server  */
-    private val myManager: NetworkManager
+    private val mySessionsByConnection = HashMap<Connection, RTCPSessionConnection>()
 
     /** Time an RTCP session can sit idle before being killed, milliseconds.  */
     private val mySessionInactivityTimeout: Int
@@ -282,7 +283,7 @@ internal class RTCPMessageHandlerFactory(
      *
      * @param sessionID  The session ID of the session being started.
      *
-     * @return an RTCP 'start' reply line correponding to the parameter.
+     * @return an RTCP 'start' reply line corresponding to the parameter.
      */
     private fun makeStartReply(sessionID: String): String {
         return "start $sessionID\n"
@@ -417,23 +418,8 @@ internal class RTCPMessageHandlerFactory(
         private const val DEFAULT_SESSION_BACKLOG_LIMIT = 64000
     }
 
-    /**
-     * Each RTCP message handler wraps an application-level message handler,
-     * which is the entity that will actually process the messages extracted
-     * from the RTCP requests, so the RTCP message handler factory needs to
-     * wrap the application-level message handler factory.
-     *
-     * @param innerFactory  The application-level message handler factory that
-     * is to be wrapped by this.
-     * @param msgTrace   Trace object for logging message traffic
-     * @param manager  Network manager for this server.
-     */
     init {
-        mySessions = HashMap()
-        mySessionsByConnection = HashMap()
-        trMsg = msgTrace
-        myManager = manager
-        val props = manager.props()
+        val props = myManager.props()
         mySessionInactivityTimeout = props.intProperty("conf.comm.rtcptimeout",
                 DEFAULT_SESSION_INACTIVITY_TIMEOUT) * 1000
         myDebugSessionInactivityTimeout = props.intProperty("conf.comm.rtcptimeout.debug",

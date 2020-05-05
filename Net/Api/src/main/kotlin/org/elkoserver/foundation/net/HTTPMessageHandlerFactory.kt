@@ -16,21 +16,29 @@ import java.util.HashMap
  * HTTP requests and their associated message connections is done via swiss
  * numbers in the URLs.  That job is done by HTTPMessageHandler objects, which
  * are dispensed here, and their associated HTTPSessionConnection objects.
+ *
+ * Each HTTP message handler wraps an application-level message handler,
+ * which is the entity that will actually process the messages extracted
+ * from the HTTP requests, so the HTTP message handler factory needs to
+ * wrap the application-level message handler factory.
+ *
+ * @param myInnerFactory  The application-level message handler factor that
+ * is to be wrapped by this.
+ * @param rootURI  The root URI for GETs and POSTs.
+ * @param httpFramer  HTTP framer to interpret HTTP POSTs and format HTTP
+ * replies.
+ * @param manager  Network manager for this server.
  */
 class HTTPMessageHandlerFactory internal constructor(
-        /** The message handler factory for the messages embedded in the composite
-         * stream.  */
         private val myInnerFactory: MessageHandlerFactory,
         rootURI: String, httpFramer: HTTPFramer,
-        manager: NetworkManager, timer: Timer, clock: Clock, traceFactory: TraceFactory) : MessageHandlerFactory {
+        manager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) : MessageHandlerFactory {
 
     /** HTTP framer to interpret HTTP POSTs and format HTTP replies.  */
     private val myHTTPFramer: HTTPFramer
 
     /** The root URI for GETs and POSTs.  */
-    private val myRootURI: String
-    private val timer: Timer
-    private val traceFactory: TraceFactory
+    private val myRootURI: String = "/$rootURI/"
 
     /** Table of current sessions, indexed by ID number.  */
     private val mySessions: MutableMap<Long, HTTPSessionConnection>
@@ -54,7 +62,6 @@ class HTTPMessageHandlerFactory internal constructor(
 
     /** Like mySessionTimeout, but when connection is in debug mode.  */
     private val myDebugSessionTimeout: Int
-    private val clock: Clock
 
     /**
      * Add a session to the session table.
@@ -237,7 +244,7 @@ class HTTPMessageHandlerFactory internal constructor(
     }
 
     /**
-     * Process an HTTP OPTIONS request, used in the braindamaged, useless, but
+     * Process an HTTP OPTIONS request, used in the brain damaged, useless, but
      * seemingly inescapable request preflight handshake required by the CORS
      * standard for cross site request handling.
      *
@@ -263,8 +270,7 @@ class HTTPMessageHandlerFactory internal constructor(
      * @param nonPersistent  True if this request was flagged non-persistent.
      * @param message  The message body.
      */
-    fun handlePOST(connection: Connection, uri: String, nonPersistent: Boolean,
-                   message: String) {
+    fun handlePOST(connection: Connection, uri: String, nonPersistent: Boolean, message: String?) {
         val parsed = SessionURI(uri, myRootURI)
         val replied: Boolean
         replied = if (!parsed.valid) {
@@ -272,7 +278,7 @@ class HTTPMessageHandlerFactory internal constructor(
         } else if (parsed.verb == SessionURI.VERB_SELECT) {
             doSelect(connection, parsed, nonPersistent)
         } else if (parsed.verb == SessionURI.VERB_XMIT_POST) {
-            doXmit(connection, parsed, message)
+            doXmit(connection, parsed, message!!)
         } else if (parsed.verb == SessionURI.VERB_CONNECT) {
             doConnect(connection)
         } else if (parsed.verb == SessionURI.VERB_DISCONNECT) {
@@ -417,24 +423,7 @@ class HTTPMessageHandlerFactory internal constructor(
         private const val DEFAULT_SESSION_TIMEOUT = 15
     }
 
-    /**
-     * Each HTTP message handler wraps an application-level message handler,
-     * which is the entity that will actually process the messages extracted
-     * from the HTTP requests, so the HTTP message handler factory needs to
-     * wrap the application-level message handler factory.
-     *
-     * @param innerFactory  The application-level message handler factor that
-     * is to be wrapped by this.
-     * @param rootURI  The root URI for GETs and POSTs.
-     * @param httpFramer  HTTP framer to interpret HTTP POSTs and format HTTP
-     * replies.
-     * @param manager  Network manager for this server.
-     */
     init {
-        myRootURI = "/$rootURI/"
-        this.timer = timer
-        this.traceFactory = traceFactory
-        this.clock = clock
         mySessions = HashMap()
         mySessionsByConnection = HashMap()
         myHTTPFramer = httpFramer

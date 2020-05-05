@@ -9,11 +9,17 @@ import org.elkoserver.util.trace.TraceFactory
 /**
  * Worker object to manage an ongoing attempt to establish an outbound TCP
  * connection, so that failed connection attempts can be retried automatically.
+ *
+ * @param myHost  Description of host to connect to.
+ * @param myLabel  String describing remote connection endpoint, for
+ * diagnostic output
+ * @param networkManager  Network manager to actually make the connection.
+ * @param actualFactory  Application-provided message handler factory for
+ * use once connection is established.
+ * @param appTrace  Application trace object for logging.
  */
 class ConnectionRetrier(
-        /** The host description.  */
         private val myHost: HostDesc,
-        /** Descriptive label, for trace output.  */
         private val myLabel: String,
         networkManager: NetworkManager,
         actualFactory: MessageHandlerFactory,
@@ -39,7 +45,7 @@ class ConnectionRetrier(
     private val myRetryTimeout: TimeoutNoticer
 
     /** Trace object for logging activity associated with the new connection  */
-    private val myTrace: Trace
+    private val myTrace = appTrace.subTrace(myLabel)
 
     /**
      * Attempt to make the connection.
@@ -55,19 +61,7 @@ class ConnectionRetrier(
         myKeepTryingFlag = false
     }
 
-    /**
-     * Attempt to initiate a connection to another host, with retry on failure.
-     *
-     * @param host  Description of host to connect to.
-     * @param label  String describing remote connection endpoint, for
-     * diagnostic output
-     * @param networkManager  Network manager to actually make the connection.
-     * @param actualFactory  Application-provided message handler factory for
-     * use once connection is established.
-     * @param appTrace  Application trace object for logging.
-     */
     init {
-        myTrace = appTrace.subTrace(myLabel)
         myFramerFactory = JSONByteIOFramerFactory(myTrace, traceFactory!!)
         myNetworkManager = networkManager
         myActualFactory = actualFactory
@@ -91,13 +85,13 @@ class ConnectionRetrier(
     }
 
     private fun createRetryHandler(connection: Connection?, timer: Timer): MessageHandler? {
-        if (connection == null) {
+        return if (connection == null) {
             if (myKeepTryingFlag) {
                 timer.after(myHost.retryInterval() * 1000.toLong(), myRetryTimeout)
             }
-            return null
+            null
         } else {
-            return myActualFactory.provideMessageHandler(connection)
+            myActualFactory.provideMessageHandler(connection)
         }
     }
 }

@@ -162,7 +162,7 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
          * Flag that is true if this launcher should be executed when starting
          * in Initial mode.
          */
-        var isInitialLauncher: Boolean
+        var isInitialLauncher = optInitial.value(false)
 
         /**
          * Flag that is true if this launcher should be executed when starting
@@ -218,7 +218,6 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
                 }
 
         init {
-            isInitialLauncher = optInitial.value(false)
             isRunSettingOn = optRunSetting.value(true)
         }
     }

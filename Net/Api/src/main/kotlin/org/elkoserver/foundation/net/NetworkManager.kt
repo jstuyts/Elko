@@ -13,13 +13,15 @@ import javax.net.ssl.SSLContext
 
 /**
  * Manage network connections between this server and other entities.
+ *
+ * @param myConnectionCountMonitor  Monitor for tracking session count.
+ * @param myProps  Boot properties for this server.
+ * @param loadMonitor  Load monitor for tracking system load.
+ * @param myRunner  The Runner managing this server's run queue.
  */
 class NetworkManager(
-        /** Connection count tracker.  */
         private val myConnectionCountMonitor: ConnectionCountMonitor,
-        /** This server's boot properties, for initializing network access.  */
         private val myProps: ElkoProperties, loadMonitor: LoadMonitor,
-        /** The run queue for this server.  */
         private val myRunner: Runner, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) {
 
     /** System load tracker.  */
@@ -303,14 +305,6 @@ class NetworkManager(
         return mySSLContext
     }
 
-    /**
-     * Construct a NetworkManager for this server.
-     *
-     * @param connectionCountMonitor  Monitor for tracking session count.
-     * @param props  Boot properties for this server.
-     * @param loadMonitor  Load monitor for tracking system load.
-     * @param runner  The Runner managing this server's run queue.
-     */
     init {
         myConnectionManagers = HashMap()
         // FIXME: Initialize somewhere else

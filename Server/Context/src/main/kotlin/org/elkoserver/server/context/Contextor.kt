@@ -28,6 +28,22 @@ import kotlin.math.abs
 
 /**
  * Main state data structure in a Context Server.
+ *
+ * This constructor exists only because of a Java limitation: it needs to
+ * create the object database object and then both save it in an instance
+ * variable AND pass it to the superclass constructor.  However, Java
+ * requires that the first statement in a constructor MUST be a call to
+ * the superclass constructor or to another constructor of the same class.
+ * It is possible to create the database and pass it to the superclass
+ * constructor or to save it in an instance variable, but not both.  To get
+ * around this, the public constructor creates the database object in a
+ * parameter expression in a call to this internal constructor, which will
+ * then possess it in a parameter variable whence it can be both passed to
+ * the superclass constructor and saved in an instance variable.
+ *
+ * @param myODB  Database for persistent object storage.
+ * @param myServer  Server object.
+ * @param tr  Trace object for diagnostics.
  */
 class Contextor internal constructor(
         private val myODB: ObjDB,
@@ -386,12 +402,13 @@ class Contextor internal constructor(
      * of its contents and then notifies the container that contains *it*.
      */
     private inner class ContentsHandler
+
     /**
      * Constructor.
      *
-     * @param parentHandler ContentsHandler for the enclosing parent
+     * @param myParentHandler ContentsHandler for the enclosing parent
      * container, or null if we are the top level container.
-     * @param topHandler Thunk to be notified with the complete result once
+     * @param myTopHandler Thunk to be notified with the complete result once
      * it is available.
      */
     internal constructor(
@@ -1298,25 +1315,6 @@ class Contextor internal constructor(
         }
     }
 
-    /**
-     * Internal constructor.
-     *
-     * This constructor exists only because of a Java limitation: it needs to
-     * create the object database object and then both save it in an instance
-     * variable AND pass it to the superclass constructor.  However, Java
-     * requires that the first statement in a constructor MUST be a call to
-     * the superclass constructor or to another constructor of the same class.
-     * It is possible to create the database and pass it to the superclass
-     * constructor or to save it in an instance variable, but not both.  To get
-     * around this, the public constructor creates the database object in a
-     * parameter expression in a call to this internal constructor, which will
-     * then possess it in a parameter variable whence it can be both passed to
-     * the superclass constructor and saved in an instance variable.
-     *
-     * @param odb  Database for persistent object storage.
-     * @param server  Server object.
-     * @param appTrace  Trace object for diagnostics.
-     */
     init {
         addRef(mySession)
         myServer.setServiceRefTable(this)

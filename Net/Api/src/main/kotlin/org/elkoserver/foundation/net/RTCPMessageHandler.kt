@@ -7,12 +7,14 @@ import org.elkoserver.util.trace.TraceFactory
 
 /**
  * Message handler for RTCP requests wrapping a message stream.
+ *
+ * @param myConnection  The connection this is to be a message handler for.
+ * @param myFactory  The factory what created this.
+ * @param startupTimeoutInterval  How long a new connection is given to do
+ * something before kicking them off.
  */
 internal class RTCPMessageHandler(
-        /** The connection this handler handles messages for.  */
         private val myConnection: Connection,
-        /** The factory that created this handler, which also contains much of the
-         * handler implementation logic.  */
         private val myFactory: RTCPMessageHandlerFactory,
         startupTimeoutInterval: Int, timer: Timer, private val traceFactory: TraceFactory) : MessageHandler {
 
@@ -45,10 +47,10 @@ internal class RTCPMessageHandler(
      * stream being supported.
      *
      * @param connection  The connection the message was received on.
-     * @param rawMessage   The message that was received.  This must be an
+     * @param message   The message that was received.  This must be an
      * instance of RTCPRequest.
      */
-    override fun processMessage(connection: Connection, rawMessage: Any) {
+    override fun processMessage(connection: Connection, message: Any) {
         if (myStartupTimeoutTripped) {
             /* They were kicked off for lacktivity, so ignore the message. */
             return
@@ -57,29 +59,21 @@ internal class RTCPMessageHandler(
             myStartupTimeout!!.cancel()
             myStartupTimeout = null
         }
-        val message = rawMessage as RTCPRequest
+        val actualMessage = message as RTCPRequest
         if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("$connection $message")
+            traceFactory.comm.debugm("$connection $actualMessage")
         }
-        when (message.verb()) {
+        when (actualMessage.verb()) {
             RTCPRequest.VERB_START -> myFactory.doStart(connection)
-            RTCPRequest.VERB_RESUME -> myFactory.doResume(connection, message.sessionID()!!,
-                    message.clientRecvSeqNum())
-            RTCPRequest.VERB_ACK -> myFactory.doAck(connection, message.clientRecvSeqNum())
-            RTCPRequest.VERB_MESSAGE -> myFactory.doMessage(connection, message)
+            RTCPRequest.VERB_RESUME -> myFactory.doResume(connection, actualMessage.sessionID()!!,
+                    actualMessage.clientRecvSeqNum())
+            RTCPRequest.VERB_ACK -> myFactory.doAck(connection, actualMessage.clientRecvSeqNum())
+            RTCPRequest.VERB_MESSAGE -> myFactory.doMessage(connection, actualMessage)
             RTCPRequest.VERB_END -> myFactory.doEnd(connection)
-            RTCPRequest.VERB_ERROR -> myFactory.doError(connection, message.error()!!)
+            RTCPRequest.VERB_ERROR -> myFactory.doError(connection, actualMessage.error()!!)
         }
     }
 
-    /**
-     * Constructor.
-     *
-     * @param connection  The connection this is to be a message handler for.
-     * @param factory  The factory what created this.
-     * @param startupTimeoutInterval  How long a new connection is given to do
-     * something before kicking them off.
-     */
     init {
         /* Kick the user off if they haven't yet done anything. */
         myStartupTimeout = timer.after(

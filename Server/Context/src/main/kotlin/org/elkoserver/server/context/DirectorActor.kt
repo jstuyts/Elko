@@ -60,8 +60,8 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
         private var myMode = 0
         private val myContexts: Iterator<DispatchTarget>
         private var myUsers: Iterator<DispatchTarget>
-        private val myContextRef: String?
-        private val myUserRef: String?
+        private val myContextRef = context.value<String?>(null)
+        private val myUserRef = user.value<String?>(null)
         private var myActiveContext: Context? = null
         private var myNextResult: Any? = null
 
@@ -89,25 +89,19 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
                     }
                 }
 
-        private fun nextUser(): User {
-            val user: User
-            user = try {
-                myUsers.next() as User
-            } catch (e: ClassCastException) {
-                throw MessageHandlerException("user reference $myUserRef does not refer to a user")
-            }
-            return user
-        }
+        private fun nextUser() =
+                try {
+                    myUsers.next() as User
+                } catch (e: ClassCastException) {
+                    throw MessageHandlerException("user reference $myUserRef does not refer to a user")
+                }
 
-        private fun nextContext(): Context {
-            val context: Context
-            context = try {
-                myContexts.next() as Context
-            } catch (e: ClassCastException) {
-                throw MessageHandlerException("context reference $myContextRef does not refer to a context")
-            }
-            return context
-        }
+        private fun nextContext() =
+                try {
+                    myContexts.next() as Context
+                } catch (e: ClassCastException) {
+                    throw MessageHandlerException("context reference $myContextRef does not refer to a context")
+                }
 
         operator fun next(): Any {
             val currentNextResult = myNextResult
@@ -136,8 +130,6 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
         }
 
         init {
-            myContextRef = context.value<String?>(null)
-            myUserRef = user.value<String?>(null)
             myContexts = lookupClones(myContextRef).iterator()
             myUsers = lookupClones(myUserRef).iterator()
             if (myContexts.hasNext()) {

@@ -77,7 +77,7 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
     private var myWorkingBufferLength = 0
 
     /** Additional byte arrays queued to be read.  */
-    private val myPendingBuffers: LinkedList<ByteArray>
+    private val myPendingBuffers = LinkedList<ByteArray>()
 
     /** A byte array that has been passed to this object by its client but not
      * yet copied to storage internal to this object.  */
@@ -415,7 +415,6 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
      * Constructor.  Initially, no input has been provided.
      */
     init {
-        myPendingBuffers = LinkedList()
         myWorkingBuffer = null
         myClientBuffer = null
         myTotalByteCount = 0

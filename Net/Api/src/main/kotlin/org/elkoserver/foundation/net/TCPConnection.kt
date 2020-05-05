@@ -15,14 +15,24 @@ import java.util.concurrent.Callable
 /**
  * An implementation of [Connection] that manages a non-blocking TCP
  * connection to a single remote host.
+ *
+ * This constructor *must* be called from inside the select thread.
+ *
+ * @param handlerFactory  Provider of a message handler to process messages
+ * received on this connection.
+ * @param framerFactory  Byte I/O framer factory for the connection.
+ * @param channel  Channel to the TCP connection proper.
+ * @param key  Selection key for reads and writes over 'channel'.
+ * @param selectThread  Select thread that is managing this connection.
+ * @param mgr  Network manager for this server.
+ * @param amSecure  If true, this is an SSL connection.
+ * @param myTrace  Trace object to use for this connection.
  */
 class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
                                          framerFactory: ByteIOFramerFactory, channel: SocketChannel,
                                          key: SelectionKey, selectThread: SelectThread,
                                          mgr: NetworkManager,
-                                         /** Flag that this is an SSL connection.  */
                                          private val amSecure: Boolean,
-                                         /** Trace object to use for logging associated with this connection.  */
                                          private val myTrace: Trace, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(mgr, clock, traceFactory), MessageReceiver, Callable<Any?> {
     /** Queue of unencoded outbound messages.  */
     private val myOutputQueue: Queue<Any>
@@ -358,21 +368,6 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
         private val theEmptyBuffer = ByteBuffer.wrap(ByteArray(0))
     }
 
-    /**
-     * Constructor.
-     *
-     * This constructor *must* be called from inside the select thread.
-     *
-     * @param handlerFactory  Provider of a message handler to process messages
-     * received on this connection.
-     * @param framerFactory  Byte I/O framer factory for the connection.
-     * @param channel  Channel to the TCP connection proper.
-     * @param key  Selection key for reads and writes over 'channel'.
-     * @param selectThread  Select thread that is managing this connection.
-     * @param mgr  Network manager for this server.
-     * @param isSecure  If true, this is an SSL connection.
-     * @param trace  Trace object to use for this connection.
-     */
     init {
         wakeupSelectForWrite()
         myChannel = channel

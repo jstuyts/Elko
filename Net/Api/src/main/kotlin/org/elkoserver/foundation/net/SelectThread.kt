@@ -19,15 +19,17 @@ import javax.net.ssl.SSLContext
  * non-blocking Channels.  Requests to open listeners, connect to remote hosts,
  * and send messages on connections are all fed to this thread via a queue.
  * This thread in turn feeds received input events to the run queue.
+ *
+ * @param myMgr  Network manager for this server.
+ * @param sslContext  SSL context to use, if supporting SSL, else null
  */
 internal class SelectThread(
-        /** Network manager for this server  */
         private val myMgr: NetworkManager, sslContext: SSLContext?, private val clock: Clock, private val traceFactory: TraceFactory) : Thread("Elko Select") {
     /** Selector to await available I/O opportunities.  */
     private var mySelector: Selector? = null
 
     /** Queue of unserviced I/O requests.  */
-    private val myQueue: Queue<Any>
+    private val myQueue = Queue<Any>()
 
     /**
      * The body of the thread.  Responsible for dequeueing I/O requests and
@@ -205,14 +207,7 @@ internal class SelectThread(
         mySelector!!.wakeup()
     }
 
-    /**
-     * Constructor.
-     *
-     * @param mgr  Network manager for this server.
-     * @param sslContext  SSL context to use, if supporting SSL, else null
-     */
     init {
-        myQueue = Queue()
         try {
             mySelector = if (sslContext != null) {
                 SSLSelector.open(sslContext)

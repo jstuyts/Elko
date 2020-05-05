@@ -10,24 +10,20 @@ import java.util.stream.Collectors
 /**
  * Message handler factory to provide message handlers that wrap a message
  * stream inside a WebSocket connection.
- */
-internal class WebSocketMessageHandlerFactory
-/**
+ *
  * Each HTTP message handler wraps an application-level message handler,
  * which is the entity that will actually process the messages extracted
  * from the HTTP requests, so the HTTP message handler factory needs to
  * wrap the application-level message handler factory.
- * @param innerFactory  The application-level message handler factor that
+ *
+ * @param myInnerFactory  The application-level message handler factor that
  * is to be wrapped by this.
- * @param socketURI  The URI of the WebSocket connection point.
- * @param msgTrace  Trace object for message logging
- */(
-        /** The message handler factory for the messages embedded in the composite
-         * stream.  */
+ * @param mySocketURI  The URI of the WebSocket connection point.
+ * @param trMsg  Trace object for message logging
+ */
+internal class WebSocketMessageHandlerFactory(
         private val myInnerFactory: MessageHandlerFactory,
-        /** The URI of the WebSocket connection point.  */
         private val mySocketURI: String,
-        /** Trace object for message logging.  */
         private val trMsg: Trace) : MessageHandlerFactory {
 
     private fun makeErrorReply(problem: String): String {

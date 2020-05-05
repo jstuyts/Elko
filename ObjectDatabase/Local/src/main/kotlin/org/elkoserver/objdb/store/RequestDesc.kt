@@ -10,7 +10,7 @@ import org.elkoserver.json.JSONLiteralFactory.type
 /**
  * Description of a request for an object.
  *
- * @param myRefref  Reference string identifying the object requested.
+ * @param myRef  Reference string identifying the object requested.
  * @param myCollectionName  Name of collection to get from, or null to take
  *    the configured default.
  * @param myContents If true, retrieve the referenced object and any objects

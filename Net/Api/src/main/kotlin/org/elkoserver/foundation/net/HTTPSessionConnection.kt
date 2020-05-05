@@ -13,13 +13,18 @@ import kotlin.math.abs
 /**
  * An implementation of [Connection] that virtualizes a continuous
  * message session out of a series of transient HTTP connections.
+ *
+ * Make a new HTTP session connection object for an incoming connection,
+ * with a given session ID.
+ *
+ * @param mySessionFactory  Factory for creating HTTP message handler objects
+ * @param mySessionID  The session ID for the session.
  */
 class HTTPSessionConnection private constructor(
-        /** The factory that created this session.  */
         private val mySessionFactory: HTTPMessageHandlerFactory,
-        sessionID: Long, timer: Timer, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(mySessionFactory.networkManager(), clock, traceFactory) {
+        private val mySessionID: Long, timer: Timer, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(mySessionFactory.networkManager(), clock, traceFactory) {
     /** Trace object for logging message traffic.  */
-    private val trMsg: Trace
+    private val trMsg: Trace = mySessionFactory.httpFramer().msgTrace()
 
     /** Server to client message sequence number.  */
     private var mySelectSequenceNumber: Int
@@ -66,9 +71,6 @@ class HTTPSessionConnection private constructor(
 
     /** Open TCP connections associated with this session, for cleanup.  */
     private var myConnections: MutableSet<Connection>
-
-    /** Session ID -- a swiss number to authenticate client HTTP requests.  */
-    private val mySessionID: Long
 
     /**
      * Make a new HTTP session connection object for an incoming connection,
@@ -212,18 +214,18 @@ class HTTPSessionConnection private constructor(
      * 'message'.
      */
     private fun packMessage(message: Any, start: Boolean, end: Boolean): String {
-        var message: Any? = message
+        var actualMessage: Any? = message
         if (start) {
             ++mySelectSequenceNumber
         }
         var sequenceNumber = mySelectSequenceNumber
-        if (message === theTimeoutMarker) {
-            message = null
-        } else if (message === theHTTPCloseMarker) {
-            message = null
+        if (actualMessage === theTimeoutMarker) {
+            actualMessage = null
+        } else if (actualMessage === theHTTPCloseMarker) {
+            actualMessage = null
             sequenceNumber = -1
         }
-        return myHTTPFramer.makeSelectReplySegment(message, sequenceNumber, start, end)
+        return myHTTPFramer.makeSelectReplySegment(actualMessage, sequenceNumber, start, end)
     }
 
     /**
@@ -427,16 +429,7 @@ class HTTPSessionConnection private constructor(
         }
     }
 
-    /**
-     * Make a new HTTP session connection object for an incoming connection,
-     * with a given session ID.
-     *
-     * @param sessionFactory  Factory for creating HTTP message handler objects
-     * @param sessionID  The session ID for the session.
-     */
     init {
-        trMsg = mySessionFactory.httpFramer().msgTrace()
-        mySessionID = sessionID
         mySessionFactory.addSession(this)
         myConnections = HashSet()
         myLastActivityTime = clock.millis()

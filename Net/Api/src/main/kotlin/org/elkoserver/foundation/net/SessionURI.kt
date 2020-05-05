@@ -3,6 +3,20 @@ package org.elkoserver.foundation.net
 /**
  * Helper class to hold onto the various fragments of a parsed HTTP session
  * URI.
+ *
+ * @param uri  The URI string to parse.
+ * @param rootURI  The root URI that should begin all URIs.
+ *
+ * The URI string must be one of the following forms:
+ *
+ * ROOTURI/connect
+ * ROOTURI/connect/RANDOMCRUDTHATISIGNORED
+ * ROOTURI/xmit/SESSIONID/SEQUENCENUMBER
+ * ROOTURI/select/SESSIONID/SEQUENCENUMBER
+ * ROOTURI/disconnect/SESSIONID
+ *
+ * where ROOTURI is the string passed in the 'rootURI' parameter, and
+ * SESSIONID and SEQUENCENUMBER are decimal integers.
  */
 class SessionURI(uri: String, rootURI: String) {
     /** Verb from the URI, encoded as one of the constants VERB_xxx  */
@@ -62,62 +76,45 @@ class SessionURI(uri: String, rootURI: String) {
         const val VERB_DISCONNECT = 5
     }
 
-    /**
-     * Construct a SessionURI by parsing a URI string.
-     *
-     * @param uri  The URI string to parse.
-     * @param rootURI  The root URI that should begin all URIs.
-     *
-     * The URI string must be one of the following forms:
-     *
-     * ROOTURI/connect
-     * ROOTURI/connect/RANDOMCRUDTHATISIGNORED
-     * ROOTURI/xmit/SESSIONID/SEQUENCENUMBER
-     * ROOTURI/select/SESSIONID/SEQUENCENUMBER
-     * ROOTURI/disconnect/SESSIONID
-     *
-     * where ROOTURI is the string passed in the 'rootURI' parameter, and
-     * SESSIONID and SEQUENCENUMBER are decimal integers.
-     */
     init {
-        var uri = uri
+        var actualUri = uri
         val stringptr = arrayOfNulls<String>(1)
         var initSessionID: Long = 0
         var initVerb = 0
         var initSequenceNumber = 0
         var initValid = false
-        if (uri.startsWith(rootURI)) {
-            uri = uri.substring(rootURI.length)
-            if (uri.endsWith("/")) {
-                uri = uri.substring(0, uri.length - 1)
+        if (actualUri.startsWith(rootURI)) {
+            actualUri = actualUri.substring(rootURI.length)
+            if (actualUri.endsWith("/")) {
+                actualUri = actualUri.substring(0, actualUri.length - 1)
             }
-            if (uri.startsWith(CONNECT_REQ_URI)) {
-                if (uri.length == CONNECT_REQ_URI.length) {
-                    uri = ""
+            if (actualUri.startsWith(CONNECT_REQ_URI)) {
+                if (actualUri.length == CONNECT_REQ_URI.length) {
+                    actualUri = ""
                     initVerb = VERB_CONNECT
                     initValid = true
-                } else if (uri[CONNECT_REQ_URI.length] == '/') {
-                    uri = uri.substring(CONNECT_REQ_URI.length + 1)
+                } else if (actualUri[CONNECT_REQ_URI.length] == '/') {
+                    actualUri = actualUri.substring(CONNECT_REQ_URI.length + 1)
                     initVerb = VERB_CONNECT
                     initValid = true
                 }
-            } else if (uri.startsWith(SELECT_REQ_URI)) {
-                uri = uri.substring(SELECT_REQ_URI.length)
+            } else if (actualUri.startsWith(SELECT_REQ_URI)) {
+                actualUri = actualUri.substring(SELECT_REQ_URI.length)
                 initVerb = VERB_SELECT
                 initValid = true
-            } else if (uri.startsWith(XMIT_REQ_URI)) {
-                uri = uri.substring(XMIT_REQ_URI.length)
+            } else if (actualUri.startsWith(XMIT_REQ_URI)) {
+                actualUri = actualUri.substring(XMIT_REQ_URI.length)
                 initVerb = VERB_XMIT_POST
                 initValid = true
-            } else if (uri.startsWith(DISCONNECT_REQ_URI)) {
-                uri = uri.substring(DISCONNECT_REQ_URI.length)
+            } else if (actualUri.startsWith(DISCONNECT_REQ_URI)) {
+                actualUri = actualUri.substring(DISCONNECT_REQ_URI.length)
                 initVerb = VERB_DISCONNECT
                 initValid = true
             }
         }
         if (initValid) {
             initValid = false
-            stringptr[0] = uri
+            stringptr[0] = actualUri
             if (initVerb == VERB_CONNECT) {
                 initValid = true
             } else {

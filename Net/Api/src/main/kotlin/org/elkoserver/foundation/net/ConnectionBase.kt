@@ -1,12 +1,13 @@
 package org.elkoserver.foundation.net
 
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
 
 /**
  * Base class providing common internals implementation for various types of
  * Connection objects.
+ *
+ * @param mgr  Network manager for this server.
  */
 abstract class ConnectionBase protected constructor(mgr: NetworkManager, protected var clock: Clock, protected var traceFactory: TraceFactory) : Connection {
     /** Number identifying this connection in log messages.  */
@@ -16,7 +17,7 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
     private var myMessageHandler: MessageHandler? = null
 
     /** The run queue in which messages will be handled.  */ /* protected */
-    private val myRunner: Runner
+    private val myRunner = mgr.runner()
 
     /** System load tracker.  */
     private val myLoadMonitor: LoadMonitor?
@@ -128,13 +129,7 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
         private var theIDCounter = 0
     }
 
-    /**
-     * Constructor.
-     *
-     * @param mgr  Network manager for this server.
-     */
     init {
-        myRunner = mgr.runner()
         myLoadMonitor = mgr.loadMonitor()
         myID = theIDCounter++
     }

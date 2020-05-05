@@ -45,7 +45,7 @@ open class RefTable(resolver: TypeResolver?, protected val traceFactory: TraceFa
 
     /** Mapping from message verbs to MethodInvoker objects (which contain
      * precomputed Java reflection objects).  */
-    private val myDispatcher: MessageDispatcher
+    private val myDispatcher = MessageDispatcher(resolver, traceFactory, clock)
 
     /**
      * Internal error handler object that is the target of debug JSON messages.
@@ -237,7 +237,6 @@ open class RefTable(resolver: TypeResolver?, protected val traceFactory: TraceFa
     }
 
     init {
-        myDispatcher = MessageDispatcher(resolver, traceFactory, clock)
         addRef(ErrorHandler(traceFactory))
     }
 }

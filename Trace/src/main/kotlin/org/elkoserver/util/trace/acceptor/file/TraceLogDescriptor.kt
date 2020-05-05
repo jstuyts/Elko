@@ -138,8 +138,7 @@ internal class TraceLogDescriptor(private val clock: Clock) : Cloneable {
         } else if (myFile == null) {
             "unknown"
         } else {
-            val canonical: String
-            canonical = try {
+            val canonical = try {
                 myFile!!.canonicalPath
             } catch (e: IOException) {
                 /* The canonical path was undiscoverable.  Punt by returning
@@ -203,12 +202,12 @@ internal class TraceLogDescriptor(private val clock: Clock) : Cloneable {
             myFile = null
             return
         }
-        val nextFile: File?
-        nextFile = if (previous != null) {
-            previous.myNextFile
-        } else {
-            desiredLogFile()
-        }
+        val nextFile =
+                if (previous != null) {
+                    previous.myNextFile
+                } else {
+                    desiredLogFile()
+                }
         if (nextFile!!.isDirectory) {
             throw IOException("opening directory as a logfile")
         }

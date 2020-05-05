@@ -58,18 +58,20 @@ class JSONHTTPFramer (appTrace: Trace, private val traceFactory: TraceFactory) :
      * Get an iterator that can extract the JSON message or messages (if any)
      * from the body of an HTTP message.
      *
-     * @param body  The HTTP message body in question.
+     * @param postBody  The HTTP message body in question.
      *
      * @return an iterator that can be called upon to return the JSON
      * message(s) contained within 'body'.
      */
-    override fun postBodyUnpacker(body: String): Iterator<Any> {
-        return JSONBodyUnpacker(body, traceFactory)
+    override fun postBodyUnpacker(postBody: String): Iterator<Any> {
+        return JSONBodyUnpacker(postBody, traceFactory)
     }
 
     /**
      * Post body unpacker for a bundle of JSON messages.  In this case, the
      * HTTP POST body contains one or more JSON messages.
+     *
+     * @param postBody  The HTTP message body was POSTed.
      */
     private class JSONBodyUnpacker internal constructor(postBody: String, private val traceFactory: TraceFactory) : MutableIterator<Any> {
         private var postBody: String
@@ -142,17 +144,10 @@ class JSONHTTPFramer (appTrace: Trace, private val traceFactory: TraceFactory) :
             throw UnsupportedOperationException()
         }
 
-        /**
-         * Constructor. Strip the form variable name and parse the rest as
-         * JSON.
-         *
-         * @param postBody  The HTTP message body was POSTed.
-         */
         init {
             traceFactory.comm.debugm("unpacker for: /$postBody/")
             this.postBody = extractBodyFromSafariPostIfNeeded(postBody)
             myLastMessageParsed = parseNextMessage()
         }
     }
-
 }

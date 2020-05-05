@@ -8,8 +8,8 @@ import org.elkoserver.util.HashMapMulti
  * functionality required when a connected entity is engaging in the client
  * protocol.
  *
- * @param broker  The broker whose client this is.
- * @param actor  The actor associated with the client.
+ * @param myBroker  The broker whose client this is.
+ * @param myActor  The actor associated with the client.
  */
 internal class Client(private val myBroker: Broker, private val myActor: BrokerActor) {
 

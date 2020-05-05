@@ -34,9 +34,6 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param control  Encode control determining what flavor of encoding
      * is being done.
      */
-    /**
-     * Begin a new literal that will be filled in incrementally.
-     */
     constructor(control: EncodeControl = EncodeControl.forClient) : this(StringBuilder(1000), control)
 
     fun addParameter(param: String?, jsonLiteral: JSONLiteral?) {

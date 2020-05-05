@@ -9,8 +9,8 @@ import org.elkoserver.json.JSONLiteral
  * Object representing a defined currency: a type token denominating a
  * monetary value.
  *
- * @param name  The currency name.
- * @param memo  Annotation on currency.
+ * @param myName  The currency name.
+ * @param myMemo  Annotation on currency.
  */
 class Currency @JSONMethod("name", "memo") internal constructor(private val myName: String, private val myMemo: String) : Encodable {
 

@@ -22,10 +22,10 @@ internal class PresenceServer(
         traceFactory: TraceFactory,
         clock: Clock) {
     /** Database that this server stores stuff in.  */
-    private val myODB: ObjDB?
+    private val myODB: ObjDB
 
     /** Table for mapping object references in messages.  */
-    private val myRefTable: RefTable
+    private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
     /**
      * Test if the server is in the midst of shutdown.
@@ -33,7 +33,7 @@ internal class PresenceServer(
      * @return true if the server is trying to shutdown.
      */
     /** Flag that is set once server shutdown begins.  */
-    var isShuttingDown: Boolean
+    var isShuttingDown = false
 
     /** Set of currently connected actors.  */
     private val myActors: MutableSet<PresenceActor>
@@ -49,10 +49,10 @@ internal class PresenceServer(
     private val myContextMetadata: MutableMap<String, JsonObject>
 
     /** The client object.  */
-    private val myClientHandler: ClientHandler
+    private val myClientHandler = ClientHandler(this, traceFactory)
 
-    /** The social graphs theselves.  */
-    private val mySocialGraphs: MutableMap<String, SocialGraph>
+    /** The social graphs themselves.  */
+    private val mySocialGraphs = HashMap<String, SocialGraph>()
 
     /**
      * Get a read-only view of the set of connected actors.
@@ -165,7 +165,7 @@ internal class PresenceServer(
     /**
      * Obtain the application trace object for this presence server.
      *
-     * @return the prsence server's trace object.
+     * @return the presence server's trace object.
      */
     fun appTrace(): Trace {
         return tr
@@ -274,8 +274,6 @@ internal class PresenceServer(
     }
 
     init {
-        myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
-        myClientHandler = ClientHandler(this, traceFactory)
         myRefTable.addRef(myClientHandler)
         val myAdminHandler = AdminHandler(this, traceFactory)
         myRefTable.addRef(myAdminHandler)
@@ -283,12 +281,8 @@ internal class PresenceServer(
         myUsers = HashMap()
         myVisibles = HashMap()
         myContextMetadata = HashMap()
-        myODB = myServer.openObjectDatabase("conf.presence")
-        if (myODB == null) {
-            tr.fatalError("no database specified")
-        }
+        myODB = myServer.openObjectDatabase("conf.presence") ?: tr.fatalError("no database specified")
         myODB.addClass("graphtable", GraphTable::class.java)
-        mySocialGraphs = HashMap()
         myODB.getObject("graphs", null, Consumer { obj: Any? ->
             if (obj != null) {
                 val info = obj as GraphTable
@@ -302,7 +296,6 @@ internal class PresenceServer(
                 tr.warningi("unable to load social graph metadata table")
             }
         })
-        isShuttingDown = false
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 isShuttingDown = true

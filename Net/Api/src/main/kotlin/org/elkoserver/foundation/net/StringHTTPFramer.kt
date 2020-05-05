@@ -26,6 +26,8 @@ protected constructor(msgTrace: Trace) : HTTPFramer(msgTrace) {
      * Post body unpacker for a plain string HTTP message.  In this case, the
      * HTTP POST body contains exactly one message, which is the value of
      * exactly one POSTed form field (whose name doesn't matter).
+     *
+     * @param postBody  The HTTP message body was POSTed.
      */
     private class StringBodyUnpacker internal constructor(postBody: String) : MutableIterator<Any> {
         /** The message string that was received.  */
@@ -60,19 +62,13 @@ protected constructor(msgTrace: Trace) : HTTPFramer(msgTrace) {
             throw UnsupportedOperationException()
         }
 
-        /**
-         * Constructor.  Just strip the form variable name and remember the
-         * rest.
-         *
-         * @param postBody  The HTTP message body was POSTed.
-         */
         init {
-            var postBody = postBody
-            val junkMark = postBody.indexOf('=')
+            var actualPostBody = postBody
+            val junkMark = actualPostBody.indexOf('=')
             if (junkMark >= 0) {
-                postBody = postBody.substring(junkMark + 1)
+                actualPostBody = actualPostBody.substring(junkMark + 1)
             }
-            myReceivedMessage = postBody
+            myReceivedMessage = actualPostBody
         }
     }
 }

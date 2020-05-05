@@ -12,19 +12,24 @@ import java.nio.channels.ServerSocketChannel
 
 /**
  * A listener for new inbound TCP connections to some server port.
+ *
+ * This must *not* be called from inside the select thread.
+ *
+ * @param myLocalAddress  The local address and port to will listen on.
+ * @param myHandlerFactory  Message handler factory to provide the handlers
+ * for connections made to this port.
+ * @param myFramerFactory  Byte I/O framer factory for new connections.
+ * @param myMgr  Network manager for this server.
+ * @param amSecure  If true, use SSL.
+ * @param myTrace  Trace object for logging activity associated with this
+ * port & its connections
  */
 internal class Listener(
-        /** Address string for the requested listen address.  */
         private val myLocalAddress: String,
-        /** The message handler factory for connections to this listener's port.  */
         private val myHandlerFactory: MessageHandlerFactory,
-        /** Low-level I/O framer factory for connections to this listener's port  */
         private val myFramerFactory: ByteIOFramerFactory,
-        /** Network manager for this server.  */
         private val myMgr: NetworkManager,
-        /** Listener is expecting SSL connections.  */
         private val amSecure: Boolean,
-        /** Trace object this listener should use.  */
         private val myTrace: Trace) {
     /** The address to listen on, or null for the default address.  */
     private val myOptIP: InetAddress
@@ -85,20 +90,6 @@ internal class Listener(
         key.attach(this)
     }
 
-    /**
-     * Constructor.
-     *
-     * This must *not* be called from inside the select thread.
-     *
-     * @param localAddress  The local address and port to will listen on.
-     * @param handlerFactory  Message handler factory to provide the handlers
-     * for connections made to this port.
-     * @param framerFactory  Byte I/O framer factory for new connections.
-     * @param mgr  Network manager for this server.
-     * @param secure  If true, use SSL.
-     * @param portTrace  Trace object for logging activity associated with this
-     * port & its connections
-     */
     init {
         val netAddr = NetAddr(myLocalAddress)
         myOptIP = netAddr.inetAddress()!!

@@ -8,12 +8,14 @@ import java.util.Locale
 
 /**
  * Message handler for HTTP requests wrapping a message stream.
+ *
+ * @param myConnection  The connection this is to be a message handler for.
+ * @param myFactory  The factory what created this.
+ * @param startupTimeoutInterval  How long to give new connection to do
+ * something before kicking them off.
  */
 internal class HTTPMessageHandler(
-        /** The connection this handler handles messages for.  */
         private val myConnection: Connection,
-        /** The factory that created this handler, which also contains much of the
-         * handler implementation logic.  */
         private val myFactory: HTTPMessageHandlerFactory,
         startupTimeoutInterval: Int, timer: Timer, private val traceFactory: TraceFactory) : MessageHandler {
 
@@ -61,10 +63,10 @@ internal class HTTPMessageHandler(
      * components is the same as in the /select/ URI.
      *
      * @param connection  The connection the message was received on.
-     * @param rawMessage   The message that was received.  This must be an
+     * @param message   The message that was received.  This must be an
      * instance of HTTPRequest.
      */
-    override fun processMessage(connection: Connection, rawMessage: Any) {
+    override fun processMessage(connection: Connection, message: Any) {
         if (myStartupTimeoutTripped) {
             /* They were kicked off for lacktivity, so ignore the message. */
             return
@@ -73,34 +75,25 @@ internal class HTTPMessageHandler(
             myStartupTimeout!!.cancel()
             myStartupTimeout = null
         }
-        val message = rawMessage as HTTPRequest
+        val actualMessage = message as HTTPRequest
         if (traceFactory.comm.verbose) {
-            traceFactory.comm.verbosem("$connection $message")
+            traceFactory.comm.verbosem("$connection $actualMessage")
         } else if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("$connection |> ${message.URI()}")
+            traceFactory.comm.debugm("$connection |> ${actualMessage.URI()}")
         }
-        val upperCaseMethod = message.method()!!.toUpperCase(Locale.ENGLISH)
-        when (upperCaseMethod) {
-            "GET" -> myFactory.handleGET(connection, message.URI()!!, message.isNonPersistent)
-            "POST" -> myFactory.handlePOST(connection, message.URI()!!, message.isNonPersistent, message.content()!!)
-            "OPTIONS" -> myFactory.handleOPTIONS(connection, message)
+        when (actualMessage.method()!!.toUpperCase(Locale.ENGLISH)) {
+            "GET" -> myFactory.handleGET(connection, actualMessage.URI()!!, actualMessage.isNonPersistent)
+            "POST" -> myFactory.handlePOST(connection, actualMessage.URI()!!, actualMessage.isNonPersistent, actualMessage.content())
+            "OPTIONS" -> myFactory.handleOPTIONS(connection, actualMessage)
             else -> {
                 if (traceFactory.comm.usage) {
-                    traceFactory.comm.usagem("Received invalid HTTP method ${message.method()} from $connection")
+                    traceFactory.comm.usagem("Received invalid HTTP method ${actualMessage.method()} from $connection")
                 }
                 connection.close()
             }
         }
     }
 
-    /**
-     * Constructor.
-     *
-     * @param connection  The connection this is to be a message handler for.
-     * @param factory  The factory what created this.
-     * @param startupTimeoutInterval  How long to give new connection to do
-     * something before kicking them off.
-     */
     init {
         /* Kick the user off if they haven't yet done anything. */
         myStartupTimeout = timer.after(

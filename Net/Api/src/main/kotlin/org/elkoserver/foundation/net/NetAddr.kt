@@ -30,8 +30,6 @@ class NetAddr {
      * the port is associated with all local IP addresses.
      *
      * @param addressStr  The network address string, as described above.
-     *
-     * @throws UnknownHostException if the host name can't be resolved.
      */
     constructor(addressStr: String?) {
         var actualAddressStr = addressStr
@@ -49,7 +47,7 @@ class NetAddr {
         if (slash >= 0) {
             actualAddressStr = actualAddressStr.substring(slash + 1)
         }
-        myInetAddress = if (actualAddressStr.length >= 1) {
+        myInetAddress = if (actualAddressStr.isNotEmpty()) {
             InetAddress.getByName(actualAddressStr)
         } else {
             null
@@ -77,11 +75,10 @@ class NetAddr {
         if (other !is NetAddr) {
             return false
         }
-        val otherNetAddr = other
-        if (port != otherNetAddr.port) {
+        if (port != other.port) {
             return false
         }
-        val otherInetAddress = otherNetAddr.myInetAddress
+        val otherInetAddress = other.myInetAddress
         if (myInetAddress === otherInetAddress) {
             return true
         }
