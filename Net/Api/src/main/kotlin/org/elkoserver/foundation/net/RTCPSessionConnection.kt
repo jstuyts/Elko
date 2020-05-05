@@ -379,7 +379,7 @@ class RTCPSessionConnection private constructor(
 
     companion object {
         /** Random number generator, for creating session IDs.  */
-        @Deprecated("") // Global variable
+        @Deprecated("Global variable")
         private val theRandom = SecureRandom()
 
         /**

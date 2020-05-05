@@ -14,5 +14,6 @@ object Communication {
      * errors will be silently swallowed.
      */
     @JvmField
+    @Deprecated("Global variable")
     var TheDebugReplyFlag = false
 }
