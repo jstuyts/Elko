@@ -59,27 +59,19 @@ class MessageDispatcher(private val myResolver: TypeResolver?, private val trace
                 val note = method.getAnnotation(JSONMethod::class.java)
                 if (note != null) {
                     if (!Modifier.isPublic(method.modifiers)) {
-                        throw JSONSetupError("class " + targetClass.name +
-                                " JSON message handler method " + method.name +
-                                " is not public")
+                        throw JSONSetupError("class ${targetClass.name} JSON message handler method ${method.name} is not public")
                     }
                     if (method.returnType != Void.TYPE) {
-                        throw JSONSetupError("class " + targetClass.name +
-                                " JSON message handler method " + method.name +
-                                " does not have return type void")
+                        throw JSONSetupError("class ${targetClass.name} JSON message handler method ${method.name} does not have return type void")
                     }
                     val paramTypes = method.parameterTypes
                     if (paramTypes.isEmpty() ||
                             !Deliverer::class.java.isAssignableFrom(paramTypes[0])) {
-                        throw JSONSetupError("class " + targetClass.name +
-                                " JSON message handler method " + method.name +
-                                " does not have a Deliverer first parameter")
+                        throw JSONSetupError("class ${targetClass.name} JSON message handler method ${method.name} does not have a Deliverer first parameter")
                     }
                     val paramNames: Array<out String> = note.value
                     if (paramNames.size + 1 != paramTypes.size) {
-                        throw JSONSetupError("class " + targetClass.name +
-                                " JSON message handler method " + method.name +
-                                " has wrong number of parameters")
+                        throw JSONSetupError("class ${targetClass.name} JSON message handler method ${method.name} has wrong number of parameters")
                     }
                     val name = method.name
                     val prev = myInvokers[name]

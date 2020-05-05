@@ -86,8 +86,7 @@ class HTTPSessionConnection private constructor(
     fun associateTCPConnection(connection: Connection) {
         myConnections.add(connection)
         if (trMsg.debug) {
-            trMsg.debugm("associate " + connection + " with " + this +
-                    ", count=" + myConnections.size)
+            trMsg.debugm("associate $connection with $this, count=${myConnections.size}")
         }
     }
 
@@ -277,9 +276,7 @@ class HTTPSessionConnection private constructor(
         noteClientActivity()
         return if (uri.sequenceNumber != mySelectSequenceNumber) {
             /* Client did a bad, bad thing. */
-            trMsg.errorm(this.toString() + " expected select seq # " +
-                    mySelectSequenceNumber + ", got " +
-                    uri.sequenceNumber)
+            trMsg.errorm("$this expected select seq # $mySelectSequenceNumber, got ${uri.sequenceNumber}")
             downstreamConnection.sendMsg(
                     myHTTPFramer.makeSequenceErrorReply("sequenceError"))
             true
@@ -387,8 +384,7 @@ class HTTPSessionConnection private constructor(
             clearDownstreamConnection()
             noteClientActivity()
             if (trMsg.event) {
-                trMsg.eventm(this.toString() + " lost " + connection +
-                        " with pending select")
+                trMsg.eventm("$this lost $connection with pending select")
             }
         }
     }
@@ -399,7 +395,7 @@ class HTTPSessionConnection private constructor(
      * @return a printable representation of this connection.
      */
     override fun toString(): String {
-        return "HTTP(" + id() + "," + mySessionID + ")"
+        return "HTTP(${id()},$mySessionID)"
     }
 
     companion object {

@@ -116,8 +116,7 @@ class HTTPMessageHandlerFactory internal constructor(
         }
         val reply: String
         reply = if (session == null) {
-            traceFactory.comm.errorm("got disconnect with invalid session " +
-                    uri.sessionID)
+            traceFactory.comm.errorm("got disconnect with invalid session ${uri.sessionID}")
             myHTTPFramer.makeSequenceErrorReply("sessionIDError")
         } else {
             myHTTPFramer.makeDisconnectReply()
@@ -138,8 +137,7 @@ class HTTPMessageHandlerFactory internal constructor(
      */
     private fun doError(connection: Connection, uri: String): Boolean {
         if (traceFactory.comm.usage) {
-            traceFactory.comm.usagem(connection.toString() +
-                    " received invalid URI in HTTP request " + uri)
+            traceFactory.comm.usagem("$connection received invalid URI in HTTP request $uri")
         }
         connection.sendMsg(HTTPError(404, "Not Found",
                 myHTTPFramer.makeBadURLReply(uri)))
@@ -164,8 +162,7 @@ class HTTPMessageHandlerFactory internal constructor(
             associateTCPConnection(session, connection)
             session.selectMessages(connection, uri, nonPersistent)
         } else {
-            traceFactory.comm.errorm("got select with invalid session " +
-                    uri.sessionID)
+            traceFactory.comm.errorm("got select with invalid session ${uri.sessionID}")
             connection.sendMsg(
                     myHTTPFramer.makeSequenceErrorReply("sessionIDError"))
             true
@@ -190,8 +187,7 @@ class HTTPMessageHandlerFactory internal constructor(
             associateTCPConnection(session, connection)
             session.receiveMessage(connection, uri, message)
         } else {
-            traceFactory.comm.errorm("got xmit with invalid session " +
-                    uri.sessionID)
+            traceFactory.comm.errorm("got xmit with invalid session ${uri.sessionID}")
             connection.sendMsg(
                     myHTTPFramer.makeSequenceErrorReply("sessionIDError"))
         }
@@ -326,8 +322,7 @@ class HTTPMessageHandlerFactory internal constructor(
             return session
         }
         if (traceFactory.comm.usage) {
-            traceFactory.comm.usagem(connection.toString() + " received invalid session ID " +
-                    uri.sessionID)
+            traceFactory.comm.usagem("$connection received invalid session ID ${uri.sessionID}")
         }
         return null
     }
@@ -405,14 +400,11 @@ class HTTPMessageHandlerFactory internal constructor(
         if (session != null) {
             session.dissociateTCPConnection(connection)
             if (traceFactory.comm.event) {
-                traceFactory.comm.eventm(connection.toString() + " lost under " + session +
-                        ": " + reason)
+                traceFactory.comm.eventm("$connection lost under $session: $reason")
             }
         } else {
             if (traceFactory.comm.event) {
-                traceFactory.comm.eventm(connection.toString() +
-                        " lost under no known HTTP session: " +
-                        reason)
+                traceFactory.comm.eventm("$connection lost under no known HTTP session: $reason")
             }
         }
     }

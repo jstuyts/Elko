@@ -81,8 +81,7 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
                 insertContents(jsonObj, results)
                 decodeJSONObject(jsonObj)
             } catch (e: JsonParserException) {
-                tr.errorm("object store syntax error getting " + ref + ": " +
-                        e.message)
+                tr.errorm("object store syntax error getting $ref: ${e.message}")
                 null
             }
         }

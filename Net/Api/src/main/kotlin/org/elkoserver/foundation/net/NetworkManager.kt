@@ -63,20 +63,15 @@ class NetworkManager(
                 result.init(this, msgTrace, clock, traceFactory)
                 myConnectionManagers[className] = result
             } catch (e: ClassNotFoundException) {
-                traceFactory.comm.errorm("ConnectionManager class " + className +
-                        " not found: " + e)
+                traceFactory.comm.errorm("ConnectionManager class $className not found: $e")
             } catch (e: InstantiationException) {
-                traceFactory.comm.errorm("ConnectionManager class " + className +
-                        " not instantiable: " + e)
+                traceFactory.comm.errorm("ConnectionManager class $className not instantiable: $e")
             } catch (e: IllegalAccessException) {
-                traceFactory.comm.errorm("ConnectionManager class " + className +
-                        " constructor not accessible: " + e)
+                traceFactory.comm.errorm("ConnectionManager class $className constructor not accessible: $e")
             } catch (e: NoSuchMethodException) {
-                traceFactory.comm.errorm("ConnectionManager class " + className +
-                        " does not have a public no-arg constructor: " + e)
+                traceFactory.comm.errorm("ConnectionManager class $className does not have a public no-arg constructor: $e")
             } catch (e: InvocationTargetException) {
-                traceFactory.comm.errorm("Error occurred during creation of connectionManager class " + className +
-                        ": " + e.cause)
+                traceFactory.comm.errorm("Error occurred during creation of connectionManager class $className: ${e.cause}")
             }
         }
         return result
@@ -260,8 +255,7 @@ class NetworkManager(
                   msgTrace: Trace,
                   secure: Boolean): NetAddr? {
         val connMgr = connectionManager(connectionManagerClassName, msgTrace)
-                ?: throw IOException("no connection manager " +
-                        connectionManagerClassName)
+                ?: throw IOException("no connection manager $connectionManagerClassName")
         return connMgr.listen(propRoot, listenAddress, handlerFactory, secure)
     }
 

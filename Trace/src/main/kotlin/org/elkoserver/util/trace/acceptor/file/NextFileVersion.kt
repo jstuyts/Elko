@@ -45,7 +45,7 @@ internal class NextFileVersion(private val myFile: File) {
     }
 
     fun nextAvailableVersion(): File {
-        val files = File(myDir).list() ?: return File(myDir, myBasename + "000")
+        val files = File(myDir).list() ?: return File(myDir, "${myBasename}000")
 
         var highestSeq = -1
         for (file in files) {

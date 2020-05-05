@@ -153,7 +153,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
                 mySocket.send(outBytes, 0)
             }
         } catch (e: IOException) {
-            traceFactory.comm.usagem(this.toString() + " IOException: " + e.message)
+            traceFactory.comm.usagem("$this IOException: ${e.message}")
             closeException = e
         }
         if (closeException != null) {
@@ -243,9 +243,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
             }
             enqueueSentMessage(message)
         } else {
-            traceFactory.comm.errorm(this.toString() +
-                    " send on a receive-only connection: " +
-                    message)
+            traceFactory.comm.errorm("$this send on a receive-only connection: $message")
         }
     }
 
@@ -264,7 +262,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
      * @return a printable representation of this connection.
      */
     override fun toString(): String {
-        return "ZMQ(" + id() + ")"
+        return "ZMQ(${id()})"
     }
 
     /**

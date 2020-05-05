@@ -61,8 +61,7 @@ class InternalActor internal constructor(connection: Connection, private val myF
      */
     fun ensureAuthorized() {
         if (!amAuthorized) {
-            throw MessageHandlerException("internal connection " + this +
-                    " attempted operation without authorization")
+            throw MessageHandlerException("internal connection $this attempted operation without authorization")
         }
     }
 

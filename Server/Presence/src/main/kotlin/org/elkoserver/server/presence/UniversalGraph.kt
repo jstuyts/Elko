@@ -28,7 +28,7 @@ internal class UniversalGraph : SocialGraph {
         myMaster = master
         myDomain = domain
         myPseudoFriendCount = conf.getInt("friends", -1)
-        master.appTrace().worldi("init UniversalGraph for domain '" + domain.name() + "'")
+        master.appTrace().worldi("init UniversalGraph for domain '${domain.name()}'")
     }
 
     /**

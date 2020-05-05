@@ -21,8 +21,7 @@ class NullMessageHandler(private val tr: Trace) : MessageHandler {
      * @param reason  A possible indication why the connection went away.
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
-        tr.eventm("send-only connection " + connection + " died: " +
-                reason)
+        tr.eventm("send-only connection $connection died: $reason")
     }
 
     /**
@@ -33,8 +32,7 @@ class NullMessageHandler(private val tr: Trace) : MessageHandler {
      * @param message  The incoming message.
      */
     override fun processMessage(connection: Connection, message: Any) {
-        tr.errorm("message received on allegedly send-only connection " +
-                connection + ": " + message)
+        tr.errorm("message received on allegedly send-only connection $connection: $message")
     }
 
 }

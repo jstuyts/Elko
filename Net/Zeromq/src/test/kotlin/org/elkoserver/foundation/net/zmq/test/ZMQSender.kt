@@ -16,15 +16,14 @@ internal object ZMQSender {
         var host = args[0]
         var push = true
         if (host.startsWith("PUSH:")) {
-            host = "tcp://" + host.substring(5)
+            host = "tcp://${host.substring(5)}"
         } else if (host.startsWith("PUB:")) {
             push = false
             host = try {
                 val parsedAddr = NetAddr(host.substring(4))
-                "tcp://*:" + parsedAddr.port
+                "tcp://*:${parsedAddr.port}"
             } catch (e: IOException) {
-                println("problem setting up ZMQ connection with " +
-                        host + ": " + e)
+                println("problem setting up ZMQ connection with $host: $e")
                 return
             }
         } else {

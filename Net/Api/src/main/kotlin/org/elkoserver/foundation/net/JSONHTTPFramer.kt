@@ -46,7 +46,7 @@ class JSONHTTPFramer (appTrace: Trace, private val traceFactory: TraceFactory) :
         } else if (message is JsonObject) {
             sendableString(message)
         } else if (message is String) {
-            "\"" + message + "\""
+            "\"$message\""
         } else {
             null
         }
@@ -132,8 +132,7 @@ class JSONHTTPFramer (appTrace: Trace, private val traceFactory: TraceFactory) :
                     return e
                 }
                 if (traceFactory.comm.warning) {
-                    traceFactory.comm.warningm("syntax error in JSON message: " +
-                            e.message)
+                    traceFactory.comm.warningm("syntax error in JSON message: ${e.message}")
                 }
                 null
             }

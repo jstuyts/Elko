@@ -104,7 +104,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      */
     private inner class BankRequest internal constructor(op: String, key: String?, memo: String?) {
         val msg: JSONLiteral
-        private val myXid: String = "x" + myXidCounter++
+        private val myXid: String = "x${myXidCounter++}"
 
         /**
          * Finish the request under construction and send it.

@@ -53,11 +53,9 @@ class FileObjectStore : ObjectStore {
         val dirname = props.getProperty("$propRoot.odb") ?: appTrace.fatalError("no object database directory specified")
         myODBDirectory = File(dirname)
         if (!myODBDirectory.exists()) {
-            appTrace.fatalError("object database directory '" + dirname +
-                    "' does not exist")
+            appTrace.fatalError("object database directory '$dirname' does not exist")
         } else if (!myODBDirectory.isDirectory) {
-            appTrace.fatalError("requested object database directory " + dirname +
-                    " is not a directory")
+            appTrace.fatalError("requested object database directory $dirname is not a directory")
         }
     }
 

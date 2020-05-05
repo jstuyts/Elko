@@ -89,12 +89,10 @@ internal class RepositoryActor(connection: Connection, private val myFactory: Re
      */
     fun ensureAuthorizedAdmin() {
         if (amLoggedOut) {
-            throw MessageHandlerException("actor " + this +
-                    " attempted admin operation after logout")
+            throw MessageHandlerException("actor $this attempted admin operation after logout")
         } else if (!amAdmin) {
             doDisconnect()
-            throw MessageHandlerException("actor " + this +
-                    " attempted admin operation without authorization")
+            throw MessageHandlerException("actor $this attempted admin operation without authorization")
         }
     }
 
@@ -105,12 +103,10 @@ internal class RepositoryActor(connection: Connection, private val myFactory: Re
      */
     fun ensureAuthorizedRep() {
         if (amLoggedOut) {
-            throw MessageHandlerException("actor " + this +
-                    " attempted repository operation after logout")
+            throw MessageHandlerException("actor $this attempted repository operation after logout")
         } else if (!amRep) {
             doDisconnect()
-            throw MessageHandlerException("actor " + this +
-                    " attempted repository operation without authorization")
+            throw MessageHandlerException("actor $this attempted repository operation without authorization")
         }
     }
 

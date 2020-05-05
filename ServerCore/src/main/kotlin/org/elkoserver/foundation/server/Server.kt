@@ -213,7 +213,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
      */
     override fun findService(service: String?, handler: Consumer<in Array<ServiceDesc>>, monitor: Boolean) {
         if (myBrokerHost != null) {
-            val tag = "" + theNextFindTag++
+            val tag = theNextFindTag++.toString()
             myPendingFinds.add(service, ServiceQuery(service!!, handler, monitor, tag))
             if (myBrokerActor != null) {
                 myBrokerActor!!.findService(service, monitor, tag)
@@ -292,8 +292,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
                 return
             }
             if (obj.size > 1) {
-                tr.warningm("service query for " + myLabel +
-                        " returned multiple results; using first one")
+                tr.warningm("service query for $myLabel returned multiple results; using first one")
             }
             val actor = myServiceActorsByProviderID[myDesc!!.providerID()]
             actor?.let { connectLinkToActor(it) }
@@ -594,8 +593,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
                     "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory)
                     "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory)
                     else -> {
-                        tr.errorm("unknown value for " + propRoot + ".protocol: " +
-                                protocol + ", listener " + propRoot + " not started")
+                        tr.errorm("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
                         throw IllegalStateException()
                     }
                 }

@@ -161,7 +161,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
             if (t is EOFException) {
                 myTrace.eventi("$this remote disconnect")
             } else if (t is IOException) {
-                myTrace.usagei(this.toString() + " IOException: " + t.message)
+                myTrace.usagei("$this IOException: ${t.message}")
             } else {
                 myTrace.errorm("$this Error", t)
             }
@@ -211,7 +211,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
                 myChannel.write(theEmptyBuffer)
             }
         } catch (e: IOException) {
-            myTrace.usagem(this.toString() + " IOException: " + e.message)
+            myTrace.usagem("$this IOException: ${e.message}")
             closeException = e
         }
         if (closeException != null) {
@@ -339,7 +339,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
      * @return a printable representation of this connection.
      */
     override fun toString(): String {
-        return "TCP(" + id() + ")"
+        return "TCP(${id()})"
     }
 
     /**
@@ -383,8 +383,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
         val socket = channel.socket()
         socket.setSoLinger(true, 0)
         socket.reuseAddress = true
-        val myRemoteAddr = socket.inetAddress.hostAddress + ":" +
-                socket.port
+        val myRemoteAddr = "${socket.inetAddress.hostAddress}:${socket.port}"
         myInputBuffer = ByteBuffer.wrap(ByteArray(INPUT_BUFFER_SIZE))
         myFramer = framerFactory.provideFramer(this, label())
         myOutputBuffer = null

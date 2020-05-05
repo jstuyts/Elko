@@ -80,8 +80,7 @@ class Reservation(
         if (!amRedeemed) {
             amRedeemed = true
             myIssuer!!.removeReservation(this)
-            traceFactory.comm.eventi("expiring reservation " + myWho + "|" + myWhere +
-                    "|" + myAuthCode)
+            traceFactory.comm.eventi("expiring reservation $myWho|$myWhere|$myAuthCode")
         }
     }
 

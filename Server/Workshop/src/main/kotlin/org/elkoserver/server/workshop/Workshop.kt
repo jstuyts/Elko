@@ -101,8 +101,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
                 tr.eventi("loading startup worker list '$myTag'")
                 workers.fetchFromODB(myODB, this@Workshop, tr)
             } else {
-                tr.errori("unable to load startup worker list '" + myTag +
-                        "'")
+                tr.errori("unable to load startup worker list '$myTag'")
             }
         }
 

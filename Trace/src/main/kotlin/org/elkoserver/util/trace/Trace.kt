@@ -177,8 +177,7 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
             }
             Level.ERROR -> error = true
             else -> assert(false) {
-                "bad case in updateThresholdFlags: " +
-                        myThreshold
+                "bad case in updateThresholdFlags: $myThreshold"
             }
         }
     }

@@ -25,7 +25,7 @@ object ObjectStoreFactory {
         } catch (e: NoSuchMethodException) {
             trace.fatalError("unable to find object store constructor: $e")
         } catch (e: InvocationTargetException) {
-            trace.fatalError("error during invocation of object store constructor: " + e.cause)
+            trace.fatalError("error during invocation of object store constructor: ${e.cause}")
         }
         result.initialize(props, propRoot, trace)
         return result

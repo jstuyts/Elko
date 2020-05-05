@@ -198,7 +198,7 @@ class RTCPRequest {
             myError = if (frags.size != 2) {
                 "invalid error request"
             } else {
-                "client reported error: " + frags[1]
+                "client reported error: ${frags[1]}"
             }
         } else {
             myVerb = VERB_MESSAGE

@@ -97,12 +97,10 @@ internal class PresenceActor(connection: Connection, private val myFactory: Pres
      */
     fun ensureAuthorizedAdmin() {
         if (amLoggedOut) {
-            throw MessageHandlerException("actor " + this +
-                    " attempted admin operation after logout")
+            throw MessageHandlerException("actor $this attempted admin operation after logout")
         } else if (!amAdmin) {
             doDisconnect()
-            throw MessageHandlerException("actor " + this +
-                    " attempted admin operation without authorization")
+            throw MessageHandlerException("actor $this attempted admin operation without authorization")
         }
     }
 
@@ -112,12 +110,10 @@ internal class PresenceActor(connection: Connection, private val myFactory: Pres
      */
     fun ensureAuthorizedClient() {
         if (amLoggedOut) {
-            throw MessageHandlerException("actor " + this +
-                    " attempted client operation after logout")
+            throw MessageHandlerException("actor $this attempted client operation after logout")
         } else if (myClient == null) {
             doDisconnect()
-            throw MessageHandlerException("actor " + this +
-                    " attempted client operation without authorization")
+            throw MessageHandlerException("actor $this attempted client operation without authorization")
         }
     }
 

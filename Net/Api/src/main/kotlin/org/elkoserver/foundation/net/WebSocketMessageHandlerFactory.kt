@@ -53,8 +53,7 @@ internal class WebSocketMessageHandlerFactory
      */
     private fun sendError(connection: Connection?, problem: String) {
         if (trMsg.usage) {
-            trMsg.usagem(connection.toString() +
-                    " received invalid WebSocket connection startup: " + problem)
+            trMsg.usagem("$connection received invalid WebSocket connection startup: $problem")
         }
         connection!!.sendMsg(HTTPError(400, "Bad Request",
                 makeErrorReply(problem)))
@@ -121,7 +120,7 @@ internal class WebSocketMessageHandlerFactory
             numBytes[2] = (keyNum shr 8).toByte()
             numBytes[3] = keyNum.toByte()
             md5.update(numBytes)
-            trMsg.debugm("Crazy key = " + String.format("%02x %02x %02x %02x %02x %02x %02x %02x", crazyKey!![0], crazyKey[1], crazyKey[2], crazyKey[3], crazyKey[4], crazyKey[5], crazyKey[6], crazyKey[7]))
+            trMsg.debugm("Crazy key = ${String.format("%02x %02x %02x %02x %02x %02x %02x %02x", crazyKey!![0], crazyKey[1], crazyKey[2], crazyKey[3], crazyKey[4], crazyKey[5], crazyKey[6], crazyKey[7])}")
             WebSocketHandshake(0, md5.digest(crazyKey))
         } catch (e: NoSuchAlgorithmException) {
             throw UnsupportedOperationException("MD5 not available", e)

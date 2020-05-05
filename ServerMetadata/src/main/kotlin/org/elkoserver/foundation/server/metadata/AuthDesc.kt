@@ -153,8 +153,7 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
                         return null
                     }
                 } else if (mode != "reservation") {
-                    appTrace.errorm("unknown value for " + actualPropRoot +
-                            ".auth.mode: " + mode)
+                    appTrace.errorm("unknown value for $actualPropRoot.auth.mode: $mode")
                     return null
                 }
                 val id = props.getProperty<String?>("$actualPropRoot.id", null)

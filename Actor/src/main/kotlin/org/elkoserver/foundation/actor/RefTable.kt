@@ -152,8 +152,7 @@ open class RefTable(resolver: TypeResolver?, protected val traceFactory: TraceFa
             if (target != null) {
                 myDispatcher.dispatchMessage(from, target, message)
             } else {
-                throw MessageHandlerException("target object '" +
-                        targetRef + "' not found")
+                throw MessageHandlerException("target object '$targetRef' not found")
             }
         } else {
             throw MessageHandlerException("no target in message")

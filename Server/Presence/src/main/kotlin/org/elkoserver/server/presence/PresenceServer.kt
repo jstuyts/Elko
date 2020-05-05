@@ -75,9 +75,7 @@ internal class PresenceServer(
     fun addSubscriber(context: String, domain: String, client: PresenceActor) {
         val graph = mySocialGraphs[domain]
         if (graph == null) {
-            tr.warningi("client " + client +
-                    " attempts to subscribe to non-existent domain '" +
-                    domain + "' in context " + context)
+            tr.warningi("client $client attempts to subscribe to non-existent domain '$domain' in context $context")
         } else {
             graph.domain().addSubscriber(context, client)
         }
@@ -86,9 +84,7 @@ internal class PresenceServer(
     fun updateDomain(domain: String, conf: JsonObject, client: PresenceActor) {
         val graph = mySocialGraphs[domain]
         if (graph == null) {
-            tr.warningi("client " + client +
-                    " attempts to update non-existent domain '" +
-                    domain + "'")
+            tr.warningi("client $client attempts to update non-existent domain '$domain'")
         } else {
             graph.update(this, graph.domain(), conf)
         }
@@ -240,16 +236,13 @@ internal class PresenceServer(
             val user = myUsers[userRef]
             if (user != null) {
                 if (!user.removePresence(context, this)) {
-                    tr.warningm("requested to remove user " + userRef +
-                            " from unexpected presence " + context + "/" +
-                            client)
+                    tr.warningm("requested to remove user $userRef from unexpected presence $context/$client")
                 }
                 if (user.presenceCount() == 0) {
                     myUsers.remove(userRef)
                 }
             } else {
-                tr.warningm("requested to remove unknown user " + userRef +
-                        " from presence " + context + "/" + client)
+                tr.warningm("requested to remove unknown user $userRef from presence $context/$client")
             }
         }
     }

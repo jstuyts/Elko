@@ -104,9 +104,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
                 if (parentKey != null) {
                     key.setParent(parentKey)
                 } else {
-                    throw Error("key " + key.ref() +
-                            " claims non-existent parent key " +
-                            key.parentRef())
+                    throw Error("key ${key.ref()} claims non-existent parent key ${key.parentRef()}")
                 }
             }
         }
@@ -202,22 +200,19 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
                         failure == null -> updater.complete(null)
                         failure[0] == '@' -> {
                             /* Retryable error */
-                            myTrace!!.debugm(allegedAccount.ref() +
-                                    " transaction retry: " + failure)
+                            myTrace!!.debugm("${allegedAccount.ref()} transaction retry: $failure")
                             withAccount(allegedAccount.ref(), updater)
                         }
                         else -> {
                             /* Un-retryable error */
-                            myTrace!!.errorm(allegedAccount.ref() +
-                                    " transaction aborted: " + failure)
+                            myTrace!!.errorm("${allegedAccount.ref()} transaction aborted: $failure")
                             updater.complete(failure)
                         }
                     }
                 })
             }
         } else {
-            myTrace!!.errorm("alleged account object obtained via " + refRef +
-                    " is not an account")
+            myTrace!!.errorm("alleged account object obtained via $refRef is not an account")
             updater.modify(null)
         }
     }
@@ -274,32 +269,29 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
                                     failure2 == null -> updater.complete(null)
                                     failure2[0] == '@' -> {
                                         /* Not-really-retryable error */
-                                        myTrace!!.errorm("Egregious failure: " + account2.ref() + " atomic update failure: " + failure2 + " AFTER phase 1 update success!")
+                                        myTrace!!.errorm("Egregious failure: ${account2.ref()} atomic update failure: $failure2 AFTER phase 1 update success!")
                                     }
                                     else -> {
                                         /* Really-unretryable error */
-                                        myTrace!!.errorm("Egregious failure: " + account2.ref() + " write failure: " + failure2 + " AFTER phase 1 update success!")
+                                        myTrace!!.errorm("Egregious failure: ${account2.ref()} write failure: $failure2 AFTER phase 1 update success!")
                                     }
                                 }
                             })
                         failure[0] == '@' -> {
                             /* Retryable error */
-                            myTrace!!.debugm(account1.ref() +
-                                    " transaction retry: " + failure)
+                            myTrace!!.debugm("${account1.ref()} transaction retry: $failure")
                             withTwoAccounts(account1.ref(), account2.ref(), updater)
                         }
                         else -> {
                             /* Un-retryable error */
-                            myTrace!!.errorm(account1.ref() +
-                                    " transaction aborted: " + failure)
+                            myTrace!!.errorm("${account1.ref()} transaction aborted: $failure")
                             updater.complete(failure)
                         }
                     }
                 })
             }
         } else {
-            myTrace!!.errorm("at least one alleged account object obtained via "
-                    + refRef1 + "+" + refRef2 + " is not an account")
+            myTrace!!.errorm("at least one alleged account object obtained via $refRef1+$refRef2 is not an account")
             updater.modify(null, null)
         }
     }
@@ -505,8 +497,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
         myWorkshop!!.getObject(accountRef, myAccountCollection,
                 Consumer { obj: Any? ->
                     if (obj == null) {
-                        myTrace!!.errorm("account object " + accountRef +
-                                " not found")
+                        myTrace!!.errorm("account object $accountRef not found")
                         updater.modify(null)
                     } else {
                         doAccountUpdate(accountRef, obj, updater)
@@ -527,20 +518,17 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
         myWorkshop!!.queryObjects(queryEnc(encRef), myAccountCollection, 1,
                 Consumer { queryResult: Any? ->
                     if (queryResult == null) {
-                        myTrace!!.errorm("encumbrance object " + encRef +
-                                " not found")
+                        myTrace!!.errorm("encumbrance object $encRef not found")
                         updater.modify(null)
                     } else if (queryResult is Array<*>) {
                         if (queryResult.size == 1) {
                             doAccountUpdate(encRef, queryResult[0] as Any, updater)
                         } else {
-                            myTrace!!.errorm("wrong number of query results for " +
-                                    encRef)
+                            myTrace!!.errorm("wrong number of query results for $encRef")
                             updater.modify(null)
                         }
                     } else {
-                        myTrace!!.errorm("query results for " + encRef +
-                                " are malformed")
+                        myTrace!!.errorm("query results for $encRef are malformed")
                         updater.modify(null)
                     }
                 })
@@ -561,21 +549,18 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
         myWorkshop!!.queryObjects(queryEncAndAccount(encRef, accountRef),
                 myAccountCollection, 2, Consumer { queryResult: Any? ->
             if (queryResult == null) {
-                myTrace!!.errorm("accounts via " + encRef + "+" +
-                        accountRef + " not found")
+                myTrace!!.errorm("accounts via $encRef+$accountRef not found")
                 updater.modify(null, null)
             } else if (queryResult is Array<*>) {
                 if (queryResult.size == 2) {
                     doDualAccountUpdate(encRef, queryResult[0] as Any,
                             accountRef, queryResult[1] as Any, updater)
                 } else {
-                    myTrace!!.errorm("wrong number of query results for " +
-                            encRef + "+" + accountRef)
+                    myTrace!!.errorm("wrong number of query results for $encRef+$accountRef")
                     updater.modify(null, null)
                 }
             } else {
-                myTrace!!.errorm("query results for " + encRef + "+" +
-                        accountRef + " are malformed")
+                myTrace!!.errorm("query results for $encRef+$accountRef are malformed")
                 updater.modify(null, null)
             }
         })
@@ -595,21 +580,18 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
         myWorkshop!!.queryObjects(queryTwoAccounts(account1Ref, account2Ref),
                 myAccountCollection, 2, Consumer { queryResult: Any? ->
             if (queryResult == null) {
-                myTrace!!.errorm("accounts " + account1Ref + "+" +
-                        account2Ref + " not found")
+                myTrace!!.errorm("accounts $account1Ref+$account2Ref not found")
                 updater.modify(null, null)
             } else if (queryResult is Array<*>) {
                 if (queryResult.size == 2) {
                     doDualAccountUpdate(account1Ref, queryResult[0] as Any,
                             account2Ref, queryResult[1] as Any, updater)
                 } else {
-                    myTrace!!.errorm("wrong number of query results for " +
-                            account1Ref + "+" + account2Ref)
+                    myTrace!!.errorm("wrong number of query results for $account1Ref+$account2Ref")
                     updater.modify(null, null)
                 }
             } else {
-                myTrace!!.errorm("query results for " + account1Ref + "+" +
-                        account2Ref + " are malformed")
+                myTrace!!.errorm("query results for $account1Ref+$account2Ref are malformed")
                 updater.modify(null, null)
             }
         })

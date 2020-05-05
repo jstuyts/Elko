@@ -161,9 +161,7 @@ class WebSocketByteIOFramerFactory(private val trMsg: Trace, private val myHostA
                     System.arraycopy(handshakeBytes, 0, reply,
                             headerBytes.size, handshakeBytes.size)
                     if (trMsg.debug) {
-                        trMsg.debugm("WS sending handshake:\n$header" +
-                                byteArrayToASCII(handshakeBytes, 0,
-                                        handshakeBytes.size))
+                        trMsg.debugm("WS sending handshake:\n$header${byteArrayToASCII(handshakeBytes, 0, handshakeBytes.size)}")
                     }
                     reply
                 } else if (handshake.version() == 6) {

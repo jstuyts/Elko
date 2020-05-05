@@ -16,7 +16,7 @@ internal abstract class BaseTcpConnectionSetup(label: String?, override var serv
     override fun tryToStartListener(): NetAddr {
         val result = createListenAddress()
         if (serverAddress.indexOf(':') < 0) {
-            serverAddress = serverAddress + ":" + result.port
+            serverAddress = "$serverAddress:${result.port}"
         }
         return result
     }

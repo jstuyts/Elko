@@ -42,8 +42,7 @@ internal class SelectThread(
             try {
                 val selectedCount = mySelector!!.select()
                 if (traceFactory.comm.debug) {
-                    traceFactory.comm.debugm("select() returned with count=" +
-                            selectedCount)
+                    traceFactory.comm.debugm("select() returned with count=$selectedCount")
                 }
                 var workToDo = myQueue.optDequeue()
                 while (workToDo != null) {
@@ -52,14 +51,12 @@ internal class SelectThread(
                         listener.register(this, mySelector)
                         if (traceFactory.comm.debug) {
                             traceFactory.comm.debugm(
-                                    "select thread registers listener " +
-                                            listener)
+                                    "select thread registers listener $listener")
                         }
                     } else if (workToDo is Callable<*>) {
                         workToDo.call()
                     } else {
-                        traceFactory.comm.errorm("mystery object on select queue: " +
-                                workToDo)
+                        traceFactory.comm.errorm("mystery object on select queue: $workToDo")
                     }
                     workToDo = myQueue.optDequeue()
                 }
@@ -73,16 +70,14 @@ internal class SelectThread(
                         if (key.isValid && key.isAcceptable) {
                             val listener = key.attachment() as Listener
                             if (traceFactory.comm.debug) {
-                                traceFactory.comm.debugm("select has accept for " +
-                                        listener)
+                                traceFactory.comm.debugm("select has accept for $listener")
                             }
                             listener.doAccept()
                         }
                         if (key.isValid && key.isReadable) {
                             val connection = key.attachment() as TCPConnection
                             if (traceFactory.comm.debug) {
-                                traceFactory.comm.debugm("select has read for " +
-                                        connection)
+                                traceFactory.comm.debugm("select has read for $connection")
                             }
                             connection.doRead()
                         }
@@ -90,17 +85,14 @@ internal class SelectThread(
                             val connection = key.attachment() as TCPConnection
                             connection.wakeupSelectForWrite()
                             if (traceFactory.comm.debug) {
-                                traceFactory.comm.debugm("select has write for " +
-                                        connection)
+                                traceFactory.comm.debugm("select has write for $connection")
                             }
                             connection.doWrite()
                         }
                     }
                     if (traceFactory.comm.debug) {
                         if (actualCount > 0) {
-                            traceFactory.comm.debugm("select thread selected " +
-                                    actualCount + "/" +
-                                    selectedCount + " I/O sources")
+                            traceFactory.comm.debugm("select thread selected $actualCount/$selectedCount I/O sources")
                         }
                     }
                 }
@@ -133,8 +125,7 @@ internal class SelectThread(
                         trace)
             } catch (e: IOException) {
                 myMgr.connectionCount(-1)
-                traceFactory.comm.errorm("unable to connect to " + remoteAddr +
-                        ": " + e)
+                traceFactory.comm.errorm("unable to connect to $remoteAddr: $e")
                 handlerFactory.provideMessageHandler(null)
             }
             null

@@ -52,8 +52,7 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
                     if (workToDo is Thunk) {
                         workToDo.run()
                     } else {
-                        traceFactory.comm.errorm("non-Thunk on ZMQ queue: " +
-                                workToDo)
+                        traceFactory.comm.errorm("non-Thunk on ZMQ queue: $workToDo")
                     }
                     workToDo = myQueue.optDequeue()
                 }
@@ -153,8 +152,7 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
                 val parsedAddr = NetAddr(remoteAddr.substring(4))
                 "tcp://*:${parsedAddr.port}"
             } catch (e: IOException) {
-                traceFactory.comm.errorm("error setting up ZMQ connection with " +
-                        remoteAddr + ": " + e)
+                traceFactory.comm.errorm("error setting up ZMQ connection with $remoteAddr: $e")
                 return
             }
         } else {

@@ -119,9 +119,9 @@ class NetAddr {
      */
     override fun toString(): String {
         return if (myInetAddress == null) {
-            ":" + port
+            ":$port"
         } else {
-            myInetAddress.hostAddress + ":" + port
+            "${myInetAddress.hostAddress}:$port"
         }
     }
 }

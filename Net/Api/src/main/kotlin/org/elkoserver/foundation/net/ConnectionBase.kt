@@ -29,8 +29,7 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
     protected fun connectionDied(reason: Throwable) {
         if (myMessageHandler != null) {
             if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm(this.toString() + " calls connectionDied in " +
-                        myMessageHandler)
+                traceFactory.comm.debugm("$this calls connectionDied in $myMessageHandler")
             }
             myMessageHandler!!.connectionDied(this, reason)
         } else {
@@ -68,13 +67,11 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
         override fun run() {
             if (myMessageHandler != null) {
                 if (traceFactory.comm.verbose) {
-                    traceFactory.comm.verbosem(this@ConnectionBase.toString() +
-                            " calls processMessage in " + myMessageHandler)
+                    traceFactory.comm.verbosem("$this calls processMessage in $myMessageHandler")
                 }
                 myMessageHandler!!.processMessage(this@ConnectionBase, myMessage)
             } else {
-                traceFactory.comm.verbosem(this@ConnectionBase.toString() +
-                        " ignores message received while message handler is null")
+                traceFactory.comm.verbosem("$this ignores message received while message handler is null")
             }
             myLoadMonitor?.addTime(
                     clock.millis() - myOnQueueTime)

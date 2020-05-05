@@ -33,7 +33,7 @@ internal object ZMQReceiver {
         addr = if (subscribe) {
             "tcp://$host"
         } else {
-            "tcp://*:" + netAddr.port
+            "tcp://*:${netAddr.port}"
         }
         val context = ZMQ.context(1)
         val socket: ZMQ.Socket

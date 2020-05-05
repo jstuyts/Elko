@@ -44,7 +44,7 @@ class Gatekeeper internal constructor(
     private inner class DirectorFoundRunnable : Consumer<Array<ServiceDesc>> {
         override fun accept(obj: Array<ServiceDesc>) {
             if (obj[0].failure() != null) {
-                tr.errorm("unable to find director: " + obj[0].failure())
+                tr.errorm("unable to find director: ${obj[0].failure()}")
             } else {
                 setDirectorHost(obj[0].asHostDesc(myRetryInterval))
             }
@@ -77,8 +77,7 @@ class Gatekeeper internal constructor(
             from.ensureAuthorizedAdmin()
         } else {
             from.doDisconnect()
-            throw MessageHandlerException("actor " + from +
-                    " attempted admin operation without authorization")
+            throw MessageHandlerException("actor $from attempted admin operation without authorization")
         }
     }
 
@@ -197,8 +196,7 @@ class Gatekeeper internal constructor(
         authorizerClass = try {
             Class.forName(authorizerClassName)
         } catch (e: ClassNotFoundException) {
-            tr.fatalError("auth service class " + authorizerClassName +
-                    " not found")
+            tr.fatalError("auth service class $authorizerClassName not found")
         }
         myAuthorizer = try {
             authorizerClass.getConstructor(TraceFactory::class.java).newInstance(traceFactory) as Authorizer

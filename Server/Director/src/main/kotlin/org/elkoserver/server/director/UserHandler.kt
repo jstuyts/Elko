@@ -96,7 +96,7 @@ internal open class UserHandler(private val myDirector: Director, traceFactory: 
         val hostPort = provider.hostPort(protocol)
         if (hostPort != null) {
             /* Issue reservation to provider and user. */
-            val reservation = "" + abs(theRandom.nextLong())
+            val reservation = abs(theRandom.nextLong()).toString()
             provider.actor().send(msgDoReserve(myDirector.providerHandler(), actualContextName, userName, reservation))
             from.send(msgReserve(this, actualContextName, userName, hostPort, reservation, null, tag))
         } else {

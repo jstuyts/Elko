@@ -81,7 +81,7 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
         starter = try {
             Class.forName(bootArguments.mainClassName).getConstructor().newInstance() as Bootable
         } catch (e: ClassCastException) {
-            throw ClassCastException(bootArguments.mainClassName + " isn't a Bootable")
+            throw ClassCastException("${bootArguments.mainClassName} isn't a Bootable")
         } catch (e: NoSuchMethodException) {
             throw IllegalStateException("Class does not have a public no-arg constructor", e)
         } catch (e: InvocationTargetException) {

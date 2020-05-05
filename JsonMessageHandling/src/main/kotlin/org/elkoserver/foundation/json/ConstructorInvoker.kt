@@ -35,8 +35,7 @@ internal class ConstructorInvoker(
         return try {
             tryToConstruct(obj, resolver)
         } catch (e: JSONInvocationException) {
-            traceFactory.comm.errorm("error calling JSON constructor: " +
-                    e.message)
+            traceFactory.comm.errorm("error calling JSON constructor: ${e.message}")
             null
         } catch (e: MessageHandlerException) {
             var report = e.cause

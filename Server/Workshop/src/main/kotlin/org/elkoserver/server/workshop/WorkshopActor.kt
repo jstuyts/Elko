@@ -83,12 +83,10 @@ class WorkshopActor internal constructor(connection: Connection, private val myF
      */
     fun ensureAuthorizedAdmin() {
         if (amLoggedOut) {
-            throw MessageHandlerException("actor " + this +
-                    " attempted admin operation after logout")
+            throw MessageHandlerException("actor $this attempted admin operation after logout")
         } else if (!amAdmin) {
             doDisconnect()
-            throw MessageHandlerException("actor " + this +
-                    " attempted admin operation without authorization")
+            throw MessageHandlerException("actor $this attempted admin operation without authorization")
         }
     }
 
@@ -99,12 +97,10 @@ class WorkshopActor internal constructor(connection: Connection, private val myF
      */
     fun ensureAuthorizedClient() {
         if (amLoggedOut) {
-            throw MessageHandlerException("actor " + this +
-                    " attempted client operation after logout")
+            throw MessageHandlerException("actor $this attempted client operation after logout")
         } else if (!amClient) {
             doDisconnect()
-            throw MessageHandlerException("actor " + this +
-                    " attempted client operation without authorization")
+            throw MessageHandlerException("actor $this attempted client operation without authorization")
         }
     }
 

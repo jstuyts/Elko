@@ -105,7 +105,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     private inner class RepositoryFoundHandler : Consumer<Array<ServiceDesc>> {
         override fun accept(obj: Array<ServiceDesc>) {
             if (obj[0].failure() != null) {
-                tr.errorm("unable to find repository: " + obj[0].failure())
+                tr.errorm("unable to find repository: ${obj[0].failure()}")
             } else {
                 myRepHost = obj[0].asHostDesc(myRetryInterval)
                 connectToRepository()
@@ -218,8 +218,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
             obj = if (failure == null) {
                 decodeObject(req.ref(), results)
             } else {
-                tr.errorm("repository error getting " + req.ref() + ": " +
-                        failure)
+                tr.errorm("repository error getting ${req.ref()}: $failure")
                 null
             }
             req.handleReply(obj)

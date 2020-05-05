@@ -52,9 +52,7 @@ internal class Listener(
                 myTrace.usagem("accept returned null socket, ignoring")
             }
         } catch (e: IOException) {
-            myTrace.warningm("accept on " + myLocalAddress +
-                    " failed -- closing listener, IOException: " +
-                    e.message)
+            myTrace.warningm("accept on $myLocalAddress failed -- closing listener, IOException: ${e.message}")
             try {
                 myChannel!!.close()
             } catch (e2: IOException) {

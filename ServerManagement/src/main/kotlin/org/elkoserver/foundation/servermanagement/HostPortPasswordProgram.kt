@@ -22,7 +22,7 @@ internal fun createHostPortPasswordArgumentParser(programName: String, allowNoPa
                     .help("TCP port number")
             addArgument("password")
                     .required(true)
-                    .help("Password" + (if (allowNoPassword) ", - = no password" else ""))
+                    .help("Password${if (allowNoPassword) ", - = no password" else ""}")
         }
 
 private fun startProgram(parser: ArgumentParser, arguments: Array<String>, programStarter: (String, Int, String) -> Unit) {

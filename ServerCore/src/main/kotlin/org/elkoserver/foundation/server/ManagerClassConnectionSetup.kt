@@ -24,7 +24,7 @@ internal class ManagerClassConnectionSetup(label: String?, private val mgrClass:
                 msgTrace,
                 secure)!!
         if (serverAddress.indexOf(':') < 0) {
-            serverAddress = serverAddress + ":" + result.port
+            serverAddress = "$serverAddress:${result.port}"
         }
         return result
     }

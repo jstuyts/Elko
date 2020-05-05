@@ -213,8 +213,7 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
                     isRunSettingOn = true
                     null
                 } catch (e: IOException) {
-                    tr.eventm("process launch '" + myComponentName + "' failed: " +
-                            e)
+                    tr.eventm("process launch '$myComponentName' failed: $e")
                     "fail $myComponentName $e"
                 }
 

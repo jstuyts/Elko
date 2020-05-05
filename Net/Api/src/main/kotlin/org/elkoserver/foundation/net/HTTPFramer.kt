@@ -102,7 +102,7 @@ endless others exist<p>
             ", "
         }
         if (message != null) {
-            result += "" + message
+            result += message.toString()
         }
         if (end) {
             result += "], \"seqnum\": \"$seqNumber\" }\n"

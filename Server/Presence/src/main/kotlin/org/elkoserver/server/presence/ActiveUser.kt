@@ -287,8 +287,7 @@ internal class ActiveUser(private val myRef: String) {
             }
         }
         if (myFriendsByDomain!![domain.index()] != null) {
-            throw RuntimeException("duplicate setFriends call for user " +
-                    myRef + ", domain " + domain.name())
+            throw RuntimeException("duplicate setFriends call for user $myRef, domain ${domain.name()}")
         }
         myFriendsByDomain!![domain.index()] = friends
         ++myDomainLoadCount

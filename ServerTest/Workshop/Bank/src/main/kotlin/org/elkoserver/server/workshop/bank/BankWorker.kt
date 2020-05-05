@@ -59,8 +59,7 @@ class BankWorker
          */
         fun accountWriteFailure(failure: String?, tag: String) =
                 if (failure != null) {
-                    fail(tag + "unwritable",
-                            "$tag account write failed: $failure")
+                    fail("${tag}unwritable", "$tag account write failed: $failure")
                     true
                 } else {
                     false
@@ -188,7 +187,7 @@ class BankWorker
          */
         fun frozenAccountFailure(account: Account?, tag: String): Boolean {
             return if (account!!.isFrozen) {
-                fail(tag + "frozen", "$tag account is frozen")
+                fail("${tag}frozen", "$tag account is frozen")
                 true
             } else {
                 false
@@ -303,8 +302,7 @@ class BankWorker
                 myBank = obj
                 myBank!!.activate(workshop())
             } else {
-                workshop().appTrace().errorm("alleged bank object " +
-                        myBankRef + " is not a bank")
+                workshop().appTrace().errorm("alleged bank object $myBankRef is not a bank")
             }
         })
     }

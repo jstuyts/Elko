@@ -116,8 +116,7 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
             if (length == 0) {
                 traceFactory.comm.debugm("receiving 0 bytes: || (EOF)")
             } else {
-                traceFactory.comm.debugm("receiving " + length + " bytes: |" +
-                        ByteArrayToAscii.byteArrayToASCII(buf, 0, length) + "|")
+                traceFactory.comm.debugm("receiving $length bytes: |${ByteArrayToAscii.byteArrayToASCII(buf, 0, length)}|")
             }
         }
         if (length == 0) {

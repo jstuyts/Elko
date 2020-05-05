@@ -52,7 +52,7 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
      * @throws IOException if the input string is malformed.
      */
     fun decrypt(str: String): String {
-        val ivStr = str.substring(0, 22) + "=="
+        val ivStr = "${str.substring(0, 22)}=="
         val cypherText = str.substring(22)
         return try {
             val iv = base64Decoder.decode(ivStr)

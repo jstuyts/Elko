@@ -115,8 +115,7 @@ internal class RTCPMessageHandlerFactory(
     fun doError(connection: Connection, errorTag: String) {
         if (trMsg.usage) {
             val aux = ""
-            trMsg.usagem(connection.toString() + " received error request " + errorTag +
-                    aux)
+            trMsg.usagem("$connection received error request $errorTag$aux")
         }
     }
 
@@ -159,7 +158,7 @@ internal class RTCPMessageHandlerFactory(
             if (session != null) {
                 acquireTCPConnection(session, connection)
                 if (trMsg.event) {
-                    trMsg.eventm(session.toString() + " resume " + session.sessionID())
+                    trMsg.eventm("$session resume ${session.sessionID()}")
                 }
                 sendWithLog(connection,
                         makeResumeReply(session.sessionID(),
@@ -187,7 +186,7 @@ internal class RTCPMessageHandlerFactory(
             session = RTCPSessionConnection(this, timer, clock, traceFactory)
             acquireTCPConnection(session, connection)
             if (trMsg.event) {
-                trMsg.eventm(session.toString() + " start " + session.sessionID())
+                trMsg.eventm("$session start ${session.sessionID()}")
             }
             reply = makeStartReply(session.sessionID())
         }
@@ -336,7 +335,7 @@ internal class RTCPMessageHandlerFactory(
      */
     private fun sendWithLog(connection: Connection, msg: String) {
         if (trMsg.debug) {
-            trMsg.debugm(connection.toString() + " <| " + msg.trim { it <= ' ' })
+            trMsg.debugm("$connection <| ${msg.trim { it <= ' ' }}")
         }
         connection.sendMsg(msg)
     }
@@ -398,13 +397,11 @@ internal class RTCPMessageHandlerFactory(
         if (session != null) {
             session.loseTCPConnection(connection)
             if (trMsg.event) {
-                trMsg.eventm(connection.toString() + " lost under " + session + "-" +
-                        session.sessionID() + ": " + reason)
+                trMsg.eventm("$connection lost under $session-${session.sessionID()}: $reason")
             }
         } else {
             if (trMsg.event) {
-                trMsg.eventm(connection.toString() +
-                        " lost under no known RTCP session: " + reason)
+                trMsg.eventm("$connection lost under no known RTCP session: $reason")
             }
         }
     }

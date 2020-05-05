@@ -32,13 +32,13 @@ internal class StartupWorkerList @JSONMethod("workers") constructor(private val 
         override fun accept(obj: Any?) {
             if (obj != null) {
                 if (obj is WorkerObject) {
-                    tr.eventi("loading worker object '" + myElem.ref + "' as '" + myElem.key + "'")
+                    tr.eventi("loading worker object '${myElem.ref}' as '${myElem.key}'")
                     myWorkshop.addWorkerObject(myElem.key, obj)
                 } else {
-                    tr.errori("alleged worker object '" + myElem.ref + "' is not actually a WorkerObject, ignoring it")
+                    tr.errori("alleged worker object '${myElem.ref}' is not actually a WorkerObject, ignoring it")
                 }
             } else {
-                tr.errori("unable to load worker object '" + myElem.ref + "'")
+                tr.errori("unable to load worker object '${myElem.ref}'")
             }
         }
     }

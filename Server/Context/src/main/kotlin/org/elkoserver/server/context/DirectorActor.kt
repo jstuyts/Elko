@@ -43,8 +43,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
      * @param reason  Exception explaining why.
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
-        traceFactory.comm.eventm("lost director connection " + connection + ": " +
-                reason)
+        traceFactory.comm.eventm("lost director connection $connection: $reason")
         myGroup.expelMember(this)
     }
 
@@ -95,8 +94,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
             user = try {
                 myUsers.next() as User
             } catch (e: ClassCastException) {
-                throw MessageHandlerException("user reference " +
-                        myUserRef + " does not refer to a user")
+                throw MessageHandlerException("user reference $myUserRef does not refer to a user")
             }
             return user
         }
@@ -106,8 +104,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
             context = try {
                 myContexts.next() as Context
             } catch (e: ClassCastException) {
-                throw MessageHandlerException("context reference " +
-                        myContextRef + " does not refer to a context")
+                throw MessageHandlerException("context reference $myContextRef does not refer to a context")
             }
             return context
         }
@@ -253,7 +250,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
     }
 
     fun pushNewContext(who: User, contextRef: String) {
-        val tag = "" + myNextReservationTag++
+        val tag = myNextReservationTag++.toString()
         myPendingReservationRequests[tag] = who
         timer.after(INTERNAL_RESERVATION_TIMEOUT.toLong(), object : TimeoutNoticer {
             override fun noticeTimeout() {
@@ -284,8 +281,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
         if (tag != null) {
             val who = myPendingReservationRequests.remove(tag)
             if (who == null) {
-                traceFactory.comm.warningi("received reservation for unknown tag " +
-                        tag)
+                traceFactory.comm.warningi("received reservation for unknown tag $tag")
             } else if (deny != null) {
                 who.exitContext(deny, "dirdeny", false)
             } else if (hostPort == null) {

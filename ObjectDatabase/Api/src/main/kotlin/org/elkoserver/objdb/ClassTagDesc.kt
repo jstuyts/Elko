@@ -20,8 +20,7 @@ internal class ClassTagDesc @JSONMethod("tag", "name") constructor(private val m
         try {
             odb.addClass(myTag, Class.forName(myClassName))
         } catch (e: ClassNotFoundException) {
-            tr.errorm("unable to load class info for '" + myTag + "': class " +
-                    e.message + " not found")
+            tr.errorm("unable to load class info for '$myTag': class ${e.message} not found")
         }
     }
 }

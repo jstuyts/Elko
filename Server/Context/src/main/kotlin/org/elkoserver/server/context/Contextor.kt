@@ -564,8 +564,7 @@ class Contextor internal constructor(
                 val spawningTemplate = myContextRef != myContextTemplate
                 val spawningClone = context.baseCapacity() > 0
                 if (!spawningTemplate && context.isMandatoryTemplate) {
-                    tr.errorm("context '" + myContextRef +
-                            "' may only be used as a template")
+                    tr.errorm("context '$myContextRef' may only be used as a template")
                     context = null
                 } else if (!spawningTemplate ||
                         context.isAllowableTemplate) {
@@ -583,14 +582,12 @@ class Contextor internal constructor(
                     context.objectIsComplete()
                     notifyPendingObjectCompletionWatchers()
                 } else {
-                    tr.errorm("context '" + myContextTemplate +
-                            "' may not be used as a template")
+                    tr.errorm("context '$myContextTemplate' may not be used as a template")
                     context = null
                 }
             }
             if (context == null) {
-                tr.errorm("unable to load context '" + myContextTemplate +
-                        "' as '" + myContextRef + "'")
+                tr.errorm("unable to load context '$myContextTemplate' as '$myContextRef'")
                 resolvePendingGet(myContextTemplate, null)
             } else if (context.isReady) {
                 resolvePendingGet(myContextTemplate, context)
@@ -895,10 +892,7 @@ class Contextor internal constructor(
             subscriber.observePresenceChange(observerRef, domain, whoRef,
                     whereRef, on)
         } else {
-            tr.warningi("presence change of " + whoRef +
-                    (if (on) " entering " else " exiting ") + whereRef +
-                    " for " + observerRef +
-                    " directed to unknown context " + contextRef)
+            tr.warningi("presence change of $whoRef${if (on) " entering " else " exiting "}$whereRef for $observerRef directed to unknown context $contextRef")
         }
     }
 
@@ -1046,8 +1040,7 @@ class Contextor internal constructor(
                             JsonParsing.jsonObjectFromString(message.sendableString()) ?: throw IllegalStateException()
                         } catch (e: JsonParserException) {
                             tr.errorm(
-                                    "syntax error in internal JSON message: " +
-                                            e.message)
+                                    "syntax error in internal JSON message: ${e.message}")
                             break
                         }
                     }
@@ -1163,8 +1156,7 @@ class Contextor internal constructor(
         } else if (rawFactory is UserFactory) {
             rawFactory.provideUser(this, connection, param, userHandler)
         } else {
-            tr.errori("factory tag '" + factoryTag +
-                    "' does not designate a user factory object")
+            tr.errori("factory tag '$factoryTag' does not designate a user factory object")
             userHandler.accept(null)
         }
     }

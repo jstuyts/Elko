@@ -38,13 +38,13 @@ object SslSetup {
 
     @Throws(KeyStoreException::class, IOException::class, NoSuchAlgorithmException::class, CertificateException::class, UnrecoverableKeyException::class, KeyManagementException::class)
     private fun tryToSetupSsl(properties: ElkoProperties, propertyNamePrefix: String): SSLContext {
-        val keyStoreType = properties.getProperty(propertyNamePrefix + "keystoretype", "JKS")
+        val keyStoreType = properties.getProperty("${propertyNamePrefix}keystoretype", "JKS")
         val keys = KeyStore.getInstance(keyStoreType)
-        val keyPassword = properties.getProperty(propertyNamePrefix + "keypassword")
+        val keyPassword = properties.getProperty("${propertyNamePrefix}keypassword")
         val passwordChars = keyPassword!!.toCharArray()
-        val keyFile = properties.getProperty(propertyNamePrefix + "keyfile")
+        val keyFile = properties.getProperty("${propertyNamePrefix}keyfile")
         keys.load(FileInputStream(keyFile), passwordChars)
-        val keyManagerAlgorithm = properties.getProperty(propertyNamePrefix + "keymanageralgorithm", "SunX509")
+        val keyManagerAlgorithm = properties.getProperty("${propertyNamePrefix}keymanageralgorithm", "SunX509")
         val keyManagerFactory = KeyManagerFactory.getInstance(keyManagerAlgorithm)
         keyManagerFactory.init(keys, passwordChars)
         val keyManagers = keyManagerFactory.keyManagers

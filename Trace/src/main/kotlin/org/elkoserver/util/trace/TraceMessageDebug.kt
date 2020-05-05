@@ -50,7 +50,7 @@ internal class TraceMessageDebug(subsystem: String, level: Level, frameData: Sta
                 frameData.methodName
             }
             myFileName = frameData.fileName ?: "file?"
-            myLine = "" + frameData.lineNumber
+            myLine = frameData.lineNumber.toString()
         } else {
             myMethodName = "method?"
             myFileName = "file?"

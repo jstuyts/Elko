@@ -86,8 +86,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
                 obj = if (failure == null) {
                     decodeObject(myRef, results)
                 } else {
-                    tr.errorm("object store error getting " + myRef + ": " +
-                            failure)
+                    tr.errorm("object store error getting $myRef: $failure")
                     null
                 }
             }

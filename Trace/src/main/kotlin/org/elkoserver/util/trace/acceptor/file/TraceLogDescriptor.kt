@@ -111,8 +111,7 @@ internal class TraceLogDescriptor(private val clock: Clock) : Cloneable {
             }
         } else {
             val timestamp = clock.millis()
-            File(myDir, myTag + "." +
-                    terseCompleteDateString(timestamp))
+            File(myDir, "$myTag.${terseCompleteDateString(timestamp)}")
         }
     }
 

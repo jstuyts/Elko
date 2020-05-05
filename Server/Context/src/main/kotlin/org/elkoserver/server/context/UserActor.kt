@@ -156,14 +156,14 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
             actualUserRef = null
             isAnonymous = false
             if (actualName == null) {
-                actualName = "_synth_" + theNextTempID++
+                actualName = "_synth_${theNextTempID++}"
             }
         } else if (actualUserRef == null) {
             actualUserRef = "user-anon"
             isEphemeral = true
             isAnonymous = true
             if (actualName == null) {
-                actualName = "_anon_" + theNextTempID++
+                actualName = "_anon_${theNextTempID++}"
             }
         }
         var opener: DirectorActor? = null

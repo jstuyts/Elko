@@ -235,9 +235,7 @@ class RTCPSessionConnection private constructor(
     fun receiveMessage(request: RTCPRequest) {
         noteClientActivity()
         if (request.clientSendSeqNum() != myClientSendSeqNum + 1) {
-            traceFactory.comm.errorm(this.toString() + " expected client seq # " +
-                    (myClientSendSeqNum + 1) + ", got " +
-                    request.clientSendSeqNum())
+            traceFactory.comm.errorm("$this expected client seq # ${myClientSendSeqNum + 1}, got ${request.clientSendSeqNum()}")
             val reply = mySessionFactory.makeErrorReply("sequenceError")
             sendMsg(reply)
         } else {
@@ -268,7 +266,7 @@ class RTCPSessionConnection private constructor(
                     myClientSendSeqNum,
                     elem.message.sendableString())
             if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm(this.toString() + " resend " + elem.seqNum)
+                traceFactory.comm.debugm("$this resend ${elem.seqNum}")
             }
             myLiveConnection!!.sendMsg(messageString)
         }
@@ -302,7 +300,7 @@ class RTCPSessionConnection private constructor(
                     myClientSendSeqNum,
                     jsonMessage.sendableString())
             if (trMsg.debug) {
-                trMsg.debugm(myLiveConnection.toString() + " <| " + myServerSendSeqNum + " " + myClientSendSeqNum)
+                trMsg.debugm("$myLiveConnection <| $myServerSendSeqNum $myClientSendSeqNum")
             }
             if (trMsg.event) {
                 trMsg.msgi(this, false, message)
@@ -311,8 +309,7 @@ class RTCPSessionConnection private constructor(
             messageString = message
             if (myLiveConnection != null) {
                 if (trMsg.debug) {
-                    trMsg.debugm(myLiveConnection.toString() + " <| " +
-                            messageString.trim { it <= ' ' })
+                    trMsg.debugm("$myLiveConnection <| ${messageString.trim { it <= ' ' }}")
                 }
             }
         } else {
@@ -371,7 +368,7 @@ class RTCPSessionConnection private constructor(
         } else {
             "*"
         }
-        return "RTCP(" + id() + "," + tag + ")"
+        return "RTCP(${id()},$tag)"
     }
 
     /**
@@ -407,7 +404,7 @@ class RTCPSessionConnection private constructor(
     init {
         this.traceFactory = traceFactory
         trMsg = mySessionFactory.msgTrace()
-        mySessionID = "" + sessionID
+        mySessionID = sessionID.toString()
         mySessionFactory.addSession(this)
         myLastActivityTime = clock.millis()
         if (traceFactory.comm.event) {

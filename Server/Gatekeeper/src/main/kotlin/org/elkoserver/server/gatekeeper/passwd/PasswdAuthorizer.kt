@@ -54,7 +54,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
      * @param actor  The actor description for the actor to add.
      */
     fun addActor(actor: ActorDesc) {
-        myODB!!.putObject("a-" + actor.id(), actor, null, false, null)
+        myODB!!.putObject("a-${actor.id()}", actor, null, false, null)
     }
 
     /**
@@ -74,7 +74,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
      * @param actor  The actor description for the actor to checkpoint.
      */
     fun checkpointActor(actor: ActorDesc) {
-        myODB!!.putObject("a-" + actor.id(), actor, null, false, null)
+        myODB!!.putObject("a-${actor.id()}", actor, null, false, null)
     }
 
     /**
@@ -190,7 +190,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
                         reservation = obj
                         failure = reservation.deny()
                     }
-                    else -> throw Error("bad object class: " + obj.javaClass)
+                    else -> throw Error("bad object class: ${obj.javaClass}")
                 }
             }
             if (myComponentCount == (if (myID == null) 1 else 2)) {

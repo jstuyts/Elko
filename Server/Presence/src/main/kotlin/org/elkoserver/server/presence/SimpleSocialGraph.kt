@@ -28,8 +28,7 @@ internal class SimpleSocialGraph : SocialGraph {
         myDomain = domain
         tr = master.appTrace()
         myPrefix = conf.getString("prefix", "g")
-        tr.worldi("init SimpleSocialGraph for domain '" + domain.name() +
-                "', odb prefix '" + myPrefix + "-'")
+        tr.worldi("init SimpleSocialGraph for domain '${domain.name()}', odb prefix '$myPrefix-'")
     }
 
     /**
@@ -45,7 +44,7 @@ internal class SimpleSocialGraph : SocialGraph {
      * @param user  The user whose social graph should be fetched.
      */
     override fun loadUserGraph(user: ActiveUser) {
-        myODB.getObject(myPrefix + "-" + user.ref(), null, object : Consumer<Any?> {
+        myODB.getObject("$myPrefix-${user.ref()}", null, object : Consumer<Any?> {
             override fun accept(obj: Any?) {
                     if (obj != null) {
                         val desc = obj as UserGraphDesc
@@ -53,8 +52,7 @@ internal class SimpleSocialGraph : SocialGraph {
                         user.userGraphIsReady(friends, myDomain, myMaster)
                     } else {
                         user.userGraphIsReady(null, myDomain, myMaster)
-                        tr.warningi("no social graph info for user " +
-                                user.ref() + " in domain " + myDomain.name())
+                        tr.warningi("no social graph info for user ${user.ref()} in domain ${myDomain.name()}")
                     }
                 }
         })
