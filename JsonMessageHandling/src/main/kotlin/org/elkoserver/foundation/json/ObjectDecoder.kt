@@ -58,6 +58,7 @@ class ObjectDecoder private constructor(decodeClass: Class<*>, traceFactory: Tra
     companion object {
         /** Mapping from Java class to the specific decoder for that class.  This
          * is a cache of decoders, to avoid recomputing reflection information.  */
+        @Deprecated("Global variable")
         private val theDecoders: MutableMap<Class<*>, ObjectDecoder> = HashMap()
 
         /**

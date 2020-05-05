@@ -1,6 +1,6 @@
 package org.elkoserver.util
 
-import org.elkoserver.util.EmptyIterator.Companion.emptyIterator
+import java.util.Collections.emptyIterator
 
 /**
  * A hash "set" that objects can be added to multiple times.  An object must be

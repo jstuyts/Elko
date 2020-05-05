@@ -36,9 +36,11 @@ class ActorDesc : Encodable {
 
     companion object {
         /** Random number generator, for generating password salt.  */
+        @Deprecated("Global variable")
         private val theRandom = SecureRandom()
 
         /** Object to SHA hash passwords.  */
+        @Deprecated("Global variable")
         private val theSHA: MessageDigest
 
         init {

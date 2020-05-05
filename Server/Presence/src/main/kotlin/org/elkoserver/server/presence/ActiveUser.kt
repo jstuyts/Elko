@@ -78,7 +78,8 @@ internal class ActiveUser(private val myRef: String) {
         }
         /* If the social graph is loaded, perform the notifications associated
            with a new presence's arrival.  If it's not loaded, these
-           notifications will happen later, when the graph data arrives. */if (graphsAreReady()) {
+           notifications will happen later, when the graph data arrives. */
+        if (graphsAreReady()) {
             notifyFriendsAboutMe(true, context, master)
             notifyMeAboutFriends(context, master)
         }

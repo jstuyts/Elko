@@ -93,19 +93,20 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
         }
         val now = queryTimerMillis()
         synchronized(this) {
-            /* Only do next bunch of stuff if this timer is still running */if (myRunning) {
-            /* Timer fired, check each element to see if it is time */
-            while (!myEvents.isEmpty()) {
-                entry = myEvents.firstKey()
-                if (entry.myWhen <= now) {
-                    myEvents.remove(entry)
-                    entry.myNext = notifies
-                    notifies = entry
-                } else {
-                    break
+            /* Only do next bunch of stuff if this timer is still running */
+            if (myRunning) {
+                /* Timer fired, check each element to see if it is time */
+                while (!myEvents.isEmpty()) {
+                    entry = myEvents.firstKey()
+                    if (entry.myWhen <= now) {
+                        myEvents.remove(entry)
+                        entry.myNext = notifies
+                        notifies = entry
+                    } else {
+                        break
+                    }
                 }
             }
-        }
         }
 
         /* Enumerate over notifies and notify them */

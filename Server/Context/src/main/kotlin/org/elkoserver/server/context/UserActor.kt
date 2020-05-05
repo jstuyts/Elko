@@ -319,6 +319,7 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
 
     companion object {
         /** Counter for assigning ephemeral user IDs.  */
+        @Deprecated("Global variable")
         private var theNextTempID = 1
     }
 

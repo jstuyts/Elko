@@ -617,6 +617,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
 
     companion object {
         /** Random number source for generating new refs.  */
+        @Deprecated("Global variable")
         private val theRandom = SecureRandom()
     }
 

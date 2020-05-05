@@ -1,7 +1,11 @@
 package org.elkoserver.util.trace.acceptor.file
 
 import org.elkoserver.util.trace.terseCompleteDateString
-import java.io.*
+import java.io.File
+import java.io.FileNotFoundException
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.PrintStream
 import java.nio.charset.Charset
 import java.time.Clock
 
@@ -43,10 +47,10 @@ internal class TraceLogDescriptor(private val clock: Clock) : Cloneable {
 
     companion object {
         /*
-     * XXX At some point, this might be initialized to some default directory.
-     * In Windows, the "current working directory" has a bad habit of hopping
-     * around at runtime.
-     */
+         * XXX At some point, this might be initialized to some default directory.
+         * In Windows, the "current working directory" has a bad habit of hopping
+         * around at runtime.
+         */
         private val STARTING_LOG_DIR = File(".")
         private const val STARTING_LOG_TAG = "log"
     }
@@ -155,7 +159,8 @@ internal class TraceLogDescriptor(private val clock: Clock) : Cloneable {
     fun setDir(value: String) {
         useStdout = false
         /* Don't change value of usePersonalFormat, as the directory is
-           independent of the filename format. */myDir = File(value)
+           independent of the filename format. */
+        myDir = File(value)
         myDir.isDirectory
     }
 

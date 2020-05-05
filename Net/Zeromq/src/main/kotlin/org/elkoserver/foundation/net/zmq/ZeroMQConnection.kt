@@ -49,7 +49,8 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
          * stream.  Output queue handler will call closeIsDone() when it pulls
          * this marker off the queue, which will be right after the last
          * message goes out.
-         */if (amOpen) {
+         */
+        if (amOpen) {
             enqueueSentMessage(theCloseMarker)
             amOpen = false
         }
@@ -176,7 +177,8 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
             traceFactory.comm.verbosem("enqueue $message")
         }
 
-        /* If the connection is going away, the message can be discarded. */if (amOpen) {
+        /* If the connection is going away, the message can be discarded. */
+        if (amOpen) {
             myOutputQueue.enqueue(message)
             var doWakeup: Boolean
             synchronized(myWakeupLock) {

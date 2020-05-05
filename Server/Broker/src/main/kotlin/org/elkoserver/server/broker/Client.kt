@@ -108,7 +108,7 @@ internal class Client(private val myBroker: Broker, private val myActor: BrokerA
      * @param loadFactor The value to set it to.
      */
     fun setLoadFactor(loadFactor: Double) {
-        myLoadFactor = Math.max(loadFactor, 0.0)
+        myLoadFactor = loadFactor.coerceAtLeast(0.0)
     }
 
     companion object {

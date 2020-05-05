@@ -22,7 +22,10 @@ internal class Domain(private val myName: String) {
     }
 
     companion object {
+        @Deprecated("Global variable")
         private var theNextIndex = 0
+
+        @Deprecated("Global variable")
         private val theDomains = ArrayList<Domain>()
 
         fun domain(index: Int) = theDomains[index]

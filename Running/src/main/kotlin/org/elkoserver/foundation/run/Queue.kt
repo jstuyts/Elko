@@ -59,12 +59,14 @@ class Queue<TElement> : Enumeration<TElement> {
         }
         synchronized(myQLock) {
 
-            /* grow array if necessary */if (myCurSize == myMaxSize) {
+            /* grow array if necessary */
+            if (myCurSize == myMaxSize) {
             val newSize = myMaxSize * 3 / 2 + 10
             val elementType = myStuff.javaClass.componentType
             val stuff = java.lang.reflect.Array.newInstance(elementType, newSize) as Array<TElement?>
 
-            /* note: careful code to avoid inadvertantly reordering msgs */System.arraycopy(myStuff, myOut, stuff, 0, myMaxSize - myOut)
+            /* note: careful code to avoid inadvertantly reordering msgs */
+            System.arraycopy(myStuff, myOut, stuff, 0, myMaxSize - myOut)
             if (myOut != 0) {
                 System.arraycopy(myStuff, 0, stuff, myMaxSize - myOut,
                         myOut)
@@ -75,7 +77,8 @@ class Queue<TElement> : Enumeration<TElement> {
             myMaxSize = newSize
         }
             /* Will throw ArrayStoreException if newElement's type doesn't 
-               conform to elementType */myStuff[myIn] = newElement
+               conform to elementType */
+            myStuff[myIn] = newElement
             ++myIn
             if (myIn == myMaxSize) {
                 myIn = 0

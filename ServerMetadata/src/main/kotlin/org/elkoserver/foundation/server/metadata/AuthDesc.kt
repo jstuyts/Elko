@@ -163,5 +163,4 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
             }
         }
     }
-
 }

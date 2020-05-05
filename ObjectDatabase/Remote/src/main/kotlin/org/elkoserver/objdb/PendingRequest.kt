@@ -178,6 +178,7 @@ internal class PendingRequest private constructor(private val myHandler: Consume
 
     companion object {
         /** Counter for generating request tags.  */
+        @Deprecated("Global variable")
         private var theTagCounter = 0
 
         /**

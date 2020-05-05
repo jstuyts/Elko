@@ -81,6 +81,7 @@ internal class UniversalGraph : SocialGraph {
 
     companion object {
         /** Random number generator, for random friendship.  */
+        @Deprecated("Global variable")
         private val theRandom = SecureRandom()
     }
 }

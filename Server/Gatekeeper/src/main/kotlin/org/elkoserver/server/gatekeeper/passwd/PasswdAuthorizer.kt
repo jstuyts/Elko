@@ -271,6 +271,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
 
     companion object {
         /** Random number generator, for generating IDs.  */
+        @Deprecated("Global variable")
         private val theRandom = SecureRandom()
     }
 }

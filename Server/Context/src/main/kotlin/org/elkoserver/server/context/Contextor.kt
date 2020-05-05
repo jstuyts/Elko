@@ -1214,6 +1214,7 @@ class Contextor internal constructor(
 
     companion object {
         /** Random number generator, for creating unique IDs and sub-IDs.  */
+        @Deprecated("Global variable")
         private val theRandom = SecureRandom()
 
         /**

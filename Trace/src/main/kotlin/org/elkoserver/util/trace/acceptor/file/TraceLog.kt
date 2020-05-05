@@ -3,7 +3,9 @@ package org.elkoserver.util.trace.acceptor.file
 import org.elkoserver.util.trace.TraceMessage
 import org.elkoserver.util.trace.TraceMessageAcceptor
 import java.time.Clock
-import java.util.*
+import java.util.Calendar
+import java.util.LinkedList
+import java.util.Locale
 
 /**
  * This class manages dumping of messages to the semi-permanent on-disk log.
@@ -355,7 +357,8 @@ class TraceLog(clock: Clock) : TraceMessageAcceptor {
                the new name we're using. */
             myPending.startUsing(null)
         } catch (e: Exception) {
-            /* continue using current. */drainQueue()
+            /* continue using current. */
+            drainQueue()
             return
         }
         /* Stash old log name to print in new log. */

@@ -831,7 +831,8 @@ class BankWorker
                 reply.addParameterOpt("memo", enc.memo())
                 reply.finish()
                 from.send(reply)
-                /* Don't write, hence even success is a form of failure. */return false
+                /* Don't write, hence even success is a form of failure. */
+                return false
             }
 
             override fun complete(failure: String?) {

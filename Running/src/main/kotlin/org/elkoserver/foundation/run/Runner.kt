@@ -202,11 +202,13 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
          * Number of Runners currently in operation.  When this goes to 0, it is
          * time to exit.
          */
+        @Deprecated("Global variable")
         private var theRunnerCount = 0
 
         /**
          * DANGER DANGER: Mutable static.
          */
+        @Deprecated("Global variable")
         private var theDefaultRunner: Runner? = null
 
         /**

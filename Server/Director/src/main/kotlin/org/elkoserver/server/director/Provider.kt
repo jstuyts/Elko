@@ -350,6 +350,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
 
     companion object {
         /** Counter for assigning ordinal values to new providers.  */
+        @Deprecated("Global variable")
         private var theNextOrdinal = 0
     }
 

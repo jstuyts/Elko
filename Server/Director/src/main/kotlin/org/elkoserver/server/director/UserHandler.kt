@@ -107,6 +107,7 @@ internal open class UserHandler(private val myDirector: Director, traceFactory: 
 
     companion object {
         /** Random number generator, for reservations.  */
+        @Deprecated("Global variable")
         private val theRandom = SecureRandom()
 
         private fun msgDoReserve(target: Referenceable, context: String?, user: String?, reservation: String) =
