@@ -73,16 +73,15 @@ abstract class OutboundGroup(propRoot: String,
         }
     }
 
-    private inner class HostFoundHandler : Consumer<Any> {
+    private inner class HostFoundHandler : Consumer<Array<ServiceDesc>> {
         /**
          * Open connections to external servers configured via the broker.
          *
          * @param obj  Array of service description objects describing external
          * servers to connect to.
          */
-        override fun accept(obj: Any) {
-            @Suppress("UNCHECKED_CAST")
-            for (desc in obj as Array<ServiceDesc>) {
+        override fun accept(obj: Array<ServiceDesc>) {
+            for (desc in obj) {
                 if (desc.failure() == null) {
                     val host = desc.asHostDesc(myRetryInterval)
                     ConnectionRetrier(host, label(), myNetworkManager,

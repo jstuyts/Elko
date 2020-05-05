@@ -40,9 +40,9 @@ class EchoMod @JSONMethod constructor() : Mod(), ContextMod, ObjectCompletionWat
         ensureSameContext(from)
         val currentService = myService
         if (currentService != null) {
-            currentService.probe(text, Consumer<Any> { obj ->
+            currentService.probe(text, Consumer<String> { obj ->
                 val msg = JSONLiteralFactory.targetVerb(`object`(), "echo").apply {
-                    addParameter("text", obj as String)
+                    addParameter("text", obj)
                     finish()
                 }
                 from.send(msg)

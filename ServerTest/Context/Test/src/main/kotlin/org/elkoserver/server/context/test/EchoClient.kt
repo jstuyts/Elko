@@ -12,7 +12,7 @@ import java.util.function.Consumer
 /**
  * Internal object that acts as a client for the external 'echo' service.
  */
-class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<Any?> {
+class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<ServiceLink> {
     /** Connection to the workshop running the echo service.  */
     private var myServiceLink: ServiceLink? = null
 
@@ -20,7 +20,7 @@ class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<Any?> {
     private var myStatus = "startup"
 
     /** Ordered list of handlers for pending requests to the service.  */
-    private val myResultHandlers = LinkedList<Consumer<Any>>()
+    private val myResultHandlers = LinkedList<Consumer<in String>>()
 
     /**
      * Make this object live inside the context server.  In this case we
@@ -43,13 +43,9 @@ class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<Any?> {
      * @param obj  The connection to the echo service, or null if connection
      * setup failed.
      */
-    override fun accept(obj: Any?) {
-        if (obj != null) {
-            myServiceLink = obj as ServiceLink?
-            myStatus = "connected"
-        } else {
-            myStatus = "failed"
-        }
+    override fun accept(obj: ServiceLink) {
+        myServiceLink = obj
+        myStatus = "connected"
     }
 
     /**
@@ -60,7 +56,7 @@ class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<Any?> {
      * when it is received, or an error message string if there was a
      * problem.
      */
-    fun probe(text: String?, resultHandler: Consumer<Any>) {
+    fun probe(text: String?, resultHandler: Consumer<in String>) {
         val currentServiceLink = myServiceLink
         if (currentServiceLink != null) {
             myResultHandlers.addLast(resultHandler)

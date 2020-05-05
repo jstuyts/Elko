@@ -101,13 +101,12 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     /** Message handler factory for repository connections.  */
     private val myMessageHandlerFactory: MessageHandlerFactory
 
-    private inner class RepositoryFoundHandler : Consumer<Any> {
-        override fun accept(obj: Any) {
-            val desc = obj as Array<ServiceDesc>
-            if (desc[0].failure() != null) {
-                tr.errorm("unable to find repository: " + desc[0].failure())
+    private inner class RepositoryFoundHandler : Consumer<Array<ServiceDesc>> {
+        override fun accept(obj: Array<ServiceDesc>) {
+            if (obj[0].failure() != null) {
+                tr.errorm("unable to find repository: " + obj[0].failure())
             } else {
-                myRepHost = desc[0].asHostDesc(myRetryInterval)
+                myRepHost = obj[0].asHostDesc(myRetryInterval)
                 connectToRepository()
             }
         }
@@ -213,7 +212,8 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
         if (req != null && results != null) {
             val obj: Any?
             val failure = results[0].failure()
-            /* XXX this is just wrong. (As previously documented for queries. But why not for gets?) */obj = if (failure == null) {
+            /* XXX this is just wrong. (As previously documented for queries. But why not for gets?) */
+            obj = if (failure == null) {
                 decodeObject(req.ref(), results)
             } else {
                 tr.errorm("repository error getting " + req.ref() + ": " +

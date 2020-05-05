@@ -5,6 +5,7 @@ import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JSONDecodingException
@@ -327,7 +328,7 @@ class Contextor internal constructor(
      * service link once the connection is located or created.  The handler
      * will be passed a null if no connection was possible.
      */
-    fun findServiceLink(serviceName: String, handler: Consumer<Any?>?) {
+    fun findServiceLink(serviceName: String, handler: Consumer<in ServiceLink>) {
         myServer.findServiceLink("workshop-service-$serviceName", handler)
     }
 
@@ -354,7 +355,7 @@ class Contextor internal constructor(
                 if (actualContextTemplate == null) {
                     actualContextTemplate = contextRef
                 }
-                val getHandler: Consumer<Any?> = GetContextHandler(actualContextTemplate, contextRef, opener)
+                val getHandler: Consumer<in BasicObject?> = GetContextHandler(actualContextTemplate, contextRef, opener)
                 val contentsHandler = ContentsHandler(null, getHandler)
                 val contextReceiver = Consumer { obj: Any? -> contentsHandler.receiveContainer(obj as BasicObject?) }
                 if (addPendingGet(actualContextTemplate, contextHandler)) {
@@ -390,7 +391,7 @@ class Contextor internal constructor(
      */
     internal constructor(
             private val myParentHandler: ContentsHandler?,
-            private val myTopHandler: Consumer<Any?>) : Consumer<Any?> {
+            private val myTopHandler: Consumer<in BasicObject?>) : Consumer<Any?> {
 
         /** Number of objects whose loading is being awaited.  Initially, this
          * is the number of contained objects plus two: the container itself,
@@ -533,24 +534,15 @@ class Contextor internal constructor(
      * Thunk class to receive a context object fetched from the database.  At
      * the point this is invoked, the context and all of its contents are
      * loaded but not activated.
-     */
-    private inner class GetContextHandler
-    /**
-     * Constructor
      *
      * @param myContextTemplate  The ref of the context template.
      * @param myContextRef  The ref of the context itself.
      * @param myOpener  The director who requested the context activation.
-     */ internal constructor(
-            /** The ref of the context template.  This is the ref of the object
-             * that is loaded from the database. */
+     */
+    private inner class GetContextHandler internal constructor(
             private val myContextTemplate: String,
-            /** The ref of the context itself.  This is the base ref of the context
-             * that actually results.  It will be the same as the template ref if
-             * the context is not actually templated.  */
             private var myContextRef: String,
-            /** The director that requested this context to be activated.  */
-            private val myOpener: DirectorActor?) : Consumer<Any?> {
+            private val myOpener: DirectorActor?) : Consumer<BasicObject?> {
 
         /**
          * Callback that will be invoked when the context is loaded.
@@ -558,7 +550,7 @@ class Contextor internal constructor(
          * @param obj  The object that was fetched.  This will be a Context
          * object with a fully expanded (but unactivated) contents tree.
          */
-        override fun accept(obj: Any?) {
+        override fun accept(obj: BasicObject?) {
             var context: Context? = null
             if (obj is Context) {
                 context = obj
@@ -746,7 +738,7 @@ class Contextor internal constructor(
      * @param myScope  The application scope to be queried against.
      * @param myOuterHandler  The original handler to which the modified
      * object should be passed.
-     */ internal constructor(private val myScope: String, private val myOuterHandler: Consumer<Any?>) : Consumer<Any?> {
+     */ internal constructor(private val myScope: String, private val myOuterHandler: Consumer<in BasicObject?>) : Consumer<Any?> {
         private var myObj: BasicObject? = null
 
         /**
@@ -1154,7 +1146,7 @@ class Contextor internal constructor(
     fun synthesizeUser(connection: Connection, factoryTag: String,
                        param: JsonObject?, contextRef: String,
                        contextTemplate: String?,
-                       userHandler: Consumer<Any?>) {
+                       userHandler: Consumer<in User?>) {
         val rawFactory = getStaticObject(factoryTag)
         if (rawFactory == null) {
             tr.errori("user factory '$factoryTag' not found")

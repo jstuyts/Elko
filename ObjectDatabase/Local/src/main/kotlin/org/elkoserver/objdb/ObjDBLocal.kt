@@ -280,7 +280,6 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
         override fun run() {
             myRunnable.accept(myResult)
         }
-
     }
 
     init {

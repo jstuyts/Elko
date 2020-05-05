@@ -34,7 +34,7 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
      * @param handler   Handler to be called with the result.  The result will
      * be the user object that was produced, or null if none could be.
      */
-    override fun provideUser(contextor: Contextor, connection: Connection?, param: JsonObject?, handler: Consumer<Any?>) {
+    override fun provideUser(contextor: Contextor, connection: Connection?, param: JsonObject?, handler: Consumer<in User?>) {
         val creds = extractCredentials(contextor.appTrace(), param)
         if (creds == null) {
             handler.accept(null)
@@ -48,7 +48,7 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
     }
 
     private class DeviceQueryResultHandler internal constructor(private val myContextor: Contextor, private val myCreds: DeviceCredentials,
-                                                                private val myHandler: Consumer<Any?>) : Consumer<Any?> {
+                                                                private val myHandler: Consumer<in User?>) : Consumer<Any?> {
         override fun accept(queryResult: Any?) {
             val user: User
             @Suppress("UNCHECKED_CAST") val result = queryResult as Array<Any>?

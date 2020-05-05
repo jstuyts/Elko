@@ -269,7 +269,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      * @param handler  Object to receive the asynchronous result(s).
      * @param monitor  If true, keep watching for more results after the first.
      */
-    public void findService(String service, Consumer<Object> handler, boolean monitor)
+    public void findService(String service, Consumer<? super ServiceDesc[]> handler, boolean monitor)
     {
         if (myBrokerHost != null) {
             String tag = "" + (theNextFindTag++);
@@ -294,15 +294,13 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      *    the requested service once the connection is located or created.  The
      *    handler will be passed a null if no connection was possible.
      */
-    public void findServiceLink(String service, Consumer<Object> handler) {
+    public void findServiceLink(String service, Consumer<? super ServiceLink> handler) {
         if (!amShuttingDown) {
             ServiceLink link = myServiceLinksByService.get(service);
             if (link != null) {
                 handler.accept(link);
             } else {
-                findService(service,
-                            new ServiceFoundHandler(handler, service, null),
-                            false);
+                findService(service, new ServiceFoundHandler(handler, service, null), false);
             }
         }
     }
@@ -315,10 +313,10 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
      * established.
      */
     private class ServiceFoundHandler
-        implements Consumer<Object>, MessageHandlerFactory
+        implements Consumer<ServiceDesc[]>, MessageHandlerFactory
     {
         /** Handler to receive connection to service, once there is one. */
-        private final Consumer<Object> myInnerHandler;
+        private final Consumer<? super ServiceLink> myInnerHandler;
 
         /** Optional arbitrary label to attach to new connection. */
         private final String myLabel;
@@ -338,8 +336,7 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
          * @param link  Service link that will be associated with the
          *    connection; if null, a new link will be created
          */
-        ServiceFoundHandler(Consumer<Object> innerHandler, String service,
-                            ServiceLink link)
+        ServiceFoundHandler(Consumer<? super ServiceLink> innerHandler, String service, ServiceLink link)
         {
             myInnerHandler = innerHandler;
             myLabel = service;
@@ -361,16 +358,15 @@ public class Server implements ConnectionCountMonitor, ServiceFinder
          * @param obj  Array of service descriptors for the service that was
          *    located.  Normally this will be a single element array.
          */
-        public void accept(Object obj) {
-            ServiceDesc[] descs = (ServiceDesc[]) obj;
-            myDesc = descs[0];
+        public void accept(ServiceDesc[] obj) {
+            myDesc = obj[0];
             if (myDesc.failure() != null) {
                 tr.warningi("service query for " + myLabel + " failed: " +
                             myDesc.failure());
                 myInnerHandler.accept(null);
                 return;
             }
-            if (descs.length > 1) {
+            if (obj.length > 1) {
                 tr.warningm("service query for " + myLabel +
                             " returned multiple results; using first one");
             }

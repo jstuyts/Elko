@@ -33,7 +33,7 @@ internal class DirectorActor(connection: Connection, dispatcher: MessageDispatch
 
     /** Reservation requests that have been issued to the director, the
      * responses to which have not yet been received to.  */
-    private val myPendingReservations: MutableMap<String, Consumer<Any?>> = HashMap()
+    private val myPendingReservations: MutableMap<String, Consumer<in ReservationResult>> = HashMap()
 
     /**
      * Handle loss of connection from the director.
@@ -42,8 +42,7 @@ internal class DirectorActor(connection: Connection, dispatcher: MessageDispatch
      * @param reason  Exception explaining why.
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
-        traceFactory.comm.eventm("lost director connection " + connection + ": " +
-                reason)
+        traceFactory.comm.eventm("lost director connection $connection: $reason")
         amLive = false
         myFactory.setDirector(null)
         for ((key, handler) in myPendingReservations) {
@@ -60,7 +59,7 @@ internal class DirectorActor(connection: Connection, dispatcher: MessageDispatch
      * @param actor  The requested actor.
      * @param handler  Object to handle result.
      */
-    fun requestReservation(protocol: String, context: String, actor: String, handler: Consumer<Any?>) {
+    fun requestReservation(protocol: String, context: String, actor: String, handler: Consumer<in ReservationResult>) {
         if (!amLive) {
             handler.accept(ReservationResult(context, actor, "director connection lost"))
         } else {
@@ -96,7 +95,7 @@ internal class DirectorActor(connection: Connection, dispatcher: MessageDispatch
         val actor = optActor.value<String?>(null)
         val nonNullActor = actor ?: ""
         var contextKey: String? = context
-        var handler: Consumer<Any?>?
+        var handler: Consumer<in ReservationResult>?
         do {
             handler = myPendingReservations.remove("$contextKey|$nonNullActor")
             if (handler == null) {

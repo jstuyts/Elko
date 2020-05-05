@@ -9,16 +9,16 @@ import java.util.function.Consumer;
  */
 class ServiceQuery {
     /** The service name that was requested. */
-    private String myService;
+    private final String myService;
 
     /** Handler for results when and if they arrive. */
-    private Consumer<Object> myHandler;
+    private Consumer<? super ServiceDesc[]> myHandler;
 
     /** Flag to continue waiting for further results. */
-    private boolean amMonitor;
+    private final boolean amMonitor;
 
     /** Tag ID string for matching results to who asked for them. */
-    private String myTag;
+    private final String myTag;
 
     /**
      * Constructor.
@@ -28,8 +28,7 @@ class ServiceQuery {
      * @param isMonitor   If true, continue waiting for more results.
      * @param tag  Optional tag string for matching response with the request.
      */
-    ServiceQuery(String service, Consumer<Object> handler, boolean isMonitor,
-                 String tag)
+    ServiceQuery(String service, Consumer<? super ServiceDesc[]> handler, boolean isMonitor, String tag)
     {
         myService = service;
         myHandler = handler;

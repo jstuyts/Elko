@@ -185,11 +185,9 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
                 reservation.redeem()
             }
         }
-        val runnable = EnterRunnable(actualUserRef, isEphemeral, isAnonymous, actualName,
-                contextRef, sess)
+        val runnable = EnterRunnable(actualUserRef, isEphemeral, isAnonymous, actualName, contextRef, sess)
         if (utag != null) {
-            myContextor.synthesizeUser(myConnection, utag, uparam, contextRef,
-                    contextTemplate, runnable)
+            myContextor.synthesizeUser(myConnection, utag, uparam, contextRef, contextTemplate, runnable)
         } else {
             myContextor.loadUser(actualUserRef!!, scope, runnable)
         }

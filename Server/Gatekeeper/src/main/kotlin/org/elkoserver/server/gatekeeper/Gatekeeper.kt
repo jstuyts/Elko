@@ -42,13 +42,12 @@ class Gatekeeper internal constructor(
     /** Object for managing director connections.  */
     private val myDirectorActorFactory: DirectorActorFactory
 
-    private inner class DirectorFoundRunnable : Consumer<Any> {
-        override fun accept(obj: Any) {
-            val desc = obj as Array<ServiceDesc>
-            if (desc[0].failure() != null) {
-                tr.errorm("unable to find director: " + desc[0].failure())
+    private inner class DirectorFoundRunnable : Consumer<Array<ServiceDesc>> {
+        override fun accept(obj: Array<ServiceDesc>) {
+            if (obj[0].failure() != null) {
+                tr.errorm("unable to find director: " + obj[0].failure())
             } else {
-                setDirectorHost(desc[0].asHostDesc(myRetryInterval))
+                setDirectorHost(obj[0].asHostDesc(myRetryInterval))
             }
         }
     }
@@ -138,7 +137,7 @@ class Gatekeeper internal constructor(
      * @param handler  Object to handle the reservation result.  When the
      * result becomes available, it will be passed as an instance of [    ].
      */
-    fun requestReservation(protocol: String, context: String, actor: String, handler: Consumer<Any?>) {
+    fun requestReservation(protocol: String, context: String, actor: String, handler: Consumer<in ReservationResult>) {
         if (myDirectorHost == null) {
             handler.accept(ReservationResult(context, actor, "no director host specified"))
         } else {
