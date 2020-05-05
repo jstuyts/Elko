@@ -17,7 +17,7 @@ import java.time.Clock
  * @param myNext  Next JSON method in a growing chain.
  */
 internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Class<*>>, paramNames: Array<out String>,
-                             private val myNext: MethodInvoker?, traceFactory: TraceFactory, clock: Clock) : Invoker(myMethod, paramTypes, paramNames, 1, traceFactory, clock) {
+                             private val myNext: MethodInvoker?, traceFactory: TraceFactory, clock: Clock) : Invoker<Any>(myMethod, paramTypes, paramNames, 1, traceFactory, clock) {
 
     /** The Java class that defined the method.  */
     private val myMethodClass: Class<*> = myMethod.declaringClass
@@ -51,7 +51,7 @@ internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Cla
      * @param message  The message that was received.
      * @param resolver  Type resolver for parameters.
      */
-    fun handle(target: DispatchTarget?, from: Deliverer?, message: JsonObject, resolver: TypeResolver?) {
+    fun handle(target: DispatchTarget, from: Deliverer?, message: JsonObject, resolver: TypeResolver?) {
         try {
             apply(target, from, message.entrySet(), resolver)
         } catch (e: JSONInvocationException) {
@@ -70,7 +70,7 @@ internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Cla
      * @return null, since all JSON methods return void.
      */
     @Throws(IllegalAccessException::class, InvocationTargetException::class, ParameterMismatchException::class)
-    override fun invokeMe(target: Any?, params: Array<Any?>): Any? {
+    override fun invokeMe(target: Any, params: Array<Any?>): Any? {
         return try {
             myMethod.invoke(target, *params)
             null
@@ -85,11 +85,7 @@ internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Cla
      * @return the next method in the chain of which this object is a part, or
      * null if there are no more methods in the chain.
      */
-    operator fun next(): MethodInvoker? {
-        return myNext
-    }
+    operator fun next() = myNext
 
-    override fun toString(): String {
-        return "Method($myMethod)"
-    }
+    override fun toString() = "Method($myMethod)"
 }

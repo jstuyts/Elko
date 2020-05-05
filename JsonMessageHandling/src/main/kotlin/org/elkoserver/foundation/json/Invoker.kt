@@ -23,7 +23,7 @@ import java.time.Clock
  * @param myParamNames  JSON names for the parameters.
  * @param firstIndex  Index of first JSON parameter.
  */
-internal abstract class Invoker(method: Member, private val myParamTypes: Array<Class<*>>, private val myParamNames: Array<out String>, firstIndex: Int, protected val traceFactory: TraceFactory, protected val clock: Clock) {
+internal abstract class Invoker<TTarget>(method: Member, private val myParamTypes: Array<Class<*>>, private val myParamNames: Array<out String>, firstIndex: Int, protected val traceFactory: TraceFactory, protected val clock: Clock) {
     /** Mapping of JSON parameter names to Java parameter positions  */
     private val myParamMap: MutableMap<String, Int>
 
@@ -43,7 +43,7 @@ internal abstract class Invoker(method: Member, private val myParamTypes: Array<
      *
      * @return whatever the invoked method returns.
      */
-    protected abstract fun invokeMe(target: Any?, params: Array<Any?>): Any?
+    protected abstract fun invokeMe(target: TTarget, params: Array<Any?>): Any?
 
     /**
      * Invoke the method or constructor held by this Invoker.
@@ -60,7 +60,7 @@ internal abstract class Invoker(method: Member, private val myParamTypes: Array<
      * @throws MessageHandlerException if there was a problem in the execution
      * of the invoked method.
      */
-    fun apply(target: Any?, firstParam: Any?, parameters: Set<Map.Entry<String, Any?>>, resolver: TypeResolver?): Any? {
+    fun apply(target: TTarget, firstParam: Any?, parameters: Set<Map.Entry<String, Any?>>, resolver: TypeResolver?): Any? {
         val firstIndex = if (firstParam == null) 0 else 1
         val params = arrayOfNulls<Any>(myParamTypes.size)
         for ((paramName, value) in parameters) {
@@ -102,9 +102,7 @@ internal abstract class Invoker(method: Member, private val myParamTypes: Array<
         } catch (e: IllegalAccessException) {
             throw JSONInvocationException("can't invoke method: $e")
         } catch (e: InvocationTargetException) {
-            throw MessageHandlerException(
-                    "exception in message handler method: ",
-                    e.targetException)
+            throw MessageHandlerException( "exception in message handler method: ", e.targetException)
         }
     }
 
@@ -116,10 +114,9 @@ internal abstract class Invoker(method: Member, private val myParamTypes: Array<
      * @return true if paramClass is one of the supported optional parameter
      * classes.
      */
-    private fun isOptionalParamType(paramClass: Class<*>): Boolean {
-        return OptionalParameter::class.java.isAssignableFrom(paramClass) ||
-                paramClass.isArray
-    }
+    private fun isOptionalParamType(paramClass: Class<*>) =
+            OptionalParameter::class.java.isAssignableFrom(paramClass) ||
+                    paramClass.isArray
 
     /**
      * Produce the object that should actually be passed to the method or

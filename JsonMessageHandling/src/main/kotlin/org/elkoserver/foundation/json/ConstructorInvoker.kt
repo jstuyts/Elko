@@ -20,7 +20,7 @@ import java.time.Clock
 internal class ConstructorInvoker(
         private val myConstructor: Constructor<*>,
         private val amIncludingRawObject: Boolean,
-        paramTypes: Array<Class<*>>, paramNames: Array<out String>, traceFactory: TraceFactory, clock: Clock) : Invoker(myConstructor, paramTypes, paramNames, if (amIncludingRawObject) 1 else 0, traceFactory, clock) {
+        paramTypes: Array<Class<*>>, paramNames: Array<out String>, traceFactory: TraceFactory, clock: Clock) : Invoker<Any?>(myConstructor, paramTypes, paramNames, if (amIncludingRawObject) 1 else 0, traceFactory, clock) {
 
     /**
      * Invoke the constructor on a JSON object descriptor.
@@ -87,7 +87,5 @@ internal class ConstructorInvoker(
         }
     }
 
-    override fun toString(): String {
-        return "Constructor($myConstructor)"
-    }
+    override fun toString() = "Constructor($myConstructor)"
 }

@@ -13,4 +13,4 @@ package org.elkoserver.foundation.json
  * pattern for such things is to subclass a standard base class (such as `BasicObject`,`Mod`,
  * `BasicProtocolHandler`, or `NonRoutingActor`  that already implements it.
  */
-interface DispatchTarget 
+interface DispatchTarget
