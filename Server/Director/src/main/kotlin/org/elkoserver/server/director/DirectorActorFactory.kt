@@ -54,8 +54,8 @@ internal class DirectorActorFactory(private val myDirector: Director, private va
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection) =
-            DirectorActor(connection, this, tr, traceFactory)
+    override fun provideMessageHandler(connection: Connection?) =
+            DirectorActor(connection!!, this, tr, traceFactory)
 
     /**
      * Get this factory's ref table.

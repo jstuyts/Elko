@@ -11,7 +11,7 @@ import java.nio.charset.StandardCharsets
  * responses as described by "RFC 2616: Hypertext Transfer Protocol --
  * HTTP/1.1", except that chunked transfer coding is not supported.
  */
-class HTTPRequestByteIOFramerFactory internal constructor(private val traceFactory: TraceFactory) : ByteIOFramerFactory {
+class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new HTTP connection.

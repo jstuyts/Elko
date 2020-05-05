@@ -45,8 +45,8 @@ internal class BrokerActorFactory(private val myBroker: Broker, private val myAu
      *
      * @param connection The new connection.
      */
-    override fun provideMessageHandler(connection: Connection) =
-            BrokerActor(connection, this, tr, traceFactory)
+    override fun provideMessageHandler(connection: Connection?) =
+            BrokerActor(connection!!, this, tr, traceFactory)
 
     /**
      * Get this factory's ref table.

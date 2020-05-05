@@ -140,12 +140,12 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
      */
     private fun connectToBroker() {
         if (!amShuttingDown) {
-            ConnectionRetrier(myBrokerHost, "broker", myNetworkManager, BrokerMessageHandlerFactory(), timer, tr, traceFactory)
+            ConnectionRetrier(myBrokerHost!!, "broker", myNetworkManager, BrokerMessageHandlerFactory(), timer, tr, traceFactory)
         }
     }
 
     private inner class BrokerMessageHandlerFactory : MessageHandlerFactory {
-        override fun provideMessageHandler(connection: Connection): MessageHandler {
+        override fun provideMessageHandler(connection: Connection?): MessageHandler {
             return BrokerActor(connection, myDispatcher, this@Server, myBrokerHost!!, traceFactory)
         }
     }
@@ -305,7 +305,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
          *
          * @param connection  The Connection object that was just created.
          */
-        override fun provideMessageHandler(connection: Connection): MessageHandler {
+        override fun provideMessageHandler(connection: Connection?): MessageHandler {
             val actor = ServiceActor(connection, myServiceRefTable, myDesc!!,
                     this@Server, traceFactory)
             myServiceActorsByProviderID[myDesc!!.providerID()] = actor

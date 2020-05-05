@@ -28,8 +28,8 @@ internal class InternalActorFactory(private val myContextor: Contextor, private 
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection) =
-            InternalActor(connection, this, tr, traceFactory)
+    override fun provideMessageHandler(connection: Connection?) =
+            InternalActor(connection!!, this, tr, traceFactory)
 
     /**
      * Check the actor's authorization.

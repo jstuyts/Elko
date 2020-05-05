@@ -34,8 +34,8 @@ internal class RepositoryActorFactory(internal val myRepository: Repository, pri
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection) =
-            RepositoryActor(connection, this, tr, traceFactory)
+    override fun provideMessageHandler(connection: Connection?) =
+            RepositoryActor(connection!!, this, tr, traceFactory)
 
     /**
      * Return the object ref table for this factor.

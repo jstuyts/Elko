@@ -61,8 +61,8 @@ internal class DirectorActorFactory(private val myNetworkManager: NetworkManager
      *
      * @param connection  The Connection object that was just created.
      */
-    override fun provideMessageHandler(connection: Connection) =
-            DirectorActor(connection, myDispatcher, this, myDirectorHost!!, traceFactory)
+    override fun provideMessageHandler(connection: Connection?) =
+            DirectorActor(connection!!, myDispatcher, this, myDirectorHost!!, traceFactory)
 
     /**
      * Issue a reservation request to the director.

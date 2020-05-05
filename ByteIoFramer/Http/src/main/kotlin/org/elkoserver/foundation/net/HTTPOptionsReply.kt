@@ -7,7 +7,7 @@ package org.elkoserver.foundation.net
  * @param request  The HTTP OPTIONS request of interest, requesting
  *     cross-site resource access.
  */
-internal class HTTPOptionsReply(request: HTTPRequest) {
+class HTTPOptionsReply(request: HTTPRequest) {
     private val myHeader = request.header("access-control-request-headers")
 
     /**

@@ -23,6 +23,6 @@ internal class UserActorFactory(private val myContextor: Contextor, private val 
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection) =
-            UserActor(connection, myContextor, amAuthRequired, myProtocol, tr, timer, traceFactory)
+    override fun provideMessageHandler(connection: Connection?) =
+            UserActor(connection!!, myContextor, amAuthRequired, myProtocol, tr, timer, traceFactory)
 }

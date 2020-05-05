@@ -3,6 +3,7 @@ package org.elkoserver.objdb
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionRetrier
+import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -118,8 +119,9 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      */
     private fun connectToRepository() {
         if (!amClosing) {
-            if (myRepHost != null) {
-                ConnectionRetrier(myRepHost, "repository",
+            val currentRepHost = myRepHost
+            if (currentRepHost != null) {
+                ConnectionRetrier(currentRepHost, "repository",
                         myNetworkManager,
                         myMessageHandlerFactory,
                         timer,
@@ -338,8 +340,10 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
         addClass("stati", ResultDesc::class.java)
         myDispatcher = MessageDispatcher(this, traceFactory, clock)
         myDispatcher.addClass(ODBActor::class.java)
-        myMessageHandlerFactory = MessageHandlerFactory { conn: Connection ->
-            ODBActor(conn, this@ObjDBRemote, localName, myRepHost!!, myDispatcher, traceFactory)
+        myMessageHandlerFactory = object : MessageHandlerFactory {
+            override fun provideMessageHandler(connection: Connection?): MessageHandler {
+                return ODBActor(connection!!, this@ObjDBRemote, localName, myRepHost!!, myDispatcher, traceFactory)
+            }
         }
         loadClassDesc(props.getProperty("$propRoot.classdesc"))
         val odbPropRoot = "$propRoot.repository"

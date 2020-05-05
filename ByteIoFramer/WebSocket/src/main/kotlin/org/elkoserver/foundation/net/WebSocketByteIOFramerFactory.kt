@@ -14,7 +14,7 @@ import java.util.Base64
  *
  * @param trMsg  Trace object for logging message traffic.
  */
-class WebSocketByteIOFramerFactory internal constructor(private val trMsg: Trace, private val myHostAddress: String, private val mySocketURI: String, private val traceFactory: TraceFactory) : ByteIOFramerFactory {
+class WebSocketByteIOFramerFactory(private val trMsg: Trace, private val myHostAddress: String, private val mySocketURI: String, private val traceFactory: TraceFactory) : ByteIOFramerFactory {
 
     /** The host address, stripped of port number.  */
     private var myHostName: String? = null

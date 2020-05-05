@@ -18,13 +18,13 @@ import java.time.Clock
  * An implementation of [org.elkoserver.foundation.net.Connection] that
  * manages a message connection over a ZeroMQ socket.
  */
-class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactory?,
+class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactory,
                                             framerFactory: ByteIOFramerFactory,
                                             private val mySocket: ZMQ.Socket,
                                             private val amSendMode: Boolean,
                                             private val myThread: ZeroMQThread,
                                             private val myMgr: NetworkManager,
-                                            remoteAddr: String, clock: Clock?, traceFactory: TraceFactory, private var amOpen: Boolean = true) : ConnectionBase(myMgr, clock, traceFactory), MessageReceiver, Thunk {
+                                            remoteAddr: String, clock: Clock, traceFactory: TraceFactory, private var amOpen: Boolean = true) : ConnectionBase(myMgr, clock, traceFactory), MessageReceiver, Thunk {
     /** Queue of unencoded outbound messages.  */
     private val myOutputQueue = Queue<Any>()
 

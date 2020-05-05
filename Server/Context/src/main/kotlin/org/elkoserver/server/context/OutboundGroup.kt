@@ -103,8 +103,8 @@ abstract class OutboundGroup(propRoot: String,
          *
          * @param connection  The Connection object that was just created.
          */
-        override fun provideMessageHandler(connection: Connection): MessageHandler {
-            return provideActor(connection, myDispatcher, myHost)
+        override fun provideMessageHandler(connection: Connection?): MessageHandler {
+            return provideActor(connection!!, myDispatcher, myHost)
         }
 
     }
@@ -144,7 +144,7 @@ abstract class OutboundGroup(propRoot: String,
      *
      * @return this group's label string.
      */
-    abstract fun label(): String?
+    abstract fun label(): String
 
     /**
      * Get an actor object suitable to act on message traffic on a new

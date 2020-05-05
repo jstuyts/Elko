@@ -113,7 +113,7 @@ open class HTTPRequest {
      *
      * @param content  The body itself.
      */
-    fun setContent(content: String?) {
+    fun setContent(content: String) {
         myContent = if (amURLEncoded) {
             URLDecoder.decode(content, StandardCharsets.UTF_8)
         } else {

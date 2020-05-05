@@ -2,6 +2,8 @@ package org.elkoserver.server.context.test
 
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.net.MessageHandler
+import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NullMessageHandler
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteralFactory
@@ -24,7 +26,7 @@ class ZMQSendTester @JSONMethod("address") constructor(private val myAddress: St
     private var amDead = false
 
     /** Trace object for logging  */
-    private var tr: Trace? = null
+    private lateinit var tr: Trace
 
     /**
      * Encode this mod for transmission or persistence.
@@ -59,7 +61,7 @@ class ZMQSendTester @JSONMethod("address") constructor(private val myAddress: St
             }
             myOutbound!!.sendMsg(msg)
         } else {
-            tr!!.errorm("received 'log' request before outbound connection ready")
+            tr.errorm("received 'log' request before outbound connection ready")
         }
     }
 
@@ -71,13 +73,15 @@ class ZMQSendTester @JSONMethod("address") constructor(private val myAddress: St
                 "org.elkoserver.foundation.net.zmq.ZeroMQConnectionManager",
                 "",  // XXX propRoot, needs to come from somewhere
                 myAddress,
-                { conn: Connection ->
-                    if (amDead) {
-                        conn.close()
-                    } else {
-                        myOutbound = conn
+                object : MessageHandlerFactory {
+                    override fun provideMessageHandler(connection: Connection?): MessageHandler? {
+                        if (amDead) {
+                            connection!!.close()
+                        } else {
+                            myOutbound = connection
+                        }
+                        return NullMessageHandler(tr)
                     }
-                    NullMessageHandler(tr)
                 },
                 tr)
     }

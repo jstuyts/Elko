@@ -21,7 +21,7 @@ import org.elkoserver.util.trace.TraceFactory
  * @param dispatcher  Message dispatcher for repository actors.
  */
 class ODBActor(connection: Connection, private val myODB: ObjDBRemote, localName: String?,
-                        host: HostDesc, dispatcher: MessageDispatcher, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
+               host: HostDesc, dispatcher: MessageDispatcher, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
 
     /**
      * Handle loss of connection from the repository.

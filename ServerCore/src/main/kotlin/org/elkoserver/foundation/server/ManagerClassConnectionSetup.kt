@@ -22,7 +22,7 @@ internal class ManagerClassConnectionSetup(label: String?, private val mgrClass:
                 bind,
                 actorFactory,
                 msgTrace,
-                secure)
+                secure)!!
         if (serverAddress.indexOf(':') < 0) {
             serverAddress = serverAddress + ":" + result.port
         }

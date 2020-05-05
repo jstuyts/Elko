@@ -31,8 +31,8 @@ internal class PresenceActorFactory(internal val myPresenceServer: PresenceServe
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection) =
-            PresenceActor(connection, this, tr, traceFactory)
+    override fun provideMessageHandler(connection: Connection?) =
+            PresenceActor(connection!!, this, tr, traceFactory)
 
     /**
      * Get this factory's ref table.

@@ -49,23 +49,21 @@ val generateBuildVersionClassSourceFile by tasks.registering {
     doLast {
         val packageDirectory = File(temporaryDir, "org/elkoserver/foundation/server")
         packageDirectory.mkdirs()
-        val buildVersionClassSourceFile = File(packageDirectory, "BuildVersion.java")
-        buildVersionClassSourceFile.writeText("""package org.elkoserver.foundation.server;
+        val buildVersionClassSourceFile = File(packageDirectory, "BuildVersion.kt")
+        buildVersionClassSourceFile.writeText("""package org.elkoserver.foundation.server
 
-class BuildVersion {
-    static public String version = "${project.version}";
+object BuildVersion {
+    const val version = "${project.version}"
 }
 """)
     }
 }
 
-tasks.withType<JavaCompile>().forEach { task -> task.setDependsOn(listOf(generateBuildVersionClassSourceFile)) }
+tasks.withType<KotlinCompile>().forEach { task -> task.setDependsOn(listOf(generateBuildVersionClassSourceFile)) }
 
-sourceSets {
-    main {
-        java {
-            this.srcDir(generateBuildVersionClassSourceFile)
-        }
+kotlin {
+    sourceSets["main"].apply {
+        kotlin.srcDir(generateBuildVersionClassSourceFile)
     }
 }
 

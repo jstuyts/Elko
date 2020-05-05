@@ -2,6 +2,8 @@ package org.elkoserver.foundation.net.zmq
 
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.net.MessageHandler
+import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NullMessageHandler
 import org.elkoserver.server.context.BasicInternalObject
 import org.elkoserver.server.context.Contextor
@@ -36,9 +38,11 @@ class ZMQOutbound @JSONMethod("address") constructor(private val myAddress: Stri
                 "org.elkoserver.foundation.net.zmq.ZeroMQConnectionManager",
                 "",
                 myAddress,
-                { conn: Connection? ->
-                    connection = conn
-                    NullMessageHandler(contextor.appTrace())
+                object : MessageHandlerFactory {
+                    override fun provideMessageHandler(connection: Connection?): MessageHandler? {
+                        this@ZMQOutbound.connection = connection
+                        return NullMessageHandler(contextor.appTrace())
+                    }
                 },
                 contextor.appTrace())
     }

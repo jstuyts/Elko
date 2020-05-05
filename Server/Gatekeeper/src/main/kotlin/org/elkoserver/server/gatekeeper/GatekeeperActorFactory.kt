@@ -46,8 +46,8 @@ internal class GatekeeperActorFactory(private val myGatekeeper: Gatekeeper, priv
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection) =
-            GatekeeperActor(connection, this, myActionTimeout, tr, timer, traceFactory)
+    override fun provideMessageHandler(connection: Connection?) =
+            GatekeeperActor(connection!!, this, myActionTimeout, tr, timer, traceFactory)
 
     /**
      * Get this factory's ref table.

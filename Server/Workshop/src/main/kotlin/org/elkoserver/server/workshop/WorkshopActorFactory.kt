@@ -36,8 +36,8 @@ internal class WorkshopActorFactory(
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection) =
-            WorkshopActor(connection, this, tr, traceFactory)
+    override fun provideMessageHandler(connection: Connection?) =
+            WorkshopActor(connection!!, this, tr, traceFactory)
 
     /**
      * Check an actor's authorization.
