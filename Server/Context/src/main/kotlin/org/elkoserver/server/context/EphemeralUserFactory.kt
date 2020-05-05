@@ -37,5 +37,5 @@ interface EphemeralUserFactory {
      */
     fun provideUser(contextor: Contextor, connection: Connection,
                     param: JsonObject?, contextRef: String,
-                    contextTemplate: String?): User?
+                    contextTemplate: String?): User
 }

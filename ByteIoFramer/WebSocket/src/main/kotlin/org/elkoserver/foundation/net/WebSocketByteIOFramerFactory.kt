@@ -56,8 +56,8 @@ class WebSocketByteIOFramerFactory internal constructor(private val trMsg: Trace
          * indicated by passing a 'length' value of 0.
          */
         @Throws(IOException::class)
-        override fun receiveBytes(data: ByteArray?, length: Int) {
-            myIn.addBuffer(data!!, length)
+        override fun receiveBytes(data: ByteArray, length: Int) {
+            myIn.addBuffer(data, length)
             while (true) {
                 when (myWSParseStage) {
                     Companion.WS_STAGE_START -> {
@@ -65,7 +65,7 @@ class WebSocketByteIOFramerFactory internal constructor(private val trMsg: Trace
                         if (line == null) {
                             myIn.preserveBuffers()
                             return
-                        } else if (line.length != 0) {
+                        } else if (line.isNotEmpty()) {
                             myRequest.parseStartLine(line)
                             myWSParseStage = Companion.WS_STAGE_HEADER
                         }
@@ -75,7 +75,7 @@ class WebSocketByteIOFramerFactory internal constructor(private val trMsg: Trace
                         if (line == null) {
                             myIn.preserveBuffers()
                             return
-                        } else if (line.length == 0) {
+                        } else if (line.isEmpty()) {
                             myWSParseStage = Companion.WS_STAGE_HANDSHAKE
                         } else {
                             myRequest.parseHeaderLine(line)
@@ -94,12 +94,11 @@ class WebSocketByteIOFramerFactory internal constructor(private val trMsg: Trace
                         myReceiver.receiveMsg(myRequest)
                         myWSParseStage = Companion.WS_STAGE_MESSAGES
                         myIn.enableWebSocketFraming()
-                        myMessageFramer = JSONByteIOFramer(trMsg, myReceiver, myLabel,
-                                myIn)
+                        myMessageFramer = JSONByteIOFramer(trMsg, myReceiver, myLabel, myIn)
                         return
                     }
                     Companion.WS_STAGE_MESSAGES -> {
-                        myMessageFramer!!.receiveBytes(null, 0)
+                        myMessageFramer!!.receiveBytes(ByteArray(0), 0)
                         return
                     }
                 }
@@ -122,7 +121,7 @@ class WebSocketByteIOFramerFactory internal constructor(private val trMsg: Trace
          * @return a byte array containing the writable form of 'msg'.
          */
         @Throws(IOException::class)
-        override fun produceBytes(message: Any?): ByteArray? {
+        override fun produceBytes(message: Any): ByteArray {
             var msg = message
             if (msg is JSONLiteral) {
                 msg = msg.sendableString()
@@ -197,8 +196,7 @@ $reply"""
                 }
                 reply.toByteArray(StandardCharsets.US_ASCII)
             } else {
-                throw IOException("unwritable message type: " +
-                        msg!!.javaClass)
+                throw IOException("unwritable message type: ${msg.javaClass}")
             }
         }
 

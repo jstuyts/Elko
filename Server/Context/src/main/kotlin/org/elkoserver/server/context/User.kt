@@ -43,7 +43,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
     private var myGroup: SendGroup = LimboGroup.theLimboGroup
 
     /** The actor that represents the connection to the client.  */
-    private var myActor: UserActor? = null
+    private lateinit var myActor: UserActor
 
     /** Optional watcher for friend presence changes.  */
     private var myPresenceWatcher: PresenceWatcher? = null
@@ -56,7 +56,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
     private val amPrivateContents = false
 
     /** Trace object for diagnostics.  */
-    private var tr: Trace? = null
+    private lateinit var tr: Trace
 
     /**
      * JSON-driven constructor.
@@ -109,7 +109,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
                 myPresenceWatcher = mod
             }
         } else {
-            tr!!.errorm("attempt to attach non-UserMod $mod to $this")
+            tr.errorm("attempt to attach non-UserMod $mod to $this")
         }
     }
 
@@ -119,7 +119,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      */
     fun connectionDied(connection: Connection) {
         disconnect()
-        tr!!.eventm("$this connection died: $connection")
+        tr.eventm("$this connection died: $connection")
     }
 
     /**
@@ -127,7 +127,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return the ID number of the connection associated with this user.
      */
-    fun connectionID() = myActor!!.connectionID()
+    fun connectionID() = myActor.connectionID()
 
     /**
      * Obtain the context this user is currently contained by.
@@ -142,7 +142,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      */
     private fun disconnect() {
         if (!amExited) {
-            tr!!.eventm("exiting $this")
+            tr.eventm("exiting $this")
             amExited = true
             if (amEntered) {
                 checkpoint()
@@ -192,7 +192,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
         return if (problem == null) {
             isArrived = true
             myGroup.expelMember(this)
-            myGroup = context.group()!!
+            myGroup = context.group()
             myGroup.admitMember(this)
             context.attachUserMods(this)
             objectIsComplete()
@@ -242,7 +242,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
             myGroup = LimboGroup.theLimboGroup
             it.exitContext(this)
             myModSet.purgeEphemeralMods()
-            myActor!!.exitContext(it)
+            myActor.exitContext(it)
             myContext = null
             isArrived = false
         }
@@ -266,7 +266,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * Force this user to actually disconnect from the server.
      */
     fun forceDisconnect() {
-        myActor!!.doDisconnect()
+        myActor.doDisconnect()
     }
 
     /**
@@ -305,7 +305,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return the protocol string for this user's connection
      */
-    fun protocol() = myActor!!.protocol()
+    fun protocol() = myActor.protocol()
 
     /**
      * Begin the sequence of events that will push this user to a different
@@ -326,7 +326,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param message  The message to send.
      */
     override fun send(message: JSONLiteral) {
-        myActor!!.send(message)
+        myActor.send(message)
     }
 
     /**

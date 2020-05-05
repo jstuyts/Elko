@@ -602,8 +602,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
         if (listenAddress != null) {
             for (serviceName in serviceNames) {
                 val actualServiceName = serviceName + myServiceName
-                registerService(ServiceDesc(actualServiceName, host, protocol,
-                        label, auth, null, -1))
+                registerService(ServiceDesc(actualServiceName, host, protocol, label, auth, null, -1))
             }
         }
         return HostDesc(protocol, secure, connectionSetup.serverAddress, auth, -1)

@@ -103,8 +103,8 @@ class FileObjectStore : ObjectStore {
                 objReader.read(buf)
                 objReader.close()
                 obj = String(buf)
-                val jsonObj = JsonParsing.jsonObjectFromString(obj)
-                contents = doGetContents(jsonObj!!)
+                val jsonObj = JsonParsing.jsonObjectFromString(obj)!!
+                contents = doGetContents(jsonObj)
             } else {
                 failure = "not found"
             }
@@ -192,7 +192,7 @@ class FileObjectStore : ObjectStore {
     override fun getObjects(what: Array<RequestDesc>, handler: GetResultHandler) {
         val resultList: MutableList<ObjectDesc> = LinkedList()
         for (req in what) {
-            resultList.addAll(doGet(req.ref()!!))
+            resultList.addAll(doGet(req.ref()))
         }
         handler.handle(resultList.toTypedArray())
     }
@@ -217,7 +217,7 @@ class FileObjectStore : ObjectStore {
      * failure indicators), when available.
      */
     override fun putObjects(what: Array<PutDesc>, handler: RequestResultHandler) {
-        val results = Array(what.size) { doPut(what[it].ref()!!, what[it].obj(), what[it].isRequireNew)}
+        val results = Array(what.size) { doPut(what[it].ref(), what[it].obj(), what[it].isRequireNew)}
         handler.handle(results)
     }
 
@@ -243,7 +243,7 @@ class FileObjectStore : ObjectStore {
      * failure indicators), when available.
      */
     override fun removeObjects(what: Array<RequestDesc>, handler: RequestResultHandler) {
-        val results = Array(what.size) { doRemove(what[it].ref()!!) }
+        val results = Array(what.size) { doRemove(what[it].ref()) }
         handler.handle(results)
     }
 

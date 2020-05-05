@@ -44,8 +44,8 @@ class HTTPRequestByteIOFramerFactory internal constructor(private val traceFacto
          * indicated by passing a 'length' value of 0.
          */
         @Throws(IOException::class)
-        override fun receiveBytes(data: ByteArray?, length: Int) {
-            myIn.addBuffer(data!!, length)
+        override fun receiveBytes(data: ByteArray, length: Int) {
+            myIn.addBuffer(data, length)
             while (true) {
                 when (myHTTPParseStage) {
                     HTTP_STAGE_START -> {
@@ -53,7 +53,7 @@ class HTTPRequestByteIOFramerFactory internal constructor(private val traceFacto
                         if (line == null) {
                             myIn.preserveBuffers()
                             return
-                        } else if (line.length != 0) {
+                        } else if (line.isNotEmpty()) {
                             myRequest.parseStartLine(line)
                             myHTTPParseStage = HTTP_STAGE_HEADER
                         }
@@ -63,7 +63,7 @@ class HTTPRequestByteIOFramerFactory internal constructor(private val traceFacto
                         if (line == null) {
                             myIn.preserveBuffers()
                             return
-                        } else if (line.length == 0) {
+                        } else if (line.isEmpty()) {
                             myHTTPParseStage = HTTP_STAGE_BODY
                         } else {
                             myRequest.parseHeaderLine(line)
@@ -72,9 +72,7 @@ class HTTPRequestByteIOFramerFactory internal constructor(private val traceFacto
                     HTTP_STAGE_BODY -> {
                         val bodyLen = myRequest.contentLength()
                         if (bodyLen > Communication.MAX_MSG_LENGTH) {
-                            throw IOException("message too large: " +
-                                    bodyLen + " > " +
-                                    Communication.MAX_MSG_LENGTH)
+                            throw IOException("message too large: $bodyLen > ${Communication.MAX_MSG_LENGTH}")
                         } else if (bodyLen > 0) {
                             if (myIn.available() < bodyLen) {
                                 myIn.preserveBuffers()
@@ -119,13 +117,12 @@ class HTTPRequestByteIOFramerFactory internal constructor(private val traceFacto
          * @return a byte array containing the writable form of 'message'.
          */
         @Throws(IOException::class)
-        override fun produceBytes(message: Any?): ByteArray? {
+        override fun produceBytes(message: Any): ByteArray {
             var reply: String
             if (message is String) {
                 reply = message
                 if (traceFactory.comm.verbose) {
-                    traceFactory.comm.verbosem("to=" + myLabel +
-                            " writeMessage=" + reply.length)
+                    traceFactory.comm.verbosem("to=$myLabel writeMessage=${reply.length}")
                 }
                 reply = """
                     HTTP/1.1 200 OK
@@ -156,8 +153,7 @@ $reply"""
                     
                     """.trimIndent()
             } else {
-                throw IOException("unwritable message type: " +
-                        message!!.javaClass)
+                throw IOException("unwritable message type: ${message.javaClass}")
             }
             if (traceFactory.comm.debug) {
                 traceFactory.comm.debugm("HTTP sending:\n$reply")

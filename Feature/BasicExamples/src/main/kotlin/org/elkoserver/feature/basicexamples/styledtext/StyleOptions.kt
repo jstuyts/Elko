@@ -139,7 +139,7 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
      * selects the default by being null.
      */
     private fun extract(choice: String?, choices: Array<String>?): String? {
-        return choice ?: if (choices == null || choices.size == 0) {
+        return choice ?: if (choices == null || choices.isEmpty()) {
             null
         } else {
             choices[0]

@@ -32,7 +32,7 @@ class ContextServiceFactory(val myContextor: Contextor, val tr: Trace, val trace
                 auth.mode() == "reservation" -> true
                 else -> {
                     tr.errorm("invalid authorization configuration for $label")
-                    return null!!
+                    throw IllegalStateException()
                 }
             }
             serviceNames.add("context-user")

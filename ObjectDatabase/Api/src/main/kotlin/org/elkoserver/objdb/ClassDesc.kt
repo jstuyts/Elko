@@ -16,9 +16,9 @@ internal class ClassDesc @JSONMethod("classes") constructor(private val myClasse
      * @param odb The object database to tell.
      * @param tr  Trace object for error logging.
      */
-    fun useInODB(odb: ObjDB?, tr: Trace?) {
+    fun useInODB(odb: ObjDB, tr: Trace) {
         for (odbClass in myClasses) {
-            odbClass.useInODB(odb!!, tr!!)
+            odbClass.useInODB(odb, tr)
         }
     }
 }

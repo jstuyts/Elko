@@ -60,7 +60,7 @@ class Contextor internal constructor(
 
     /** Context families served by this server.  Names prefixed by '$'
      * represent restricted contexts.  */
-    private var myContextFamilies: MutableSet<String>? = null
+    private val myContextFamilies: Set<String>
 
     /** User names gathered from presence notification metadata.  */
     private val myUserNames: MutableMap<String, String> = HashMap()
@@ -71,23 +71,23 @@ class Contextor internal constructor(
     /** Mods on completed objects awaiting notification that they're ready.  */
     private var myPendingObjectCompletionWatchers: MutableList<ObjectCompletionWatcher>? = null
 
-    private fun initializeContextFamilies() {
-        myContextFamilies = HashSet<String>().apply {
-            add("c")
-            add("ctx")
-            add("context")
-            add("\$rc")
-            add("\$rctx")
-            add("\$rcontext")
-        }
-        val families = myServer.props().getProperty("conf.context.contexts")
-        if (families != null) {
-            val tags = StringTokenizer(families, " ,;:")
-            while (tags.hasMoreTokens()) {
-                myContextFamilies!!.add(tags.nextToken())
+    private fun initializeContextFamilies() =
+            HashSet<String>().apply {
+                add("c")
+                add("ctx")
+                add("context")
+                add("\$rc")
+                add("\$rctx")
+                add("\$rcontext")
+
+                val families = myServer.props().getProperty("conf.context.contexts")
+                if (families != null) {
+                    val tags = StringTokenizer(families, " ,;:")
+                    while (tags.hasMoreTokens()) {
+                        add(tags.nextToken())
+                    }
+                }
             }
-        }
-    }
 
     private fun isValidContextRef(ref: String): Boolean {
         val delim = ref.indexOf('-')
@@ -95,8 +95,7 @@ class Contextor internal constructor(
             false
         } else {
             val family = ref.substring(0, delim)
-            myContextFamilies!!.contains(family) ||
-                    myContextFamilies!!.contains("$$family")
+            myContextFamilies.contains(family) || myContextFamilies.contains("$$family")
         }
     }
 
@@ -107,10 +106,15 @@ class Contextor internal constructor(
      * @param watcher  The watching Mod to be notified.
      */
     fun addPendingObjectCompletionWatcher(watcher: ObjectCompletionWatcher) {
-        if (myPendingObjectCompletionWatchers == null) {
-            myPendingObjectCompletionWatchers = LinkedList()
+        val currentPendingObjectCompletionWatchers = myPendingObjectCompletionWatchers
+        val actualPendingObjectCompletionWatchres = if (currentPendingObjectCompletionWatchers == null) {
+            val newPendingObjectCompletionWatchres = LinkedList<ObjectCompletionWatcher>()
+            myPendingObjectCompletionWatchers = newPendingObjectCompletionWatchres
+            newPendingObjectCompletionWatchres
+        } else {
+            currentPendingObjectCompletionWatchers
         }
-        myPendingObjectCompletionWatchers!!.add(watcher)
+        actualPendingObjectCompletionWatchres.add(watcher)
     }
 
     /**
@@ -204,7 +208,7 @@ class Contextor internal constructor(
      *
      * @return the current set of context families.
      */
-    fun contextFamilies() = Collections.unmodifiableSet(myContextFamilies!!)
+    fun contextFamilies() = myContextFamilies
 
     /**
      * Get a read-only view of the context set.
@@ -313,8 +317,7 @@ class Contextor internal constructor(
      */
     private fun findContextClone(ref: String): Context? {
         for (context in myContextClones.getMulti(ref)) {
-            if (context.userCount() < context.baseCapacity() &&
-                    !context.gateIsClosed()) {
+            if (context.userCount() < context.baseCapacity() && !context.gateIsClosed()) {
                 return context
             }
         }
@@ -495,7 +498,7 @@ class Contextor internal constructor(
             val contents: Array<Item>
             if (obj != null) {
                 @Suppress("UNCHECKED_CAST") val rawContents = obj as Array<Any>
-                if (rawContents.size == 0) {
+                if (rawContents.isEmpty()) {
                     somethingArrived(-1)
                 } else {
                     expectMore(rawContents.size)
@@ -770,9 +773,9 @@ class Contextor internal constructor(
                 if (arg == null) {
                     myOuterHandler.accept(null)
                 } else {
-                    myObj = arg as BasicObject?
-                    queryObjects(scopeQuery(myObj!!.ref(), myScope), null, 0,
-                            this)
+                    val argAsBasicObject = arg as BasicObject
+                    myObj = argAsBasicObject
+                    queryObjects(scopeQuery(argAsBasicObject.ref(), myScope), null, 0, this)
                 }
             } else {
                 if (arg != null) {
@@ -796,7 +799,7 @@ class Contextor internal constructor(
      *
      * @return the requested reservation if there is one, or null if not.
      */
-    fun lookupReservation(who: String?, where: String, authCode: String?) =
+    fun lookupReservation(who: String?, where: String, authCode: String) =
             myDirectorGroup!!.lookupReservation(who, where, authCode)
 
     /**
@@ -830,8 +833,8 @@ class Contextor internal constructor(
      * @param open  Flag indicating open or closed
      * @param reason  Reason for closing the gate
      */
-    fun noteContextGate(context: Context?, open: Boolean, reason: String?) {
-        myDirectorGroup?.noteContextGate(context!!, open, reason!!)
+    fun noteContextGate(context: Context, open: Boolean, reason: String?) {
+        myDirectorGroup?.noteContextGate(context, open, reason)
     }
 
     /**
@@ -1050,7 +1053,7 @@ class Contextor internal constructor(
                     deliverMessage(obj, msgObject)
                 }
             }
-            myDirectorGroup?.relay(baseRef, contextRef!!, userRef!!, message)
+            myDirectorGroup?.relay(baseRef, contextRef, userRef, message)
         }
     }
 
@@ -1153,9 +1156,8 @@ class Contextor internal constructor(
             tr.errori("user factory '$factoryTag' not found")
             userHandler.accept(null)
         } else if (rawFactory is EphemeralUserFactory) {
-            val user = rawFactory.provideUser(this, connection, param,
-                    contextRef, contextTemplate)
-            user!!.markAsEphemeral()
+            val user = rawFactory.provideUser(this, connection, param, contextRef, contextTemplate)
+            user.markAsEphemeral()
             userHandler.accept(user)
         } else if (rawFactory is UserFactory) {
             rawFactory.provideUser(this, connection, param, userHandler)
@@ -1328,9 +1330,9 @@ class Contextor internal constructor(
     init {
         addRef(mySession)
         myServer.setServiceRefTable(this)
-        initializeContextFamilies()
+        myContextFamilies = initializeContextFamilies()
         loadStaticObjects(myServer.props().getProperty("conf.context.statics"))
-        myServer.registerShutdownWatcher(object: ShutdownWatcher {
+        myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 /* List copy to avert ConcurrentModificationException */
                 val saveUsers: List<User> = LinkedList(myUsers)

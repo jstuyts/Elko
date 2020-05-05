@@ -18,7 +18,7 @@ import java.util.LinkedList;
 public class RTCPSessionConnection extends ConnectionBase
 {
     /** Trace object for logging message traffic. */
-    private Trace trMsg;
+    private final Trace trMsg;
 
     /** Sequence number of last client->server message received here. */
     private int myClientSendSeqNum;
@@ -27,7 +27,7 @@ public class RTCPSessionConnection extends ConnectionBase
     private int myServerSendSeqNum;
 
     /** Queue of outgoing messages not yet ack'd by the client. */
-    private LinkedList<RTCPMessage> myQueue;
+    private final LinkedList<RTCPMessage> myQueue;
 
     /** Current volume of unacknowledged messages in the outgoing queue. */
     private int myQueueBacklog;
@@ -40,12 +40,12 @@ public class RTCPSessionConnection extends ConnectionBase
     private Connection myLiveConnection;
 
     /** The factory that created this session. */
-    private RTCPMessageHandlerFactory mySessionFactory;
-    private Timer timer;
-    private TraceFactory traceFactory;
+    private final RTCPMessageHandlerFactory mySessionFactory;
+    private final Timer timer;
+    private final TraceFactory traceFactory;
 
     /** Clock: ticks watch for inactive (and thus presumed dead) session. */
-    private Clock myInactivityClock;
+    private final Clock myInactivityClock;
 
     /** Timeout for killing an abandoned session. */
     private Timeout myDisconnectedTimeout;
@@ -61,10 +61,11 @@ public class RTCPSessionConnection extends ConnectionBase
     private int myDisconnectedTimeoutInterval;
 
     /** Session ID -- a swiss number to authenticate client RTCP requests. */
-    private String mySessionID;
+    private final String mySessionID;
 
     /** Random number generator, for creating session IDs. */
-    private static SecureRandom theRandom = new SecureRandom();
+    @Deprecated // Global variable
+    private static final SecureRandom theRandom = new SecureRandom();
 
 
     /**
@@ -305,13 +306,13 @@ public class RTCPSessionConnection extends ConnectionBase
             sendMsg(reply);
         } else {
             discardAcknowledgedMessages(request.clientRecvSeqNum());
-            JsonObject message = (JsonObject) request.nextMessage();
+            JsonObject message = request.nextMessage();
             while (message != null) {
                 if (trMsg.getEvent()) {
                     trMsg.msgi(this, true, message);
                 }
                 enqueueReceivedMessage(message);
-                message = (JsonObject) request.nextMessage();
+                message = request.nextMessage();
             }
             ++myClientSendSeqNum;
         }

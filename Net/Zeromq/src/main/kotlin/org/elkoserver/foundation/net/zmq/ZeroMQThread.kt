@@ -69,35 +69,30 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
                             }
                         } else if (myPoller.pollerr(i)) {
                             ++actualCount
-                            val connection = myConnections[myPoller.getSocket(i)]
+                            val connection = getConnection(i)
                             if (traceFactory.comm.debug) {
-                                traceFactory.comm.debugm("poll has error for " +
-                                        connection)
+                                traceFactory.comm.debugm("poll has error for $connection")
                             }
-                            connection!!.doError()
+                            connection.doError()
                         } else if (myPoller.pollin(i)) {
                             ++actualCount
-                            val connection = myConnections[myPoller.getSocket(i)]
+                            val connection = getConnection(i)
                             if (traceFactory.comm.debug) {
-                                traceFactory.comm.debugm("poll has read for " +
-                                        connection)
+                                traceFactory.comm.debugm("poll has read for $connection")
                             }
-                            connection!!.doRead()
+                            connection.doRead()
                         } else if (myPoller.pollout(i)) {
                             ++actualCount
-                            val connection = myConnections[myPoller.getSocket(i)]
-                            connection!!.wakeupThreadForWrite()
+                            val connection = getConnection(i)
+                            connection.wakeupThreadForWrite()
                             if (traceFactory.comm.debug) {
-                                traceFactory.comm.debugm("poll has write for " +
-                                        connection)
+                                traceFactory.comm.debugm("poll has write for $connection")
                             }
                             connection.doWrite()
                         }
                     }
                     if (traceFactory.comm.debug) {
-                        traceFactory.comm.debugm("ZMQ thread poll selects " +
-                                actualCount + "/" +
-                                selectedCount + " I/O sources")
+                        traceFactory.comm.debugm("ZMQ thread poll selects $actualCount/$selectedCount I/O sources")
                     }
                 }
             } catch (e: Throwable) {
@@ -105,6 +100,8 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
             }
         }
     }
+
+    private fun getConnection(socketIndex: Int) = myConnections[myPoller.getSocket(socketIndex)] ?: throw IllegalStateException("No connection for socket: $socketIndex")
 
     /**
      * Add a socket to the set being polled.
@@ -149,12 +146,12 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
         val finalAddr: String
         if (remoteAddr.startsWith("PUSH:")) {
             push = true
-            finalAddr = "tcp://" + remoteAddr.substring(5)
+            finalAddr = "tcp://${remoteAddr.substring(5)}"
         } else if (remoteAddr.startsWith("PUB:")) {
             push = false
             finalAddr = try {
                 val parsedAddr = NetAddr(remoteAddr.substring(4))
-                "tcp://*:" + parsedAddr.port
+                "tcp://*:${parsedAddr.port}"
             } catch (e: IOException) {
                 traceFactory.comm.errorm("error setting up ZMQ connection with " +
                         remoteAddr + ": " + e)
@@ -233,20 +230,18 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
         finalAddress = if (subscribe) {
             "tcp://$actualListenAddress"
         } else {
-            "tcp://*:" + result.port
+            "tcp://*:${result.port}"
         }
         myQueue.enqueue(object : Thunk {
             override fun run() {
                 val socket: ZMQ.Socket
                 if (subscribe) {
-                    traceFactory.comm.eventm("subscribing to ZMQ messages from " +
-                            finalAddress)
+                    traceFactory.comm.eventm("subscribing to ZMQ messages from $finalAddress")
                     socket = myContext.socket(SocketType.SUB)
                     socket.subscribe(UNIVERSAL_SUBSCRIPTION)
                     socket.connect(finalAddress)
                 } else {
-                    traceFactory.comm.eventm("pulling ZMQ messages at " +
-                            finalAddress)
+                    traceFactory.comm.eventm("pulling ZMQ messages at $finalAddress")
                     socket = myContext.socket(SocketType.PULL)
                     socket.bind(finalAddress)
                 }

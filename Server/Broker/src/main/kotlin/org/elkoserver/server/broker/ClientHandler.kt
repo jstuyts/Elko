@@ -156,12 +156,10 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
      * @param services  Name(s) of the service(s) no longer offered.
      */
     @JSONMethod("services")
-    fun wontserve(from: BrokerActor, services: Array<String?>?) {
+    fun wontserve(from: BrokerActor, services: Array<String>) {
         from.ensureAuthorizedClient()
-        if (services != null) {
-            for (service in services) {
-                from.client()!!.removeService(service!!)
-            }
+        for (service in services) {
+            from.client()!!.removeService(service)
         }
     }
 

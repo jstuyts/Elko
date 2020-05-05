@@ -144,8 +144,8 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
      * @param server  Server for which new load information is available.
      */
     fun noteLoadDesc(server: BrokerActor) {
-        val client = server.client()
-        val desc = LoadDesc(server.label()!!, client!!.loadFactor(), client.providerID())
+        val client = server.client()!!
+        val desc = LoadDesc(server.label()!!, client.loadFactor(), client.providerID())
         val msg = AdminHandler.msgLoadDesc(myAdminHandler, desc.encodeAsArray())
         for (watcher in myLoadWatchers) {
             watcher.send(msg)

@@ -25,14 +25,13 @@ class HostDesc(protocol: String?, isSecure: Boolean,
     /**
      * Constructor, taking most defaults.
      *
-     *
      * Equivalent to `new HostDesc(protocol, false, hostPort, null,
      * -1, false)`
      *
      * @param protocol  Protocol spoken.
      * @param hostPort  Host/port/path to address for service.
      */
-    constructor(protocol: String?, hostPort: String?) : this(protocol, false, hostPort, null, -1)
+    constructor(protocol: String, hostPort: String) : this(protocol, false, hostPort, null, -1)
 
     /**
      * Get this host's authorization information.
@@ -69,7 +68,6 @@ class HostDesc(protocol: String?, isSecure: Boolean,
 
         /**
          * Create a HostDesc object from specifications provided by properties:
-         *
          *
          * `"*propRoot*.host"` should contain a host:port
          * string.<br></br>

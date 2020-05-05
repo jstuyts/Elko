@@ -29,7 +29,7 @@ import java.util.ConcurrentModificationException
  */
 class DirectorGroup(server: Server, contextor: Contextor,
                     directors: MutableList<HostDesc>, listeners: List<HostDesc>,
-                    appTrace: Trace?, timer: Timer?, traceFactory: TraceFactory?, clock: Clock) : OutboundGroup("conf.register", server, contextor, directors, appTrace!!, timer!!, traceFactory!!, clock) {
+                    appTrace: Trace, timer: Timer, traceFactory: TraceFactory, clock: Clock) : OutboundGroup("conf.register", server, contextor, directors, appTrace, timer, traceFactory, clock) {
     private val myListeners: List<HostDesc>
 
     /** Iterator for cycling through arbitrary relays.  */
@@ -116,8 +116,8 @@ class DirectorGroup(server: Server, contextor: Contextor,
      *
      * @return the requested reservation if there is one, or null if not.
      */
-    fun lookupReservation(who: String?, where: String, authCode: String?): Reservation? {
-        val key = Reservation(who, where, authCode!!, traceFactory)
+    fun lookupReservation(who: String?, where: String, authCode: String): Reservation? {
+        val key = Reservation(who, where, authCode, traceFactory)
         return myReservations[key]
     }
 
@@ -151,7 +151,7 @@ class DirectorGroup(server: Server, contextor: Contextor,
      * @param open  Flag indicating open or closed
      * @param reason  Reason for closing the gate
      */
-    fun noteContextGate(context: Context, open: Boolean, reason: String) {
+    fun noteContextGate(context: Context, open: Boolean, reason: String?) {
         send(msgGate(context.ref(), open, reason))
     }
 
@@ -170,14 +170,15 @@ class DirectorGroup(server: Server, contextor: Contextor,
      */
     private fun pickADirector(): DirectorActor? {
         while (true) {
-            if (myDirectorPicker == null || !myDirectorPicker!!.hasNext()) {
+            val currentDirectorPicker = myDirectorPicker
+            if (currentDirectorPicker == null || !currentDirectorPicker.hasNext()) {
                 myDirectorPicker = members().iterator()
-                if (!myDirectorPicker!!.hasNext()) {
+                if (!currentDirectorPicker!!.hasNext()) {
                     return null
                 }
             }
             myDirectorPicker = try {
-                return myDirectorPicker!!.next() as DirectorActor
+                return currentDirectorPicker.next() as DirectorActor
             } catch (e: ConcurrentModificationException) {
                 null
             }
@@ -209,12 +210,10 @@ class DirectorGroup(server: Server, contextor: Contextor,
      * @param userRef  Users to deliver to, or null if don't care.
      * @param message  The message to relay.
      */
-    fun relay(target: String?, contextRef: String, userRef: String,
-              message: JSONLiteral) {
-        val relayer = pickADirector()
+    fun relay(target: String?, contextRef: String?, userRef: String?, message: JSONLiteral) {
         /* If relayer is null, assume there are no directors and thus no
            relaying to be done. */
-        relayer?.send(msgRelay("provider", contextRef, userRef, message))
+        pickADirector()?.send(msgRelay("provider", contextRef, userRef, message))
     }
 
     /**
@@ -246,8 +245,7 @@ class DirectorGroup(server: Server, contextor: Contextor,
                     context.baseCapacity(),
                     context.isRestricted))
             if (context.gateIsClosed()) {
-                director.send(msgGate(context.ref(), true,
-                        context.gateClosedReason()!!))
+                director.send(msgGate(context.ref(), true, context.gateClosedReason()!!))
             }
         }
         for (user in contextor().users()) {
@@ -307,7 +305,7 @@ class DirectorGroup(server: Server, contextor: Contextor,
          * @param userName  The base name of the user to relay to.
          * @param relay  The message to relay.
          */
-        private fun msgRelay(target: String, contextName: String, userName: String, relay: JSONLiteral) =
+        private fun msgRelay(target: String, contextName: String?, userName: String?, relay: JSONLiteral) =
                 JSONLiteralFactory.targetVerb(target, "relay").apply {
                     addParameterOpt("context", contextName)
                     addParameterOpt("user", userName)
@@ -322,7 +320,7 @@ class DirectorGroup(server: Server, contextor: Contextor,
          * @param open  Flag indicating open or closed
          * @param reason  Reason for closing the gate
          */
-        private fun msgGate(context: String, open: Boolean, reason: String): JSONLiteral {
+        private fun msgGate(context: String, open: Boolean, reason: String?): JSONLiteral {
             val msg = JSONLiteralFactory.targetVerb("provider", "gate")
             msg.addParameter("context", context)
             msg.addParameter("open", open)

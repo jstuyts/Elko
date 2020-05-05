@@ -49,7 +49,7 @@ class ODBActor(connection: Connection, private val myODB: ObjDBRemote, localName
      */
     @JSONMethod("tag", "results")
     operator fun get(from: ODBActor, tag: OptString, results: Array<ObjectDesc>) {
-        myODB.handleGetResult(tag.value<String?>(null)!!, results)
+        myODB.handleGetResult(tag.value<String?>(null), results)
     }
 
     /**
@@ -59,7 +59,7 @@ class ODBActor(connection: Connection, private val myODB: ObjDBRemote, localName
      */
     @JSONMethod("tag", "results")
     fun put(from: ODBActor, tag: OptString, results: Array<ResultDesc>) {
-        myODB.handlePutResult(tag.value<String?>(null)!!, results)
+        myODB.handlePutResult(tag.value<String?>(null), results)
     }
 
     /**
@@ -69,7 +69,7 @@ class ODBActor(connection: Connection, private val myODB: ObjDBRemote, localName
      */
     @JSONMethod("tag", "results")
     fun update(from: ODBActor, tag: OptString, results: Array<ResultDesc>) {
-        myODB.handleUpdateResult(tag.value<String?>(null)!!, results)
+        myODB.handleUpdateResult(tag.value<String?>(null), results)
     }
 
     /**
@@ -79,7 +79,7 @@ class ODBActor(connection: Connection, private val myODB: ObjDBRemote, localName
      */
     @JSONMethod("tag", "results")
     fun query(from: ODBActor, tag: OptString, results: Array<ObjectDesc>) {
-        myODB.handleQueryResult(tag.value<String?>(null)!!, results)
+        myODB.handleQueryResult(tag.value<String?>(null), results)
     }
 
     /**
@@ -89,7 +89,7 @@ class ODBActor(connection: Connection, private val myODB: ObjDBRemote, localName
      */
     @JSONMethod("tag", "results")
     fun remove(from: ODBActor, tag: OptString, results: Array<ResultDesc>) {
-        myODB.handleRemoveResult(tag.value<String?>(null)!!, results)
+        myODB.handleRemoveResult(tag.value<String?>(null), results)
     }
 
     init {

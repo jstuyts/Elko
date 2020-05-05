@@ -14,7 +14,7 @@ import java.nio.charset.StandardCharsets
 /**
  * I/O framer implementation for JSON messages.
  */
-class JSONByteIOFramer(private val trMsg: Trace, private val myReceiver: MessageReceiver, private val myLabel: String?, private val myIn: ChunkyByteArrayInputStream) : ByteIOFramer {
+class JSONByteIOFramer(private val trMsg: Trace, private val myReceiver: MessageReceiver, private val myLabel: String, private val myIn: ChunkyByteArrayInputStream) : ByteIOFramer {
 
     /** Message input currently in progress.  */
     private val myMsgBuffer = StringBuilder(1000)
@@ -22,7 +22,7 @@ class JSONByteIOFramer(private val trMsg: Trace, private val myReceiver: Message
     /**
      * Constructor.
      */
-    constructor(msgTrace: Trace, receiver: MessageReceiver, label: String?, traceFactory: TraceFactory?) : this(msgTrace, receiver, label, ChunkyByteArrayInputStream(traceFactory!!)) {}
+    constructor(msgTrace: Trace, receiver: MessageReceiver, label: String, traceFactory: TraceFactory) : this(msgTrace, receiver, label, ChunkyByteArrayInputStream(traceFactory)) {}
 
     /**
      * Process bytes of data received.
@@ -32,16 +32,14 @@ class JSONByteIOFramer(private val trMsg: Trace, private val myReceiver: Message
      * indicated by passing a 'length' value of 0.
      */
     @Throws(IOException::class)
-    override fun receiveBytes(data: ByteArray?, length: Int) {
-        if (data != null) {
-            myIn.addBuffer(data, length)
-        }
+    override fun receiveBytes(data: ByteArray, length: Int) {
+        myIn.addBuffer(data, length)
         while (true) {
             val line = myIn.readUTF8Line() ?: break
-            if (line.length == 0) {
+            if (line.isEmpty()) {
                 val msgString = myMsgBuffer.toString()
                 if (trMsg.event) {
-                    trMsg.msgi(myLabel!!, true, msgString)
+                    trMsg.msgi(myLabel, true, msgString)
                 }
                 // FIXME: Do not end because of no more characters at end of string. Instead fail gracefully.
                 val msgReader = StringReader(msgString)
@@ -60,16 +58,14 @@ class JSONByteIOFramer(private val trMsg: Trace, private val myReceiver: Message
                             myReceiver.receiveMsg(e)
                         }
                         if (trMsg.warning) {
-                            trMsg.warningm("syntax error in JSON message: " +
-                                    e.message)
+                            trMsg.warningm("syntax error in JSON message: ${e.message}")
                         }
                     }
                 }
                 myMsgBuffer.setLength(0)
             } else if (myMsgBuffer.length + line.length >
                     Communication.MAX_MSG_LENGTH) {
-                throw IOException("input too large (limit " +
-                        Communication.MAX_MSG_LENGTH + " bytes)")
+                throw IOException("input too large (limit ${Communication.MAX_MSG_LENGTH} bytes)")
             } else {
                 myMsgBuffer.append(' ')
                 myMsgBuffer.append(line)
@@ -87,18 +83,18 @@ class JSONByteIOFramer(private val trMsg: Trace, private val myReceiver: Message
      * @return a byte array containing the writable form of 'message'.
      */
     @Throws(IOException::class)
-    override fun produceBytes(message: Any?): ByteArray? {
+    override fun produceBytes(message: Any): ByteArray {
         var messageString = if (message is JSONLiteral) {
             message.sendableString()
         } else if (message is JsonObject) {
-            sendableString((message as JsonObject?)!!)
+            sendableString(message)
         } else if (message is String) {
             message
         } else {
             throw IOException("invalid message object class for write")
         }
         if (trMsg.event) {
-            trMsg.msgi(myLabel!!, false, messageString)
+            trMsg.msgi(myLabel, false, messageString)
         }
         messageString += "\n\n"
         return messageString.toByteArray(StandardCharsets.UTF_8)

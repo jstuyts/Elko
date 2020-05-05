@@ -98,7 +98,7 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
      * to the Runner receiving the now() request, not whatever thread made
      * the request.
      */
-    fun now(todo: Callable<Any>?): Any? {
+    fun now(todo: Callable<Any>): Any? {
         val nr = NowRunnable(todo)
         enqueue(nr)
         return nr.runNow()
@@ -131,11 +131,12 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
                            the queue lock while we're still holding the
                            runLock!  I believe this is safe under all
                            conditions, but cannot prove it at this time. */
-                        todo = myQ.optDequeue()
-                        if (todo == null) {
+                        val nextTodo = myQ.optDequeue()
+                        todo = nextTodo
+                        if (nextTodo == null) {
                             break
                         }
-                        todo!!.run()
+                        nextTodo.run()
                         ++msgCount
                     }
                 }
@@ -245,15 +246,15 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
          * the run loop.
          */
         @JvmStatic
-        fun throwIfMandatory(t: Throwable?) {
+        fun throwIfMandatory(t: Throwable) {
             if (t is VirtualMachineError) {
-                throw (t as VirtualMachineError?)!!
+                throw t
             }
             if (t is ThreadDeath) {
-                throw (t as ThreadDeath?)!!
+                throw t
             }
             if (t is LinkageError) {
-                throw (t as LinkageError?)!!
+                throw t
             }
         }
     }

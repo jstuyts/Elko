@@ -105,13 +105,13 @@ class Item : BasicObject {
         if (mod is ItemMod) {
             super.attachMod(mod)
         } else {
-            context().trace()!!.errorm("attempt to attach non-ItemMod $mod to $this")
+            context().trace().errorm("attempt to attach non-ItemMod $mod to $this")
         }
         if (mod is ContainerWatcher) {
             if (myContainerWatcher == null) {
                 myContainerWatcher = mod
             } else {
-                context().trace()!!.errorm("ContainerWatcher mod $mod added to $this, which already has one")
+                context().trace().errorm("ContainerWatcher mod $mod added to $this, which already has one")
             }
         }
     }
@@ -139,9 +139,7 @@ class Item : BasicObject {
      *
      * @return the object this item is currently contained by.
      */
-    override fun container(): BasicObject {
-        return myContainer!!
-    }
+    override fun container() = myContainer
 
     /**
      * Obtain the context in which this item is located, regardless of how

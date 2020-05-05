@@ -162,16 +162,14 @@ abstract class BasicObject internal constructor(
             if (myDefaultDispatchTarget == null) {
                 myDefaultDispatchTarget = mod
             } else {
-                context().trace()!!.errorm("DefaultDispatchTarget mod " + mod +
-                        " added to " + this + ", which already has one")
+                context().trace().errorm("DefaultDispatchTarget mod $mod added to $this, which already has one")
             }
         }
         if (mod is ContentsWatcher) {
             if (myContentsWatcher == null) {
                 myContentsWatcher = mod
             } else {
-                context().trace()!!.errorm("ContentsWatcher mod " + mod +
-                        " added to " + this + ", which already has one")
+                context().trace().errorm("ContentsWatcher mod $mod added to $this, which already has one")
             }
         }
     }
@@ -277,9 +275,7 @@ abstract class BasicObject internal constructor(
      *
      * @return the object this object is currently contained by.
      */
-    open fun container(): BasicObject? {
-        return null
-    }
+    open fun container(): BasicObject? = null
 
     /**
      * Obtain an iterable for this object's contents.  If the object has no
@@ -368,9 +364,7 @@ abstract class BasicObject internal constructor(
      */
     fun ensureSameContext(who: User) {
         if (context() !== who.context()) {
-            throw MessageHandlerException("user " + who +
-                    " attempted operation on " +
-                    this + " outside own context")
+            throw MessageHandlerException("user $who attempted operation on $this outside own context")
         }
     }
 
@@ -454,10 +448,15 @@ abstract class BasicObject internal constructor(
      * @param obj  The other, codependent object.
      */
     fun noteCodependent(obj: BasicObject) {
-        if (myCodependents == null) {
-            myCodependents = LinkedList()
+        val currentCodependents = myCodependents
+        val actualCodeDependents = if (currentCodependents == null) {
+            val newCodeDependents = LinkedList<BasicObject>()
+            myCodependents = newCodeDependents
+            newCodeDependents
+        } else {
+            currentCodependents
         }
-        myCodependents!!.add(obj)
+        actualCodeDependents.add(obj)
     }
 
     /**
@@ -600,13 +599,12 @@ abstract class BasicObject internal constructor(
             VIS_PERSONAL -> user() == receiver
             VIS_CONTAINER -> {
                 val cont = container()
-                cont?.visibleTo(receiver) ?: /* If there is no container, then this is a user or a
-                       context and thus visible. */
-                true
+                /* If there is no container, then this is a user or a
+                      context and thus visible. */
+                cont?.visibleTo(receiver) ?: true
             }
             VIS_NONE -> false
-            else -> throw Error("invalid visibility value in " + this + ": " +
-                    myVisibility)
+            else -> throw Error("invalid visibility value in $this: $myVisibility")
         }
     }
     /* ----- DefaultDispatchTarget interface ------------------------------- */
@@ -648,9 +646,8 @@ abstract class BasicObject internal constructor(
      * @return a string that can be used to refer to this object in JSON
      * messages, either as the message target or as a parameter value.
      */
-    override fun ref(): String {
-        return myRef!!
-    }
+    // FIXME: Handle "null" values properly. Is there a nullability distinction between contexts, users, items, etc.?
+    override fun ref() = myRef!!
 
     companion object {
         /** Visibility has not been set.  */

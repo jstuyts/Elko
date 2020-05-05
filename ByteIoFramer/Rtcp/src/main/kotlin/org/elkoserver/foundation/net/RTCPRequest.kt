@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.net
 
+import org.elkoserver.json.JsonObject
 import java.util.LinkedList
 import java.util.regex.Pattern
 
@@ -7,7 +8,7 @@ import java.util.regex.Pattern
  * An RTCP request descriptor, obtained by parsing the lines of text in an RTCP
  * request as they are received.
  */
-internal class RTCPRequest {
+class RTCPRequest {
     /** State of request parsing  */
     private var myParseState = STATE_AWAITING_VERB
 
@@ -28,11 +29,11 @@ internal class RTCPRequest {
     private var myError: String? = null
 
     /** First message in a message bundle (message delivery).  */
-    private var myMessage: Any? = null
+    private var myMessage: JsonObject? = null
 
     /** Second and later messages in a message bundle, or null if there was
      * only one (message delivery).  */
-    private var myOtherMessages: LinkedList<Any?>? = null
+    private var myOtherMessages: LinkedList<JsonObject>? = null
 
     /**
      * Add a message to the message bundle this descriptor holds.  This is for
@@ -41,15 +42,20 @@ internal class RTCPRequest {
      *
      * @param message  The message to be added.
      */
-    fun addMessage(message: Any?) {
+    fun addMessage(message: JsonObject) {
         myParseState = STATE_COMPLETE
         if (myMessage == null) {
             myMessage = message
         } else {
-            if (myOtherMessages == null) {
-                myOtherMessages = LinkedList()
+            val currentOtherMessages = myOtherMessages
+            val actualOtherMessages = if (currentOtherMessages == null) {
+                val newOtherMessages = LinkedList<JsonObject>()
+                myOtherMessages = newOtherMessages
+                newOtherMessages
+            } else {
+                currentOtherMessages
             }
-            myOtherMessages!!.addLast(message)
+            actualOtherMessages.addLast(message)
         }
     }
 
@@ -100,11 +106,12 @@ internal class RTCPRequest {
      * @return the next available message in the this request, or null if all
      * messages have been previously returned.
      */
-    fun nextMessage(): Any? {
+    fun nextMessage(): JsonObject? {
         val result = myMessage
-        if (myOtherMessages != null) {
-            myMessage = myOtherMessages!!.removeFirst()
-            if (myOtherMessages!!.isEmpty()) {
+        val currentOtherMessages = myOtherMessages
+        if (currentOtherMessages != null) {
+            myMessage = currentOtherMessages.removeFirst()
+            if (currentOtherMessages.isEmpty()) {
                 myOtherMessages = null
             }
         } else {

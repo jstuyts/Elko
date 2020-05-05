@@ -223,7 +223,7 @@ class MongoObjectStore : ObjectStore {
         return result
     }
 
-    private fun valueToDBValue(value: Any) =
+    private fun valueToDBValue(value: Any?) =
             if (value is JsonObject) {
                 jsonObjectToDBObject(value)
             } else if (value is JsonArray) {
@@ -238,10 +238,10 @@ class MongoObjectStore : ObjectStore {
                 value
             }
 
-    private fun jsonArrayToDBArray(arr: JsonArray): ArrayList<Any> {
-        val result = ArrayList<Any>(arr.size())
+    private fun jsonArrayToDBArray(arr: JsonArray): ArrayList<Any?> {
+        val result = ArrayList<Any?>(arr.size())
         for (elem in arr) {
-            result.add(valueToDBValue(elem!!))
+            result.add(valueToDBValue(elem))
         }
         return result
     }

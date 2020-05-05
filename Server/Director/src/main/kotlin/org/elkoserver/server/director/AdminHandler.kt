@@ -528,7 +528,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
                     addParameter("numproviders", numProviders)
                     addParameter("numcontexts", numContexts)
                     addParameter("numusers", numUsers)
-                    if (providerList.size > 0) {
+                    if (providerList.isNotEmpty()) {
                         addParameter("providers", encodeEncodableList(providerList))
                     }
                     finish()

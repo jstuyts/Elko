@@ -40,9 +40,9 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
      *
      * @return the object described by 'jsonObj'.
      */
-    fun decodeJSONObject(jsonObj: JsonObject?): Any? {
+    fun decodeJSONObject(jsonObj: JsonObject): Any? {
         var result: Any? = null
-        val typeTag = jsonObj!!.getString("type", null)
+        val typeTag = jsonObj.getString("type", null)
         if (typeTag != null) {
             val type = myClasses[typeTag]
             if (type != null) {
@@ -77,7 +77,7 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
             null
         } else {
             try {
-                val jsonObj = jsonObjectFromString(objStr)
+                val jsonObj = jsonObjectFromString(objStr)!!
                 insertContents(jsonObj, results)
                 decodeJSONObject(jsonObj)
             } catch (e: JsonParserException) {
@@ -114,9 +114,10 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
             for (i in contents.indices) {
                 val ref = refs.next()
                 if (ref is String) {
-                    contents[i] = decodeObject(ref, objs)
-                    if (contents[i] != null) {
-                        val elemClass: Class<*> = contents[i]!!.javaClass
+                    val decodedObject = decodeObject(ref, objs)
+                    contents[i] = decodedObject
+                    if (decodedObject != null) {
+                        val elemClass: Class<*> = decodedObject.javaClass
                         if (resultClass == null) {
                             resultClass = elemClass
                         } else if (elemClass.isAssignableFrom(resultClass)) {
@@ -153,9 +154,9 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
      * @param obj  The JsonObject whose contents are to be inserted.
      * @param results  The results returned by the store.
      */
-    private fun insertContents(obj: JsonObject?, results: Array<ObjectDesc>) {
+    private fun insertContents(obj: JsonObject, results: Array<ObjectDesc>) {
         var contentsProps: MutableList<Map.Entry<String, Any>>? = null
-        val iter: MutableIterator<Map.Entry<String, Any>> = obj!!.entrySet().iterator()
+        val iter: MutableIterator<Map.Entry<String, Any>> = obj.entrySet().iterator()
         while (iter.hasNext()) {
             val entry = iter.next()
             val propName = entry.key

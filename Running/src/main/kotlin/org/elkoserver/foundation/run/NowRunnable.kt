@@ -47,13 +47,11 @@ internal class NowRunnable(private var myOptTodo: Callable<Any>?) : Runnable {
                 try {
                     myLock.wait()
                 } catch (ie: InterruptedException) {
-                    /* Ignore interrupt & continue waiting for condition */
+                    /* FIXME. Do not ignore. Old comment: Ignore interrupt & continue waiting for condition */
                 }
             }
         }
-        if (null != myOptProblem) {
-            throw asSafe(myOptProblem!!)
-        }
+        myOptProblem?.let { throw asSafe(it) }
         return myResult
     }
 

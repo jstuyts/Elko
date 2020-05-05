@@ -109,8 +109,8 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
      * or null if the operation was successful.
      */
     override fun putObject(ref: String, obj: Encodable, collectionName: String?, requireNew: Boolean, handler: Consumer<Any?>?) {
-        val objToWrite = obj.encode(EncodeControl.forRepository)
-        myRunner.enqueue(PutCallHandler(ref, objToWrite!!, collectionName, requireNew, handler))
+        val objToWrite = obj.encode(EncodeControl.forRepository)!!
+        myRunner.enqueue(PutCallHandler(ref, objToWrite, collectionName, requireNew, handler))
     }
 
     /**
@@ -126,8 +126,8 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
      * or null if the operation was successful.
      */
     override fun updateObject(ref: String, version: Int, obj: Encodable, collectionName: String?, handler: Consumer<Any?>?) {
-        val objToWrite = obj.encode(EncodeControl.forRepository)
-        myRunner.enqueue(UpdateCallHandler(ref, version, objToWrite!!, collectionName, handler))
+        val objToWrite = obj.encode(EncodeControl.forRepository)!!
+        myRunner.enqueue(UpdateCallHandler(ref, version, objToWrite, collectionName, handler))
     }
 
     /**
@@ -218,8 +218,8 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
             val results = arrayOfNulls<Any>(descs.size)
             for (i in descs.indices) {
                 try {
-                    val jsonObj = jsonObjectFromString(descs[i].obj()!!)
-                    if (jsonObj!!.getString("type", null) != null) {
+                    val jsonObj = jsonObjectFromString(descs[i].obj()!!)!!
+                    if (jsonObj.getString("type", null) != null) {
                         results[i] = decodeJSONObject(jsonObj)
                     } else {
                         results[i] = jsonObj

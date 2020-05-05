@@ -22,7 +22,7 @@ interface ByteIOFramer {
      * indicated by a 'length' value of 0.
      */
     @Throws(IOException::class)
-    fun receiveBytes(data: ByteArray?, length: Int)
+    fun receiveBytes(data: ByteArray, length: Int)
 
     /**
      * Produce the bytes for writing a message to a connection.
@@ -40,5 +40,5 @@ interface ByteIOFramer {
      * @return a byte array containing the writable form of 'message'.
      */
     @Throws(IOException::class)
-    fun produceBytes(message: Any?): ByteArray?
+    fun produceBytes(message: Any): ByteArray
 }

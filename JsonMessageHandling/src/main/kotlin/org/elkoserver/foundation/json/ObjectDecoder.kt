@@ -155,8 +155,8 @@ class ObjectDecoder private constructor(decodeClass: Class<*>, traceFactory: Tra
         @JvmStatic
         fun decode(baseType: Class<*>, str: String, traceFactory: TraceFactory, clock: Clock): Any? {
             return try {
-                val jsonObj = JsonParsing.jsonObjectFromString(str)
-                decode(baseType, jsonObj!!, traceFactory, clock)
+                val jsonObj = JsonParsing.jsonObjectFromString(str)!!
+                decode(baseType, jsonObj, traceFactory, clock)
             } catch (e: JsonParserException) {
                 traceFactory.comm.warningm("syntax error decoding object: ${e.message}")
                 null

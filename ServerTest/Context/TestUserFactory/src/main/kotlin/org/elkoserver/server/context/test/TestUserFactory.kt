@@ -112,7 +112,7 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
      */
     override fun provideUser(contextor: Contextor, connection: Connection,
                              param: JsonObject?, contextRef: String,
-                             contextTemplate: String?): User? {
+                             contextTemplate: String?): User {
         if (myCryptor != null) {
             try {
                 val blob = param!!.getString("blob")
@@ -129,19 +129,18 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                         val reqContextRef = params.getString("context")
                         if (reqContextRef != null &&
                                 reqContextRef != contextRef) {
-                            contextor.appTrace().errorm(
-                                    "context ref mismatch")
-                            return null
+                            contextor.appTrace().errorm( "context ref mismatch")
+                            throw IllegalStateException()
                         }
                         val reqContextTemplate = params.getString("ctmpl")
                         if (reqContextTemplate != null &&
                                 reqContextTemplate != contextTemplate) {
                             contextor.appTrace().errorm(
                                     "context template ref mismatch")
-                            return null
+                            throw IllegalStateException()
                         }
                         val result = decode(User::class.java, userDesc, contextor.odb(), traceFactory, clock)
-                        return result as User?
+                        return result as User
                     } else {
                         contextor.appTrace().errorm("reused nonce")
                     }
@@ -156,7 +155,7 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                 contextor.appTrace().errorm("missing or improperly typed property in cryptoblob")
             }
         }
-        return null
+        throw IllegalStateException()
     }
 
     /**

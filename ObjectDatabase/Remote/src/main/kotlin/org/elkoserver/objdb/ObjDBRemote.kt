@@ -139,9 +139,9 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
         if (odbActor == null) {
             connectToRepository()
         } else {
-            val unsentRequests: List<PendingRequest>? = myUnsentRequests
+            val unsentRequests = myUnsentRequests!!
             myUnsentRequests = null
-            for (req in unsentRequests!!) {
+            for (req in unsentRequests) {
                 req.sendRequest(odbActor)
             }
         }
@@ -167,7 +167,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * @param tag  The tag associated with the reply.
      * @param results  The results returned.
      */
-    fun handleGetResult(tag: String, results: Array<ObjectDesc>?) {
+    fun handleGetResult(tag: String?, results: Array<ObjectDesc>?) {
         handleRetrievalResult(tag, results)
     }
 
@@ -177,7 +177,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * @param tag  The tag associated with the reply.
      * @param results  The results returned.
      */
-    fun handlePutResult(tag: String, results: Array<ResultDesc>?) {
+    fun handlePutResult(tag: String?, results: Array<ResultDesc>?) {
         val req = myPendingRequests.remove(tag)
         if (req != null && results != null) {
             req.handleReply(results[0].failure())
@@ -190,7 +190,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * @param tag  The tag associated with the reply.
      * @param results  The results returned.
      */
-    fun handleUpdateResult(tag: String, results: Array<ResultDesc>?) {
+    fun handleUpdateResult(tag: String?, results: Array<ResultDesc>?) {
         val req = myPendingRequests.remove(tag)
         if (req != null && results != null) {
             req.handleReply(results[0].failure())
@@ -203,11 +203,11 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * @param tag  The tag associated with the reply.
      * @param results  The results returned.
      */
-    fun handleQueryResult(tag: String, results: Array<ObjectDesc>?) {
+    fun handleQueryResult(tag: String?, results: Array<ObjectDesc>?) {
         handleRetrievalResult(tag, results)
     }
 
-    private fun handleRetrievalResult(tag: String, results: Array<ObjectDesc>?) {
+    private fun handleRetrievalResult(tag: String?, results: Array<ObjectDesc>?) {
         val req = myPendingRequests.remove(tag)
         if (req != null && results != null) {
             val obj: Any?
@@ -230,7 +230,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * @param tag  The tag associated with the reply.
      * @param results  The results returned.
      */
-    fun handleRemoveResult(tag: String, results: Array<ResultDesc>?) {
+    fun handleRemoveResult(tag: String?, results: Array<ResultDesc>?) {
         val req = myPendingRequests.remove(tag)
         if (req != null && results != null) {
             req.handleReply(results[0].failure())
@@ -249,10 +249,15 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
         if (currentOdbActor != null) {
             req.sendRequest(currentOdbActor)
         } else {
-            if (myUnsentRequests == null) {
-                myUnsentRequests = LinkedList()
+            val currentUnsentRequests = myUnsentRequests
+            val actualUnsentRequests = if (currentUnsentRequests == null) {
+                val newUnsentRequests = LinkedList<PendingRequest>()
+                myUnsentRequests = newUnsentRequests
+                newUnsentRequests
+            } else {
+                currentUnsentRequests
             }
-            myUnsentRequests!!.add(req)
+            actualUnsentRequests.add(req)
         }
     }
 
@@ -325,9 +330,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      */
     override fun shutdown() {
         amClosing = true
-        if (myODBActor != null) {
-            myODBActor!!.close()
-        }
+        myODBActor?.close()
     }
 
     init {

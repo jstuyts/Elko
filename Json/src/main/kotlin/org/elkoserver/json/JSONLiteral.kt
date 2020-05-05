@@ -135,7 +135,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param value  The optional (collection) parameter value.
      */
     fun addParameterOpt(param: String?, value: Collection<*>?) {
-        if (value != null && value.size > 0) {
+        if (value != null && value.isNotEmpty()) {
             addParameter(param, value)
         }
     }

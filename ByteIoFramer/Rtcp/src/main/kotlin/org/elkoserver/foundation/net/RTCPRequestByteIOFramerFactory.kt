@@ -66,8 +66,8 @@ class RTCPRequestByteIOFramerFactory internal constructor(private val trMsg: Tra
          * indicated by passing a 'length' value of 0.
          */
         @Throws(IOException::class)
-        override fun receiveBytes(data: ByteArray?, length: Int) {
-            myIn.addBuffer(data!!, length)
+        override fun receiveBytes(data: ByteArray, length: Int) {
+            myIn.addBuffer(data, length)
             while (true) {
                 when (myRTCPParseStage) {
                     Companion.RTCP_STAGE_REQUEST -> {
@@ -75,7 +75,7 @@ class RTCPRequestByteIOFramerFactory internal constructor(private val trMsg: Tra
                         if (line == null) {
                             myIn.preserveBuffers()
                             return
-                        } else if (line.length != 0) {
+                        } else if (line.isNotEmpty()) {
                             if (trMsg.debug) {
                                 trMsg.debugm("$myLabel |> $line")
                             }
@@ -91,7 +91,7 @@ class RTCPRequestByteIOFramerFactory internal constructor(private val trMsg: Tra
                             myIn.preserveBuffers()
                             return
                         }
-                        if (line.length == 0) {
+                        if (line.isEmpty()) {
                             var needsFurtherParsing = true
                             while (needsFurtherParsing) {
                                 try {
@@ -107,17 +107,14 @@ class RTCPRequestByteIOFramerFactory internal constructor(private val trMsg: Tra
                                         myRequest.noteProblem(e)
                                     }
                                     if (trMsg.warning) {
-                                        trMsg.warningm(
-                                                "syntax error in JSON message: " +
-                                                        e.message)
+                                        trMsg.warningm("syntax error in JSON message: ${e.message}")
                                     }
                                 }
                             }
                             myMsgBuffer.setLength(0)
                         } else if (myMsgBuffer.length + line.length >
                                 Communication.MAX_MSG_LENGTH) {
-                            throw IOException("input too large (limit " +
-                                    Communication.MAX_MSG_LENGTH + " bytes)")
+                            throw IOException("input too large (limit ${Communication.MAX_MSG_LENGTH} bytes)")
                         } else {
                             myMsgBuffer.append(' ')
                             myMsgBuffer.append(line)
@@ -141,17 +138,15 @@ class RTCPRequestByteIOFramerFactory internal constructor(private val trMsg: Tra
          * @return a byte array containing the writable form of 'message'.
          */
         @Throws(IOException::class)
-        override fun produceBytes(message: Any?): ByteArray? {
+        override fun produceBytes(message: Any): ByteArray {
             val reply: String
             if (message is String) {
                 reply = message
                 if (trMsg.verbose) {
-                    trMsg.verbosem("to=" + myLabel + " writeMessage=" +
-                            reply.length)
+                    trMsg.verbosem("to=$myLabel writeMessage=${reply.length}")
                 }
             } else {
-                throw IOException("unwritable message type: " +
-                        message!!.javaClass)
+                throw IOException("unwritable message type: ${message.javaClass}")
             }
             if (trMsg.debug) {
                 trMsg.debugm("RTCP sending:\n$reply")

@@ -61,7 +61,7 @@ internal constructor(name: String,
                      isAllowableTemplate: OptBoolean, isMandatoryTemplate: OptBoolean,
                      isAllowAnonymous: OptBoolean) : BasicObject(name, mods, true, contents), Deliverer {
     /** Send group for users in this context.  */
-    private var myGroup: LiveGroup? = null
+    private lateinit var myGroup: LiveGroup
 
     /** Maximum number of users allowed in the context before it clones.  */
     private val myBaseCapacity = baseCapacity.value(-1)
@@ -108,7 +108,7 @@ internal constructor(name: String,
     private var myRetainCount = 0
 
     /** Ref of context descriptor from which this context was loaded.  */
-    private var myLoadedFromRef: String? = null
+    private lateinit var myLoadedFromRef: String
 
     /** Director who originally requested this context to be opened, if any.  */
     private var myOpener: DirectorActor? = null
@@ -132,8 +132,8 @@ internal constructor(name: String,
     private var myPresenceWatcher: PresenceWatcher? = null
 
     /** Trace object for diagnostics.  */
-    private var tr: Trace? = null
-    private var timer: Timer? = null
+    private lateinit var tr: Trace
+    private lateinit var timer: Timer
 
     /**
      * Activate a context.
@@ -148,8 +148,8 @@ internal constructor(name: String,
      * @param appTrace  Trace object for diagnostics.
      */
     fun activate(ref: String, subID: String, isEphemeral: Boolean,
-                 contextor: Contextor, loadedFromRef: String?,
-                 opener: DirectorActor?, appTrace: Trace?, timer: Timer?) {
+                 contextor: Contextor, loadedFromRef: String,
+                 opener: DirectorActor?, appTrace: Trace, timer: Timer) {
         super.activate(ref, subID, isEphemeral, contextor)
         this.timer = timer
         tr = appTrace
@@ -179,8 +179,7 @@ internal constructor(name: String,
                 myPresenceWatcher = mod
             }
         } else {
-            tr!!.errorm("attempt to attach non-ContextMod " + mod + " to " +
-                    this)
+            tr.errorm("attempt to attach non-ContextMod $mod to $this")
         }
     }
 
@@ -189,16 +188,15 @@ internal constructor(name: String,
      *
      * @param who  The user to attach the mods to.
      */
-    fun attachUserMods(who: User?) {
+    fun attachUserMods(who: User) {
         if (myUserMods != null) {
             for (mod in myUserMods) {
                 try {
                     val newMod = mod.clone() as Mod
                     newMod.markAsEphemeral()
-                    newMod.attachTo(who!!)
+                    newMod.attachTo(who)
                 } catch (e: CloneNotSupportedException) {
-                    tr!!.errorm("Mod class " + mod.javaClass +
-                            " does not support clone")
+                    tr.errorm("Mod class ${mod.javaClass} does not support clone")
                 }
             }
         }
@@ -225,7 +223,7 @@ internal constructor(name: String,
         if (myUserCount == 0 && (myRetainCount == 0 || amForceClosing)) {
             if (!amClosing) {
                 amClosing = true
-                tr!!.eventi("shutting down $this")
+                tr.eventi("shutting down $this")
                 noteContextShutdown()
                 checkpoint()
                 assertActivated {
@@ -260,40 +258,34 @@ internal constructor(name: String,
            that will decrement the count again. */
         myUserCount += 1
         return if (isRestricted && !who.entryEnabled(myRef!!)) {
-            tr!!.eventi(who.toString() + " forbidden entry to " + this +
-                    " (entry restricted)")
+            tr.eventi("$who forbidden entry to $this (entry restricted)")
             "restricted"
         } else if (!amAllowAnonymous && who.isAnonymous) {
-            tr!!.eventi(who.toString() + " forbidden entry to " + this +
-                    " (anonymous users forbidden)")
+            tr.eventi("$who forbidden entry to $this (anonymous users forbidden)")
             "noanonymity"
         } else if (myGateClosedReason != null) {
-            tr!!.eventi(who.toString() + " forbidden entry to " + this +
-                    " (gate closed: " + myGateClosedReason + ")")
+            tr.eventi("$who forbidden entry to $this (gate closed: $myGateClosedReason)")
             "gateclosed"
         } else if (myUserCount > myMaxCapacity && myMaxCapacity != -1) {
-            tr!!.eventi(who.toString() + " forbidden entry to " + this +
-                    " (capacity limit reached)")
+            tr.eventi("$who forbidden entry to $this (capacity limit reached)")
             "full"
         } else if (amClosing) {
-            tr!!.eventi(who.toString() + " forbidden entry to " + this +
-                    " (context is closing)")
+            tr.eventi("$who forbidden entry to $this (context is closing)")
             "contextclose"
         } else {
-            if (myUsers != null) {
-                val prev = myUsers!!.get(who.baseRef())
+            val currentUsers = myUsers
+            if (currentUsers != null) {
+                val prev = currentUsers.get(who.baseRef())
                 if (prev != null && !who.isEphemeral) {
-                    tr!!.eventi("expelling " + prev + " from " + this +
-                            " due to reentry as " + who)
-                    prev.send(msgExit(this, "duplicate entry", "dupentry",
-                            false))
+                    tr.eventi("expelling $prev from $this due to reentry as $who")
+                    prev.send(msgExit(this, "duplicate entry", "dupentry", false))
                     prev.forceDisconnect()
                 }
-                myUsers!![who.baseRef()] = who
+                currentUsers[who.baseRef()] = who
             }
             sendContextDescription(who, assertActivated { it.session() })
             noteUserArrival(who)
-            tr!!.eventi("$who enters $this")
+            tr.eventi("$who enters $this")
             null
         }
     }
@@ -304,9 +296,10 @@ internal constructor(name: String,
      * @param who  The user to remove.
      */
     fun exitContext(who: User) {
-        tr!!.eventi("$who exits $this")
-        if (myUsers != null && myUsers!!.get(who.baseRef()) != null && myUsers!!.get(who.baseRef())!!.ref() == who.ref()) {
-            myUsers!!.remove(who.baseRef())
+        tr.eventi("$who exits $this")
+        val currentUsers = myUsers
+        if (currentUsers != null && currentUsers.get(who.baseRef()) != null && currentUsers.get(who.baseRef())!!.ref() == who.ref()) {
+            currentUsers.remove(who.baseRef())
         }
         if (who.isArrived) {
             if (!isSemiPrivate) {
@@ -336,7 +329,7 @@ internal constructor(name: String,
      */
     fun forceClose(dup: Boolean) {
         amForceClosing = true
-        val members: List<Deliverer> = LinkedList(myGroup!!.members())
+        val members: List<Deliverer> = LinkedList(myGroup.members())
         for (member in members) {
             val user = member as User
             user.exitContext("context closing", "contextclose", dup)
@@ -349,9 +342,7 @@ internal constructor(name: String,
      * @return a reason string for this context's gate closure, or null if the
      * gate is open.
      */
-    fun gateClosedReason(): String? {
-        return myGateClosedReason
-    }
+    fun gateClosedReason() = myGateClosedReason
 
     /**
      * Test if this context's gate is closed.  If the gate is closed, new users
@@ -359,9 +350,7 @@ internal constructor(name: String,
      *
      * @return true iff this context's gate is closed.
      */
-    fun gateIsClosed(): Boolean {
-        return myGateClosedReason != null
-    }
+    fun gateIsClosed() = myGateClosedReason != null
 
     /**
      * Look up an object in this context's namespace.  Note that the context's
@@ -400,7 +389,7 @@ internal constructor(name: String,
      *
      * @return the send group for this context.
      */
-    fun group(): SendGroup? = myGroup
+    fun group(): SendGroup = myGroup
 
     /**
      * Test if this context may be used as a template for other contexts.
@@ -433,10 +422,8 @@ internal constructor(name: String,
      * down.
      */
     private fun noteContextShutdown() {
-        if (myContextShutdownWatchers != null) {
-            for (watcher in myContextShutdownWatchers!!) {
-                watcher.noteContextShutdown()
-            }
+        myContextShutdownWatchers?.forEach { watcher ->
+            watcher.noteContextShutdown()
         }
     }
 
@@ -473,18 +460,13 @@ internal constructor(name: String,
      * @param whereRef  Ref of context the entered or exited
      * @param on  True if they came, false if they left
      */
-    fun observePresenceChange(observerRef: String, domain: String?,
-                              whoRef: String, whereRef: String, on: Boolean) {
+    fun observePresenceChange(observerRef: String, domain: String?, whoRef: String, whereRef: String, on: Boolean) {
         myPresenceWatcher?.notePresenceChange(observerRef, domain, whoRef, whereRef, on)
         val observer = myUsers!![observerRef]
         if (observer != null) {
-            observer.observePresenceChange(observerRef, domain, whoRef,
-                    whereRef, on)
+            observer.observePresenceChange(observerRef, domain, whoRef, whereRef, on)
         } else {
-            tr!!.warningi("presence change of " + whoRef +
-                    (if (on) " entering " else " exiting ") + whereRef +
-                    " for context " + ref() +
-                    " directed to unknown user " + observerRef)
+            tr.warningi("presence change of $whoRef${if (on) " entering " else " exiting "}$whereRef for context ${ref()} directed to unknown user $observerRef")
         }
     }
 
@@ -517,10 +499,15 @@ internal constructor(name: String,
      * @param watcher  An object to notify when the context is shut down.
      */
     fun registerContextShutdownWatcher(watcher: ContextShutdownWatcher) {
-        if (myContextShutdownWatchers == null) {
-            myContextShutdownWatchers = LinkedList()
+        val currentContextShutdownWatchers = myContextShutdownWatchers
+        val actualContextShutdownWatchers = if (currentContextShutdownWatchers == null) {
+            val newContextShutdownWatchers = LinkedList<ContextShutdownWatcher>()
+            myContextShutdownWatchers = newContextShutdownWatchers
+            newContextShutdownWatchers
+        } else {
+            currentContextShutdownWatchers
         }
-        myContextShutdownWatchers!!.add(watcher)
+        actualContextShutdownWatchers.add(watcher)
     }
 
     /**
@@ -530,10 +517,15 @@ internal constructor(name: String,
      * @param watcher  An object to notify when a user arrives.
      */
     fun registerUserWatcher(watcher: UserWatcher) {
-        if (myUserWatchers == null) {
-            myUserWatchers = LinkedList()
+        val currentUserWatchers = myUserWatchers
+        val actualUserWatchers = if (currentUserWatchers == null) {
+            val newUserWatchers = LinkedList<UserWatcher>()
+            myUserWatchers = newUserWatchers
+            newUserWatchers
+        } else {
+            currentUserWatchers
         }
-        myUserWatchers!!.add(watcher)
+        actualUserWatchers.add(watcher)
     }
 
     /**
@@ -578,7 +570,7 @@ internal constructor(name: String,
      */
     fun scheduleContextEvent(millis: Long, thunk: Runnable) {
         retain()
-        timer!!.after(millis, ContextEventThunk(thunk))
+        timer.after(millis, ContextEventThunk(thunk))
     }
 
     /**
@@ -625,7 +617,7 @@ internal constructor(name: String,
         }
         to.send(msgMake(maker, this, sess))
         if (!isSemiPrivate) {
-            for (member in myGroup!!.members()) {
+            for (member in myGroup.members()) {
                 if (member is User) {
                     member.sendUserDescription(to, this, false)
                 }
@@ -646,7 +638,7 @@ internal constructor(name: String,
      * @param message  The message to send.
      */
     fun sendToNeighbors(exclude: Deliverer?, message: JSONLiteral?) {
-        myGroup!!.sendToNeighbors(exclude!!, message!!)
+        myGroup.sendToNeighbors(exclude!!, message!!)
     }
 
     fun subscriptions(): Array<String>? {
@@ -691,7 +683,7 @@ internal constructor(name: String,
     fun userCount() = myUserCount
 
     private inner class UserIterator internal constructor() : MutableIterator<User> {
-        private val myInnerIterator: Iterator<Deliverer>
+        private val myInnerIterator = myGroup.members().iterator()
         private var myNext: User?
         override fun hasNext(): Boolean {
             return myNext != null
@@ -723,7 +715,6 @@ internal constructor(name: String,
             }
 
         init {
-            myInnerIterator = myGroup!!.members().iterator()
             myNext = nextUser
         }
     }
@@ -786,7 +777,7 @@ internal constructor(name: String,
      * @param message  The message to send.
      */
     override fun send(message: JSONLiteral) {
-        myGroup!!.send(message)
+        myGroup.send(message)
     }
     /* ----- Encodable. interface, inherited from BasicObject -------------- */
     /**

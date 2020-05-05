@@ -146,7 +146,7 @@ class BankWorker
          * @return true if the currencies array was invalid, false if not.
          */
         fun currencyValidationFailure(currencies: Array<String>?): Boolean {
-            if (currencies == null || currencies.size == 0) {
+            if (currencies == null || currencies.isEmpty()) {
                 fail("badcurr", "invalid currency list")
                 return true
             }
@@ -944,7 +944,7 @@ class BankWorker
         if (env.operationAuthorityFailure("acct")) {
             return
         }
-        if (accounts.size == 0) {
+        if (accounts.isEmpty()) {
             env.fail("noaccounts", "account list provided was empty")
             return
         }
