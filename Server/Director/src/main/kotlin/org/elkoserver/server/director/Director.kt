@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonObject
@@ -478,13 +479,15 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
         myRefTable.addRef(myAdminHandler)
         myProviderLimit = myServer.props().intProperty("conf.director.providerlimit", 0)
         myEstimatedLoadIncrement = myServer.props().doubleProperty("conf.director.estloadbump", DEFAULT_ESTIMATED_LOAD_INCREMENT)
-        myServer.registerShutdownWatcher {
-            isShuttingDown = true
-            val doomedProviders = LinkedList(myProviders.keys)
-            myProviders.clear()
-            for (provider in doomedProviders) {
-                provider.actor().close()
+        myServer.registerShutdownWatcher(object : ShutdownWatcher {
+            override fun noteShutdown() {
+                isShuttingDown = true
+                val doomedProviders = LinkedList(myProviders.keys)
+                myProviders.clear()
+                for (provider in doomedProviders) {
+                    provider.actor().close()
+                }
             }
-        }
+        })
     }
 }

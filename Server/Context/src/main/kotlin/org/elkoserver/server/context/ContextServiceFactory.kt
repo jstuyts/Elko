@@ -22,7 +22,7 @@ class ContextServiceFactory(val myContextor: Contextor, val tr: Trace, val trace
      * @param protocol  The protocol (TCP, HTTP, etc.) that connections
      * made to the new listener are expected to speak
      */
-    override fun provideFactory(label: String, auth: AuthDesc, allow: Set<String>, serviceNames: MutableList<String>, protocol: String): MessageHandlerFactory? {
+    override fun provideFactory(label: String, auth: AuthDesc, allow: Set<String>, serviceNames: MutableList<String>, protocol: String): MessageHandlerFactory {
         return if (allow.contains("internal")) {
             serviceNames.add("context-internal")
             InternalActorFactory(myContextor, auth, tr, traceFactory)
@@ -32,7 +32,7 @@ class ContextServiceFactory(val myContextor: Contextor, val tr: Trace, val trace
                 auth.mode() == "reservation" -> true
                 else -> {
                     tr.errorm("invalid authorization configuration for $label")
-                    return null
+                    return null!!
                 }
             }
             serviceNames.add("context-user")

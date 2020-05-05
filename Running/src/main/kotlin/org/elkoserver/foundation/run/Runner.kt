@@ -222,15 +222,20 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
          * Runner.  Otherwise, returns the default Runner.
          */
         @JvmStatic
-        fun currentRunner(traceFactory: TraceFactory): Runner? {
+        fun currentRunner(traceFactory: TraceFactory): Runner {
             val t = Thread.currentThread()
             return if (t is RunnerThread) {
                 t.myRunnable as Runner
             } else {
-                if (theDefaultRunner == null) {
-                    theDefaultRunner = Runner(traceFactory)
+                val result: Runner
+                val currentDefaultRunner = theDefaultRunner
+                if (currentDefaultRunner == null) {
+                    result = Runner(traceFactory)
+                    theDefaultRunner = result
+                } else {
+                    result = currentDefaultRunner
                 }
-                theDefaultRunner
+                result
             }
         }
 

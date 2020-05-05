@@ -1,16 +1,16 @@
-package org.elkoserver.foundation.server;
+package org.elkoserver.foundation.server
 
 /**
  * Interface implemented by objects that register to receive periodic samplings
  * of system load.
  */
-public interface LoadWatcher {
+interface LoadWatcher {
     /**
      * Take note of a load sample.
      *
      * @param loadFactor  Load factor that was sampled.
      *
-     * @see Server#registerLoadWatcher(LoadWatcher)
+     * @see Server.registerLoadWatcher
      */
-    void noteLoadSample(double loadFactor);
+    fun noteLoadSample(loadFactor: Double)
 }

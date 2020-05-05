@@ -17,7 +17,7 @@ import java.util.function.Consumer
 /**
  * Internal object that acts as a client for the external 'bank' service.
  */
-class BankClient @JSONMethod("servicename") constructor(private val myServiceName: String) : AdminObject(), Consumer<ServiceLink> {
+class BankClient @JSONMethod("servicename") constructor(private val myServiceName: String) : AdminObject(), Consumer<ServiceLink?> {
     /** Connection to the workshop running the bank service.  */
     private var myServiceLink: ServiceLink? = null
 
@@ -54,9 +54,13 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * @param obj  The connection to the bank service, or null if connection
      * setup failed.
      */
-    override fun accept(obj: ServiceLink) {
-        myServiceLink = obj
-        myStatus = "connected"
+    override fun accept(obj: ServiceLink?) {
+        if (obj != null) {
+            myServiceLink = obj as ServiceLink?
+            myStatus = "connected"
+        } else {
+            myStatus = "failed"
+        }
     }
 
     /**

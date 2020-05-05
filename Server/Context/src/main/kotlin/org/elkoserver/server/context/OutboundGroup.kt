@@ -7,6 +7,7 @@ import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetworkManager
+import org.elkoserver.foundation.server.ReinitWatcher
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
@@ -168,10 +169,12 @@ abstract class OutboundGroup(propRoot: String,
     internal abstract fun service(): String?
 
     init {
-        myServer.registerReinitWatcher {
-            disconnectHosts()
-            connectHosts()
-        }
+        myServer.registerReinitWatcher(object : ReinitWatcher {
+            override fun noteReinit() {
+                disconnectHosts()
+                connectHosts()
+            }
+        })
         myNetworkManager = myServer.networkManager()
         myContextor = contextor
         myHosts = hosts

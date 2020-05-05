@@ -1,15 +1,14 @@
-package org.elkoserver.foundation.server;
+package org.elkoserver.foundation.server
 
 /**
  * Interface implemented by objects that register to receive notification when
  * the server is reinitialized.
  */
-public interface ReinitWatcher {
+interface ReinitWatcher {
     /**
      * Take note that the server has been reinitialized.
      *
-     * @see Server#registerReinitWatcher(ReinitWatcher)
+     * @see Server.registerReinitWatcher
      */
-    void noteReinit();
+    fun noteReinit()
 }
-

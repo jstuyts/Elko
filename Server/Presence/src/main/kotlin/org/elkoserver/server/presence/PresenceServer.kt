@@ -3,6 +3,7 @@ package org.elkoserver.server.presence
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
@@ -21,7 +22,7 @@ internal class PresenceServer(
         traceFactory: TraceFactory,
         clock: Clock) {
     /** Database that this server stores stuff in.  */
-    private val myODB: ObjDB
+    private val myODB: ObjDB?
 
     /** Table for mapping object references in messages.  */
     private val myRefTable: RefTable
@@ -309,13 +310,15 @@ internal class PresenceServer(
             }
         })
         isShuttingDown = false
-        myServer.registerShutdownWatcher {
-            isShuttingDown = true
-            val actorListCopy: List<PresenceActor> = LinkedList(myActors)
-            for (actor in actorListCopy) {
-                actor.doDisconnect()
+        myServer.registerShutdownWatcher(object : ShutdownWatcher {
+            override fun noteShutdown() {
+                isShuttingDown = true
+                val actorListCopy: List<PresenceActor> = LinkedList(myActors)
+                for (actor in actorListCopy) {
+                    actor.doDisconnect()
+                }
+                myODB.shutdown()
             }
-            myODB.shutdown()
-        }
+        })
     }
 }

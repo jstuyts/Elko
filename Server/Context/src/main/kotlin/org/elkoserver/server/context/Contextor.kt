@@ -6,6 +6,7 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServiceLink
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JSONDecodingException
@@ -328,7 +329,7 @@ class Contextor internal constructor(
      * service link once the connection is located or created.  The handler
      * will be passed a null if no connection was possible.
      */
-    fun findServiceLink(serviceName: String, handler: Consumer<in ServiceLink>) {
+    fun findServiceLink(serviceName: String, handler: Consumer<in ServiceLink?>) {
         myServer.findServiceLink("workshop-service-$serviceName", handler)
     }
 
@@ -1329,18 +1330,19 @@ class Contextor internal constructor(
         myServer.setServiceRefTable(this)
         initializeContextFamilies()
         loadStaticObjects(myServer.props().getProperty("conf.context.statics"))
-        myServer.registerShutdownWatcher {
-
-            /* List copy to avert ConcurrentModificationException */
-            val saveUsers: List<User> = LinkedList(myUsers)
-            for (user in saveUsers) {
-                user.exitContext("server shutting down", "shutdown",
-                        false)
+        myServer.registerShutdownWatcher(object: ShutdownWatcher {
+            override fun noteShutdown() {
+                /* List copy to avert ConcurrentModificationException */
+                val saveUsers: List<User> = LinkedList(myUsers)
+                for (user in saveUsers) {
+                    user.exitContext("server shutting down", "shutdown",
+                            false)
+                }
+                myDirectorGroup?.disconnectHosts()
+                myPresencerGroup?.disconnectHosts()
+                checkpointAll()
+                myODB.shutdown()
             }
-            myDirectorGroup?.disconnectHosts()
-            myPresencerGroup?.disconnectHosts()
-            checkpointAll()
-            myODB.shutdown()
-        }
+        })
     }
 }

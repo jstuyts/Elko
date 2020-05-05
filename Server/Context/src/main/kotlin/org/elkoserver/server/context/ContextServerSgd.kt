@@ -30,9 +30,7 @@ class ContextServerSgd(provided: Provided, configuration: ObjectGraphConfigurati
                     // FIXME: Do not use "fatalError" as this exits the process hard.
                     req(contTrace).fatalError("no listeners specified")
                 }
-                // FIXME: Must this happen after starting the listeners? Probably, because the director or presencer
-                //  cannot communicate with this context server if the listeners are not running yet. If not, move to
-                //  initialization of "contextor".
+                // This must run after the listeners of the server have been started.
                 val contextor = req(contextor)
                 contextor.registerWithDirectors(req(directors), req(serverListeners))
                 contextor.registerWithPresencers(req(presencers))
@@ -44,7 +42,7 @@ class ContextServerSgd(provided: Provided, configuration: ObjectGraphConfigurati
     val serverListeners by Once { req(server).listeners() }
 
     val objectDatabase by Once {
-        req(server).openObjectDatabase("conf.context").apply {
+        req(server).openObjectDatabase("conf.context")!!.apply {
             addClass("context", Context::class.java)
             addClass("item", Item::class.java)
             addClass("user", User::class.java)

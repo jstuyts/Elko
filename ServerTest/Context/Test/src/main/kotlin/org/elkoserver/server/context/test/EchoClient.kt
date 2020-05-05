@@ -12,7 +12,7 @@ import java.util.function.Consumer
 /**
  * Internal object that acts as a client for the external 'echo' service.
  */
-class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<ServiceLink> {
+class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<ServiceLink?> {
     /** Connection to the workshop running the echo service.  */
     private var myServiceLink: ServiceLink? = null
 
@@ -43,9 +43,13 @@ class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<ServiceLink
      * @param obj  The connection to the echo service, or null if connection
      * setup failed.
      */
-    override fun accept(obj: ServiceLink) {
-        myServiceLink = obj
-        myStatus = "connected"
+    override fun accept(obj: ServiceLink?) {
+        if (obj != null) {
+            myServiceLink = obj
+            myStatus = "connected"
+        } else {
+            myStatus = "failed"
+        }
     }
 
     /**

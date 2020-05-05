@@ -3,6 +3,7 @@ package org.elkoserver.server.repository
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.objdb.ObjectStoreFactory.createAndInitializeObjectStore
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
@@ -65,9 +66,11 @@ internal class Repository(private val myServer: Server, appTrace: Trace, traceFa
     init {
         myRefTable.addRef(RepHandler(this, traceFactory))
         myRefTable.addRef(AdminHandler(this, traceFactory))
-        myServer.registerShutdownWatcher {
-            isShuttingDown = true
-            countRepClients(0)
-        }
+        myServer.registerShutdownWatcher(object : ShutdownWatcher {
+            override fun noteShutdown() {
+                isShuttingDown = true
+                countRepClients(0)
+            }
+        })
     }
 }

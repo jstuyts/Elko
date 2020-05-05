@@ -4,6 +4,7 @@ import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
@@ -347,7 +348,11 @@ class DirectorGroup(server: Server, contextor: Contextor,
     }
 
     init {
-        server.registerLoadWatcher { factor: Double -> send(msgLoad(factor)) }
+        server.registerLoadWatcher(object: LoadWatcher {
+            override fun noteLoadSample(loadFactor: Double) {
+                send(msgLoad(loadFactor))
+            }
+        })
         myListeners = listeners
         myReservationTimeout = 1000 *
                 server.props().intProperty("conf.context.reservationexpire",

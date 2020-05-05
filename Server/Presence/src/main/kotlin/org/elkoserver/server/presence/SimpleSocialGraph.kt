@@ -22,7 +22,7 @@ internal class SimpleSocialGraph : SocialGraph {
     private var myPrefix: String? = null
 
     override fun init(master: PresenceServer, domain: Domain, conf: JsonObject) {
-        myODB = master.objDB()
+        myODB = master.objDB()!!
         myODB.addClass("ugraf", UserGraphDesc::class.java)
         myMaster = master
         myDomain = domain

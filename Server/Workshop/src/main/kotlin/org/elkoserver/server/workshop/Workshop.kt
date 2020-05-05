@@ -2,6 +2,7 @@ package org.elkoserver.server.workshop
 
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.json.Encodable
@@ -254,7 +255,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
         myODB.removeObject(ref, null, null)
     }
 
-   init {
+    init {
         if (odb == null) {
             tr.fatalError("no database specified")
         }
@@ -264,9 +265,11 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
         addRef(ClientHandler(this, traceFactory))
         addRef(AdminHandler(this, traceFactory))
         isShuttingDown = false
-        server.registerShutdownWatcher {
-            isShuttingDown = true
-            myODB.shutdown()
-        }
+        server.registerShutdownWatcher(object : ShutdownWatcher {
+            override fun noteShutdown() {
+                isShuttingDown = true
+                myODB.shutdown()
+            }
+        })
     }
 }

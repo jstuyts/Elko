@@ -54,7 +54,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
     private val myRunner: Runner = Runner("Elko RunQueue LocalObjDB", traceFactory)
 
     /** Async run queue for giving results back to the main thread.  */
-    private val myReturnRunner: Runner? = currentRunner(traceFactory)
+    private val myReturnRunner = currentRunner(traceFactory)
 
     /**
      * Fetch an object from the store.
@@ -91,7 +91,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
                     null
                 }
             }
-            myReturnRunner!!.enqueue(ArgRunnableRunnable(myRunnable, obj))
+            myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, obj))
         }
     }
 
@@ -141,7 +141,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
 
         override fun handle(results: Array<out ResultDesc>) {
             if (myRunnable != null) {
-                myReturnRunner!!.enqueue(ArgRunnableRunnable(myRunnable, results[0].failure()))
+                myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, results[0].failure()))
             }
         }
     }
@@ -169,7 +169,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
                     // Only used in class "Bank" for now.
                     failure = "@$failure"
                 }
-                myReturnRunner!!.enqueue(ArgRunnableRunnable(myRunnable, failure))
+                myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, failure))
             }
         }
     }
@@ -211,7 +211,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
                     null
                 }
             }
-            myReturnRunner!!.enqueue(ArgRunnableRunnable(myRunnable, objs))
+            myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, objs))
         }
 
         private fun decodeObjectSet(descs: Array<ObjectDesc>): Array<Any?> {
@@ -261,7 +261,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
 
         override fun handle(results: Array<out ResultDesc>) {
             if (myRunnable != null) {
-                myReturnRunner!!.enqueue(ArgRunnableRunnable(myRunnable, results[0].failure()))
+                myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, results[0].failure()))
             }
         }
     }

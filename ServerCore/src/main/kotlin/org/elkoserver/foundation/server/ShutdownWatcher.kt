@@ -1,15 +1,14 @@
-package org.elkoserver.foundation.server;
+package org.elkoserver.foundation.server
 
 /**
  * Interface implemented by objects that register to be notified when the
  * server is about to be shut down.
  */
-public interface ShutdownWatcher {
+interface ShutdownWatcher {
     /**
      * Take note that the server is about to be shut down.
      *
-     * @see Server#registerShutdownWatcher(ShutdownWatcher)
+     * @see Server.registerShutdownWatcher
      */
-    void noteShutdown();
+    fun noteShutdown()
 }
-

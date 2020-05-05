@@ -3,12 +3,11 @@ package org.elkoserver.server.gatekeeper
 import org.elkoserver.foundation.actor.BasicProtocolActor
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
-import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.lang.reflect.InvocationTargetException
@@ -57,18 +56,14 @@ class Gatekeeper internal constructor(
      *
      * @return the auth service object for this server.
      */
-    fun authorizer(): Authorizer {
-        return myAuthorizer
-    }
+    fun authorizer() = myAuthorizer
 
     /**
      * Get the current director host.
      *
      * @return a host descriptor describing the current director connection.
      */
-    fun directorHost(): HostDesc? {
-        return myDirectorHost
-    }
+    fun directorHost() = myDirectorHost
 
     /**
      * Guard function to guarantee that an operation is being attempted by an
@@ -97,27 +92,21 @@ class Gatekeeper internal constructor(
      * @return an object for communicating with the open database, or
      * null if the database location was not properly specified.
      */
-    fun openObjectDatabase(propRoot: String?): ObjDB {
-        return myServer.openObjectDatabase(propRoot)
-    }
+    fun openObjectDatabase(propRoot: String) = myServer.openObjectDatabase(propRoot)
 
     /**
      * Get the server's configuration properties.
      *
      * @return the configuration properties table for this server invocation.
      */
-    fun properties(): ElkoProperties {
-        return myServer.props()
-    }
+    fun properties() = myServer.props()
 
     /**
      * Get the object reference table for this gatekeeper.
      *
      * @return the object reference table.
      */
-    fun refTable(): RefTable {
-        return myRefTable
-    }
+    fun refTable() = myRefTable
 
     /**
      * Reinitialize the server.
@@ -151,9 +140,7 @@ class Gatekeeper internal constructor(
      *
      * @return the server's name.
      */
-    fun serverName(): String {
-        return myServer.serverName()
-    }
+    fun serverName() = myServer.serverName()
 
     /**
      * Change the director to which this gatekeeper is connected.  This
@@ -185,9 +172,7 @@ class Gatekeeper internal constructor(
      *
      * @return the trace object for this server.
      */
-    fun trace(): Trace {
-        return tr
-    }
+    fun trace() = tr
 
     init {
         myRefTable.addRef(UserHandler(this, traceFactory))
@@ -227,9 +212,11 @@ class Gatekeeper internal constructor(
             tr.fatalError("error occurred during instantiation of auth service object: $e")
         }
         myAuthorizer.initialize(this)
-        myServer.registerShutdownWatcher {
-            myDirectorActorFactory.disconnectDirector()
-            myAuthorizer.shutdown()
-        }
+        myServer.registerShutdownWatcher(object : ShutdownWatcher {
+            override fun noteShutdown() {
+                myDirectorActorFactory.disconnectDirector()
+                myAuthorizer.shutdown()
+            }
+        })
     }
 }

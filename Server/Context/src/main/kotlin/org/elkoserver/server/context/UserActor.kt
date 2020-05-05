@@ -67,11 +67,11 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
         if (!amDead) {
             amDead = true
             val users: List<User> = LinkedList(myUsers.values)
-            myContextor.server().enqueue {
+            myContextor.server().enqueue(Runnable {
                 for (user in users) {
                     user.connectionDied(connection)
                 }
-            }
+            })
             close()
         }
     }
