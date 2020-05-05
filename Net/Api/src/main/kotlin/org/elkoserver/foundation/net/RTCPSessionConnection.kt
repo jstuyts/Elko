@@ -10,13 +10,16 @@ import org.elkoserver.util.trace.TraceFactory
 import java.security.SecureRandom
 import java.time.Clock
 import java.util.LinkedList
+import kotlin.math.abs
 
 /**
  * An implementation of [Connection] that virtualizes a continuous
  * message session out of a series of potentially transient TCP connections.
+ *
+ * @param mySessionFactory  Factory for creating RTCP message handler objects
+ * @param sessionID  The session ID for the session.
  */
 class RTCPSessionConnection private constructor(
-        /** The factory that created this session.  */
         private val mySessionFactory: RTCPMessageHandlerFactory,
         sessionID: Long, private val timer: Timer, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(mySessionFactory.networkManager(), clock, traceFactory) {
     /** Trace object for logging message traffic.  */
@@ -66,7 +69,7 @@ class RTCPSessionConnection private constructor(
      *
      * @param sessionFactory  Factory for creating RTCP message handler objects
      */
-    internal constructor(sessionFactory: RTCPMessageHandlerFactory, timer: Timer, clock: Clock, traceFactory: TraceFactory) : this(sessionFactory, Math.abs(theRandom.nextLong()), timer, clock, traceFactory) {}
+    internal constructor(sessionFactory: RTCPMessageHandlerFactory, timer: Timer, clock: Clock, traceFactory: TraceFactory) : this(sessionFactory, abs(theRandom.nextLong()), timer, clock, traceFactory) {}
 
     /**
      * Associate a TCP connection with this session.
@@ -402,13 +405,6 @@ class RTCPSessionConnection private constructor(
         }
     }
 
-    /**
-     * Make a new RTCP session connection object for an incoming connection,
-     * with a given session ID.
-     *
-     * @param sessionFactory  Factory for creating RTCP message handler objects
-     * @param sessionID  The session ID for the session.
-     */
     init {
         this.traceFactory = traceFactory
         trMsg = mySessionFactory.msgTrace()

@@ -33,6 +33,7 @@ import java.util.LinkedList
 import java.util.StringTokenizer
 import java.util.concurrent.Callable
 import java.util.function.Consumer
+import kotlin.system.exitProcess
 
 /**
  * The core of an Elko server, holding the run queue, a collection of
@@ -528,7 +529,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
     fun shutdown(kill: Boolean) {
         if (kill) {
             // FIXME: Never kill a process, but always shut down cleanly.
-            System.exit(0)
+            exitProcess(0)
         } else if (!amShuttingDown) {
             amShuttingDown = true
             trServer.worldi("Shutting down $myServerName")

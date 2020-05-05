@@ -24,6 +24,7 @@ import java.util.Collections
 import java.util.LinkedList
 import java.util.StringTokenizer
 import java.util.function.Consumer
+import kotlin.math.abs
 
 /**
  * Main state data structure in a Context Server.
@@ -1175,7 +1176,7 @@ class Contextor internal constructor(
      *
      * @return a reference string for a new object with the given root.
      */
-    fun uniqueID(prefix: String): String = "$prefix-${Math.abs(theRandom.nextLong())}"
+    fun uniqueID(prefix: String): String = "$prefix-${abs(theRandom.nextLong())}"
 
     /**
      * Get the current number of users.

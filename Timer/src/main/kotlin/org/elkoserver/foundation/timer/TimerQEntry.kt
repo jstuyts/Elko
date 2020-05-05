@@ -14,7 +14,7 @@ internal class TimerQEntry(internal var myRepeat: Boolean, internal var myDelta:
 
     override fun compareTo(other: TimerQEntry?) =
             if (other != null) {
-                java.lang.Long.compare(myWhen, other.myWhen)
+                myWhen.compareTo(other.myWhen)
             } else {
                 throw ClassCastException()
             }

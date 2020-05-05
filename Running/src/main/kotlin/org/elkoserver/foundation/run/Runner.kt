@@ -3,6 +3,7 @@ package org.elkoserver.foundation.run
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.util.concurrent.Callable
+import kotlin.system.exitProcess
 
 /**
  * Runs when it can, but never on empty.  A thread services a queue
@@ -172,7 +173,7 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
                 --theRunnerCount
                 if (theRunnerCount == 0) {
                     // FIXME: Never use "exit(...)" for an orderly shutdown.
-                    System.exit(0)
+                    exitProcess(0)
                 }
                 return
             } catch (t: Throwable) {

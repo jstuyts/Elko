@@ -8,6 +8,7 @@ import org.elkoserver.util.trace.TraceFactory
 import java.security.SecureRandom
 import java.time.Clock
 import java.util.HashSet
+import kotlin.math.abs
 
 /**
  * An implementation of [Connection] that virtualizes a continuous
@@ -75,7 +76,7 @@ class HTTPSessionConnection private constructor(
      *
      * @param sessionFactory  Factory for creating HTTP message handler objects
      */
-    internal constructor(sessionFactory: HTTPMessageHandlerFactory, timer: Timer, clock: Clock, traceFactory: TraceFactory) : this(sessionFactory, Math.abs(theRandom.nextLong()), timer, clock, traceFactory) {}
+    internal constructor(sessionFactory: HTTPMessageHandlerFactory, timer: Timer, clock: Clock, traceFactory: TraceFactory) : this(sessionFactory, abs(theRandom.nextLong()), timer, clock, traceFactory) {}
 
     /**
      * Associate a TCP connection with this session.
