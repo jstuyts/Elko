@@ -1,6 +1,5 @@
 package org.elkoserver.server.context
 
-import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.actor.NonRoutingActor
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.MessageDispatcher
@@ -17,8 +16,8 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myGroup  The send group for all the directors.
  * @param host  Host description for this connection.
  */
-internal class PresencerActor(connection: Connection?, dispatcher: MessageDispatcher?,
-                              private val myGroup: PresencerGroup, host: HostDesc, traceFactory: TraceFactory?) : NonRoutingActor(connection, dispatcher, traceFactory) {
+internal class PresencerActor(connection: Connection, dispatcher: MessageDispatcher,
+                              private val myGroup: PresencerGroup, host: HostDesc, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
 
     /**
      * Handle loss of connection from the director.
@@ -95,6 +94,6 @@ internal class PresencerActor(connection: Connection?, dispatcher: MessageDispat
 
     init {
         myGroup.admitMember(this)
-        send(Actor.msgAuth(this, host.auth(), myGroup.contextor().serverName()))
+        send(msgAuth(this, host.auth(), myGroup.contextor().serverName()))
     }
 }

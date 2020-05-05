@@ -117,8 +117,9 @@ class Contextor internal constructor(
      * As a side effect, this will clear the list of who is waiting.
      */
     fun notifyPendingObjectCompletionWatchers() {
-        if (myPendingObjectCompletionWatchers != null) {
-            val targets: List<ObjectCompletionWatcher> = myPendingObjectCompletionWatchers!!
+        val currentPendingObjectCompletionWatchers = myPendingObjectCompletionWatchers
+        if (currentPendingObjectCompletionWatchers != null) {
+            val targets: List<ObjectCompletionWatcher> = currentPendingObjectCompletionWatchers
             myPendingObjectCompletionWatchers = null
             for (target in targets) {
                 target.objectIsComplete()
@@ -265,7 +266,7 @@ class Contextor internal constructor(
      * @param obj  The new object.
      */
     fun createObjectRecord(ref: String?, contRef: String?, obj: BasicObject) {
-        val actualRef = ref ?: uniqueID(obj.type()!!)
+        val actualRef = ref ?: uniqueID(obj.type())
         myODB.putObject(actualRef, obj, null, false, null)
     }
 
@@ -284,7 +285,7 @@ class Contextor internal constructor(
      * @param destination  Object instance to deliver to.
      * @param message  The message to deliver.
      */
-    fun deliverMessage(destination: BasicObject?, message: JsonObject?) {
+    fun deliverMessage(destination: BasicObject, message: JsonObject) {
         try {
             dispatchMessage(null, destination, message)
         } catch (e: MessageHandlerException) {
@@ -441,8 +442,9 @@ class Contextor internal constructor(
                 }
                 if (myWaitCount == 0) {
                     if (haveContents && haveContainer) {
-                        if (myContents != null && myContainer != null) {
-                            myContainer!!.addPassiveContents(myContents!!)
+                        val currentContents = myContents
+                        if (currentContents != null) {
+                            myContainer?.addPassiveContents(currentContents)
                         }
                     }
                     myWaitCount = -1
@@ -770,7 +772,8 @@ class Contextor internal constructor(
          * the above description.
          */
         override fun accept(arg: Any?) {
-            if (myObj == null) {
+            val currentObj = myObj
+            if (currentObj == null) {
                 if (arg == null) {
                     myOuterHandler.accept(null)
                 } else {
@@ -782,10 +785,10 @@ class Contextor internal constructor(
                 if (arg != null) {
                     @Suppress("UNCHECKED_CAST") val rawMods = arg as Array<Any>
                     for (rawMod in rawMods) {
-                        myObj!!.attachMod(rawMod as Mod)
+                        currentObj.attachMod(rawMod as Mod)
                     }
                 }
-                myOuterHandler.accept(myObj)
+                myOuterHandler.accept(currentObj)
             }
         }
 
@@ -800,7 +803,7 @@ class Contextor internal constructor(
      *
      * @return the requested reservation if there is one, or null if not.
      */
-    fun lookupReservation(who: String?, where: String?, authCode: String?) =
+    fun lookupReservation(who: String?, where: String, authCode: String?) =
             myDirectorGroup!!.lookupReservation(who, where, authCode)
 
     /**
@@ -815,20 +818,16 @@ class Contextor internal constructor(
         if (open) {
             myContexts.add(context)
             if (context.baseCapacity() > 0) {
-                myContextClones.add(context.baseRef()!!, context)
+                myContextClones.add(context.baseRef(), context)
             }
         } else {
             myContexts.remove(context)
             if (context.baseCapacity() > 0) {
-                myContextClones.remove(context.baseRef()!!, context)
+                myContextClones.remove(context.baseRef(), context)
             }
         }
-        if (myDirectorGroup != null) {
-            myDirectorGroup!!.noteContext(context, open)
-        }
-        if (myPresencerGroup != null) {
-            myPresencerGroup!!.noteContext(context, open)
-        }
+        myDirectorGroup?.noteContext(context, open)
+        myPresencerGroup?.noteContext(context, open)
     }
 
     /**
@@ -839,9 +838,7 @@ class Contextor internal constructor(
      * @param reason  Reason for closing the gate
      */
     fun noteContextGate(context: Context?, open: Boolean, reason: String?) {
-        if (myDirectorGroup != null) {
-            myDirectorGroup!!.noteContextGate(context!!, open, reason!!)
-        }
+        myDirectorGroup?.noteContextGate(context!!, open, reason!!)
     }
 
     /**
@@ -856,12 +853,8 @@ class Contextor internal constructor(
         } else {
             myUsers.remove(user)
         }
-        if (myDirectorGroup != null) {
-            myDirectorGroup!!.noteUser(user, on)
-        }
-        if (myPresencerGroup != null) {
-            myPresencerGroup!!.noteUser(user, on)
-        }
+        myDirectorGroup?.noteUser(user, on)
+        myPresencerGroup?.noteUser(user, on)
     }
 
     /**
@@ -949,11 +942,12 @@ class Contextor internal constructor(
      * @param who  The user being pushed
      * @param contextRef  The ref of the context to push them to.
      */
-    fun pushNewContext(who: User, contextRef: String?) {
-        if (myDirectorGroup != null) {
-            myDirectorGroup!!.pushNewContext(who, contextRef)
+    fun pushNewContext(who: User, contextRef: String) {
+        val currentDirectorGroup = myDirectorGroup
+        if (currentDirectorGroup != null) {
+            currentDirectorGroup.pushNewContext(who, contextRef)
         } else {
-            who.exitWithContextChange(contextRef!!, null, null)
+            who.exitWithContextChange(contextRef, null, null)
         }
     }
 
@@ -971,7 +965,7 @@ class Contextor internal constructor(
      *
      * XXX Is this a POLA (Principle of Least Authority) violation??
      */
-    fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>?) {
+    fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>) {
         myODB.queryObjects(template, collectionName, maxResults, handler)
     }
 
@@ -1052,7 +1046,7 @@ class Contextor internal constructor(
                            actually turns out to be a performance issue in
                            practice (unlikely, IMHO), this can be revisited. */
                         msgObject = try {
-                            JsonParsing.jsonObjectFromString(message.sendableString())
+                            JsonParsing.jsonObjectFromString(message.sendableString()) ?: throw IllegalStateException()
                         } catch (e: JsonParserException) {
                             tr.errorm(
                                     "syntax error in internal JSON message: " +
@@ -1063,9 +1057,7 @@ class Contextor internal constructor(
                     deliverMessage(obj, msgObject)
                 }
             }
-            if (myDirectorGroup != null) {
-                myDirectorGroup!!.relay(baseRef, contextRef!!, userRef!!, message)
-            }
+            myDirectorGroup?.relay(baseRef, contextRef!!, userRef!!, message)
         }
     }
 
@@ -1229,9 +1221,6 @@ class Contextor internal constructor(
     }
 
     companion object {
-        /** Default enter timeout value, in seconds.  */
-        private const val DEFAULT_ENTER_TIMEOUT_IN_SECONDS = 15
-
         /** Random number generator, for creating unique IDs and sub-IDs.  */
         private val theRandom = SecureRandom()
 
@@ -1355,12 +1344,8 @@ class Contextor internal constructor(
                 user.exitContext("server shutting down", "shutdown",
                         false)
             }
-            if (myDirectorGroup != null) {
-                myDirectorGroup!!.disconnectHosts()
-            }
-            if (myPresencerGroup != null) {
-                myPresencerGroup!!.disconnectHosts()
-            }
+            myDirectorGroup?.disconnectHosts()
+            myPresencerGroup?.disconnectHosts()
             checkpointAll()
             myODB.shutdown()
         }

@@ -23,8 +23,8 @@ internal class Client(private val myPresenceServer: PresenceServer, private val 
      * @param userRef  The user to whom the metadata applies
      * @param userMeta  The user metadata itself.
      */
-    fun noteUserMetadata(userRef: String?, userMeta: JsonObject?) {
-        myPresenceServer.noteUserMetadata(userRef!!, userMeta)
+    fun noteUserMetadata(userRef: String, userMeta: JsonObject?) {
+        myPresenceServer.noteUserMetadata(userRef, userMeta)
     }
 
     /**
@@ -33,8 +33,8 @@ internal class Client(private val myPresenceServer: PresenceServer, private val 
      * @param contextRef  The context to which the metadata applies
      * @param contextMeta  The context metadata itself.
      */
-    fun noteContextMetadata(contextRef: String?, contextMeta: JsonObject?) {
-        myPresenceServer.noteContextMetadata(contextRef!!, contextMeta!!)
+    fun noteContextMetadata(contextRef: String, contextMeta: JsonObject) {
+        myPresenceServer.noteContextMetadata(contextRef, contextMeta)
     }
 
     /**
@@ -43,8 +43,8 @@ internal class Client(private val myPresenceServer: PresenceServer, private val 
      * @param userName  The name of the user who entered.
      * @param contextName  The name of the context they entered.
      */
-    fun noteUserEntry(userName: String?, contextName: String?) {
-        myPresenceServer.addUserPresence(userName!!, contextName!!)
+    fun noteUserEntry(userName: String, contextName: String) {
+        myPresenceServer.addUserPresence(userName, contextName)
     }
 
     /**
@@ -53,8 +53,8 @@ internal class Client(private val myPresenceServer: PresenceServer, private val 
      * @param userName  The name of the user who exited.
      * @param contextName  The name of the context they exited.
      */
-    fun noteUserExit(userName: String?, contextName: String?) {
-        myPresenceServer.removeUserPresence(userName!!, contextName!!, myActor)
+    fun noteUserExit(userName: String, contextName: String) {
+        myPresenceServer.removeUserPresence(userName, contextName, myActor)
     }
 
     /**
@@ -62,8 +62,8 @@ internal class Client(private val myPresenceServer: PresenceServer, private val 
      *
      * @param contextName  The name of the context
      */
-    fun noteInvisibleContext(contextName: String?) {
-        myPresenceServer.removeVisibleContext(contextName!!)
+    fun noteInvisibleContext(contextName: String) {
+        myPresenceServer.removeVisibleContext(contextName)
     }
 
     /**
@@ -71,8 +71,8 @@ internal class Client(private val myPresenceServer: PresenceServer, private val 
      *
      * @param contextName  The name of the context
      */
-    fun noteVisibleContext(contextName: String?) {
-        myPresenceServer.addVisibleContext(contextName!!, myActor)
+    fun noteVisibleContext(contextName: String) {
+        myPresenceServer.addVisibleContext(contextName, myActor)
     }
 
     /**
@@ -82,8 +82,8 @@ internal class Client(private val myPresenceServer: PresenceServer, private val 
      * @param contextName  The name of the context that is interested
      * @param domain   The domain of interest
      */
-    fun subscribeToUpdates(contextName: String?, domain: String?) {
-        myPresenceServer.addSubscriber(contextName!!, domain!!, myActor)
+    fun subscribeToUpdates(contextName: String, domain: String) {
+        myPresenceServer.addSubscriber(contextName, domain, myActor)
     }
 
     /**

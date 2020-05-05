@@ -17,7 +17,7 @@ import org.elkoserver.json.JSONLiteral
  *    redeemed.
  * @param myMemo  Annotation on encumbrance.
  */
-internal class Encumbrance(private val myRef: String?, private var myAccount: Account?, private val myAmount: Int,
+internal class Encumbrance(private val myRef: String, private var myAccount: Account?, private val myAmount: Int,
                            private val myExpires: ExpirationDate, private val myMemo: String?) : Comparable<Encumbrance>, Encodable {
 
     /**

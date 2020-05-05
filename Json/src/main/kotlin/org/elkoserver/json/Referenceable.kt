@@ -11,5 +11,5 @@ interface Referenceable {
      * @return a string referencing this object, suitable for addressing it in
      * a JSON message.
      */
-    fun ref(): String?
+    fun ref(): String
 }

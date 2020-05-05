@@ -15,7 +15,7 @@ import org.elkoserver.util.trace.TraceFactory
 class Reservation(
         private val myWho: String?,
         private val myWhere: String,
-        private val myAuthCode: String, private val traceFactory: TraceFactory) : TimeoutNoticer {
+        private val myAuthCode: String?, private val traceFactory: TraceFactory) : TimeoutNoticer {
 
     /** The director that issued this reservation.  */
     private var myIssuer: DirectorActor? = null
@@ -92,9 +92,7 @@ class Reservation(
         if (!amRedeemed) {
             amRedeemed = true
             myIssuer!!.removeReservation(this)
-            if (myExpirationTimeout != null) {
-                myExpirationTimeout!!.cancel()
-            }
+            myExpirationTimeout?.cancel()
         }
     }
 }

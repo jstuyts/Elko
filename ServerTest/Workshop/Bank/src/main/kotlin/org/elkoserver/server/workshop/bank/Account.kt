@@ -19,7 +19,7 @@ import java.util.function.Consumer
  * @param myOwner  Ref of account owner.
  * @param myMemo  Annotation on account.
  */
-internal class Account(private val myRef: String?, private var myVersion: Int, private val myCurrency: String?, private val myOwner: String?, private val myMemo: String?) : Encodable {
+internal class Account(private val myRef: String, private var myVersion: Int, private val myCurrency: String?, private val myOwner: String?, private val myMemo: String?) : Encodable {
 
     /** Flag that account is blocked from participating in transactions.  */
     var isFrozen = false
@@ -63,7 +63,7 @@ internal class Account(private val myRef: String?, private var myVersion: Int, p
             if (!enc.isExpired) {
                 enc.setAccount(this)
                 myEncumbrancesByExpiration.add(enc)
-                myEncumbrancesByRef[enc.ref()!!] = enc
+                myEncumbrancesByRef[enc.ref()] = enc
                 myAvailBalance -= enc.amount()
             }
         }
@@ -118,9 +118,9 @@ internal class Account(private val myRef: String?, private var myVersion: Int, p
     fun checkpoint(workshop: Workshop, collection: String?, resultHandler: Consumer<Any?>?) {
         if (myVersion == 0) {
             myVersion = 1
-            workshop.putObject(myRef!!, this, collection, resultHandler)
+            workshop.putObject(myRef, this, collection, resultHandler)
         } else {
-            workshop.updateObject(myRef!!, myVersion++, this, collection, resultHandler)
+            workshop.updateObject(myRef, myVersion++, this, collection, resultHandler)
         }
     }
 
@@ -166,7 +166,7 @@ internal class Account(private val myRef: String?, private var myVersion: Int, p
             throw Error("insufficient funds")
         }
         myEncumbrancesByExpiration.add(enc)
-        myEncumbrancesByRef[enc.ref()!!] = enc
+        myEncumbrancesByRef[enc.ref()] = enc
         myAvailBalance -= enc.amount()
     }
 

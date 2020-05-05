@@ -20,7 +20,7 @@ import java.util.function.Consumer
  */
 abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: TraceFactory, private val clock: Clock) : ObjDB {
     /** Table mapping JSON object type tags to Java classes.  */
-    private val myClasses: MutableMap<String?, Class<*>> = HashMap()
+    private val myClasses: MutableMap<String, Class<*>> = HashMap()
 
     /**
      * Inform the object database about a mapping from a JSON object type tag
@@ -29,7 +29,7 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
      * @param tag  The JSON object type tag string.
      * @param type  The class that 'tag' labels.
      */
-    override fun addClass(tag: String?, type: Class<*>) {
+    override fun addClass(tag: String, type: Class<*>) {
         myClasses[tag] = type
     }
 

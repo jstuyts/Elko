@@ -26,9 +26,9 @@ import java.util.ConcurrentModificationException
  *    listeners to register with the indicated directors.
  * @param appTrace  Trace object for diagnostics.
  */
-class DirectorGroup(server: Server, contextor: Contextor?,
+class DirectorGroup(server: Server, contextor: Contextor,
                     directors: MutableList<HostDesc>, listeners: List<HostDesc>,
-                    appTrace: Trace?, timer: Timer?, traceFactory: TraceFactory?, clock: Clock) : OutboundGroup("conf.register", server, contextor!!, directors, appTrace!!, timer!!, traceFactory!!, clock) {
+                    appTrace: Trace?, timer: Timer?, traceFactory: TraceFactory?, clock: Clock) : OutboundGroup("conf.register", server, contextor, directors, appTrace!!, timer!!, traceFactory!!, clock) {
     private val myListeners: List<HostDesc>
 
     /** Iterator for cycling through arbitrary relays.  */
@@ -67,9 +67,8 @@ class DirectorGroup(server: Server, contextor: Contextor?,
      *
      * @return a new Actor object for use on this new connection
      */
-    override fun provideActor(connection: Connection?, dispatcher: MessageDispatcher?,
-                              host: HostDesc?): Actor {
-        val director = DirectorActor(connection, dispatcher, this, host!!, timer, traceFactory)
+    override fun provideActor(connection: Connection, dispatcher: MessageDispatcher, host: HostDesc): Actor {
+        val director = DirectorActor(connection, dispatcher, this, host, timer, traceFactory)
         updateDirector(director)
         return director
     }
@@ -116,8 +115,8 @@ class DirectorGroup(server: Server, contextor: Contextor?,
      *
      * @return the requested reservation if there is one, or null if not.
      */
-    fun lookupReservation(who: String?, where: String?, authCode: String?): Reservation? {
-        val key = Reservation(who, where!!, authCode!!, traceFactory)
+    fun lookupReservation(who: String?, where: String, authCode: String?): Reservation? {
+        val key = Reservation(who, where, authCode!!, traceFactory)
         return myReservations[key]
     }
 
@@ -192,10 +191,10 @@ class DirectorGroup(server: Server, contextor: Contextor?,
      * @param who  The user being pushed
      * @param contextRef  The ref of the context to push them to.
      */
-    fun pushNewContext(who: User, contextRef: String?) {
+    fun pushNewContext(who: User, contextRef: String) {
         val director = pickADirector()
         if (director != null) {
-            director.pushNewContext(who, contextRef!!)
+            director.pushNewContext(who, contextRef)
         } else {
             who.exitContext("no director for context push", "nodir", false)
         }

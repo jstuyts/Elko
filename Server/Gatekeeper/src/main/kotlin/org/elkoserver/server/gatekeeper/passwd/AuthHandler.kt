@@ -17,7 +17,7 @@ import java.util.function.Consumer
  * @param myAuthorizer  The password authorizer being administered.
  * @param myGatekeeper  The gatekeeper this handler is working for.
  */
-internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private val myGatekeeper: Gatekeeper, traceFactory: TraceFactory?) : BasicProtocolHandler(traceFactory) {
+internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private val myGatekeeper: Gatekeeper, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -118,8 +118,8 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param name  The name of the entry to be deleted.
      */
     @JSONMethod("name")
-    fun deleteplace(from: BasicProtocolActor?, name: String) {
-        myGatekeeper.ensureAuthorizedAdmin(from!!)
+    fun deleteplace(from: BasicProtocolActor, name: String) {
+        myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.removePlace(name)
     }
 

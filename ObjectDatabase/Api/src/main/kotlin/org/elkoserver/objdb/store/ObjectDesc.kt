@@ -15,7 +15,7 @@ import org.elkoserver.json.JSONLiteralFactory.type
  * @param myFailure  Error message string if retrieval failed, or null if
  *    retrieval succeeded.
  */
-class ObjectDesc(private val myRef: String?, private val myObj: String?, private val myFailure: String?) : Encodable {
+class ObjectDesc(private val myRef: String, private val myObj: String?, private val myFailure: String?) : Encodable {
 
     /**
      * JSON-driven constructor.
@@ -25,7 +25,7 @@ class ObjectDesc(private val myRef: String?, private val myObj: String?, private
      * @param failure  Optional error message.
      */
     @JSONMethod("ref", "obj", "failure")
-    constructor(ref: String?, obj: OptString, failure: OptString) : this(ref, obj.value<String?>(null), failure.value<String?>(null))
+    constructor(ref: String, obj: OptString, failure: OptString) : this(ref, obj.value<String?>(null), failure.value<String?>(null))
 
     /**
      * Encode this object for transmission or persistence.

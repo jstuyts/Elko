@@ -61,7 +61,7 @@ import java.util.LinkedList
  *
  * @param myDirector  The Director object for this handler.
  */
-internal class AdminHandler(private val myDirector: Director, traceFactory: TraceFactory?) : BasicProtocolHandler(traceFactory) {
+internal class AdminHandler(private val myDirector: Director, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Do the actual work of a 'find' or 'watch' verb.
@@ -103,8 +103,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
     fun findContext(contextName: String?, admin: DirectorActor) {
         val context = myDirector.getContext(contextName!!)
         if (context != null) {
-            admin.send(msgContext(this, contextName, true,
-                    context.provider().actor().label(), null))
+            admin.send(msgContext(this, contextName, true, context.provider().actor().label(), null))
         } else {
             val clones = myDirector.contextClones(contextName)
             if (!clones.isEmpty) {

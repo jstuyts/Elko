@@ -40,5 +40,5 @@ abstract class AdminObject : BasicProtocolHandler(), InternalObject {
      * @return a string that can be used to refer to this object in JSON
      * messages, either as the message target or as a parameter value.
      */
-    override fun ref() = myRef
+    override fun ref() = myRef ?: throw IllegalStateException()
 }

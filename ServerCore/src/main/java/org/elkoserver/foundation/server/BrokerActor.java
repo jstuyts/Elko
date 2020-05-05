@@ -55,7 +55,7 @@ class BrokerActor extends NonRoutingActor
      * @param reason  Exception explaining why.
      */
     public void connectionDied(Connection connection, Throwable reason) {
-        traceFactory.comm.eventm("lost broker connection " + connection + ": " +
+        getTraceFactory().comm.eventm("lost broker connection " + connection + ": " +
                           reason);
         myServer.unregisterLoadWatcher(myLoadWatcher);
         myServer.brokerConnected(null);

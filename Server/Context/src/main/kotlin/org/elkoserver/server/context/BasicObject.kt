@@ -366,7 +366,6 @@ abstract class BasicObject internal constructor(
      *
      * @throws MessageHandlerException if the test fails.
      */
-    @Throws(MessageHandlerException::class)
     fun ensureSameContext(who: User) {
         if (context() !== who.context()) {
             throw MessageHandlerException("user " + who +
@@ -498,7 +497,7 @@ abstract class BasicObject internal constructor(
      * @param to  Where to send the description.
      * @param maker  Maker object to address the message(s) to.
      */
-    abstract fun sendObjectDescription(to: Deliverer?, maker: Referenceable)
+    abstract fun sendObjectDescription(to: Deliverer, maker: Referenceable)
 
     /**
      * Send a JSON message to all other clones of this object.  The message
@@ -574,7 +573,7 @@ abstract class BasicObject internal constructor(
      *
      * @return a type tag string for this kind of object.
      */
-    abstract fun type(): String?
+    abstract fun type(): String
 
     /**
      * Obtain the user within which this object is contained, regardless of how

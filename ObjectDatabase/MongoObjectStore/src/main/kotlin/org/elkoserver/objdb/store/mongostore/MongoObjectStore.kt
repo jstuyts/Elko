@@ -39,7 +39,7 @@ class MongoObjectStore : ObjectStore {
     private lateinit var myDB: MongoDatabase
 
     /** The default Mongo collection holding the normal objects  */
-    private lateinit var myODBCollection: MongoCollection<Document?>
+    private lateinit var myODBCollection: MongoCollection<Document>
 
     /**
      * Do the initialization required to begin providing object store
@@ -61,13 +61,12 @@ class MongoObjectStore : ObjectStore {
      *
      * @param props  Properties describing configuration information.
      * @param propRoot  Prefix string for selecting relevant properties.
-     * @param appTrace  Trace object for use in logging.
+     * @param trace  Trace object for use in logging.
      */
-    override fun initialize(props: ElkoProperties, propRoot: String,
-                            appTrace: Trace) {
+    override fun initialize(props: ElkoProperties, propRoot: String, trace: Trace) {
         val mongoPropRoot = "$propRoot.odb.mongo"
         val addressStr = props.getProperty("$mongoPropRoot.hostport")
-                ?: appTrace.fatalError("no mongo database server address specified")
+                ?: trace.fatalError("no mongo database server address specified")
         val colon = addressStr.indexOf(':')
         val port: Int
         val host: String
@@ -93,8 +92,7 @@ class MongoObjectStore : ObjectStore {
      * @param collection   The collection to fetch from.
      * @param results  List in which to place the object or objects obtained.
      */
-    private fun dereferenceValue(value: Any, collection: MongoCollection<Document?>?,
-                                 results: MutableList<ObjectDesc>) {
+    private fun dereferenceValue(value: Any, collection: MongoCollection<Document>, results: MutableList<ObjectDesc>) {
         if (value is JsonArray) {
             for (elem in value) {
                 if (elem is String) {
@@ -116,7 +114,7 @@ class MongoObjectStore : ObjectStore {
      * the result of getting 'ref' and the remainder, if any, will be the
      * results of getting any contents objects.
      */
-    private fun doGet(ref: String, collection: MongoCollection<Document?>?): List<ObjectDesc> {
+    private fun doGet(ref: String, collection: MongoCollection<Document>): List<ObjectDesc> {
         val results: MutableList<ObjectDesc> = LinkedList()
         var failure: String? = null
         var obj: String? = null
@@ -124,7 +122,7 @@ class MongoObjectStore : ObjectStore {
         try {
             val query = Document()
             query["ref"] = ref
-            val dbObj = collection!!.find(query).first()
+            val dbObj = collection.find(query).first()
             if (dbObj != null) {
                 val jsonObj = dbObjectToJSONObject(dbObj)
                 obj = JsonObjectSerialization.sendableString(jsonObj)
@@ -143,19 +141,19 @@ class MongoObjectStore : ObjectStore {
         return results
     }
 
-    private fun dbObjectToJSONObject(dbObj: Document?): JsonObject {
+    private fun dbObjectToJSONObject(dbObj: Document): JsonObject {
         val result = JsonObject()
-        for (key in dbObj!!.keys) {
+        for (key in dbObj.keys) {
             if (!key.startsWith("_")) {
                 var value = dbObj[key]
                 if (value is List<*>) {
                     value = dbListToJSONArray(value)
                 } else if (value is Document) {
-                    value = dbObjectToJSONObject(value as Document?)
+                    value = dbObjectToJSONObject(value)
                 }
                 result.put(key, value)
             } else if (key == "_id") {
-                val oid = dbObj[key] as ObjectId?
+                val oid = dbObj[key] as ObjectId
                 result.put(key, oid.toString())
             }
         }
@@ -264,8 +262,7 @@ class MongoObjectStore : ObjectStore {
      * @return a List of ObjectDesc objects for the contents as
      * requested.
      */
-    private fun doGetContents(obj: JsonObject,
-                              collection: MongoCollection<Document?>?): List<ObjectDesc> {
+    private fun doGetContents(obj: JsonObject, collection: MongoCollection<Document>): List<ObjectDesc> {
         val results: MutableList<ObjectDesc> = LinkedList()
         for ((propName, value) in obj.entrySet()) {
             if (propName.startsWith("ref$")) {
@@ -285,24 +282,19 @@ class MongoObjectStore : ObjectStore {
      * @return a ResultDesc object describing the success or failure of the
      * operation.
      */
-    private fun doPut(ref: String, obj: String?, collection: MongoCollection<Document?>?,
-                      requireNew: Boolean): ResultDesc {
+    private fun doPut(ref: String, obj: String, collection: MongoCollection<Document>, requireNew: Boolean): ResultDesc {
         var failure: String? = null
-        if (obj == null) {
-            failure = "no object data given"
-        } else {
-            try {
-                val objectToWrite = jsonLiteralToDBObject(obj, ref)
-                if (requireNew) {
-                    collection!!.insertOne(objectToWrite)
-                } else {
-                    val query = Document()
-                    query["ref"] = ref
-                    collection!!.updateOne(query, objectToWrite, UpdateOptions().upsert(true))
-                }
-            } catch (e: Exception) {
-                failure = e.message
+        try {
+            val objectToWrite = jsonLiteralToDBObject(obj, ref)
+            if (requireNew) {
+                collection.insertOne(objectToWrite)
+            } else {
+                val query = Document()
+                query["ref"] = ref
+                collection.updateOne(query, objectToWrite, UpdateOptions().upsert(true))
             }
+        } catch (e: Exception) {
+            failure = e.message
         }
         return ResultDesc(ref, failure)
     }
@@ -318,26 +310,21 @@ class MongoObjectStore : ObjectStore {
      * @return an UpdateResultDesc object describing the success or failure of
      * the operation.
      */
-    private fun doUpdate(ref: String, version: Int, obj: String?,
-                         collection: MongoCollection<Document?>?): UpdateResultDesc {
+    private fun doUpdate(ref: String, version: Int, obj: String, collection: MongoCollection<Document>): UpdateResultDesc {
         var failure: String? = null
         var atomicFailure = false
-        if (obj == null) {
-            failure = "no object data given"
-        } else {
-            try {
-                val objectToWrite = jsonLiteralToDBObject(obj, ref)
-                val query = Document()
-                query["ref"] = ref
-                query["version"] = version
-                val result = collection!!.updateOne(query, objectToWrite, UpdateOptions().upsert(false))
-                if (result.matchedCount != 1L) {
-                    failure = "stale version number on update"
-                    atomicFailure = true
-                }
-            } catch (e: Exception) {
-                failure = e.message
+        try {
+            val objectToWrite = jsonLiteralToDBObject(obj, ref)
+            val query = Document()
+            query["ref"] = ref
+            query["version"] = version
+            val result = collection.updateOne(query, objectToWrite, UpdateOptions().upsert(false))
+            if (result.matchedCount != 1L) {
+                failure = "stale version number on update"
+                atomicFailure = true
             }
+        } catch (e: Exception) {
+            failure = e.message
         }
         return UpdateResultDesc(ref, failure, atomicFailure)
     }
@@ -351,12 +338,12 @@ class MongoObjectStore : ObjectStore {
      * @return a ResultDesc object describing the success or failure of the
      * operation.
      */
-    private fun doRemove(ref: String, collection: MongoCollection<Document?>?): ResultDesc {
+    private fun doRemove(ref: String, collection: MongoCollection<Document>): ResultDesc {
         var failure: String? = null
         try {
             val query = Document()
             query["ref"] = ref
-            collection!!.deleteOne(query)
+            collection.deleteOne(query)
         } catch (e: Exception) {
             failure = e.message
         }
@@ -374,8 +361,7 @@ class MongoObjectStore : ObjectStore {
     override fun getObjects(what: Array<RequestDesc>, handler: GetResultHandler) {
         val resultList: MutableList<ObjectDesc> = LinkedList()
         for (req in what) {
-            resultList.addAll(doGet(req.ref(),
-                    getCollection(req.collectionName())))
+            resultList.addAll(doGet(req.ref(), getCollection(req.collectionName())))
         }
         handler.handle(resultList.toTypedArray())
     }
@@ -423,16 +409,15 @@ class MongoObjectStore : ObjectStore {
      *
      * @return a list of ObjectDesc objects for objects matching the query.
      */
-    private fun doQuery(template: JsonObject,
-                        collection: MongoCollection<Document?>?, maxResults: Int): List<ObjectDesc> {
+    private fun doQuery(template: JsonObject, collection: MongoCollection<Document>, maxResults: Int): List<ObjectDesc> {
         val results: MutableList<ObjectDesc> = LinkedList()
         try {
             val query = jsonObjectToDBObject(template)
-            val cursor: FindIterable<Document?>
+            val cursor: FindIterable<Document>
             cursor = if (maxResults > 0) {
-                collection!!.find(query).batchSize(-maxResults)
+                collection.find(query).batchSize(-maxResults)
             } else {
-                collection!!.find(query)
+                collection.find(query)
             }
             for (dbObj in cursor) {
                 val jsonObj = dbObjectToJSONObject(dbObj)
@@ -453,13 +438,12 @@ class MongoObjectStore : ObjectStore {
      *
      * @return the DBCollection object corresponding to collectionName.
      */
-    private fun getCollection(collectionName: String?): MongoCollection<Document?>? {
-        return if (collectionName == null) {
-            myODBCollection
-        } else {
-            myDB.getCollection(collectionName)
-        }
-    }
+    private fun getCollection(collectionName: String?) =
+            if (collectionName == null) {
+                myODBCollection
+            } else {
+                myDB.getCollection(collectionName)
+            }
 
     /**
      * Service a 'query' request.  This is a request to query one or more
@@ -473,8 +457,7 @@ class MongoObjectStore : ObjectStore {
         val resultList: MutableList<ObjectDesc> = LinkedList()
         for (req in what) {
             val collection = getCollection(req.collectionName())
-            resultList.addAll(doQuery(req.template(), collection,
-                    req.maxResults()))
+            resultList.addAll(doQuery(req.template(), collection, req.maxResults()))
         }
         handler.handle(resultList.toTypedArray())
     }
@@ -488,7 +471,7 @@ class MongoObjectStore : ObjectStore {
      * failure indicators), when available.
      */
     override fun removeObjects(what: Array<RequestDesc>, handler: RequestResultHandler) {
-        val results = Array(what.size) {doRemove(what[it].ref(), getCollection(what[it].collectionName())) }
+        val results = Array(what.size) { doRemove(what[it].ref(), getCollection(what[it].collectionName())) }
         handler.handle(results)
     }
 

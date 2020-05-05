@@ -48,7 +48,7 @@ class Session(private val myContextor: Contextor, server: Server, traceFactory: 
      */
     @JSONMethod("text")
     fun log(from: User, text: String) {
-        myLogger.eventi(text!!)
+        myLogger.eventi(text)
     }
 
     /**
@@ -63,7 +63,7 @@ class Session(private val myContextor: Contextor, server: Server, traceFactory: 
      */
     @JSONMethod("what", "password", "context")
     fun dump(from: Deliverer, what: String, testPassword: OptString, optContext: OptString) {
-        val password = myServer.props().getProperty("conf.context.shutdownpassword", null)
+        val password = myServer.props().getProperty<String?>("conf.context.shutdownpassword", null)
         val contextRef = optContext.value<String?>(null)
         if (password == null || password == testPassword.value<String?>(null)) {
             val reply = JSONLiteralFactory.targetVerb("session", "dump")
@@ -156,7 +156,7 @@ class Session(private val myContextor: Contextor, server: Server, traceFactory: 
         if (from is User) {
             fromUser = from
         }
-        val password = myServer.props().getProperty("conf.context.shutdownpassword", null)
+        val password = myServer.props().getProperty<String?>("conf.context.shutdownpassword", null)
         if (password == null || password == testPassword.value<String?>(null)) {
             myContextor.shutdownServer(kill.value(false))
             if (fromUser != null) {

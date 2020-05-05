@@ -75,7 +75,7 @@ class ObjectDecoder private constructor(decodeClass: Class<*>, traceFactory: Tra
                     decoder = ObjectDecoder(decodeClass, traceFactory, clock)
                     theDecoders[decodeClass] = decoder
                 } catch (e: JSONSetupError) {
-                    traceFactory.comm.errorm(e.message!!)
+                    traceFactory.comm.errorm(e.message ?: e.toString())
                     decoder = null
                 }
             }
@@ -97,13 +97,12 @@ class ObjectDecoder private constructor(decodeClass: Class<*>, traceFactory: Tra
          * some reason.
          */
         @JvmStatic
-        fun decode(baseType: Class<*>?, obj: JsonObject,
-                   resolver: TypeResolver, traceFactory: TraceFactory, clock: Clock): Any? {
+        fun decode(baseType: Class<*>, obj: JsonObject, resolver: TypeResolver, traceFactory: TraceFactory, clock: Clock): Any? {
             var result: Any? = null
             val typeName = obj.getString("type", null)
             val targetClass: Class<*>?
             if (typeName != null) {
-                targetClass = resolver.resolveType(baseType!!, typeName)
+                targetClass = resolver.resolveType(baseType, typeName)
                 if (targetClass == null) {
                     traceFactory.comm.errorm("no Java class associated with JSON type tag '$typeName'")
                 }
@@ -167,31 +166,29 @@ class ObjectDecoder private constructor(decodeClass: Class<*>, traceFactory: Tra
     init {
         var jsonConstructor: Constructor<*>? = null
         var includeRawObject = false
-        var paramTypes: Array<Class<*>>? = null
         var paramNames: Array<out String>? = null
         for (constructor in decodeClass.declaredConstructors) {
-            val note = constructor.getAnnotation(JSONMethod::class.java) ?: continue
-            if (jsonConstructor != null) {
-                throw JSONSetupError("class " + decodeClass.name +
-                        " has more than one JSON constructor")
-            }
-            paramTypes = constructor.parameterTypes
-            paramNames = note.value
-            if (paramNames.size + 1 == paramTypes.size) {
-                if (!JsonObject::class.java.isAssignableFrom(paramTypes[0])) {
-                    throw JSONSetupError("class " + decodeClass.name +
-                            " JSON constructor lacks a JsonObject first parameter")
+            val note = constructor.getAnnotation(JSONMethod::class.java)
+            if (note != null) {
+                if (jsonConstructor != null) {
+                    throw JSONSetupError("class ${decodeClass.name} has more than one JSON constructor")
                 }
-                includeRawObject = true
-            } else if (paramNames.size != paramTypes.size) {
-                throw JSONSetupError("class " + decodeClass.name +
-                        " JSON constructor has wrong number of parameters")
+                val paramTypes = constructor.parameterTypes
+                paramNames = note.value
+                if (paramNames.size + 1 == paramTypes.size) {
+                    if (!JsonObject::class.java.isAssignableFrom(paramTypes[0])) {
+                        throw JSONSetupError("class ${decodeClass.name} JSON constructor lacks a JsonObject first parameter")
+                    }
+                    includeRawObject = true
+                } else if (paramNames.size != paramTypes.size) {
+                    throw JSONSetupError("class ${decodeClass.name} JSON constructor has wrong number of parameters")
+                }
+                jsonConstructor = constructor
             }
-            jsonConstructor = constructor
         }
         if (jsonConstructor == null) {
             throw JSONSetupError("no JSON constructor for class ${decodeClass.name}")
         }
-        myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, paramTypes!!, paramNames!!, traceFactory, clock)
+        myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, jsonConstructor.parameterTypes, paramNames!!, traceFactory, clock)
     }
 }

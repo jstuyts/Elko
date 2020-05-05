@@ -10,7 +10,7 @@ import org.elkoserver.util.trace.TraceFactory
  * However, client control messages for the workshop in principle will go here.
  * @param myWorkshop The workshop server proper.
  */
-internal class ClientHandler(private val myWorkshop: Workshop, traceFactory: TraceFactory?) : BasicProtocolHandler(traceFactory) {
+internal class ClientHandler(private val myWorkshop: Workshop, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Get this object's reference string.  This singleton object is always

@@ -27,7 +27,7 @@ class Gatekeeper internal constructor(
         traceFactory: TraceFactory,
         clock: Clock) {
     /** Table for mapping object references in messages.  */
-    private val myRefTable: RefTable
+    private val myRefTable: RefTable = RefTable(null, traceFactory, clock)
 
     /** Local auth service module.  */
     private val myAuthorizer: Authorizer
@@ -58,7 +58,7 @@ class Gatekeeper internal constructor(
      *
      * @return the auth service object for this server.
      */
-    fun authorizer(): Authorizer? {
+    fun authorizer(): Authorizer {
         return myAuthorizer
     }
 
@@ -191,7 +191,6 @@ class Gatekeeper internal constructor(
     }
 
     init {
-        myRefTable = RefTable(null, traceFactory, clock)
         myRefTable.addRef(UserHandler(this, traceFactory))
         myRefTable.addRef(AdminHandler(this, traceFactory))
         val props = myServer.props()

@@ -73,10 +73,11 @@ internal class DirectorActorFactory(private val myNetworkManager: NetworkManager
      * @param handler  Object to handle result.
      */
     fun requestReservation(protocol: String, context: String, actor: String, handler: Consumer<Any?>) {
-        if (myDirector == null) {
+        val currentDirector = myDirector
+        if (currentDirector == null) {
             handler.accept(ReservationResult(context, actor, "no director available"))
         } else {
-            myDirector!!.requestReservation(protocol, context, actor, handler)
+            currentDirector.requestReservation(protocol, context, actor, handler)
         }
     }
 

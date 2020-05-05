@@ -17,7 +17,7 @@ import java.time.Clock
  * @param myNext  Next JSON method in a growing chain.
  */
 internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Class<*>>, paramNames: Array<out String>,
-                             private val myNext: MethodInvoker?, traceFactory: TraceFactory?, clock: Clock?) : Invoker(myMethod, paramTypes, paramNames, 1, traceFactory!!, clock!!) {
+                             private val myNext: MethodInvoker?, traceFactory: TraceFactory, clock: Clock) : Invoker(myMethod, paramTypes, paramNames, 1, traceFactory, clock) {
 
     /** The Java class that defined the method.  */
     private val myMethodClass: Class<*> = myMethod.declaringClass
@@ -31,7 +31,7 @@ internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Cla
      * @return the object to which the message should actually be delivered, or
      * null if no appropriate object could be found.
      */
-    fun findActualTarget(target: DispatchTarget?): DispatchTarget? {
+    fun findActualTarget(target: DispatchTarget): DispatchTarget? {
         return if (target is MessageRetargeter) {
             (target as MessageRetargeter).findActualTarget(myMethodClass as Class<out DispatchTarget>)
         } else if (myMethodClass.isInstance(target)) {
@@ -51,11 +51,9 @@ internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Cla
      * @param message  The message that was received.
      * @param resolver  Type resolver for parameters.
      */
-    @Throws(MessageHandlerException::class)
-    fun handle(target: DispatchTarget?, from: Deliverer?, message: JsonObject,
-               resolver: TypeResolver?) {
+    fun handle(target: DispatchTarget?, from: Deliverer?, message: JsonObject, resolver: TypeResolver?) {
         try {
-            apply(target, from, message.entrySet(), resolver!!)
+            apply(target, from, message.entrySet(), resolver)
         } catch (e: JSONInvocationException) {
             throw MessageHandlerException("error calling JSON method", e)
         }
@@ -77,8 +75,7 @@ internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Cla
             myMethod.invoke(target, *params)
             null
         } catch (e: IllegalArgumentException) {
-            throw ParameterMismatchException(params,
-                    myMethod.parameterTypes)
+            throw ParameterMismatchException(params, myMethod.parameterTypes)
         }
     }
 

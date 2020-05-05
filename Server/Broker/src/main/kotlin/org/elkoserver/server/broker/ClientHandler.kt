@@ -31,7 +31,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param myBroker  The broker object for this handler.
  */
-internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFactory?) : BasicProtocolHandler(traceFactory) {
+internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Notify a waiting client that a service it was waiting for has not been

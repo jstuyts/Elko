@@ -42,7 +42,7 @@ import java.util.LinkedList
  *
  * @param myBroker  The broker object for this handler.
  */
-internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFactory?) : BasicProtocolHandler(traceFactory) {
+internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Get this object's reference string.  This singleton object is always

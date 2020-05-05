@@ -56,33 +56,35 @@ class MessageDispatcher(private val myResolver: TypeResolver?, private val trace
     fun addClass(targetClass: Class<*>) {
         if (!myClasses.contains(targetClass)) {
             for (method in targetClass.methods) {
-                val note = method.getAnnotation(JSONMethod::class.java) ?: continue
-                if (!Modifier.isPublic(method.modifiers)) {
-                    throw JSONSetupError("class " + targetClass.name +
-                            " JSON message handler method " + method.name +
-                            " is not public")
+                val note = method.getAnnotation(JSONMethod::class.java)
+                if (note != null) {
+                    if (!Modifier.isPublic(method.modifiers)) {
+                        throw JSONSetupError("class " + targetClass.name +
+                                " JSON message handler method " + method.name +
+                                " is not public")
+                    }
+                    if (method.returnType != Void.TYPE) {
+                        throw JSONSetupError("class " + targetClass.name +
+                                " JSON message handler method " + method.name +
+                                " does not have return type void")
+                    }
+                    val paramTypes = method.parameterTypes
+                    if (paramTypes.isEmpty() ||
+                            !Deliverer::class.java.isAssignableFrom(paramTypes[0])) {
+                        throw JSONSetupError("class " + targetClass.name +
+                                " JSON message handler method " + method.name +
+                                " does not have a Deliverer first parameter")
+                    }
+                    val paramNames: Array<out String> = note.value
+                    if (paramNames.size + 1 != paramTypes.size) {
+                        throw JSONSetupError("class " + targetClass.name +
+                                " JSON message handler method " + method.name +
+                                " has wrong number of parameters")
+                    }
+                    val name = method.name
+                    val prev = myInvokers[name]
+                    myInvokers[name] = MethodInvoker(method, paramTypes, paramNames, prev, traceFactory, clock)
                 }
-                if (method.returnType != Void.TYPE) {
-                    throw JSONSetupError("class " + targetClass.name +
-                            " JSON message handler method " + method.name +
-                            " does not have return type void")
-                }
-                val paramTypes = method.parameterTypes
-                if (paramTypes.isEmpty() ||
-                        !Deliverer::class.java.isAssignableFrom(paramTypes[0])) {
-                    throw JSONSetupError("class " + targetClass.name +
-                            " JSON message handler method " + method.name +
-                            " does not have a Deliverer first parameter")
-                }
-                val paramNames: Array<out String> = note.value
-                if (paramNames.size + 1 != paramTypes.size) {
-                    throw JSONSetupError("class " + targetClass.name +
-                            " JSON message handler method " + method.name +
-                            " has wrong number of parameters")
-                }
-                val name = method.name
-                val prev = myInvokers[name]
-                myInvokers[name] = MethodInvoker(method, paramTypes, paramNames, prev, traceFactory, clock)
             }
             myClasses.add(targetClass)
         }
@@ -122,10 +124,8 @@ class MessageDispatcher(private val myResolver: TypeResolver?, private val trace
      * @throws MessageHandlerException if there was some kind of problem
      * handling the message.
      */
-    @Throws(MessageHandlerException::class)
-    fun dispatchMessage(from: Deliverer?, target: DispatchTarget?,
-                        message: JsonObject) {
-        var actualFrom = from
+    fun dispatchMessage(from: Deliverer?, target: DispatchTarget, message: JsonObject) {
+        var actualFrom: Deliverer? = from
         val verb = message.getString("op", null)
         if (verb != null) {
             var invoker = myInvokers[verb]
@@ -133,12 +133,10 @@ class MessageDispatcher(private val myResolver: TypeResolver?, private val trace
                 val actualTarget = invoker.findActualTarget(target)
                 if (actualTarget != null) {
                     if (actualFrom is SourceRetargeter) {
-                        actualFrom = (actualFrom as SourceRetargeter).findEffectiveSource(
-                                target!!)
+                        actualFrom = (actualFrom as SourceRetargeter).findEffectiveSource(target)
                     }
                     if (actualFrom == null) {
-                        throw MessageHandlerException(
-                                "invalid message target")
+                        throw MessageHandlerException("invalid message target")
                     }
                     invoker.handle(actualTarget, actualFrom, message, myResolver)
                     return

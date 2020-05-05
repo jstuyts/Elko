@@ -2,7 +2,6 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.JSONMethod
-import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
@@ -609,7 +608,7 @@ internal constructor(name: String,
      * @param to  Where to send the description.
      * @param maker  Maker object to address the message(s) to.
      */
-    override fun sendObjectDescription(to: Deliverer?, maker: Referenceable) {
+    override fun sendObjectDescription(to: Deliverer, maker: Referenceable) {
         sendContextDescription(to, maker)
     }
 
@@ -619,12 +618,12 @@ internal constructor(name: String,
      * @param to  Where to send the description.
      * @param maker  Maker object to address message to.
      */
-    private fun sendContextDescription(to: Deliverer?, maker: Referenceable) {
+    private fun sendContextDescription(to: Deliverer, maker: Referenceable) {
         var sess: String? = null
         if (to is User) {
             sess = to.sess()
         }
-        to!!.send(msgMake(maker, this, sess))
+        to.send(msgMake(maker, this, sess))
         if (!isSemiPrivate) {
             for (member in myGroup!!.members()) {
                 if (member is User) {
@@ -745,7 +744,6 @@ internal constructor(name: String,
      * Exit the context and disconnect the user who sent it.
      */
     @JSONMethod
-    @Throws(MessageHandlerException::class)
     fun exit(from: Deliverer) {
         val fromUser = from as User
         fromUser.exitContext("normal exit", "bye", false)
@@ -772,9 +770,7 @@ internal constructor(name: String,
      * @return a type tag string for this kind of object; in this case,
      * "context".
      */
-    override fun type(): String? {
-        return "context"
-    }
+    override fun type() = "context"
 
     /**
      * Obtain the user this object is currently contained by.

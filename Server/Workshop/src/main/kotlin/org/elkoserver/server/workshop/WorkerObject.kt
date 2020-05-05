@@ -68,5 +68,5 @@ abstract class WorkerObject protected constructor(private val myServiceName: Str
      * @return a string that can be used to refer to this object in JSON
      * messages, either as the message target or as a parameter value.
      */
-    override fun ref(): String = myRef!!
+    override fun ref(): String = myRef ?: throw IllegalStateException()
 }

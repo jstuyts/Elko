@@ -93,7 +93,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
             rootKeyGenerated = true
         }
         val rootKey = Key(null, myRootKeyRef, "full", null,
-                ExpirationDate(Long.MAX_VALUE, clock!!), "root key")
+                ExpirationDate(Long.MAX_VALUE, clock), "root key")
         myKeys[myRootKeyRef] = rootKey
         if (rootKeyGenerated) {
             myVirginRootKey = rootKey
@@ -204,7 +204,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
                             /* Retryable error */
                             myTrace!!.debugm(allegedAccount.ref() +
                                     " transaction retry: " + failure)
-                            withAccount(allegedAccount.ref()!!, updater)
+                            withAccount(allegedAccount.ref(), updater)
                         }
                         else -> {
                             /* Un-retryable error */
@@ -286,7 +286,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
                             /* Retryable error */
                             myTrace!!.debugm(account1.ref() +
                                     " transaction retry: " + failure)
-                            withTwoAccounts(account1.ref()!!, account2.ref()!!, updater)
+                            withTwoAccounts(account1.ref(), account2.ref(), updater)
                         }
                         else -> {
                             /* Un-retryable error */

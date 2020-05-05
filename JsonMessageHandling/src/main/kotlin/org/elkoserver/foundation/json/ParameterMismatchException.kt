@@ -27,8 +27,7 @@ internal class ParameterMismatchException : RuntimeException {
          * @param suppliedParams  The supplied parameter objects.
          * @param expectedParams  The classes of the expected parameters.
          */
-        private fun createMessageString(suppliedParams: Array<Any?>,
-                                        expectedParams: Array<Class<*>>): String {
+        private fun createMessageString(suppliedParams: Array<Any?>, expectedParams: Array<Class<*>>): String {
             val count = suppliedParams.size.coerceAtMost(expectedParams.size)
             val message = StringBuilder()
             for (i in 0 until count) {

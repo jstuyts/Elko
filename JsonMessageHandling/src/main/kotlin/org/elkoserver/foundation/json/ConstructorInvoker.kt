@@ -83,8 +83,7 @@ internal class ConstructorInvoker(
         } catch (e: InstantiationException) {
             null
         } catch (e: IllegalArgumentException) {
-            throw ParameterMismatchException(params,
-                    myConstructor.parameterTypes)
+            throw ParameterMismatchException(params, myConstructor.parameterTypes)
         }
     }
 

@@ -110,8 +110,8 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
      * parameterized descriptor, or null if no such User object could be
      * produced for any reason.
      */
-    override fun provideUser(contextor: Contextor, connection: Connection?,
-                             param: JsonObject?, contextRef: String?,
+    override fun provideUser(contextor: Contextor, connection: Connection,
+                             param: JsonObject?, contextRef: String,
                              contextTemplate: String?): User? {
         if (myCryptor != null) {
             try {

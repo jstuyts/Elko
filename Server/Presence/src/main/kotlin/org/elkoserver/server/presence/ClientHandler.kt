@@ -16,7 +16,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param myPresenceServer  The presence server object for this handler.
  */
-internal class ClientHandler(private val myPresenceServer: PresenceServer, traceFactory: TraceFactory?) : BasicProtocolHandler(traceFactory) {
+internal class ClientHandler(private val myPresenceServer: PresenceServer, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -36,9 +36,9 @@ internal class ClientHandler(private val myPresenceServer: PresenceServer, trace
      * @param conf  Domain-specific configuration update parameters.
      */
     @JSONMethod("domain", "conf")
-    fun update(from: PresenceActor, domain: String?, conf: JsonObject?) {
+    fun update(from: PresenceActor, domain: String, conf: JsonObject) {
         from.ensureAuthorizedClient()
-        myPresenceServer.updateDomain(domain!!, conf!!, from)
+        myPresenceServer.updateDomain(domain, conf, from)
     }
 
     /**
@@ -57,7 +57,7 @@ internal class ClientHandler(private val myPresenceServer: PresenceServer, trace
     fun user(from: PresenceActor, context: String, user: String,
              on: Boolean, userMeta: JsonObject?, contextMeta: JsonObject?) {
         from.ensureAuthorizedClient()
-        val client = from.client()
+        val client = from.client()!!
         if (userMeta != null) {
             client.noteUserMetadata(user, userMeta)
         }
@@ -86,11 +86,11 @@ internal class ClientHandler(private val myPresenceServer: PresenceServer, trace
     fun subscribe(from: PresenceActor, context: String, domains: Array<String>?, visible: OptBoolean) {
         if (domains != null) {
             for (domain in domains) {
-                from.client().subscribeToUpdates(context, domain)
+                from.client()!!.subscribeToUpdates(context, domain)
             }
         }
         if (visible.value(true)) {
-            from.client().noteVisibleContext(context)
+            from.client()!!.noteVisibleContext(context)
         }
     }
 
@@ -104,7 +104,7 @@ internal class ClientHandler(private val myPresenceServer: PresenceServer, trace
      */
     @JSONMethod("context")
     fun unsubscribe(from: PresenceActor, context: String) {
-        from.client().unsubscribeToUpdates(context!!)
-        from.client().noteInvisibleContext(context)
+        from.client()!!.unsubscribeToUpdates(context)
+        from.client()!!.noteInvisibleContext(context)
     }
 }

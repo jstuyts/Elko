@@ -1,6 +1,5 @@
 package org.elkoserver.objdb
 
-import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.actor.NonRoutingActor
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.MessageDispatcher
@@ -21,8 +20,8 @@ import org.elkoserver.util.trace.TraceFactory
  * @param host  Description of repository host address.
  * @param dispatcher  Message dispatcher for repository actors.
  */
-class ODBActor(connection: Connection?, private val myODB: ObjDBRemote, localName: String?,
-                        host: HostDesc, dispatcher: MessageDispatcher?, traceFactory: TraceFactory?) : NonRoutingActor(connection, dispatcher, traceFactory) {
+class ODBActor(connection: Connection, private val myODB: ObjDBRemote, localName: String?,
+                        host: HostDesc, dispatcher: MessageDispatcher, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
 
     /**
      * Handle loss of connection from the repository.
@@ -94,7 +93,7 @@ class ODBActor(connection: Connection?, private val myODB: ObjDBRemote, localNam
     }
 
     init {
-        send(Actor.msgAuth(this, host.auth(), localName))
+        send(msgAuth(this, host.auth(), localName))
         myODB.repositoryConnected(this)
     }
 }

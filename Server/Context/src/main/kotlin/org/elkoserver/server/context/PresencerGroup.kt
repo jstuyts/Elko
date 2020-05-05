@@ -52,9 +52,8 @@ internal class PresencerGroup(server: Server, contextor: Contextor,
      *
      * @return a new Actor object for use on this new connection
      */
-    override fun provideActor(connection: Connection?, dispatcher: MessageDispatcher?,
-                              host: HostDesc?): Actor {
-        val presencer = PresencerActor(connection, dispatcher, this, host!!, traceFactory)
+    override fun provideActor(connection: Connection, dispatcher: MessageDispatcher, host: HostDesc): Actor {
+        val presencer = PresencerActor(connection, dispatcher, this, host, traceFactory)
         updatePresencer(presencer)
         return presencer
     }
@@ -97,7 +96,7 @@ internal class PresencerGroup(server: Server, contextor: Contextor,
      */
     fun noteUser(user: User, on: Boolean) {
         if (user.context().subscriptions() != null) {
-            send(msgUser(user.context().ref(), user.baseRef()!!, on,
+            send(msgUser(user.context().ref(), user.baseRef(), on,
                     userMeta(user), contextMeta(user.context())))
         }
     }
@@ -109,7 +108,7 @@ internal class PresencerGroup(server: Server, contextor: Contextor,
      */
     private fun updatePresencer(presencer: PresencerActor) {
         for (user in contextor().users()) {
-            presencer.send(msgUser(user.context().ref(), user.baseRef()!!, true,
+            presencer.send(msgUser(user.context().ref(), user.baseRef(), true,
                     userMeta(user),
                     contextMeta(user.context())))
         }

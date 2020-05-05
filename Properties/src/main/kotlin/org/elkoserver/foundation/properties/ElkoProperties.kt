@@ -21,7 +21,7 @@ class ElkoProperties() {
 
     fun getProperty(property: String): String? = properties.getProperty(property)
 
-    fun getProperty(property: String, defaultValue: String?): String? = properties.getProperty(property, defaultValue)
+    fun <TDefault: String?> getProperty(property: String, defaultValue: TDefault): TDefault = properties.getProperty(property, defaultValue) as TDefault
 
     fun stringPropertyNames(): Set<String> = properties.stringPropertyNames()
 

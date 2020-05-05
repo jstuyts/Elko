@@ -147,7 +147,7 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
             return if (mode == "open") {
                 theOpenAuth
             } else {
-                val code = props.getProperty("$actualPropRoot.code", null)
+                val code = props.getProperty<String?>("$actualPropRoot.code", null)
                 if (mode == "password") {
                     if (code == null) {
                         appTrace.errorm("missing value for $actualPropRoot.code")
@@ -158,7 +158,7 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
                             ".auth.mode: " + mode)
                     return null
                 }
-                val id = props.getProperty("$actualPropRoot.id", null)
+                val id = props.getProperty<String?>("$actualPropRoot.id", null)
                 AuthDesc(mode, code, id)
             }
         }

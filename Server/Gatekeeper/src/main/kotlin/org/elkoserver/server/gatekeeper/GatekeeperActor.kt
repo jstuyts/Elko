@@ -21,8 +21,8 @@ import org.elkoserver.util.trace.TraceFactory
  *    in milliseconds.
  * @param tr  Trace object for diagnostics.
  */
-internal class GatekeeperActor(connection: Connection?, private val myFactory: GatekeeperActorFactory,
-                               actionTime: Int, private val tr: Trace, timer: Timer, traceFactory: TraceFactory?) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+internal class GatekeeperActor(connection: Connection, private val myFactory: GatekeeperActorFactory,
+                               actionTime: Int, private val tr: Trace, timer: Timer, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
 
     /** True if actor has been disconnected.  */
     private var amLoggedOut = false
@@ -82,8 +82,7 @@ internal class GatekeeperActor(connection: Connection?, private val myFactory: G
      * @return true if the given arguments are sufficient to authorize
      * administrative access to this server, false if not.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc,
-                        label: String): Boolean {
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
         becomeLive()
         myLabel = label
         if (myFactory.verifyAuthorization(auth) && myFactory.allowAdmin()) {

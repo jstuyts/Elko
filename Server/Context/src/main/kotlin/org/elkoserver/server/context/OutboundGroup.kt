@@ -96,7 +96,7 @@ abstract class OutboundGroup(propRoot: String,
      * Factory class to hold onto host information while attempting to
      * establish an external server connection.
      */
-    private inner class HostConnector internal constructor(private val myHost: HostDesc?) : MessageHandlerFactory {
+    private inner class HostConnector internal constructor(private val myHost: HostDesc) : MessageHandlerFactory {
 
         /**
          * Provide a message handler for a new external server connection.
@@ -158,9 +158,7 @@ abstract class OutboundGroup(propRoot: String,
      *
      * @return a new Actor object for use on this new connection
      */
-    abstract fun provideActor(connection: Connection?,
-                              dispatcher: MessageDispatcher?,
-                              host: HostDesc?): Actor
+    abstract fun provideActor(connection: Connection, dispatcher: MessageDispatcher, host: HostDesc): Actor
 
     /**
      * Obtain a broker service string describing the type of service that

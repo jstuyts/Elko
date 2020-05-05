@@ -22,7 +22,7 @@ import java.util.function.Consumer
  * @param myServer  Server object.
  * @param tr  Trace object for diagnostics.
  */
-internal class Broker(private val myServer: Server, private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory?, clock: Clock?) {
+internal class Broker(private val myServer: Server, private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory, clock: Clock) {
     /** Table for mapping object references in messages.  */
     private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 

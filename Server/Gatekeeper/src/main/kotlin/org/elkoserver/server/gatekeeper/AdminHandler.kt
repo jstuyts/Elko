@@ -25,7 +25,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param myGatekeeper  The Gatekeeper object for this handler.
  */
-internal class AdminHandler(private val myGatekeeper: Gatekeeper, traceFactory: TraceFactory?) : BasicProtocolHandler(traceFactory) {
+internal class AdminHandler(private val myGatekeeper: Gatekeeper, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Get this object's reference string.  This singleton object is always

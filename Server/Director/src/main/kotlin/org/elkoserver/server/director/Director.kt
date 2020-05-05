@@ -24,7 +24,7 @@ import java.util.TreeMap
  * @param myServer  Server object.
  * @param tr  Trace object for diagnostics.
  */
-internal class Director(private val myServer: Server, private val tr: Trace, traceFactory: TraceFactory, clock: Clock?) {
+internal class Director(private val myServer: Server, private val tr: Trace, traceFactory: TraceFactory, clock: Clock) {
     /** Table for mapping object references in messages.  */
     private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
@@ -173,15 +173,14 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
      * @return the appropriate server for the given service and protocol, or
      * null if there is no appropriate server.
      */
-    fun locateProvider(contextName: String, protocol: String?,
-                       internal: Boolean): Provider? {
+    fun locateProvider(contextName: String, protocol: String, internal: Boolean): Provider? {
         val service = serviceName(contextName)
         val logString = StringBuilder()
         for (provider in myProviders.keys) {
             logString.append("[").append(provider).append("/").append(provider.loadFactor()).append("]")
         }
         for (provider in myProviders.keys) {
-            if (provider.willServe(service, protocol!!, internal)) {
+            if (provider.willServe(service, protocol, internal)) {
                 provider.setLoadFactor(provider.loadFactor() + myEstimatedLoadIncrement)
                 tr.eventm("choose $provider from $logString")
                 return provider

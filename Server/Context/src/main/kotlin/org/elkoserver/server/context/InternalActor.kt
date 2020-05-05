@@ -18,8 +18,8 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myFactory  Factory of the listener that accepted the connection.
  * @param tr  Trace object for diagnostics.
  */
-class InternalActor internal constructor(connection: Connection?, private val myFactory: InternalActorFactory,
-                                         private val tr: Trace, traceFactory: TraceFactory?) : RoutingActor(connection, myFactory.contextor(), traceFactory), BasicProtocolActor {
+class InternalActor internal constructor(connection: Connection, private val myFactory: InternalActorFactory,
+                                         private val tr: Trace, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.contextor(), traceFactory), BasicProtocolActor {
 
     /** Flag that connection has been authorized.  */
     private var amAuthorized = false
@@ -41,8 +41,7 @@ class InternalActor internal constructor(connection: Connection?, private val my
     /**
      * Do the actual work of authorizing an actor.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc,
-                        label: String): Boolean {
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
         myLabel = label
         amAuthorized = myFactory.verifyInternalAuthorization(auth)
         return amAuthorized

@@ -1,6 +1,5 @@
 package org.elkoserver.server.context
 
-import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.actor.NonRoutingActor
 import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.JSONMethod
@@ -28,8 +27,8 @@ import java.util.NoSuchElementException
  * @param myGroup  The send group for all the directors.
  * @param host  Host description for this connection.
  */
-class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
-                    private val myGroup: DirectorGroup, host: HostDesc, private val timer: Timer, traceFactory: TraceFactory?) : NonRoutingActor(connection, dispatcher, traceFactory) {
+class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
+                    private val myGroup: DirectorGroup, host: HostDesc, private val timer: Timer, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
 
     /** Map from tag strings to users awaiting reservations.  */
     private val myPendingReservationRequests: MutableMap<String, User> = HashMap()
@@ -114,8 +113,9 @@ class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
         }
 
         operator fun next(): Any {
-            if (myNextResult != null) {
-                val result: Any = myNextResult!!
+            val currentNextResult = myNextResult
+            if (currentNextResult != null) {
+                val result: Any = currentNextResult
                 myNextResult = null
                 return result
             }
@@ -174,8 +174,8 @@ class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
      *
      * @param reservation  The reservation to remove.
      */
-    fun removeReservation(reservation: Reservation?) {
-        myGroup.removeReservation(reservation!!)
+    fun removeReservation(reservation: Reservation) {
+        myGroup.removeReservation(reservation)
     }
 
     /**
@@ -261,7 +261,7 @@ class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
                 user?.exitContext("no response", "badres", false)
             }
         })
-        send(msgReserve(this, who.protocol(), contextRef, who.baseRef()!!, tag))
+        send(msgReserve(this, who.protocol(), contextRef, who.baseRef(), tag))
     }
 
     /**
@@ -402,7 +402,7 @@ class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
 
     init {
         myGroup.admitMember(this)
-        send(Actor.msgAuth(this, host.auth(), myGroup.contextor().serverName()))
+        send(msgAuth(this, host.auth(), myGroup.contextor().serverName()))
         for (listener in myGroup.listeners()) {
             if ("reservation" == listener.auth()!!.mode()) {
                 send(msgAddress(this, listener.protocol()!!, listener.hostPort()!!))

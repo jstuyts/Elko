@@ -14,12 +14,12 @@ import java.time.Clock
  * @param myServer Server object.
  * @param appTrace  Trace object for diagnostics.
  */
-internal class Repository(private val myServer: Server, appTrace: Trace?, traceFactory: TraceFactory?, clock: Clock?) {
+internal class Repository(private val myServer: Server, appTrace: Trace, traceFactory: TraceFactory, clock: Clock) {
     /** Table for mapping object references in messages.  */
     internal val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
     /** Local object storage module.  */
-    internal val myObjectStore = createAndInitializeObjectStore(myServer.props(), "conf.rep", appTrace!!)
+    internal val myObjectStore = createAndInitializeObjectStore(myServer.props(), "conf.rep", appTrace)
 
     /** Number of repository clients currently connected.  */
     private var myRepClientCount = 0

@@ -1,6 +1,5 @@
 package org.elkoserver.foundation.timer
 
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.exceptionreporting.ExceptionReporter
 import java.time.Clock
 import java.util.TreeMap
@@ -8,19 +7,19 @@ import java.util.TreeMap
 /**
  * Thread to handle timeouts and clocks.
  */
-internal class TimerThread(traceFactory: TraceFactory, private val clock: Clock, private val exceptionReporter: ExceptionReporter) : Thread("Elko Timer") {
+internal class TimerThread(private val clock: Clock, private val exceptionReporter: ExceptionReporter) : Thread("Elko Timer") {
 
     /**
      * Collection of pending timer events, sorted by time
      */
-    private var myEvents: TreeMap<TimerQEntry, TimerQEntry?>? = TreeMap()
+    private var myEvents: TreeMap<TimerQEntry, TimerQEntry> = TreeMap()
 
     /**
      * Flag to control execution
      */
     private var myRunning = true
     fun cancelTimeout(event: TimerQEntry): Boolean {
-        synchronized(this) { return myEvents!!.remove(event) != null }
+        synchronized(this) { return myEvents.remove(event) != null }
     }
 
     /**
@@ -30,7 +29,7 @@ internal class TimerThread(traceFactory: TraceFactory, private val clock: Clock,
      */
     private fun insertEntry(newEntry: TimerQEntry) {
         synchronized(this) {
-            while (myEvents!![newEntry] != null) {
+            while (myEvents[newEntry] != null) {
                 /* All times must be unique.  */
                 // XXX TODO: This is a very ugly hack.  It will need to be
                 // revisited should we find ourselves in a use case that
@@ -47,7 +46,7 @@ internal class TimerThread(traceFactory: TraceFactory, private val clock: Clock,
                 // yet justified by need.
                 newEntry.myWhen++
             }
-            myEvents!!.put(newEntry, newEntry)
+            myEvents.put(newEntry, newEntry)
         }
     }
 
@@ -63,7 +62,6 @@ internal class TimerThread(traceFactory: TraceFactory, private val clock: Clock,
         while (myRunning) {
             runloop()
         }
-        myEvents = null
     }
 
     /**
@@ -76,10 +74,10 @@ internal class TimerThread(traceFactory: TraceFactory, private val clock: Clock,
         var notifies: TimerQEntry? = null
         var entry: TimerQEntry
         synchronized(this) {
-            if (myEvents!!.isEmpty()) {
+            if (myEvents.isEmpty()) {
                 time = 0
             } else {
-                entry = myEvents!!.firstKey()
+                entry = myEvents.firstKey()
                 time = entry.myWhen - queryTimerMillis() or 1
                 /* Avoid 0 since will wait forever */
             }
@@ -97,10 +95,10 @@ internal class TimerThread(traceFactory: TraceFactory, private val clock: Clock,
         synchronized(this) {
             /* Only do next bunch of stuff if this timer is still running */if (myRunning) {
             /* Timer fired, check each element to see if it is time */
-            while (!myEvents!!.isEmpty()) {
-                entry = myEvents!!.firstKey()
+            while (!myEvents.isEmpty()) {
+                entry = myEvents.firstKey()
                 if (entry.myWhen <= now) {
-                    myEvents!!.remove(entry)
+                    myEvents.remove(entry)
                     entry.myNext = notifies
                     notifies = entry
                 } else {
@@ -148,7 +146,7 @@ internal class TimerThread(traceFactory: TraceFactory, private val clock: Clock,
             val entry = TimerQEntry(repeat, millis, target, clock)
             insertEntry(entry)
             target.setEvent(entry)
-            if (myEvents!!.firstKey() === entry) {
+            if (myEvents.firstKey() === entry) {
                 wakeup()
             }
         }

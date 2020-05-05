@@ -15,7 +15,7 @@ import org.elkoserver.util.trace.TraceFactory
  * 'shutdown' - Requests the repository to shut down, with an option to force
  * abrupt termination.
  */
-internal class AdminHandler(private val myRepository: Repository, traceFactory: TraceFactory?) : BasicProtocolHandler(traceFactory) {
+internal class AdminHandler(private val myRepository: Repository, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Get this object's reference string.  This singleton object is always

@@ -10,7 +10,7 @@ import java.util.concurrent.Callable
  *
  * @param name is the name to give to the thread created.
  */
-class Runner(name: String?, traceFactory: TraceFactory) : Runnable {
+class Runner(name: String, traceFactory: TraceFactory) : Runnable {
     private val tr: Trace = traceFactory.trace("runner")
 
     /**
@@ -65,7 +65,7 @@ class Runner(name: String?, traceFactory: TraceFactory) : Runnable {
      * Makes a Runner, and starts the thread that services its queue.
      * The name of the thread will be "Elko RunQueue".
      */
-    private constructor(traceFactory: TraceFactory) : this("Elko RunQueue", traceFactory) {}
+    private constructor(traceFactory: TraceFactory) : this("Elko RunQueue", traceFactory)
 
     /**
      * Queues something for this Runnable's thread to do.  May be called
@@ -139,29 +139,28 @@ class Runner(name: String?, traceFactory: TraceFactory) : Runnable {
                         ++msgCount
                     }
                 }
-                if (todo != null) {
-                    continue
-                }
-                /* We can't sleep by waiting on the runLock (see myNotifyLock)
-                   but we have to release the runLock while we're asleep, so
-                   our sleepage logic is here, outside the above synchronized
-                   block. */
-                synchronized(myNotifyLock) {
+                if (todo == null) {
+                    /* We can't sleep by waiting on the runLock (see myNotifyLock)
+                               but we have to release the runLock while we're asleep, so
+                               our sleepage logic is here, outside the above synchronized
+                               block. */
+                    synchronized(myNotifyLock) {
 
-                    /* More elements could have arrived in the meantime, so
-                       check again after grabbing myNotifyLock. */
-                    if (!myQ.hasMoreElements()) {
-                        if (tr.debug) {
-                            tr.debugm("RunQ empty after $msgCount messages.  sleeping now.")
-                        }
-                        msgCount = 0
-                        myNeedsNotify = true
-                        try {
-                            waitForMore()
-                        } catch (e: InterruptedException) {
-                            /* ignore */
-                        } finally {
-                            myNeedsNotify = false
+                        /* More elements could have arrived in the meantime, so
+                                   check again after grabbing myNotifyLock. */
+                        if (!myQ.hasMoreElements()) {
+                            if (tr.debug) {
+                                tr.debugm("RunQ empty after $msgCount messages.  sleeping now.")
+                            }
+                            msgCount = 0
+                            myNeedsNotify = true
+                            try {
+                                waitForMore()
+                            } catch (e: InterruptedException) {
+                                /* ignore */
+                            } finally {
+                                myNeedsNotify = false
+                            }
                         }
                     }
                 }

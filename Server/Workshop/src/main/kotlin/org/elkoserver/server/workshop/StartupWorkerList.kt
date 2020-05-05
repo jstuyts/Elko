@@ -33,7 +33,7 @@ internal class StartupWorkerList @JSONMethod("workers") constructor(private val 
             if (obj != null) {
                 if (obj is WorkerObject) {
                     tr.eventi("loading worker object '" + myElem.ref + "' as '" + myElem.key + "'")
-                    myWorkshop.addWorkerObject(myElem.key, (obj as WorkerObject?)!!)
+                    myWorkshop.addWorkerObject(myElem.key, obj)
                 } else {
                     tr.errori("alleged worker object '" + myElem.ref + "' is not actually a WorkerObject, ignoring it")
                 }

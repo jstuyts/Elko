@@ -19,8 +19,8 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myFactory  Factory of the listener that accepted the connection.
  * @param tr  Trace object for diagnostics.
  */
-internal class DirectorActor(connection: Connection?, private val myFactory: DirectorActorFactory,
-                             private val tr: Trace, traceFactory: TraceFactory?) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+internal class DirectorActor(connection: Connection, private val myFactory: DirectorActorFactory,
+                             private val tr: Trace, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
     private val myDirector = myFactory.director()
 
     /** True if actor has been disconnected.  */
@@ -60,8 +60,7 @@ internal class DirectorActor(connection: Connection?, private val myFactory: Dir
     /**
      * Do the actual work of authorizing an actor.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc,
-                        label: String): Boolean {
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
         myLabel = label
         var success = false
         if (myFactory.verifyAuthorization(auth)) {
@@ -102,12 +101,8 @@ internal class DirectorActor(connection: Connection?, private val myFactory: Dir
     override fun doDisconnect() {
         if (!amLoggedOut) {
             tr.eventm("disconnecting $this")
-            if (myProvider != null) {
-                myProvider!!.doDisconnect()
-            }
-            if (myAdmin != null) {
-                myAdmin!!.doDisconnect()
-            }
+            myProvider?.doDisconnect()
+            myAdmin?.doDisconnect()
             amLoggedOut = true
             close()
         }

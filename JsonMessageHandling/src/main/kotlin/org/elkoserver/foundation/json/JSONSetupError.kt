@@ -11,12 +11,12 @@ internal class JSONSetupError : Error {
     /**
      * Construct a JSONSetupError with no specified detail message.
      */
-    constructor() : super() {}
+    constructor() : super()
 
     /**
      * Construct a JSONSetupError with the specified detail message.
      *
      * @param message  The detail message.
      */
-    constructor(message: String?) : super(message) {}
+    constructor(message: String?) : super(message)
 }

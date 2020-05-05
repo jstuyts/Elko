@@ -94,7 +94,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
      * @param handler  Handler to be called with the actor description object
      * when retrieved.
      */
-    fun getActor(actorID: String, handler: Consumer<Any?>?) {
+    fun getActor(actorID: String, handler: Consumer<Any?>) {
         myODB!!.getObject("a-$actorID", null, handler)
     }
 
@@ -105,7 +105,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
      * @param handler  Handler to be called with place description object when
      * retrieved.
      */
-    fun getPlace(name: String, handler: Consumer<Any?>?) {
+    fun getPlace(name: String, handler: Consumer<Any?>) {
         myODB!!.getObject("p-$name", null, handler)
     }
 

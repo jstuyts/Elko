@@ -18,8 +18,8 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myFactory  The factory that created this actor.
  * @param tr  Trace object for diagnostics.
  */
-internal class BrokerActor(connection: Connection?, private val myFactory: BrokerActorFactory,
-                           private val tr: Trace, traceFactory: TraceFactory?) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+internal class BrokerActor(connection: Connection, private val myFactory: BrokerActorFactory,
+                           private val tr: Trace, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
 
     /** The broker itself.  */
     private val myBroker: Broker = myFactory.broker()
@@ -50,7 +50,7 @@ internal class BrokerActor(connection: Connection?, private val myFactory: Broke
     /**
      * Do the actual work of authorizing an actor.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc, label: String): Boolean {
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
         var success = false
         if (myFactory.verifyAuthorization(auth)) {
             if (handler is AdminHandler) {

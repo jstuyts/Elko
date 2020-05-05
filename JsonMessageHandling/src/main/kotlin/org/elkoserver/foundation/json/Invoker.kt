@@ -60,7 +60,7 @@ internal abstract class Invoker(method: Member, private val myParamTypes: Array<
      * @throws MessageHandlerException if there was a problem in the execution
      * of the invoked method.
      */
-    fun apply(target: Any?, firstParam: Any?, parameters: Set<Map.Entry<String, Any?>>, resolver: TypeResolver): Any? {
+    fun apply(target: Any?, firstParam: Any?, parameters: Set<Map.Entry<String, Any?>>, resolver: TypeResolver?): Any? {
         val firstIndex = if (firstParam == null) 0 else 1
         val params = arrayOfNulls<Any>(myParamTypes.size)
         for ((paramName, value) in parameters) {
@@ -71,15 +71,15 @@ internal abstract class Invoker(method: Member, private val myParamTypes: Array<
                         paramName != "ref" && paramName != "_id") {
                     traceFactory.comm.warningm("ignored unknown parameter '$paramName'")
                 }
-                continue
-            }
-            val paramType = myParamTypes[paramNum]
-            if (value != null) {
-                val param = packParam(paramType, value, resolver)
-                if (param == null) {
-                    throw JSONInvocationException("parameter '$paramName' should be type $paramType")
-                } else {
-                    params[paramNum] = param
+            } else {
+                val paramType = myParamTypes[paramNum]
+                if (value != null) {
+                    val param = packParam(paramType, value, resolver!!)
+                    if (param == null) {
+                        throw JSONInvocationException("parameter '$paramName' should be type $paramType")
+                    } else {
+                        params[paramNum] = param
+                    }
                 }
             }
         }
@@ -239,8 +239,7 @@ internal abstract class Invoker(method: Member, private val myParamTypes: Array<
             if (paramType == JsonObject::class.java) {
                 actualValue
             } else {
-                decode(paramType, actualValue,
-                        resolver, traceFactory, clock)
+                decode(paramType, actualValue, resolver, traceFactory, clock)
             }
         } else if (valueType == paramType) {
             value

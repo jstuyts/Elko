@@ -19,7 +19,7 @@ import kotlin.math.abs
  *
  * @param myDirector  The director object for this handler.
  */
-internal open class UserHandler(private val myDirector: Director, traceFactory: TraceFactory?) : BasicProtocolHandler(traceFactory) {
+internal open class UserHandler(private val myDirector: Director, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Obtain the director object for this server.

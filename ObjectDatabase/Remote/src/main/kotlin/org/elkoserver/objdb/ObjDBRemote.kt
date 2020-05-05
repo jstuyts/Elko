@@ -158,7 +158,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * be the object requested, or null if the object could not be
      * retrieved.
      */
-    override fun getObject(ref: String, collectionName: String?, handler: Consumer<Any?>?) {
+    override fun getObject(ref: String, collectionName: String?, handler: Consumer<Any?>) {
         newRequest(PendingRequest.getReq(ref, collectionName, handler))
     }
 
@@ -300,7 +300,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * be an array of the object(s) requested, or null if no objects could
      * be retrieved.
      */
-    override fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>?) {
+    override fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>) {
         newRequest(PendingRequest.queryReq(template, collectionName, maxResults, handler))
     }
 
@@ -335,7 +335,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
         addClass("stati", ResultDesc::class.java)
         myDispatcher = MessageDispatcher(this, traceFactory, clock)
         myDispatcher.addClass(ODBActor::class.java)
-        myMessageHandlerFactory = MessageHandlerFactory { conn: Connection? ->
+        myMessageHandlerFactory = MessageHandlerFactory { conn: Connection ->
             ODBActor(conn, this@ObjDBRemote, localName, myRepHost!!, myDispatcher, traceFactory)
         }
         loadClassDesc(props.getProperty("$propRoot.classdesc"))

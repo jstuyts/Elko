@@ -16,7 +16,7 @@ interface ObjDB : TypeResolver {
      * @param tag  The JSON object type tag string.
      * @param type  The class that 'tag' labels.
      */
-    fun addClass(tag: String?, type: Class<*>)
+    fun addClass(tag: String, type: Class<*>)
 
     /**
      * Fetch an object from the object database.
@@ -28,7 +28,7 @@ interface ObjDB : TypeResolver {
      * be the object requested, or null if the object could not be
      * retrieved.
      */
-    fun getObject(ref: String, collectionName: String?, handler: Consumer<Any?>?)
+    fun getObject(ref: String, collectionName: String?, handler: Consumer<Any?>)
 
     /**
      * Store an object into the object database.
@@ -57,7 +57,7 @@ interface ObjDB : TypeResolver {
      * be an array of the object(s) requested, or null if no objects could
      * be retrieved.
      */
-    fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>?)
+    fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>)
 
     /**
      * Delete an object from the object database.  It is not considered an

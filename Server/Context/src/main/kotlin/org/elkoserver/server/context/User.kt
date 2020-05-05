@@ -315,7 +315,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @param contextRef  The ref of the context to push them to.
      */
-    fun pushNewContext(contextRef: String?) {
+    fun pushNewContext(contextRef: String) {
         assertActivated { it.pushNewContext(this, contextRef) }
     }
 
@@ -336,8 +336,8 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param to  Where to send the description.
      * @param maker  Maker object to address the message(s) to.
      */
-    override fun sendObjectDescription(to: Deliverer?, maker: Referenceable) {
-        sendUserDescription(to!!, maker, false)
+    override fun sendObjectDescription(to: Deliverer, maker: Referenceable) {
+        sendUserDescription(to, maker, false)
     }
 
     /**

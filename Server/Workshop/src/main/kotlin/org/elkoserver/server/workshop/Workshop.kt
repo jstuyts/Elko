@@ -63,7 +63,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * @param key  Name by which this object will be known within the server
      * @param worker  The object itself
      */
-    fun addWorkerObject(key: String?, worker: WorkerObject) {
+    fun addWorkerObject(key: String, worker: WorkerObject) {
         worker.activate(key, this)
     }
 
@@ -226,7 +226,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * the operation; the result will be null if the operation suceeded, or
      * an error string if the operation failed.
      */
-    fun updateObject(ref: String, version: Int, `object`: Encodable, resultHandler: Consumer<Any?>?) {
+    fun updateObject(ref: String, version: Int, `object`: Encodable, resultHandler: Consumer<Any?>) {
         myODB.updateObject(ref, version, `object`, null, resultHandler)
     }
 

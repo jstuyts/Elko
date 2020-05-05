@@ -18,8 +18,8 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myFactory  The factory that created this actor.
  * @param tr  Trace object for diagnostics.
  */
-internal class RepositoryActor(connection: Connection?, private val myFactory: RepositoryActorFactory,
-                               private val tr: Trace, traceFactory: TraceFactory?) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+internal class RepositoryActor(connection: Connection, private val myFactory: RepositoryActorFactory,
+                               private val tr: Trace, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
     private val myRepository = myFactory.myRepository
 
     /** True if actor has been disconnected.  */
@@ -48,8 +48,7 @@ internal class RepositoryActor(connection: Connection?, private val myFactory: R
     /**
      * Do the actual work of authorizing an actor.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc,
-                        label: String): Boolean {
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
         myLabel = label
         var success = false
         if (myFactory.verifyAuthorization(auth)) {

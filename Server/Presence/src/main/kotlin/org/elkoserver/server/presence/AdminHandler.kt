@@ -25,7 +25,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param myPresenceServer  The presence server administered by this handler
  */
-internal class AdminHandler(private val myPresenceServer: PresenceServer, traceFactory: TraceFactory?) : BasicProtocolHandler(traceFactory) {
+internal class AdminHandler(private val myPresenceServer: PresenceServer, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -114,7 +114,7 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, traceF
     @JSONMethod("domain", "conf")
     fun update(from: PresenceActor, domain: String, conf: JsonObject) {
         from.ensureAuthorizedAdmin()
-        myPresenceServer.updateDomain(domain!!, conf!!, from)
+        myPresenceServer.updateDomain(domain, conf, from)
     }
 
     companion object {

@@ -39,7 +39,7 @@ class ActorDesc : Encodable {
         private val theRandom = SecureRandom()
 
         /** Object to SHA hash passwords.  */
-        private var theSHA: MessageDigest? = null
+        private val theSHA: MessageDigest
 
         init {
             theSHA = try {
@@ -89,13 +89,15 @@ class ActorDesc : Encodable {
         myInternalID = optInternalID.value<String?>(null)
         myName = optName.value<String?>(null)
         myPassword = optPassword.value<String?>(null)
-        if (myPassword == null) {
+        val currentPassword = myPassword
+        if (currentPassword == null) {
             mySalt = null
         } else {
-            mySalt = ByteArray(4)
+            val salt = ByteArray(4)
+            mySalt = salt
             for (i in 0..3) {
-                val frag = myPassword!!.substring(i * 2, i * 2 + 2)
-                mySalt!![i] = (frag.toInt(16) and 0xFF).toByte()
+                val frag = currentPassword.substring(i * 2, i * 2 + 2)
+                salt[i] = (frag.toInt(16) and 0xFF).toByte()
             }
         }
         myCanSetPass = optCanSetPass.value(true)
@@ -137,13 +139,13 @@ class ActorDesc : Encodable {
      * @param salt  Random salt to impede dictionary attacks.
      * @param password  The password to hash.
      */
-    private fun hashPassword(salt: ByteArray?, password: String?): String {
-        theSHA!!.update(salt)
-        theSHA!!.update((password ?: "").toByteArray())
-        val hash = theSHA!!.digest()
+    private fun hashPassword(salt: ByteArray, password: String?): String {
+        theSHA.update(salt)
+        theSHA.update((password ?: "").toByteArray())
+        val hash = theSHA.digest()
         val encoded = CharArray(hash.size * 2 + 8)
         for (i in 0..3) {
-            encoded[i * 2] = Integer.toHexString(salt!![i].and(0xF0.toByte()).toInt() shr 4)[0]
+            encoded[i * 2] = Integer.toHexString(salt[i].and(0xF0.toByte()).toInt() shr 4)[0]
             encoded[i * 2 + 1] = Integer.toHexString(salt[i].and(0x0F.toByte()).toInt())[0]
         }
         for (i in hash.indices) {
@@ -229,9 +231,10 @@ class ActorDesc : Encodable {
             mySalt = null
             myPassword = null
         } else {
-            mySalt = ByteArray(4)
+            val salt = ByteArray(4)
+            mySalt = salt
             theRandom.nextBytes(mySalt)
-            myPassword = hashPassword(mySalt, password)
+            myPassword = hashPassword(salt, password)
         }
     }
 
@@ -246,7 +249,7 @@ class ActorDesc : Encodable {
         return if (myPassword == null) {
             true
         } else {
-            myPassword == hashPassword(mySalt, password ?: "")
+            myPassword == hashPassword(mySalt!!, password ?: "")
         }
     }
 }

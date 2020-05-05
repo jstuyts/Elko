@@ -29,7 +29,7 @@ import java.util.function.Consumer
  * @param tr  Trace object for diagnostics.
  */
 class UserActor(private val myConnection: Connection, private val myContextor: Contextor, private val amAuthRequired: Boolean,
-                private val myProtocol: String, private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory?) : RoutingActor(myConnection, myContextor, traceFactory), SourceRetargeter, BasicProtocolActor {
+                private val myProtocol: String, private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory) : RoutingActor(myConnection, myContextor, traceFactory), SourceRetargeter, BasicProtocolActor {
     /** The users this actor is the actor for, by context.  */
     private val myUsers: MutableMap<Context, User> = HashMap()
 
@@ -92,7 +92,7 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
      * allowed to proceed, false if it did not and the session should be
      * disconnected.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc, label: String) = false
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String) = false
 
     /**
      * Obtain this user actors's connection ID.
@@ -137,8 +137,9 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
         var actualUserRef = userRef
         var actualName = name
         tr.eventi("attempting to enter context $contextRef")
-        if (myEntryTimeout != null) {
-            myEntryTimeout!!.cancel()
+        val currentEntryTimeout = myEntryTimeout
+        if (currentEntryTimeout != null) {
+            currentEntryTimeout.cancel()
             myEntryTimeout = null
         }
         if (debug) {
@@ -174,8 +175,7 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
                 val reservation = if (isEphemeral) {
                     myContextor.lookupReservation(null, contextRef, auth)
                 } else {
-                    myContextor.lookupReservation(actualUserRef, contextRef,
-                            auth)
+                    myContextor.lookupReservation(actualUserRef, contextRef, auth)
                 }
                 if (reservation == null) {
                     abruptExit("invalid reservation", "badres")
@@ -222,32 +222,36 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
                 myContext = obj
             }
             if (myComponentCount == 2) {
-                if (myUser == null) {
+                val currentUser = myUser
+                if (currentUser == null) {
                     abruptExit("invalid user $myUserRef", "baduser")
-                } else if (myContext == null) {
-                    abruptExit("invalid context $myContextRef", "badcontext")
                 } else {
-                    if (myUserRef == null) {
-                        myUserRef = myUser!!.ref()
-                    }
-                    if (myUserRef == null) {
-                        myUserRef = myContextor.uniqueID("u")
-                    }
-                    var name = myUser!!.name()
-                    if (name == null) {
-                        name = myEntryName!!
-                    }
-                    val subID = myContextor.uniqueID("")
-                    val ref = myUserRef + subID
-                    myUsers[myContext!!] = myUser!!
-                    myUser!!.activate(ref, subID, myContextor, name, mySess,
-                            amEphemeral, amAnonymous, this@UserActor,
-                            tr)
-                    myUser!!.checkpoint()
-                    val problem = myUser!!.enterContext(myContext!!)
-                    myContextor.noteUser(myUser!!, true)
-                    if (problem != null) {
-                        myUser!!.exitContext(problem, problem, false)
+                    val currentContext = myContext
+                    if (currentContext == null) {
+                        abruptExit("invalid context $myContextRef", "badcontext")
+                    } else {
+                        if (myUserRef == null) {
+                            myUserRef = currentUser.ref()
+                        }
+                        if (myUserRef == null) {
+                            myUserRef = myContextor.uniqueID("u")
+                        }
+                        var name = currentUser.name()
+                        if (name == null) {
+                            name = myEntryName!!
+                        }
+                        val subID = myContextor.uniqueID("")
+                        val ref = myUserRef + subID
+                        myUsers[currentContext] = currentUser
+                        currentUser.activate(ref, subID, myContextor, name, mySess,
+                                amEphemeral, amAnonymous, this@UserActor,
+                                tr)
+                        currentUser.checkpoint()
+                        val problem = currentUser.enterContext(currentContext)
+                        myContextor.noteUser(currentUser, true)
+                        if (problem != null) {
+                            currentUser.exitContext(problem, problem, false)
+                        }
                     }
                 }
             }

@@ -57,7 +57,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
     @JSONMethod("protocol", "hostport")
     fun address(from: DirectorActor, protocol: String, hostPort: String) {
         from.ensureAuthorizedProvider()
-        from.provider()!!.addProtocol(protocol!!, hostPort!!)
+        from.provider()!!.addProtocol(protocol, hostPort)
     }
 
     /**
@@ -85,9 +85,9 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
             val maxCapacity = optMaxCapacity.value(-1)
             val baseCapacity = optBaseCapacity.value(maxCapacity)
             val restricted = optRestricted.value(false)
-            from.provider()!!.noteContextOpen(context!!, mine, maxCapacity, baseCapacity, restricted)
+            from.provider()!!.noteContextOpen(context, mine, maxCapacity, baseCapacity, restricted)
         } else {
-            from.provider()!!.noteContextClose(context!!)
+            from.provider()!!.noteContextClose(context)
         }
     }
 
@@ -136,7 +136,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
     @JSONMethod("context", "user", "msg")
     fun relay(from: DirectorActor, context: OptString, user: OptString, msg: JsonObject) {
         from.ensureAuthorizedProvider()
-        director().doRelay(from, context!!, user!!, msg!!)
+        director().doRelay(from, context, user, msg)
     }
 
     /**
@@ -153,9 +153,9 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
     fun user(from: DirectorActor, context: String, user: String, on: Boolean) {
         from.ensureAuthorizedProvider()
         if (on) {
-            from.provider()!!.noteUserEntry(context!!, user!!)
+            from.provider()!!.noteUserEntry(context, user)
         } else {
-            from.provider()!!.noteUserExit(context!!, user!!)
+            from.provider()!!.noteUserExit(context, user)
         }
     }
 
@@ -173,6 +173,6 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory) :
     @JSONMethod("context", "capacity", "restricted")
     fun willserve(from: DirectorActor, context: String, capacity: OptInteger, restricted: OptBoolean) {
         from.ensureAuthorizedProvider()
-        from.provider()!!.addService(context!!, capacity.value(-1), restricted.value(false))
+        from.provider()!!.addService(context, capacity.value(-1), restricted.value(false))
     }
 }

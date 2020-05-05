@@ -152,14 +152,16 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
      * unnecessary byte array allocation and copying.
      */
     fun preserveBuffers() {
-        if (myClientBuffer != null) {
-            if (myWorkingBuffer === myClientBuffer) {
-                val saveBuffer = myWorkingBuffer!!.copyOfRange(myWorkingBufferIdx, myWorkingBufferLength)
+        val currentClientBuffer = myClientBuffer
+        if (currentClientBuffer != null) {
+            val currentWorkingBuffer = myWorkingBuffer
+            if (currentWorkingBuffer === currentClientBuffer) {
+                val saveBuffer = currentWorkingBuffer.copyOfRange(myWorkingBufferIdx, myWorkingBufferLength)
                 myWorkingBuffer = saveBuffer
                 myWorkingBufferLength = saveBuffer.size
                 myWorkingBufferIdx = 0
             } else {
-                val saveBuffer = byteArrayOf(*myClientBuffer!!)
+                val saveBuffer = byteArrayOf(*currentClientBuffer)
                 myPendingBuffers.add(saveBuffer)
             }
             myClientBuffer = null

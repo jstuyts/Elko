@@ -1,6 +1,5 @@
 package org.elkoserver.server.gatekeeper
 
-import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.actor.NonRoutingActor
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.MessageDispatcher
@@ -26,8 +25,8 @@ import java.util.function.Consumer
  * @param myFactory  The factory that created this actor.
  * @param director  Host description for the director connected to.
  */
-internal class DirectorActor(connection: Connection?, dispatcher: MessageDispatcher?,
-                             private val myFactory: DirectorActorFactory, director: HostDesc, traceFactory: TraceFactory?) : NonRoutingActor(connection, dispatcher, traceFactory) {
+internal class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
+                             private val myFactory: DirectorActorFactory, director: HostDesc, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
 
     /** Flag that this connection is still active.  */
     private var amLive = true
@@ -137,6 +136,6 @@ internal class DirectorActor(connection: Connection?, dispatcher: MessageDispatc
 
     init {
         myFactory.setDirector(this)
-        send(Actor.msgAuth(this, director.auth(), myFactory.gatekeeper().serverName()))
+        send(msgAuth(this, director.auth(), myFactory.gatekeeper().serverName()))
     }
 }

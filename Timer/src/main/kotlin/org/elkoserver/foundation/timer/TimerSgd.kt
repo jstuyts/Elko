@@ -19,7 +19,7 @@ class TimerSgd(provided: Provided, configuration: ObjectGraphConfiguration = Obj
     }
     val timer by Once { Timer(req(timerThread)) }
 
-    internal val timerThread by Once { TimerThread(req(provided.traceFactory()), req(provided.clock()), req(exceptionReporter)) }
+    internal val timerThread by Once { TimerThread(req(provided.clock()), req(exceptionReporter)) }
             .init { it.start() }
 
     val exceptionTrace by Once { req(provided.traceFactory()).exception }

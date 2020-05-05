@@ -64,9 +64,9 @@ class ModSet private constructor() {
      *
      * @param object  The object to which these mods are to be attached.
      */
-    fun attachTo(`object`: BasicObject?) {
+    fun attachTo(`object`: BasicObject) {
         for (mod in myMods.values) {
-            mod.attachTo(`object`!!)
+            mod.attachTo(`object`)
         }
     }
 

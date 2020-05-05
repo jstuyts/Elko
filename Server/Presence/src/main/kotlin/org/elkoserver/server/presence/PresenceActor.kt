@@ -19,8 +19,8 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myFactory  The factory that created this actor.
  * @param tr  Trace object for diagnostics.
  */
-internal class PresenceActor(connection: Connection?, private val myFactory: PresenceActorFactory,
-                             private val tr: Trace, traceFactory: TraceFactory?) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+internal class PresenceActor(connection: Connection, private val myFactory: PresenceActorFactory,
+                             private val tr: Trace, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
     /** The presence server itself. */
     private val myPresenceServer: PresenceServer = myFactory.myPresenceServer
 
@@ -50,8 +50,7 @@ internal class PresenceActor(connection: Connection?, private val myFactory: Pre
     /**
      * Do the actual work of authorizing an actor.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc,
-                        label: String): Boolean {
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
         var success = false
         if (myFactory.verifyAuthorization(auth)) {
             if (handler is AdminHandler) {
@@ -77,9 +76,7 @@ internal class PresenceActor(connection: Connection?, private val myFactory: Pre
     override fun doDisconnect() {
         if (!amLoggedOut) {
             tr.eventm("disconnecting $this")
-            if (myClient != null) {
-                myClient!!.doDisconnect()
-            }
+            myClient?.doDisconnect()
             myPresenceServer.removeActor(this)
             amLoggedOut = true
             close()
@@ -92,7 +89,7 @@ internal class PresenceActor(connection: Connection?, private val myFactory: Pre
      * @return the Client object associated with this actor, or null if this
      * actor isn't a client.
      */
-    fun client() = myClient!!
+    fun client() = myClient
 
     /**
      * Guard function to guarantee that an operation is being attempted by an

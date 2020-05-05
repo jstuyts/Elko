@@ -294,8 +294,8 @@ class Item : BasicObject {
      * @param to  Where to send the description.
      * @param maker  Maker object to address the message(s) to.
      */
-    override fun sendObjectDescription(to: Deliverer?, maker: Referenceable) {
-        sendItemDescription(to!!, maker, false)
+    override fun sendObjectDescription(to: Deliverer, maker: Referenceable) {
+        sendItemDescription(to, maker, false)
     }
 
     /**
@@ -361,12 +361,14 @@ class Item : BasicObject {
      * @return the user in which this item is contained, at whatever level of
      * container nesting, or null if it is not contained by a user.
      */
-    override fun user() =
-            if (myContainer == null) {
-                null
-            } else {
-                myContainer!!.user()
-            }
+    override fun user(): User? {
+        val currentContainer = myContainer
+        return if (currentContainer == null) {
+            null
+        } else {
+            currentContainer.user()
+        }
+    }
 
     /**
      * Message handler for the 'delete' message.

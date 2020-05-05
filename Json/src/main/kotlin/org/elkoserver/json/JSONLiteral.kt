@@ -524,8 +524,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
          * ignored, false if everything worked fine.
          */
         @JvmStatic
-        fun appendValueString(buf: StringBuilder, value: Any?,
-                              control: EncodeControl?): Boolean {
+        fun appendValueString(buf: StringBuilder, value: Any?, control: EncodeControl): Boolean {
             if (value == null) {
                 /* Null is a special value all its own */
                 buf.append("null")
@@ -558,7 +557,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
                 buf.append(value.toString())
             } else if (value is Encodable) {
                 /* If the value knows how, ask it to encode itself */
-                val encoded = value.encode(control!!)
+                val encoded = value.encode(control)
                 if (encoded != null) {
                     val result = encoded.sendableString()
                     buf.append(result)
@@ -572,7 +571,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
             } else if (value is JsonObject) {
                 JsonObjectSerialization.encodeLiteral(value, buf, control)
             } else if (value is JsonArray) {
-                encodeLiteral(value, buf, control!!)
+                encodeLiteral(value, buf, control)
             } else {
                 /* Else just convert the value to its natural string form */
                 buf.append(value.toString())

@@ -62,8 +62,7 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
             val start = myStringBuilder.length
             val starting = myState == INITIAL
             beginElement()
-            if (appendValueString(myStringBuilder, value,
-                            myControl)) {
+            if (appendValueString(myStringBuilder, value, myControl)) {
                 myStringBuilder.setLength(start)
                 if (starting) {
                     myState = INITIAL
