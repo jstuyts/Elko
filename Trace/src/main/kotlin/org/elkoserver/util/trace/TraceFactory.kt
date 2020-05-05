@@ -14,7 +14,6 @@ class TraceFactory internal constructor(private val controller: TraceController,
     /** Trace object for the 'comm' (communications) subsystem.  In particular,
      * message traffic is logged when the trace level of this object is set to
      * <tt>EVENT</tt> or above.  */
-    @JvmField
     val comm = trace("comm")
 
     /** Trace object for exceptions.  */
@@ -22,7 +21,6 @@ class TraceFactory internal constructor(private val controller: TraceController,
 
     /** Trace object for the 'startup' subsystem.  This is used for log
      * messages that need to be generated as a part of server boot.  */
-    @JvmField
     val startup = trace("startup")
 
     /**

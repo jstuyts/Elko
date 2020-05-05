@@ -82,7 +82,6 @@ class HostDesc(protocol: String?, isSecure: Boolean,
          * @return a new HostDesc object as specified by 'props', or null if no such
          * host was described.
          */
-        @JvmStatic
         fun fromProperties(props: ElkoProperties,
                            propRoot: String, traceFactory: TraceFactory): HostDesc? {
             val host = props.getProperty("$propRoot.host")

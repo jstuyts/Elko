@@ -398,7 +398,6 @@ class RTCPSessionConnection private constructor(
          * one gratuitous random number here forces the initialization cost to be
          * paid at startup time as was desired.
          */
-        @JvmStatic
         fun initializeRNG() {
             /* Get the initialization delay over right now */
             theRandom.nextBoolean()

@@ -47,12 +47,10 @@ sealed class EncodeControl {
     companion object {
         /** A global, encoding control representing the intention to encode for the
          * client.  */
-        @JvmField
         val forClient: EncodeControl = ForClientEncodeControl
 
         /** A global, encoding control representing the intention to encode for the
          * repository.  */
-        @JvmField
         val forRepository: EncodeControl = ForRepositoryEncodeControl
     }
 }

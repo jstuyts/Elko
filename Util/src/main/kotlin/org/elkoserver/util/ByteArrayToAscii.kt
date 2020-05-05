@@ -20,7 +20,6 @@ object ByteArrayToAscii {
      * @return a String rendering the indicated bytes in a legible form
      * suitable for logging.
      */
-    @JvmStatic
     fun byteArrayToASCII(buf: ByteArray, offset: Int, length: Int): String {
         val chars = StringBuilder(length)
         for (i in 0 until length) {

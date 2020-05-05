@@ -142,7 +142,6 @@ class ModSet private constructor() {
          *
          * @return the set (created if necessary), with 'mod' in it.
          */
-        @JvmStatic
         fun withMod(modSet: ModSet?, mod: Mod) =
                 (modSet ?: ModSet()).apply {
                     addMod(mod)

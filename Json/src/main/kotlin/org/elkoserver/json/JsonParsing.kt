@@ -6,7 +6,6 @@ import java.io.IOException
 import java.io.Reader
 
 object JsonParsing {
-    @JvmStatic
     @Throws(JsonParserException::class)
     fun jsonObjectFromString(string: String): JsonObject? {
         val result: JsonObject?
@@ -19,7 +18,6 @@ object JsonParsing {
         return result
     }
 
-    @JvmStatic
     @Throws(JsonParserException::class)
     fun jsonObjectFromReader(reader: Reader): JsonObject? {
         val result: JsonObject?

@@ -19,7 +19,6 @@ object Msg {
      * @param target  Object the message is being sent to (the object being
      * deleted).
      */
-    @JvmStatic
     fun msgDelete(target: Referenceable) =
             JSONLiteralFactory.targetVerb(target, "delete").apply {
                 finish()
@@ -48,7 +47,6 @@ object Msg {
      * @param whyCode  Machine readable tag indicating the reason for the exit.
      * @param reload  True if client should attempt a reload.
      */
-    @JvmStatic
     fun msgExit(target: Referenceable, why: String?, whyCode: String?, reload: Boolean) =
             JSONLiteralFactory.targetVerb(target, "exit").apply {
                 addParameterOpt("why", why)
@@ -70,8 +68,6 @@ object Msg {
      * @param you  If true, object being made is its recipient.
      * @param sess  The client context session ID, or null if there is none.
      */
-    @JvmOverloads
-    @JvmStatic
     fun msgMake(target: Referenceable, obj: BasicObject?, maker: User? = null, you: Boolean = false, sess: String? = null) =
             JSONLiteralFactory.targetVerb(target, "make").apply {
                 addParameter("obj", obj as Encodable?)
@@ -98,7 +94,6 @@ object Msg {
      * @param obj  The object that is to be created by the client.
      * @param sess  The client context session ID, or null if there is none.
      */
-    @JvmStatic
     fun msgMake(target: Referenceable, obj: BasicObject?, sess: String?) = msgMake(target, obj, null, false, sess)
 
     /**
@@ -130,7 +125,6 @@ object Msg {
      *
      * @param target  Object the message is being sent to.
      */
-    @JvmStatic
     fun msgReady(target: Referenceable) =
             JSONLiteralFactory.targetVerb(target, "ready").apply {
                 finish()
@@ -145,7 +139,6 @@ object Msg {
      * not relevant.  This normally indicates the user who is speaking.
      * @param text  The text to be said.
      */
-    @JvmStatic
     fun msgSay(target: Referenceable, from: Referenceable?, text: String?) =
             JSONLiteralFactory.targetVerb(target, "say").apply {
                 addParameterOpt("from", from)

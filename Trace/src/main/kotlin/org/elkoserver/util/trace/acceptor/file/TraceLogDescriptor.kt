@@ -36,7 +36,6 @@ internal class TraceLogDescriptor(private val clock: Clock) : Cloneable {
     private var myPersonalFile: String? = null
 
     /** The stream open to the log.  Clients print to this.  */
-    @JvmField
     var stream: PrintStream? = null
 
     /** The log file to open on rollover.  */

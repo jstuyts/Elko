@@ -3,13 +3,13 @@ package org.elkoserver.util;
 import com.grack.nanojson.JsonParserException;
 import org.elkoserver.json.JSONDecodingException;
 import org.elkoserver.json.JsonObject;
+import org.elkoserver.json.JsonParsing;
 
 import java.io.*;
 import java.util.LinkedList;
 
 import static java.nio.charset.Charset.defaultCharset;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.elkoserver.json.JsonParsing.jsonObjectFromString;
 
 
 /**
@@ -80,7 +80,7 @@ class JSONValidator {
             }
         } while (line != null);
         try {
-            JsonObject obj = jsonObjectFromString(inBuf.toString());
+            JsonObject obj = JsonParsing.INSTANCE.jsonObjectFromString(inBuf.toString());
             return obj.getString("ref");
         } catch (JsonParserException e) {
             e("bad " + source + " syntax error: " + e.getMessage());

@@ -26,7 +26,6 @@ abstract class OptionalParameter internal constructor( var isPresent: Boolean) {
          *
          * @return the canonical missing value object for 'type'.
          */
-        @JvmStatic
         fun missingValue(type: Class<*>): Any? {
             return if (!OptionalParameter::class.java.isAssignableFrom(type)) {
                 null

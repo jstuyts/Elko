@@ -61,19 +61,15 @@ abstract class BasicObject internal constructor(
        into the JavaDoc output, which would be bad because these are not part
        of the official interface. */
     /** Reference string for this object.  */ /* protected */
-    @JvmField
     var myRef: String? = null
 
     /** Objects contained by this object.  */ /* protected */
-    @JvmField
     var myContents: Contents? = null
 
     /** Mods attached to this object.  */ /* protected */
-    @JvmField
     var myModSet: ModSet
 
     /** The contextor for this server.  */ /* protected */
-    @JvmField
     var myContextor: Contextor? = null
 
     /** Optional handler for messages that don't have handlers.  */

@@ -37,9 +37,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
     /**
      * Begin a new literal that will be filled in incrementally.
      */
-    @JvmOverloads
-    constructor(control: EncodeControl = EncodeControl.forClient) : this(StringBuilder(1000), control) {
-    }
+    constructor(control: EncodeControl = EncodeControl.forClient) : this(StringBuilder(1000), control)
 
     fun addParameter(param: String?, jsonLiteral: JSONLiteral?) {
         addParameter(param, jsonLiteral as Any?)
@@ -523,7 +521,6 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
          * @return true if the given value could not be encoded and so should be
          * ignored, false if everything worked fine.
          */
-        @JvmStatic
         fun appendValueString(buf: StringBuilder, value: Any?, control: EncodeControl): Boolean {
             if (value == null) {
                 /* Null is a special value all its own */

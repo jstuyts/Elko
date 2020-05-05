@@ -13,7 +13,6 @@ object Communication {
      * Normally (when the flag is false), from the sender's perspective such
      * errors will be silently swallowed.
      */
-    @JvmField
     @Deprecated("Global variable")
     var TheDebugReplyFlag = false
 }

@@ -138,7 +138,6 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
          * rooted at 'propRoot' as described above, or null if no such valid
          * authorization information could be found.
          */
-        @JvmStatic
         fun fromProperties(props: ElkoProperties,
                            propRoot: String, appTrace: Trace): AuthDesc? {
             var actualPropRoot = propRoot

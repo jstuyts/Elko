@@ -189,7 +189,6 @@ class ServiceDesc(private val myService: String, private val myHostport: String?
          * Generate a JSONLiteralArray of ServiceDesc objects from a sequence of
          * them.
          */
-        @JvmStatic
         fun encodeArray(services: Iterable<ServiceDesc?>?) =
                 JSONLiteralArray().apply {
                     if (services != null) {

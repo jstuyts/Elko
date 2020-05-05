@@ -36,9 +36,7 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
      * @param control  Encode control determining what flavor of encoding
      * is being done.
      */
-    @JvmOverloads
-    constructor(control: EncodeControl = EncodeControl.forClient) : this(StringBuilder(500), control) {
-    }
+    constructor(control: EncodeControl = EncodeControl.forClient) : this(StringBuilder(500), control)
 
     /**
      * Add an element to the incomplete array literal. Note that any element

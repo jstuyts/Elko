@@ -6,10 +6,8 @@ import java.time.Clock
  * An entry in the timer event queue.
  */
 internal class TimerQEntry(internal var myRepeat: Boolean, internal var myDelta: Long, var myTarget: TimerWatcher, clock: Clock) : Comparable<TimerQEntry?> {
-    @JvmField
     var myWhen = clock.millis() + myDelta
 
-    @JvmField
     var myNext: TimerQEntry? = null
 
     override fun compareTo(other: TimerQEntry?) =

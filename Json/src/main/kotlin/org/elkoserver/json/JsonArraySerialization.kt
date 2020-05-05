@@ -8,7 +8,6 @@ object JsonArraySerialization {
      * @param control  Encode control determining what flavor of encoding
      * is being done.
      */
-    @JvmStatic
     fun encodeLiteral(array: JsonArray, buf: StringBuilder, control: EncodeControl) {
         JSONLiteralArray(buf, control).apply {
             for (element in array) {

@@ -45,7 +45,6 @@ abstract class Actor internal constructor(private val myConnection: Connection) 
          * @param auth  Authentication information to use.
          * @param label  Label to identify the entity seeking authorization.
          */
-        @JvmStatic
         fun msgAuth(target: Referenceable, auth: AuthDesc?, label: String?) = msgAuth(target.ref(), auth, label)
 
         /**
@@ -55,8 +54,7 @@ abstract class Actor internal constructor(private val myConnection: Connection) 
          * @param auth  Authentication information to use.
          * @param label  Label to identify the entity seeking authorization.
          */
-        @JvmStatic
-        protected fun msgAuth(target: String, auth: AuthDesc?, label: String?) =
+        fun msgAuth(target: String, auth: AuthDesc?, label: String?) =
                 targetVerb(target, "auth").apply {
                     addParameterOpt("auth", auth)
                     addParameterOpt("label", label)

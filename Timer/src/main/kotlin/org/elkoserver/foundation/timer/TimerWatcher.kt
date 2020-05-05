@@ -1,7 +1,6 @@
 package org.elkoserver.foundation.timer
 
 abstract class TimerWatcher {
-    @JvmField
     internal var myEvent: TimerQEntry? = null
 
     /**

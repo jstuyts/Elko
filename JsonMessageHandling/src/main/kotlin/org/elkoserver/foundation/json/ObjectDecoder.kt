@@ -97,7 +97,6 @@ class ObjectDecoder private constructor(decodeClass: Class<*>, traceFactory: Tra
          * described by 'obj', or null if the object could not be decoded for
          * some reason.
          */
-        @JvmStatic
         fun decode(baseType: Class<*>, obj: JsonObject, resolver: TypeResolver, traceFactory: TraceFactory, clock: Clock): Any? {
             var result: Any? = null
             val typeName = obj.getString("type", null)
@@ -152,7 +151,6 @@ class ObjectDecoder private constructor(decodeClass: Class<*>, traceFactory: Tra
          * described by 'str', or null if the string was syntactically malformed
          * or the object could not be decoded for some reason.
          */
-        @JvmStatic
         fun decode(baseType: Class<*>, str: String, traceFactory: TraceFactory, clock: Clock): Any? {
             return try {
                 val jsonObj = JsonParsing.jsonObjectFromString(str)!!

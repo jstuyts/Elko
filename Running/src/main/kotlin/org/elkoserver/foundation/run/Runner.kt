@@ -223,7 +223,6 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
          * If called from within a thread servicing a Runner, returns that
          * Runner.  Otherwise, returns the default Runner.
          */
-        @JvmStatic
         fun currentRunner(traceFactory: TraceFactory): Runner {
             val t = Thread.currentThread()
             return if (t is RunnerThread) {
@@ -246,7 +245,6 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
          * whether or not they are the kind of exceptions that need to escape from
          * the run loop.
          */
-        @JvmStatic
         fun throwIfMandatory(t: Throwable) {
             if (t is VirtualMachineError) {
                 throw t

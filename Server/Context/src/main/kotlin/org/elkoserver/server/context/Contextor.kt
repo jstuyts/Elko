@@ -1199,7 +1199,6 @@ class Contextor internal constructor(
      * @param ref  Reference string designating the deleted object.
      * @param handler  Completion handler.
      */
-    @JvmOverloads
     fun writeObjectDelete(ref: String, handler: Consumer<Any?>? = null) {
         myODB.removeObject(ref, null, handler)
     }
@@ -1211,7 +1210,6 @@ class Contextor internal constructor(
      * @param state  The object state to be written.
      * @param handler  Completion handler
      */
-    @JvmOverloads
     fun writeObjectState(ref: String, state: BasicObject, handler: Consumer<Any?>? = null) {
         myODB.putObject(ref, state, null, false, handler)
     }
@@ -1231,7 +1229,6 @@ class Contextor internal constructor(
          * clone reference (if it is not a clone reference, 'ref' itself will be
          * returned).
          */
-        @JvmStatic
         fun extractBaseRef(ref: String): String {
             var dash = ref.indexOf('-')
             dash = ref.indexOf('-', dash + 1)

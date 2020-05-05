@@ -6,7 +6,6 @@ import org.elkoserver.util.trace.Trace
 import java.lang.reflect.InvocationTargetException
 
 object ObjectStoreFactory {
-    @JvmStatic
     fun createAndInitializeObjectStore(props: ElkoProperties, propRoot: String, trace: Trace): ObjectStore {
         val result: ObjectStore
         val objectStoreClassName = props.getProperty("$propRoot.objstore",

@@ -76,7 +76,6 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
     companion object {
         /** Marker object representing the "contents" of objects that are not
          * allowed to be containers.  */
-        @JvmField
         val theVoidContents = Contents()
 
         /**
@@ -86,7 +85,6 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
          * @param maker  Maker object to address message to.
          * @param contents  The contents to transmit, if not null.
          */
-        @JvmStatic
         fun sendContentsDescription(to: Deliverer, maker: Referenceable,
                                     contents: Contents?) {
             contents?.sendContentsDescription(to, maker)
@@ -102,7 +100,6 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
          *
          * @return the contents (created if necessary), with 'item' in it.
          */
-        @JvmStatic
         fun withContents(contents: Contents?, item: Item) =
                 (contents ?: Contents()).apply {
                     add(item)
@@ -118,7 +115,6 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
          *
          * @return the contents, without 'item' in it.
          */
-        @JvmStatic
         fun withoutContents(contents: Contents?, item: Item) =
                 if (contents == null) {
                     null

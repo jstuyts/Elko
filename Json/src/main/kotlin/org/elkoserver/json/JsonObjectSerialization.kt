@@ -47,6 +47,5 @@ object JsonObjectSerialization {
      *
      * @return a sendable [String] representation of this object
      */
-    @JvmStatic
     fun sendableString(jsonObject: JsonObject) = literal(jsonObject, EncodeControl.forClient).sendableString()
 }

@@ -8,10 +8,8 @@ import org.elkoserver.util.trace.TraceFactory
 import java.io.IOException
 
 internal abstract class BaseConnectionSetup(label: String?, val host: String, private val auth: AuthDesc, val secure: Boolean, props: ElkoProperties, val propRoot: String, private val trServer: Trace, private val tr: Trace, protected var traceFactory: TraceFactory) : ConnectionSetup {
-    @JvmField
     val bind: String = props.getProperty("$propRoot.bind", host)
 
-    @JvmField
     var msgTrace = if (label != null) {
         traceFactory.comm.subTrace(label)
     } else {

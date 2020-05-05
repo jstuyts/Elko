@@ -441,7 +441,6 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
          * @return true if 'userName' is the name of a clone.  It is assumed to
          * be a clone name if it contains more than one '-' character.
          */
-        @JvmStatic
         fun isUserClone(userName: String) = userName.indexOf('-') != userName.lastIndexOf('-')
 
         /**
@@ -452,7 +451,6 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
          * @return the substring of 'userName' up to but not including the
          * second '-' character.
          */
-        @JvmStatic
         fun userCloneSetName(userName: String): String {
             var dash = userName.indexOf('-')
             dash = userName.indexOf('-', dash + 1)

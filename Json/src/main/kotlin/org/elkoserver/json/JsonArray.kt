@@ -5,7 +5,6 @@ import com.grack.nanojson.JsonArray
 // FIXME: This class is here because:
 // - The toString() has complex behavior. Not sure if this is only for diagnostic purposes or for production use.
 class JsonArray : Iterable<Any?> {
-    @JvmField
     val impl: JsonArray
 
     constructor() : super() {
