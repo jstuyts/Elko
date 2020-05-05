@@ -129,7 +129,7 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                         val reqContextRef = params.getString("context")
                         if (reqContextRef != null &&
                                 reqContextRef != contextRef) {
-                            contextor.appTrace().errorm( "context ref mismatch")
+                            contextor.appTrace().errorm("context ref mismatch")
                             throw IllegalStateException()
                         }
                         val reqContextTemplate = params.getString("ctmpl")
@@ -141,9 +141,8 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                         }
                         val result = decode(User::class.java, userDesc, contextor.odb(), traceFactory, clock)
                         return result as User
-                    } else {
-                        contextor.appTrace().errorm("reused nonce")
                     }
+                    contextor.appTrace().errorm("reused nonce")
                 } else {
                     contextor.appTrace().errorm("expired nonce")
                 }

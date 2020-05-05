@@ -3,9 +3,9 @@ package org.elkoserver.util.trace
 import java.time.Clock
 
 internal class TraceMessageComm(subsystem: String, level: Level,
-    private val myConn: String,
-    private val amInbound: Boolean,
-    private val myMsg: String, clock: Clock) : TraceMessage(subsystem, level, clock) {
+                                private val myConn: String,
+                                private val amInbound: Boolean,
+                                private val myMsg: String, clock: Clock) : TraceMessage(subsystem, level, clock) {
 
     override fun stringify(buffer: StringBuilder) {
         super.stringify(buffer)

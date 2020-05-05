@@ -2,7 +2,6 @@ package org.elkoserver.server.director
 
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
-import java.util.Collections
 
 /**
  * The provider facet of a director actor.  This object represents the state
@@ -101,7 +100,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
      *
      * @return a collection of this provider's open contexts.
      */
-    fun contexts() = Collections.unmodifiableCollection(myContexts.values)
+    fun contexts(): Collection<OpenContext> = myContexts.values
 
     /**
      * Clean up when the provider actor disconnects.
@@ -119,12 +118,8 @@ internal class Provider(private val myDirector: Director, private val myActor: D
      * the protocol whose name string is lexically the highest.
      */
     fun dupKey(): String? {
-        var candidateProtocol = ""
-        for (protocol in myHostPorts.keys) {
-            if (protocol > candidateProtocol) {
-                candidateProtocol = protocol
-            }
-        }
+        val candidateProtocol = myHostPorts.keys.max()
+                ?: ""
         return myHostPorts[candidateProtocol]
     }
 
@@ -144,14 +139,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
      *
      * @return true if the named user is on this provider somewhere.
      */
-    fun hasUser(user: String): Boolean {
-        for (context in myContexts.values) {
-            if (context.hasUser(user)) {
-                return true
-            }
-        }
-        return false
-    }
+    fun hasUser(user: String): Boolean = myContexts.values.any { it.hasUser(user) }
 
     /**
      * Return the host+port for reaching this provider via a given protocol.
@@ -167,7 +155,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
      *
      * @return a collection of this provider's host+ports.
      */
-    fun hostPorts() = Collections.unmodifiableCollection(myHostPorts.values)
+    fun hostPorts(): Collection<String> = myHostPorts.values
 
     /**
      * Test if this provider is unable to accept more users.
@@ -312,14 +300,14 @@ internal class Provider(private val myDirector: Director, private val myActor: D
      *
      * @return a set of this provider's protocols.
      */
-    fun protocols() = Collections.unmodifiableSet(myHostPorts.keys)
+    fun protocols(): Set<String> = myHostPorts.keys
 
     /**
      * Get a read-only view of the set of services this provider supports.
      *
      * @return a set of this provider's services.
      */
-    fun services() = Collections.unmodifiableSet(myServices)
+    fun services(): Set<String> = myServices
 
     /**
      * Set this provider's load factor.

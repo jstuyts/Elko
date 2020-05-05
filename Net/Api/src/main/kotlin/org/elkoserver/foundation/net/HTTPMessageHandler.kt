@@ -79,11 +79,11 @@ internal class HTTPMessageHandler(
         if (traceFactory.comm.verbose) {
             traceFactory.comm.verbosem("$connection $actualMessage")
         } else if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("$connection |> ${actualMessage.URI()}")
+            traceFactory.comm.debugm("$connection |> ${actualMessage.uri()}")
         }
         when (actualMessage.method()!!.toUpperCase(Locale.ENGLISH)) {
-            "GET" -> myFactory.handleGET(connection, actualMessage.URI()!!, actualMessage.isNonPersistent)
-            "POST" -> myFactory.handlePOST(connection, actualMessage.URI()!!, actualMessage.isNonPersistent, actualMessage.content())
+            "GET" -> myFactory.handleGET(connection, actualMessage.uri()!!, actualMessage.isNonPersistent)
+            "POST" -> myFactory.handlePOST(connection, actualMessage.uri()!!, actualMessage.isNonPersistent, actualMessage.content())
             "OPTIONS" -> myFactory.handleOPTIONS(connection, actualMessage)
             else -> {
                 if (traceFactory.comm.usage) {

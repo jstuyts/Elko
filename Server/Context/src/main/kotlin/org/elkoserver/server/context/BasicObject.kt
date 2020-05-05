@@ -101,7 +101,7 @@ abstract class BasicObject internal constructor(
     fun resolvePendingInit() {
         --myUnfinishedInitCount
         if (myUnfinishedInitCount <= 0) {
-            assertActivated { it.resolvePendingInit(this)  }
+            assertActivated { it.resolvePendingInit(this) }
         }
     }
 
@@ -181,9 +181,7 @@ abstract class BasicObject internal constructor(
      * @return the base reference string for this object, if it is a clone.  If
      * it is not a clone, the reference string itself will be returned.
      */
-    fun baseRef(): String {
-        return extractBaseRef(myRef!!)
-    }
+    fun baseRef(): String = extractBaseRef(myRef!!)
 
     /**
      * Checkpoint this object, its contents, and any registered codependent
@@ -371,9 +369,7 @@ abstract class BasicObject internal constructor(
      *
      * @return the mod of the given type, if there is one, else null.
      */
-    fun <TMod> getMod(type: Class<TMod>): TMod? {
-        return myModSet.getMod(type)
-    }
+    fun <TMod> getMod(type: Class<TMod>): TMod? = myModSet.getMod(type)
 
     /**
      * Obtain the user or context holding this object, regardless of how deeply
@@ -384,9 +380,7 @@ abstract class BasicObject internal constructor(
      * whatever level of container nesting, or null if it is not held by
      * anything.
      */
-    open fun holder(): BasicObject? {
-        return null
-    }
+    open fun holder(): BasicObject? = null
 
     /**
      * Test if this object is a clone.
@@ -512,7 +506,7 @@ abstract class BasicObject internal constructor(
      * @param message  The message to send.
      */
     fun sendToClones(message: JSONLiteral) {
-        assertActivated {  it.relay(this, message) }
+        assertActivated { it.relay(this, message) }
     }
 
     /**
@@ -615,7 +609,7 @@ abstract class BasicObject internal constructor(
      */
     override fun handleMessage(from: Deliverer, msg: JsonObject) {
         myDefaultDispatchTarget?.handleMessage(from, msg)
-                ?: throw MessageHandlerException("no message handler method for verb '${msg.getString("op", null)}'")
+                ?: throw MessageHandlerException("no message handler method for verb '${msg.getString<String?>("op", null)}'")
     }
     /* ----- MessageRetargeter interface ---------------------------------- */
     /**
@@ -633,7 +627,7 @@ abstract class BasicObject internal constructor(
                 @Suppress("UNCHECKED_CAST")
                 this as TTarget
             } else {
-                myModSet.getMod(type) as TTarget?
+                myModSet.getMod(type)
             }
     /* ----- Referenceable interface --------------------------------------- */
     /**

@@ -32,8 +32,7 @@ class RequestDesc(private val myRef: String, private val myCollectionName: Strin
      */
     @JSONMethod("ref", "coll", "contents")
     constructor(ref: String, collectionName: OptString, contents: OptBoolean)
-            : this(ref, collectionName.value<String?>(null), contents.value(false)) {
-    }
+            : this(ref, collectionName.value<String?>(null), contents.value(false))
 
     /**
      * Get the name of the collection being queried, or null if it's to be the

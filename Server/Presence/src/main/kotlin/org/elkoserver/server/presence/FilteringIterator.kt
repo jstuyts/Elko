@@ -8,7 +8,7 @@ package org.elkoserver.server.presence
  * @param myBase  The iterator whose elements are to be transformed.
  * @param myFilter  The filter to transform the iterata.
  */
-internal class FilteringIterator<From, To>(private val myBase: Iterator<From>, private val myFilter: Filter<From, To>) : MutableIterator<To> {
+internal class FilteringIterator<From, out To>(private val myBase: Iterator<From>, private val myFilter: Filter<From, To>) : MutableIterator<To> {
 
     /**
      * Returns true if the iteration has more elements.  (In other words,
@@ -40,7 +40,7 @@ internal class FilteringIterator<From, To>(private val myBase: Iterator<From>, p
     /**
      * Utility class implemented by filters used by the [ ] iterator class.
      */
-    internal interface Filter<From, To> {
+    internal interface Filter<in From, out To> {
         /**
          * Generate an object of type To given an object of type From.
          *

@@ -63,9 +63,7 @@ internal class TraceLogDescriptor(private val clock: Clock) : Cloneable {
      * ADD means a file with the next highest sequence number.
      * OVERWRITE means a file with the smallest sequence number.
      */
-    private fun versionFile(file: File, clashAction: ClashAction): File {
-        return clashAction.versionFile(file)
-    }
+    private fun versionFile(file: File, clashAction: ClashAction): File = clashAction.versionFile(file)
 
     /**
      * A clone of a TraceLogDescriptor is one that, when startUsing() is
@@ -90,10 +88,10 @@ internal class TraceLogDescriptor(private val clock: Clock) : Cloneable {
             return
         }
         val newMyNextFile = desiredLogFile()
-        if (!newMyNextFile.exists()) {
-            myNextFile = newMyNextFile
+        myNextFile = if (!newMyNextFile.exists()) {
+            newMyNextFile
         } else {
-            myNextFile = versionFile(newMyNextFile, clashAction)
+            versionFile(newMyNextFile, clashAction)
         }
     }
 
@@ -119,9 +117,7 @@ internal class TraceLogDescriptor(private val clock: Clock) : Cloneable {
      * Two TraceLogDescriptors are equal iff they refer to the same (canonical)
      * file.
      */
-    fun equals(other: TraceLogDescriptor): Boolean {
-        return printName() == other.printName()
-    }
+    fun equals(other: TraceLogDescriptor) = printName() == other.printName()
 
     /**
      * Return a name of this descriptor, suitable for printing.  System.out is

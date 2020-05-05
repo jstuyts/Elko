@@ -12,7 +12,7 @@ import org.elkoserver.json.JSONLiteralFactory
  * @param friends  Array of the user's friend references
  */
 internal class UserGraphDesc @JSONMethod("ref", "friends") constructor(private val ref: String,
-                                                                                                                         internal val friends: Array<String>) : Encodable {
+                                                                       internal val friends: Array<String>) : Encodable {
 
     /**
      * Encode this object for transmission or persistence.

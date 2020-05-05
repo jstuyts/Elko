@@ -2,15 +2,13 @@ package org.elkoserver.util.trace.acceptor.file
 
 import java.io.File
 
-internal class NextFileVersion(private val myFile: File) {
+internal class NextFileVersion(myFile: File) {
 
     private val myDir: String
 
     private val myBasename: String
 
-    private fun constructVersion(sequence: Int): File {
-        return File(myDir, myBasename + String.format("%03d", sequence))
-    }
+    private fun constructVersion(sequence: Int): File = File(myDir, myBasename + String.format("%03d", sequence))
 
     /**
      * Return a sequence number, if the given filename contains one.  If it
@@ -56,8 +54,7 @@ internal class NextFileVersion(private val myFile: File) {
                 }
             }
         }
-        val result = constructVersion(highestSeq + 1)
-        return result
+        return constructVersion(highestSeq + 1)
     }
 
     init {

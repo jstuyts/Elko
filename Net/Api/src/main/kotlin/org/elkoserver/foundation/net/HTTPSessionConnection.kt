@@ -78,7 +78,7 @@ class HTTPSessionConnection private constructor(
      *
      * @param sessionFactory  Factory for creating HTTP message handler objects
      */
-    internal constructor(sessionFactory: HTTPMessageHandlerFactory, timer: Timer, clock: Clock, traceFactory: TraceFactory) : this(sessionFactory, abs(theRandom.nextLong()), timer, clock, traceFactory) {}
+    internal constructor(sessionFactory: HTTPMessageHandlerFactory, timer: Timer, clock: Clock, traceFactory: TraceFactory) : this(sessionFactory, abs(theRandom.nextLong()), timer, clock, traceFactory)
 
     /**
      * Associate a TCP connection with this session.
@@ -110,11 +110,9 @@ class HTTPSessionConnection private constructor(
             amClosing = true
             val killConnections: Set<Connection> = myConnections
             myConnections = HashSet()
-            for (connection in killConnections) {
-                if (connection !== myDownstreamConnection) {
-                    connection.close()
-                }
-            }
+            killConnections
+                    .filter { it !== myDownstreamConnection }
+                    .forEach(Connection::close)
             mySessionFactory.removeSession(this)
             myInactivityClock.stop()
             mySelectClock.stop()
@@ -144,9 +142,7 @@ class HTTPSessionConnection private constructor(
      *
      * @return true if there are pending messages to send, false if not
      */
-    fun hasOutboundMessages(): Boolean {
-        return myQueue.hasMoreElements()
-    }
+    fun hasOutboundMessages(): Boolean = myQueue.hasMoreElements()
 
     /**
      * Test if this session currently has a pending select waiting.
@@ -349,18 +345,14 @@ class HTTPSessionConnection private constructor(
      *
      * @return the HTTP session factory object for this session.
      */
-    fun sessionFactory(): HTTPMessageHandlerFactory {
-        return mySessionFactory
-    }
+    fun sessionFactory(): HTTPMessageHandlerFactory = mySessionFactory
 
     /**
      * Get this session's ID number.
      *
      * @return the session ID number of this session.
      */
-    fun sessionID(): Long {
-        return mySessionID
-    }
+    fun sessionID(): Long = mySessionID
 
     /**
      * Turn debug features for this connection on or off. In the case of an
@@ -396,9 +388,7 @@ class HTTPSessionConnection private constructor(
      *
      * @return a printable representation of this connection.
      */
-    override fun toString(): String {
-        return "HTTP(${id()},$mySessionID)"
-    }
+    override fun toString(): String = "HTTP(${id()},$mySessionID)"
 
     companion object {
         /** Marker on send queue for select timeout.  */

@@ -73,27 +73,21 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
      *
      * @return an array of the permissible background colors.
      */
-    fun backgroundColors(): Array<String>? {
-        return myBackgroundColors
-    }
+    fun backgroundColors(): Array<String>? = myBackgroundColors
 
     /**
      * Get the permissible border colors.
      *
      * @return an array of the permissible border colors.
      */
-    fun borderColors(): Array<String>? {
-        return myBorderColors
-    }
+    fun borderColors(): Array<String>? = myBorderColors
 
     /**
      * Get the permissible foreground (text) colors.
      *
      * @return an array of the permissible foreground colors.
      */
-    fun colors(): Array<String>? {
-        return myColors
-    }
+    fun colors(): Array<String>? = myColors
 
     /**
      * Encode this object for transmission or persistence.
@@ -151,9 +145,7 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
      *
      * @return an array of the permissible icon URLs.
      */
-    fun icons(): Array<String>? {
-        return myIcons
-    }
+    fun icons(): Array<String>? = myIcons
 
     /**
      * Get the height of the icons.
@@ -161,9 +153,7 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
      * @return the (common) height of the icons, or -1 if they do not have a
      * common height.
      */
-    fun iconHeight(): Int {
-        return myIconHeight
-    }
+    fun iconHeight(): Int = myIconHeight
 
     /**
      * Get the width of the icons.
@@ -171,9 +161,7 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
      * @return the (common) width of the icons, or -1 if they do not have a
      * common width.
      */
-    fun iconWidth(): Int {
-        return myIconWidth
-    }
+    fun iconWidth(): Int = myIconWidth
 
     /**
      * Produce a new [StyleDesc] object given another, partially
@@ -218,7 +206,5 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
      *
      * @return an array of the permissible text styles.
      */
-    fun textStyles(): Array<String>? {
-        return myTextStyles
-    }
+    fun textStyles(): Array<String>? = myTextStyles
 }

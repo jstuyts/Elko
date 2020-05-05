@@ -53,9 +53,7 @@ endless others exist<p>
      * @return an appropriate HTTP reply body JSON string for responding to a
      * /connect/ request that created the given session.
      */
-    fun makeConnectReply(sessionID: Long): String {
-        return "{ \"sessionid\": \"$sessionID\" }\n"
-    }
+    fun makeConnectReply(sessionID: Long): String = "{ \"sessionid\": \"$sessionID\" }\n"
 
     /**
      * Produce the HTTP reply body containing the JSON string for responding to
@@ -64,9 +62,7 @@ endless others exist<p>
      * @return an appropriate HTTP reply body string for responding to a
      * /disconnect/ request.
      */
-    fun makeDisconnectReply(): String {
-        return "{ }\n"
-    }
+    fun makeDisconnectReply(): String = "{ }\n"
 
     /**
      * Produce a fragment of the HTTP reply body containing JSON messages in
@@ -120,9 +116,7 @@ endless others exist<p>
      * @return an appropriate HTTP reply body JSON string for responding to a
      * URL with a bad sequence number.
      */
-    fun makeSequenceErrorReply(error: String): String {
-        return "{ \"error\": \"$error\" }\n"
-    }
+    fun makeSequenceErrorReply(error: String): String = "{ \"error\": \"$error\" }\n"
 
     /**
      * Produce the HTTP reply body containing the JSON string for responding to
@@ -134,9 +128,7 @@ endless others exist<p>
      * @return an appropriate HTTP reply body JSON string for responding to a
      * POST or GET delivering messages to the server.
      */
-    fun makeXmitReply(seqNumber: Int): String {
-        return "{ \"seqnum\": \"$seqNumber\" }\n"
-    }
+    fun makeXmitReply(seqNumber: Int): String = "{ \"seqnum\": \"$seqNumber\" }\n"
 
     /**
      * Get the message trace object for this framer.  This trace object should
@@ -145,9 +137,7 @@ endless others exist<p>
      *
      * @return this framer's message trace object.
      */
-    fun msgTrace(): Trace {
-        return myMsgTrace
-    }
+    fun msgTrace(): Trace = myMsgTrace
 
     /**
      * Return an iterator that will return the application-level message or

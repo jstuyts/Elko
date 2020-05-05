@@ -115,7 +115,7 @@ val stopChatBasicContext by tasks.registering(JavaExec::class) {
 
 val createChatBasicWebRoot by tasks.registering(Copy::class) {
     from("web")
-    from({ webFiles.resolve().map { zipTree(it) } })
+    from({ webFiles.resolve().map(this@Build_gradle::zipTree) })
     into(temporaryDir)
 }
 

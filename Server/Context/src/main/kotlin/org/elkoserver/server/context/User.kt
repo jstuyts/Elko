@@ -196,9 +196,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
             myGroup.admitMember(this)
             context.attachUserMods(this)
             objectIsComplete()
-            assertActivated {
-                it.notifyPendingObjectCompletionWatchers()
-            }
+            assertActivated(Contextor::notifyPendingObjectCompletionWatchers)
             sendUserDescription(this, context, true)
             if (!context.isSemiPrivate) {
                 sendUserDescription(neighbors(), context, false)
@@ -282,9 +280,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return a deliverer representing this user's current neighbors.
      */
-    private fun neighbors(): Deliverer {
-        return Neighbors(myGroup, this)
-    }
+    private fun neighbors(): Deliverer = Neighbors(myGroup, this)
 
     /**
      * Take notice that a user elsewhere has come or gone.
@@ -379,12 +375,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
         if (key != null && key.enablesEntry(contextRef)) {
             return true
         }
-        for (item in obj.contents()) {
-            if (testForEntryKey(item, contextRef)) {
-                return true
-            }
-        }
-        return false
+        return obj.contents().any { testForEntryKey(it, contextRef) }
     }
 
     /**

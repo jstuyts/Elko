@@ -78,7 +78,7 @@ open class HTTPRequest {
         actualLine = actualLine.trim { it <= ' ' }
         val colon = actualLine.indexOf(':')
         if (0 < colon && colon < actualLine.length - 1) {
-            val name = actualLine.substring(0, colon).trim { it <= ' ' }.toLowerCase()
+            val name = actualLine.take(colon).trim { it <= ' ' }.toLowerCase()
             val value = actualLine.substring(colon + 1).trim { it <= ' ' }
             myHeaders[name] = value
             when (name) {
@@ -99,7 +99,7 @@ open class HTTPRequest {
         actualLine = actualLine.trim { it <= ' ' }
         var methodEnd = actualLine.indexOf(' ')
         if (methodEnd >= 0) {
-            myMethod = actualLine.substring(0, methodEnd)
+            myMethod = actualLine.take(methodEnd)
             ++methodEnd
             val uriEnd = actualLine.indexOf(' ', methodEnd)
             if (uriEnd >= 0) {
@@ -144,5 +144,5 @@ open class HTTPRequest {
      *
      * @return the requested URI.
      */
-    fun URI() = myURI
+    fun uri() = myURI
 }

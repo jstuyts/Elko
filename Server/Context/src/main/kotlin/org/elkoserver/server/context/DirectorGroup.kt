@@ -13,7 +13,6 @@ import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
-import java.util.Collections
 import java.util.ConcurrentModificationException
 
 /**
@@ -105,7 +104,7 @@ class DirectorGroup(server: Server, contextor: Contextor,
      *
      * @return a list of the active listeners.
      */
-    fun listeners() = Collections.unmodifiableList(myListeners)
+    fun listeners() = myListeners
 
     /**
      * Lookup a reservation.
@@ -346,7 +345,7 @@ class DirectorGroup(server: Server, contextor: Contextor,
     }
 
     init {
-        server.registerLoadWatcher(object: LoadWatcher {
+        server.registerLoadWatcher(object : LoadWatcher {
             override fun noteLoadSample(loadFactor: Double) {
                 send(msgLoad(loadFactor))
             }

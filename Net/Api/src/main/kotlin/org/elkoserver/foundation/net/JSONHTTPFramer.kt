@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets
  *
  * FIXME: nanomsg parser cannot parse multiple messages in 1 string
  */
-class JSONHTTPFramer (appTrace: Trace, private val traceFactory: TraceFactory) : HTTPFramer(appTrace) {
+class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory) : HTTPFramer(appTrace) {
 
     /**
      * Produce the HTTP for responding to an HTTP GET of the /select/ URL by
@@ -63,9 +63,7 @@ class JSONHTTPFramer (appTrace: Trace, private val traceFactory: TraceFactory) :
      * @return an iterator that can be called upon to return the JSON
      * message(s) contained within 'body'.
      */
-    override fun postBodyUnpacker(postBody: String): Iterator<Any> {
-        return JSONBodyUnpacker(postBody, traceFactory)
-    }
+    override fun postBodyUnpacker(postBody: String): Iterator<Any> = JSONBodyUnpacker(postBody, traceFactory)
 
     /**
      * Post body unpacker for a bundle of JSON messages.  In this case, the
@@ -104,9 +102,7 @@ class JSONHTTPFramer (appTrace: Trace, private val traceFactory: TraceFactory) :
          * Since the framer always parse one message ahead, just look to see if
          * there is a message sitting there.
          */
-        override fun hasNext(): Boolean {
-            return myLastMessageParsed != null
-        }
+        override fun hasNext(): Boolean = myLastMessageParsed != null
 
         /**
          * Get the next message.

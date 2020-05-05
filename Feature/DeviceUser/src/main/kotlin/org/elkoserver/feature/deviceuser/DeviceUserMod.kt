@@ -16,9 +16,7 @@ class DeviceUserMod @JSONMethod("uuid") constructor(private val myDeviceUUID: St
     /**
      * Get the Device UID
      */
-    fun uuid(): String {
-        return myDeviceUUID
-    }
+    fun uuid(): String = myDeviceUUID
 
     /**
      * Encode this mod for transmission or persistence.  This mod is

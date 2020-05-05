@@ -110,9 +110,7 @@ class ActorDesc : Encodable {
      *
      * @return true if this actor can set their own password.
      */
-    fun canSetPass(): Boolean {
-        return myCanSetPass
-    }
+    fun canSetPass(): Boolean = myCanSetPass
 
     /**
      * Encode this object for transmission or persistence.
@@ -162,9 +160,7 @@ class ActorDesc : Encodable {
      *
      * @return this actor's unique ID.
      */
-    fun id(): String {
-        return myID
-    }
+    fun id(): String = myID
 
     /**
      * Get this actor's internal ID.
@@ -184,9 +180,7 @@ class ActorDesc : Encodable {
      *
      * @return this actor's human-readable label.
      */
-    fun name(): String? {
-        return myName
-    }
+    fun name(): String? = myName
 
     /**
      * Set this actor's permission to change their password.

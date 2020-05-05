@@ -118,7 +118,7 @@ class MessageDispatcher(private val myResolver: TypeResolver?, private val trace
      */
     fun dispatchMessage(from: Deliverer?, target: DispatchTarget, message: JsonObject) {
         var actualFrom: Deliverer? = from
-        val verb = message.getString("op", null)
+        val verb = message.getString<String?>("op", null)
         if (verb != null) {
             var invoker = myInvokers[verb]
             while (invoker != null) {
@@ -132,9 +132,8 @@ class MessageDispatcher(private val myResolver: TypeResolver?, private val trace
                     }
                     invoker.handle(actualTarget, actualFrom, message, myResolver)
                     return
-                } else {
-                    invoker = invoker.next()
                 }
+                invoker = invoker.next()
             }
             if (target is DefaultDispatchTarget) {
                 val defaultTarget = target as DefaultDispatchTarget

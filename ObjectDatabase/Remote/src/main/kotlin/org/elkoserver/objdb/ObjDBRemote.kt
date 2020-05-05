@@ -340,9 +340,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
         myDispatcher = MessageDispatcher(this, traceFactory, clock)
         myDispatcher.addClass(ODBActor::class.java)
         myMessageHandlerFactory = object : MessageHandlerFactory {
-            override fun provideMessageHandler(connection: Connection?): MessageHandler {
-                return ODBActor(connection!!, this@ObjDBRemote, localName, myRepHost!!, myDispatcher, traceFactory)
-            }
+            override fun provideMessageHandler(connection: Connection?): MessageHandler = ODBActor(connection!!, this@ObjDBRemote, localName, myRepHost!!, myDispatcher, traceFactory)
         }
         loadClassDesc(props.getProperty("$propRoot.classdesc"))
         val odbPropRoot = "$propRoot.repository"

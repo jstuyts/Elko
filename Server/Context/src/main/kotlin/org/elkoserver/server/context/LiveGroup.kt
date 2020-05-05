@@ -2,7 +2,6 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.json.JSONLiteral
-import java.util.Collections
 
 /**
  * The normal, ordinary implementation of [SendGroup].
@@ -34,9 +33,7 @@ open class LiveGroup : SendGroup {
      *
      * @return the current set of members of this group.
      */
-    fun members(): Set<Deliverer> {
-        return Collections.unmodifiableSet(myMembers)
-    }
+    fun members(): Set<Deliverer> = myMembers
 
     /**
      * Send a message to each member of this send group.
@@ -56,10 +53,8 @@ open class LiveGroup : SendGroup {
      * @param message  The message to send.
      */
     override fun sendToNeighbors(exclude: Deliverer, message: JSONLiteral) {
-        for (member in myMembers) {
-            if (member !== exclude) {
-                member.send(message)
-            }
-        }
+        myMembers
+                .filter { it !== exclude }
+                .forEach { it.send(message) }
     }
 }

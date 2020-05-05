@@ -51,7 +51,7 @@ class SessionURI(uri: String, rootURI: String) {
             stringptr[0] = ""
         } else {
             stringptr[0] = str.substring(slash + 1)
-            str = str.substring(0, slash)
+            str = str.take(slash)
         }
         return try {
             str.toLong()
@@ -86,7 +86,7 @@ class SessionURI(uri: String, rootURI: String) {
         if (actualUri.startsWith(rootURI)) {
             actualUri = actualUri.substring(rootURI.length)
             if (actualUri.endsWith("/")) {
-                actualUri = actualUri.substring(0, actualUri.length - 1)
+                actualUri = actualUri.dropLast(1)
             }
             if (actualUri.startsWith(CONNECT_REQ_URI)) {
                 if (actualUri.length == CONNECT_REQ_URI.length) {

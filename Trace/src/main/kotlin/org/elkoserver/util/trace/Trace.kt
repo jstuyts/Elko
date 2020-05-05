@@ -106,9 +106,7 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      *
      * @return a a Trace object derived from this trace object.
      */
-    fun subTrace(subSubsystem: String): Trace {
-        return factory.subTrace(this, subSubsystem)
-    }
+    fun subTrace(subSubsystem: String): Trace = factory.subTrace(this, subSubsystem)
 
     /**
      * Set the logging threshold.

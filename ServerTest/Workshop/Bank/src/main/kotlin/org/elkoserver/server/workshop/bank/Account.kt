@@ -129,9 +129,7 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
      *
      * @return the name of this account's currency.
      */
-    fun currency(): String? {
-        return myCurrency
-    }
+    fun currency(): String? = myCurrency
 
     /**
      * Mark this account as deleted.

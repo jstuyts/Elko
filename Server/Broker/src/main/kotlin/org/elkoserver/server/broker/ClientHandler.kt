@@ -125,9 +125,7 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
      *
      * @return true if the given service has a valid description, false if not.
      */
-    private fun validServiceDescription(service: ServiceDesc): Boolean {
-        return service.hostport() != null && service.failure() == null
-    }
+    private fun validServiceDescription(service: ServiceDesc): Boolean = service.hostport() != null && service.failure() == null
 
     /**
      * Handle the 'willserve' verb.
@@ -140,11 +138,9 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
     @JSONMethod("services")
     fun willserve(from: BrokerActor, services: Array<ServiceDesc>) {
         from.ensureAuthorizedClient()
-        for (service in services) {
-            if (validServiceDescription(service)) {
-                from.client()!!.addService(service)
-            }
-        }
+        services
+                .filter(this@ClientHandler::validServiceDescription)
+                .forEach(from.client()!!::addService)
     }
 
     /**

@@ -47,7 +47,7 @@ internal class UserHandler(private val myGatekeeper: Gatekeeper, traceFactory: T
         myGatekeeper.authorizer().reserve(
                 protocol, context, idStr, name.value<String?>(null), password.value<String?>(null),
                 object : ReservationResultHandler {
-                    override fun handleReservation( actor: String?, context: String?, name: String?, hostport: String?, auth: String?) {
+                    override fun handleReservation(actor: String?, context: String?, name: String?, hostport: String?, auth: String?) {
                         from.send(msgReserve(this@UserHandler, idStr, context, actor, name, hostport, auth, null))
                     }
 

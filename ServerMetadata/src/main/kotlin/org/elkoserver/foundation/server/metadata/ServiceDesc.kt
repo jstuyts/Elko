@@ -33,7 +33,7 @@ class ServiceDesc(private val myService: String, private val myHostport: String?
      * @param service  The name of the service.
      * @param failure  Error message.
      */
-    constructor(service: String, failure: String?) : this(service, null, null, null, null, failure, -1) {}
+    constructor(service: String, failure: String?) : this(service, null, null, null, null, failure, -1)
 
     /**
      * JSON-driven constructor.
@@ -51,8 +51,7 @@ class ServiceDesc(private val myService: String, private val myHostport: String?
                 label: OptString, auth: AuthDesc?, failure: OptString,
                 providerID: OptInteger) : this(service, hostport.value<String?>(null), protocol.value<String?>(null),
             label.value<String?>(null), auth, failure.value<String?>(null),
-            providerID.value(-1)) {
-    }
+            providerID.value(-1))
 
     /**
      * Generate a HostDesc object suitable for establishing a connection

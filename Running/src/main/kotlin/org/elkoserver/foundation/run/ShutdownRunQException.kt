@@ -6,8 +6,8 @@ package org.elkoserver.foundation.run
  * enable it to do a no-overhead orderly shutdown.
  */
 internal class ShutdownRunQException : RuntimeException, Runnable {
-    constructor() {}
-    constructor(m: String?) : super(m) {}
+    constructor()
+    constructor(m: String?) : super(m)
 
     override fun run() {
         throw this

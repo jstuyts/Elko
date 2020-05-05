@@ -23,7 +23,7 @@ import java.time.Clock
  * @param myParamNames  JSON names for the parameters.
  * @param firstIndex  Index of first JSON parameter.
  */
-internal abstract class Invoker<TTarget>(method: Member, private val myParamTypes: Array<Class<*>>, private val myParamNames: Array<out String>, firstIndex: Int, protected val traceFactory: TraceFactory, protected val clock: Clock) {
+internal abstract class Invoker<in TTarget>(method: Member, private val myParamTypes: Array<Class<*>>, private val myParamNames: Array<out String>, firstIndex: Int, protected val traceFactory: TraceFactory, protected val clock: Clock) {
     /** Mapping of JSON parameter names to Java parameter positions  */
     private val myParamMap: MutableMap<String, Int>
 
@@ -75,25 +75,22 @@ internal abstract class Invoker<TTarget>(method: Member, private val myParamType
                 val paramType = myParamTypes[paramNum]
                 if (value != null) {
                     val param = packParam(paramType, value, resolver!!)
-                    if (param == null) {
-                        throw JSONInvocationException("parameter '$paramName' should be type $paramType")
+                            ?: throw JSONInvocationException("parameter '$paramName' should be type $paramType")
+                    params[paramNum] = param
+                }
+            }
+        }
+        (firstIndex until myParamTypes.size)
+                .filter { params[it] == null }
+                .forEach {
+                    if (myParamOptFlags[it - firstIndex]) {
+                        params[it] = null
+                    } else if (isOptionalParamType(myParamTypes[it])) {
+                        params[it] = missingValue(myParamTypes[it])
                     } else {
-                        params[paramNum] = param
+                        throw JSONInvocationException("expected parameter '${myParamNames[it - firstIndex]}' missing")
                     }
                 }
-            }
-        }
-        for (i in firstIndex until myParamTypes.size) {
-            if (params[i] == null) {
-                if (myParamOptFlags[i - firstIndex]) {
-                    params[i] = null
-                } else if (isOptionalParamType(myParamTypes[i])) {
-                    params[i] = missingValue(myParamTypes[i])
-                } else {
-                    throw JSONInvocationException("expected parameter '${myParamNames[i - firstIndex]}' missing")
-                }
-            }
-        }
         if (firstParam != null) {
             params[0] = firstParam
         }
@@ -102,7 +99,7 @@ internal abstract class Invoker<TTarget>(method: Member, private val myParamType
         } catch (e: IllegalAccessException) {
             throw JSONInvocationException("can't invoke method: $e")
         } catch (e: InvocationTargetException) {
-            throw MessageHandlerException( "exception in message handler method: ", e.targetException)
+            throw MessageHandlerException("exception in message handler method: ", e.targetException)
         }
     }
 

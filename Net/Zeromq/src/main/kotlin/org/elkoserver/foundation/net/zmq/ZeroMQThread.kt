@@ -100,7 +100,8 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
         }
     }
 
-    private fun getConnection(socketIndex: Int) = myConnections[myPoller.getSocket(socketIndex)] ?: throw IllegalStateException("No connection for socket: $socketIndex")
+    private fun getConnection(socketIndex: Int) = myConnections[myPoller.getSocket(socketIndex)]
+            ?: throw IllegalStateException("No connection for socket: $socketIndex")
 
     /**
      * Add a socket to the set being polled.
@@ -159,7 +160,7 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
             push = true
             finalAddr = "tcp://$remoteAddr"
         }
-        myQueue.enqueue(object: Thunk {
+        myQueue.enqueue(object : Thunk {
             override fun run() {
                 traceFactory.comm.eventm("connecting ZMQ to $finalAddr")
                 val socket: ZMQ.Socket
@@ -173,7 +174,7 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
                 val connection = ZeroMQConnection(handlerFactory, framerFactory,
                         socket, true, this@ZeroMQThread,
                         myNetworkManager, finalAddr, clock, traceFactory)
-                myConnections.put(socket, connection)
+                myConnections[socket] = connection
             }
         })
         wakeup()

@@ -19,7 +19,7 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
      */
     private var myRunning = true
     fun cancelTimeout(event: TimerQEntry): Boolean {
-        synchronized(this) { return myEvents.remove(event) != null }
+        synchronized(this) { return@cancelTimeout myEvents.remove(event) != null }
     }
 
     /**
@@ -168,7 +168,7 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
      */
     private fun wakeup() {
         try {
-            synchronized(this) { (this as Object).notify() }
+            synchronized(this, (this as Object)::notify)
         } catch (t: Throwable) {
             exceptionReporter.reportException(t, "TimerThread.wakeup() caught exception on notify")
         }

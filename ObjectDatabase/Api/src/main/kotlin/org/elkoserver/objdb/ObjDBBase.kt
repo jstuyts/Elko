@@ -42,7 +42,7 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
      */
     fun decodeJSONObject(jsonObj: JsonObject): Any? {
         var result: Any? = null
-        val typeTag = jsonObj.getString("type", null)
+        val typeTag = jsonObj.getString<String?>("type", null)
         if (typeTag != null) {
             val type = myClasses[typeTag]
             if (type != null) {
@@ -65,13 +65,9 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
      * to the specified parameters.
      */
     fun decodeObject(ref: String, results: Array<ObjectDesc>): Any? {
-        var objStr: String? = null
-        for (result in results) {
-            if (ref == result.ref()) {
-                objStr = result.obj()
-                break
-            }
-        }
+        val objStr: String? = results
+                .firstOrNull { ref == it.ref() }
+                ?.obj()
         return if (objStr == null) {
             tr.errorm("no object retrieved from ODB for ref $ref")
             null

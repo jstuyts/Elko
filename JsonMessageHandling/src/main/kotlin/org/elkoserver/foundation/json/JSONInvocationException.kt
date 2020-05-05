@@ -10,12 +10,12 @@ internal class JSONInvocationException : Exception {
     /**
      * Construct a JSONInvocationException with no specified detail message.
      */
-    constructor() : super() {}
+    constructor() : super()
 
     /**
      * Construct a JSONInvocationException with the specified detail message.
      *
      * @param message  The detail message.
      */
-    constructor(message: String?) : super(message) {}
+    constructor(message: String?) : super(message)
 }

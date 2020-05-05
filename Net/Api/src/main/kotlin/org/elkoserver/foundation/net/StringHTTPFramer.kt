@@ -8,7 +8,7 @@ class StringHTTPFramer
  *
  * @param msgTrace Trace object for logging message traffic.
  */
-protected constructor(msgTrace: Trace) : HTTPFramer(msgTrace) {
+private constructor(msgTrace: Trace) : HTTPFramer(msgTrace) {
     /**
      * Return an iterator that will return the application-level message or
      * messages (if any) in the body of a received HTTP POST.
@@ -18,9 +18,7 @@ protected constructor(msgTrace: Trace) : HTTPFramer(msgTrace) {
      * @return an iterator that can be called upon to return the application-
      * level message(s) contained within 'postBody'.
      */
-    override fun postBodyUnpacker(postBody: String): Iterator<Any> {
-        return StringBodyUnpacker(postBody)
-    }
+    override fun postBodyUnpacker(postBody: String): Iterator<Any> = StringBodyUnpacker(postBody)
 
     /**
      * Post body unpacker for a plain string HTTP message.  In this case, the
@@ -41,9 +39,7 @@ protected constructor(msgTrace: Trace) : HTTPFramer(msgTrace) {
          * application- level message in an HTTP message.  That message has
          * either been given out or it hasn't.
          */
-        override fun hasNext(): Boolean {
-            return myReceivedMessage != null
-        }
+        override fun hasNext(): Boolean = myReceivedMessage != null
 
         /**
          * Get the next message.

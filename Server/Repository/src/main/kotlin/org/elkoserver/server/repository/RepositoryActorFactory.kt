@@ -25,9 +25,7 @@ internal class RepositoryActorFactory(internal val myRepository: Repository, pri
      *
      * @return true if 'rep' connections are allowed.
      */
-    fun allowRep(): Boolean {
-        return amAllowRep && !myRepository.isShuttingDown
-    }
+    fun allowRep(): Boolean = amAllowRep && !myRepository.isShuttingDown
 
     /**
      * Produce a new actor for a new connection.

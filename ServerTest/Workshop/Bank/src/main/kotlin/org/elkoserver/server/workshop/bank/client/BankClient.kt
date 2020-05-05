@@ -56,7 +56,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      */
     override fun accept(obj: ServiceLink?) {
         if (obj != null) {
-            myServiceLink = obj as ServiceLink?
+            myServiceLink = obj
             myStatus = "connected"
         } else {
             myStatus = "failed"

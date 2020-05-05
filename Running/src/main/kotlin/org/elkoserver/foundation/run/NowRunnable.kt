@@ -65,7 +65,7 @@ internal class NowRunnable(private var myOptTodo: Callable<Any>?) : Runnable {
             myOptProblem = problem
         }
         myOptTodo = null
-        synchronized(myLock) { myLock.notifyAll() }
+        synchronized(myLock, myLock::notifyAll)
     }
 
     override fun toString() = "${super.toString()}: $myOptTodo"
@@ -85,8 +85,8 @@ internal class NowRunnable(private var myOptTodo: Callable<Any>?) : Runnable {
          *
          * @param problem  The [Throwable] to wrap
          */
-        private fun asSafe(problem: Throwable): RuntimeException {
-            return if (problem is RuntimeException) { problem } else RuntimeException(problem)
-        }
+        private fun asSafe(problem: Throwable): RuntimeException = if (problem is RuntimeException) {
+            problem
+        } else RuntimeException(problem)
     }
 }

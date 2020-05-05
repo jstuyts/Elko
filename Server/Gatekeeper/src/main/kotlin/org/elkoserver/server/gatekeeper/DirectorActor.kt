@@ -47,7 +47,7 @@ internal class DirectorActor(connection: Connection, dispatcher: MessageDispatch
         myFactory.setDirector(null)
         for ((key, handler) in myPendingReservations) {
             val sep = key.indexOf('|')
-            handler.accept(ReservationResult(key.substring(0, sep), key.substring(sep + 1), "director connection lost"))
+            handler.accept(ReservationResult(key.take(sep), key.substring(sep + 1), "director connection lost"))
         }
     }
 
@@ -101,7 +101,7 @@ internal class DirectorActor(connection: Connection, dispatcher: MessageDispatch
             if (handler == null) {
                 val slash = contextKey!!.lastIndexOf('-')
                 contextKey = if (slash > -1) {
-                    contextKey.substring(0, slash)
+                    contextKey.take(slash)
                 } else {
                     null
                 }

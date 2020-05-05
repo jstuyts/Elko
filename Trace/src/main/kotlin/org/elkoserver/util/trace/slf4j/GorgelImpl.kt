@@ -66,7 +66,7 @@ class GorgelImpl(logger: Logger, private val loggerFactory: ILoggerFactory, priv
             markerFactory.getDetachedMarker(*tags).addStaticTagsIfPresent()
 
     private fun Marker.addStaticTagsIfPresent(): Marker {
-        staticTags?.let { add(it) }
+        staticTags?.let(this::add)
         return this
     }
 }

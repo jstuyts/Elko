@@ -31,12 +31,7 @@ class ContextKeyCap @JSONMethod("contexts") constructor(
         if (isExpired) {
             return false
         }
-        for (context in myContexts) {
-            if (context == contextRef) {
-                return true
-            }
-        }
-        return false
+        return myContexts.contains(contextRef)
     }
 
     /**

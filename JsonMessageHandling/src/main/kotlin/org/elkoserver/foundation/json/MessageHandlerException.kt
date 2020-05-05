@@ -7,14 +7,14 @@ class MessageHandlerException : Exception {
     /**
      * Construct a MessageHandlerException with no specified detail message.
      */
-    constructor() : super() {}
+    constructor() : super()
 
     /**
      * Construct a MessageHandlerException with the specified detail message.
      *
      * @param message  The detail message.
      */
-    constructor(message: String?) : super(message) {}
+    constructor(message: String?) : super(message)
 
     /**
      * Construct a MessageHandlerException wrapping some other kind of
@@ -23,5 +23,5 @@ class MessageHandlerException : Exception {
      * @param message  The detail message.
      * @param nested  Other exception to wrap.
      */
-    constructor(message: String?, nested: Throwable?) : super(message, nested) {}
+    constructor(message: String?, nested: Throwable?) : super(message, nested)
 }

@@ -25,7 +25,7 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
     private var myEndPos = myStartPos
 
     /** State of construction.  */
-    private var myState = INITIAL
+    private var myState = JsonLiteralArrayState.INITIAL
 
     /** Number of elements successfully added.  */
     private var mySize = 0
@@ -58,12 +58,12 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
             arr.finish()
         } else if (value != null) {
             val start = myStringBuilder.length
-            val starting = myState == INITIAL
+            val starting = myState == JsonLiteralArrayState.INITIAL
             beginElement()
             if (appendValueString(myStringBuilder, value, myControl)) {
                 myStringBuilder.setLength(start)
                 if (starting) {
-                    myState = INITIAL
+                    myState = JsonLiteralArrayState.INITIAL
                 }
             } else {
                 mySize += 1
@@ -105,11 +105,10 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
      * update the state of construction accordingly.
      */
     private fun beginElement() {
-        if (myState != COMPLETE) {
-            if (myState == INITIAL) {
+        if (myState != JsonLiteralArrayState.COMPLETE) {
+            if (myState == JsonLiteralArrayState.INITIAL) {
                 /* Have added first element */
-                val STARTED = 1
-                myState = STARTED
+                myState = JsonLiteralArrayState.STARTED
             } else {
                 myStringBuilder.append(", ")
             }
@@ -123,9 +122,7 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
      *
      * @return this literal array's encode control.
      */
-    fun control(): EncodeControl? {
-        return myControl
-    }
+    fun control(): EncodeControl? = myControl
 
     /**
      * Finish construction of the literal.
@@ -133,9 +130,9 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
      * @throws Error if you try to finish a literal that is already complete.
      */
     fun finish() {
-        if (myState != COMPLETE) {
+        if (myState != JsonLiteralArrayState.COMPLETE) {
             myStringBuilder.append(']')
-            myState = COMPLETE
+            myState = JsonLiteralArrayState.COMPLETE
             myEndPos = myStringBuilder.length
         } else {
             throw Error("attempt to finish already completed array")
@@ -151,7 +148,7 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
      * @throws Error if the literal is not finished.
      */
     fun sendableString(): String {
-        if (myState != COMPLETE) {
+        if (myState != JsonLiteralArrayState.COMPLETE) {
             finish()
         }
         return myStringBuilder.substring(myStartPos, myEndPos)
@@ -162,16 +159,12 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
      *
      * @return the number of elements in this array (so far).
      */
-    fun size(): Int {
-        return mySize
-    }
+    fun size(): Int = mySize
 
     /**
      * Get the internal string buffer, for collusion with JSONLiteral.
      */
-    fun stringBuilder(): StringBuilder {
-        return myStringBuilder
-    }
+    fun stringBuilder(): StringBuilder = myStringBuilder
 
     /**
      * Obtain a printable String representation of this literal, in whatever
@@ -181,19 +174,19 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
      */
     override fun toString(): String {
         var end = myEndPos
-        if (myState != COMPLETE) {
+        if (myState != JsonLiteralArrayState.COMPLETE) {
             end = myStringBuilder.length
         }
         return myStringBuilder.substring(myStartPos, end)
     }
 
-    companion object {
-        /* The state values */
-        private const val INITIAL = 0 /* Have not yet added first element */
-        private const val COMPLETE = 2 /* All done */
-    }
-
     init {
         myStringBuilder.append("[")
     }
+}
+
+private enum class JsonLiteralArrayState {
+    INITIAL,
+    STARTED,
+    COMPLETE
 }

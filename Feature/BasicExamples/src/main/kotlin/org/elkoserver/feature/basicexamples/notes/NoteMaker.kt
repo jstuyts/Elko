@@ -33,9 +33,7 @@ class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: St
      *
      * @return true if 'style' is acceptable to this NoteMaker, false if not.
      */
-    fun allowedStyle(style: StyleDesc): Boolean {
-        return myStyleOptions.allowedStyle(style)
-    }
+    fun allowedStyle(style: StyleDesc): Boolean = myStyleOptions.allowedStyle(style)
 
     /**
      * Encode this mod for transmission or persistence.
@@ -90,23 +88,26 @@ class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: St
                  width: Int, height: Int, text: String, style: StyleDesc?) {
         ensureSameContext(from)
         val intoRef = into.value<String?>(null)
-        val intoObj = if (intoRef != null) { context()[intoRef] } else { context() }
+        val intoObj = if (intoRef != null) {
+            context()[intoRef]
+        } else {
+            context()
+        }
         val mergedStyle = myStyleOptions.mergeStyle(style)
         if (mergedStyle == null) {
             throw MessageHandlerException("invalid style options")
         } else if (!validContainer(intoObj, from)) {
             throw MessageHandlerException("invalid destination container $intoRef")
-        } else {
-            val item = intoObj.createItem("note", false, true)
-            Note(text, mergedStyle).run {
-                attachTo(item)
-            }
-            Cartesian(width, height, left, top).run {
-                attachTo(item)
-            }
-            item.objectIsComplete()
-            context().send(Msg.msgMake(intoObj, item, from))
         }
+        val item = intoObj.createItem("note", false, true)
+        Note(text, mergedStyle).run {
+            attachTo(item)
+        }
+        Cartesian(width, height, left, top).run {
+            attachTo(item)
+        }
+        item.objectIsComplete()
+        context().send(Msg.msgMake(intoObj, item, from))
     }
 
 }

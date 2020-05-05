@@ -41,7 +41,7 @@ class NetAddr {
             port = 0
         } else {
             port = actualAddressStr.substring(colon + 1).toInt()
-            actualAddressStr = actualAddressStr.substring(0, colon)
+            actualAddressStr = actualAddressStr.take(colon)
         }
         val slash = actualAddressStr.indexOf('/')
         if (slash >= 0) {
@@ -92,9 +92,7 @@ class NetAddr {
      *
      * @return the IP address embodied by this object.
      */
-    fun inetAddress(): InetAddress? {
-        return myInetAddress
-    }
+    fun inetAddress(): InetAddress? = myInetAddress
 
     /**
      * Get a hash code for this address.

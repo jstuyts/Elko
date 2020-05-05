@@ -305,8 +305,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
         while (iter.hasNext()) {
             val obj = iter.next()
             if (obj is Context) {
-                val context = obj
-                context.send(msgSay(context, null, text))
+                obj.send(msgSay(obj, null, text))
             } else  /* if (obj instanceof User) */ {
                 val user = obj as User
                 user.send(msgSay(user, null, text))
@@ -391,11 +390,9 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
     init {
         myGroup.admitMember(this)
         send(msgAuth(this, host.auth(), myGroup.contextor().serverName()))
-        for (listener in myGroup.listeners()) {
-            if ("reservation" == listener.auth()!!.mode()) {
-                send(msgAddress(this, listener.protocol()!!, listener.hostPort()!!))
-            }
-        }
+        myGroup.listeners()
+                .filter { "reservation" == it.auth()!!.mode() }
+                .forEach { send(msgAddress(this, it.protocol()!!, it.hostPort()!!)) }
         for (family in myGroup.contextor().contextFamilies()) {
             if (family.startsWith("$")) {
                 send(msgWillserve(this, family.substring(1), myGroup.capacity(),

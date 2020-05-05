@@ -444,9 +444,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      *
      * @return this literal's encode control.
      */
-    fun control(): EncodeControl? {
-        return myControl
-    }
+    fun control(): EncodeControl? = myControl
 
     /**
      * Finish construction of the literal.
@@ -468,9 +466,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      *
      * @return the number of characters currently in this literal.
      */
-    fun length(): Int {
-        return myEndPos - myStartPos
-    }
+    fun length(): Int = myEndPos - myStartPos
 
     /**
      * Obtain a string representation of this literal suitable for output to a
@@ -523,11 +519,10 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
                 /* Null is a special value all its own */
                 buf.append("null")
             } else if (value is String) {
-                val str = value
                 buf.append('"')
                 var start = 0
-                for (i in 0 until str.length) {
-                    val c = str[i]
+                for (i in 0 until value.length) {
+                    val c = value[i]
                     var escape = '*'
                     when (c) {
                         '"' -> escape = '"'
@@ -539,13 +534,13 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
                         '\t' -> escape = 't'
                     }
                     if (escape != '*') {
-                        buf.append(str, start, i)
+                        buf.append(value, start, i)
                         start = i + 1
                         buf.append('\\')
                         buf.append(escape)
                     }
                 }
-                buf.append(str.substring(start))
+                buf.append(value.substring(start))
                 buf.append('"')
             } else if (value is Number) {
                 buf.append(value.toString())

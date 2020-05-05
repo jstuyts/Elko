@@ -9,7 +9,7 @@ import java.util.NoSuchElementException
  *
  * @param myArray  The array to iterate over.
  */
-internal class ArrayIterator<V>(private val myArray: Array<V>?) : MutableIterator<V> {
+internal class ArrayIterator<out V>(private val myArray: Array<V>?) : MutableIterator<V> {
 
     /** Iteration position  */
     private var myIndex = 0

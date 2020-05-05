@@ -26,7 +26,7 @@ class UpdateResultDesc(ref: String, failure: String?, val isAtomicFailure: Boole
      * @param failure  Optional error message.
      */
     @JSONMethod("ref", "failure", "atomic")
-    constructor(ref: String, failure: OptString, isAtomicFailure: Boolean) 
+    constructor(ref: String, failure: OptString, isAtomicFailure: Boolean)
             : this(ref, failure.value<String?>(null), isAtomicFailure)
 
     /**
@@ -39,9 +39,9 @@ class UpdateResultDesc(ref: String, failure: String?, val isAtomicFailure: Boole
      */
     override fun encode(control: EncodeControl) =
             type("ustati", control).apply {
-        addParameter("ref", ref())
-        addParameterOpt("failure", failure())
-        addParameter("atomic", isAtomicFailure)
-        finish()
-    }
+                addParameter("ref", ref())
+                addParameterOpt("failure", failure())
+                addParameter("atomic", isAtomicFailure)
+                finish()
+            }
 }

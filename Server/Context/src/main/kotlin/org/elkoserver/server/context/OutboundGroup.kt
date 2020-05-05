@@ -82,13 +82,13 @@ abstract class OutboundGroup(propRoot: String,
          * servers to connect to.
          */
         override fun accept(obj: Array<ServiceDesc>) {
-            for (desc in obj) {
-                if (desc.failure() == null) {
-                    val host = desc.asHostDesc(myRetryInterval)
-                    ConnectionRetrier(host, label(), myNetworkManager,
-                            HostConnector(host), timer, tr, traceFactory)
-                }
-            }
+            obj
+                    .filter { it.failure() == null }
+                    .map { it.asHostDesc(myRetryInterval) }
+                    .forEach {
+                        ConnectionRetrier(it, label(), myNetworkManager,
+                                HostConnector(it), timer, tr, traceFactory)
+                    }
         }
     }
 
@@ -103,9 +103,7 @@ abstract class OutboundGroup(propRoot: String,
          *
          * @param connection  The Connection object that was just created.
          */
-        override fun provideMessageHandler(connection: Connection?): MessageHandler {
-            return provideActor(connection!!, myDispatcher, myHost)
-        }
+        override fun provideMessageHandler(connection: Connection?): MessageHandler = provideActor(connection!!, myDispatcher, myHost)
 
     }
 
@@ -114,18 +112,15 @@ abstract class OutboundGroup(propRoot: String,
      *
      * @return the contextor.
      */
-    fun contextor(): Contextor {
-        return myContextor
-    }
+    fun contextor(): Contextor = myContextor
 
     /**
      * Close connections to all open external servers.
      */
     fun disconnectHosts() {
-        for (member in members()) {
-            val actor = member as Actor
-            actor.close()
-        }
+        members()
+                .map { it as Actor }
+                .forEach(Actor::close)
     }
 
     /**

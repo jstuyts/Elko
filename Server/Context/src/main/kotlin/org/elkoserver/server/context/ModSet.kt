@@ -80,11 +80,9 @@ class ModSet private constructor() {
      */
     fun encode(control: EncodeControl): JSONLiteralArray {
         val result = JSONLiteralArray(control)
-        for (mod in myMods.values) {
-            if (control.toClient() || !mod.isEphemeral) {
-                result.addElement(mod)
-            }
-        }
+        myMods.values
+                .filter { control.toClient() || !it.isEphemeral }
+                .forEach(result::addElement)
         result.finish()
         return result
     }

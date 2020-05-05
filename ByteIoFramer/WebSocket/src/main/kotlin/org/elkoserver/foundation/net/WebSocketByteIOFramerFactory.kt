@@ -25,9 +25,7 @@ class WebSocketByteIOFramerFactory(private val trMsg: Trace, private val myHostA
      * @param receiver  Object to deliver received messages to.
      * @param label  A printable label identifying the associated connection.
      */
-    override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer {
-        return WebSocketFramer(receiver, label, traceFactory)
-    }
+    override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer = WebSocketFramer(receiver, label, traceFactory)
 
     /**
      * I/O framer implementation for HTTP requests.
@@ -87,9 +85,8 @@ class WebSocketByteIOFramerFactory(private val trMsg: Trace, private val myHostA
                             if (crazyKey == null) {
                                 myIn.preserveBuffers()
                                 return
-                            } else {
-                                myRequest.setCrazyKey(crazyKey)
                             }
+                            myRequest.setCrazyKey(crazyKey)
                         }
                         myReceiver.receiveMsg(myRequest)
                         myWSParseStage = Companion.WS_STAGE_MESSAGES
@@ -226,7 +223,7 @@ $reply"""
     init {
         val colonPos = myHostAddress.indexOf(':')
         myHostName = if (colonPos != -1) {
-            myHostAddress.substring(0, colonPos)
+            myHostAddress.take(colonPos)
         } else {
             myHostAddress
         }

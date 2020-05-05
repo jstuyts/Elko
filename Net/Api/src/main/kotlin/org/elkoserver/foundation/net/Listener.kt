@@ -71,9 +71,7 @@ internal class Listener(
      *
      * @return this listener's listen address.
      */
-    fun listenAddress(): NetAddr {
-        return NetAddr(myOptIP, myChannel!!.socket().localPort)
-    }
+    fun listenAddress(): NetAddr = NetAddr(myOptIP, myChannel!!.socket().localPort)
 
     /**
      * Register this listener with a selector.

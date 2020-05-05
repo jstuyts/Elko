@@ -209,9 +209,7 @@ class HTTPMessageHandlerFactory internal constructor(
      * @return the session whose session ID is 'sessionID', or null if there is
      * no such session.
      */
-    private fun getSession(sessionID: Long): HTTPSessionConnection? {
-        return mySessions[sessionID]
-    }
+    private fun getSession(sessionID: Long): HTTPSessionConnection? = mySessions[sessionID]
 
     /**
      * Process an HTTP GET request, which (depending on the URI) may be
@@ -296,9 +294,7 @@ class HTTPMessageHandlerFactory internal constructor(
      *
      * @return this factory's HTTP framer object.
      */
-    fun httpFramer(): HTTPFramer {
-        return myHTTPFramer
-    }
+    fun httpFramer(): HTTPFramer = myHTTPFramer
 
     /**
      * Obtain the inner message handler factory for this factory.  This is the
@@ -308,9 +304,7 @@ class HTTPMessageHandlerFactory internal constructor(
      *
      * @return the inner message handler factory for this factory.
      */
-    fun innerFactory(): MessageHandlerFactory {
-        return myInnerFactory
-    }
+    fun innerFactory(): MessageHandlerFactory = myInnerFactory
 
     /**
      * Determine the HTTP session object associated with a requested URI.
@@ -338,18 +332,14 @@ class HTTPMessageHandlerFactory internal constructor(
      *
      * @return this factory's network manager object.
      */
-    fun networkManager(): NetworkManager {
-        return myManager
-    }
+    fun networkManager(): NetworkManager = myManager
 
     /**
      * Provide a message handler for a new (HTTP over TCP) connection.
      *
      * @param connection  The TCP connection object that was just created.
      */
-    override fun provideMessageHandler(connection: Connection?): MessageHandler {
-        return HTTPMessageHandler(connection!!, this, sessionTimeout(false), timer, traceFactory)
-    }
+    override fun provideMessageHandler(connection: Connection?): MessageHandler = HTTPMessageHandler(connection!!, this, sessionTimeout(false), timer, traceFactory)
 
     /**
      * Remove a session from the session table.

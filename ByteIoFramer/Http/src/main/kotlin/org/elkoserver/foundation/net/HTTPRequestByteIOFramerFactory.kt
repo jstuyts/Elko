@@ -77,17 +77,16 @@ class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory) : B
                             if (myIn.available() < bodyLen) {
                                 myIn.preserveBuffers()
                                 return
-                            } else {
-                                myIn.updateUsefulByteCount(bodyLen)
-                                val contentBuilder = StringBuilder(bodyLen)
-                                val isr = InputStreamReader(myIn, StandardCharsets.UTF_8)
-                                var character = isr.read()
-                                while (character != -1) {
-                                    contentBuilder.append(character.toChar())
-                                    character = isr.read()
-                                }
-                                myRequest.setContent(contentBuilder.toString())
                             }
+                            myIn.updateUsefulByteCount(bodyLen)
+                            val contentBuilder = StringBuilder(bodyLen)
+                            val isr = InputStreamReader(myIn, StandardCharsets.UTF_8)
+                            var character = isr.read()
+                            while (character != -1) {
+                                contentBuilder.append(character.toChar())
+                                character = isr.read()
+                            }
+                            myRequest.setContent(contentBuilder.toString())
                         }
                         myReceiver.receiveMsg(myRequest)
                         myRequest = HTTPRequest()
@@ -134,9 +133,8 @@ class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory) : B
                     $reply
                     """.trimIndent()
             } else if (message is HTTPError) {
-                val error = message
-                reply = error.messageString()
-                reply = """HTTP/1.1 ${error.errorNumber()} ${error.errorString()}
+                reply = message.messageString()
+                reply = """HTTP/1.1 ${message.errorNumber()} ${message.errorString()}
 Access-Control-Allow-Origin: *
 Content-Length: ${utf8Length(reply)}
 

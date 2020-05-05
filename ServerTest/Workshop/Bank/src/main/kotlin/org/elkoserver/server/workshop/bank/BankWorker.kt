@@ -23,7 +23,7 @@ import java.util.function.Consumer
  */
 class BankWorker
 @JSONMethod("service", "bank") constructor(serviceName: OptString,
-                                                                                             private val myBankRef: String) : WorkerObject(serviceName.value("bank")), ClockUsingObject {
+                                           private val myBankRef: String) : WorkerObject(serviceName.value("bank")), ClockUsingObject {
     /** The bank this worker is the interface to.  */
     private var myBank: Bank? = null
 
@@ -127,12 +127,7 @@ class BankWorker
             if (currencies == null) {
                 return false
             }
-            for (currency in currencies) {
-                if (currencyAuthorityFailure(currency)) {
-                    return true
-                }
-            }
-            return false
+            return currencies.any(this@RequestEnv::currencyAuthorityFailure)
         }
 
         /**
@@ -150,7 +145,7 @@ class BankWorker
                 return true
             }
             for (currency in currencies) {
-                if (myBank!!.getCurrency(currency!!) == null) {
+                if (myBank!!.getCurrency(currency) == null) {
                     fail("badcurr", "invalid currency $currency")
                     return true
                 }
@@ -243,8 +238,7 @@ class BankWorker
          * @return the expiration date described by the given string, if valid,
          * or null if not.
          */
-        fun getValidExpiration(expiresStr: String?,
-                               limitToKey: Boolean): ExpirationDate? {
+        fun getValidExpiration(expiresStr: String?, limitToKey: Boolean): ExpirationDate? {
             val expires: ExpirationDate
             expires = if (expiresStr == null && limitToKey) {
                 key!!.expires()
@@ -259,7 +253,7 @@ class BankWorker
             return if (expires == null) {
                 fail("badexpiry", "invalid 'expires' parameter")
                 null
-            } else if (limitToKey && key!!.expires().compareTo(expires) < 0) {
+            } else if (limitToKey && key!!.expires() < expires) {
                 fail("badexpiry", "expiration time exceeds authority")
                 null
             } else if (expires.isExpired) {
@@ -402,7 +396,7 @@ class BankWorker
         if (env.operationAuthorityFailure("xfer")) {
             return
         }
-        myBank!!.withTwoAccounts(src!!, dst!!, object : DualAccountUpdater {
+        myBank!!.withTwoAccounts(src, dst, object : DualAccountUpdater {
             private var mySrcAccount: Account? = null
             private var myDstAccount: Account? = null
             override fun modify(account1: Account?, account2: Account?): Boolean {
@@ -482,7 +476,7 @@ class BankWorker
         if (env.amountValidationFailure(amount)) {
             return
         }
-        myBank!!.withAccount(dst!!, object : AccountUpdater {
+        myBank!!.withAccount(dst, object : AccountUpdater {
             private var myDstAccount: Account? = null
             override fun modify(account: Account?): Boolean {
                 myDstAccount = account
@@ -531,7 +525,7 @@ class BankWorker
         if (env.operationAuthorityFailure("mint")) {
             return
         }
-        myBank!!.withAccount(src!!, object : AccountUpdater {
+        myBank!!.withAccount(src, object : AccountUpdater {
             private var mySrcAccount: Account? = null
             override fun modify(account: Account?): Boolean {
                 mySrcAccount = account
@@ -586,7 +580,7 @@ class BankWorker
         if (env.operationAuthorityFailure("xfer")) {
             return
         }
-        myBank!!.withAccount(src!!, object : AccountUpdater {
+        myBank!!.withAccount(src, object : AccountUpdater {
             private var mySrcAccount: Account? = null
             private var myEnc: Encumbrance? = null
             override fun modify(account: Account?): Boolean {
@@ -643,7 +637,7 @@ class BankWorker
         if (env.operationAuthorityFailure("xfer")) {
             return
         }
-        myBank!!.withEncumberedAccount(encRef!!, object : AccountUpdater {
+        myBank!!.withEncumberedAccount(encRef, object : AccountUpdater {
             private var myEnc: Encumbrance? = null
             override fun modify(account: Account?): Boolean {
                 if (env.invalidAccountFailure(account, "src")) {
@@ -693,7 +687,7 @@ class BankWorker
         if (env.operationAuthorityFailure("xfer")) {
             return
         }
-        myBank!!.withEncumbranceAndAccount(encRef!!, dst!!, object : DualAccountUpdater {
+        myBank!!.withEncumbranceAndAccount(encRef, dst, object : DualAccountUpdater {
             private var mySrcAccount: Account? = null
             private var myDstAccount: Account? = null
             override fun modify(account1: Account?, account2: Account?): Boolean {
@@ -761,7 +755,7 @@ class BankWorker
         if (env.operationAuthorityFailure("mint")) {
             return
         }
-        myBank!!.withEncumberedAccount(encRef!!, object : AccountUpdater {
+        myBank!!.withEncumberedAccount(encRef, object : AccountUpdater {
             private var myEnc: Encumbrance? = null
             override fun modify(account: Account?): Boolean {
                 if (env.invalidAccountFailure(account, "src")) {
@@ -808,7 +802,7 @@ class BankWorker
         if (env.operationAuthorityFailure("xfer")) {
             return
         }
-        myBank!!.withEncumberedAccount(encRef!!, object : AccountUpdater {
+        myBank!!.withEncumberedAccount(encRef, object : AccountUpdater {
             override fun modify(account: Account?): Boolean {
                 if (env.invalidAccountFailure(account, "src")) {
                     return false
@@ -866,10 +860,9 @@ class BankWorker
             return
         }
         val replyAccounts = JSONLiteralArray()
-        for (curr in currs) {
-            val account = myBank!!.makeAccount(curr!!, owner, env.memo)
-            replyAccounts.addElement(account.ref())
-        }
+        currs
+                .map { myBank!!.makeAccount(it, owner, env.memo) }
+                .forEach { replyAccounts.addElement(it.ref()) }
         replyAccounts.finish()
         val reply = env.beginReply()
         reply.addParameter("accounts", replyAccounts)
@@ -1031,7 +1024,7 @@ class BankWorker
         if (env.operationAuthorityFailure("acct")) {
             return
         }
-        myBank!!.withAccount(account!!, object : AccountUpdater {
+        myBank!!.withAccount(account, object : AccountUpdater {
             override fun modify(account: Account?): Boolean {
                 if (env.invalidAccountFailure(account, "src")) {
                     return false
@@ -1073,7 +1066,7 @@ class BankWorker
         if (env.operationAuthorityFailure("acct")) {
             return
         }
-        myBank!!.withAccount(account!!, object : AccountUpdater {
+        myBank!!.withAccount(account, object : AccountUpdater {
             override fun modify(account: Account?): Boolean {
                 if (env.invalidAccountFailure(account, "src")) {
                     return false
@@ -1113,7 +1106,7 @@ class BankWorker
         if (env.operationAuthorityFailure("full")) {
             return
         }
-        if (myBank!!.getCurrency(curr!!) != null) {
+        if (myBank!!.getCurrency(curr) != null) {
             env.fail("currexists", "currency already exists")
             return
         }

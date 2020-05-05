@@ -25,11 +25,7 @@ internal fun scanHostList(props: ElkoProperties, propRoot: String, traceFactory:
             hostPropRoot += index
         }
         ++index
-        val host = HostDesc.fromProperties(props, hostPropRoot, traceFactory)
-        if (host == null) {
-            return hosts
-        } else {
-            hosts.add(host)
-        }
+        val host = HostDesc.fromProperties(props, hostPropRoot, traceFactory) ?: return hosts
+        hosts.add(host)
     }
 }

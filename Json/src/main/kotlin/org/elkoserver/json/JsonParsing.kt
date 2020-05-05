@@ -13,7 +13,7 @@ object JsonParsing {
             null
         } else {
             val nanoObject = JsonParser.`object`().from(string)
-            nanoObject?.let { JsonObject(it) }
+            nanoObject?.let(::JsonObject)
         }
         return result
     }
@@ -34,7 +34,7 @@ object JsonParsing {
             null
         } else {
             val nanoObject = JsonParser.`object`().from(reader)
-            nanoObject?.let { JsonObject(it) }
+            nanoObject?.let(::JsonObject)
         }
         return result
     }

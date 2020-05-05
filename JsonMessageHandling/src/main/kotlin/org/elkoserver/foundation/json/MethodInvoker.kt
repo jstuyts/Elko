@@ -21,7 +21,7 @@ internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Cla
 
     /** The Java class that defined the method.  */
     @Suppress("UNCHECKED_CAST")
-    private val myMethodClass: Class<out DispatchTarget> = myMethod.declaringClass.takeIf { DispatchTarget::class.java.isAssignableFrom(it) }
+    private val myMethodClass: Class<out DispatchTarget> = myMethod.declaringClass.takeIf(DispatchTarget::class.java::isAssignableFrom)
             as? Class<out DispatchTarget>
             ?: throw IllegalStateException("Not a method of a dispatch target")
 

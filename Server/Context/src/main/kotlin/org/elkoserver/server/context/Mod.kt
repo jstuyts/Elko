@@ -159,14 +159,14 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      * is located, at whatever level of container nesting, or null if it is
      * not held by anything.
      */
-    protected fun holder() = assertAttached { it.holder() }
+    protected fun holder() = assertAttached(BasicObject::holder)
 
     /**
      * Mark the object to which this mod is attached as having been changed and
      * thus in need of checkpointing.
      */
     protected fun markAsChanged() {
-        assertAttached { it.markAsChanged() }
+        assertAttached(BasicObject::markAsChanged)
     }
 
     /**
@@ -191,7 +191,7 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      * @return the context in which this mod is located, or null if it is not
      * in any context.
      */
-    fun context() = assertAttached { it.context() }
+    fun context() = assertAttached(BasicObject::context)
 
     private fun <TResult> assertAttached(myObjectConsumer: (BasicObject) -> TResult) =
             myObject?.let(myObjectConsumer) ?: throw IllegalStateException("Not attached")

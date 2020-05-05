@@ -218,7 +218,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
             for (i in descs.indices) {
                 try {
                     val jsonObj = jsonObjectFromString(descs[i].obj()!!)!!
-                    if (jsonObj.getString("type", null) != null) {
+                    if (jsonObj.getString<String?>("type", null) != null) {
                         results[i] = decodeJSONObject(jsonObj)
                     } else {
                         results[i] = jsonObj

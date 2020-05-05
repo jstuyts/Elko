@@ -20,7 +20,6 @@ import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.security.SecureRandom
 import java.time.Clock
-import java.util.Collections
 import java.util.LinkedList
 import java.util.StringTokenizer
 import java.util.function.Consumer
@@ -111,7 +110,7 @@ class Contextor internal constructor(
         return if (delim < 0) {
             false
         } else {
-            val family = ref.substring(0, delim)
+            val family = ref.take(delim)
             myContextFamilies.contains(family) || myContextFamilies.contains("$$family")
         }
     }
@@ -196,9 +195,8 @@ class Contextor internal constructor(
     fun addStaticObject(key: String, obj: Any) {
         myStaticObjects[key] = obj
         if (obj is InternalObject) {
-            val internal = obj
-            internal.activate(key, this)
-            (internal as? AdminObject)?.let { addRef(it) }
+            obj.activate(key, this)
+            (obj as? AdminObject)?.let(this@Contextor::addRef)
         }
     }
 
@@ -213,11 +211,9 @@ class Contextor internal constructor(
      * Save all changed objects that need saving.
      */
     private fun checkpointAll() {
-        for (candidate in this) {
-            if (candidate is BasicObject) {
-                candidate.checkpointWithoutContents()
-            }
-        }
+        this
+                .filterIsInstance<BasicObject>()
+                .forEach(BasicObject::checkpointWithoutContents)
     }
 
     /**
@@ -232,7 +228,7 @@ class Contextor internal constructor(
      *
      * @return the current set of open contexts.
      */
-    fun contexts() = Collections.unmodifiableSet(myContexts)
+    fun contexts(): Set<Context> = myContexts
 
     /**
      * Common initialization logic for createItem.
@@ -332,14 +328,8 @@ class Contextor internal constructor(
      * room for a new user, or null if 'ref' does not refer to a cloneable
      * context or if all the clones are full.
      */
-    private fun findContextClone(ref: String): Context? {
-        for (context in myContextClones.getMulti(ref)) {
-            if (context.userCount() < context.baseCapacity() && !context.gateIsClosed()) {
-                return context
-            }
-        }
-        return null
-    }
+    private fun findContextClone(ref: String): Context? =
+            myContextClones.getMulti(ref).firstOrNull { it.userCount() < it.baseCapacity() && !it.gateIsClosed() }
 
     /**
      * Find or make a connection to an external service.
@@ -1199,7 +1189,7 @@ class Contextor internal constructor(
      *
      * @return the current set of open users.
      */
-    fun users() = Collections.unmodifiableSet(myUsers)
+    fun users(): Set<User> = myUsers
 
     /**
      * Record an object deletion in the object database, with completion
@@ -1244,7 +1234,7 @@ class Contextor internal constructor(
             return if (dash < 0) {
                 ref
             } else {
-                ref.substring(0, dash)
+                ref.take(dash)
             }
         }
 

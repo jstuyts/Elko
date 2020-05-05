@@ -212,9 +212,7 @@ internal constructor(name: String,
      *
      * @return the number of users who may enter before the context clones.
      */
-    fun baseCapacity(): Int {
-        return myBaseCapacity
-    }
+    fun baseCapacity(): Int = myBaseCapacity
 
     /**
      * If nobody is using this context any more, checkpoint and discard it.
@@ -275,7 +273,7 @@ internal constructor(name: String,
         } else {
             val currentUsers = myUsers
             if (currentUsers != null) {
-                val prev = currentUsers.get(who.baseRef())
+                val prev = currentUsers[who.baseRef()]
                 if (prev != null && !who.isEphemeral) {
                     tr.eventi("expelling $prev from $this due to reentry as $who")
                     prev.send(msgExit(this, "duplicate entry", "dupentry", false))
@@ -283,7 +281,7 @@ internal constructor(name: String,
                 }
                 currentUsers[who.baseRef()] = who
             }
-            sendContextDescription(who, assertActivated { it.session() })
+            sendContextDescription(who, assertActivated(Contextor::session))
             noteUserArrival(who)
             tr.eventi("$who enters $this")
             null
@@ -298,7 +296,7 @@ internal constructor(name: String,
     fun exitContext(who: User) {
         tr.eventi("$who exits $this")
         val currentUsers = myUsers
-        if (currentUsers != null && currentUsers.get(who.baseRef()) != null && currentUsers.get(who.baseRef())!!.ref() == who.ref()) {
+        if (currentUsers?.get(who.baseRef()) != null && currentUsers[who.baseRef()]!!.ref() == who.ref()) {
             currentUsers.remove(who.baseRef())
         }
         if (who.isArrived) {
@@ -330,10 +328,9 @@ internal constructor(name: String,
     fun forceClose(dup: Boolean) {
         amForceClosing = true
         val members: List<Deliverer> = LinkedList(myGroup.members())
-        for (member in members) {
-            val user = member as User
-            user.exitContext("context closing", "contextclose", dup)
-        }
+        members
+                .map { it as User }
+                .forEach { it.exitContext("context closing", "contextclose", dup) }
     }
 
     /**
@@ -380,9 +377,7 @@ internal constructor(name: String,
      * @return the static object corresponding to 'ref', or null if there is no
      * such object in the server's static object table.
      */
-    fun getStaticObject(ref: String): Any? {
-        return assertActivated { it.getStaticObject(ref) }
-    }
+    fun getStaticObject(ref: String): Any? = assertActivated { it.getStaticObject(ref) }
 
     /**
      * Obtain this context's send group.
@@ -403,9 +398,7 @@ internal constructor(name: String,
      * Obtain the ref of the context descriptor from which this context was
      * loaded.
      */
-    fun loadedFromRef(): String? {
-        return myLoadedFromRef
-    }
+    fun loadedFromRef(): String? = myLoadedFromRef
 
     /**
      * Obtain the number of users who may enter before no more are allowed in.
@@ -413,18 +406,14 @@ internal constructor(name: String,
      * @return the number of users who may enter before the context becomes
      * full.
      */
-    fun maxCapacity(): Int {
-        return myMaxCapacity
-    }
+    fun maxCapacity(): Int = myMaxCapacity
 
     /**
      * Notify anybody who has expressed an interest in this context shutting
      * down.
      */
     private fun noteContextShutdown() {
-        myContextShutdownWatchers?.forEach { watcher ->
-            watcher.noteContextShutdown()
-        }
+        myContextShutdownWatchers?.forEach(ContextShutdownWatcher::noteContextShutdown)
     }
 
     /**
@@ -475,9 +464,7 @@ internal constructor(name: String,
      *
      * @return the director who asked for this context to be opened.
      */
-    fun opener(): DirectorActor? {
-        return myOpener
-    }
+    fun opener(): DirectorActor? = myOpener
 
     /**
      * Open this context's gate, allowing new users in if the context is not
@@ -617,11 +604,9 @@ internal constructor(name: String,
         }
         to.send(msgMake(maker, this, sess))
         if (!isSemiPrivate) {
-            for (member in myGroup.members()) {
-                if (member is User) {
-                    member.sendUserDescription(to, this, false)
-                }
-            }
+            myGroup.members()
+                    .filterIsInstance<User>()
+                    .forEach { it.sendUserDescription(to, this, false) }
         }
         if (!amContentAgnostic) {
             sendContentsDescription(to, this, myContents)
@@ -641,9 +626,7 @@ internal constructor(name: String,
         myGroup.sendToNeighbors(exclude!!, message!!)
     }
 
-    fun subscriptions(): Array<String>? {
-        return mySubscriptions
-    }
+    fun subscriptions(): Array<String>? = mySubscriptions
 
     /**
      * Obtain a Deliverer that will deliver to all of a user's neighbors in
@@ -685,9 +668,7 @@ internal constructor(name: String,
     private inner class UserIterator internal constructor() : MutableIterator<User> {
         private val myInnerIterator = myGroup.members().iterator()
         private var myNext: User?
-        override fun hasNext(): Boolean {
-            return myNext != null
-        }
+        override fun hasNext(): Boolean = myNext != null
 
         override fun next(): User {
             return if (myNext != null) {
@@ -725,9 +706,7 @@ internal constructor(name: String,
      *
      * @return an @{link java.util.Iterator} over this context's current users.
      */
-    fun userIterator(): Iterator<User> {
-        return UserIterator()
-    }
+    fun userIterator(): Iterator<User> = UserIterator()
 
     /**
      * Handle the 'exit' verb.
@@ -768,7 +747,7 @@ internal constructor(name: String,
      *
      * @return null, since a context is never contained by a user.
      */
-    override fun user() = null
+    override fun user(): User? = null
     /* ----- Deliverer interface ------------------------------------------- */
     /**
      * Send a message to everyone in this context.  The message will be
@@ -848,10 +827,9 @@ internal constructor(name: String,
         fun toList(toList: List<BasicObject>): Deliverer {
             return object : Deliverer {
                 override fun send(message: JSONLiteral) {
-                    for (to in toList) {
-                        val toUser = to as User
-                        toUser.send(message)
-                    }
+                    toList
+                            .map { it as User }
+                            .forEach { it.send(message) }
                 }
             }
         }
@@ -870,12 +848,10 @@ internal constructor(name: String,
                             exclude: Deliverer): Deliverer {
             return object : Deliverer {
                 override fun send(message: JSONLiteral) {
-                    for (to in toList) {
-                        val toUser = to as User
-                        if (toUser != exclude) {
-                            toUser.send(message)
-                        }
-                    }
+                    toList
+                            .map { it as User }
+                            .filter { it != exclude }
+                            .forEach { it.send(message) }
                 }
             }
         }

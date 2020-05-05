@@ -140,9 +140,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
      *
      * @return a string referencing this object.
      */
-    override fun ref(): String {
-        return "admin"
-    }
+    override fun ref(): String = "admin"
 
     /**
      * Handle the 'close' verb.
@@ -203,13 +201,9 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         private var myNumContexts = 0
         private var myNumUsers = 0
         private val myOpenContexts = LinkedList<ContextDump>()
-        fun numContexts(): Int {
-            return myNumContexts
-        }
+        fun numContexts(): Int = myNumContexts
 
-        fun numUsers(): Int {
-            return myNumUsers
-        }
+        fun numUsers(): Int = myNumUsers
 
         override fun encode(control: EncodeControl) =
                 JSONLiteralFactory.type("providerdesc", control).apply {
@@ -327,12 +321,12 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         val providerName = provider.value<String?>(null)
         if (providerName != null) {
             val msg = msgReinit(myDirector.providerHandler())
-            for (subj in myDirector.providers()) {
-                if (providerName == "all" ||
-                        subj.matchLabel(providerName)) {
-                    subj.actor().send(msg)
-                }
-            }
+            myDirector.providers()
+                    .filter {
+                        providerName == "all" ||
+                                it.matchLabel(providerName)
+                    }
+                    .forEach { it.actor().send(msg) }
         }
         if (director.value(false)) {
             myDirector.reinitServer()
@@ -393,12 +387,12 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         val kill = optKill.value(false)
         if (providerName != null) {
             val msg = msgShutdown(myDirector.providerHandler(), kill)
-            for (subj in myDirector.providers()) {
-                if (providerName == "all" ||
-                        subj.matchLabel(providerName)) {
-                    subj.actor().send(msg)
-                }
-            }
+            myDirector.providers()
+                    .filter {
+                        providerName == "all" ||
+                                it.matchLabel(providerName)
+                    }
+                    .forEach { it.actor().send(msg) }
         }
         if (director.value(false)) {
             myDirector.shutdownServer()

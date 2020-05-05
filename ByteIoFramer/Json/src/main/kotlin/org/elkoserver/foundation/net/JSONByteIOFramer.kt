@@ -22,7 +22,7 @@ class JSONByteIOFramer(private val trMsg: Trace, private val myReceiver: Message
     /**
      * Constructor.
      */
-    constructor(msgTrace: Trace, receiver: MessageReceiver, label: String, traceFactory: TraceFactory) : this(msgTrace, receiver, label, ChunkyByteArrayInputStream(traceFactory)) {}
+    constructor(msgTrace: Trace, receiver: MessageReceiver, label: String, traceFactory: TraceFactory) : this(msgTrace, receiver, label, ChunkyByteArrayInputStream(traceFactory))
 
     /**
      * Process bytes of data received.

@@ -79,11 +79,9 @@ class Session(private val myContextor: Contextor, server: Server, traceFactory: 
                 }
                 "users" -> {
                     val list = JSONLiteralArray()
-                    for (user in myContextor.users()) {
-                        if (contextRef == null || user.context().ref() == contextRef) {
-                            list.addElement(user.ref())
-                        }
-                    }
+                    myContextor.users()
+                            .filter { contextRef == null || it.context().ref() == contextRef }
+                            .forEach { list.addElement(it.ref()) }
                     list.finish()
                     reply.addParameter("users", list)
                 }
@@ -121,14 +119,13 @@ class Session(private val myContextor: Contextor, server: Server, traceFactory: 
                      scope: OptString) {
         if (from is User) {
             throw MessageHandlerException("already in a context")
-        } else  /* if (from instanceof UserActor) */ {
-            val fromActor = from as UserActor
-            fromActor.enterContext(user.value<String?>(null), name.value<String?>(null), context,
-                    contextTemplate.value<String?>(null),
-                    sess.value<String?>(null), auth.value<String?>(null),
-                    utag.value<String?>(null), uparam,
-                    debug.value(false), scope.value<String?>(null))
-        }
+        }   /* if (from instanceof UserActor) */
+        val fromActor = from as UserActor
+        fromActor.enterContext(user.value<String?>(null), name.value<String?>(null), context,
+                contextTemplate.value<String?>(null),
+                sess.value<String?>(null), auth.value<String?>(null),
+                utag.value<String?>(null), uparam,
+                debug.value(false), scope.value<String?>(null))
     }
 
     /**

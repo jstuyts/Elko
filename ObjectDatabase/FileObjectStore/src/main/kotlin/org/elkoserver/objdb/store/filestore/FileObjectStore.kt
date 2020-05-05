@@ -50,7 +50,8 @@ class FileObjectStore : ObjectStore {
      * @param appTrace  Trace object for use in logging.
      */
     override fun initialize(props: ElkoProperties, propRoot: String, appTrace: Trace) {
-        val dirname = props.getProperty("$propRoot.odb") ?: appTrace.fatalError("no object database directory specified")
+        val dirname = props.getProperty("$propRoot.odb")
+                ?: appTrace.fatalError("no object database directory specified")
         myODBDirectory = File(dirname)
         if (!myODBDirectory.exists()) {
             appTrace.fatalError("object database directory '$dirname' does not exist")
@@ -67,11 +68,9 @@ class FileObjectStore : ObjectStore {
      */
     private fun dereferenceValue(value: Any, results: MutableList<ObjectDesc>) {
         if (value is JsonArray) {
-            for (elem in value) {
-                if (elem is String) {
-                    results.addAll(doGet(elem))
-                }
-            }
+            value
+                    .filterIsInstance<String>()
+                    .forEach { results.addAll(doGet(it)) }
         } else if (value is String) {
             results.addAll(doGet(value))
         }
@@ -202,9 +201,7 @@ class FileObjectStore : ObjectStore {
      *
      * @return a File object for the file containing JSON for 'ref'.
      */
-    private fun odbFile(ref: String): File {
-        return File(myODBDirectory, "$ref.json")
-    }
+    private fun odbFile(ref: String): File = File(myODBDirectory, "$ref.json")
 
     /**
      * Service a 'put' request.  This is a request to write one or more objects
@@ -215,7 +212,7 @@ class FileObjectStore : ObjectStore {
      * failure indicators), when available.
      */
     override fun putObjects(what: Array<PutDesc>, handler: RequestResultHandler) {
-        val results = Array(what.size) { doPut(what[it].ref(), what[it].obj(), what[it].isRequireNew)}
+        val results = Array(what.size) { doPut(what[it].ref(), what[it].obj(), what[it].isRequireNew) }
         handler.handle(results)
     }
 

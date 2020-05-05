@@ -44,9 +44,7 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
      *
      * @return this connection's ID number.
      */
-    override fun id(): Int {
-        return myID
-    }
+    override fun id(): Int = myID
 
     /**
      * Enqueue a received message for processing.

@@ -23,7 +23,7 @@ internal fun printStackTrace(problem: Throwable, out: PrintWriter) {
  * stack trace is being printed.
  */
 internal fun printStackTrace(problem: Throwable, out: PrintWriter,
-                            nonLocal: Boolean) {
+                             nonLocal: Boolean) {
     out.println("+-vvvv--")
     logStackTrace(problem, out)
     if (nonLocal) {

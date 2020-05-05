@@ -9,7 +9,6 @@ import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
-import java.util.Collections
 import java.util.LinkedList
 import java.util.function.Consumer
 
@@ -59,9 +58,7 @@ internal class PresenceServer(
      *
      * @return the set of connected actors.
      */
-    fun actors(): Set<PresenceActor> {
-        return Collections.unmodifiableSet(myActors)
-    }
+    fun actors(): Set<PresenceActor> = myActors
 
     /**
      * Add a new actor to the table of connected actors.
@@ -158,25 +155,19 @@ internal class PresenceServer(
      * @return a metadata object for the given context, or null if there is
      * none.
      */
-    fun getContextMetadata(contextRef: String): JsonObject? {
-        return myContextMetadata[contextRef]
-    }
+    fun getContextMetadata(contextRef: String): JsonObject? = myContextMetadata[contextRef]
 
     /**
      * Obtain the application trace object for this presence server.
      *
      * @return the presence server's trace object.
      */
-    fun appTrace(): Trace {
-        return tr
-    }
+    fun appTrace(): Trace = tr
 
     /**
      * Get the handler for client messages.
      */
-    fun clientHandler(): ClientHandler {
-        return myClientHandler
-    }
+    fun clientHandler(): ClientHandler = myClientHandler
 
     /**
      * Obtain the active user info for a named user.
@@ -186,18 +177,14 @@ internal class PresenceServer(
      * @return the active user info for the named user, or null if that user
      * currently has no presences.
      */
-    fun getActiveUser(userRef: String): ActiveUser? {
-        return myUsers[userRef]
-    }
+    fun getActiveUser(userRef: String): ActiveUser? = myUsers[userRef]
 
     fun objDB() = myODB
 
     /**
      * Return the object ref table.
      */
-    fun refTable(): RefTable {
-        return myRefTable
-    }
+    fun refTable(): RefTable = myRefTable
 
     /**
      * Reinitialize the server.
@@ -219,9 +206,7 @@ internal class PresenceServer(
         myVisibles.values.removeIf { client: PresenceActor -> client === actor }
     }
 
-    private fun isVisible(context: String): Boolean {
-        return myVisibles.containsKey(context)
-    }
+    private fun isVisible(context: String): Boolean = myVisibles.containsKey(context)
 
     /**
      * Remove a departing user from the collection of online user presences.
@@ -262,16 +247,12 @@ internal class PresenceServer(
     /**
      * Return the current number of active users
      */
-    fun userCount(): Int {
-        return myUsers.size
-    }
+    fun userCount(): Int = myUsers.size
 
     /**
      * Return an iterable collection of all the active users.
      */
-    fun users(): Collection<ActiveUser> {
-        return myUsers.values
-    }
+    fun users(): Collection<ActiveUser> = myUsers.values
 
     init {
         myRefTable.addRef(myClientHandler)
@@ -286,12 +267,9 @@ internal class PresenceServer(
         myODB.getObject("graphs", null, Consumer { obj: Any? ->
             if (obj != null) {
                 val info = obj as GraphTable
-                for (desc in info.graphs) {
-                    val graph = desc.init(this@PresenceServer)
-                    if (graph != null) {
-                        mySocialGraphs[graph.domain().name()] = graph
-                    }
-                }
+                info.graphs
+                        .mapNotNull { it.init(this@PresenceServer) }
+                        .forEach { mySocialGraphs[it.domain().name()] = it }
             } else {
                 tr.warningi("unable to load social graph metadata table")
             }

@@ -15,7 +15,6 @@ import org.elkoserver.util.HashSetMulti
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
-import java.util.Collections
 import java.util.LinkedList
 import java.util.TreeMap
 
@@ -122,7 +121,7 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
      *
      * @return the collection of known contexts.
      */
-    fun contexts() = Collections.unmodifiableCollection(myContexts.values)
+    fun contexts(): Collection<OpenContext> = myContexts.values
 
     /**
      * Do the work of relaying a message embedded in another message.
@@ -222,7 +221,7 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
      *
      * @return the set of known providers.
      */
-    fun providers() = Collections.unmodifiableSet(myProviders.keys)
+    fun providers(): Set<Provider> = myProviders.keys
 
     /**
      * Return the object ref table.
@@ -290,7 +289,7 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
         return if (delim < 0) {
             context
         } else {
-            context.substring(0, delim)
+            context.take(delim)
         }
     }
 
@@ -343,19 +342,13 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
                 provider.actor().send(msg)
             }
         } else if (clones != null) {
-            for (provider in myProviders.keys) {
-                if (provider != omitProvider && provider.hasClone(contextRef!!)) {
-                    if (userRef == null || provider.hasUser(userRef)) {
-                        provider.actor().send(msg)
-                    }
-                }
-            }
+            myProviders.keys
+                    .filter { it != omitProvider && it.hasClone(contextRef!!) && (userRef == null || it.hasUser(userRef)) }
+                    .forEach { it.actor().send(msg) }
         } else if (directorHasUser) {
-            for (provider in myProviders.keys) {
-                if (provider != omitProvider && provider.hasUser(userRef!!)) {
-                    provider.actor().send(msg)
-                }
-            }
+            myProviders.keys
+                    .filter { it != omitProvider && it.hasUser(userRef!!) }
+                    .forEach { it.actor().send(msg) }
         } else {
             throw MessageHandlerException(
                     "request message missing context or user")
@@ -454,7 +447,7 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
         fun userCloneSetName(userName: String): String {
             var dash = userName.indexOf('-')
             dash = userName.indexOf('-', dash + 1)
-            return userName.substring(0, dash)
+            return userName.take(dash)
         }
 
         /**

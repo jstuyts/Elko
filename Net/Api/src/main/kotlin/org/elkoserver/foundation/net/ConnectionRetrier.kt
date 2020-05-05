@@ -66,7 +66,7 @@ class ConnectionRetrier(
         myNetworkManager = networkManager
         myActualFactory = actualFactory
         myTrace.eventi("connecting to $myLabel at ${myHost.hostPort()}")
-        myRetryTimeout = object: TimeoutNoticer {
+        myRetryTimeout = object : TimeoutNoticer {
             override fun noticeTimeout() {
                 handleRetryTimeout()
             }

@@ -84,7 +84,7 @@ class HashSetMulti<V> : Iterable<V> {
      * each object that is in the set is returned exactly once, regardless
      * of how many times it has been added.
      */
-    override fun iterator() = myMembers?.keys?.iterator() ?: emptyIterator()
+    override fun iterator(): MutableIterator<V> = myMembers?.keys?.iterator() ?: emptyIterator()
 
     /**
      * Remove an object from the set.  Note that the object only really

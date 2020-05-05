@@ -56,7 +56,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    internal constructor(server: Server, appTrace: Trace, traceFactory: TraceFactory, clock: Clock) : this(server.openObjectDatabase("conf.workshop"), server, appTrace, traceFactory, clock) {}
+    internal constructor(server: Server, appTrace: Trace, traceFactory: TraceFactory, clock: Clock) : this(server.openObjectDatabase("conf.workshop"), server, appTrace, traceFactory, clock)
 
     /**
      * Add a worker to the object table.
@@ -73,9 +73,7 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      *
      * @return the workshop's trace object.
      */
-    fun appTrace(): Trace {
-        return tr
-    }
+    fun appTrace(): Trace = tr
 
     /**
      * Load the statically configured worker objects.
@@ -114,12 +112,9 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      */
     fun registerService(serviceName: String) {
         val services = myServer.services()
-        val newServices: MutableList<ServiceDesc> = LinkedList()
-        for (service in services) {
-            if ("workshop-service" == service.service()) {
-                newServices.add(service.subService(serviceName))
-            }
-        }
+        val newServices: MutableList<ServiceDesc> = services
+                .filter { "workshop-service" == it.service() }
+                .mapTo(LinkedList()) { it.subService(serviceName) }
         for (service in newServices) {
             myServer.registerService(service)
         }

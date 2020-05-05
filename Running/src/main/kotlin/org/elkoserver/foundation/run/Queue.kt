@@ -32,7 +32,7 @@ class Queue<TElement> : Enumeration<TElement> {
             while (true) {
                 val result = optDequeue()
                 if (result != null) {
-                    return result
+                    return@dequeue result
                 }
                 try {
                     myQLock.wait()
@@ -61,21 +61,21 @@ class Queue<TElement> : Enumeration<TElement> {
 
             /* grow array if necessary */
             if (myCurSize == myMaxSize) {
-            val newSize = myMaxSize * 3 / 2 + 10
-            val elementType = myStuff.javaClass.componentType
-            val stuff = java.lang.reflect.Array.newInstance(elementType, newSize) as Array<TElement?>
+                val newSize = myMaxSize * 3 / 2 + 10
+                val elementType = myStuff.javaClass.componentType
+                val stuff = java.lang.reflect.Array.newInstance(elementType, newSize) as Array<TElement?>
 
-            /* note: careful code to avoid inadvertantly reordering msgs */
-            System.arraycopy(myStuff, myOut, stuff, 0, myMaxSize - myOut)
-            if (myOut != 0) {
-                System.arraycopy(myStuff, 0, stuff, myMaxSize - myOut,
-                        myOut)
+                /* note: careful code to avoid inadvertantly reordering msgs */
+                System.arraycopy(myStuff, myOut, stuff, 0, myMaxSize - myOut)
+                if (myOut != 0) {
+                    System.arraycopy(myStuff, 0, stuff, myMaxSize - myOut,
+                            myOut)
+                }
+                myOut = 0
+                myIn = myMaxSize
+                myStuff = stuff as Array<Any?>
+                myMaxSize = newSize
             }
-            myOut = 0
-            myIn = myMaxSize
-            myStuff = stuff as Array<Any?>
-            myMaxSize = newSize
-        }
             /* Will throw ArrayStoreException if newElement's type doesn't 
                conform to elementType */
             myStuff[myIn] = newElement
@@ -120,7 +120,7 @@ class Queue<TElement> : Enumeration<TElement> {
                 myOut = 0
             }
             --myCurSize
-            return result
+            return@optDequeue result
         }
     }
 

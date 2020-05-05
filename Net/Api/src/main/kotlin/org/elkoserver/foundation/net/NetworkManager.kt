@@ -266,27 +266,21 @@ class NetworkManager(
      *
      * @return the load monitor.
      */
-    fun loadMonitor(): LoadMonitor {
-        return myLoadMonitor
-    }
+    fun loadMonitor(): LoadMonitor = myLoadMonitor
 
     /**
      * Get the run queue for this server.
      *
      * @return the current runner.
      */
-    fun runner(): Runner {
-        return myRunner
-    }
+    fun runner(): Runner = myRunner
 
     /**
      * Get this server's properties.
      *
      * @return the properties
      */
-    fun props(): ElkoProperties {
-        return myProps
-    }
+    fun props(): ElkoProperties = myProps
 
     /**
      * Do all the various key and certificate management stuff needed to set
@@ -301,9 +295,7 @@ class NetworkManager(
      *
      * @return the SSL context, if supporting SSL, else null.
      */
-    fun sslContext(): SSLContext? {
-        return mySSLContext
-    }
+    fun sslContext(): SSLContext? = mySSLContext
 
     init {
         myConnectionManagers = HashMap()

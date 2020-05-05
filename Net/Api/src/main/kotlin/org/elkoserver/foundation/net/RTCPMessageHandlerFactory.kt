@@ -202,9 +202,7 @@ internal class RTCPMessageHandlerFactory(
      * @return the session whose session ID is 'sessionID', or null if there is
      * no such session.
      */
-    private fun getSession(sessionID: String): RTCPSessionConnection? {
-        return mySessions[sessionID]
-    }
+    private fun getSession(sessionID: String): RTCPSessionConnection? = mySessions[sessionID]
 
     /**
      * Obtain the inner message handler factory for this factory.  This is the
@@ -214,9 +212,7 @@ internal class RTCPMessageHandlerFactory(
      *
      * @return the inner message handler factory for this factory.
      */
-    fun innerFactory(): MessageHandlerFactory {
-        return myInnerFactory
-    }
+    fun innerFactory(): MessageHandlerFactory = myInnerFactory
 
     /**
      * Generate the request line for an RTCP 'ack' request, acknowledging
@@ -228,9 +224,7 @@ internal class RTCPMessageHandlerFactory(
      *
      * @return an RTCP 'ack' request line corresponding to the parameter.
      */
-    fun makeAck(clientSeqNum: Int): String {
-        return "ack $clientSeqNum\n"
-    }
+    fun makeAck(clientSeqNum: Int): String = "ack $clientSeqNum\n"
 
     /**
      * Generate the request line for an RTCP 'error' request, typically the
@@ -260,9 +254,7 @@ internal class RTCPMessageHandlerFactory(
      * @return an RTCP message delivery request corresponding to the
      * parameters.
      */
-    fun makeMessage(serverSeqNum: Int, clientSeqNum: Int, message: String): String {
-        return "$serverSeqNum $clientSeqNum\n$message\n\n"
-    }
+    fun makeMessage(serverSeqNum: Int, clientSeqNum: Int, message: String): String = "$serverSeqNum $clientSeqNum\n$message\n\n"
 
     /**
      * Generate the request line for an RTCP 'resume' reply.
@@ -274,9 +266,7 @@ internal class RTCPMessageHandlerFactory(
      *
      * @return an RTCP 'resume' reply line corresponding to the parameters.
      */
-    private fun makeResumeReply(sessionID: String, seqNum: Int): String {
-        return "resume $sessionID $seqNum\n"
-    }
+    private fun makeResumeReply(sessionID: String, seqNum: Int): String = "resume $sessionID $seqNum\n"
 
     /**
      * Generate the request line for an RTCP 'start' reply.
@@ -285,9 +275,7 @@ internal class RTCPMessageHandlerFactory(
      *
      * @return an RTCP 'start' reply line corresponding to the parameter.
      */
-    private fun makeStartReply(sessionID: String): String {
-        return "start $sessionID\n"
-    }
+    private fun makeStartReply(sessionID: String): String = "start $sessionID\n"
 
     /**
      * Get the message trace object for this factory.  This trace object should
@@ -296,18 +284,14 @@ internal class RTCPMessageHandlerFactory(
      *
      * @return this framer's message trace object.
      */
-    fun msgTrace(): Trace {
-        return trMsg
-    }
+    fun msgTrace(): Trace = trMsg
 
     /**
      * Obtain the network manager for this factory.
      *
      * @return this factory's network manager object.
      */
-    fun networkManager(): NetworkManager {
-        return myManager
-    }
+    fun networkManager(): NetworkManager = myManager
 
     /**
      * Provide a message handler for a new (RTCP over TCP) connection.
@@ -348,9 +332,7 @@ internal class RTCPMessageHandlerFactory(
      *
      * @return the session backlog limit, in characters.
      */
-    fun sessionBacklogLimit(): Int {
-        return mySessionBacklogLimit
-    }
+    fun sessionBacklogLimit(): Int = mySessionBacklogLimit
 
     /**
      * Obtain the RTCP session disconnected timeout interval: the time an RTCP

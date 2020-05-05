@@ -2,6 +2,7 @@ package com.example.game.mods
 
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JSONLiteral
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.User
 import org.elkoserver.server.context.UserMod
@@ -10,7 +11,7 @@ import org.elkoserver.server.context.UserMod
  * Ephemeral user mod to let users in a context talk privately to each other.
  */
 class PrivateChat @JSONMethod constructor() : Mod(), UserMod {
-    override fun encode(control: EncodeControl) = null
+    override fun encode(control: EncodeControl): JSONLiteral? = null
 
     @JSONMethod("speech")
     fun say(from: User, speech: String) {

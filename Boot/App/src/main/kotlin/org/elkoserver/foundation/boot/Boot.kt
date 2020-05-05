@@ -122,9 +122,7 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
                     ?: bootArguments.mainClassName.substringAfterLast('.')
 
             val serverIdentifier = bootArguments.bootProperties.getProperty("gorgel.system.identifier")
-                    ?: bootArguments.bootProperties.stringPropertyNames().firstOrNull { it.endsWith(".name") }?.let {
-                        bootArguments.bootProperties.getProperty(it)
-                    }
+                    ?: bootArguments.bootProperties.stringPropertyNames().firstOrNull { it.endsWith(".name") }?.let(bootArguments.bootProperties::getProperty)
                     ?: InetAddress.getLocalHost().hostName
 
             val configuredLogbackConfigurationFilePath = bootArguments.bootProperties.getProperty("gorgel.configuration.file")

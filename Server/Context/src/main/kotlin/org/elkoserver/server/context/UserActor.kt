@@ -171,19 +171,18 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
             if (auth == null) {
                 abruptExit("reservation required", "nores")
                 return
-            } else {
-                val reservation = if (isEphemeral) {
-                    myContextor.lookupReservation(null, contextRef, auth)
-                } else {
-                    myContextor.lookupReservation(actualUserRef, contextRef, auth)
-                }
-                if (reservation == null) {
-                    abruptExit("invalid reservation", "badres")
-                    return
-                }
-                opener = reservation.issuer()
-                reservation.redeem()
             }
+            val reservation = if (isEphemeral) {
+                myContextor.lookupReservation(null, contextRef, auth)
+            } else {
+                myContextor.lookupReservation(actualUserRef, contextRef, auth)
+            }
+            if (reservation == null) {
+                abruptExit("invalid reservation", "badres")
+                return
+            }
+            opener = reservation.issuer()
+            reservation.redeem()
         }
         val runnable = EnterRunnable(actualUserRef, isEphemeral, isAnonymous, actualName, contextRef, sess)
         if (utag != null) {

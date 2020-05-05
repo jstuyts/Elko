@@ -26,7 +26,6 @@ import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
-import java.util.Collections
 import java.util.HashMap
 import java.util.HashSet
 import java.util.LinkedList
@@ -146,9 +145,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
     }
 
     private inner class BrokerMessageHandlerFactory : MessageHandlerFactory {
-        override fun provideMessageHandler(connection: Connection?): MessageHandler {
-            return BrokerActor(connection, myDispatcher, this@Server, myBrokerHost!!, traceFactory)
-        }
+        override fun provideMessageHandler(connection: Connection?): MessageHandler = BrokerActor(connection, myDispatcher, this@Server, myBrokerHost!!, traceFactory)
     }
 
     /**
@@ -295,7 +292,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
                 tr.warningm("service query for $myLabel returned multiple results; using first one")
             }
             val actor = myServiceActorsByProviderID[myDesc!!.providerID()]
-            actor?.let { connectLinkToActor(it) }
+            actor?.let(::connectLinkToActor)
                     ?: ConnectionRetrier(myDesc!!.asHostDesc(-1), myLabel,
                             myNetworkManager, this, timer, tr, traceFactory)
         }
@@ -507,7 +504,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
      * @return a list of ServiceDesc objects describing the services offered by
      * this server.
      */
-    fun services() = Collections.unmodifiableList(myServices)
+    fun services(): List<ServiceDesc> = myServices
 
     /**
      * Assign the ref table that will be used to dispatch messages received
@@ -579,9 +576,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
         }
         val protocol = myProps.getProperty("$propRoot.protocol", "tcp")
         val serviceNames: MutableList<String> = LinkedList()
-        val actorFactory = metaFactory.provideFactory(propRoot, auth, allow, serviceNames,
-                protocol)
-                ?: return null
+        val actorFactory = metaFactory.provideFactory(propRoot, auth, allow, serviceNames, protocol)
         val label = myProps.getProperty("$propRoot.label")
         val secure = myProps.testProperty("$propRoot.secure")
         val mgrClass = myProps.getProperty("$propRoot.class")
@@ -599,10 +594,9 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
                 }
         val listenAddress = connectionSetup.startListener()
         if (listenAddress != null) {
-            for (serviceName in serviceNames) {
-                val actualServiceName = serviceName + myServiceName
-                registerService(ServiceDesc(actualServiceName, host, protocol, label, auth, null, -1))
-            }
+            serviceNames
+                    .map { it + myServiceName }
+                    .forEach { registerService(ServiceDesc(it, host, protocol, label, auth, null, -1)) }
         }
         return HostDesc(protocol, secure, connectionSetup.serverAddress, auth, -1)
     }
@@ -632,7 +626,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
         if (myBrokerHost != null) {
             connectToBroker()
         }
-        myListeners = Collections.unmodifiableList(listeners)
+        myListeners = listeners
         return listenerCount
     }
 

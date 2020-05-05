@@ -196,9 +196,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
      *
      * @return a label for this connection
      */
-    private fun label(): String {
-        return toString()
-    }
+    private fun label(): String = toString()
 
     /**
      * Receive an incoming message from the remote end.
@@ -252,18 +250,14 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
      *
      * @return this connection's socket.
      */
-    fun socket(): ZMQ.Socket {
-        return mySocket
-    }
+    fun socket(): ZMQ.Socket = mySocket
 
     /**
      * Obtain a printable String representation of this connection.
      *
      * @return a printable representation of this connection.
      */
-    override fun toString(): String {
-        return "ZMQ(${id()})"
-    }
+    override fun toString(): String = "ZMQ(${id()})"
 
     /**
      * Mark this connection as needing to notify the ZMQ thread the next time

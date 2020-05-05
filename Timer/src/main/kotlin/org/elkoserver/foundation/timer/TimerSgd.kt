@@ -17,12 +17,13 @@ class TimerSgd(provided: Provided, configuration: ObjectGraphConfiguration = Obj
         fun clock(): D<java.time.Clock>
         fun traceFactory(): D<TraceFactory>
     }
+
     val timer by Once { Timer(req(timerThread)) }
 
     internal val timerThread by Once { TimerThread(req(provided.clock()), req(exceptionReporter)) }
-            .init { it.start() }
+            .init(TimerThread::start)
 
     val exceptionTrace by Once { req(provided.traceFactory()).exception }
 
-    val exceptionReporter by Once { ExceptionReporter(TraceExceptionNoticer(req(exceptionTrace)))  }
+    val exceptionReporter by Once { ExceptionReporter(TraceExceptionNoticer(req(exceptionTrace))) }
 }

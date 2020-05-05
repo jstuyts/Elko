@@ -53,13 +53,29 @@ class TalkOptions @JSONMethod("styles") constructor(private val myStyles: StyleO
      */
     fun newStyle(): StyleDesc {
         var choices = myStyles.colors()
-        val color = if (choices == null) { null } else { choices[myCounter % choices.size] }
+        val color = if (choices == null) {
+            null
+        } else {
+            choices[myCounter % choices.size]
+        }
         choices = myStyles.backgroundColors()
-        val backgroundColor = if (choices == null) { null } else { choices[myCounter % choices.size] }
+        val backgroundColor = if (choices == null) {
+            null
+        } else {
+            choices[myCounter % choices.size]
+        }
         choices = myStyles.textStyles()
-        val textStyle = if (choices == null) { null } else { choices[myCounter % choices.size] }
+        val textStyle = if (choices == null) {
+            null
+        } else {
+            choices[myCounter % choices.size]
+        }
         choices = myStyles.icons()
-        val icon = if (choices == null) { null } else { choices[myCounter % choices.size] }
+        val icon = if (choices == null) {
+            null
+        } else {
+            choices[myCounter % choices.size]
+        }
         ++myCounter
         return StyleDesc(color, backgroundColor, null, textStyle, icon)
     }

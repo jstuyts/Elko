@@ -148,7 +148,7 @@ class Item : BasicObject {
      * @return the context in which this item is located, at whatever level of
      * container nesting, or null if it is not in any context.
      */
-    override fun context() = assertInContainer { it.context() }
+    override fun context() = assertInContainer(BasicObject::context)
 
     /**
      * Delete this item (and, by implication, its contents).  The caller is
@@ -158,9 +158,7 @@ class Item : BasicObject {
     fun delete() {
         /* copy contents list to avoid concurrent modification problems */
         val copy: MutableList<Item> = LinkedList()
-        for (item in contents()) {
-            copy.add(item)
-        }
+        copy += contents()
         for (item in copy) {
             item.delete()
         }
@@ -359,14 +357,7 @@ class Item : BasicObject {
      * @return the user in which this item is contained, at whatever level of
      * container nesting, or null if it is not contained by a user.
      */
-    override fun user(): User? {
-        val currentContainer = myContainer
-        return if (currentContainer == null) {
-            null
-        } else {
-            currentContainer.user()
-        }
-    }
+    override fun user(): User? = myContainer?.user()
 
     /**
      * Message handler for the 'delete' message.

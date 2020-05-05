@@ -46,7 +46,7 @@ class Prop @JSONMethod("kind") constructor(private val myKind: String) : Mod(), 
             itemPos = CartesianPosition(userPos.x(), userPos.y())
             itemPos.attachTo(item)
         } else {
-            itemPos.set(userPos.x(), userPos.y())
+            itemPos[userPos.x()] = userPos.y()
         }
         item.setContainer(context())
         item.sendObjectDescription(context().neighbors(from), context())

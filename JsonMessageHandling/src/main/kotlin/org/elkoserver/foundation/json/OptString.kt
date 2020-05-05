@@ -45,7 +45,7 @@ class OptString : OptionalParameter {
      * @return the [String] value of this parameter if present, or the
      * value of 'defaultValue' if not present.
      */
-    fun <TDefault: String?> value(defaultValue: TDefault): TDefault =
+    fun <TDefault : String?> value(defaultValue: TDefault): TDefault =
             if (isPresent) {
                 myValue as TDefault
             } else {

@@ -8,7 +8,7 @@ internal class ParameterMismatchException : RuntimeException {
     /**
      * Constructor with no specified detail message.
      */
-    constructor() : super() {}
+    constructor() : super()
 
     /**
      * Constructor.  Generates a detail message given descriptions of what
@@ -17,7 +17,7 @@ internal class ParameterMismatchException : RuntimeException {
      * @param suppliedParams  The supplied parameter objects.
      * @param expectedParams  The classes of the expected parameters.
      */
-    constructor(suppliedParams: Array<Any?>, expectedParams: Array<Class<*>>) : super(createMessageString(suppliedParams, expectedParams)) {}
+    constructor(suppliedParams: Array<Any?>, expectedParams: Array<Class<*>>) : super(createMessageString(suppliedParams, expectedParams))
 
     companion object {
         /**
@@ -30,11 +30,9 @@ internal class ParameterMismatchException : RuntimeException {
         private fun createMessageString(suppliedParams: Array<Any?>, expectedParams: Array<Class<*>>): String {
             val count = suppliedParams.size.coerceAtMost(expectedParams.size)
             val message = StringBuilder()
-            for (i in 0 until count) {
-                if (!expectedParams[i].isAssignableFrom(suppliedParams[i]!!.javaClass)) {
-                    message.append("Parameter mismatch: Method  requires ").append(expectedParams[i]).append("; found ").append(suppliedParams[i]!!.javaClass).append(" ")
-                }
-            }
+            (0 until count)
+                    .filterNot { expectedParams[it].isAssignableFrom(suppliedParams[it]!!.javaClass) }
+                    .forEach { message.append("Parameter mismatch: Method  requires ").append(expectedParams[it]).append("; found ").append(suppliedParams[it]!!.javaClass).append(" ") }
             return message.toString()
         }
     }

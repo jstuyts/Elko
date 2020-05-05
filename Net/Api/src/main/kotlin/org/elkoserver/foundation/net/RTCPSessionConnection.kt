@@ -69,7 +69,7 @@ class RTCPSessionConnection private constructor(
      *
      * @param sessionFactory  Factory for creating RTCP message handler objects
      */
-    internal constructor(sessionFactory: RTCPMessageHandlerFactory, timer: Timer, clock: Clock, traceFactory: TraceFactory) : this(sessionFactory, abs(theRandom.nextLong()), timer, clock, traceFactory) {}
+    internal constructor(sessionFactory: RTCPMessageHandlerFactory, timer: Timer, clock: Clock, traceFactory: TraceFactory) : this(sessionFactory, abs(theRandom.nextLong()), timer, clock, traceFactory)
 
     /**
      * Associate a TCP connection with this session.
@@ -112,9 +112,7 @@ class RTCPSessionConnection private constructor(
      *
      * @return this connection's client send sequence number.
      */
-    fun clientSendSeqNum(): Int {
-        return myClientSendSeqNum
-    }
+    fun clientSendSeqNum(): Int = myClientSendSeqNum
 
     /**
      * Shut down the connection.
@@ -280,10 +278,9 @@ class RTCPSessionConnection private constructor(
         }
         val messageString: String
         if (message is JSONLiteral) {
-            val jsonMessage = message
             ++myServerSendSeqNum
-            val qMsg = RTCPMessage(myServerSendSeqNum, jsonMessage)
-            myQueueBacklog += jsonMessage.length()
+            val qMsg = RTCPMessage(myServerSendSeqNum, message)
+            myQueueBacklog += message.length()
             if (traceFactory.comm.debug) {
                 traceFactory.comm.debugm("$this queue backlog increased to $myQueueBacklog")
             }
@@ -294,7 +291,7 @@ class RTCPSessionConnection private constructor(
             myQueue.addLast(qMsg)
             messageString = mySessionFactory.makeMessage(myServerSendSeqNum,
                     myClientSendSeqNum,
-                    jsonMessage.sendableString())
+                    message.sendableString())
             if (trMsg.debug) {
                 trMsg.debugm("$myLiveConnection <| $myServerSendSeqNum $myClientSendSeqNum")
             }
@@ -321,9 +318,7 @@ class RTCPSessionConnection private constructor(
      *
      * @return the session ID number of this session.
      */
-    fun sessionID(): String {
-        return mySessionID
-    }
+    fun sessionID(): String = mySessionID
 
     /**
      * Turn debug features for this connection on or off. In the case of an

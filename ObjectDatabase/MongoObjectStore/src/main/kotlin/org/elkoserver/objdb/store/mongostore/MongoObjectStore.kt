@@ -75,7 +75,7 @@ class MongoObjectStore : ObjectStore {
             host = addressStr
         } else {
             port = addressStr.substring(colon + 1).toInt()
-            host = addressStr.substring(0, colon)
+            host = addressStr.take(colon)
         }
         /* The MongoDB instance in which the objects are stored. */
         val myMongo = MongoClient(host, port)
@@ -94,11 +94,9 @@ class MongoObjectStore : ObjectStore {
      */
     private fun dereferenceValue(value: Any, collection: MongoCollection<Document>, results: MutableList<ObjectDesc>) {
         if (value is JsonArray) {
-            for (elem in value) {
-                if (elem is String) {
-                    results.addAll(doGet(elem, collection))
-                }
-            }
+            value
+                    .filterIsInstance<String>()
+                    .forEach { results.addAll(doGet(it, collection)) }
         } else if (value is String) {
             results.addAll(doGet(value, collection))
         }
@@ -162,14 +160,15 @@ class MongoObjectStore : ObjectStore {
 
     private fun dbListToJSONArray(dbList: List<*>): JsonArray {
         val result = JsonArray()
-        for (elem in dbList) {
-            val actualElement = when (elem) {
-                is List<*> -> dbListToJSONArray(elem)
-                is Document -> dbObjectToJSONObject(elem)
-                else -> elem
-            }
-            result.add(actualElement)
-        }
+        dbList
+                .map {
+                    when (it) {
+                        is List<*> -> dbListToJSONArray(it)
+                        is Document -> dbObjectToJSONObject(it)
+                        else -> it
+                    }
+                }
+                .forEach(result::add)
         return result
     }
 
@@ -209,7 +208,7 @@ class MongoObjectStore : ObjectStore {
         mods.iterator().forEachRemaining { mod: Any? ->
             val elkoModAsObject = JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(mod)
             if (elkoModAsObject is JsonObject) {
-                if ("geopos" == elkoModAsObject.getString("type", null)) {
+                if ("geopos" == elkoModAsObject.getString<String?>("type", null)) {
                     val lat = elkoModAsObject.getDouble("lat", 0.0)
                     val lon = elkoModAsObject.getDouble("lon", 0.0)
                     val qpos = Document()
@@ -240,9 +239,7 @@ class MongoObjectStore : ObjectStore {
 
     private fun jsonArrayToDBArray(arr: JsonArray): ArrayList<Any?> {
         val result = ArrayList<Any?>(arr.size())
-        for (elem in arr) {
-            result.add(valueToDBValue(elem))
-        }
+        arr.mapTo(result, this::valueToDBValue)
         return result
     }
 
@@ -419,11 +416,10 @@ class MongoObjectStore : ObjectStore {
             } else {
                 collection.find(query)
             }
-            for (dbObj in cursor) {
-                val jsonObj = dbObjectToJSONObject(dbObj)
-                val obj = JsonObjectSerialization.sendableString(jsonObj)
-                results.add(ObjectDesc("query", obj, null))
-            }
+            cursor
+                    .map(this::dbObjectToJSONObject)
+                    .map(JsonObjectSerialization::sendableString)
+                    .mapTo(results) { ObjectDesc("query", it, null) }
         } catch (e: Exception) {
             results.add(ObjectDesc("query", null, e.message))
         }

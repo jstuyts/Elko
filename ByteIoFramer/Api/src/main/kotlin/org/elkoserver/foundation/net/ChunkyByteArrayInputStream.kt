@@ -125,11 +125,9 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
             preserveBuffers() /* save previous client buffer */
             myClientBuffer = buf
             myClientBufferLength = length
-            for (i in 0 until length) {
-                if (buf[i] == '\n'.toByte() || amWebSocketFraming && buf[i] == (-1).toByte()) {
-                    myUsefulByteCount = myTotalByteCount + i + 1
-                }
-            }
+            (0 until length)
+                    .filter { buf[it] == '\n'.toByte() || amWebSocketFraming && buf[it] == (-1).toByte() }
+                    .forEach { myUsefulByteCount = myTotalByteCount + it + 1 }
             myTotalByteCount += length
         }
     }
@@ -141,9 +139,7 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
      *
      * @return the number of bytes that can be read from this input stream.
      */
-    override fun available(): Int {
-        return myTotalByteCount
-    }
+    override fun available(): Int = myTotalByteCount
 
     /**
      * Copy any unread portions of the client buffer passed to [ ][.addBuffer].  This has the side effect of passing responsibility for the
@@ -309,9 +305,7 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
      * @throws EOFException if the true end of input is reached.
      */
     @Throws(IOException::class)
-    fun readASCIILine(): String? {
-        return readLine(false)
-    }
+    fun readASCIILine(): String? = readLine(false)
 
     /**
      * Common read logic for readASCIILine() and readUTF8Line().
@@ -362,9 +356,7 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
      * @throws EOFException if the true end of input is reached.
      */
     @Throws(IOException::class)
-    fun readUTF8Line(): String? {
-        return readLine(true)
-    }
+    fun readUTF8Line(): String? = readLine(true)
 
     fun updateUsefulByteCount(byteCount: Int) {
         if (myUsefulByteCount < byteCount) {
@@ -400,9 +392,8 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
             if (amAtEOF) {
                 if (myTotalByteCount > 0) {
                     throw IOException("undecodeable bytes left over")
-                } else {
-                    throw EOFException()
                 }
+                throw EOFException()
             } else {
                 true
             }

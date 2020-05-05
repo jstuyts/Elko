@@ -25,7 +25,5 @@ internal class TimerQEntry(internal var myRepeat: Boolean, internal var myDelta:
         }
     }
 
-    override fun hashCode(): Int {
-        return myWhen.hashCode()
-    }
+    override fun hashCode(): Int = myWhen.hashCode()
 }

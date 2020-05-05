@@ -26,8 +26,7 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
      * @param id  Optional authorization ID.
      */
     @JSONMethod("mode", "code", "id")
-    constructor(mode: String, code: OptString, id: OptString) : this(mode, code.value<String?>(null), id.value<String?>(null)) {
-    }
+    constructor(mode: String, code: OptString, id: OptString) : this(mode, code.value<String?>(null), id.value<String?>(null))
 
     /**
      * Get the authorization code.

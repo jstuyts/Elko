@@ -3,7 +3,6 @@ package org.elkoserver.server.director
 import org.elkoserver.server.director.Director.Companion.isUserClone
 import org.elkoserver.server.director.Director.Companion.userCloneSetName
 import org.elkoserver.util.HashSetMulti
-import java.util.Collections
 
 /**
  * Information describing an open context.
@@ -84,7 +83,11 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
      * @return true if this context cannot accept any more members.
      */
     val isFull: Boolean
-        get() = if (myMaxCapacity < 0) { false } else { myUsers.size >= myMaxCapacity }
+        get() = if (myMaxCapacity < 0) {
+            false
+        } else {
+            myUsers.size >= myMaxCapacity
+        }
 
     /**
      * Test if this context has reached or exceeded its base capacity.
@@ -92,7 +95,11 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
      * @return true if this context is at or above its base capacity.
      */
     val isFullClone: Boolean
-        get() = if (myBaseCapacity < 0) { false } else { myUsers.size >= myBaseCapacity }
+        get() = if (myBaseCapacity < 0) {
+            false
+        } else {
+            myUsers.size >= myBaseCapacity
+        }
 
     /**
      * Test if a given user is in this context.
@@ -162,7 +169,7 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
      *
      * @return a set of this context's user names.
      */
-    fun users() = Collections.unmodifiableSet(myUsers)
+    fun users(): Set<String> = myUsers
 
     init {
         var dashPos = 0
@@ -177,7 +184,7 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
         if (dashCount > 1) {
             isClone = true
             dashPos = myName.lastIndexOf('-')
-            myCloneSetName = myName.substring(0, dashPos)
+            myCloneSetName = myName.take(dashPos)
         } else {
             isClone = false
             myCloneSetName = null

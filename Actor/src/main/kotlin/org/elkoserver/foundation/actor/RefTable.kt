@@ -9,7 +9,6 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
-import java.util.Collections
 import java.util.HashMap
 import java.util.LinkedList
 
@@ -116,7 +115,7 @@ open class RefTable(resolver: TypeResolver?, protected val traceFactory: TraceFa
             val `object` = myObjects[ref]
             `object`?.let { listOf(it) } ?: emptyList()
         } else {
-            Collections.unmodifiableList(group)
+            group
         }
     }
 
@@ -146,7 +145,7 @@ open class RefTable(resolver: TypeResolver?, protected val traceFactory: TraceFa
      * handling the message.
      */
     fun dispatchMessage(from: Deliverer, message: JsonObject) {
-        val targetRef = message.getString("to", null)
+        val targetRef = message.getString<String?>("to", null)
         if (targetRef != null) {
             val target = get(targetRef)
             if (target != null) {
@@ -227,7 +226,7 @@ open class RefTable(resolver: TypeResolver?, protected val traceFactory: TraceFa
                 if (delim >= 0) {
                     ++count
                     if (count == 2) {
-                        return ref.substring(0, delim)
+                        return ref.take(delim)
                     }
                     ++delim
                 }

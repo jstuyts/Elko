@@ -40,7 +40,7 @@ internal class HttpConnectionSetup(label: String?, host: String, auth: AuthDesc?
                 result = if (colonIndex == -1) {
                     host
                 } else {
-                    host.substring(0, colonIndex)
+                    host.take(colonIndex)
                 }
                 var indexOfLastDot = result.lastIndexOf('.')
                 indexOfLastDot = result.lastIndexOf('.', indexOfLastDot - 1)

@@ -77,7 +77,7 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
         myQ.enqueue(todo)
         if (myNeedsNotify) {
             /* even here, enqueue() avoids grabbing the runLock. */
-            synchronized(myNotifyLock) { myNotifyLock.notify() }
+            synchronized(myNotifyLock, myNotifyLock::notify)
         }
     }
 

@@ -40,35 +40,28 @@ class StyleDesc(
     constructor(color: OptString, backgroundColor: OptString,
                 borderColor: OptString, textStyle: OptString,
                 icon: OptString) : this(color.value<String?>(null), backgroundColor.value<String?>(null),
-            borderColor.value<String?>(null), textStyle.value<String?>(null), icon.value<String?>(null)) {
-    }
+            borderColor.value<String?>(null), textStyle.value<String?>(null), icon.value<String?>(null))
 
     /**
      * Get the background color.
      *
      * @return this style's background color, or null if there is none.
      */
-    fun backgroundColor(): String? {
-        return myBackgroundColor
-    }
+    fun backgroundColor(): String? = myBackgroundColor
 
     /**
      * Get the border color.
      *
      * @return this style's border color, or null if there is none.
      */
-    fun borderColor(): String? {
-        return myBorderColor
-    }
+    fun borderColor(): String? = myBorderColor
 
     /**
      * Get the foreground (text) color.
      *
      * @return this style's foreground color, or null if there is none.
      */
-    fun color(): String? {
-        return myColor
-    }
+    fun color(): String? = myColor
 
     /**
      * Encode this object for transmission or persistence.
@@ -93,9 +86,7 @@ class StyleDesc(
      *
      * @return this style's icon URL, or null if there is none.
      */
-    fun icon(): String? {
-        return myIcon
-    }
+    fun icon(): String? = myIcon
 
     /**
      * Merge this StyleDesc with another, partially specified StyleDesc,
@@ -131,7 +122,5 @@ class StyleDesc(
      *
      * @return this style's text style string, or null if there is none.
      */
-    fun textStyle(): String? {
-        return myTextStyle
-    }
+    fun textStyle(): String? = myTextStyle
 }

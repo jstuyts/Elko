@@ -22,14 +22,15 @@ object ByteArrayToAscii {
      */
     fun byteArrayToASCII(buf: ByteArray, offset: Int, length: Int): String {
         val chars = StringBuilder(length)
-        for (i in 0 until length) {
-            val b = buf[offset + i]
-            if (' '.toByte() <= b && b <= '~'.toByte() || b == '\n'.toByte() || b == '\r'.toByte() || b == '\t'.toByte()) {
-                chars.append(b.toChar())
-            } else {
-                chars.append(String.format("\\x%02x", b))
-            }
-        }
+        (0 until length)
+                .map { buf[offset + it] }
+                .forEach {
+                    if (' '.toByte() <= it && it <= '~'.toByte() || it == '\n'.toByte() || it == '\r'.toByte() || it == '\t'.toByte()) {
+                        chars.append(it.toChar())
+                    } else {
+                        chars.append(String.format("\\x%02x", it))
+                    }
+                }
         return chars.toString()
     }
 }

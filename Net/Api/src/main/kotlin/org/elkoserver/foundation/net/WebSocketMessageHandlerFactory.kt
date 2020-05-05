@@ -61,7 +61,7 @@ internal class WebSocketMessageHandlerFactory(
         val key2 = request.header("sec-websocket-key2")
         if (!request.method().equals("GET", ignoreCase = true)) {
             sendError(connection, "WebSocket connection start requires GET")
-        } else if (!request.URI().equals(mySocketURI, ignoreCase = true)) {
+        } else if (!request.uri().equals(mySocketURI, ignoreCase = true)) {
             sendError(connection, "Invalid WebSocket endpoint URI")
         } else if (!"WebSocket".equals(request.header("upgrade"), ignoreCase = true)) {
             sendError(connection, "Invalid WebSocket Upgrade header")
@@ -79,9 +79,7 @@ internal class WebSocketMessageHandlerFactory(
         }
     }
 
-    private fun getConnectionValues(request: WebSocketRequest): Set<String> {
-        return Arrays.stream(request.header("connection")!!.split(",").toTypedArray()).map { obj: String -> obj.trim { it <= ' ' } }.collect(Collectors.toSet())
-    }
+    private fun getConnectionValues(request: WebSocketRequest): Set<String> = Arrays.stream(request.header("connection")!!.split(",").toTypedArray()).map { obj: String -> obj.trim { it <= ' ' } }.collect(Collectors.toSet())
 
     private fun insaneKeyDecode(key: String): Long {
         var spaceCount = 0
@@ -89,7 +87,7 @@ internal class WebSocketMessageHandlerFactory(
         val len = key.length
         for (i in 0 until len) {
             val c = key[i]
-            if ('0' <= c && c <= '9') {
+            if (c in '0'..'9') {
                 num = num * 10 + c.toLong() - '0'.toLong()
             } else if (c == ' ') {
                 ++spaceCount
@@ -139,9 +137,7 @@ internal class WebSocketMessageHandlerFactory(
      *
      * @param connection  The TCP connection object that was just created.
      */
-    override fun provideMessageHandler(connection: Connection?): MessageHandler {
-        return WebSocketMessageHandler(connection!!, myInnerFactory.provideMessageHandler(connection)!!)
-    }
+    override fun provideMessageHandler(connection: Connection?): MessageHandler = WebSocketMessageHandler(connection!!, myInnerFactory.provideMessageHandler(connection)!!)
 
     private inner class WebSocketMessageHandler internal constructor(var myConnection: Connection,
                                                                      var myInnerHandler: MessageHandler) : MessageHandler {

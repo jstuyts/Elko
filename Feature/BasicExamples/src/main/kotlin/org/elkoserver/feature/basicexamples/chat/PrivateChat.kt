@@ -4,6 +4,7 @@ import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JSONLiteral
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.Msg
 import org.elkoserver.server.context.User
@@ -36,7 +37,7 @@ class PrivateChat(private val amAllowPrivate: Boolean, private val amAllowPush: 
      *
      * @return null since this mod is never persisted or transmitted.
      */
-    override fun encode(control: EncodeControl) = null
+    override fun encode(control: EncodeControl): JSONLiteral? = null
 
     /**
      * Message handler for the 'push' message.

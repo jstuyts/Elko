@@ -92,7 +92,7 @@ internal class ExpirationDate : Comparable<ExpirationDate>, Encodable, ClockUsin
 
     override fun initialize() {
         theDateFmt = DateFormat.getDateTimeInstance(DateFormat.MEDIUM, DateFormat.MEDIUM).apply {
-            timeZone = TimeZone.getTimeZone(clock!!.zone)
+            timeZone = TimeZone.getTimeZone(clock.zone)
             isLenient = true
         }
     }
@@ -140,7 +140,7 @@ internal class ExpirationDate : Comparable<ExpirationDate>, Encodable, ClockUsin
      * @return true if this object represents an expired date, false if not.
      */
     val isExpired: Boolean
-        get() = myTime < clock!!.millis()
+        get() = myTime < clock.millis()
 
     /**
      * Produce a legible representation of this expiration date.

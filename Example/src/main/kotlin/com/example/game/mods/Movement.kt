@@ -47,7 +47,7 @@ class Movement @JSONMethod("minx", "miny", "maxx", "maxy") constructor(
         } else {
             val pos = from.getMod(CartesianPosition::class.java)
                     ?: throw MessageHandlerException("user $from attempted move on $this but Cartesian position mod not present")
-            pos.set(x, y)
+            pos[x] = y
             context().send(msgMove(from, x, y, null))
         }
     }

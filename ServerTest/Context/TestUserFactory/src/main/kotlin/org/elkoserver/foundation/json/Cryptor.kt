@@ -52,7 +52,7 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
      * @throws IOException if the input string is malformed.
      */
     fun decrypt(str: String): String {
-        val ivStr = "${str.substring(0, 22)}=="
+        val ivStr = "${str.take(22)}=="
         val cypherText = str.substring(22)
         return try {
             val iv = base64Decoder.decode(ivStr)
@@ -79,9 +79,7 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
      * @throws IOException         if the input string is malformed
      * @throws JsonParserException if the decrypted JSON literal is invalid
      */
-    fun decryptJSONObject(str: String): JsonObject {
-        return JsonParsing.jsonObjectFromString(decrypt(str))!!
-    }
+    fun decryptJSONObject(str: String): JsonObject = JsonParsing.jsonObjectFromString(decrypt(str))!!
 
     /**
      * Decrypt and decode a (base-64 encoded) encrypted object serialized as a
@@ -97,9 +95,7 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
      * could not be decoded for some reason.
      * @throws IOException if the input string is malformed
      */
-    fun decryptObject(baseType: Class<*>?, str: String): Any? {
-        return decode(baseType!!, decrypt(str), traceFactory, clock)
-    }
+    fun decryptObject(baseType: Class<*>?, str: String): Any? = decode(baseType!!, decrypt(str), traceFactory, clock)
 
     /**
      * Produce a (base-64 encoded) encrypted version of a string.
@@ -137,6 +133,7 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
     companion object {
         private val base64Encoder = Base64.getEncoder()
         private val base64Decoder = Base64.getDecoder()
+
         @Deprecated("Global variable")
         private val theRandom = SecureRandom()
         private const val KEY_ALGORITHM = "AES"

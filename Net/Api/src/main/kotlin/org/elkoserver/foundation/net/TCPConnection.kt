@@ -150,16 +150,15 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
                     /* EOF: cease to be interested in reads, then throw EOF. */
                     myKey.interestOps(myKey.interestOps() and SelectionKey.OP_READ.inv())
                     throw EOFException()
+                }
+                /* Data read: give bytes to framer, then recycle the buffer. */
+                if (count > 0) {
+                    myFramer.receiveBytes(myInputBuffer.array(),
+                            myInputBuffer.position())
+                    myInputBuffer.clear()
                 } else {
-                    /* Data read: give bytes to framer, then recycle the buffer. */
-                    if (count > 0) {
-                        myFramer.receiveBytes(myInputBuffer.array(),
-                                myInputBuffer.position())
-                        myInputBuffer.clear()
-                    } else {
-                        if (myTrace.event) {
-                            myTrace.debugm("$this zero length read")
-                        }
+                    if (myTrace.event) {
+                        myTrace.debugm("$this zero length read")
                     }
                 }
             } while (count > 0 && amSecure)
@@ -315,9 +314,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
      *
      * @return a label for this connection
      */
-    private fun label(): String {
-        return toString()
-    }
+    private fun label(): String = toString()
 
     /**
      * Receive an incoming message from the remote end.
@@ -348,9 +345,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
      *
      * @return a printable representation of this connection.
      */
-    override fun toString(): String {
-        return "TCP(${id()})"
-    }
+    override fun toString(): String = "TCP(${id()})"
 
     /**
      * Mark this connection as needing to notify the select thread the next

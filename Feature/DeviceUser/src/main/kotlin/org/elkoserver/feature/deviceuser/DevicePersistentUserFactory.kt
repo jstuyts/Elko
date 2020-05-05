@@ -58,10 +58,7 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
                 }
                 user = result[0] as User
             } else {
-                var name = myCreds.name
-                if (name == null) {
-                    name = "AnonUser"
-                }
+                val name = myCreds.name ?: "AnonUser"
                 val uuid = myCreds.uuid
                 myContextor.appTrace().eventi("synthesizing user record for $uuid")
                 val mod = DeviceUserMod(uuid)

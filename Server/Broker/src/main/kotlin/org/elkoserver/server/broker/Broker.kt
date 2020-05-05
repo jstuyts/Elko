@@ -122,12 +122,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
      * @param service  Description of the new service.
      */
     private fun noteServiceArrival(service: ServiceDesc) {
-        val deadWaiters: MutableList<WaiterForService> = LinkedList()
-        for (waiter in myWaiters.getMulti(service.service())) {
-            if (waiter.noteServiceArrival(service)) {
-                deadWaiters.add(waiter)
-            }
-        }
+        val deadWaiters: MutableList<WaiterForService> = myWaiters.getMulti(service.service()).filterTo(LinkedList()) { it.noteServiceArrival(service) }
         for (waiter in deadWaiters) {
             myWaiters.remove(waiter.service(), waiter)
         }
@@ -358,7 +353,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
             myODB.getObject("launchertable", null, Consumer { obj: Any? ->
                 if (obj != null) {
                     myLauncherTable = (obj as LauncherTable?)?.apply {
-                        myLaunchers.values.forEach { it.tr = this@Broker.tr }
+                        myLaunchers.values.forEach { it.tr = tr }
                         doStartupLaunches(startMode)
                     }
                 } else {
