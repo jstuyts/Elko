@@ -12,17 +12,19 @@ internal abstract class BaseConnectionSetup(label: String?, val host: String, pr
     val bind: String = props.getProperty("$propRoot.bind", host)
 
     @JvmField
-    var msgTrace: Trace? = null
+    var msgTrace = if (label != null) {
+        traceFactory.comm.subTrace(label)
+    } else {
+        traceFactory.comm.subTrace("cli")
+    }
 
     override fun startListener(): NetAddr {
         val result: NetAddr
         try {
             result = tryToStartListener()
-            trServer.noticei("listening for ${protocol.toString()} connections$connectionsSuffixForNotice on $listenAddressDescription${(if (bind != valueToCompareWithBind) " ($bind)" else "")} (${auth.mode()})${if (secure) " (secure mode)" else ""}")
+            trServer.noticei("listening for $protocol connections$connectionsSuffixForNotice on $listenAddressDescription${(if (bind != valueToCompareWithBind) " ($bind)" else "")} (${auth.mode()})${if (secure) " (secure mode)" else ""}")
         } catch (e: IOException) {
-            tr.errorm("unable to open " + protocol.toString() + protocolSuffixForErrorMessage +
-                    " listener " + propRoot +
-                    " on requested host: " + e)
+            tr.errorm("unable to open $protocol$protocolSuffixForErrorMessage listener $propRoot on requested host: $e")
             throw IllegalStateException()
         }
         return result
@@ -38,11 +40,4 @@ internal abstract class BaseConnectionSetup(label: String?, val host: String, pr
     open val protocolSuffixForErrorMessage: String
         get() = ""
 
-    init {
-        msgTrace = if (label != null) {
-            traceFactory.comm.subTrace(label)
-        } else {
-            traceFactory.comm.subTrace("cli")
-        }
-    }
 }
