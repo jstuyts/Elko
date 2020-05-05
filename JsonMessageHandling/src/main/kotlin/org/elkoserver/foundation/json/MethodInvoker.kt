@@ -20,7 +20,10 @@ internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Cla
                              private val myNext: MethodInvoker?, traceFactory: TraceFactory, clock: Clock) : Invoker<Any>(myMethod, paramTypes, paramNames, 1, traceFactory, clock) {
 
     /** The Java class that defined the method.  */
-    private val myMethodClass: Class<*> = myMethod.declaringClass
+    @Suppress("UNCHECKED_CAST")
+    private val myMethodClass: Class<out DispatchTarget> = myMethod.declaringClass.takeIf { DispatchTarget::class.java.isAssignableFrom(it) }
+            as? Class<out DispatchTarget>
+            ?: throw IllegalStateException("Not a method of a dispatch target")
 
     /**
      * Determine the object to which a message containing this method's verb
@@ -33,7 +36,7 @@ internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Cla
      */
     fun findActualTarget(target: DispatchTarget): DispatchTarget? {
         return if (target is MessageRetargeter) {
-            (target as MessageRetargeter).findActualTarget(myMethodClass as Class<out DispatchTarget>)
+            (target as MessageRetargeter).findActualTarget(myMethodClass)
         } else if (myMethodClass.isInstance(target)) {
             target
         } else {
