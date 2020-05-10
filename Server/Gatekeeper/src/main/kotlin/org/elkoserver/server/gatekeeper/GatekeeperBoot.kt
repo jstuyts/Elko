@@ -37,7 +37,7 @@ class GatekeeperBoot : Bootable {
         tr = traceFactory.trace("gate")
         val gatekeeperServerGraph = GatekeeperServerOgd(object : GatekeeperServerOgd.Provided, ProvidedAdministration() {
             override fun clock() = ConstantDefinition(clock)
-            override fun traceFactory() = ConstantDefinition(traceFactory)
+            override fun gorgel() = ConstantDefinition(gorgel)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {
             override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
                 myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)

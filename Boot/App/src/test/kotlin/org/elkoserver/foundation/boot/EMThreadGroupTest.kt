@@ -10,12 +10,12 @@ class EMThreadGroupTest {
     fun `exception in thread is forwarded to exception reporter`() {
         val forwardedThrowableHolder = ThrowableHolder()
         val group = EMThreadGroup("Name", ExceptionReporter(object : ExceptionNoticer {
-            override fun noticeReportedException(msg: String, t: Throwable) {
+            override fun noticeReportedException(message: String, throwable: Throwable) {
                 // No action needed. The throwable is passed wrapped in another throwable to this function.
             }
 
-            override fun noticeUncaughtException(msg: String, t: Throwable) {
-                forwardedThrowableHolder.throwable = t
+            override fun noticeUncaughtException(message: String, throwable: Throwable) {
+                forwardedThrowableHolder.throwable = throwable
             }
         }))
         val throwable = Throwable()

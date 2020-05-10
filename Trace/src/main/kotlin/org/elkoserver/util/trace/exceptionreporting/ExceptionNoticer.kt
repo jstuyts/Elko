@@ -10,16 +10,16 @@ interface ExceptionNoticer {
     /**
      * Notification of a reported exception.
      *
-     * @param msg  The message that accompanied the exception report.
-     * @param t  The actual exception itself.
+     * @param message  The message that accompanied the exception report.
+     * @param throwable  The actual exception itself.
      */
-    fun noticeReportedException(msg: String, t: Throwable)
+    fun noticeReportedException(message: String, throwable: Throwable)
 
     /**
      * Notification of an uncaught exception.
      *
-     * @param msg  Message describing the circumstances.
-     * @param t  The actual exception itself.
+     * @param message  Message describing the circumstances.
+     * @param throwable  The actual exception itself.
      */
-    fun noticeUncaughtException(msg: String, t: Throwable)
+    fun noticeUncaughtException(message: String, throwable: Throwable)
 }

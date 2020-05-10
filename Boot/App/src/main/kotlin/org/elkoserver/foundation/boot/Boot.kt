@@ -5,7 +5,8 @@ import org.elkoserver.util.trace.TraceController
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.acceptor.file.TraceLog
 import org.elkoserver.util.trace.exceptionreporting.ExceptionReporter
-import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.trace.TraceExceptionNoticer
+import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.gorgel.GorgelExceptionNoticer
+import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.processexitononcaught.ProcessExitOnUncaughtExceptionNoticer
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.GorgelImpl
 import org.slf4j.Logger.ROOT_LOGGER_NAME
@@ -111,7 +112,7 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
             val clock = Clock.systemDefaultZone()
             val gorgel = initializeGorgel(bootArguments)
             val traceFactory = createTraceFactory(bootArguments, clock)
-            val exceptionReporter = ExceptionReporter(TraceExceptionNoticer(traceFactory.exception))
+            val exceptionReporter = ExceptionReporter(ProcessExitOnUncaughtExceptionNoticer(GorgelExceptionNoticer(gorgel.getChild(bootArguments.mainClassName, "exception"))))
             val threadGroup = EMThreadGroup("Elko Thread Group", exceptionReporter)
             val boot = Boot(exceptionReporter, bootArguments, gorgel, traceFactory)
             Thread(threadGroup, boot, "Elko Server Boot").start()
