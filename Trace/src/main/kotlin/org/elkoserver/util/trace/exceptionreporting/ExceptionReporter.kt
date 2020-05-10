@@ -52,10 +52,8 @@ class ExceptionReporter(private val theNoticer: ExceptionNoticer) {
      * @param problem  The exception that wasn't caught.
      */
     fun uncaughtException(thread: Thread, problem: Throwable) {
-        if (problem !is ThreadDeath) {
-            val msg = "Uncaught exception in thread ${thread.name}"
-            reportException(problem, msg, true)
-            theNoticer.noticeUncaughtException(msg, problem)
-        }
+        val msg = "Uncaught exception in thread ${thread.name}"
+        reportException(problem, msg, true)
+        theNoticer.noticeUncaughtException(msg, problem)
     }
 }
