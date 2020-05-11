@@ -47,17 +47,17 @@ class RTCPSessionConnection private constructor(
     /** Clock: ticks watch for inactive (and thus presumed dead) session.  */
     private val myInactivityClock: org.elkoserver.foundation.timer.Clock
 
-    /** Timeout for killing an abandoned session.  */
+    /** Timeout for closing an abandoned session.  */
     private var myDisconnectedTimeout: Timeout?
 
     /** Last time that there was any traffic on this connection from the user,
      * to enable detection of inactive sessions.  */
     private var myLastActivityTime: Long
 
-    /** Time a session may sit idle before killing it, in milliseconds.  */
+    /** Time a session may sit idle before closing it, in milliseconds.  */
     private var myInactivityTimeoutInterval: Int
 
-    /** Time a session may sit disconnected before killing it, milliseconds.  */
+    /** Time a session may sit disconnected before closing it, milliseconds.  */
     private var myDisconnectedTimeoutInterval: Int
 
     /** Session ID -- a swiss number to authenticate client RTCP requests.  */
@@ -172,7 +172,7 @@ class RTCPSessionConnection private constructor(
     /**
      * Handle the expiration of the disconnected timer: if too much time has
      * passed in a disconnected state, presume that the session is lost and
-     * won't be coming back.  Kill the connection, if it isn't already dead for
+     * won't be coming back.  Close the connection, if it isn't already dead for
      * other reasons.
      */
     private fun noticeDisconnectedTimeout() {
@@ -198,7 +198,7 @@ class RTCPSessionConnection private constructor(
      * React to a clock tick event on the inactivity timeout timer.
      *
      * Check to see if it has been too long since anything was received from
-     * the client; if so, kill the session.
+     * the client; if so, close the session.
      */
     private fun noticeInactivityTick() {
         val timeInactive = clock.millis() - myLastActivityTime

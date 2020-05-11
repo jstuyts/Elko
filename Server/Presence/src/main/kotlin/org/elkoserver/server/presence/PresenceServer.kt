@@ -234,14 +234,12 @@ internal class PresenceServer(
 
     /**
      * Shutdown the server.
-     *
-     * @param kill  If true, shutdown immediately without cleaning up.
      */
-    fun shutdownServer(kill: Boolean) {
+    fun shutdownServer() {
         for (graph in mySocialGraphs.values) {
             graph.shutdown()
         }
-        myServer.shutdown(kill)
+        myServer.shutdown()
     }
 
     /**
@@ -262,7 +260,7 @@ internal class PresenceServer(
         myUsers = HashMap()
         myVisibles = HashMap()
         myContextMetadata = HashMap()
-        myODB = myServer.openObjectDatabase("conf.presence") ?: tr.fatalError("no database specified")
+        myODB = myServer.openObjectDatabase("conf.presence") ?: throw IllegalStateException("no database specified")
         myODB.addClass("graphtable", GraphTable::class.java)
         myODB.getObject("graphs", null, Consumer { obj: Any? ->
             if (obj != null) {

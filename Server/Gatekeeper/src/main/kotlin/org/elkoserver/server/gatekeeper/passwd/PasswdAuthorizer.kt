@@ -36,12 +36,10 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
      */
     override fun initialize(gatekeeper: Gatekeeper) {
         myGatekeeper = gatekeeper
-        myODB = gatekeeper.openObjectDatabase("conf.gatekeeper")
-        if (myODB == null) {
-            gatekeeper.trace().fatalError("no database specified")
+        myODB = (gatekeeper.openObjectDatabase("conf.gatekeeper") ?: throw IllegalStateException("no database specified")).apply {
+            addClass("place", PlaceDesc::class.java)
+            addClass("actor", ActorDesc::class.java)
         }
-        myODB!!.addClass("place", PlaceDesc::class.java)
-        myODB!!.addClass("actor", ActorDesc::class.java)
         val props = gatekeeper.properties()
         myActorIDBase = props.getProperty("conf.gatekeeper.idbase", "user")
         amAnonymousOK = !props.testProperty("conf.gatekeeper.anonymous", "false")

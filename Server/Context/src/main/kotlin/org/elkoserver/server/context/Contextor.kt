@@ -1126,11 +1126,9 @@ class Contextor internal constructor(
 
     /**
      * Cause the server to be shutdown.
-     *
-     * @param kill  If true, shutdown immediately instead of cleaning up.
      */
-    fun shutdownServer(kill: Boolean) {
-        myServer.shutdown(kill)
+    fun shutdownServer() {
+        myServer.shutdown()
     }
 
     /**

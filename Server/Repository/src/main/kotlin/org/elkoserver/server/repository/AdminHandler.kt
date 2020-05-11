@@ -2,7 +2,6 @@ package org.elkoserver.server.repository
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JSONMethod
-import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.util.trace.TraceFactory
 
 /**
@@ -44,11 +43,10 @@ internal class AdminHandler(private val myRepository: Repository, traceFactory: 
      * Request that the repository be shut down.
      *
      * @param from The administrator sending the message.
-     * @param kill If true, shutdown immediately instead of cleaning up.
      */
-    @JSONMethod("kill")
-    fun shutdown(from: RepositoryActor, kill: OptBoolean) {
+    @JSONMethod
+    fun shutdown(from: RepositoryActor) {
         from.ensureAuthorizedAdmin()
-        myRepository.shutdown(kill.value(false))
+        myRepository.shutdown()
     }
 }

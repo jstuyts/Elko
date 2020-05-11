@@ -11,7 +11,7 @@ object ContextShutdown {
 
     private fun shutDownServer(hostAddress: String, portNumber: Int, password: String) {
         Socket(hostAddress, portNumber).use { socket ->
-            socket.getOutputStream().write("""{"to":"session", "op":"shutdown"${toPasswordProperty(password)}, "kill":false}$END_OF_COMMAND""".toUtf8())
+            socket.getOutputStream().write("""{"to":"session", "op":"shutdown"${toPasswordProperty(password)}}$END_OF_COMMAND""".toUtf8())
             Thread.sleep(1000L)
         }
     }

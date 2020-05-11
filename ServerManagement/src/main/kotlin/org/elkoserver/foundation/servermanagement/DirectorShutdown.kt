@@ -19,7 +19,7 @@ object DirectorShutdown {
             }
             outputStream.write("""}}$END_OF_COMMAND""".toUtf8())
             Thread.sleep(1000L)
-            outputStream.write("""{"to":"admin", "op":"shutdown", "director":true, "kill":false}$END_OF_COMMAND""".toUtf8())
+            outputStream.write("""{"to":"admin", "op":"shutdown", "director":true}$END_OF_COMMAND""".toUtf8())
             Thread.sleep(1000L)
         }
     }

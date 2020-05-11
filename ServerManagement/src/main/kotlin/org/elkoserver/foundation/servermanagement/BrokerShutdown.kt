@@ -13,7 +13,7 @@ object BrokerShutdown {
             val outputStream = socket.getOutputStream()
             outputStream.write("""{"to":"admin", "op":"auth", "auth":{"mode":"password", "code":"$password"}}$END_OF_COMMAND""".toUtf8())
             Thread.sleep(1000L)
-            outputStream.write("""{"to":"admin", "op":"shutdown", "self":true, "kill":false}$END_OF_COMMAND""".toUtf8())
+            outputStream.write("""{"to":"admin", "op":"shutdown", "self":true}$END_OF_COMMAND""".toUtf8())
             Thread.sleep(1000L)
         }
     }

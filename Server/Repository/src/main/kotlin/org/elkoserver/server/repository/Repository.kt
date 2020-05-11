@@ -56,11 +56,9 @@ internal class Repository(private val myServer: Server, appTrace: Trace, traceFa
 
     /**
      * Shutdown the server.
-     *
-     * @param kill  If true, shutdown immediately instead of cleaning up.
      */
-    fun shutdown(kill: Boolean) {
-        myServer.shutdown(kill)
+    fun shutdown() {
+        myServer.shutdown()
     }
 
     init {

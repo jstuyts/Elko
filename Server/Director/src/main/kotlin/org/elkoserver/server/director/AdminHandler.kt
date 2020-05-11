@@ -377,16 +377,13 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
      * @param from  The administrator sending the message.
      * @param provider  The provider(s) to be shut down, if any.
      * @param director  true if this director itself should be shut down.
-     * @param optKill  True if provider(s) should be shutdown immediately instead
-     * of cleaning up.
      */
-    @JSONMethod("provider", "director", "kill")
-    fun shutdown(from: DirectorActor, provider: OptString, director: OptBoolean, optKill: OptBoolean) {
+    @JSONMethod("provider", "director")
+    fun shutdown(from: DirectorActor, provider: OptString, director: OptBoolean) {
         from.ensureAuthorizedAdmin()
         val providerName = provider.value<String?>(null)
-        val kill = optKill.value(false)
         if (providerName != null) {
-            val msg = msgShutdown(myDirector.providerHandler(), kill)
+            val msg = msgShutdown(myDirector.providerHandler())
             myDirector.providers()
                     .filter {
                         providerName == "all" ||
@@ -577,11 +574,8 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         /**
          * Generate a 'shutdown' message.
          */
-        private fun msgShutdown(target: Referenceable, kill: Boolean) =
+        private fun msgShutdown(target: Referenceable) =
                 JSONLiteralFactory.targetVerb(target, "shutdown").apply {
-                    if (kill) {
-                        addParameter("kill", true)
-                    }
                     finish()
                 }
 

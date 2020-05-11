@@ -190,21 +190,19 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
      * @param optServer  The connecte server to be shut down, if any ("all" for
      * all of them, null for none of them).
      * @param optSelf  true if this broker itself should be shut down.
-     * @param optKill  true if the shutdown should happen immediately without
      * waiting for orderly shutdown to complete.
      * @param optCluster  true if this is part of a cluster shutdown that should
      * not alter component run settings.
      */
-    @JSONMethod("server", "self", "kill", "cluster")
-    fun shutdown(from: BrokerActor, optServer: OptString, optSelf: OptBoolean, optKill: OptBoolean, optCluster: OptBoolean) {
+    @JSONMethod("server", "self", "cluster")
+    fun shutdown(from: BrokerActor, optServer: OptString, optSelf: OptBoolean, optCluster: OptBoolean) {
         from.ensureAuthorizedAdmin()
         val serverName = optServer.value<String?>(null)
         val componentShutdown = !optCluster.value(false)
-        var kill = optKill.value(false)
         if (serverName != null) {
-            val msg = msgShutdown(myBroker.clientHandler(), kill)
-            val actorsToKill: List<BrokerActor> = LinkedList(myBroker.actors())
-            for (actor in actorsToKill) {
+            val msg = msgShutdown(myBroker.clientHandler())
+            val actorsToShutdown: List<BrokerActor> = LinkedList(myBroker.actors())
+            for (actor in actorsToShutdown) {
                 val client = actor.client()
                 if (client != null) {
                     if (serverName == "all" ||
@@ -217,14 +215,10 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
                     }
                 }
             }
-            kill = false /* Need to ignore the kill flag in this case, because
-                             abrupt shutdown would terminate this server before
-                             the shutdown messages to the *other* servers got
-                             sent. */
         }
         myBroker.checkpoint()
         if (optSelf.value(false)) {
-            myBroker.shutdownServer(kill)
+            myBroker.shutdownServer()
         }
     }
 
@@ -311,11 +305,8 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
         /**
          * Generate a 'shutdown' message.
          */
-        private fun msgShutdown(target: Referenceable, kill: Boolean) =
+        private fun msgShutdown(target: Referenceable) =
                 JSONLiteralFactory.targetVerb(target, "shutdown").apply {
-                    if (kill) {
-                        addParameter("kill", kill)
-                    }
                     finish()
                 }
     }

@@ -3,7 +3,6 @@ package org.elkoserver.foundation.server
 import org.elkoserver.foundation.actor.NonRoutingActor
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.MessageDispatcher
-import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -93,12 +92,10 @@ class BrokerActor(connection: Connection?, dispatcher: MessageDispatcher?,
 
     /**
      * Handle a 'shutdown' message: shut down this server.
-     *
-     * @param kill  Terminate abruptly?  (Optional, default false).
      */
-    @JSONMethod("kill")
-    fun shutdown(from: BrokerActor, kill: OptBoolean) {
-        myServer.shutdown(kill.value(false))
+    @JSONMethod
+    fun shutdown(from: BrokerActor) {
+        myServer.shutdown()
     }
 
     companion object {

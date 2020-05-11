@@ -158,11 +158,9 @@ class Gatekeeper internal constructor(
 
     /**
      * Shutdown the server.
-     *
-     * @param kill  If true, shutdown immediately instead of cleaning up.
      */
-    fun shutdown(kill: Boolean) {
-        myServer.shutdown(kill)
+    fun shutdown() {
+        myServer.shutdown()
     }
 
     /**
@@ -196,20 +194,21 @@ class Gatekeeper internal constructor(
         authorizerClass = try {
             Class.forName(authorizerClassName)
         } catch (e: ClassNotFoundException) {
-            tr.fatalError("auth service class $authorizerClassName not found")
+            throw IllegalStateException("auth service class $authorizerClassName not found", e)
         }
         myAuthorizer = try {
             authorizerClass.getConstructor(TraceFactory::class.java).newInstance(traceFactory) as Authorizer
         } catch (e: IllegalAccessException) {
-            tr.fatalError("unable to access auth service constructor: $e")
+            throw IllegalStateException("unable to access auth service constructor", e)
         } catch (e: InstantiationException) {
-            tr.fatalError("unable to instantiate auth service object: $e")
+            throw IllegalStateException("unable to instantiate auth service object", e)
         } catch (e: NoSuchMethodException) {
-            tr.fatalError("auth service object does not have a public constructor accepting a trace factory: $e")
+            throw IllegalStateException("auth service object does not have a public constructor accepting a trace factory", e)
         } catch (e: InvocationTargetException) {
-            tr.fatalError("error occurred during instantiation of auth service object: $e")
+            throw IllegalStateException("error occurred during instantiation of auth service object", e)
+        }.apply {
+            initialize(this@Gatekeeper)
         }
-        myAuthorizer.initialize(this)
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 myDirectorActorFactory.disconnectDirector()

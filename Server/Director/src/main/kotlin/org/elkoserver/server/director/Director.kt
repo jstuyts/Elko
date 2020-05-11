@@ -297,7 +297,7 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
      * Shutdown the server.
      */
     fun shutdownServer() {
-        myServer.shutdown(false)
+        myServer.shutdown()
     }
 
     /**

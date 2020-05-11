@@ -56,7 +56,7 @@ class HTTPMessageHandlerFactory internal constructor(
     /** Like mySelectTimeout, but when connection is in debug mode.  */
     private val myDebugSelectTimeout: Int
 
-    /** Time an HTTP session can sit idle before being killed, in
+    /** Time an HTTP session can sit idle before being closed, in
      * milliseconds.  */
     private val mySessionTimeout: Int
 
@@ -370,7 +370,7 @@ class HTTPMessageHandlerFactory internal constructor(
 
     /**
      * Get the HTTP session timeout interval: the time an HTTP session can be
-     * idle before the server kills it.
+     * idle before the server closes it.
      *
      * @param debug  If true, return the debug-mode timeout; if false, return
      * the normal use timeout.

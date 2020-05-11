@@ -66,7 +66,7 @@ class HTTPSessionConnection private constructor(
      * milliseconds.  */
     private var mySelectTimeoutInterval: Int
 
-    /** Time a session may sit idle before killing it, in milliseconds.  */
+    /** Time a session may sit idle before closing it, in milliseconds.  */
     private var mySessionTimeoutInterval: Int
 
     /** Open TCP connections associated with this session, for cleanup.  */
@@ -108,9 +108,9 @@ class HTTPSessionConnection private constructor(
     override fun close() {
         if (!amClosing) {
             amClosing = true
-            val killConnections: Set<Connection> = myConnections
+            val connectionsToClose: Set<Connection> = myConnections
             myConnections = HashSet()
-            killConnections
+            connectionsToClose
                     .filter { it !== myDownstreamConnection }
                     .forEach(Connection::close)
             mySessionFactory.removeSession(this)
@@ -182,7 +182,7 @@ class HTTPSessionConnection private constructor(
      * React to a clock tick event on the inactivity timeout timer.
      *
      * Check to see if it has been too long since anything was received from
-     * the client; if so, kill the session.
+     * the client; if so, close the session.
      */
     private fun noticeInactivityTick() {
         if (mySelectWaitStartTime == 0L &&

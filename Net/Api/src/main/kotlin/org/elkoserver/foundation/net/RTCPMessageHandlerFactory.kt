@@ -35,20 +35,20 @@ internal class RTCPMessageHandlerFactory(
     /** Table of current sessions, indexed by TCP connection.  */
     private val mySessionsByConnection = HashMap<Connection, RTCPSessionConnection>()
 
-    /** Time an RTCP session can sit idle before being killed, milliseconds.  */
+    /** Time an RTCP session can sit idle before being closed, milliseconds.  */
     private val mySessionInactivityTimeout: Int
 
     /** Like mySessionInactivityTimeout, but when in debug mode.  */
     private val myDebugSessionInactivityTimeout: Int
 
-    /** Time a session can sit disconnected before being killed, in ms.  */
+    /** Time a session can sit disconnected before being closed, in ms.  */
     private val mySessionDisconnectedTimeout: Int
 
     /** Like mySessionDisconnectedTimeout, but when in debug mode.  */
     private val myDebugSessionDisconnectedTimeout: Int
 
     /** Volume of message backlog an RTCP session can tolerate before being
-     * killed, in characters.  */
+     * closed, in characters.  */
     private val mySessionBacklogLimit: Int
 
     /**
@@ -328,7 +328,7 @@ internal class RTCPMessageHandlerFactory(
     /**
      * Obtain the RTCP session message backlog limit: the amount of outbound
      * message traffic we'll allow to accumulate before deeming the client
-     * unmutual and killing the session.
+     * unmutual and closing the session.
      *
      * @return the session backlog limit, in characters.
      */
@@ -337,7 +337,7 @@ internal class RTCPMessageHandlerFactory(
     /**
      * Obtain the RTCP session disconnected timeout interval: the time an RTCP
      * session can be without a live TCP connection before the server decides
-     * that the user isn't coming back and kills the session.
+     * that the user isn't coming back and closing the session.
      *
      * @param debug  If true, return the debug-mode timeout; if false, return
      * the normal use timeout.
@@ -354,7 +354,7 @@ internal class RTCPMessageHandlerFactory(
 
     /**
      * Obtain the RTCP session inactivity timeout interval: the time an RTCP
-     * session can be idle before the server kills it.
+     * session can be idle before the server closes it.
      *
      * @param debug  If true, return the debug-mode timeout; if false, return
      * the normal use timeout.

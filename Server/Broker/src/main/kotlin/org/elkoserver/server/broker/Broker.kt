@@ -204,17 +204,13 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
 
     /**
      * Shutdown the server.
-     *
-     * @param kill  If true, shutdown immediately without cleaning up.
      */
-    fun shutdownServer(kill: Boolean) {
-        if (!kill) {
-            for (actor in LinkedList(myActors)) {
-                actor.doDisconnect()
-            }
+    fun shutdownServer() {
+        for (actor in LinkedList(myActors)) {
+            actor.doDisconnect()
         }
         myODB?.shutdown()
-        myServer.shutdown(kill)
+        myServer.shutdown()
     }
 
     /**

@@ -14,18 +14,18 @@ object ObjectStoreFactory {
         objectStoreClass = try {
             Class.forName(objectStoreClassName)
         } catch (e: ClassNotFoundException) {
-            trace.fatalError("object store class $objectStoreClassName not found")
+            throw IllegalStateException("object store class $objectStoreClassName not found", e)
         }
         result = try {
             objectStoreClass.getConstructor().newInstance() as ObjectStore
         } catch (e: IllegalAccessException) {
-            trace.fatalError("unable to access object store constructor: $e")
+            throw IllegalStateException("unable to access object store constructor", e)
         } catch (e: InstantiationException) {
-            trace.fatalError("unable to instantiate object store object: $e")
+            throw IllegalStateException("unable to instantiate object store object", e)
         } catch (e: NoSuchMethodException) {
-            trace.fatalError("unable to find object store constructor: $e")
+            throw IllegalStateException("unable to find object store constructor", e)
         } catch (e: InvocationTargetException) {
-            trace.fatalError("error during invocation of object store constructor: ${e.cause}")
+            throw IllegalStateException("error during invocation of object store constructor", e)
         }
         result.initialize(props, propRoot, trace)
         return result

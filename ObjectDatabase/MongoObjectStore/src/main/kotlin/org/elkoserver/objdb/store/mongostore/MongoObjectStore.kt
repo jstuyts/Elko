@@ -66,7 +66,7 @@ class MongoObjectStore : ObjectStore {
     override fun initialize(props: ElkoProperties, propRoot: String, trace: Trace) {
         val mongoPropRoot = "$propRoot.odb.mongo"
         val addressStr = props.getProperty("$mongoPropRoot.hostport")
-                ?: trace.fatalError("no mongo database server address specified")
+                ?: throw IllegalStateException("no mongo database server address specified")
         val colon = addressStr.indexOf(':')
         val port: Int
         val host: String

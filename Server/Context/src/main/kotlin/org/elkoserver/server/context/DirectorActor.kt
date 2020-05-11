@@ -317,12 +317,10 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
      * Handle the 'shutdown' verb.
      *
      * Process a directive to shut down the server.
-     *
-     * @param kill  If true, shutdown immediately instead of cleaning up.
      */
-    @JSONMethod("kill")
-    fun shutdown(from: DirectorActor, kill: OptBoolean) {
-        myGroup.contextor().shutdownServer(kill.value(false))
+    @JSONMethod
+    fun shutdown(from: DirectorActor) {
+        myGroup.contextor().shutdownServer()
     }
 
     companion object {

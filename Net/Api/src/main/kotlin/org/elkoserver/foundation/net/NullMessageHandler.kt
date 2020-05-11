@@ -14,7 +14,7 @@ class NullMessageHandler(private val tr: Trace) : MessageHandler {
     /**
      * Cope with connection death.  The connection might have been shut down
      * deliberately, the underlying TCP connection might have failed, or an
-     * internal error may have killed the connection.  In any event, the
+     * internal error may have closed the connection.  In any event, the
      * connection is dead.  Deal with it.
      *
      * @param connection  The connection that has just died.

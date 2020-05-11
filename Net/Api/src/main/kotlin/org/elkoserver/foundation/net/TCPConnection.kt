@@ -175,7 +175,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
                 myTrace.errorm("$this Error", t)
             }
             close()
-            /* Kill it immediately: if the connection is dead, the write queue
+            /* Close it immediately: if the connection is dead, the write queue
                will never be processed, so orderly close will never finish. */closeIsDone(t)
             throwIfMandatory(t)
         }

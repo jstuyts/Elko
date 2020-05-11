@@ -2,7 +2,6 @@ package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JSONMethod
-import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -75,12 +74,11 @@ internal class AdminHandler(private val myGatekeeper: Gatekeeper, traceFactory: 
      * Request that the gatekeeper be shut down.
      *
      * @param from  The administrator sending the message.
-     * @param kill  If true, shutdown immediately instead of cleaning up.
      */
-    @JSONMethod("kill")
-    fun shutdown(from: GatekeeperActor, kill: OptBoolean) {
+    @JSONMethod()
+    fun shutdown(from: GatekeeperActor) {
         from.ensureAuthorizedAdmin()
-        myGatekeeper.shutdown(kill.value(false))
+        myGatekeeper.shutdown()
     }
 
     companion object {

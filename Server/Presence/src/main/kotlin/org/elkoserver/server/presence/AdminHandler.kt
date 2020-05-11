@@ -2,7 +2,6 @@ package org.elkoserver.server.presence
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JSONMethod
-import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralArray
@@ -94,12 +93,11 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, traceF
      * Request that the presence server be shut down.
      *
      * @param from  The administrator sending the message.
-     * @param kill  If true, shutdown immediately instead of cleaning up.
      */
-    @JSONMethod("kill")
-    fun shutdown(from: PresenceActor, kill: OptBoolean) {
+    @JSONMethod
+    fun shutdown(from: PresenceActor) {
         from.ensureAuthorizedAdmin()
-        myPresenceServer.shutdownServer(kill.value(false))
+        myPresenceServer.shutdownServer()
     }
 
     /**

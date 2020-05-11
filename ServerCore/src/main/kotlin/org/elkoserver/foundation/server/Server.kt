@@ -32,7 +32,6 @@ import java.util.LinkedList
 import java.util.StringTokenizer
 import java.util.concurrent.Callable
 import java.util.function.Consumer
-import kotlin.system.exitProcess
 
 /**
  * The core of an Elko server, holding the run queue, a collection of
@@ -519,14 +518,9 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
     /**
      * Shut down the server.  Actually, this initiates the shutdown process;
      * the actual shutdown happens in serverExit().
-     *
-     * @param kill  If true, shut down immediately instead of cleaning up.
      */
-    fun shutdown(kill: Boolean) {
-        if (kill) {
-            // FIXME: Never kill a process, but always shut down cleanly.
-            exitProcess(0)
-        } else if (!amShuttingDown) {
+    fun shutdown() {
+        if (!amShuttingDown) {
             amShuttingDown = true
             trServer.worldi("Shutting down $myServerName")
             if (myBrokerActor != null) {

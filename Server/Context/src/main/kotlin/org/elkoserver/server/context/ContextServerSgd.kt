@@ -28,7 +28,7 @@ class ContextServerSgd(provided: Provided, configuration: ObjectGraphConfigurati
             .init {
                 if (req(server).startListeners("conf.listen", it) == 0) {
                     // FIXME: Do not use "fatalError" as this exits the process hard.
-                    req(contTrace).fatalError("no listeners specified")
+                    throw IllegalStateException("no listeners specified")
                 }
                 // This must run after the listeners of the server have been started.
                 val contextor = req(contextor)

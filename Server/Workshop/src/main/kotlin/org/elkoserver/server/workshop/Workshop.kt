@@ -34,7 +34,7 @@ import java.util.function.Consumer
  * @param server  Server object.
  * @param tr  Trace object for diagnostics.
  */
-class Workshop private constructor(odb: ObjDB?, server: Server,
+class Workshop private constructor(odb: ObjDB, server: Server,
                                    private val tr: Trace, traceFactory: TraceFactory, clock: Clock) : RefTable(odb, traceFactory, clock) {
     /** Server object.  */
     private val myServer: Server
@@ -56,7 +56,8 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    internal constructor(server: Server, appTrace: Trace, traceFactory: TraceFactory, clock: Clock) : this(server.openObjectDatabase("conf.workshop"), server, appTrace, traceFactory, clock)
+    internal constructor(server: Server, appTrace: Trace, traceFactory: TraceFactory, clock: Clock) :
+            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, appTrace, traceFactory, clock)
 
     /**
      * Add a worker to the object table.
@@ -129,11 +130,9 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
 
     /**
      * Shutdown the server.
-     *
-     * @param kill  If true, shutdown immediately instead of cleaning up.
      */
-    fun shutdown(kill: Boolean) {
-        myServer.shutdown(kill)
+    fun shutdown() {
+        myServer.shutdown()
     }
 
     /**
@@ -250,9 +249,6 @@ class Workshop private constructor(odb: ObjDB?, server: Server,
     }
 
     init {
-        if (odb == null) {
-            tr.fatalError("no database specified")
-        }
         myODB = odb
         myServer = server
         odb.addClass("auth", AuthDesc::class.java)

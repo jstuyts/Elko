@@ -145,17 +145,16 @@ class Session(private val myContextor: Contextor, server: Server, traceFactory: 
      * Shutdown the server.
      *
      * @param testPassword  Password to verify that sender is allowed to do this.
-     * @param kill  If true, shutdown immediately instead of cleaning up.
      */
-    @JSONMethod("password", "kill")
-    fun shutdown(from: Deliverer, testPassword: OptString, kill: OptBoolean) {
+    @JSONMethod("password")
+    fun shutdown(from: Deliverer, testPassword: OptString) {
         var fromUser: User? = null
         if (from is User) {
             fromUser = from
         }
         val password = myServer.props().getProperty<String?>("conf.context.shutdownpassword", null)
         if (password == null || password == testPassword.value<String?>(null)) {
-            myContextor.shutdownServer(kill.value(false))
+            myContextor.shutdownServer()
             if (fromUser != null) {
                 fromUser.exitContext("server shutting down", "shutdown", false)
             } else {

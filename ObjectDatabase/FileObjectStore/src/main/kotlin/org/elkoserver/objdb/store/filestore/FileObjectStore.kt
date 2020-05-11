@@ -51,12 +51,12 @@ class FileObjectStore : ObjectStore {
      */
     override fun initialize(props: ElkoProperties, propRoot: String, appTrace: Trace) {
         val dirname = props.getProperty("$propRoot.odb")
-                ?: appTrace.fatalError("no object database directory specified")
+                ?: throw java.lang.IllegalStateException("no object database directory specified")
         myODBDirectory = File(dirname)
         if (!myODBDirectory.exists()) {
-            appTrace.fatalError("object database directory '$dirname' does not exist")
+            throw IllegalStateException("object database directory '$dirname' does not exist")
         } else if (!myODBDirectory.isDirectory) {
-            appTrace.fatalError("requested object database directory $dirname is not a directory")
+            throw IllegalStateException("requested object database directory $dirname is not a directory")
         }
     }
 

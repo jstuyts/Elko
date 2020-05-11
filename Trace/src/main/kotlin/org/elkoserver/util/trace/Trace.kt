@@ -1,7 +1,6 @@
 package org.elkoserver.util.trace
 
 import java.time.Clock
-import kotlin.system.exitProcess
 
 /**
  * This class provides output to the server log on behalf of a particular
@@ -69,17 +68,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      * getting code to work.
      */
     var verbose = false
-
-    /**
-     * Exit reporting a fatal error.
-     *
-     * @param message  The error message to die with.
-     */
-    @Deprecated("Exits the process immediately")
-    fun fatalError(message: String): Nothing {
-        errorm(message)
-        exitProcess(1)
-    }
 
     /** Flag that the threshold is defaulted.  */
     internal var myThresholdIsDefaulted = true
