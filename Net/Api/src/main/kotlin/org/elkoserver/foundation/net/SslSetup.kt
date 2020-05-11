@@ -27,11 +27,14 @@ object SslSetup {
            informative message and let higher powers try again later after
            they've fixed it. */
         } catch (e: GeneralSecurityException) {
-            trace.fatalError("problem initializing SSL", e)
+            trace.errorm("problem initializing SSL", e)
+            throw IllegalStateException(e)
         } catch (e: FileNotFoundException) {
-            trace.fatalError("SSL key file not found", e)
+            trace.errorm("SSL key file not found", e)
+            throw IllegalStateException(e)
         } catch (e: IOException) {
-            trace.fatalError("problem reading SSL key file", e)
+            trace.errorm("problem reading SSL key file", e)
+            throw IllegalStateException(e)
         }
         return result
     }
@@ -40,9 +43,9 @@ object SslSetup {
     private fun tryToSetupSsl(properties: ElkoProperties, propertyNamePrefix: String): SSLContext {
         val keyStoreType = properties.getProperty("${propertyNamePrefix}keystoretype", "JKS")
         val keys = KeyStore.getInstance(keyStoreType)
-        val keyPassword = properties.getProperty("${propertyNamePrefix}keypassword")
-        val passwordChars = keyPassword!!.toCharArray()
-        val keyFile = properties.getProperty("${propertyNamePrefix}keyfile")
+        val keyPassword = properties.getProperty("${propertyNamePrefix}keypassword") ?: throw IllegalStateException()
+        val passwordChars = keyPassword.toCharArray()
+        val keyFile = properties.getProperty("${propertyNamePrefix}keyfile") ?: throw IllegalStateException()
         keys.load(FileInputStream(keyFile), passwordChars)
         val keyManagerAlgorithm = properties.getProperty("${propertyNamePrefix}keymanageralgorithm", "SunX509")
         val keyManagerFactory = KeyManagerFactory.getInstance(keyManagerAlgorithm)

@@ -81,19 +81,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
         exitProcess(1)
     }
 
-    /**
-     * Exit reporting a fatal error, with attached object (usually but not
-     * necessarily a [Throwable] of some kind).
-     *
-     * @param message  The error message to die with.
-     * @param obj  Object to report with <tt>message</tt>.
-     */
-    @Deprecated("Exits the process immediately")
-    fun fatalError(message: String, obj: Any): Nothing {
-        errorm(message, obj)
-        exitProcess(1)
-    }
-
     /** Flag that the threshold is defaulted.  */
     internal var myThresholdIsDefaulted = true
 

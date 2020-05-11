@@ -61,9 +61,11 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
             String(myCipher!!.doFinal(base64Decoder.decode(cypherText)),
                     StandardCharsets.UTF_8)
         } catch (e: InvalidAlgorithmParameterException) {
-            traceFactory.startup.fatalError("fatal Cryptor.decrypt failure: ", e)
+            traceFactory.startup.errorm("fatal Cryptor.decrypt failure: ", e)
+            throw IllegalStateException(e)
         } catch (e: InvalidKeyException) {
-            traceFactory.startup.fatalError("fatal Cryptor.decrypt failure: ", e)
+            traceFactory.startup.errorm("fatal Cryptor.decrypt failure: ", e)
+            throw IllegalStateException(e)
         } catch (e: BadPaddingException) {
             throw IOException("bad padding in cryptoblob $e")
         } catch (e: IllegalBlockSizeException) {
@@ -112,8 +114,7 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
         val iv = ByteArray(16)
         theRandom.nextBytes(iv)
         val ivSpec = IvParameterSpec(iv)
-        val failure: Exception
-        failure = try {
+        val failure = try {
             myCipher!!.init(Cipher.ENCRYPT_MODE, myKey, ivSpec)
             return base64Encoder.encodeToString(iv).substring(0, 22) +
                     base64Encoder.encodeToString(myCipher!!.doFinal(str.toByteArray(StandardCharsets.UTF_8)))
@@ -127,7 +128,8 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
             e
         }
         /* None of these should ever actually happen.  Die if they do. */
-        traceFactory.startup.fatalError("Cryptor.encrypt failure: ", failure)
+        traceFactory.startup.errorm("Cryptor.encrypt failure: ", failure)
+        throw IllegalStateException(failure)
     }
 
     companion object {
@@ -151,7 +153,8 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
                 base64Encoder.encodeToString(key.encoded)
             } catch (e: NoSuchAlgorithmException) {
                 /* This should never actually happen. */
-                traceFactory.startup.fatalError("Cryptor.generateKey failure: unknown algorithm", e)
+                traceFactory.startup.errorm("Cryptor.generateKey failure: unknown algorithm", e)
+                throw IllegalStateException(e)
             }
         }
     }
@@ -167,9 +170,11 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
            missing, in which case the whole system is already hosed, so if
            either of these happens we're dead. */
         } catch (e: NoSuchAlgorithmException) {
-            traceFactory.startup.fatalError("Cryptor init failure: doesn't like algorithm 'AES'", e)
+            traceFactory.startup.errorm("Cryptor init failure: doesn't like algorithm 'AES'", e)
+            throw IllegalStateException(e)
         } catch (e: NoSuchPaddingException) {
-            traceFactory.startup.fatalError("Cryptor init failure: doesn't like padding mode 'PKCS5Padding'", e)
+            traceFactory.startup.errorm("Cryptor init failure: doesn't like padding mode 'PKCS5Padding'", e)
+            throw IllegalStateException(e)
         }
     }
 }
