@@ -17,7 +17,7 @@ import org.elkoserver.server.context.Msg.msgDelete
 import org.elkoserver.server.context.Msg.msgExit
 import org.elkoserver.server.context.Msg.msgMake
 import org.elkoserver.server.context.Msg.msgReady
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.NoSuchElementException
 
@@ -131,8 +131,6 @@ internal constructor(name: String,
     /** Optional watcher for friend presence changes.  */
     private var myPresenceWatcher: PresenceWatcher? = null
 
-    /** Trace object for diagnostics.  */
-    private lateinit var tr: Trace
     private lateinit var timer: Timer
 
     /**
@@ -145,14 +143,12 @@ internal constructor(name: String,
      * this context was loaded from
      * @param opener Director who requested this context to be opened, or null
      * if not relevant.
-     * @param appTrace  Trace object for diagnostics.
      */
     fun activate(ref: String, subID: String, isEphemeral: Boolean,
                  contextor: Contextor, loadedFromRef: String,
-                 opener: DirectorActor?, appTrace: Trace, timer: Timer) {
-        super.activate(ref, subID, isEphemeral, contextor)
+                 opener: DirectorActor?, gorgel: Gorgel, timer: Timer) {
+        super.activate(ref, subID, isEphemeral, contextor, gorgel)
         this.timer = timer
-        tr = appTrace
         myGroup = LiveGroup()
         myUserCount = 0
         myRetainCount = 0
@@ -179,7 +175,7 @@ internal constructor(name: String,
                 myPresenceWatcher = mod
             }
         } else {
-            tr.errorm("attempt to attach non-ContextMod $mod to $this")
+            myGorgel.error("attempt to attach non-ContextMod $mod")
         }
     }
 
@@ -196,7 +192,7 @@ internal constructor(name: String,
                     newMod.markAsEphemeral()
                     newMod.attachTo(who)
                 } catch (e: CloneNotSupportedException) {
-                    tr.errorm("Mod class ${mod.javaClass} does not support clone")
+                    myGorgel.error("Mod class ${mod.javaClass} does not support clone")
                 }
             }
         }
@@ -221,7 +217,7 @@ internal constructor(name: String,
         if (myUserCount == 0 && (myRetainCount == 0 || amForceClosing)) {
             if (!amClosing) {
                 amClosing = true
-                tr.eventi("shutting down $this")
+                myGorgel.info("shutting down")
                 noteContextShutdown()
                 checkpoint()
                 assertActivated {
@@ -256,26 +252,26 @@ internal constructor(name: String,
            that will decrement the count again. */
         myUserCount += 1
         return if (isRestricted && !who.entryEnabled(myRef!!)) {
-            tr.eventi("$who forbidden entry to $this (entry restricted)")
+            myGorgel.info("$who forbidden entry (entry restricted)")
             "restricted"
         } else if (!amAllowAnonymous && who.isAnonymous) {
-            tr.eventi("$who forbidden entry to $this (anonymous users forbidden)")
+            myGorgel.info("$who forbidden entry (anonymous users forbidden)")
             "noanonymity"
         } else if (myGateClosedReason != null) {
-            tr.eventi("$who forbidden entry to $this (gate closed: $myGateClosedReason)")
+            myGorgel.info("$who forbidden entry (gate closed: $myGateClosedReason)")
             "gateclosed"
         } else if (myUserCount > myMaxCapacity && myMaxCapacity != -1) {
-            tr.eventi("$who forbidden entry to $this (capacity limit reached)")
+            myGorgel.info("$who forbidden entry (capacity limit reached)")
             "full"
         } else if (amClosing) {
-            tr.eventi("$who forbidden entry to $this (context is closing)")
+            myGorgel.info("$who forbidden entry (context is closing)")
             "contextclose"
         } else {
             val currentUsers = myUsers
             if (currentUsers != null) {
                 val prev = currentUsers[who.baseRef()]
                 if (prev != null && !who.isEphemeral) {
-                    tr.eventi("expelling $prev from $this due to reentry as $who")
+                    myGorgel.info("expelling $prev due to reentry as $who")
                     prev.send(msgExit(this, "duplicate entry", "dupentry", false))
                     prev.forceDisconnect()
                 }
@@ -283,7 +279,7 @@ internal constructor(name: String,
             }
             sendContextDescription(who, assertActivated(Contextor::session))
             noteUserArrival(who)
-            tr.eventi("$who enters $this")
+            myGorgel.info("$who enters")
             null
         }
     }
@@ -294,7 +290,7 @@ internal constructor(name: String,
      * @param who  The user to remove.
      */
     fun exitContext(who: User) {
-        tr.eventi("$who exits $this")
+        myGorgel.info("$who exits")
         val currentUsers = myUsers
         if (currentUsers?.get(who.baseRef()) != null && currentUsers[who.baseRef()]!!.ref() == who.ref()) {
             currentUsers.remove(who.baseRef())
@@ -455,7 +451,7 @@ internal constructor(name: String,
         if (observer != null) {
             observer.observePresenceChange(observerRef, domain, whoRef, whereRef, on)
         } else {
-            tr.warningi("presence change of $whoRef${if (on) " entering " else " exiting "}$whereRef for context ${ref()} directed to unknown user $observerRef")
+            myGorgel.warn("presence change of $whoRef${if (on) " entering " else " exiting "}$whereRef directed to unknown user $observerRef")
         }
     }
 
@@ -650,13 +646,6 @@ internal constructor(name: String,
      * @return a printable representation of this context.
      */
     override fun toString() = "Context '${ref()}'"
-
-    /**
-     * Obtain a trace object for logging.
-     *
-     * @return a trace object for generating log messages from this context.
-     */
-    fun trace() = tr
 
     /**
      * Get the number of users in this context.

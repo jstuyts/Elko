@@ -35,7 +35,7 @@ class BrokerBoot : Bootable {
         tr = traceFactory.trace("brok")
         val brokerServerGraph = BrokerServerOgd(object : BrokerServerOgd.Provided, ProvidedAdministration() {
             override fun clock() = ConstantDefinition(clock)
-            override fun gorgel() = ConstantDefinition(gorgel)
+            override fun rootGorgel() = ConstantDefinition(gorgel)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {
             override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
                 myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)

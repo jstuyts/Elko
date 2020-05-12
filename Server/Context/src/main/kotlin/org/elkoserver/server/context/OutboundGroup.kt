@@ -14,6 +14,7 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.function.Consumer
 
@@ -27,11 +28,17 @@ import java.util.function.Consumer
  * @param contextor  The server contextor.
  * @param hosts  List of HostDesc objects describing external
  *    servers with whom to register.
- * @param appTrace  Trace object for diagnostics.
+ * @param tr  Trace object for diagnostics.
  */
 abstract class OutboundGroup(propRoot: String,
-                             private val myServer: Server, contextor: Contextor,
-                             hosts: MutableList<HostDesc>, appTrace: Trace, protected val timer: Timer, protected val traceFactory: TraceFactory, clock: Clock) : LiveGroup() {
+                             private val myServer: Server,
+                             contextor: Contextor,
+                             hosts: MutableList<HostDesc>,
+                             private val tr: Trace,
+                             gorgel: Gorgel,
+                             protected val timer: Timer,
+                             protected val traceFactory: TraceFactory,
+                             clock: Clock) : LiveGroup() {
     /** The statically configured external servers in this group.  */
     private val myHosts: List<HostDesc>
 
@@ -49,9 +56,6 @@ abstract class OutboundGroup(propRoot: String,
 
     /** Contextor for overall server operations.  */
     private val myContextor: Contextor
-
-    /** Trace object for diagnostics.  */
-    private val tr: Trace
 
     /**
      * Obtain the class of actors in this group.
@@ -178,13 +182,12 @@ abstract class OutboundGroup(propRoot: String,
         myDispatcher.addClass(actorClass())
         amAutoRegister = myServer.props().testProperty("$propRoot.auto")
         myRetryInterval = myServer.props().intProperty("$propRoot.retry", -1)
-        tr = appTrace
         val iter = hosts.iterator()
         while (iter.hasNext()) {
             val host = iter.next()
             if (host.protocol() != "tcp") {
                 iter.remove()
-                tr.errorm("unknown $propRoot server access protocol '${host.protocol()}' for access to ${host.hostPort()} (configuration ignored)")
+                gorgel.error("unknown $propRoot server access protocol '${host.protocol()}' for access to ${host.hostPort()} (configuration ignored)")
             }
         }
     }

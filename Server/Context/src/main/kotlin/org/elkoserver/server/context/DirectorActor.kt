@@ -16,6 +16,7 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Msg.msgSay
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.NoSuchElementException
 
@@ -28,7 +29,8 @@ import java.util.NoSuchElementException
  * @param host  Host description for this connection.
  */
 class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
-                    private val myGroup: DirectorGroup, host: HostDesc, private val timer: Timer, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
+                    private val myGroup: DirectorGroup, host: HostDesc, private val timer: Timer,
+                    private val reservationGorgel: Gorgel, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
 
     /** Map from tag strings to users awaiting reservations.  */
     private val myPendingReservationRequests: MutableMap<String, User> = HashMap()
@@ -215,7 +217,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
     @JSONMethod("context", "user", "reservation")
     fun doreserve(from: DirectorActor, context: String, user: OptString, reservation: String) {
         myGroup.addReservation(Reservation(user.value<String?>(null), context,
-                reservation, myGroup.reservationTimeout(), from, timer, traceFactory))
+                reservation, myGroup.reservationTimeout(), from, timer, reservationGorgel))
     }
 
     /**

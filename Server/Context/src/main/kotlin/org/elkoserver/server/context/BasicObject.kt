@@ -13,6 +13,7 @@ import org.elkoserver.server.context.Contents.Companion.withContents
 import org.elkoserver.server.context.Contents.Companion.withoutContents
 import org.elkoserver.server.context.Contextor.Companion.extractBaseRef
 import org.elkoserver.server.context.ModSet.Companion.withMod
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.function.Consumer
 
@@ -87,6 +88,9 @@ abstract class BasicObject internal constructor(
 
     /** Inactive content items, prior to activating this object.  */
     private var myPassiveContents: Array<Item>?
+
+    protected lateinit var myGorgel: Gorgel
+
     fun addPassiveContents(contents: Array<Item>) {
         myPassiveContents = myPassiveContents?.let { arrayOf(*it, *contents) } ?: contents
     }
@@ -112,8 +116,9 @@ abstract class BasicObject internal constructor(
      * @param isEphemeral  True if this object is ephemeral (won't checkpoint).
      * @param contextor  The contextor for this server.
      */
-    fun activate(ref: String, subID: String, isEphemeral: Boolean, contextor: Contextor) {
+    fun activate(ref: String, subID: String, isEphemeral: Boolean, contextor: Contextor, gorgel: Gorgel) {
         myRef = ref
+        myGorgel = gorgel
         if (isEphemeral) {
             markAsEphemeral()
         }
@@ -158,14 +163,14 @@ abstract class BasicObject internal constructor(
             if (myDefaultDispatchTarget == null) {
                 myDefaultDispatchTarget = mod
             } else {
-                context().trace().errorm("DefaultDispatchTarget mod $mod added to $this, which already has one")
+                myGorgel.error("DefaultDispatchTarget mod $mod added, which already has one")
             }
         }
         if (mod is ContentsWatcher) {
             if (myContentsWatcher == null) {
                 myContentsWatcher = mod
             } else {
-                context().trace().errorm("ContentsWatcher mod $mod added to $this, which already has one")
+                myGorgel.error("ContentsWatcher mod $mod added, which already has one")
             }
         }
     }
@@ -602,14 +607,14 @@ abstract class BasicObject internal constructor(
      * Handle an otherwise unhandled message.
      *
      * @param from  Who sent the message.
-     * @param msg  The message itself.
+     * @param message  The message itself.
      *
      * @throws MessageHandlerException if there was a problem handling the
      * message.
      */
-    override fun handleMessage(from: Deliverer, msg: JsonObject) {
-        myDefaultDispatchTarget?.handleMessage(from, msg)
-                ?: throw MessageHandlerException("no message handler method for verb '${msg.getString<String?>("op", null)}'")
+    override fun handleMessage(from: Deliverer, message: JsonObject) {
+        myDefaultDispatchTarget?.handleMessage(from, message)
+                ?: throw MessageHandlerException("no message handler method for verb '${message.getString<String?>("op", null)}'")
     }
     /* ----- MessageRetargeter interface ---------------------------------- */
     /**

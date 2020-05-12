@@ -4,10 +4,17 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
-class ContextServiceFactory(val myContextor: Contextor, val tr: Trace, val traceFactory: TraceFactory, val timer: Timer) : ServiceFactory {
+class ContextServiceFactory(
+        private val myContextor: Contextor,
+        private val gorgel: Gorgel,
+        private val internalActorGorgel: Gorgel,
+        private val userActorGorgel: Gorgel,
+        private val userGorgelWithoutRef: Gorgel,
+        private val traceFactory: TraceFactory,
+        private val timer: Timer) : ServiceFactory {
     /**
      * Provide a message handler factory for a new listener.
      *
@@ -25,18 +32,18 @@ class ContextServiceFactory(val myContextor: Contextor, val tr: Trace, val trace
     override fun provideFactory(label: String, auth: AuthDesc, allow: Set<String>, serviceNames: MutableList<String>, protocol: String): MessageHandlerFactory {
         return if (allow.contains("internal")) {
             serviceNames.add("context-internal")
-            InternalActorFactory(myContextor, auth, tr, traceFactory)
+            InternalActorFactory(myContextor, auth, internalActorGorgel, traceFactory)
         } else {
             val reservationRequired: Boolean = when {
                 auth.mode() == "open" -> false
                 auth.mode() == "reservation" -> true
                 else -> {
-                    tr.errorm("invalid authorization configuration for $label")
+                    gorgel.error("invalid authorization configuration for $label")
                     throw IllegalStateException()
                 }
             }
             serviceNames.add("context-user")
-            UserActorFactory(myContextor, reservationRequired, protocol, tr, timer, traceFactory)
+            UserActorFactory(myContextor, reservationRequired, protocol, userActorGorgel, userGorgelWithoutRef, timer, traceFactory)
         }
     }
 }

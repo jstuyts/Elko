@@ -6,8 +6,8 @@ import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Actor for an internal connection to a context server from within the server
@@ -19,7 +19,7 @@ import org.elkoserver.util.trace.TraceFactory
  * @param tr  Trace object for diagnostics.
  */
 class InternalActor internal constructor(connection: Connection, private val myFactory: InternalActorFactory,
-                                         private val tr: Trace, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.contextor(), traceFactory), BasicProtocolActor {
+                                         private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.contextor(), traceFactory), BasicProtocolActor {
 
     /** Flag that connection has been authorized.  */
     private var amAuthorized = false
@@ -35,7 +35,7 @@ class InternalActor internal constructor(connection: Connection, private val myF
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
         doDisconnect()
-        tr.eventm("$this connection died: $connection $reason")
+        gorgel.i?.run { info("${this@InternalActor} connection died: $connection $reason") }
     }
 
     /**
@@ -51,7 +51,7 @@ class InternalActor internal constructor(connection: Connection, private val myF
      * Do the actual work of disconnecting an actor.
      */
     override fun doDisconnect() {
-        tr.eventm("disconnecting $this")
+        gorgel.i?.run { info("disconnecting ${this@InternalActor}") }
         close()
     }
 

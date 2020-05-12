@@ -10,25 +10,25 @@ class GorgelImpl(logger: Logger, private val loggerFactory: ILoggerFactory, priv
 
     constructor(logger: Logger, loggerFactory: ILoggerFactory, markerFactory: IMarkerFactory) : this(logger, loggerFactory, markerFactory, null)
 
-    constructor(logger: Logger, loggerFactory: ILoggerFactory, markerFactory: IMarkerFactory, tag: String) : this(logger, loggerFactory, markerFactory, markerFactory.getDetachedMarker(tag))
+    constructor(logger: Logger, loggerFactory: ILoggerFactory, markerFactory: IMarkerFactory, tag: Tag) : this(logger, loggerFactory, markerFactory, markerFactory.getDetachedMarker(tag))
 
-    constructor(logger: Logger, loggerFactory: ILoggerFactory, markerFactory: IMarkerFactory, firstTag: String, secondTag: String) : this(logger, loggerFactory, markerFactory, markerFactory.getDetachedMarker(firstTag, secondTag))
+    constructor(logger: Logger, loggerFactory: ILoggerFactory, markerFactory: IMarkerFactory, firstTag: Tag, secondTag: Tag) : this(logger, loggerFactory, markerFactory, markerFactory.getDetachedMarker(firstTag, secondTag))
 
-    constructor(logger: Logger, loggerFactory: ILoggerFactory, markerFactory: IMarkerFactory, vararg tags: String) : this(logger, loggerFactory, markerFactory, markerFactory.getDetachedMarker(*tags))
+    constructor(logger: Logger, loggerFactory: ILoggerFactory, markerFactory: IMarkerFactory, vararg tags: Tag) : this(logger, loggerFactory, markerFactory, markerFactory.getDetachedMarker(*tags))
 
-    override fun tags(tag: String) = combineWithStaticTags(tag)
+    override fun tags(tag: Tag) = combineWithStaticTags(tag)
 
-    override fun tags(firstTag: String, secondTag: String) = combineWithStaticTags(firstTag, secondTag)
+    override fun tags(firstTag: Tag, secondTag: Tag) = combineWithStaticTags(firstTag, secondTag)
 
-    override fun tags(vararg tags: String) = combineWithStaticTags(*tags)
+    override fun tags(vararg tags: Tag) = combineWithStaticTags(*tags)
 
-    override fun withAdditionalStaticTags(tag: String) =
+    override fun withAdditionalStaticTags(tag: Tag) =
             GorgelImpl(logger, loggerFactory, markerFactory, combineWithStaticTags(tag))
 
-    override fun withAdditionalStaticTags(firstTag: String, secondTag: String) =
+    override fun withAdditionalStaticTags(firstTag: Tag, secondTag: Tag) =
             GorgelImpl(logger, loggerFactory, markerFactory, combineWithStaticTags(firstTag))
 
-    override fun withAdditionalStaticTags(vararg tags: String) =
+    override fun withAdditionalStaticTags(vararg tags: Tag) =
             GorgelImpl(logger, loggerFactory, markerFactory, combineWithStaticTags(*tags))
 
     override fun getChild(childName: String) =
@@ -36,33 +36,33 @@ class GorgelImpl(logger: Logger, private val loggerFactory: ILoggerFactory, priv
 
     override fun getChild(theClass: KClass<*>) = getChild(requireNotNull(theClass.qualifiedName))
 
-    override fun getChild(childName: String, tag: String) =
+    override fun getChild(childName: String, tag: Tag) =
             GorgelImpl(loggerFactory.getLogger(getFullyQualifiedChildName(childName)), loggerFactory, markerFactory, combineWithStaticTags(tag))
 
-    override fun getChild(theClass: KClass<*>, tag: String) =
+    override fun getChild(theClass: KClass<*>, tag: Tag) =
             getChild(requireNotNull(theClass.qualifiedName), tag)
 
-    override fun getChild(childName: String, firstTag: String, secondTag: String) =
+    override fun getChild(childName: String, firstTag: Tag, secondTag: Tag) =
             GorgelImpl(loggerFactory.getLogger(getFullyQualifiedChildName(childName)), loggerFactory, markerFactory, combineWithStaticTags(firstTag, secondTag))
 
-    override fun getChild(theClass: KClass<*>, firstTag: String, secondTag: String) =
+    override fun getChild(theClass: KClass<*>, firstTag: Tag, secondTag: Tag) =
             getChild(requireNotNull(theClass.qualifiedName), firstTag, secondTag)
 
-    override fun getChild(childName: String, vararg tags: String) =
+    override fun getChild(childName: String, vararg tags: Tag) =
             GorgelImpl(loggerFactory.getLogger(getFullyQualifiedChildName(childName)), loggerFactory, markerFactory, combineWithStaticTags(*tags))
 
-    override fun getChild(theClass: KClass<*>, vararg tags: String) =
+    override fun getChild(theClass: KClass<*>, vararg tags: Tag) =
             getChild(requireNotNull(theClass.qualifiedName), *tags)
 
     private fun getFullyQualifiedChildName(childName: String) =
             if (Logger.ROOT_LOGGER_NAME == logger.name) childName else "${logger.name}.$childName"
 
-    private fun combineWithStaticTags(tag: String) = markerFactory.getDetachedMarker(tag).addStaticTagsIfPresent()
+    private fun combineWithStaticTags(tag: Tag) = markerFactory.getDetachedMarker(tag).addStaticTagsIfPresent()
 
-    private fun combineWithStaticTags(firstTag: String, secondTag: String) =
+    private fun combineWithStaticTags(firstTag: Tag, secondTag: Tag) =
             markerFactory.getDetachedMarker(firstTag, secondTag).addStaticTagsIfPresent()
 
-    private fun combineWithStaticTags(vararg tags: String) =
+    private fun combineWithStaticTags(vararg tags: Tag) =
             markerFactory.getDetachedMarker(*tags).addStaticTagsIfPresent()
 
     private fun Marker.addStaticTagsIfPresent(): Marker {
@@ -71,14 +71,14 @@ class GorgelImpl(logger: Logger, private val loggerFactory: ILoggerFactory, priv
     }
 }
 
-private fun IMarkerFactory.getDetachedMarker(firstTag: String, secondTag: String) =
+private fun IMarkerFactory.getDetachedMarker(firstTag: Tag, secondTag: Tag) =
         getDetachedMarker(firstTag).also {
             it.add(getDetachedMarker(secondTag))
         }
 
-private fun IMarkerFactory.getDetachedMarker(vararg tags: String) =
-        getDetachedMarker(tags[0]).also {
+private fun IMarkerFactory.getDetachedMarker(vararg tags: Tag) =
+        getDetachedMarker(tags[0].markerName).also {
             for (index in 1 until tags.size) {
-                it.add(getDetachedMarker(tags[index]))
+                it.add(getDetachedMarker(tags[index].markerName))
             }
         }

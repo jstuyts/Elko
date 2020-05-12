@@ -13,8 +13,9 @@ import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Msg.msgExit
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
+import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList
 import java.util.function.Consumer
 
@@ -26,10 +27,9 @@ import java.util.function.Consumer
  * @param amAuthRequired  True if this use needs to tender a reservation in
  *    order to enter.
  * @param myProtocol  Protocol being used on the new connection
- * @param tr  Trace object for diagnostics.
  */
 class UserActor(private val myConnection: Connection, private val myContextor: Contextor, private val amAuthRequired: Boolean,
-                private val myProtocol: String, private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory) : RoutingActor(myConnection, myContextor, traceFactory), SourceRetargeter, BasicProtocolActor {
+                private val myProtocol: String, private val userActorGorgel: Gorgel, private val userGorgelWithoutRef: Gorgel, private val timer: Timer, traceFactory: TraceFactory) : RoutingActor(myConnection, myContextor, traceFactory), SourceRetargeter, BasicProtocolActor {
     /** The users this actor is the actor for, by context.  */
     private val myUsers: MutableMap<Context, User> = HashMap()
 
@@ -48,9 +48,9 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
      */
     private fun abruptExit(why: String, whyCode: String) {
         send(msgExit(myContextor.session(), why, whyCode, false))
-        tr.eventm("abrupt exit: $why")
+        userActorGorgel.i?.run { info("abrupt exit: $why") }
         if (!amDead && myUsers.isEmpty()) {
-            tr.eventm("abrupt exit disconnects pre-entry user")
+            userActorGorgel.i?.run { info("abrupt exit disconnects pre-entry user") }
             amDead = true
             close()
         }
@@ -136,7 +136,7 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
                      scope: String?) {
         var actualUserRef = userRef
         var actualName = name
-        tr.eventi("attempting to enter context $contextRef")
+        userActorGorgel.i?.run { info("attempting to enter context $contextRef") }
         val currentEntryTimeout = myEntryTimeout
         if (currentEntryTimeout != null) {
             currentEntryTimeout.cancel()
@@ -242,7 +242,7 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
                         myUsers[currentContext] = currentUser
                         currentUser.activate(ref, subID, myContextor, name, mySess,
                                 amEphemeral, amAnonymous, this@UserActor,
-                                tr)
+                                userGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", ref)))
                         currentUser.checkpoint()
                         val problem = currentUser.enterContext(currentContext)
                         myContextor.noteUser(currentUser, true)

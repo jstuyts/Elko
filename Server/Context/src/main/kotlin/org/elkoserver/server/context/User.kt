@@ -12,7 +12,7 @@ import org.elkoserver.server.context.Contents.Companion.sendContentsDescription
 import org.elkoserver.server.context.Msg.msgExit
 import org.elkoserver.server.context.Msg.msgMake
 import org.elkoserver.server.context.Msg.msgReady
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
 /**
@@ -55,9 +55,6 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
     /** Flag that user contents are opaque to other users.  */
     private val amPrivateContents = false
 
-    /** Trace object for diagnostics.  */
-    private lateinit var tr: Trace
-
     /**
      * JSON-driven constructor.
      * @param name  The name of the user.
@@ -81,13 +78,11 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param isEphemeral  True if this user is ephemeral (won't checkpoint).
      * @param isAnonymous  True if this user is anonymous
      * @param actor  The actor through which this user communicates.
-     * @param appTrace  Trace object for diagnostics.
      */
     fun activate(ref: String, subID: String, contextor: Contextor, name: String,
                  sess: String?, isEphemeral: Boolean, isAnonymous: Boolean,
-                 actor: UserActor, appTrace: Trace) {
-        super.activate(ref, subID, isEphemeral, contextor)
-        tr = appTrace
+                 actor: UserActor, gorgel: Gorgel) {
+        super.activate(ref, subID, isEphemeral, contextor, gorgel)
         myName = name
         mySess = sess
         myActor = actor
@@ -109,7 +104,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
                 myPresenceWatcher = mod
             }
         } else {
-            tr.errorm("attempt to attach non-UserMod $mod to $this")
+            myGorgel.error("attempt to attach non-UserMod $mod to $this")
         }
     }
 
@@ -119,7 +114,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      */
     fun connectionDied(connection: Connection) {
         disconnect()
-        tr.eventm("$this connection died: $connection")
+        myGorgel.i?.run { info("connection died: $connection") }
     }
 
     /**
@@ -142,7 +137,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      */
     private fun disconnect() {
         if (!amExited) {
-            tr.eventm("exiting $this")
+            myGorgel.i?.run { info("exiting") }
             amExited = true
             if (amEntered) {
                 checkpoint()

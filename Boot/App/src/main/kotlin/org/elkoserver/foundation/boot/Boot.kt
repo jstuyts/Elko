@@ -9,6 +9,7 @@ import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.gorgel.Gorg
 import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.processexitononcaught.ProcessExitOnUncaughtExceptionNoticer
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.GorgelImpl
+import org.elkoserver.util.trace.slf4j.Tag
 import org.slf4j.Logger.ROOT_LOGGER_NAME
 import org.slf4j.LoggerFactory
 import org.slf4j.MarkerFactory
@@ -112,7 +113,7 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
             val clock = Clock.systemDefaultZone()
             val gorgel = initializeGorgel(bootArguments)
             val traceFactory = createTraceFactory(bootArguments, clock)
-            val exceptionReporter = ExceptionReporter(ProcessExitOnUncaughtExceptionNoticer(GorgelExceptionNoticer(gorgel.getChild(bootArguments.mainClassName, "exception"))))
+            val exceptionReporter = ExceptionReporter(ProcessExitOnUncaughtExceptionNoticer(GorgelExceptionNoticer(gorgel.getChild(bootArguments.mainClassName, Tag("category", "exception")))))
             val threadGroup = EMThreadGroup("Elko Thread Group", exceptionReporter)
             val boot = Boot(exceptionReporter, bootArguments, gorgel, traceFactory)
             Thread(threadGroup, boot, "Elko Server Boot").start()
@@ -140,7 +141,9 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
             }
 
             val loggerFactory = LoggerFactory.getILoggerFactory()
-            return GorgelImpl(loggerFactory.getLogger(ROOT_LOGGER_NAME), loggerFactory, MarkerFactory.getIMarkerFactory(), serverType, serverIdentifier)
+            // FIXME: Add cluster identifier
+            // FIXME: Add host identifier (or is this covered by serverIdentifier?)
+            return GorgelImpl(loggerFactory.getLogger(ROOT_LOGGER_NAME), loggerFactory, MarkerFactory.getIMarkerFactory(), Tag("serverType", serverType), Tag("serverId", serverIdentifier))
         }
 
         private fun createTraceFactory(bootArguments: BootArguments, clock: Clock): TraceFactory {

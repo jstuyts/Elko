@@ -3,7 +3,8 @@ package org.elkoserver.server.context
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
+import org.elkoserver.util.trace.slf4j.Tag
 
 /**
  * Object that tracks reservations issued by directors but not yet redeemed by
@@ -15,7 +16,10 @@ import org.elkoserver.util.trace.TraceFactory
 class Reservation(
         private val myWho: String?,
         private val myWhere: String,
-        private val myAuthCode: String?, private val traceFactory: TraceFactory) : TimeoutNoticer {
+        private val myAuthCode: String?,
+        myGorgel: Gorgel) : TimeoutNoticer {
+
+    private val communicationsGorgel = myGorgel.withAdditionalStaticTags(Tag("category", "comm"))
 
     /** The director that issued this reservation.  */
     private var myIssuer: DirectorActor? = null
@@ -28,7 +32,7 @@ class Reservation(
     private var amRedeemed = false
 
     constructor(who: String?, where: String, authCode: String, expirationTime: Int,
-                issuer: DirectorActor?, timer: Timer, traceFactory: TraceFactory) : this(who, where, authCode, traceFactory) {
+                issuer: DirectorActor?, timer: Timer, gorgel: Gorgel) : this(who, where, authCode, gorgel) {
         myIssuer = issuer
         myExpirationTimeout = timer.after(expirationTime.toLong(), this)
     }
@@ -80,7 +84,7 @@ class Reservation(
         if (!amRedeemed) {
             amRedeemed = true
             myIssuer!!.removeReservation(this)
-            traceFactory.comm.eventi("expiring reservation $myWho|$myWhere|$myAuthCode")
+            communicationsGorgel.i?.run { info("expiring reservation $myWho|$myWhere|$myAuthCode") }
         }
     }
 

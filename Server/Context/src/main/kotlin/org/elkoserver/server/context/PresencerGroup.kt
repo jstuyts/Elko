@@ -10,6 +10,7 @@ import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 
 /**
@@ -19,11 +20,11 @@ import java.time.Clock
  * @param contextor  The server contextor.
  * @param presencers  List of HostDesc objects describing presence
  *    servers with whom to register.
- * @param appTrace  Trace object for diagnostics.
+ * @param tr  Trace object for diagnostics.
  */
 internal class PresencerGroup(server: Server, contextor: Contextor,
-                              presencers: MutableList<HostDesc>, appTrace: Trace, timer: Timer, traceFactory: TraceFactory, clock: Clock)
-    : OutboundGroup("conf.presence", server, contextor, presencers, appTrace, timer, traceFactory, clock) {
+                              presencers: MutableList<HostDesc>, tr: Trace, gorgel: Gorgel, timer: Timer, traceFactory: TraceFactory, clock: Clock)
+    : OutboundGroup("conf.presence", server, contextor, presencers, tr, gorgel, timer, traceFactory, clock) {
     /* ----- required OutboundGroup methods ----- */
     /**
      * Obtain the class of actors in this group (in this case, PresenceActor).

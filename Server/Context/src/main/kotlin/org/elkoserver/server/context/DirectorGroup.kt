@@ -12,6 +12,7 @@ import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.ConcurrentModificationException
 
@@ -24,11 +25,18 @@ import java.util.ConcurrentModificationException
  *    whom to register.
  * @param listeners  List of HostDesc objects describing active
  *    listeners to register with the indicated directors.
- * @param appTrace  Trace object for diagnostics.
+ * @param tr  Trace object for diagnostics.
  */
-class DirectorGroup(server: Server, contextor: Contextor,
-                    directors: MutableList<HostDesc>, listeners: List<HostDesc>,
-                    appTrace: Trace, timer: Timer, traceFactory: TraceFactory, clock: Clock) : OutboundGroup("conf.register", server, contextor, directors, appTrace, timer, traceFactory, clock) {
+class DirectorGroup(server: Server,
+                    contextor: Contextor,
+                    directors: MutableList<HostDesc>,
+                    listeners: List<HostDesc>,
+                    tr: Trace,
+                    gorgel: Gorgel,
+                    private val reservationGorgel: Gorgel,
+                    timer: Timer,
+                    traceFactory: TraceFactory,
+                    clock: Clock) : OutboundGroup("conf.register", server, contextor, directors, tr, gorgel, timer, traceFactory, clock) {
     private val myListeners: List<HostDesc>
 
     /** Iterator for cycling through arbitrary relays.  */
@@ -68,7 +76,7 @@ class DirectorGroup(server: Server, contextor: Contextor,
      * @return a new Actor object for use on this new connection
      */
     override fun provideActor(connection: Connection, dispatcher: MessageDispatcher, host: HostDesc): Actor {
-        val director = DirectorActor(connection, dispatcher, this, host, timer, traceFactory)
+        val director = DirectorActor(connection, dispatcher, this, host, timer, reservationGorgel, traceFactory)
         updateDirector(director)
         return director
     }
@@ -116,7 +124,7 @@ class DirectorGroup(server: Server, contextor: Contextor,
      * @return the requested reservation if there is one, or null if not.
      */
     fun lookupReservation(who: String?, where: String, authCode: String): Reservation? {
-        val key = Reservation(who, where, authCode, traceFactory)
+        val key = Reservation(who, where, authCode, reservationGorgel)
         return myReservations[key]
     }
 

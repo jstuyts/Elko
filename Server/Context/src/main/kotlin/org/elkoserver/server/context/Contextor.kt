@@ -18,6 +18,8 @@ import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
+import org.elkoserver.util.trace.slf4j.Tag
 import java.security.SecureRandom
 import java.time.Clock
 import java.util.LinkedList
@@ -47,10 +49,23 @@ import kotlin.math.abs
 class Contextor internal constructor(
         private val myODB: ObjDB,
         private val myServer: Server,
-        private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory, clock: Clock, private val myEntryTimeout: Int, private val myLimit: Int) : RefTable(myODB, traceFactory, clock) {
+        private val tr: Trace,
+        private val contextorGorgel: Gorgel,
+        private val contextGorgelWithoutRef: Gorgel,
+        private val itemGorgelWithoutRef: Gorgel,
+        private val staticObjectReceiverGorgel: Gorgel,
+        private val directorGroupGorgel: Gorgel,
+        private val presencerGroupGorgel: Gorgel,
+        private val reservationGorgel: Gorgel,
+        private val sessionGorgel: Gorgel,
+        private val timer: Timer,
+        traceFactory: TraceFactory,
+        clock: Clock,
+        private val myEntryTimeout: Int,
+        private val myLimit: Int) : RefTable(myODB, traceFactory, clock) {
 
     /** The generic 'session' object for talking to this server.  */
-    private val mySession: Session = Session(this, myServer, traceFactory)
+    private val mySession: Session = Session(this, myServer, sessionGorgel, traceFactory)
 
     /** Sets of entities awaiting objects from the object database, by object
      * reference string.  */
@@ -160,7 +175,7 @@ class Contextor internal constructor(
      */
     private fun activateContentsItem(container: BasicObject, subID: String, item: Item) {
         val ref = item.ref() + subID
-        item.activate(ref, subID, container.isEphemeral, this)
+        item.activate(ref, subID, container.isEphemeral, this, itemGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", ref)))
         item.setContainerPrim(container)
         item.objectIsComplete()
     }
@@ -234,7 +249,8 @@ class Contextor internal constructor(
      * Common initialization logic for createItem.
      */
     private fun initializeItem(item: Item, container: BasicObject?) {
-        item.activate(uniqueID("i"), "", false, this)
+        val ref = uniqueID("i")
+        item.activate(ref, "", false, this, itemGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", ref)))
         item.markAsChanged()
         item.setContainer(container)
     }
@@ -308,7 +324,7 @@ class Contextor internal constructor(
         try {
             dispatchMessage(null, destination, message)
         } catch (e: MessageHandlerException) {
-            tr.eventm("ignoring error from internal msg relay: $e")
+            contextorGorgel.i?.run { info("ignoring error from internal msg relay: $e") }
         }
     }
 
@@ -571,7 +587,7 @@ class Contextor internal constructor(
                 val spawningTemplate = myContextRef != myContextTemplate
                 val spawningClone = context.baseCapacity() > 0
                 if (!spawningTemplate && context.isMandatoryTemplate) {
-                    tr.errorm("context '$myContextRef' may only be used as a template")
+                    contextorGorgel.error("context '$myContextRef' may only be used as a template")
                     context = null
                 } else if (!spawningTemplate ||
                         context.isAllowableTemplate) {
@@ -585,16 +601,16 @@ class Contextor internal constructor(
                     context.activate(myContextRef, subID,
                             myContextRef != myContextTemplate,
                             this@Contextor, myContextTemplate,
-                            myOpener, tr, timer)
+                            myOpener, contextGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", myContextRef)), timer)
                     context.objectIsComplete()
                     notifyPendingObjectCompletionWatchers()
                 } else {
-                    tr.errorm("context '$myContextTemplate' may not be used as a template")
+                    contextorGorgel.error("context '$myContextTemplate' may not be used as a template")
                     context = null
                 }
             }
             if (context == null) {
-                tr.errorm("unable to load context '$myContextTemplate' as '$myContextRef'")
+                contextorGorgel.error("unable to load context '$myContextTemplate' as '$myContextRef'")
                 resolvePendingGet(myContextTemplate, null)
             } else if (context.isReady) {
                 resolvePendingGet(myContextTemplate, context)
@@ -636,7 +652,7 @@ class Contextor internal constructor(
         override fun accept(obj: Any?) {
             if (obj != null) {
                 val item = obj as Item
-                item.activate(myItemRef, "", false, this@Contextor)
+                item.activate(myItemRef, "", false, this@Contextor, itemGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", myItemRef)))
                 item.objectIsComplete()
                 if (item.isReady) {
                     resolvePendingGet(myItemRef, item)
@@ -698,10 +714,10 @@ class Contextor internal constructor(
         override fun accept(obj: Any?) {
             val statics = obj as StaticObjectList?
             if (statics != null) {
-                tr.eventi("loading static object list '$myTag'")
-                statics.fetchFromODB(myODB, this@Contextor, tr)
+                contextorGorgel.i?.run { info("loading static object list '$myTag'") }
+                statics.fetchFromODB(myODB, this@Contextor, staticObjectReceiverGorgel)
             } else {
-                tr.errori("unable to load static object list '$myTag'")
+                contextorGorgel.i?.run { info("unable to load static object list '$myTag'") }
             }
         }
 
@@ -899,7 +915,7 @@ class Contextor internal constructor(
             subscriber.observePresenceChange(observerRef, domain, whoRef,
                     whereRef, on)
         } else {
-            tr.warningi("presence change of $whoRef${if (on) " entering " else " exiting "}$whereRef for $observerRef directed to unknown context $contextRef")
+            contextorGorgel.warn("presence change of $whoRef${if (on) " entering " else " exiting "}$whereRef for $observerRef directed to unknown context $contextRef")
         }
     }
 
@@ -983,7 +999,7 @@ class Contextor internal constructor(
      * listeners to register with the indicated directors.
      */
     fun registerWithDirectors(directors: MutableList<HostDesc>, listeners: List<HostDesc>) {
-        val group = DirectorGroup(myServer, this, directors, listeners, tr, timer, traceFactory, clock)
+        val group = DirectorGroup(myServer, this, directors, listeners, tr, directorGroupGorgel, reservationGorgel, timer, traceFactory, clock)
         if (group.isLive) {
             myDirectorGroup = group
         }
@@ -996,7 +1012,7 @@ class Contextor internal constructor(
      * with whom to register.
      */
     fun registerWithPresencers(presencers: MutableList<HostDesc>) {
-        val group = PresencerGroup(myServer, this, presencers, tr, timer, traceFactory, clock)
+        val group = PresencerGroup(myServer, this, presencers, tr, presencerGroupGorgel, timer, traceFactory, clock)
         if (group.isLive) {
             myPresencerGroup = group
         }
@@ -1046,8 +1062,7 @@ class Contextor internal constructor(
                         msgObject = try {
                             JsonParsing.jsonObjectFromString(message.sendableString()) ?: throw IllegalStateException()
                         } catch (e: JsonParserException) {
-                            tr.errorm(
-                                    "syntax error in internal JSON message: ${e.message}")
+                            contextorGorgel.error("syntax error in internal JSON message: ${e.message}")
                             break
                         }
                     }
@@ -1152,7 +1167,7 @@ class Contextor internal constructor(
                        userHandler: Consumer<in User?>) {
         val rawFactory = getStaticObject(factoryTag)
         if (rawFactory == null) {
-            tr.errori("user factory '$factoryTag' not found")
+            contextorGorgel.error("user factory '$factoryTag' not found")
             userHandler.accept(null)
         } else if (rawFactory is EphemeralUserFactory) {
             val user = rawFactory.provideUser(this, connection, param, contextRef, contextTemplate)
@@ -1161,7 +1176,7 @@ class Contextor internal constructor(
         } else if (rawFactory is UserFactory) {
             rawFactory.provideUser(this, connection, param, userHandler)
         } else {
-            tr.errori("factory tag '$factoryTag' does not designate a user factory object")
+            contextorGorgel.error("factory tag '$factoryTag' does not designate a user factory object")
             userHandler.accept(null)
         }
     }

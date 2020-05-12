@@ -2,7 +2,7 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.objdb.ObjDB
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
 /**
@@ -19,23 +19,22 @@ internal class StaticObjectList @JSONMethod("statics") constructor(private val m
      *
      * @param odb  The object database to tell.
      * @param contextor  Contextor for whom these objects are being loaded
-     * @param appTrace  Trace object for logging errors
      */
-    fun fetchFromODB(odb: ObjDB, contextor: Contextor, appTrace: Trace) {
+    fun fetchFromODB(odb: ObjDB, contextor: Contextor, gorgel: Gorgel) {
         for (elem in myStatics) {
             odb.getObject(elem.ref, null,
-                    StaticObjectReceiver(contextor, elem, appTrace))
+                    StaticObjectReceiver(contextor, elem, gorgel))
         }
     }
 
     private class StaticObjectReceiver internal constructor(var myContextor: Contextor, var myElem: StaticObjectListElem,
-                                                            var tr: Trace) : Consumer<Any?> {
+                                                            var gorgel: Gorgel) : Consumer<Any?> {
         override fun accept(obj: Any?) {
             if (obj != null) {
-                tr.eventi("loading static object '${myElem.ref}' as '${myElem.key}'")
+                gorgel.i?.run { info("loading static object '${myElem.ref}' as '${myElem.key}'") }
                 myContextor.addStaticObject(myElem.key, obj)
             } else {
-                tr.errori("unable to load static object '${myElem.ref}'")
+                gorgel.error("unable to load static object '${myElem.ref}'")
             }
         }
 

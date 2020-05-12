@@ -13,6 +13,7 @@ import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Msg.msgExit
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Singleton administrative object for entering and exiting contexts.
@@ -27,9 +28,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param myContextor  The contextor for this session.
  */
-class Session(private val myContextor: Contextor, server: Server, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
-    private val myServer = server
-    private val myLogger = traceFactory.trace("clientlogger")
+class Session(private val myContextor: Contextor, private val myServer: Server, private val myGorgel: Gorgel, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -48,7 +47,7 @@ class Session(private val myContextor: Contextor, server: Server, traceFactory: 
      */
     @JSONMethod("text")
     fun log(from: User, text: String) {
-        myLogger.eventi(text)
+        myGorgel.info(text)
     }
 
     /**

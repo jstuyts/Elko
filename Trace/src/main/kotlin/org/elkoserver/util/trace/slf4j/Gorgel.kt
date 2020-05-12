@@ -104,7 +104,7 @@ abstract class Gorgel protected constructor(protected val logger: Logger, protec
      * @param tag The tag name.
      * @return A marker for the given tag name.
      */
-    abstract fun tags(tag: String): Marker
+    abstract fun tags(tag: Tag): Marker
 
     /**
      * Create 2 dynamic tags. These tags **MAY NOT** be stored and reused.
@@ -113,7 +113,7 @@ abstract class Gorgel protected constructor(protected val logger: Logger, protec
      * @param secondTag The second tag name.
      * @return A marker for the given tag names.
      */
-    abstract fun tags(firstTag: String, secondTag: String): Marker
+    abstract fun tags(firstTag: Tag, secondTag: Tag): Marker
 
     /**
      * Create multiple dynamic tags. These tags **MAY NOT** be stored and reused.
@@ -121,27 +121,27 @@ abstract class Gorgel protected constructor(protected val logger: Logger, protec
      * @param tags The tag names.
      * @return A marker for the given tag names.
      */
-    abstract fun tags(vararg tags: String): Marker
+    abstract fun tags(vararg tags: Tag): Marker
 
-    abstract fun withAdditionalStaticTags(tag: String): Gorgel
+    abstract fun withAdditionalStaticTags(tag: Tag): Gorgel
 
-    abstract fun withAdditionalStaticTags(firstTag: String, secondTag: String): Gorgel
+    abstract fun withAdditionalStaticTags(firstTag: Tag, secondTag: Tag): Gorgel
 
-    abstract fun withAdditionalStaticTags(vararg tags: String): Gorgel
+    abstract fun withAdditionalStaticTags(vararg tags: Tag): Gorgel
 
     abstract fun getChild(childName: String): Gorgel
 
     abstract fun getChild(theClass: KClass<*>): Gorgel
 
-    abstract fun getChild(childName: String, tag: String): Gorgel
+    abstract fun getChild(childName: String, tag: Tag): Gorgel
 
-    abstract fun getChild(theClass: KClass<*>, tag: String): Gorgel
+    abstract fun getChild(theClass: KClass<*>, tag: Tag): Gorgel
 
-    abstract fun getChild(childName: String, firstTag: String, secondTag: String): Gorgel
+    abstract fun getChild(childName: String, firstTag: Tag, secondTag: Tag): Gorgel
 
-    abstract fun getChild(theClass: KClass<*>, firstTag: String, secondTag: String): Gorgel
+    abstract fun getChild(theClass: KClass<*>, firstTag: Tag, secondTag: Tag): Gorgel
 
-    abstract fun getChild(childName: String, vararg tags: String): Gorgel
+    abstract fun getChild(childName: String, vararg tags: Tag): Gorgel
 
-    abstract fun getChild(theClass: KClass<*>, vararg tags: String): Gorgel
+    abstract fun getChild(theClass: KClass<*>, vararg tags: Tag): Gorgel
 }
