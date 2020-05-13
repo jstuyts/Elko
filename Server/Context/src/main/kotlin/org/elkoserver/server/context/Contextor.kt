@@ -220,6 +220,7 @@ class Contextor internal constructor(
      *
      * @return the context server's trace object.
      */
+    @Deprecated(message = "An injected Gorgel must be used.")
     fun appTrace() = tr
 
     /**
