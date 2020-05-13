@@ -31,7 +31,7 @@ class RepositoryBoot : Bootable {
         tr = traceFactory.trace("repo")
         val repositoryServerGraph = RepositoryServerOgd(object : RepositoryServerOgd.Provided, ProvidedAdministration() {
             override fun clock() = ConstantDefinition(clock)
-            override fun rootGorgel() = ConstantDefinition(gorgel)
+            override fun baseGorgel() = ConstantDefinition(gorgel)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {
             override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
                 myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)

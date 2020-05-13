@@ -22,34 +22,34 @@ class ContextServerSgd(provided: Provided, configuration: ObjectGraphConfigurati
         fun props(): D<ElkoProperties>
         fun timer(): D<Timer>
         fun traceFactory(): D<TraceFactory>
-        fun rootGorgel(): D<Gorgel>
+        fun baseGorgel(): D<Gorgel>
     }
 
     val contTrace by Once { req(provided.traceFactory()).trace("cont") }
 
-    val contextorGorgel by Once { req(provided.rootGorgel()).getChild(Contextor::class) }
+    val contextorGorgel by Once { req(provided.baseGorgel()).getChild(Contextor::class) }
 
-    val contextServiceFactoryGorgel by Once { req(provided.rootGorgel()).getChild(ContextServiceFactory::class) }
+    val contextServiceFactoryGorgel by Once { req(provided.baseGorgel()).getChild(ContextServiceFactory::class) }
 
-    val directorGroupGorgel by Once { req(provided.rootGorgel()).getChild(DirectorGroup::class) }
+    val directorGroupGorgel by Once { req(provided.baseGorgel()).getChild(DirectorGroup::class) }
 
-    val internalActorGorgel by Once { req(provided.rootGorgel()).getChild(InternalActor::class) }
+    val internalActorGorgel by Once { req(provided.baseGorgel()).getChild(InternalActor::class) }
 
-    val presencerGroupGorgel by Once { req(provided.rootGorgel()).getChild(PresencerGroup::class) }
+    val presencerGroupGorgel by Once { req(provided.baseGorgel()).getChild(PresencerGroup::class) }
 
-    val reservationGorgel by Once { req(provided.rootGorgel()).getChild(Reservation::class) }
+    val reservationGorgel by Once { req(provided.baseGorgel()).getChild(Reservation::class) }
 
-    val sessionClientGorgel by Once { req(provided.rootGorgel()).getChild(Session::class, Tag("category", "client")) }
+    val sessionClientGorgel by Once { req(provided.baseGorgel()).getChild(Session::class, Tag("category", "client")) }
 
-    val staticObjectReceiverGorgel by Once { req(provided.rootGorgel()).getChild(StaticObjectList::class) }
+    val staticObjectReceiverGorgel by Once { req(provided.baseGorgel()).getChild(StaticObjectList::class) }
 
-    val userActorGorgel by Once { req(provided.rootGorgel()).getChild(UserActor::class) }
+    val userActorGorgel by Once { req(provided.baseGorgel()).getChild(UserActor::class) }
 
-    val contextGorgelWithoutRef by Once { req(provided.rootGorgel()).getChild(Context::class) }
+    val contextGorgelWithoutRef by Once { req(provided.baseGorgel()).getChild(Context::class) }
 
-    val itemGorgelWithoutRef by Once { req(provided.rootGorgel()).getChild(Item::class) }
+    val itemGorgelWithoutRef by Once { req(provided.baseGorgel()).getChild(Item::class) }
 
-    val userGorgelWithoutRef by Once { req(provided.rootGorgel()).getChild(User::class) }
+    val userGorgelWithoutRef by Once { req(provided.baseGorgel()).getChild(User::class) }
 
     val contextServiceFactory by Once { ContextServiceFactory(req(contextor), req(contextServiceFactoryGorgel), req(internalActorGorgel), req(userActorGorgel), req(userGorgelWithoutRef), req(provided.traceFactory()), req(provided.timer())) }
             .init {

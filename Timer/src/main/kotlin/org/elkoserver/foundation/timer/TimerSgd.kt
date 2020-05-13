@@ -16,7 +16,7 @@ import org.ooverkommelig.req
 class TimerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
     interface Provided : ProvidedBase {
         fun clock(): D<java.time.Clock>
-        fun rootGorgel(): D<Gorgel>
+        fun baseGorgel(): D<Gorgel>
     }
 
     val timer by Once { Timer(req(timerThread)) }
@@ -24,7 +24,7 @@ class TimerSgd(provided: Provided, configuration: ObjectGraphConfiguration = Obj
     internal val timerThread by Once { TimerThread(req(provided.clock()), req(exceptionReporter)) }
             .init(TimerThread::start)
 
-    val timerThreadExceptionGorgel by Once { req(provided.rootGorgel()).getChild(TimerThread::class, Tag("category", "exception")) }
+    val timerThreadExceptionGorgel by Once { req(provided.baseGorgel()).getChild(TimerThread::class, Tag("category", "exception")) }
 
     val exceptionReporter by Once { ExceptionReporter(GorgelExceptionNoticer(req(timerThreadExceptionGorgel))) }
 }
