@@ -8,13 +8,13 @@ import org.ooverkommelig.ObjectGraphDefinition
 import org.ooverkommelig.providedByMe
 import org.ooverkommelig.req
 
-class ContextServerOgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : ObjectGraphDefinition(provided, configuration) {
+internal class ContextServerOgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : ObjectGraphDefinition(provided, configuration) {
     interface Provided : ContextServerSgd.Provided, TimerSgd.Provided {
         override fun timer(): D<Timer> = providedByMe()
     }
 
     val contextServerSgd = add(ContextServerSgd(object : ContextServerSgd.Provided by provided {
-        override fun timer(): D<Timer> = timerSgd.timer
+        override fun timer() = timerSgd.timer
     }, configuration))
 
     val timerSgd = add(TimerSgd(provided, configuration))

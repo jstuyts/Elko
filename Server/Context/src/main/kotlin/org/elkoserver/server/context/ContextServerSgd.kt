@@ -16,7 +16,7 @@ import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.req
 import java.time.Clock
 
-class ContextServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
+internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
     interface Provided : ProvidedBase {
         fun clock(): D<Clock>
         fun props(): D<ElkoProperties>
