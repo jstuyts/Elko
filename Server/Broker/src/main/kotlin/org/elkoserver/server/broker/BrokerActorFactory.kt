@@ -3,8 +3,8 @@ package org.elkoserver.server.broker
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * MessageHandlerFactory class to create actors for new connections to a
@@ -14,10 +14,9 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myAuth  The authorization needed for connections to this port.
  * @param amAllowAdmin  If true, allow 'admin' connections.
  * @param amAllowClient  If true, allow 'client' connections.
- * @param tr  Trace object for diagnostics.
  */
 internal class BrokerActorFactory(private val myBroker: Broker, private val myAuth: AuthDesc, private val amAllowAdmin: Boolean,
-                                  private val amAllowClient: Boolean, private val tr: Trace, private val traceFactory: TraceFactory) : MessageHandlerFactory {
+                                  private val amAllowClient: Boolean, private val brokerActorGorgel: Gorgel, private val traceFactory: TraceFactory) : MessageHandlerFactory {
 
     /**
      * Test whether admin connections are allowed.
@@ -46,7 +45,7 @@ internal class BrokerActorFactory(private val myBroker: Broker, private val myAu
      * @param connection The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            BrokerActor(connection!!, this, tr, traceFactory)
+            BrokerActor(connection!!, this, brokerActorGorgel, traceFactory)
 
     /**
      * Get this factory's ref table.

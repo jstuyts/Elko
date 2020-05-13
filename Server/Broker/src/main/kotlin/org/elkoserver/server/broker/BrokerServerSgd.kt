@@ -27,6 +27,12 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
     val brokTrace by Once { req(provided.traceFactory()).trace("brok") }
 
     val brokerBootGorgel by Once { req(provided.baseGorgel()).getChild(BrokerBoot::class) }
+    
+    val brokerGorgel by Once { req(provided.baseGorgel()).getChild(Broker::class) }
+
+    val brokerActorGorgel by Once { req(provided.baseGorgel()).getChild(BrokerActor::class) }
+
+    val launcherTableGorgel by Once { req(provided.baseGorgel()).getChild(LauncherTable::class) }
 
     val server by Once { Server(req(provided.props()), "broker", req(brokTrace), req(provided.timer()), req(provided.clock()), req(provided.traceFactory())) }
             .init {
@@ -39,7 +45,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 }
             }
 
-    val broker: D<Broker> by Once { Broker(req(server), req(brokTrace), req(provided.timer()), req(provided.traceFactory()), req(provided.clock())) }
+    val broker: D<Broker> by Once { Broker(req(server), req(brokerGorgel), req(launcherTableGorgel), req(provided.timer()), req(provided.traceFactory()), req(provided.clock())) }
 
-    val brokerServiceFactory by Once { BrokerServiceFactory(req(broker), req(brokTrace), req(provided.traceFactory())) }
+    val brokerServiceFactory by Once { BrokerServiceFactory(req(broker), req(brokerActorGorgel), req(provided.traceFactory())) }
 }

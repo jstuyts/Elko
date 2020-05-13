@@ -7,7 +7,7 @@ import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteralArray
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.objdb.ObjDB
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.util.LinkedList
 import java.util.StringTokenizer
@@ -156,7 +156,7 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
     internal class Launcher @JSONMethod("name", "script", "initial", "on") constructor(
             private val myComponentName: String,
             private val myLaunchScript: String, optInitial: OptBoolean, optRunSetting: OptBoolean) : Encodable {
-        internal lateinit var tr: Trace
+        internal lateinit var gorgel: Gorgel
 
         /**
          * Flag that is true if this launcher should be executed when starting
@@ -209,11 +209,11 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
                         exploded.add(parser.nextToken())
                     }
                     ProcessBuilder(exploded).start()
-                    tr.eventm("start process '$myComponentName'")
+                    gorgel.i?.run { info("start process '$myComponentName'") }
                     isRunSettingOn = true
                     null
                 } catch (e: IOException) {
-                    tr.eventm("process launch '$myComponentName' failed: $e")
+                    gorgel.i?.run { info("process launch '$myComponentName' failed: $e") }
                     "fail $myComponentName $e"
                 }
 

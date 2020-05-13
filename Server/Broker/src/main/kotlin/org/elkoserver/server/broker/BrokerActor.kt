@@ -6,8 +6,8 @@ import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Actor for a connection to a broker.  An actor may be associated with either
@@ -16,10 +16,9 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param connection  The connection for talking to this actor.
  * @param myFactory  The factory that created this actor.
- * @param tr  Trace object for diagnostics.
  */
 internal class BrokerActor(connection: Connection, private val myFactory: BrokerActorFactory,
-                           private val tr: Trace, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+                           private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
 
     /** The broker itself.  */
     private val myBroker: Broker = myFactory.broker()
@@ -44,7 +43,7 @@ internal class BrokerActor(connection: Connection, private val myFactory: Broker
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
         doDisconnect()
-        tr.eventm("$this connection died: $connection")
+        gorgel.i?.run { info("$this connection died: $connection") }
     }
 
     /**
@@ -75,7 +74,7 @@ internal class BrokerActor(connection: Connection, private val myFactory: Broker
      */
     override fun doDisconnect() {
         if (!amLoggedOut) {
-            tr.eventm("disconnecting $this")
+            gorgel.i?.run { info("disconnecting $this") }
             myClient?.doDisconnect()
             if (amAdmin) {
                 myBroker.unwatchServices(this)

@@ -10,8 +10,9 @@ import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.HashMapMulti
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
+import org.elkoserver.util.trace.slf4j.Tag
 import java.time.Clock
 import java.util.LinkedList
 import java.util.function.Consumer
@@ -20,9 +21,8 @@ import java.util.function.Consumer
  * Main state data structure in a Broker.
  *
  * @param myServer  Server object.
- * @param tr  Trace object for diagnostics.
  */
-internal class Broker(private val myServer: Server, private val tr: Trace, private val timer: Timer, traceFactory: TraceFactory, clock: Clock) {
+internal class Broker(private val myServer: Server, private val gorgel: Gorgel, private val launcherTableGorgel: Gorgel, private val timer: Timer, traceFactory: TraceFactory, clock: Clock) {
     /** Table for mapping object references in messages.  */
     private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
@@ -337,7 +337,7 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
             "recover" -> LauncherTable.START_RECOVER
             "restart" -> LauncherTable.START_RESTART
             else -> {
-                tr.errorm("unknown startmode value '$startModeStr'")
+                gorgel.error("unknown startmode value '$startModeStr'")
                 LauncherTable.START_RECOVER
             }
         }
@@ -349,16 +349,16 @@ internal class Broker(private val myServer: Server, private val tr: Trace, priva
             myODB.getObject("launchertable", null, Consumer { obj: Any? ->
                 if (obj != null) {
                     myLauncherTable = (obj as LauncherTable?)?.apply {
-                        myLaunchers.values.forEach { it.tr = tr }
+                        myLaunchers.values.forEach { it.gorgel = launcherTableGorgel.withAdditionalStaticTags(Tag("launcherComponent", it.componentName())) }
                         doStartupLaunches(startMode)
                     }
                 } else {
-                    tr.warningm("unable to load launcher table")
+                    gorgel.warn("unable to load launcher table")
                     myLauncherTable = LauncherTable("launchertable", arrayOf())
                 }
             })
         } else {
-            tr.warningm("no database specified for launcher configuration")
+            gorgel.warn("no database specified for launcher configuration")
         }
     }
 }
