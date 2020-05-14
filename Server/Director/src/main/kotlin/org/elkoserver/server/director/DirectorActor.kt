@@ -6,8 +6,8 @@ import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Actor for a connection to a director.  An actor may be associated with any
@@ -17,10 +17,10 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param connection  The connection for talking to this actor.
  * @param myFactory  Factory of the listener that accepted the connection.
- * @param tr  Trace object for diagnostics.
  */
 internal class DirectorActor(connection: Connection, private val myFactory: DirectorActorFactory,
-                             private val tr: Trace, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+                             private val gorgel: Gorgel,
+                             private val providerGorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
     private val myDirector = myFactory.director()
 
     /** True if actor has been disconnected.  */
@@ -54,7 +54,7 @@ internal class DirectorActor(connection: Connection, private val myFactory: Dire
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
         doDisconnect()
-        tr.eventm("$this connection died: $connection")
+        gorgel.i?.run { info("$this connection died: $connection") }
     }
 
     /**
@@ -69,28 +69,28 @@ internal class DirectorActor(connection: Connection, private val myFactory: Dire
                     myAdmin = Admin(myDirector, this)
                     success = true
                 } else {
-                    tr.warningi("auth failed: admin access not allowed")
+                    gorgel.warn("auth failed: admin access not allowed")
                 }
             } else if (handler is ProviderHandler) {
                 if (myProvider == null && myFactory.allowProvider() &&
                         !myDirector.isFull) {
-                    myProvider = Provider(myDirector, this, tr)
+                    myProvider = Provider(myDirector, this, providerGorgel)
                     success = true
                 } else {
-                    tr.warningi("auth failed: provider access not allowed")
+                    gorgel.warn("auth failed: provider access not allowed")
                 }
             } else if (handler is UserHandler) {
                 if (!amUser && myFactory.allowUser()) {
                     amUser = true
                     success = true
                 } else {
-                    tr.warningi("auth failed: user access not allowed")
+                    gorgel.warn("auth failed: user access not allowed")
                 }
             } else {
-                tr.errorm("auth failed: unknown handler type")
+                gorgel.warn("auth failed: unknown handler type")
             }
         } else {
-            tr.warningi("auth failed: credential verification failure")
+            gorgel.warn("auth failed: credential verification failure")
         }
         return success
     }
@@ -100,7 +100,7 @@ internal class DirectorActor(connection: Connection, private val myFactory: Dire
      */
     override fun doDisconnect() {
         if (!amLoggedOut) {
-            tr.eventm("disconnecting $this")
+            gorgel.i?.run { info("disconnecting $this") }
             myProvider?.doDisconnect()
             myAdmin?.doDisconnect()
             amLoggedOut = true

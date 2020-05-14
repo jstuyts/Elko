@@ -1,7 +1,7 @@
 package org.elkoserver.server.director
 
 import org.elkoserver.util.HashMapMulti
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * The provider facet of a director actor.  This object represents the state
@@ -12,7 +12,7 @@ import org.elkoserver.util.trace.Trace
  * @param myActor  The actor associated with the provider.
  * @param tr  Trace object for diagnostics.
  */
-internal class Provider(private val myDirector: Director, private val myActor: DirectorActor, private val tr: Trace) : Comparable<Provider> {
+internal class Provider(private val myDirector: Director, private val myActor: DirectorActor, private val gorgel: Gorgel) : Comparable<Provider> {
 
     /** Provider load factor.  */
     private var myLoadFactor = 0.0
@@ -196,9 +196,9 @@ internal class Provider(private val myDirector: Director, private val myActor: D
         } else {
             context = myDirector.getContext(name)
             if (context != null) {
-                tr.eventi("$myActor reported closure of context $name belonging to another provider (likely dup)")
+                gorgel.i?.run { info("$myActor reported closure of context $name belonging to another provider (likely dup)") }
             } else {
-                tr.eventi("$myActor reported closure of non-existent context $name")
+                gorgel.i?.run { info("$myActor reported closure of non-existent context $name") }
             }
         }
     }
@@ -220,7 +220,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
                 context.closeGate(reason)
             }
         } else {
-            tr.eventi("$myActor set gate for non-existent context $name")
+            gorgel.i?.run { info("$myActor set gate for non-existent context $name") }
         }
     }
 
@@ -274,7 +274,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
             myDirector.addUser(userName, context)
             ++myUserCount
         } else {
-            tr.errorm("$myActor reported entry of $userName to non-existent context $contextName")
+            gorgel.error("$myActor reported entry of $userName to non-existent context $contextName")
         }
     }
 
@@ -291,7 +291,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
             context.removeUser(userName)
             --myUserCount
         } else {
-            tr.errorm("$myActor reported exit of $userName from non-existent context $contextName")
+            gorgel.error("$myActor reported exit of $userName from non-existent context $contextName")
         }
     }
 

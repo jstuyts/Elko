@@ -27,6 +27,12 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
     val direTrace by Once { req(provided.traceFactory()).trace("dire") }
 
     val bootGorgel by Once { req(provided.baseGorgel()).getChild(DirectorBoot::class) }
+
+    val directorGorgel by Once { req(provided.baseGorgel()).getChild(Director::class) }
+
+    val directorActorGorgel by Once { req(provided.baseGorgel()).getChild(DirectorActor::class) }
+
+    val providerGorgel by Once { req(provided.baseGorgel()).getChild(Provider::class) }
     
     val server by Once { Server(req(provided.props()), "director", req(direTrace), req(provided.timer()), req(provided.clock()), req(provided.traceFactory()))  }
             .init {
@@ -35,7 +41,7 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 }
             }
 
-    val director: D<Director> by Once { Director(req(server), req(direTrace), req(provided.traceFactory()), req(provided.clock())) }
+    val director: D<Director> by Once { Director(req(server), req(directorGorgel), req(provided.traceFactory()), req(provided.clock())) }
 
-    val directorServiceFactory by Once { DirectorServiceFactory(req(director), req(direTrace), req(provided.traceFactory())) }
+    val directorServiceFactory by Once { DirectorServiceFactory(req(director), req(directorActorGorgel), req(providerGorgel), req(provided.traceFactory())) }
 }

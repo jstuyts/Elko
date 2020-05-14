@@ -3,8 +3,8 @@ package org.elkoserver.server.director
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Service factory for the Director.
@@ -15,7 +15,11 @@ import org.elkoserver.util.trace.TraceFactory
  * director/user     - for clients seeking services
  * director/admin    - for system administrators
  */
-internal class DirectorServiceFactory(private val director: Director, private val tr: Trace, private val traceFactory: TraceFactory) : ServiceFactory {
+internal class DirectorServiceFactory(
+        private val director: Director,
+        private val directorActorGorgel: Gorgel,
+        private val providerGorgel: Gorgel,
+        private val traceFactory: TraceFactory) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
                                 allow: Set<String>,
@@ -47,6 +51,6 @@ internal class DirectorServiceFactory(private val director: Director, private va
         if (allowUser) {
             serviceNames.add("director-user")
         }
-        return DirectorActorFactory(director, auth, allowAdmin, allowProvider, allowUser, tr, traceFactory)
+        return DirectorActorFactory(director, auth, allowAdmin, allowProvider, allowUser, directorActorGorgel, providerGorgel, traceFactory)
     }
 }

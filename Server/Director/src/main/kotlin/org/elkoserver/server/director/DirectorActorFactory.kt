@@ -3,8 +3,8 @@ package org.elkoserver.server.director
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * MessageHandlerFactory class to create new actors for new connections to a
@@ -15,11 +15,12 @@ import org.elkoserver.util.trace.TraceFactory
  * @param amAllowAdmin  If true, allow 'admin' connections.
  * @param amAllowProvider  If true, allow 'provider' connections.
  * @param amAllowUser  If true, allow 'user' connections.
- * @param tr  Trace object for diagnostics.
  */
 internal class DirectorActorFactory(private val myDirector: Director, private val myAuth: AuthDesc, private val amAllowAdmin: Boolean,
                                     private val amAllowProvider: Boolean, private val amAllowUser: Boolean,
-                                    private val tr: Trace, private val traceFactory: TraceFactory) : MessageHandlerFactory {
+                                    private val directorActorGorgel: Gorgel,
+                                    private val providerGorgel: Gorgel,
+                                    private val traceFactory: TraceFactory) : MessageHandlerFactory {
 
     /**
      * Test whether admin connections are allowed.
@@ -55,7 +56,7 @@ internal class DirectorActorFactory(private val myDirector: Director, private va
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            DirectorActor(connection!!, this, tr, traceFactory)
+            DirectorActor(connection!!, this, directorActorGorgel, providerGorgel, traceFactory)
 
     /**
      * Get this factory's ref table.

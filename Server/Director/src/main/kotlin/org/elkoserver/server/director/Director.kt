@@ -12,8 +12,8 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.HashSetMulti
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.LinkedList
 import java.util.TreeMap
@@ -22,9 +22,8 @@ import java.util.TreeMap
  * Main state data structure in a Director.
  *
  * @param myServer  Server object.
- * @param tr  Trace object for diagnostics.
  */
-internal class Director(private val myServer: Server, private val tr: Trace, traceFactory: TraceFactory, clock: Clock) {
+internal class Director(private val myServer: Server, private val gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
     /** Table for mapping object references in messages.  */
     private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
@@ -182,7 +181,7 @@ internal class Director(private val myServer: Server, private val tr: Trace, tra
         for (provider in myProviders.keys) {
             if (provider.willServe(service, protocol, internal)) {
                 provider.setLoadFactor(provider.loadFactor() + myEstimatedLoadIncrement)
-                tr.eventm("choose $provider from $logString")
+                gorgel.i?.run { info("choose $provider from $logString") }
                 return provider
             }
         }
