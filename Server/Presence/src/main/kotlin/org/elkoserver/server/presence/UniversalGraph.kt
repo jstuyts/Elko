@@ -1,6 +1,7 @@
 package org.elkoserver.server.presence
 
 import org.elkoserver.json.JsonObject
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.security.SecureRandom
 
 /**
@@ -24,11 +25,11 @@ internal class UniversalGraph : SocialGraph {
     /** Number of pseudo-friends someone has, for throttling.  A negative
      * value is unthrottled. */
     private var myPseudoFriendCount = 0
-    override fun init(master: PresenceServer, domain: Domain, conf: JsonObject) {
+    override fun init(master: PresenceServer, gorgel: Gorgel, domain: Domain, conf: JsonObject) {
         myMaster = master
         myDomain = domain
         myPseudoFriendCount = conf.getInt("friends", -1)
-        master.appTrace().worldi("init UniversalGraph for domain '${domain.name()}'")
+        gorgel.i?.run { info("init UniversalGraph for domain '${domain.name()}'") }
     }
 
     /**

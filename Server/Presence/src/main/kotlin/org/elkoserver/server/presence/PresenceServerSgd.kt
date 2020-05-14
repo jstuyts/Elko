@@ -28,6 +28,14 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val bootGorgel by Once { req(provided.baseGorgel()).getChild(PresenceServerBoot::class) }
 
+    val graphDescGorgel by Once { req(provided.baseGorgel()).getChild(GraphDesc::class) }
+
+    val presenceActorGorgel by Once { req(provided.baseGorgel()).getChild(PresenceActor::class) }
+
+    val presenceServerGorgel by Once { req(provided.baseGorgel()).getChild(PresenceServer::class) }
+
+    val socialGraphGorgel by Once { req(provided.baseGorgel()).getChild(SocialGraph::class) }
+
     val server by Once { Server(req(provided.props()), "presence", req(presTrace), req(provided.timer()), req(provided.clock()), req(provided.traceFactory())) }
             .init {
                 if (it.startListeners("conf.listen", req(presenceServiceFactory)) == 0) {
@@ -35,7 +43,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 }
             }
 
-    val presenceServer: D<PresenceServer> by Once { PresenceServer(req(server), req(presTrace), req(provided.traceFactory()), req(provided.clock())) }
+    val presenceServer: D<PresenceServer> by Once { PresenceServer(req(server), req(presenceServerGorgel), req(graphDescGorgel), req(socialGraphGorgel), req(provided.traceFactory()), req(provided.clock())) }
 
-    val presenceServiceFactory by Once { PresenceServiceFactory(req(presenceServer), req(presTrace), req(provided.traceFactory())) }
+    val presenceServiceFactory by Once { PresenceServiceFactory(req(presenceServer), req(presenceActorGorgel), req(provided.traceFactory())) }
 }

@@ -1,6 +1,7 @@
 package org.elkoserver.server.presence
 
 import org.elkoserver.json.JsonObject
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Interface representing an entire social graph, irrespective of its
@@ -17,7 +18,7 @@ internal interface SocialGraph {
      * @param conf  A JsonObject full of configuration information, whose
      * particulars depend on the class implementing this interface.
      */
-    fun init(master: PresenceServer, domain: Domain, conf: JsonObject)
+    fun init(master: PresenceServer, gorgel: Gorgel, domain: Domain, conf: JsonObject)
 
     /**
      * Fetch the social graph for a new user presence from persistent storage.

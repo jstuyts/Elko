@@ -2,7 +2,7 @@ package org.elkoserver.server.presence
 
 import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDB
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
 internal class SimpleSocialGraph : SocialGraph {
@@ -16,19 +16,19 @@ internal class SimpleSocialGraph : SocialGraph {
     private lateinit var myDomain: Domain
 
     /** Trace object for diagnostics.  */
-    private lateinit var tr: Trace
+    private lateinit var myGorgel: Gorgel
 
     /** Prefix string for looking up user graph records in the database.  */
     private lateinit var myPrefix: String
 
-    override fun init(master: PresenceServer, domain: Domain, conf: JsonObject) {
+    override fun init(master: PresenceServer, gorgel: Gorgel, domain: Domain, conf: JsonObject) {
         myODB = master.objDB()
         myODB.addClass("ugraf", UserGraphDesc::class.java)
         myMaster = master
         myDomain = domain
-        tr = master.appTrace()
+        myGorgel = gorgel
         myPrefix = conf.getString("prefix", "g")
-        tr.worldi("init SimpleSocialGraph for domain '${domain.name()}', odb prefix '$myPrefix-'")
+        myGorgel.i?.run { info("init SimpleSocialGraph for domain '${domain.name()}', odb prefix '$myPrefix-'") }
     }
 
     /**
@@ -51,7 +51,7 @@ internal class SimpleSocialGraph : SocialGraph {
                 user.userGraphIsReady(friends, myDomain, myMaster)
             } else {
                 user.userGraphIsReady(null, myDomain, myMaster)
-                tr.warningi("no social graph info for user ${user.ref()} in domain ${myDomain.name()}")
+                myGorgel.warn("no social graph info for user ${user.ref()} in domain ${myDomain.name()}")
             }
         })
     }

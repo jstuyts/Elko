@@ -3,8 +3,8 @@ package org.elkoserver.server.presence
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * MessageHandlerFactory class to create actors for new connections to a
@@ -14,10 +14,11 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myAuth  The authorization needed for connections to this port.
  * @param amAllowAdmin  If true, allow 'admin' connections.
  * @param amAllowClient  If true, allow 'client' connections.
- * @param tr  Trace object for diagnostics.
  */
 internal class PresenceActorFactory(internal val myPresenceServer: PresenceServer, private val myAuth: AuthDesc,
-                                    internal val amAllowAdmin: Boolean, private val amAllowClient: Boolean, private val tr: Trace, private val traceFactory: TraceFactory) : MessageHandlerFactory {
+                                    internal val amAllowAdmin: Boolean, private val amAllowClient: Boolean,
+                                    private val presenceActorGorgel: Gorgel,
+                                    private val traceFactory: TraceFactory) : MessageHandlerFactory {
 
     /**
      * Test whether client connections are allowed.
@@ -32,7 +33,7 @@ internal class PresenceActorFactory(internal val myPresenceServer: PresenceServe
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            PresenceActor(connection!!, this, tr, traceFactory)
+            PresenceActor(connection!!, this, presenceActorGorgel, traceFactory)
 
     /**
      * Get this factory's ref table.

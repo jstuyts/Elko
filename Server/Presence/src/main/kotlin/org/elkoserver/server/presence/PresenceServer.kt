@@ -6,8 +6,8 @@ import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDB
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.LinkedList
 import java.util.function.Consumer
@@ -17,7 +17,9 @@ import java.util.function.Consumer
  */
 internal class PresenceServer(
         private val myServer: Server,
-        private val tr: Trace,
+        private val gorgel: Gorgel,
+        private val graphDescGorgel: Gorgel,
+        private val socialGraphGorgel: Gorgel,
         traceFactory: TraceFactory,
         clock: Clock) {
     /** Database that this server stores stuff in.  */
@@ -72,7 +74,7 @@ internal class PresenceServer(
     fun addSubscriber(context: String, domain: String, client: PresenceActor) {
         val graph = mySocialGraphs[domain]
         if (graph == null) {
-            tr.warningi("client $client attempts to subscribe to non-existent domain '$domain' in context $context")
+            gorgel.warn("client $client attempts to subscribe to non-existent domain '$domain' in context $context")
         } else {
             graph.domain().addSubscriber(context, client)
         }
@@ -81,7 +83,7 @@ internal class PresenceServer(
     fun updateDomain(domain: String, conf: JsonObject, client: PresenceActor) {
         val graph = mySocialGraphs[domain]
         if (graph == null) {
-            tr.warningi("client $client attempts to update non-existent domain '$domain'")
+            gorgel.warn("client $client attempts to update non-existent domain '$domain'")
         } else {
             graph.update(this, graph.domain(), conf)
         }
@@ -158,13 +160,6 @@ internal class PresenceServer(
     fun getContextMetadata(contextRef: String): JsonObject? = myContextMetadata[contextRef]
 
     /**
-     * Obtain the application trace object for this presence server.
-     *
-     * @return the presence server's trace object.
-     */
-    fun appTrace(): Trace = tr
-
-    /**
      * Get the handler for client messages.
      */
     fun clientHandler(): ClientHandler = myClientHandler
@@ -221,13 +216,13 @@ internal class PresenceServer(
             val user = myUsers[userRef]
             if (user != null) {
                 if (!user.removePresence(context, this)) {
-                    tr.warningm("requested to remove user $userRef from unexpected presence $context/$client")
+                    gorgel.warn("requested to remove user $userRef from unexpected presence $context/$client")
                 }
                 if (user.presenceCount() == 0) {
                     myUsers.remove(userRef)
                 }
             } else {
-                tr.warningm("requested to remove unknown user $userRef from presence $context/$client")
+                gorgel.warn("requested to remove unknown user $userRef from presence $context/$client")
             }
         }
     }
@@ -266,10 +261,10 @@ internal class PresenceServer(
             if (obj != null) {
                 val info = obj as GraphTable
                 info.graphs
-                        .mapNotNull { it.init(this@PresenceServer) }
+                        .mapNotNull { it.init(this@PresenceServer, graphDescGorgel, socialGraphGorgel) }
                         .forEach { mySocialGraphs[it.domain().name()] = it }
             } else {
-                tr.warningi("unable to load social graph metadata table")
+                gorgel.warn("unable to load social graph metadata table")
             }
         })
         myServer.registerShutdownWatcher(object : ShutdownWatcher {

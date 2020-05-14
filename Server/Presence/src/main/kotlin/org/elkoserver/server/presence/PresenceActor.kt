@@ -6,8 +6,8 @@ import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Actor for a connection to a presence server.  An actor may be associated
@@ -17,10 +17,9 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param connection  The connection for talking to this actor.
  * @param myFactory  The factory that created this actor.
- * @param tr  Trace object for diagnostics.
  */
 internal class PresenceActor(connection: Connection, private val myFactory: PresenceActorFactory,
-                             private val tr: Trace, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+                             private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
     /** The presence server itself. */
     private val myPresenceServer: PresenceServer = myFactory.myPresenceServer
 
@@ -44,7 +43,7 @@ internal class PresenceActor(connection: Connection, private val myFactory: Pres
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
         doDisconnect()
-        tr.eventm("$this connection died: $connection")
+        gorgel.i?.run { info("${this@PresenceActor} connection died: $connection") }
     }
 
     /**
@@ -75,7 +74,7 @@ internal class PresenceActor(connection: Connection, private val myFactory: Pres
      */
     override fun doDisconnect() {
         if (!amLoggedOut) {
-            tr.eventm("disconnecting $this")
+            gorgel.i?.run { info("disconnecting ${this@PresenceActor}") }
             myClient?.doDisconnect()
             myPresenceServer.removeActor(this)
             amLoggedOut = true
