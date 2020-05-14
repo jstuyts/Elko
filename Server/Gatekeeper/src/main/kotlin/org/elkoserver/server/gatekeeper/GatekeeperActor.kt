@@ -59,7 +59,7 @@ internal class GatekeeperActor(connection: Connection, private val myFactory: Ga
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
         doDisconnect()
-        gorgel.i?.run { info("$this connection died: $connection") }
+        gorgel.i?.run { info("${this@GatekeeperActor} connection died: $connection") }
     }
 
     /**
@@ -95,7 +95,7 @@ internal class GatekeeperActor(connection: Connection, private val myFactory: Ga
      */
     override fun doDisconnect() {
         if (!amLoggedOut) {
-            gorgel.i?.run { info("disconnecting $this") }
+            gorgel.i?.run { info("disconnecting ${this@GatekeeperActor}") }
             amLoggedOut = true
             close()
         }

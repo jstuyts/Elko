@@ -54,7 +54,7 @@ internal class DirectorActor(connection: Connection, private val myFactory: Dire
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
         doDisconnect()
-        gorgel.i?.run { info("$this connection died: $connection") }
+        gorgel.i?.run { info("${this@DirectorActor} connection died: $connection") }
     }
 
     /**
@@ -100,7 +100,7 @@ internal class DirectorActor(connection: Connection, private val myFactory: Dire
      */
     override fun doDisconnect() {
         if (!amLoggedOut) {
-            gorgel.i?.run { info("disconnecting $this") }
+            gorgel.i?.run { info("disconnecting ${this@DirectorActor}") }
             myProvider?.doDisconnect()
             myAdmin?.doDisconnect()
             amLoggedOut = true

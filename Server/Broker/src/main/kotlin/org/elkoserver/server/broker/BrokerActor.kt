@@ -43,7 +43,7 @@ internal class BrokerActor(connection: Connection, private val myFactory: Broker
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
         doDisconnect()
-        gorgel.i?.run { info("$this connection died: $connection") }
+        gorgel.i?.run { info("${this@BrokerActor} connection died: $connection") }
     }
 
     /**
@@ -74,7 +74,7 @@ internal class BrokerActor(connection: Connection, private val myFactory: Broker
      */
     override fun doDisconnect() {
         if (!amLoggedOut) {
-            gorgel.i?.run { info("disconnecting $this") }
+            gorgel.i?.run { info("disconnecting ${this@BrokerActor}") }
             myClient?.doDisconnect()
             if (amAdmin) {
                 myBroker.unwatchServices(this)
