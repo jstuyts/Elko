@@ -74,7 +74,7 @@ internal abstract class Invoker<in TTarget>(method: Member, private val myParamT
             } else {
                 val paramType = myParamTypes[paramNum]
                 if (value != null) {
-                    val param = packParam(paramType, value, resolver!!)
+                    val param = packParam(paramType, value, resolver)
                             ?: throw JSONInvocationException("parameter '$paramName' should be type $paramType")
                     params[paramNum] = param
                 }
@@ -130,7 +130,7 @@ internal abstract class Invoker<in TTarget>(method: Member, private val myParamT
      * @return the object to pass to the method for 'value', or null if the
      * value is of the wrong type.
      */
-    private fun packParam(paramType: Class<*>, value: Any, resolver: TypeResolver): Any? {
+    private fun packParam(paramType: Class<*>, value: Any, resolver: TypeResolver?): Any? {
         val valueType: Class<*> = value.javaClass
         return if (valueType == String::class.java) {
             if (paramType == String::class.java) {

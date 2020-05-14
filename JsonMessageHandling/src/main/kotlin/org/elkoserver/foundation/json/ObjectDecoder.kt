@@ -51,7 +51,7 @@ class ObjectDecoder private constructor(decodeClass: Class<*>, traceFactory: Tra
      * @return the Java object described by 'obj', or null if 'obj' could not
      * be interpreted.
      */
-    private fun decode(obj: JsonObject, resolver: TypeResolver): Any? = myConstructor.construct(obj, resolver)
+    private fun decode(obj: JsonObject, resolver: TypeResolver?): Any? = myConstructor.construct(obj, resolver)
 
     companion object {
         /** Mapping from Java class to the specific decoder for that class.  This
@@ -95,12 +95,12 @@ class ObjectDecoder private constructor(decodeClass: Class<*>, traceFactory: Tra
          * described by 'obj', or null if the object could not be decoded for
          * some reason.
          */
-        fun decode(baseType: Class<*>, obj: JsonObject, resolver: TypeResolver, traceFactory: TraceFactory, clock: Clock): Any? {
+        fun decode(baseType: Class<*>, obj: JsonObject, resolver: TypeResolver?, traceFactory: TraceFactory, clock: Clock): Any? {
             var result: Any? = null
             val typeName = obj.getString<String?>("type", null)
             val targetClass: Class<*>?
             if (typeName != null) {
-                targetClass = resolver.resolveType(baseType, typeName)
+                targetClass = resolver!!.resolveType(baseType, typeName)
                 if (targetClass == null) {
                     traceFactory.comm.errorm("no Java class associated with JSON type tag '$typeName'")
                 }
