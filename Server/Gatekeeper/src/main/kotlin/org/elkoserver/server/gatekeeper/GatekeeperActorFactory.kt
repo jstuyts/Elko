@@ -4,8 +4,8 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * MessageHandlerFactory class to create new actors for new connections to a
@@ -14,11 +14,12 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myGatekeeper  The gatekeeper itself.
  * @param myAuth  The authorization needed for connections to this port.
  * @param amAllowAdmin  If true, allow 'admin' connections.
- * @param tr  Trace object for diagnostics.
  */
 internal class GatekeeperActorFactory(private val myGatekeeper: Gatekeeper, private val myAuth: AuthDesc,
                                       private val amAllowAdmin: Boolean, private val amAllowUser: Boolean,
-                                      private val myActionTimeout: Int, private val tr: Trace, private val timer: Timer, private val traceFactory: TraceFactory) : MessageHandlerFactory {
+                                      private val myActionTimeout: Int,
+                                      private val gatekeeperActorGorgel: Gorgel,
+                                      private val timer: Timer, private val traceFactory: TraceFactory) : MessageHandlerFactory {
 
     /**
      * Test whether admin connections are allowed.
@@ -47,7 +48,7 @@ internal class GatekeeperActorFactory(private val myGatekeeper: Gatekeeper, priv
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            GatekeeperActor(connection!!, this, myActionTimeout, tr, timer, traceFactory)
+            GatekeeperActor(connection!!, this, myActionTimeout, gatekeeperActorGorgel, timer, traceFactory)
 
     /**
      * Get this factory's ref table.

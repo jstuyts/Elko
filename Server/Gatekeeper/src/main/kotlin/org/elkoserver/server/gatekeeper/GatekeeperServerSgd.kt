@@ -28,6 +28,12 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val bootGorgel by Once { req(provided.baseGorgel()).getChild(GatekeeperBoot::class) }
 
+    val directorActorFactoryGorgel by Once { req(provided.baseGorgel()).getChild(DirectorActorFactory::class) }
+
+    val gatekeeperGorgel by Once { req(provided.baseGorgel()).getChild(Gatekeeper::class) }
+
+    val gatekeeperActorGorgel by Once { req(provided.baseGorgel()).getChild(GatekeeperActor::class) }
+
     val server by Once { Server(req(provided.props()), "gatekeeper", req(gateTrace), req(provided.timer()), req(provided.clock()), req(provided.traceFactory())) }
             .init {
                 if (it.startListeners("conf.listen", req(gatekeeperServiceFactory)) == 0) {
@@ -35,9 +41,9 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 }
             }
 
-    val gatekeeper: D<Gatekeeper> by Once { Gatekeeper(req(server), req(gateTrace), req(provided.timer()), req(provided.traceFactory()), req(provided.clock())) }
+    val gatekeeper: D<Gatekeeper> by Once { Gatekeeper(req(server), req(gatekeeperGorgel), req(directorActorFactoryGorgel), req(gateTrace), req(provided.timer()), req(provided.traceFactory()), req(provided.clock())) }
 
     val actionTimeout by Once { 1000 * req(provided.props()).intProperty("conf.gatekeeper.actiontimeout", GatekeeperBoot.DEFAULT_ACTION_TIMEOUT) }
 
-    val gatekeeperServiceFactory by Once { GatekeeperServiceFactory(req(gatekeeper), req(actionTimeout), req(gateTrace), req(provided.timer()), req(provided.traceFactory())) }
+    val gatekeeperServiceFactory by Once { GatekeeperServiceFactory(req(gatekeeper), req(actionTimeout), req(gatekeeperActorGorgel), req(gateTrace), req(provided.timer()), req(provided.traceFactory())) }
 }

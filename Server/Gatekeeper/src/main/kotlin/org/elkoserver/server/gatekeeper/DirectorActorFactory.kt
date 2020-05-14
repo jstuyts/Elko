@@ -9,6 +9,7 @@ import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.function.Consumer
 
@@ -23,6 +24,7 @@ import java.util.function.Consumer
  * @param tr  Trace object for diagnostics.
  */
 internal class DirectorActorFactory(private val myNetworkManager: NetworkManager, private val myGatekeeper: Gatekeeper,
+                                    private val gorgel: Gorgel,
                                     private val tr: Trace, private val timer: Timer, private val traceFactory: TraceFactory, clock: Clock) : MessageHandlerFactory {
     /** Descriptor for the director host.  */
     private var myDirectorHost: HostDesc? = null
@@ -41,7 +43,7 @@ internal class DirectorActorFactory(private val myNetworkManager: NetworkManager
      */
     fun connectDirector(director: HostDesc) {
         if (director.protocol() != "tcp") {
-            tr.errorm("unknown director access protocol '${director.protocol()}' for access to ${director.hostPort()}")
+            gorgel.error("unknown director access protocol '${director.protocol()}' for access to ${director.hostPort()}")
         } else {
             myConnectionRetrier?.giveUp()
             myDirectorHost = director
@@ -93,7 +95,7 @@ internal class DirectorActorFactory(private val myNetworkManager: NetworkManager
      */
     fun setDirector(director: DirectorActor?) {
         if (myDirector != null && director != null) {
-            tr.errorm("setting director when director already set")
+            gorgel.error("setting director when director already set")
         }
         myDirector = director
     }

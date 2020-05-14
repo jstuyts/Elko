@@ -9,8 +9,8 @@ import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Actor representing a possibly multi-faceted connection to a gatekeeper.
@@ -19,10 +19,9 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myFactory  The factory that created this actor.
  * @param actionTime  How long the user has to act before being kicked off,
  *    in milliseconds.
- * @param tr  Trace object for diagnostics.
  */
 internal class GatekeeperActor(connection: Connection, private val myFactory: GatekeeperActorFactory,
-                               actionTime: Int, private val tr: Trace, timer: Timer, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+                               actionTime: Int, private val gorgel: Gorgel, timer: Timer, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
 
     /** True if actor has been disconnected.  */
     private var amLoggedOut = false
@@ -60,7 +59,7 @@ internal class GatekeeperActor(connection: Connection, private val myFactory: Ga
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
         doDisconnect()
-        tr.eventm("$this connection died: $connection")
+        gorgel.i?.run { info("$this connection died: $connection") }
     }
 
     /**
@@ -96,7 +95,7 @@ internal class GatekeeperActor(connection: Connection, private val myFactory: Ga
      */
     override fun doDisconnect() {
         if (!amLoggedOut) {
-            tr.eventm("disconnecting $this")
+            gorgel.i?.run { info("disconnecting $this") }
             amLoggedOut = true
             close()
         }

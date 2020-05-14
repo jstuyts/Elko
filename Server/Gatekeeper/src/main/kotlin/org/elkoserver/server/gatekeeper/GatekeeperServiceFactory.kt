@@ -6,6 +6,7 @@ import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Service factory for the Gatekeeper.
@@ -18,6 +19,7 @@ import org.elkoserver.util.trace.TraceFactory
 internal class GatekeeperServiceFactory(
         private val gatekeeper: Gatekeeper,
         private val actionTimeout: Int,
+        private val gatekeeperActorGorgel: Gorgel,
         private val tr: Trace,
         private val timer: Timer,
         private val traceFactory: TraceFactory) : ServiceFactory {
@@ -45,6 +47,6 @@ internal class GatekeeperServiceFactory(
             serviceNames.add("gatekeeper-user")
         }
         return GatekeeperActorFactory(gatekeeper, auth, allowAdmin,
-                allowUser, actionTimeout, tr, timer, traceFactory)
+                allowUser, actionTimeout, gatekeeperActorGorgel, timer, traceFactory)
     }
 }

@@ -10,6 +10,7 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.InvocationTargetException
 import java.time.Clock
 import java.util.function.Consumer
@@ -21,7 +22,9 @@ import java.util.function.Consumer
  */
 class Gatekeeper internal constructor(
         private val myServer: Server,
-        private val tr: Trace,
+        private val gorgel: Gorgel,
+        directorActorFactoryGorgel: Gorgel,
+        tr: Trace,
         timer: Timer,
         traceFactory: TraceFactory,
         clock: Clock) {
@@ -44,7 +47,7 @@ class Gatekeeper internal constructor(
     private inner class DirectorFoundRunnable : Consumer<Array<ServiceDesc>> {
         override fun accept(obj: Array<ServiceDesc>) {
             if (obj[0].failure() != null) {
-                tr.errorm("unable to find director: ${obj[0].failure()}")
+                gorgel.error("unable to find director: ${obj[0].failure()}")
             } else {
                 setDirectorHost(obj[0].asHostDesc(myRetryInterval))
             }
@@ -163,19 +166,11 @@ class Gatekeeper internal constructor(
         myServer.shutdown()
     }
 
-    /**
-     * Get the trace object.  This is used for writing messages to the server
-     * log.
-     *
-     * @return the trace object for this server.
-     */
-    fun trace() = tr
-
     init {
         myRefTable.addRef(UserHandler(this, traceFactory))
         myRefTable.addRef(AdminHandler(this, traceFactory))
         val props = myServer.props()
-        myDirectorActorFactory = DirectorActorFactory(myServer.networkManager(), this, tr, timer, traceFactory, clock)
+        myDirectorActorFactory = DirectorActorFactory(myServer.networkManager(), this, directorActorFactoryGorgel, tr, timer, traceFactory, clock)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
         myDirectorHost = null
         if (props.testProperty("conf.gatekeeper.director.auto")) {
@@ -183,7 +178,7 @@ class Gatekeeper internal constructor(
         } else {
             val directorHost = HostDesc.fromProperties(props, "conf.gatekeeper.director", traceFactory)
             if (directorHost == null) {
-                tr.errori("no director specified")
+                gorgel.error("no director specified")
             } else {
                 setDirectorHost(directorHost)
             }
