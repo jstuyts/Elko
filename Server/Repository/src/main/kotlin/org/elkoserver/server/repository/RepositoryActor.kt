@@ -6,8 +6,8 @@ import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Actor for a connection to a repository.  An actor may be associated with
@@ -16,10 +16,9 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param connection  The connection for talking to this actor.
  * @param myFactory  The factory that created this actor.
- * @param tr  Trace object for diagnostics.
  */
 internal class RepositoryActor(connection: Connection, private val myFactory: RepositoryActorFactory,
-                               private val tr: Trace, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+                               private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
     private val myRepository = myFactory.myRepository
 
     /** True if actor has been disconnected.  */
@@ -42,7 +41,7 @@ internal class RepositoryActor(connection: Connection, private val myFactory: Re
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
         doDisconnect()
-        tr.eventm("$this connection died: $connection$reason")
+        gorgel.i?.run { info("${this@RepositoryActor} connection died: $connection$reason") }
     }
 
     /**
@@ -73,7 +72,7 @@ internal class RepositoryActor(connection: Connection, private val myFactory: Re
      */
     override fun doDisconnect() {
         if (!amLoggedOut) {
-            tr.eventm("disconnecting $this")
+            gorgel.i?.run { info("disconnecting ${this@RepositoryActor}") }
             if (amRep) {
                 myRepository.countRepClients(-1)
             }

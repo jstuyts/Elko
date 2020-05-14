@@ -3,8 +3,8 @@ package org.elkoserver.server.repository
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * MessageHandlerFactory class to create new actors for new connections to a
@@ -14,11 +14,11 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myAuth  The authorization needed for connections to this port.
  * @param amAllowAdmin  If true, permit admin connections.
  * @param amAllowRep  If true, permit repository connections.
- * @param tr  Trace object for diagnostics.
  */
 internal class RepositoryActorFactory(internal val myRepository: Repository, private val myAuth: AuthDesc,
                                       internal val amAllowAdmin: Boolean, private val amAllowRep: Boolean,
-                                      private val tr: Trace, private val traceFactory: TraceFactory) : MessageHandlerFactory {
+                                      private val repositoryActorGorgel: Gorgel,
+                                      private val traceFactory: TraceFactory) : MessageHandlerFactory {
 
     /**
      * Test whether repository connections are allowed.
@@ -33,7 +33,7 @@ internal class RepositoryActorFactory(internal val myRepository: Repository, pri
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            RepositoryActor(connection!!, this, tr, traceFactory)
+            RepositoryActor(connection!!, this, repositoryActorGorgel, traceFactory)
 
     /**
      * Return the object ref table for this factor.

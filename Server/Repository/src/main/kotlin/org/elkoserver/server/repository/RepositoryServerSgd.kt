@@ -15,7 +15,7 @@ import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.req
 import java.time.Clock
 
-internal class RepositoryServerSgd(provded: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provded, configuration) {
+internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
     interface Provided : ProvidedBase {
         fun traceFactory(): D<TraceFactory>
         fun props(): D<ElkoProperties>
@@ -24,18 +24,20 @@ internal class RepositoryServerSgd(provded: Provided, configuration: ObjectGraph
         fun baseGorgel(): D<Gorgel>
     }
 
-    val repoTrace by Once { req(provded.traceFactory()).trace("repo") }
+    val repoTrace by Once { req(provided.traceFactory()).trace("repo") }
 
-    val bootGorgel by Once { req(provded.baseGorgel()).getChild(RepositoryBoot::class) }
+    val bootGorgel by Once { req(provided.baseGorgel()).getChild(RepositoryBoot::class) }
 
-    val server by Once { Server(req(provded.props()), "rep", req(repoTrace), req(provded.timer()), req(provded.clock()), req(provded.traceFactory())) }
+    val repositoryActorGorgel by Once { req(provided.baseGorgel()).getChild(RepositoryActor::class) }
+
+    val server by Once { Server(req(provided.props()), "rep", req(repoTrace), req(provided.timer()), req(provided.clock()), req(provided.traceFactory())) }
             .init {
                 if (it.startListeners("conf.listen", req(repositoryServiceFactory)) == 0) {
                     req(bootGorgel).error("no listeners specified")
                 }
             }
 
-    val repository: D<Repository> by Once { Repository(req(server), req(repoTrace), req(provded.traceFactory()), req(provded.clock())) }
+    val repository: D<Repository> by Once { Repository(req(server), req(repoTrace), req(provided.traceFactory()), req(provided.clock())) }
 
-    val repositoryServiceFactory by Once { RepositoryServiceFactory(req(repository), req(repoTrace), req(provded.traceFactory())) }
+    val repositoryServiceFactory by Once { RepositoryServiceFactory(req(repository), req(repositoryActorGorgel), req(provided.traceFactory())) }
 }
