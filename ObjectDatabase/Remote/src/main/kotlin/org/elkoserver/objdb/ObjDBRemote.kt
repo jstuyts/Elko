@@ -62,7 +62,7 @@ import java.util.function.Consumer
  */
 class ObjDBRemote(serviceFinder: ServiceFinder,
                   private val myNetworkManager: NetworkManager,
-                  localName: String?,
+                  localName: String,
                   props: ElkoProperties,
                   propRoot: String,
                   appTrace: Trace,

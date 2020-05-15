@@ -165,7 +165,7 @@ abstract class OutboundGroup(propRoot: String,
      *
      * @return a broker service string for this group.
      */
-    internal abstract fun service(): String?
+    internal abstract fun service(): String
 
     init {
         myServer.registerReinitWatcher(object : ReinitWatcher {

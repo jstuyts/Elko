@@ -13,5 +13,5 @@ interface ServiceFinder {
      * @param handler  Object to receive the asynchronous result(s).
      * @param monitor  If true, keep watching for more results after the first.
      */
-    fun findService(service: String?, handler: Consumer<in Array<ServiceDesc>>, monitor: Boolean)
+    fun findService(service: String, handler: Consumer<in Array<ServiceDesc>>, monitor: Boolean)
 }

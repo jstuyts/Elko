@@ -50,7 +50,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
     private val myServerName: String
 
     /** Name of service, to distinguish variants of same service type.  */
-    private var myServiceName: String?
+    private val myServiceName: String
 
     /** Network manager, for setting up network communications.  */
     private val myNetworkManager: NetworkManager
@@ -62,7 +62,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
     private lateinit var myListeners: List<HostDesc>
 
     /** Connection to the broker, if there is one.  */
-    private var myBrokerActor: BrokerActor?
+    private var myBrokerActor: BrokerActor? = null
 
     /** Host description for connection to broker, if there is one.  */
     private val myBrokerHost: HostDesc?
@@ -72,7 +72,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
 
     /** Table of 'find' requests that have been issued to the broker, for which
      * responses are still pending.  Indexed by the service name queried.  */
-    private val myPendingFinds: HashMapMulti<String?, ServiceQuery>
+    private val myPendingFinds: HashMapMulti<String, ServiceQuery> = HashMapMulti()
 
     /** Number of active connections.  */
     private var myConnectionCount = 0
@@ -99,16 +99,16 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
     private var amShuttingDown = false
 
     /** Map from external service names to links to the services.  */
-    private val myServiceLinksByService: MutableMap<String, ServiceLink>
+    private val myServiceLinksByService: MutableMap<String, ServiceLink> = HashMap()
 
     /** Map from external service provider IDs to connected actors.  */
-    private val myServiceActorsByProviderID: MutableMap<Int, ServiceActor>
+    private val myServiceActorsByProviderID: MutableMap<Int, ServiceActor> = HashMap()
 
     /** Active service actors associated with broken broker connections.  */
-    private val myOldServiceActors: MutableList<ServiceActor>
+    private val myOldServiceActors: MutableList<ServiceActor> = LinkedList()
 
     /* RefTable to dispatching messages incoming from external services. */
-    private var myServiceRefTable: RefTable?
+    private var myServiceRefTable: RefTable? = null
 
     /**
      * Take note of the connection to the broker.  Send any 'find' requests
@@ -207,10 +207,10 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
      * @param handler  Object to receive the asynchronous result(s).
      * @param monitor  If true, keep watching for more results after the first.
      */
-    override fun findService(service: String?, handler: Consumer<in Array<ServiceDesc>>, monitor: Boolean) {
+    override fun findService(service: String, handler: Consumer<in Array<ServiceDesc>>, monitor: Boolean) {
         if (myBrokerHost != null) {
             val tag = theNextFindTag++.toString()
-            myPendingFinds.add(service, ServiceQuery(service!!, handler, monitor, tag))
+            myPendingFinds.add(service, ServiceQuery(service, handler, monitor, tag))
             if (myBrokerActor != null) {
                 myBrokerActor!!.findService(service, monitor, tag)
             }
@@ -584,7 +584,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
                 }
         connectionSetup.startListener()
         serviceNames
-                .map { it + myServiceName }
+                .map { "$it$myServiceName" }
                 .forEach { registerService(ServiceDesc(it, host, protocol, label, auth, null, -1)) }
         return HostDesc(protocol, secure, connectionSetup.serverAddress, auth, -1)
     }
@@ -640,26 +640,15 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
     init {
         mySlowRunner = SlowServiceRunner(myMainRunner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))
         trServer = traceFactory.trace("server")
-        myServiceName = myProps.getProperty("conf.$serverType.service")
-        myServiceName = if (myServiceName == null) {
-            ""
-        } else {
-            "-$myServiceName"
-        }
+        myServiceName = myProps.getProperty("conf.$serverType.service")?.let { "-$it" } ?: ""
         myServerName = myProps.getProperty("conf.$serverType.name", "<anonymous>")
         trServer.noticei(version())
         trServer.noticei("Copyright 2016 ElkoServer.org; see LICENSE")
         trServer.noticei("Starting $myServerName")
         myLoadMonitor = ServerLoadMonitor(this, timer, clock)
         myNetworkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory)
-        myServiceLinksByService = HashMap()
-        myServiceActorsByProviderID = HashMap()
-        myOldServiceActors = LinkedList()
-        myServiceRefTable = null
         myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, traceFactory, clock)
         myDispatcher.addClass(BrokerActor::class.java)
-        myPendingFinds = HashMapMulti()
-        myBrokerActor = null
         myBrokerHost = fromProperties(myProps, "conf.broker", traceFactory)
         if (myProps.testProperty("conf.msgdiagnostics")) {
             Communication.TheDebugReplyFlag = true
