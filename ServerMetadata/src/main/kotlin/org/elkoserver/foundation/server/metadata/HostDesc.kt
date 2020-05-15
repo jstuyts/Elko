@@ -15,23 +15,12 @@ import org.elkoserver.util.trace.TraceFactory
  */
 class HostDesc(protocol: String?, isSecure: Boolean,
                private val myHostPort: String?,
-               private val myAuth: AuthDesc?, retryInterval: Int) {
+               private val myAuth: AuthDesc, retryInterval: Int) {
     /** Protocol spoken.  */
     private var myProtocol: String? = null
 
     /** Retry interval for reconnect attempts, in seconds (-1 for default).  */
     private var myRetryInterval = 0
-
-    /**
-     * Constructor, taking most defaults.
-     *
-     * Equivalent to `new HostDesc(protocol, false, hostPort, null,
-     * -1, false)`
-     *
-     * @param protocol  Protocol spoken.
-     * @param hostPort  Host/port/path to address for service.
-     */
-    constructor(protocol: String, hostPort: String) : this(protocol, false, hostPort, null, -1)
 
     /**
      * Get this host's authorization information.
@@ -89,7 +78,7 @@ class HostDesc(protocol: String?, isSecure: Boolean,
                 null
             } else {
                 val protocol = props.getProperty("$propRoot.protocol", "tcp")
-                val auth = AuthDesc.fromProperties(props, propRoot, traceFactory.comm) ?: return null
+                val auth = AuthDesc.fromProperties(props, propRoot, traceFactory.comm)
                 val retry = props.intProperty("$propRoot.retry", -1)
                 HostDesc(protocol, false, host, auth, retry)
             }

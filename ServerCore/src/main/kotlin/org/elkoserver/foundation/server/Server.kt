@@ -556,10 +556,6 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
     private fun startOneListener(propRoot: String, host: String,
                                  metaFactory: ServiceFactory): HostDesc? {
         val auth = fromProperties(myProps, propRoot, tr)
-        if (auth == null) {
-            tr.errorm("bad auth info, listener $propRoot not started")
-            return null
-        }
         val allowString = myProps.getProperty("$propRoot.allow")
         val allow: MutableSet<String> = HashSet()
         if (allowString != null) {
@@ -586,12 +582,10 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
                         throw IllegalStateException()
                     }
                 }
-        val listenAddress = connectionSetup.startListener()
-        if (listenAddress != null) {
-            serviceNames
-                    .map { it + myServiceName }
-                    .forEach { registerService(ServiceDesc(it, host, protocol, label, auth, null, -1)) }
-        }
+        connectionSetup.startListener()
+        serviceNames
+                .map { it + myServiceName }
+                .forEach { registerService(ServiceDesc(it, host, protocol, label, auth, null, -1)) }
         return HostDesc(protocol, secure, connectionSetup.serverAddress, auth, -1)
     }
 

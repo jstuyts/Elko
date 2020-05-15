@@ -62,18 +62,15 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
      * the authorization configuration described by this object.
      */
     fun verify(auth: AuthDesc?): Boolean {
-        return if (auth == null) {
-            myMode == "open"
-        } else if (myMode == auth.mode()) {
-            if (myMode == "open") {
-                true
-            } else if (myMode == "password") {
-                myCode == auth.code()
-            } else {
-                false
-            }
-        } else {
-            false
+        return when {
+            auth == null -> myMode == "open"
+            myMode == auth.mode() ->
+                when (myMode) {
+                    "open" -> true
+                    "password" -> myCode == auth.code()
+                    else -> false
+                }
+            else -> false
         }
     }
 
@@ -107,21 +104,17 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
          * Produce an AuthDesc object from information contained in the server
          * configuration properties.
          *
-         *
          * The authorization mode is extracted from propRoot+".auth.mode".
          * Currently, there are three possible authorization mode values that are
          * recognized: "open", "password", and "reservation".
          *
-         *
          * Open mode is unrestricted access.  No additional descriptive
          * information is required for open mode.
-         *
          *
          * Password mode requires a secret code string for access.  This code
          * string is extracted from propRoot+".auth.code".  Additionally, an
          * identifier may also be required, which will be extracted from
          * propRoot+".auth.id" if that property is present.
-         *
          *
          * Reservation mode requires a reservation string for access.  The
          * reservation string is communicated via a separate pathway, but it
@@ -137,8 +130,7 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
          * rooted at 'propRoot' as described above, or null if no such valid
          * authorization information could be found.
          */
-        fun fromProperties(props: ElkoProperties,
-                           propRoot: String, appTrace: Trace): AuthDesc? {
+        fun fromProperties(props: ElkoProperties, propRoot: String, appTrace: Trace): AuthDesc {
             val actualPropRoot = "$propRoot.auth"
             val mode = props.getProperty("$actualPropRoot.mode", "open")
             return if (mode == "open") {
@@ -148,11 +140,11 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
                 if (mode == "password") {
                     if (code == null) {
                         appTrace.errorm("missing value for $actualPropRoot.code")
-                        return null
+                        throw IllegalStateException()
                     }
                 } else if (mode != "reservation") {
                     appTrace.errorm("unknown value for $actualPropRoot.auth.mode: $mode")
-                    return null
+                    throw IllegalStateException()
                 }
                 val id = props.getProperty<String?>("$actualPropRoot.id", null)
                 AuthDesc(mode, code, id)
