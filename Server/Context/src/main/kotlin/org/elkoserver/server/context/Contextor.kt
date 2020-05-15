@@ -57,7 +57,7 @@ class Contextor internal constructor(
         private val directorGroupGorgel: Gorgel,
         private val presencerGroupGorgel: Gorgel,
         private val reservationGorgel: Gorgel,
-        private val sessionGorgel: Gorgel,
+        sessionGorgel: Gorgel,
         private val timer: Timer,
         traceFactory: TraceFactory,
         clock: Clock,
