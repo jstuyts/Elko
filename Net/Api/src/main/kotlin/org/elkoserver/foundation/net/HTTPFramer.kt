@@ -91,19 +91,21 @@ endless others exist<p>
      * responding to a /select/ by delivering 'message' to the client.
      */
     open fun makeSelectReplySegment(message: Any?, seqNumber: Int, start: Boolean, end: Boolean): String {
-        var result = ""
-        result += if (start) {
-            "{ \"msgs\": ["
-        } else {
-            ", "
-        }
+        val resultBuilder = StringBuilder(250)
+                .append(if (start) "{ \"msgs\": [" else ", ")
+
         if (message != null) {
-            result += message.toString()
+            resultBuilder.append(message)
         }
+
         if (end) {
-            result += "], \"seqnum\": \"$seqNumber\" }\n"
+            resultBuilder
+                    .append("], \"seqnum\": \"")
+                    .append(seqNumber)
+                    .append("\" }\n")
         }
-        return result
+
+        return resultBuilder.toString()
     }
 
     /**

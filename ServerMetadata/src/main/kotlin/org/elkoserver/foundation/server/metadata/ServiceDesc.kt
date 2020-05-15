@@ -145,10 +145,7 @@ class ServiceDesc(private val myService: String, private val myHostport: String?
      * but with a subsidary service name appended.
      */
     fun subService(service: String): ServiceDesc {
-        var label = myLabel
-        if (label != null) {
-            label += " ($service)"
-        }
+        val label = myLabel?.let { "$it ($service)" }
         return ServiceDesc("$myService-$service", myHostport, myProtocol, label, myAuth, myFailure, myProviderID)
     }
 

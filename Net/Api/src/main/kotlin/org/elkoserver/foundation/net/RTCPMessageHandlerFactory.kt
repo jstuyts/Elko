@@ -233,11 +233,7 @@ internal class RTCPMessageHandlerFactory(
      * @param errorTag  The error tag string
      * @return an RTCP 'error' request line corresponding to the parameters.
      */
-    fun makeErrorReply(errorTag: String): String {
-        var result = "error $errorTag"
-        result += "\n"
-        return result
-    }
+    fun makeErrorReply(errorTag: String) = "error $errorTag\n"
 
     /**
      * Generate the request line for an RTCP message delivery request, sending

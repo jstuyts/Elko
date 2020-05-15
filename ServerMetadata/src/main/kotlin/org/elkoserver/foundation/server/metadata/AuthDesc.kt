@@ -139,8 +139,7 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
          */
         fun fromProperties(props: ElkoProperties,
                            propRoot: String, appTrace: Trace): AuthDesc? {
-            var actualPropRoot = propRoot
-            actualPropRoot += ".auth"
+            val actualPropRoot = "$propRoot.auth"
             val mode = props.getProperty("$actualPropRoot.mode", "open")
             return if (mode == "open") {
                 theOpenAuth
