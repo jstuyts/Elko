@@ -2,7 +2,7 @@ package org.elkoserver.server.workshop
 
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.objdb.ObjDB
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
 /**
@@ -20,25 +20,24 @@ internal class StartupWorkerList @JSONMethod("workers") constructor(private val 
      *
      * @param odb  The object database to tell.
      * @param workshop  Workshop for whom these objects are being loaded
-     * @param appTrace  Trace object for logging errors
      */
-    fun fetchFromODB(odb: ObjDB, workshop: Workshop, appTrace: Trace) {
+    fun fetchFromODB(odb: ObjDB, workshop: Workshop, gorgel: Gorgel) {
         myWorkers.forEach { elem ->
-            odb.getObject(elem.ref, null, WorkerReceiver(workshop, elem, appTrace))
+            odb.getObject(elem.ref, null, WorkerReceiver(workshop, elem, gorgel))
         }
     }
 
-    private class WorkerReceiver internal constructor(var myWorkshop: Workshop, var myElem: WorkerListElem, var tr: Trace) : Consumer<Any?> {
+    private class WorkerReceiver internal constructor(var myWorkshop: Workshop, var myElem: WorkerListElem, var gorgel: Gorgel) : Consumer<Any?> {
         override fun accept(obj: Any?) {
             if (obj != null) {
                 if (obj is WorkerObject) {
-                    tr.eventi("loading worker object '${myElem.ref}' as '${myElem.key}'")
+                    gorgel.i?.run { info("loading worker object '${myElem.ref}' as '${myElem.key}'") }
                     myWorkshop.addWorkerObject(myElem.key, obj)
                 } else {
-                    tr.errori("alleged worker object '${myElem.ref}' is not actually a WorkerObject, ignoring it")
+                    gorgel.error("alleged worker object '${myElem.ref}' is not actually a WorkerObject, ignoring it")
                 }
             } else {
-                tr.errori("unable to load worker object '${myElem.ref}'")
+                gorgel.error("unable to load worker object '${myElem.ref}'")
             }
         }
     }

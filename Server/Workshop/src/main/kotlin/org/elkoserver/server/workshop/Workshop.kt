@@ -10,6 +10,7 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.LinkedList
 import java.util.StringTokenizer
@@ -30,23 +31,16 @@ import java.util.function.Consumer
  * then possess it in a parameter variable whence it can be both passed to
  * the superclass constructor and saved in an instance variable.
  *
- * @param odb  Database for persistent object storage.
- * @param server  Server object.
- * @param tr  Trace object for diagnostics.
+ * @param myODB  Database for persistent object storage.
+ * @param myServer  Server object.
  */
-class Workshop private constructor(odb: ObjDB, server: Server,
-                                   private val tr: Trace, traceFactory: TraceFactory, clock: Clock) : RefTable(odb, traceFactory, clock) {
-    /** Server object.  */
-    private val myServer: Server
+class Workshop private constructor(
+        private val myODB: ObjDB,
+        private val myServer: Server,
+        private val gorgel: Gorgel,
+        private val startupWorkerListGorgel: Gorgel,
+        private val tr: Trace, traceFactory: TraceFactory, clock: Clock) : RefTable(myODB, traceFactory, clock) {
 
-    /** Database that persistent objects are stored in.  */
-    private val myODB: ObjDB
-
-    /**
-     * Test if the server is in the midst of shutdown.
-     *
-     * @return true if the server is trying to shutdown.
-     */
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown: Boolean
 
@@ -56,8 +50,11 @@ class Workshop private constructor(odb: ObjDB, server: Server,
      * @param server  Server object.
      * @param appTrace  Trace object for diagnostics.
      */
-    internal constructor(server: Server, appTrace: Trace, traceFactory: TraceFactory, clock: Clock) :
-            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, appTrace, traceFactory, clock)
+    internal constructor(server: Server,
+                         gorgel: Gorgel,
+                         startupWorkerListGorgel: Gorgel,
+                         appTrace: Trace, traceFactory: TraceFactory, clock: Clock) :
+            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, gorgel, startupWorkerListGorgel, appTrace, traceFactory, clock)
 
     /**
      * Add a worker to the object table.
@@ -74,6 +71,7 @@ class Workshop private constructor(odb: ObjDB, server: Server,
      *
      * @return the workshop's trace object.
      */
+    @Deprecated(message = "An injected Gorgel must be used.")
     fun appTrace(): Trace = tr
 
     /**
@@ -97,10 +95,10 @@ class Workshop private constructor(odb: ObjDB, server: Server,
         override fun accept(obj: Any?) {
             val workers = obj as StartupWorkerList?
             if (workers != null) {
-                tr.eventi("loading startup worker list '$myTag'")
-                workers.fetchFromODB(myODB, this@Workshop, tr)
+                gorgel.i?.run { info("loading startup worker list '$myTag'") }
+                workers.fetchFromODB(myODB, this@Workshop, startupWorkerListGorgel)
             } else {
-                tr.errori("unable to load startup worker list '$myTag'")
+                gorgel.error("unable to load startup worker list '$myTag'")
             }
         }
 
@@ -249,13 +247,11 @@ class Workshop private constructor(odb: ObjDB, server: Server,
     }
 
     init {
-        myODB = odb
-        myServer = server
-        odb.addClass("auth", AuthDesc::class.java)
+        myODB.addClass("auth", AuthDesc::class.java)
         addRef(ClientHandler(this, traceFactory))
         addRef(AdminHandler(this, traceFactory))
         isShuttingDown = false
-        server.registerShutdownWatcher(object : ShutdownWatcher {
+        myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 isShuttingDown = true
                 myODB.shutdown()

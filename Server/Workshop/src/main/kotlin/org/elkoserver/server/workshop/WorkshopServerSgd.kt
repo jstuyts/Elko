@@ -28,6 +28,12 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val bootGorgel by Once { req(provided.baseGorgel()).getChild(WorkshopBoot::class) }
 
+    val startupWorkerListGorgel by Once { req(provided.baseGorgel()).getChild(StartupWorkerList::class) }
+
+    val workshopGorgel by Once { req(provided.baseGorgel()).getChild(Workshop::class) }
+
+    val workshopActorGorgel by Once { req(provided.baseGorgel()).getChild(WorkshopActor::class) }
+
     val server by Once { Server(req(provided.props()), "workshop", req(workTrace), req(provided.timer()), req(provided.clock()), req(provided.traceFactory())) }
             .init {
                 if (it.startListeners("conf.listen", req(workshopServiceFactory)) == 0) {
@@ -38,7 +44,7 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
             }
 
-    val workshop: D<Workshop> by Once { Workshop(req(server), req(workTrace), req(provided.traceFactory()), req(provided.clock())) }
+    val workshop: D<Workshop> by Once { Workshop(req(server), req(workshopGorgel), req(startupWorkerListGorgel), req(workTrace), req(provided.traceFactory()), req(provided.clock())) }
 
-    val workshopServiceFactory by Once { WorkshopServiceFactory(req(workshop), req(workTrace), req(provided.traceFactory())) }
+    val workshopServiceFactory by Once { WorkshopServiceFactory(req(workshop), req(workshopActorGorgel), req(provided.traceFactory())) }
 }

@@ -6,8 +6,8 @@ import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Actor for a connection to a workshop.  An actor may be associated with
@@ -16,10 +16,9 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param connection  The connection for talking to this actor.
  * @param myFactory  The factory that created this actor.
- * @param tr  Trace object for diagnostics.
  */
 class WorkshopActor internal constructor(connection: Connection, private val myFactory: WorkshopActorFactory,
-                                         private val tr: Trace, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.workshop, traceFactory), BasicProtocolActor {
+                                         private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.workshop, traceFactory), BasicProtocolActor {
 
     /** True if actor has been disconnected.  */
     private var amLoggedOut = false
@@ -41,7 +40,7 @@ class WorkshopActor internal constructor(connection: Connection, private val myF
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
         doDisconnect()
-        tr.eventm("$this connection died: $connection$reason")
+        gorgel.i?.run { info("${this@WorkshopActor} connection died: $connection$reason") }
     }
 
     /**
@@ -71,7 +70,7 @@ class WorkshopActor internal constructor(connection: Connection, private val myF
      */
     override fun doDisconnect() {
         if (!amLoggedOut) {
-            tr.eventm("disconnecting $this")
+            gorgel.i?.run { info("disconnecting ${this@WorkshopActor}") }
             amLoggedOut = true
             close()
         }
