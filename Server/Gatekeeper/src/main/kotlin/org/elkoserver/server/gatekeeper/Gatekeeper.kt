@@ -35,7 +35,7 @@ class Gatekeeper internal constructor(
     private val myAuthorizer: Authorizer
 
     /** Host description for the director.  */
-    private var myDirectorHost: HostDesc?
+    private var myDirectorHost: HostDesc? = null
 
     /** Retry interval for connection to director, in seconds, or -1 to take
      * the default.  */
@@ -172,7 +172,6 @@ class Gatekeeper internal constructor(
         val props = myServer.props()
         myDirectorActorFactory = DirectorActorFactory(myServer.networkManager(), this, directorActorFactoryGorgel, tr, timer, traceFactory, clock)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
-        myDirectorHost = null
         if (props.testProperty("conf.gatekeeper.director.auto")) {
             myServer.findService("director-user", DirectorFoundRunnable(), false)
         } else {
