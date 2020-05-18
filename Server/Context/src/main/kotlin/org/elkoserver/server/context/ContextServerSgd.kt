@@ -4,6 +4,8 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
+import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -23,6 +25,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
         fun timer(): D<Timer>
         fun traceFactory(): D<TraceFactory>
         fun baseGorgel(): D<Gorgel>
+        fun authDescFromPropertiesFactory(): D<AuthDescFromPropertiesFactory>
+        fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
     }
 
     val contTrace by Once { req(provided.traceFactory()).trace("cont") }
@@ -64,7 +68,17 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
             }
             .eager()
 
-    val server by Once { Server(req(provided.props()), "context", req(contTrace), req(provided.timer()), req(provided.clock()), req(provided.traceFactory())) }
+    val server by Once {
+        Server(
+                req(provided.props()),
+                "context",
+                req(contTrace),
+                req(provided.timer()),
+                req(provided.clock()),
+                req(provided.traceFactory()),
+                req(provided.authDescFromPropertiesFactory()),
+                req(provided.hostDescFromPropertiesFactory()))
+    }
 
     val serverListeners by Once { req(server).listeners() }
 
@@ -87,7 +101,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val contextor by Once {
         Contextor(
-            req(objectDatabase),
+                req(objectDatabase),
                 req(server),
                 req(contTrace),
                 req(contextorGorgel),
@@ -102,11 +116,14 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(provided.traceFactory()),
                 req(provided.clock()),
                 req(contextorEntryTimeout),
-                req(contextorLimit)) }
+                req(contextorLimit))
+    }
 
-    val directors by Once { scanHostList(req(provided.props()), "conf.register", req(provided.traceFactory())) }
+    val hostListScanner by Once { HostListScanner(req(provided.hostDescFromPropertiesFactory())) }
 
-    val presencers by Once { scanHostList(req(provided.props()), "conf.presence", req(provided.traceFactory())) }
+    val directors by Once { req(hostListScanner).scan("conf.register") }
+
+    val presencers by Once { req(hostListScanner).scan("conf.presence") }
 
     companion object {
         private const val DEFAULT_ENTER_TIMEOUT_IN_SECONDS = 15

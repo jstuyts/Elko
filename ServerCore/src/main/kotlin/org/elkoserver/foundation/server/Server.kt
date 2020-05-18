@@ -13,9 +13,9 @@ import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner.Companion.currentRunner
 import org.elkoserver.foundation.run.SlowServiceRunner
-import org.elkoserver.foundation.server.metadata.AuthDesc.Companion.fromProperties
+import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDesc
-import org.elkoserver.foundation.server.metadata.HostDesc.Companion.fromProperties
+import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.foundation.timer.Timer
@@ -43,7 +43,15 @@ import java.util.function.Consumer
  * @param serverType  Server type tag (for generating property names).
  * @param tr  Trace object for event logging.
  */
-class Server(private val myProps: ElkoProperties, serverType: String, private val tr: Trace, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory)
+class Server(
+        private val myProps: ElkoProperties, 
+        serverType: String, 
+        private val tr: Trace, 
+        private val timer: Timer, 
+        private val clock: Clock, 
+        private val traceFactory: TraceFactory,
+        private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
+        hostDescFromPropertiesFactory: HostDescFromPropertiesFactory)
     : ConnectionCountMonitor, ServiceFinder {
 
     /** The name of this server (for logging).  */
@@ -128,7 +136,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
         } else {
             for (key in myPendingFinds.keys()) {
                 for (query in myPendingFinds.getMulti(key)) {
-                    brokerActor.findService(key!!, query.isMonitor, query.tag())
+                    brokerActor.findService(key, query.isMonitor, query.tag())
                 }
             }
         }
@@ -555,7 +563,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
      */
     private fun startOneListener(propRoot: String, host: String,
                                  metaFactory: ServiceFactory): HostDesc? {
-        val auth = fromProperties(myProps, propRoot, tr)
+        val auth = authDescFromPropertiesFactory.fromProperties(propRoot)
         val allowString = myProps.getProperty("$propRoot.allow")
         val allow: MutableSet<String> = HashSet()
         if (allowString != null) {
@@ -649,7 +657,7 @@ class Server(private val myProps: ElkoProperties, serverType: String, private va
         myNetworkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory)
         myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, traceFactory, clock)
         myDispatcher.addClass(BrokerActor::class.java)
-        myBrokerHost = fromProperties(myProps, "conf.broker", traceFactory)
+        myBrokerHost = hostDescFromPropertiesFactory.fromProperties("conf.broker")
         if (myProps.testProperty("conf.msgdiagnostics")) {
             Communication.TheDebugReplyFlag = true
         }

@@ -71,6 +71,10 @@ class HostDesc(protocol: String?, isSecure: Boolean,
          * @return a new HostDesc object as specified by 'props', or null if no such
          * host was described.
          */
+        @Deprecated(message = "Top-level function which require passing in objects for dependencies. Use an instance of the factory instead.",
+                replaceWith = ReplaceWith(
+                        imports = ["org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory"],
+                        expression = "hostDescFromPropertiesFactory.fromProperties(propRoot)"))
         fun fromProperties(props: ElkoProperties,
                            propRoot: String, traceFactory: TraceFactory): HostDesc? {
             val host = props.getProperty("$propRoot.host")

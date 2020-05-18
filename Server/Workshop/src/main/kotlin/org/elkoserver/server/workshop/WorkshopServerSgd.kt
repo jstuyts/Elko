@@ -4,6 +4,8 @@ package org.elkoserver.server.workshop
 
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
+import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -22,6 +24,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
         fun timer(): D<Timer>
         fun clock(): D<Clock>
         fun baseGorgel(): D<Gorgel>
+        fun authDescFromPropertiesFactory(): D<AuthDescFromPropertiesFactory>
+        fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
     }
 
     val workTrace by Once { req(provided.traceFactory()).trace("work") }
@@ -34,7 +38,17 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val workshopActorGorgel by Once { req(provided.baseGorgel()).getChild(WorkshopActor::class) }
 
-    val server by Once { Server(req(provided.props()), "workshop", req(workTrace), req(provided.timer()), req(provided.clock()), req(provided.traceFactory())) }
+    val server by Once {
+        Server(
+                req(provided.props()),
+                "workshop",
+                req(workTrace),
+                req(provided.timer()),
+                req(provided.clock()),
+                req(provided.traceFactory()),
+                req(provided.authDescFromPropertiesFactory()),
+                req(provided.hostDescFromPropertiesFactory()))
+    }
             .init {
                 if (it.startListeners("conf.listen", req(workshopServiceFactory)) == 0) {
                     req(bootGorgel).error("no listeners specified")

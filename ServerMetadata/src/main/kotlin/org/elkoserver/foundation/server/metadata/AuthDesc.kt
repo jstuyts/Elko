@@ -130,6 +130,10 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
          * rooted at 'propRoot' as described above, or null if no such valid
          * authorization information could be found.
          */
+        @Deprecated(message = "Top-level function which require passing in objects for dependencies. Use an instance of the factory instead.",
+                replaceWith = ReplaceWith(
+                        imports = ["org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory"],
+                        expression = "authDescFromPropertiesFactory.fromProperties(propRoot)"))
         fun fromProperties(props: ElkoProperties, propRoot: String, appTrace: Trace): AuthDesc {
             val actualPropRoot = "$propRoot.auth"
             val mode = props.getProperty("$actualPropRoot.mode", "open")

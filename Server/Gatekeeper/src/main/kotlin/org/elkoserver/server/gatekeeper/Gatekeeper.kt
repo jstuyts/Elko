@@ -6,6 +6,7 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.HostDesc
+import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
@@ -27,7 +28,8 @@ class Gatekeeper internal constructor(
         tr: Trace,
         timer: Timer,
         traceFactory: TraceFactory,
-        clock: Clock) {
+        clock: Clock,
+        hostDescFromPropertiesFactory: HostDescFromPropertiesFactory) {
     /** Table for mapping object references in messages.  */
     private val myRefTable: RefTable = RefTable(null, traceFactory, clock)
 
@@ -175,7 +177,7 @@ class Gatekeeper internal constructor(
         if (props.testProperty("conf.gatekeeper.director.auto")) {
             myServer.findService("director-user", DirectorFoundRunnable(), false)
         } else {
-            val directorHost = HostDesc.fromProperties(props, "conf.gatekeeper.director", traceFactory)
+            val directorHost = hostDescFromPropertiesFactory.fromProperties("conf.gatekeeper.director")
             if (directorHost == null) {
                 gorgel.error("no director specified")
             } else {

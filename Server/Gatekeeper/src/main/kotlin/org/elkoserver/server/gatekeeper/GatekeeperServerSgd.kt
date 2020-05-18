@@ -4,6 +4,8 @@ package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
+import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -22,6 +24,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
         fun clock(): D<Clock>
         fun props(): D<ElkoProperties>
         fun baseGorgel(): D<Gorgel>
+        fun authDescFromPropertiesFactory(): D<AuthDescFromPropertiesFactory>
+        fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
     }
 
     val gateTrace by Once { req(provided.traceFactory()).trace("gate") }
@@ -34,14 +38,34 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val gatekeeperActorGorgel by Once { req(provided.baseGorgel()).getChild(GatekeeperActor::class) }
 
-    val server by Once { Server(req(provided.props()), "gatekeeper", req(gateTrace), req(provided.timer()), req(provided.clock()), req(provided.traceFactory())) }
+    val server by Once {
+        Server(
+                req(provided.props()),
+                "gatekeeper",
+                req(gateTrace),
+                req(provided.timer()),
+                req(provided.clock()),
+                req(provided.traceFactory()),
+                req(provided.authDescFromPropertiesFactory()),
+                req(provided.hostDescFromPropertiesFactory()))
+    }
             .init {
                 if (it.startListeners("conf.listen", req(gatekeeperServiceFactory)) == 0) {
                     req(bootGorgel).error("no listeners specified")
                 }
             }
 
-    val gatekeeper: D<Gatekeeper> by Once { Gatekeeper(req(server), req(gatekeeperGorgel), req(directorActorFactoryGorgel), req(gateTrace), req(provided.timer()), req(provided.traceFactory()), req(provided.clock())) }
+    val gatekeeper: D<Gatekeeper> by Once {
+        Gatekeeper(
+                req(server),
+                req(gatekeeperGorgel),
+                req(directorActorFactoryGorgel),
+                req(gateTrace),
+                req(provided.timer()),
+                req(provided.traceFactory()),
+                req(provided.clock()),
+                req(provided.hostDescFromPropertiesFactory()))
+    }
 
     val actionTimeout by Once { 1000 * req(provided.props()).intProperty("conf.gatekeeper.actiontimeout", GatekeeperBoot.DEFAULT_ACTION_TIMEOUT) }
 

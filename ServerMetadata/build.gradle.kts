@@ -8,6 +8,9 @@ plugins {
 repositories {
     jcenter()
     mavenCentral()
+    maven {
+        url = uri("https://dl.bintray.com/squins/Squins")
+    }
 }
 
 dependencies {
@@ -15,6 +18,7 @@ dependencies {
     api(project(":Properties"))
     api(project(":Trace"))
     api(Libraries.nanojson)
+    api(Libraries.ooverkommelig)
 
     implementation(kotlin("stdlib-jdk8"))
 }
