@@ -19,7 +19,8 @@ internal class DirectorServiceFactory(
         private val director: Director,
         private val directorActorGorgel: Gorgel,
         private val providerGorgel: Gorgel,
-        private val traceFactory: TraceFactory) : ServiceFactory {
+        private val traceFactory: TraceFactory,
+        private val ordinalGenerator: OrdinalGenerator) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
                                 allow: Set<String>,
@@ -51,6 +52,6 @@ internal class DirectorServiceFactory(
         if (allowUser) {
             serviceNames.add("director-user")
         }
-        return DirectorActorFactory(director, auth, allowAdmin, allowProvider, allowUser, directorActorGorgel, providerGorgel, traceFactory)
+        return DirectorActorFactory(director, auth, allowAdmin, allowProvider, allowUser, directorActorGorgel, providerGorgel, traceFactory, ordinalGenerator)
     }
 }

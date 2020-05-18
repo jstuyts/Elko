@@ -10,9 +10,13 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *
  * @param myDirector  The director that is tracking the provider.
  * @param myActor  The actor associated with the provider.
- * @param tr  Trace object for diagnostics.
+ * @param myOrdinalGenerator Counter for assigning ordinal values to new providers.
  */
-internal class Provider(private val myDirector: Director, private val myActor: DirectorActor, private val gorgel: Gorgel) : Comparable<Provider> {
+internal class Provider(
+        private val myDirector: Director,
+        private val myActor: DirectorActor,
+        private val gorgel: Gorgel,
+        private val myOrdinalGenerator: OrdinalGenerator) : Comparable<Provider> {
 
     /** Provider load factor.  */
     private var myLoadFactor = 0.0
@@ -39,7 +43,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
     private val myCloneSets = HashMapMulti<String, OpenContext>()
 
     /** Ordinal for consistent non-equality when load factors are equal.  */
-    private val myOrdinal = theNextOrdinal++
+    private val myOrdinal = myOrdinalGenerator.generate()
 
     override fun toString() = "P($myOrdinal)"
 
@@ -59,7 +63,7 @@ internal class Provider(private val myDirector: Director, private val myActor: D
         return when {
             diff < 0.0 -> -1
             diff > 0.0 -> 1
-            else -> myOrdinal - other.myOrdinal
+            else -> myOrdinal.compareTo(other.myOrdinal)
         }
     }
 
@@ -335,12 +339,6 @@ internal class Provider(private val myDirector: Director, private val myActor: D
             } else {
                 myServices.contains(service) && myHostPorts.containsKey(protocol) && !isFull
             }
-
-    companion object {
-        /** Counter for assigning ordinal values to new providers.  */
-        @Deprecated("Global variable")
-        private var theNextOrdinal = 0
-    }
 
     init {
         myDirector.addProvider(this)

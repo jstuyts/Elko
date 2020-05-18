@@ -7,15 +7,17 @@ import org.elkoserver.server.gatekeeper.ReservationResult
 import org.elkoserver.server.gatekeeper.ReservationResultHandler
 import org.elkoserver.server.gatekeeper.SetPasswordResultHandler
 import org.elkoserver.util.trace.TraceFactory
-import java.security.SecureRandom
+import java.util.Random
 import java.util.function.Consumer
 import kotlin.math.abs
 
 /**
  * A simple implementation of the [Authorizer] interface for use with
  * the Elko Gatekeeper.
+ *
+ * @param myRandom Random number generator, for generating IDs.
  */
-class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
+class PasswdAuthorizer(private val traceFactory: TraceFactory, private val myRandom: Random) : Authorizer {
     /** The database in which the authorization info is kept.  */
     private var myODB: ObjDB? = null
 
@@ -81,7 +83,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
      * @return a new actor ID.
      */
     fun generateID(): String {
-        val idNumber = abs(theRandom.nextLong())
+        val idNumber = abs(myRandom.nextLong())
         return "$myActorIDBase-$idNumber"
     }
 
@@ -265,11 +267,5 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory) : Authorizer {
      */
     override fun shutdown() {
         myODB!!.shutdown()
-    }
-
-    companion object {
-        /** Random number generator, for generating IDs.  */
-        @Deprecated("Global variable")
-        private val theRandom = SecureRandom()
     }
 }

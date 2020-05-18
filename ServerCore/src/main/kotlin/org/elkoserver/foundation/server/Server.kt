@@ -42,26 +42,25 @@ import java.util.function.Consumer
  * @param myProps  The properties, as determined by the boot process.
  * @param serverType  Server type tag (for generating property names).
  * @param tr  Trace object for event logging.
+ * @param myTtagGenerator Counter to generate tags for 'find' requests to the broker.
  */
 class Server(
-        private val myProps: ElkoProperties, 
-        serverType: String, 
-        private val tr: Trace, 
-        private val timer: Timer, 
-        private val clock: Clock, 
+        private val myProps: ElkoProperties,
+        serverType: String,
+        private val tr: Trace,
+        private val timer: Timer,
+        private val clock: Clock,
         private val traceFactory: TraceFactory,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
-        hostDescFromPropertiesFactory: HostDescFromPropertiesFactory)
+        hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
+        private val myTtagGenerator: IdGenerator)
     : ConnectionCountMonitor, ServiceFinder {
 
     /** The name of this server (for logging).  */
-    private val myServerName: String
+    private val myServerName: String = myProps.getProperty("conf.$serverType.name", "<anonymous>")
 
     /** Name of service, to distinguish variants of same service type.  */
-    private val myServiceName: String
-
-    /** Network manager, for setting up network communications.  */
-    private val myNetworkManager: NetworkManager
+    private val myServiceName: String = myProps.getProperty("conf.$serverType.service")?.let { "-$it" } ?: ""
 
     /** List of ServiceDesc objects describing services this server offers.  */
     private val myServices: MutableList<ServiceDesc> = LinkedList()
@@ -73,10 +72,10 @@ class Server(
     private var myBrokerActor: BrokerActor? = null
 
     /** Host description for connection to broker, if there is one.  */
-    private val myBrokerHost: HostDesc?
+    private val myBrokerHost: HostDesc? = hostDescFromPropertiesFactory.fromProperties("conf.broker")
 
     /** Message dispatcher for broker connections.  */
-    private val myDispatcher: MessageDispatcher
+    private val myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, traceFactory, clock)
 
     /** Table of 'find' requests that have been issued to the broker, for which
      * responses are still pending.  Indexed by the service name queried.  */
@@ -92,16 +91,19 @@ class Server(
     private val myReinitWatchers: MutableList<ReinitWatcher> = LinkedList()
 
     /** Accumulator tracking system load.  */
-    private val myLoadMonitor: ServerLoadMonitor
+    private val myLoadMonitor = ServerLoadMonitor(this, timer, clock)
 
     /** Trace object for mandatory startup and shutdown messages.  */
-    private val trServer: Trace
+    private val trServer = traceFactory.trace("server")
 
     /** Run queue that the server services its clients in.  */
     private val myMainRunner = currentRunner(traceFactory)
 
+    /** Network manager, for setting up network communications.  */
+    private val myNetworkManager: NetworkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory)
+
     /** Thread pool isolation for external blocking tasks.  */
-    private val mySlowRunner: SlowServiceRunner
+    private val mySlowRunner = SlowServiceRunner(myMainRunner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))
 
     /** Flag that server is in the midst of trying to shut down.  */
     private var amShuttingDown = false
@@ -217,10 +219,10 @@ class Server(
      */
     override fun findService(service: String, handler: Consumer<in Array<ServiceDesc>>, monitor: Boolean) {
         if (myBrokerHost != null) {
-            val tag = theNextFindTag++.toString()
+            val tag = myTtagGenerator.generate().toString()
             myPendingFinds.add(service, ServiceQuery(service, handler, monitor, tag))
-            if (myBrokerActor != null) {
-                myBrokerActor!!.findService(service, monitor, tag)
+            myBrokerActor?.run {
+                findService(service, monitor, tag)
             }
         } else {
             tr.errori("can't find service $service, no broker specified")
@@ -637,27 +639,17 @@ class Server(
     private fun version() = BuildVersion.version
 
     companion object {
-        /** Counter to generate tags for 'find' requests to the broker.  */
-        @Deprecated("Global variable")
-        private var theNextFindTag = 0
-
         /** Default value for max number of threads in slow service thread pool.  */
         private const val DEFAULT_SLOW_THREADS = 5
     }
 
     init {
-        mySlowRunner = SlowServiceRunner(myMainRunner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))
-        trServer = traceFactory.trace("server")
-        myServiceName = myProps.getProperty("conf.$serverType.service")?.let { "-$it" } ?: ""
-        myServerName = myProps.getProperty("conf.$serverType.name", "<anonymous>")
         trServer.noticei(version())
         trServer.noticei("Copyright 2016 ElkoServer.org; see LICENSE")
         trServer.noticei("Starting $myServerName")
-        myLoadMonitor = ServerLoadMonitor(this, timer, clock)
-        myNetworkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory)
-        myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, traceFactory, clock)
+
         myDispatcher.addClass(BrokerActor::class.java)
-        myBrokerHost = hostDescFromPropertiesFactory.fromProperties("conf.broker")
+
         if (myProps.testProperty("conf.msgdiagnostics")) {
             Communication.TheDebugReplyFlag = true
         }

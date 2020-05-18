@@ -6,7 +6,7 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.TraceFactory
-import java.security.SecureRandom
+import java.util.Random
 import kotlin.math.abs
 
 /**
@@ -18,8 +18,9 @@ import kotlin.math.abs
  * particular context.
  *
  * @param myDirector  The director object for this handler.
+ * @param myRandom Random number generator, for reservations.
  */
-internal open class UserHandler(private val myDirector: Director, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal open class UserHandler(private val myDirector: Director, traceFactory: TraceFactory, private val myRandom: Random) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Obtain the director object for this server.
@@ -96,7 +97,7 @@ internal open class UserHandler(private val myDirector: Director, traceFactory: 
         val hostPort = provider.hostPort(protocol)
         if (hostPort != null) {
             /* Issue reservation to provider and user. */
-            val reservation = abs(theRandom.nextLong()).toString()
+            val reservation = abs(myRandom.nextLong()).toString()
             provider.actor().send(msgDoReserve(myDirector.providerHandler(), actualContextName, userName, reservation))
             from.send(msgReserve(this, actualContextName, userName, hostPort, reservation, null, tag))
         } else {
@@ -106,9 +107,6 @@ internal open class UserHandler(private val myDirector: Director, traceFactory: 
     }
 
     companion object {
-        /** Random number generator, for reservations.  */
-        @Deprecated("Global variable")
-        private val theRandom = SecureRandom()
 
         private fun msgDoReserve(target: Referenceable, context: String?, user: String?, reservation: String) =
                 JSONLiteralFactory.targetVerb(target, "doreserve").apply {

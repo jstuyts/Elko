@@ -3,6 +3,7 @@
 package org.elkoserver.server.repository
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
@@ -43,13 +44,16 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.clock()),
                 req(provided.traceFactory()),
                 req(provided.authDescFromPropertiesFactory()),
-                req(provided.hostDescFromPropertiesFactory()))
+                req(provided.hostDescFromPropertiesFactory()),
+                req(serverTagGenerator))
     }
             .init {
                 if (it.startListeners("conf.listen", req(repositoryServiceFactory)) == 0) {
                     req(bootGorgel).error("no listeners specified")
                 }
             }
+
+    val serverTagGenerator by Once { LongIdGenerator() }
 
     val repository: D<Repository> by Once { Repository(req(server), req(repoTrace), req(provided.traceFactory()), req(provided.clock())) }
 

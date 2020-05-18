@@ -3,6 +3,7 @@
 package org.elkoserver.server.broker
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
@@ -47,7 +48,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(provided.clock()),
                 req(provided.traceFactory()),
                 req(provided.authDescFromPropertiesFactory()),
-                req(provided.hostDescFromPropertiesFactory()))
+                req(provided.hostDescFromPropertiesFactory()),
+                req(serverTagGenerator))
     }
             .init {
                 if (it.startListeners("conf.listen", req(brokerServiceFactory)) == 0) {
@@ -58,6 +60,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                     req(broker).addService(service)
                 }
             }
+
+    val serverTagGenerator by Once { LongIdGenerator() }
 
     val broker: D<Broker> by Once { Broker(req(server), req(brokerGorgel), req(launcherTableGorgel), req(provided.timer()), req(provided.traceFactory()), req(provided.clock())) }
 

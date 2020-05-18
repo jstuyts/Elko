@@ -7,6 +7,7 @@ import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.SourceRetargeter
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.server.IdGenerator
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
@@ -27,9 +28,18 @@ import java.util.function.Consumer
  * @param amAuthRequired  True if this use needs to tender a reservation in
  *    order to enter.
  * @param myProtocol  Protocol being used on the new connection
+ * @param myIdGenerator Counter for assigning ephemeral user IDs.
  */
-class UserActor(private val myConnection: Connection, private val myContextor: Contextor, private val amAuthRequired: Boolean,
-                private val myProtocol: String, private val userActorGorgel: Gorgel, private val userGorgelWithoutRef: Gorgel, private val timer: Timer, traceFactory: TraceFactory) : RoutingActor(myConnection, myContextor, traceFactory), SourceRetargeter, BasicProtocolActor {
+class UserActor(
+        private val myConnection: Connection,
+        private val myContextor: Contextor,
+        private val amAuthRequired: Boolean,
+        private val myProtocol: String,
+        private val userActorGorgel: Gorgel,
+        private val userGorgelWithoutRef: Gorgel,
+        private val timer: Timer,
+        traceFactory: TraceFactory,
+        private val myIdGenerator: IdGenerator) : RoutingActor(myConnection, myContextor, traceFactory), SourceRetargeter, BasicProtocolActor {
     /** The users this actor is the actor for, by context.  */
     private val myUsers: MutableMap<Context, User> = HashMap()
 
@@ -156,14 +166,14 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
             actualUserRef = null
             isAnonymous = false
             if (actualName == null) {
-                actualName = "_synth_${theNextTempID++}"
+                actualName = "_synth_${myIdGenerator.generate()}"
             }
         } else if (actualUserRef == null) {
             actualUserRef = "user-anon"
             isEphemeral = true
             isAnonymous = true
             if (actualName == null) {
-                actualName = "_anon_${theNextTempID++}"
+                actualName = "_anon_${myIdGenerator.generate()}"
             }
         }
         var opener: DirectorActor? = null
@@ -315,12 +325,6 @@ class UserActor(private val myConnection: Connection, private val myContextor: C
      * @return the User associated with this actor in the given context.
      */
     fun user(context: Context) = myUsers[context]
-
-    companion object {
-        /** Counter for assigning ephemeral user IDs.  */
-        @Deprecated("Global variable")
-        private var theNextTempID = 1
-    }
 
     init {
         startEntryTimeout()

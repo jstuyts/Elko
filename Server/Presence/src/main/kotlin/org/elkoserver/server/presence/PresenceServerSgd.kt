@@ -3,6 +3,7 @@
 package org.elkoserver.server.presence
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
@@ -49,13 +50,16 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.clock()),
                 req(provided.traceFactory()),
                 req(provided.authDescFromPropertiesFactory()),
-                req(provided.hostDescFromPropertiesFactory()))
+                req(provided.hostDescFromPropertiesFactory()),
+                req(serverTagGenerator))
     }
             .init {
                 if (it.startListeners("conf.listen", req(presenceServiceFactory)) == 0) {
                     req(bootGorgel).error("no listeners specified")
                 }
             }
+
+    val serverTagGenerator by Once { LongIdGenerator() }
 
     val presenceServer: D<PresenceServer> by Once { PresenceServer(req(server), req(presenceServerGorgel), req(graphDescGorgel), req(socialGraphGorgel), req(provided.traceFactory()), req(provided.clock())) }
 

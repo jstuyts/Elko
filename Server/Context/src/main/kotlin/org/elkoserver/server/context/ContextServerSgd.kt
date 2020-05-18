@@ -3,6 +3,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
@@ -16,6 +17,7 @@ import org.ooverkommelig.Once
 import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.req
+import java.security.SecureRandom
 import java.time.Clock
 
 internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
@@ -55,7 +57,17 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val userGorgelWithoutRef by Once { req(provided.baseGorgel()).getChild(User::class) }
 
-    val contextServiceFactory by Once { ContextServiceFactory(req(contextor), req(contextServiceFactoryGorgel), req(internalActorGorgel), req(userActorGorgel), req(userGorgelWithoutRef), req(provided.traceFactory()), req(provided.timer())) }
+    val contextServiceFactory by Once {
+        ContextServiceFactory(
+                req(contextor),
+                req(contextServiceFactoryGorgel),
+                req(internalActorGorgel),
+                req(userActorGorgel),
+                req(userGorgelWithoutRef),
+                req(provided.traceFactory()),
+                req(provided.timer()),
+                req(idGenerator))
+    }
             .init {
                 if (req(server).startListeners("conf.listen", it) == 0) {
                     // FIXME: Do not use "fatalError" as this exits the process hard.
@@ -68,6 +80,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
             }
             .eager()
 
+    val idGenerator by Once { LongIdGenerator(1L) }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -77,8 +91,11 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(provided.clock()),
                 req(provided.traceFactory()),
                 req(provided.authDescFromPropertiesFactory()),
-                req(provided.hostDescFromPropertiesFactory()))
+                req(provided.hostDescFromPropertiesFactory()),
+                req(serverTagGenerator))
     }
+
+    val serverTagGenerator by Once { LongIdGenerator() }
 
     val serverListeners by Once { req(server).listeners() }
 
@@ -116,8 +133,11 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(provided.traceFactory()),
                 req(provided.clock()),
                 req(contextorEntryTimeout),
-                req(contextorLimit))
+                req(contextorLimit),
+                req(contextorRandom))
     }
+
+    val contextorRandom by Once { SecureRandom() }
 
     val hostListScanner by Once { HostListScanner(req(provided.hostDescFromPropertiesFactory())) }
 

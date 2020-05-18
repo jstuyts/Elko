@@ -16,6 +16,7 @@ import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.LinkedList
+import java.util.Random
 import java.util.TreeMap
 
 /**
@@ -23,7 +24,7 @@ import java.util.TreeMap
  *
  * @param myServer  Server object.
  */
-internal class Director(private val myServer: Server, private val gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
+internal class Director(private val myServer: Server, private val gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock, random: Random) {
     /** Table for mapping object references in messages.  */
     private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
@@ -57,7 +58,7 @@ internal class Director(private val myServer: Server, private val gorgel: Gorgel
     private val myAdminHandler: AdminHandler
 
     /** The provider object.  */
-    private val myProviderHandler = ProviderHandler(this, traceFactory)
+    private val myProviderHandler = ProviderHandler(this, traceFactory, random)
 
     /** Map of context names to sets of watching admin actors.  */
     private val myWatchedContexts = HashMapMulti<String, DirectorActor>()
@@ -464,7 +465,7 @@ internal class Director(private val myServer: Server, private val gorgel: Gorgel
     init {
         myRefTable.addRef(myProviderHandler)
         myRefTable.addRef("session", myProviderHandler)
-        myRefTable.addRef(UserHandler(this, traceFactory))
+        myRefTable.addRef(UserHandler(this, traceFactory, random))
         myAdminHandler = AdminHandler(this, traceFactory)
         myRefTable.addRef(myAdminHandler)
         myProviderLimit = myServer.props().intProperty("conf.director.providerlimit", 0)

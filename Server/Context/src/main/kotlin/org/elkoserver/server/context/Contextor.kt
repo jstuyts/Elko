@@ -20,9 +20,9 @@ import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
-import java.security.SecureRandom
 import java.time.Clock
 import java.util.LinkedList
+import java.util.Random
 import java.util.StringTokenizer
 import java.util.function.Consumer
 import kotlin.math.abs
@@ -45,6 +45,7 @@ import kotlin.math.abs
  * @param myODB  Database for persistent object storage.
  * @param myServer  Server object.
  * @param tr  Trace object for diagnostics.
+ * @param myRandom Random number generator, for creating unique IDs and sub-IDs.
  */
 class Contextor internal constructor(
         private val myODB: ObjDB,
@@ -62,7 +63,8 @@ class Contextor internal constructor(
         traceFactory: TraceFactory,
         clock: Clock,
         private val myEntryTimeout: Int,
-        private val myLimit: Int) : RefTable(myODB, traceFactory, clock) {
+        private val myLimit: Int,
+        private val myRandom: Random) : RefTable(myODB, traceFactory, clock) {
 
     /** The generic 'session' object for talking to this server.  */
     private val mySession: Session = Session(this, myServer, sessionGorgel, traceFactory)
@@ -989,7 +991,7 @@ class Contextor internal constructor(
      *
      * @return a random long.
      */
-    fun randomLong() = theRandom.nextLong()
+    fun randomLong() = myRandom.nextLong()
 
     /**
      * Register this server's list of listeners with its list of directors.
@@ -1189,7 +1191,7 @@ class Contextor internal constructor(
      *
      * @return a reference string for a new object with the given root.
      */
-    fun uniqueID(prefix: String): String = "$prefix-${abs(theRandom.nextLong())}"
+    fun uniqueID(prefix: String): String = "$prefix-${abs(myRandom.nextLong())}"
 
     /**
      * Get the current number of users.
@@ -1228,9 +1230,6 @@ class Contextor internal constructor(
     }
 
     companion object {
-        /** Random number generator, for creating unique IDs and sub-IDs.  */
-        @Deprecated("Global variable")
-        private val theRandom = SecureRandom()
 
         /**
          * Extract the base ID from an object reference that might refer to a

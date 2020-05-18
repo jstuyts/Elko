@@ -6,6 +6,7 @@ import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.TraceFactory
+import java.util.Random
 
 /**
  * Singleton handler for the director 'provider' protocol.
@@ -35,7 +36,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param director  The Director object for this handler.
  */
-internal class ProviderHandler(director: Director, traceFactory: TraceFactory) : UserHandler(director, traceFactory) {
+internal class ProviderHandler(director: Director, traceFactory: TraceFactory, random: Random) : UserHandler(director, traceFactory, random) {
     /**
      * Get this object's reference string.  This singleton object is always
      * known as 'provider'.

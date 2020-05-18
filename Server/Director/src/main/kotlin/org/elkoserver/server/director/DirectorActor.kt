@@ -18,9 +18,13 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param connection  The connection for talking to this actor.
  * @param myFactory  Factory of the listener that accepted the connection.
  */
-internal class DirectorActor(connection: Connection, private val myFactory: DirectorActorFactory,
-                             private val gorgel: Gorgel,
-                             private val providerGorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+internal class DirectorActor(
+        connection: Connection,
+        private val myFactory: DirectorActorFactory,
+        private val gorgel: Gorgel,
+        private val providerGorgel: Gorgel,
+        traceFactory: TraceFactory,
+        private val ordinalGenerator: OrdinalGenerator) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
     private val myDirector = myFactory.director()
 
     /** True if actor has been disconnected.  */
@@ -74,7 +78,7 @@ internal class DirectorActor(connection: Connection, private val myFactory: Dire
             } else if (handler is ProviderHandler) {
                 if (myProvider == null && myFactory.allowProvider() &&
                         !myDirector.isFull) {
-                    myProvider = Provider(myDirector, this, providerGorgel)
+                    myProvider = Provider(myDirector, this, providerGorgel, ordinalGenerator)
                     success = true
                 } else {
                     gorgel.warn("auth failed: provider access not allowed")

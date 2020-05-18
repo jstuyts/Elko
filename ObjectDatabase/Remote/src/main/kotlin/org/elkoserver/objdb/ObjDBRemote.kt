@@ -349,11 +349,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
         myMsgTrace = traceFactory.comm
         if (serviceName != null) {
             myRepHost = null
-            serviceName = if (serviceName == "any") {
-                "repository-rep"
-            } else {
-                "repository-rep-$serviceName"
-            }
+            serviceName = if (serviceName == "any") "repository-rep" else "repository-rep-$serviceName"
             serviceFinder.findService(serviceName, RepositoryFoundHandler(), false)
         } else {
             myRepHost = fromProperties(props, odbPropRoot, traceFactory)

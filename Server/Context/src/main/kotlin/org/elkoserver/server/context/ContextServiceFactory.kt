@@ -1,6 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.net.MessageHandlerFactory
+import org.elkoserver.foundation.server.IdGenerator
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
@@ -14,7 +15,8 @@ class ContextServiceFactory(
         private val userActorGorgel: Gorgel,
         private val userGorgelWithoutRef: Gorgel,
         private val traceFactory: TraceFactory,
-        private val timer: Timer) : ServiceFactory {
+        private val timer: Timer,
+        private val idGenerator: IdGenerator) : ServiceFactory {
     /**
      * Provide a message handler factory for a new listener.
      *
@@ -43,7 +45,7 @@ class ContextServiceFactory(
                 }
             }
             serviceNames.add("context-user")
-            UserActorFactory(myContextor, reservationRequired, protocol, userActorGorgel, userGorgelWithoutRef, timer, traceFactory)
+            UserActorFactory(myContextor, reservationRequired, protocol, userActorGorgel, userGorgelWithoutRef, timer, traceFactory, idGenerator)
         }
     }
 }

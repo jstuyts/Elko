@@ -3,6 +3,7 @@
 package org.elkoserver.server.workshop
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
@@ -47,7 +48,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.clock()),
                 req(provided.traceFactory()),
                 req(provided.authDescFromPropertiesFactory()),
-                req(provided.hostDescFromPropertiesFactory()))
+                req(provided.hostDescFromPropertiesFactory()),
+                req(serverTagGenerator))
     }
             .init {
                 if (it.startListeners("conf.listen", req(workshopServiceFactory)) == 0) {
@@ -57,6 +59,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 }
 
             }
+
+    val serverTagGenerator by Once { LongIdGenerator() }
 
     val workshop: D<Workshop> by Once { Workshop(req(server), req(workshopGorgel), req(startupWorkerListGorgel), req(workTrace), req(provided.traceFactory()), req(provided.clock())) }
 

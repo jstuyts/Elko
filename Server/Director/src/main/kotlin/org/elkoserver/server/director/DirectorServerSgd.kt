@@ -3,6 +3,7 @@
 package org.elkoserver.server.director
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
@@ -15,6 +16,7 @@ import org.ooverkommelig.Once
 import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.req
+import java.security.SecureRandom
 import java.time.Clock
 
 internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
@@ -47,7 +49,8 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.clock()),
                 req(provided.traceFactory()),
                 req(provided.authDescFromPropertiesFactory()),
-                req(provided.hostDescFromPropertiesFactory()))
+                req(provided.hostDescFromPropertiesFactory()),
+                req(serverTagGenerator))
     }
             .init {
                 if (it.startListeners("conf.listen", req(directorServiceFactory)) == 0) {
@@ -55,7 +58,13 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 }
             }
 
-    val director: D<Director> by Once { Director(req(server), req(directorGorgel), req(provided.traceFactory()), req(provided.clock())) }
+    val serverTagGenerator by Once { LongIdGenerator() }
 
-    val directorServiceFactory by Once { DirectorServiceFactory(req(director), req(directorActorGorgel), req(providerGorgel), req(provided.traceFactory())) }
+    val director: D<Director> by Once { Director(req(server), req(directorGorgel), req(provided.traceFactory()), req(provided.clock()), req(random)) }
+
+    val random by Once { SecureRandom() }
+
+    val directorServiceFactory by Once { DirectorServiceFactory(req(director), req(directorActorGorgel), req(providerGorgel), req(provided.traceFactory()), req(ordinalGenerator)) }
+
+    val ordinalGenerator by Once { LongOrdinalGenerator() }
 }

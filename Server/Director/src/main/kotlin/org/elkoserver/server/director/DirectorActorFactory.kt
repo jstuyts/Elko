@@ -20,7 +20,8 @@ internal class DirectorActorFactory(private val myDirector: Director, private va
                                     private val amAllowProvider: Boolean, private val amAllowUser: Boolean,
                                     private val directorActorGorgel: Gorgel,
                                     private val providerGorgel: Gorgel,
-                                    private val traceFactory: TraceFactory) : MessageHandlerFactory {
+                                    private val traceFactory: TraceFactory,
+                                    private val ordinalGenerator: OrdinalGenerator) : MessageHandlerFactory {
 
     /**
      * Test whether admin connections are allowed.
@@ -56,7 +57,7 @@ internal class DirectorActorFactory(private val myDirector: Director, private va
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            DirectorActor(connection!!, this, directorActorGorgel, providerGorgel, traceFactory)
+            DirectorActor(connection!!, this, directorActorGorgel, providerGorgel, traceFactory, ordinalGenerator)
 
     /**
      * Get this factory's ref table.
