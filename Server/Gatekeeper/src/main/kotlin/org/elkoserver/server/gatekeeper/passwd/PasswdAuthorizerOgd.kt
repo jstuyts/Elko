@@ -8,7 +8,7 @@ import org.ooverkommelig.ObjectGraphDefinition
 import org.ooverkommelig.req
 
 class PasswdAuthorizerOgd(provided: AuthorizerProvided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : ObjectGraphDefinition(provided, configuration), AuthorizerOgd {
-    internal val passwordAuthorizerSgd = add(PasswdAuthorizerSgd(provided))
+    internal val passwordAuthorizerSgd = add(PasswdAuthorizerSgd(provided, configuration))
 
     override fun graph(): AuthorizerGraph = object : DefinitionObjectGraph(), AuthorizerGraph {
         override fun authorizer() = req(passwordAuthorizerSgd.authorizer)

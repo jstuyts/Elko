@@ -22,11 +22,11 @@ internal class WorkshopServerOgd(provided: Provided, configuration: ObjectGraphC
         override fun authDescFromPropertiesFactory() = serverMetadataSgd.authDescFromPropertiesFactory
         override fun hostDescFromPropertiesFactory() = serverMetadataSgd.hostDescFromPropertiesFactory
         override fun timer() = timerSgd.timer
-    }))
+    }, configuration))
 
-    val serverMetadataSgd = add(ServerMetadataSgd(provided))
+    val serverMetadataSgd = add(ServerMetadataSgd(provided, configuration))
 
-    val timerSgd = add(TimerSgd(provided))
+    val timerSgd = add(TimerSgd(provided, configuration))
 
     inner class Graph : DefinitionObjectGraph() {
         fun server() = req(workshopServerSgd.server)

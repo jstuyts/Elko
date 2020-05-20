@@ -22,11 +22,11 @@ internal class GatekeeperServerOgd(provided: Provided, configuration: ObjectGrap
         override fun authDescFromPropertiesFactory() = serverMetadataSgd.authDescFromPropertiesFactory
         override fun hostDescFromPropertiesFactory() = serverMetadataSgd.hostDescFromPropertiesFactory
         override fun timer() = timerSgd.timer
-    }))
+    }, configuration))
 
-    val serverMetadataSgd = add(ServerMetadataSgd(provided))
+    val serverMetadataSgd = add(ServerMetadataSgd(provided, configuration))
 
-    val timerSgd = add(TimerSgd(provided))
+    val timerSgd = add(TimerSgd(provided, configuration))
 
     inner class Graph : DefinitionObjectGraph() {
         fun server() = req(gatekeeperServerSgd.server)

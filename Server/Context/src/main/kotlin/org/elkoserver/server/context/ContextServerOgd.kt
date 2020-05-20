@@ -24,7 +24,7 @@ internal class ContextServerOgd(provided: Provided, configuration: ObjectGraphCo
         override fun hostDescFromPropertiesFactory() = serverMetadataSgd.hostDescFromPropertiesFactory
     }, configuration))
 
-    val serverMetadataSgd = add(ServerMetadataSgd(provided))
+    val serverMetadataSgd = add(ServerMetadataSgd(provided, configuration))
 
     val timerSgd = add(TimerSgd(provided, configuration))
 
