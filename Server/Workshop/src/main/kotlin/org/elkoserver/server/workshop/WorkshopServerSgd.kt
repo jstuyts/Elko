@@ -60,7 +60,7 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 if (it.startListeners("conf.listen", req(workshopServiceFactory)) == 0) {
                     req(bootGorgel).error("no listeners specified")
                 } else {
-                    req(workshop).loadStartupWorkers()
+                    req(workshop).loadStartupWorkers(req(provided.props()).getProperty("conf.workshop.workers"))
                 }
 
             }

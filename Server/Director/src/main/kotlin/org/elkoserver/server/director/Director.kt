@@ -23,8 +23,17 @@ import java.util.TreeMap
  * Main state data structure in a Director.
  *
  * @param myServer  Server object.
+ * @param myEstimatedLoadIncrement Estimated amount of load increase from sending a user to a context.
+ * @param myProviderLimit Maximum number of providers supported.
  */
-internal class Director(private val myServer: Server, private val gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock, random: Random) {
+internal class Director(
+        private val myServer: Server,
+        private val gorgel: Gorgel,
+        traceFactory: TraceFactory,
+        clock: Clock,
+        random: Random,
+        private val myEstimatedLoadIncrement: Double,
+        private val myProviderLimit: Int) {
     /** Table for mapping object references in messages.  */
     private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
@@ -47,12 +56,6 @@ internal class Director(private val myServer: Server, private val gorgel: Gorgel
 
     /** Currently active providers (sorted by load).  */
     private val myProviders = TreeMap<Provider, Provider>()
-
-    /** Estimated amount of load increase from sending a user to a context.  */
-    private val myEstimatedLoadIncrement: Double
-
-    /** Maximum number of providers supported.  */
-    private val myProviderLimit: Int
 
     /** The admin object.  */
     private val myAdminHandler: AdminHandler
@@ -424,7 +427,7 @@ internal class Director(private val myServer: Server, private val gorgel: Gorgel
 
     companion object {
         /** Value for myEstimatedLoadIncrement if not provided by configuration  */
-        private const val DEFAULT_ESTIMATED_LOAD_INCREMENT = 0.0008
+        const val DEFAULT_ESTIMATED_LOAD_INCREMENT = 0.0008
 
         /**
          * Test if a user name is the name of a user clone.
@@ -468,8 +471,6 @@ internal class Director(private val myServer: Server, private val gorgel: Gorgel
         myRefTable.addRef(UserHandler(this, traceFactory, random))
         myAdminHandler = AdminHandler(this, traceFactory)
         myRefTable.addRef(myAdminHandler)
-        myProviderLimit = myServer.props().intProperty("conf.director.providerlimit", 0)
-        myEstimatedLoadIncrement = myServer.props().doubleProperty("conf.director.estloadbump", DEFAULT_ESTIMATED_LOAD_INCREMENT)
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 isShuttingDown = true

@@ -11,6 +11,7 @@ import org.elkoserver.foundation.server.ServerLoadMonitor.Companion.DEFAULT_LOAD
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.objdb.ObjectStoreFactory
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
@@ -77,7 +78,9 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
-    val repository: D<Repository> by Once { Repository(req(server), req(repoTrace), req(provided.traceFactory()), req(provided.clock())) }
+    val repository: D<Repository> by Once { Repository(req(server), req(provided.traceFactory()), req(provided.clock()), req(objectStore)) }
+
+    val objectStore by Once { ObjectStoreFactory.createAndInitializeObjectStore(req(provided.props()), "conf.rep", req(repoTrace))  }
 
     val repositoryServiceFactory by Once { RepositoryServiceFactory(req(repository), req(repositoryActorGorgel), req(provided.traceFactory())) }
 }

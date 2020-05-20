@@ -77,11 +77,10 @@ class Workshop private constructor(
     /**
      * Load the statically configured worker objects.
      */
-    fun loadStartupWorkers() {
+    fun loadStartupWorkers(workerListRefs: String?) {
         myODB.addClass("workers", StartupWorkerList::class.java)
         myODB.getObject("workers", null,
                 StartupWorkerListReceiver("workers"))
-        val workerListRefs = myServer.props().getProperty("conf.workshop.workers")
         if (workerListRefs != null) {
             val tags = StringTokenizer(workerListRefs, " ,;:")
             while (tags.hasMoreTokens()) {

@@ -22,7 +22,14 @@ import java.util.function.Consumer
  *
  * @param myServer  Server object.
  */
-internal class Broker(private val myServer: Server, private val gorgel: Gorgel, private val launcherTableGorgel: Gorgel, private val timer: Timer, traceFactory: TraceFactory, clock: Clock) {
+internal class Broker(
+        private val myServer: Server,
+        gorgel: Gorgel,
+        launcherTableGorgel: Gorgel,
+        private val timer: Timer,
+        traceFactory: TraceFactory,
+        clock: Clock,
+        startMode: Int) {
     /** Table for mapping object references in messages.  */
     private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
@@ -53,7 +60,7 @@ internal class Broker(private val myServer: Server, private val gorgel: Gorgel, 
     private val myClientHandler: ClientHandler = ClientHandler(this, traceFactory)
 
     /** Table of servers that this broker can launch.  */
-    private var myLauncherTable: LauncherTable?
+    private var myLauncherTable: LauncherTable? = null
 
     /**
      * Get a read-only view of the set of connected actors.
@@ -330,18 +337,6 @@ internal class Broker(private val myServer: Server, private val gorgel: Gorgel, 
         myRefTable.addRef(myClientHandler)
         myAdminHandler = AdminHandler(this, traceFactory)
         myRefTable.addRef(myAdminHandler)
-        val startModeStr = myServer.props().getProperty("conf.broker.startmode")
-        val startMode: Int
-        startMode = when (startModeStr) {
-            null, "initial" -> LauncherTable.START_INITIAL
-            "recover" -> LauncherTable.START_RECOVER
-            "restart" -> LauncherTable.START_RESTART
-            else -> {
-                gorgel.error("unknown startmode value '$startModeStr'")
-                LauncherTable.START_RECOVER
-            }
-        }
-        myLauncherTable = null
         myODB = myServer.openObjectDatabase("conf.broker")
         if (myODB != null) {
             myODB.addClass("launchertable", LauncherTable::class.java)

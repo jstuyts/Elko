@@ -4,8 +4,7 @@ import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
-import org.elkoserver.objdb.ObjectStoreFactory.createAndInitializeObjectStore
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.objdb.store.ObjectStore
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
 
@@ -15,12 +14,9 @@ import java.time.Clock
  * @param myServer Server object.
  * @param appTrace  Trace object for diagnostics.
  */
-internal class Repository(private val myServer: Server, appTrace: Trace, traceFactory: TraceFactory, clock: Clock) {
+internal class Repository(private val myServer: Server, traceFactory: TraceFactory, clock: Clock, internal val myObjectStore: ObjectStore) {
     /** Table for mapping object references in messages.  */
     internal val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
-
-    /** Local object storage module.  */
-    internal val myObjectStore = createAndInitializeObjectStore(myServer.props(), "conf.rep", appTrace)
 
     /** Number of repository clients currently connected.  */
     private var myRepClientCount = 0

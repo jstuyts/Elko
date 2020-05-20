@@ -3,6 +3,7 @@ package org.elkoserver.server.gatekeeper
 import org.elkoserver.foundation.actor.BasicProtocolActor
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
+import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -12,7 +13,6 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.lang.reflect.InvocationTargetException
 import java.time.Clock
 import java.util.function.Consumer
 
@@ -29,12 +29,10 @@ class Gatekeeper internal constructor(
         timer: Timer,
         traceFactory: TraceFactory,
         clock: Clock,
-        hostDescFromPropertiesFactory: HostDescFromPropertiesFactory) {
+        hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
+        props: ElkoProperties) {
     /** Table for mapping object references in messages.  */
     private val myRefTable: RefTable = RefTable(null, traceFactory, clock)
-
-    /** Local auth service module.  */
-    private val myAuthorizer: Authorizer
 
     /** Host description for the director.  */
     private var myDirectorHost: HostDesc? = null
@@ -55,13 +53,6 @@ class Gatekeeper internal constructor(
             }
         }
     }
-
-    /**
-     * Get the auth service currently in use.
-     *
-     * @return the auth service object for this server.
-     */
-    fun authorizer() = myAuthorizer
 
     /**
      * Get the current director host.
@@ -85,25 +76,6 @@ class Gatekeeper internal constructor(
             throw MessageHandlerException("actor $from attempted admin operation without authorization")
         }
     }
-
-    /**
-     * Open an asynchronous database.  The location of the database (directory
-     * path or remote repository host) is specified by properties.
-     *
-     * @param propRoot  Prefix string for all the properties describing the
-     * database that is to be opened.
-     *
-     * @return an object for communicating with the open database, or
-     * null if the database location was not properly specified.
-     */
-    fun openObjectDatabase(propRoot: String) = myServer.openObjectDatabase(propRoot)
-
-    /**
-     * Get the server's configuration properties.
-     *
-     * @return the configuration properties table for this server invocation.
-     */
-    fun properties() = myServer.props()
 
     /**
      * Get the object reference table for this gatekeeper.
@@ -169,9 +141,7 @@ class Gatekeeper internal constructor(
     }
 
     init {
-        myRefTable.addRef(UserHandler(this, traceFactory))
         myRefTable.addRef(AdminHandler(this, traceFactory))
-        val props = myServer.props()
         myDirectorActorFactory = DirectorActorFactory(myServer.networkManager(), this, directorActorFactoryGorgel, tr, timer, traceFactory, clock)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
         if (props.testProperty("conf.gatekeeper.director.auto")) {
@@ -184,31 +154,9 @@ class Gatekeeper internal constructor(
                 setDirectorHost(directorHost)
             }
         }
-        val authorizerClassName = props.getProperty("conf.gatekeeper.authorizer",
-                "org.elkoserver.server.gatekeeper.passwd.PasswdAuthorizer")
-        val authorizerClass: Class<*>
-        authorizerClass = try {
-            Class.forName(authorizerClassName)
-        } catch (e: ClassNotFoundException) {
-            throw IllegalStateException("auth service class $authorizerClassName not found", e)
-        }
-        myAuthorizer = try {
-            authorizerClass.getConstructor(TraceFactory::class.java).newInstance(traceFactory) as Authorizer
-        } catch (e: IllegalAccessException) {
-            throw IllegalStateException("unable to access auth service constructor", e)
-        } catch (e: InstantiationException) {
-            throw IllegalStateException("unable to instantiate auth service object", e)
-        } catch (e: NoSuchMethodException) {
-            throw IllegalStateException("auth service object does not have a public constructor accepting a trace factory", e)
-        } catch (e: InvocationTargetException) {
-            throw IllegalStateException("error occurred during instantiation of auth service object", e)
-        }.apply {
-            initialize(this@Gatekeeper)
-        }
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 myDirectorActorFactory.disconnectDirector()
-                myAuthorizer.shutdown()
             }
         })
     }

@@ -84,7 +84,29 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
-    val broker: D<Broker> by Once { Broker(req(server), req(brokerGorgel), req(launcherTableGorgel), req(provided.timer()), req(provided.traceFactory()), req(provided.clock())) }
+    val startMode by Once {
+        when (val startModeStr = req(provided.props()).getProperty("conf.broker.startmode")) {
+            null, "initial" -> LauncherTable.START_INITIAL
+            "recover" -> LauncherTable.START_RECOVER
+            "restart" -> LauncherTable.START_RESTART
+            else -> {
+                // FIXME: Use another Gorgel
+                req(brokerGorgel).error("unknown startmode value '$startModeStr'")
+                LauncherTable.START_RECOVER
+            }
+        }
+    }
+
+    val broker: D<Broker> by Once {
+        Broker(
+                req(server),
+                req(brokerGorgel),
+                req(launcherTableGorgel),
+                req(provided.timer()),
+                req(provided.traceFactory()),
+                req(provided.clock()),
+                req(startMode))
+    }
 
     val brokerServiceFactory by Once { BrokerServiceFactory(req(broker), req(brokerActorGorgel), req(provided.traceFactory())) }
 }

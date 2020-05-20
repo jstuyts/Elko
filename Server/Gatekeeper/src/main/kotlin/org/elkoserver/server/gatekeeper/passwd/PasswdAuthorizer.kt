@@ -6,7 +6,6 @@ import org.elkoserver.server.gatekeeper.Gatekeeper
 import org.elkoserver.server.gatekeeper.ReservationResult
 import org.elkoserver.server.gatekeeper.ReservationResultHandler
 import org.elkoserver.server.gatekeeper.SetPasswordResultHandler
-import org.elkoserver.util.trace.TraceFactory
 import java.util.Random
 import java.util.function.Consumer
 import kotlin.math.abs
@@ -15,37 +14,22 @@ import kotlin.math.abs
  * A simple implementation of the [Authorizer] interface for use with
  * the Elko Gatekeeper.
  *
+ * Invoked using reflection, so the signature cannot be changed.
+ *
  * @param myRandom Random number generator, for generating IDs.
  */
-class PasswdAuthorizer(private val traceFactory: TraceFactory, private val myRandom: Random) : Authorizer {
-    /** The database in which the authorization info is kept.  */
-    private var myODB: ObjDB? = null
+class PasswdAuthorizer(
+        private val myRandom: Random,
+        private val myGatekeeper: Gatekeeper,
+        private val myODB: ObjDB,
+        private val amAnonymousOK: Boolean,
+        private val myActorIDBase: String) : Authorizer {
 
-    /** Flag controlling whether anonymous logins are to be permitted.  */
-    private var amAnonymousOK = false
-
-    /** Base string for generated actor IDs.  */
-    private var myActorIDBase: String? = null
-
-    /** The gatekeeper proper.  */
-    private var myGatekeeper: Gatekeeper? = null
-
-    /**
-     * Initialize the authorization service.
-     *
-     * @param gatekeeper  The Gatekeeper this object is providing authorization
-     * services for.
-     */
-    override fun initialize(gatekeeper: Gatekeeper) {
-        myGatekeeper = gatekeeper
-        myODB = (gatekeeper.openObjectDatabase("conf.gatekeeper") ?: throw IllegalStateException("no database specified")).apply {
+    init {
+        myODB.apply {
             addClass("place", PlaceDesc::class.java)
             addClass("actor", ActorDesc::class.java)
         }
-        val props = gatekeeper.properties()
-        myActorIDBase = props.getProperty("conf.gatekeeper.idbase", "user")
-        amAnonymousOK = !props.testProperty("conf.gatekeeper.anonymous", "false")
-        gatekeeper.refTable().addRef(AuthHandler(this, gatekeeper, traceFactory))
     }
 
     /**
@@ -54,7 +38,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory, private val myRan
      * @param actor  The actor description for the actor to add.
      */
     fun addActor(actor: ActorDesc) {
-        myODB!!.putObject("a-${actor.id()}", actor, null, false, null)
+        myODB.putObject("a-${actor.id()}", actor, null, false, null)
     }
 
     /**
@@ -65,7 +49,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory, private val myRan
      */
     fun addPlace(name: String, context: String) {
         val place = PlaceDesc(name, context)
-        myODB!!.putObject("p-$name", place, null, false, null)
+        myODB.putObject("p-$name", place, null, false, null)
     }
 
     /**
@@ -74,7 +58,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory, private val myRan
      * @param actor  The actor description for the actor to checkpoint.
      */
     fun checkpointActor(actor: ActorDesc) {
-        myODB!!.putObject("a-${actor.id()}", actor, null, false, null)
+        myODB.putObject("a-${actor.id()}", actor, null, false, null)
     }
 
     /**
@@ -95,7 +79,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory, private val myRan
      * when retrieved.
      */
     fun getActor(actorID: String, handler: Consumer<Any?>) {
-        myODB!!.getObject("a-$actorID", null, handler)
+        myODB.getObject("a-$actorID", null, handler)
     }
 
     /**
@@ -106,7 +90,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory, private val myRan
      * retrieved.
      */
     fun getPlace(name: String, handler: Consumer<Any?>) {
-        myODB!!.getObject("p-$name", null, handler)
+        myODB.getObject("p-$name", null, handler)
     }
 
     /**
@@ -116,7 +100,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory, private val myRan
      * @param handler  Handler to be called with deletion result.
      */
     fun removeActor(actorID: String, handler: Consumer<Any?>?) {
-        myODB!!.removeObject("a-$actorID", null, handler)
+        myODB.removeObject("a-$actorID", null, handler)
     }
 
     /**
@@ -125,7 +109,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory, private val myRan
      * @param name  The name of the place to remove.
      */
     fun removePlace(name: String) {
-        myODB!!.removeObject("p-$name", null, null)
+        myODB.removeObject("p-$name", null, null)
     }
 
     /**
@@ -212,7 +196,7 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory, private val myRan
                     failure = "no such actor"
                 }
                 if (failure == null) {
-                    myGatekeeper!!.requestReservation(myProtocol, myContextID!!, iid!!, this)
+                    myGatekeeper.requestReservation(myProtocol, myContextID!!, iid!!, this)
                 }
             }
             if (failure != null) {
@@ -266,6 +250,6 @@ class PasswdAuthorizer(private val traceFactory: TraceFactory, private val myRan
      * Shut down the authorization service.
      */
     override fun shutdown() {
-        myODB!!.shutdown()
+        myODB.shutdown()
     }
 }

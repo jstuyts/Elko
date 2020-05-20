@@ -16,10 +16,8 @@ import org.elkoserver.util.trace.TraceFactory
  * particular context.
  *
  * 'setpassword' - Requests that the user's stored password be changed.
- *
- * @param myGatekeeper  The gatekeeper itself.
  */
-internal class UserHandler(private val myGatekeeper: Gatekeeper, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal class UserHandler(private val myAuthorizer: Authorizer, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -44,7 +42,7 @@ internal class UserHandler(private val myGatekeeper: Gatekeeper, traceFactory: T
     @JSONMethod("protocol", "context", "id", "name", "password")
     fun reserve(from: GatekeeperActor, protocol: String, context: String, id: OptString, name: OptString, password: OptString) {
         val idStr = id.value<String?>(null)
-        myGatekeeper.authorizer().reserve(
+        myAuthorizer.reserve(
                 protocol, context, idStr, name.value<String?>(null), password.value<String?>(null),
                 object : ReservationResultHandler {
                     override fun handleReservation(actor: String?, context: String?, name: String?, hostport: String?, auth: String?) {
@@ -69,7 +67,7 @@ internal class UserHandler(private val myGatekeeper: Gatekeeper, traceFactory: T
      */
     @JSONMethod("id", "oldpassword", "newpassword")
     fun setpassword(from: GatekeeperActor, id: String, oldpassword: OptString, newpassword: OptString) {
-        myGatekeeper.authorizer().setPassword(
+        myAuthorizer.setPassword(
                 id,
                 oldpassword.value<String?>(null),
                 newpassword.value<String?>(null),

@@ -18,16 +18,6 @@ package org.elkoserver.server.gatekeeper
  */
 interface Authorizer {
     /**
-     * Do whatever initialization is required to begin issuing reservations.
-     * This method will be called once by the Gatekeeper as part of its startup
-     * procedure.
-     *
-     * @param gatekeeper  The Gatekeeper this Authorizer is providing
-     * authorization services for.
-     */
-    fun initialize(gatekeeper: Gatekeeper)
-
-    /**
      * Service a request to make a reservation.  This method will be called
      * each time the Gatekeeper receives a 'reserve' request from a client.
      * The various parameters are extracted from that message.  The result,

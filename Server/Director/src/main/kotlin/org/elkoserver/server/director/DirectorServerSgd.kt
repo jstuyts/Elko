@@ -10,6 +10,7 @@ import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.server.director.Director.Companion.DEFAULT_ESTIMATED_LOAD_INCREMENT
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
@@ -81,7 +82,20 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
-    val director: D<Director> by Once { Director(req(server), req(directorGorgel), req(provided.traceFactory()), req(provided.clock()), req(random)) }
+    val providerLimit by Once { req(provided.props()).intProperty("conf.director.providerlimit", 0) }
+
+    val estimatedLoadIncrement by Once { req(provided.props()).doubleProperty("conf.director.estloadbump", DEFAULT_ESTIMATED_LOAD_INCREMENT) }
+
+    val director: D<Director> by Once {
+        Director(
+                req(server),
+                req(directorGorgel),
+                req(provided.traceFactory()),
+                req(provided.clock()),
+                req(random),
+                req(estimatedLoadIncrement),
+                req(providerLimit))
+    }
 
     val random by Once { SecureRandom() }
 
