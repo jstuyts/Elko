@@ -7,6 +7,7 @@ import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetworkManager
+import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.ReinitWatcher
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -38,7 +39,8 @@ abstract class OutboundGroup(propRoot: String,
                              gorgel: Gorgel,
                              protected val timer: Timer,
                              protected val traceFactory: TraceFactory,
-                             clock: Clock) : LiveGroup() {
+                             clock: Clock,
+                             props: ElkoProperties) : LiveGroup() {
     /** The statically configured external servers in this group.  */
     private val myHosts: List<HostDesc>
 
@@ -180,8 +182,8 @@ abstract class OutboundGroup(propRoot: String,
         myDispatcher = MessageDispatcher(null, traceFactory, clock)
         @Suppress("LeakingThis")
         myDispatcher.addClass(actorClass())
-        amAutoRegister = myServer.props().testProperty("$propRoot.auto")
-        myRetryInterval = myServer.props().intProperty("$propRoot.retry", -1)
+        amAutoRegister = props.testProperty("$propRoot.auto")
+        myRetryInterval = props.intProperty("$propRoot.retry", -1)
         val iter = hosts.iterator()
         while (iter.hasNext()) {
             val host = iter.next()

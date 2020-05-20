@@ -4,6 +4,7 @@ import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -36,7 +37,9 @@ class DirectorGroup(server: Server,
                     private val reservationGorgel: Gorgel,
                     timer: Timer,
                     traceFactory: TraceFactory,
-                    clock: Clock) : OutboundGroup("conf.register", server, contextor, directors, tr, gorgel, timer, traceFactory, clock) {
+                    clock: Clock,
+                    reservationTimeout: Int,
+                    props: ElkoProperties) : OutboundGroup("conf.register", server, contextor, directors, tr, gorgel, timer, traceFactory, clock, props) {
     private val myListeners: List<HostDesc>
 
     /** Iterator for cycling through arbitrary relays.  */
@@ -262,7 +265,7 @@ class DirectorGroup(server: Server,
 
     companion object {
         /** Default reservation expiration time, in seconds.  */
-        private const val DEFAULT_RESERVATION_EXPIRATION_TIMEOUT = 30
+        internal const val DEFAULT_RESERVATION_EXPIRATION_TIMEOUT = 30
 
         /**
          * Create a "context" message.
@@ -359,9 +362,7 @@ class DirectorGroup(server: Server,
             }
         })
         myListeners = listeners
-        myReservationTimeout = 1000 *
-                server.props().intProperty("conf.context.reservationexpire",
-                        DEFAULT_RESERVATION_EXPIRATION_TIMEOUT)
+        myReservationTimeout = reservationTimeout
         connectHosts()
     }
 }

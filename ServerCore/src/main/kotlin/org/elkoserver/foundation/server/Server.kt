@@ -392,13 +392,6 @@ class Server(
     }
 
     /**
-     * Get this server's properties.
-     *
-     * @return the properties
-     */
-    fun props() = myProps
-
-    /**
      * Add an object to the collection of objects to be notified when the
      * server samples its load.
      *

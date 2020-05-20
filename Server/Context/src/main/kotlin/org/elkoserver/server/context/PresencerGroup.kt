@@ -3,6 +3,7 @@ package org.elkoserver.server.context
 import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
@@ -23,8 +24,8 @@ import java.time.Clock
  * @param tr  Trace object for diagnostics.
  */
 internal class PresencerGroup(server: Server, contextor: Contextor,
-                              presencers: MutableList<HostDesc>, tr: Trace, gorgel: Gorgel, timer: Timer, traceFactory: TraceFactory, clock: Clock)
-    : OutboundGroup("conf.presence", server, contextor, presencers, tr, gorgel, timer, traceFactory, clock) {
+                              presencers: MutableList<HostDesc>, tr: Trace, gorgel: Gorgel, timer: Timer, traceFactory: TraceFactory, clock: Clock, props: ElkoProperties)
+    : OutboundGroup("conf.presence", server, contextor, presencers, tr, gorgel, timer, traceFactory, clock, props) {
     /* ----- required OutboundGroup methods ----- */
     /**
      * Obtain the class of actors in this group (in this case, PresenceActor).

@@ -10,6 +10,7 @@ import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.server.context.DirectorGroup.Companion.DEFAULT_RESERVATION_EXPIRATION_TIMEOUT
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
@@ -18,6 +19,7 @@ import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.Once
 import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
+import org.ooverkommelig.opt
 import org.ooverkommelig.req
 import java.security.SecureRandom
 import java.time.Clock
@@ -155,8 +157,21 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(provided.clock()),
                 req(contextorEntryTimeout),
                 req(contextorLimit),
-                req(contextorRandom))
+                req(contextorRandom),
+                opt(staticsToLoad),
+                req(reservationTimeout),
+                opt(families),
+                opt(sessionPassword),
+                req(provided.props()))
     }
+
+    val sessionPassword by Once { req(provided.props()).getProperty<String?>("conf.context.shutdownpassword", null) }
+
+    val staticsToLoad by Once { req(provided.props()).getProperty("conf.context.statics") }
+
+    val reservationTimeout by Once { 1000 * req(provided.props()).intProperty("conf.context.reservationexpire", DEFAULT_RESERVATION_EXPIRATION_TIMEOUT) }
+
+    val families by Once { req(provided.props()).getProperty("conf.context.contexts") }
 
     val contextorRandom by Once { SecureRandom() }
 

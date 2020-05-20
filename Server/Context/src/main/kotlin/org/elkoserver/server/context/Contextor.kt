@@ -4,6 +4,7 @@ import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.ShutdownWatcher
@@ -64,10 +65,15 @@ class Contextor internal constructor(
         clock: Clock,
         private val myEntryTimeout: Int,
         private val myLimit: Int,
-        private val myRandom: Random) : RefTable(myODB, traceFactory, clock) {
+        private val myRandom: Random,
+        staticsToLoad: String?,
+        private val reservationTimeout: Int,
+        private val families: String?,
+        sessionPassword: String?,
+        private val props: ElkoProperties) : RefTable(myODB, traceFactory, clock) {
 
     /** The generic 'session' object for talking to this server.  */
-    private val mySession: Session = Session(this, myServer, sessionGorgel, traceFactory)
+    private val mySession: Session = Session(this, sessionPassword, sessionGorgel, traceFactory)
 
     /** Sets of entities awaiting objects from the object database, by object
      * reference string.  */
@@ -113,7 +119,6 @@ class Contextor internal constructor(
                 add("\$rctx")
                 add("\$rcontext")
 
-                val families = myServer.props().getProperty("conf.context.contexts")
                 if (families != null) {
                     val tags = StringTokenizer(families, " ,;:")
                     while (tags.hasMoreTokens()) {
@@ -1002,7 +1007,7 @@ class Contextor internal constructor(
      * listeners to register with the indicated directors.
      */
     fun registerWithDirectors(directors: MutableList<HostDesc>, listeners: List<HostDesc>) {
-        val group = DirectorGroup(myServer, this, directors, listeners, tr, directorGroupGorgel, reservationGorgel, timer, traceFactory, clock)
+        val group = DirectorGroup(myServer, this, directors, listeners, tr, directorGroupGorgel, reservationGorgel, timer, traceFactory, clock, reservationTimeout, props)
         if (group.isLive) {
             myDirectorGroup = group
         }
@@ -1015,7 +1020,7 @@ class Contextor internal constructor(
      * with whom to register.
      */
     fun registerWithPresencers(presencers: MutableList<HostDesc>) {
-        val group = PresencerGroup(myServer, this, presencers, tr, presencerGroupGorgel, timer, traceFactory, clock)
+        val group = PresencerGroup(myServer, this, presencers, tr, presencerGroupGorgel, timer, traceFactory, clock, props)
         if (group.isLive) {
             myPresencerGroup = group
         }
@@ -1322,7 +1327,7 @@ class Contextor internal constructor(
         addRef(mySession)
         myServer.setServiceRefTable(this)
         myContextFamilies = initializeContextFamilies()
-        loadStaticObjects(myServer.props().getProperty("conf.context.statics"))
+        loadStaticObjects(staticsToLoad)
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 /* List copy to avert ConcurrentModificationException */
