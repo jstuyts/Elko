@@ -12,7 +12,7 @@ A very basic example is working. See [Chat Basic](Run/ChatBasic/README.md).
 
 ----
 
-Original documentation start here.
+Original documentation starts here.
 
 # Elko
 
