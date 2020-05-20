@@ -3,8 +3,10 @@
 package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
@@ -39,6 +41,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val gatekeeperActorGorgel by Once { req(provided.baseGorgel()).getChild(GatekeeperActor::class) }
 
+    val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -49,11 +53,28 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.traceFactory()),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
-                req(serverTagGenerator))
+                req(serverTagGenerator),
+                req(serverLoadMonitor))
     }
             .init {
                 if (it.startListeners("conf.listen", req(gatekeeperServiceFactory)) == 0) {
                     req(bootGorgel).error("no listeners specified")
+                }
+            }
+
+    val serverLoadMonitor by Once {
+        ServerLoadMonitor(
+                req(provided.timer()),
+                req(provided.clock()),
+                req(provided.props()).intProperty("conf.load.time", ServerLoadMonitor.DEFAULT_LOAD_SAMPLE_TIMEOUT) * 1000)
+    }
+            .init {
+                if (req(provided.props()).testProperty("conf.load.log")) {
+                    it.registerLoadWatcher(object : LoadWatcher {
+                        override fun noteLoadSample(loadFactor: Double) {
+                            req(serverLoadMonitorGorgel).d?.run { debug("Load $loadFactor") }
+                        }
+                    })
                 }
             }
 

@@ -10,7 +10,7 @@ import java.util.LinkedList
 /**
  * Processing time accumulator to help keep track of system load.
  */
-class ServerLoadMonitor internal constructor(server: Server, private val timer: Timer, private val clock: Clock) : LoadMonitor {
+class ServerLoadMonitor constructor(private val timer: Timer, private val clock: Clock, private val myLoadSampleTimeoutTime: Int) : LoadMonitor {
     /** When load tracking began.  */
     private var mySampleStartTime = clock.millis()
 
@@ -23,9 +23,6 @@ class ServerLoadMonitor internal constructor(server: Server, private val timer: 
 
     /** Timeout for sampling load.  */
     private var myLoadSampleTimeout: Timeout? = null
-
-    /** Interval between load samples, in milliseconds.  */
-    private val myLoadSampleTimeoutTime = server.props().intProperty("conf.load.time", DEFAULT_LOAD_SAMPLE_TIMEOUT) * 1000
 
     /**
      * Take note of some processing time spent.
@@ -104,16 +101,6 @@ class ServerLoadMonitor internal constructor(server: Server, private val timer: 
 
     companion object {
         /** Default value for interval between load samples, in seconds.  */
-        private const val DEFAULT_LOAD_SAMPLE_TIMEOUT = 30
-    }
-
-    init {
-        if (server.props().testProperty("conf.load.log")) {
-            registerLoadWatcher(object : LoadWatcher {
-                override fun noteLoadSample(loadFactor: Double) {
-                    server.trace().debugi("Load $loadFactor")
-                }
-            })
-        }
+        const val DEFAULT_LOAD_SAMPLE_TIMEOUT = 30
     }
 }

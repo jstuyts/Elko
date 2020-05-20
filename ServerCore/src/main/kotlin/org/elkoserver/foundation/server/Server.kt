@@ -42,7 +42,7 @@ import java.util.function.Consumer
  * @param myProps  The properties, as determined by the boot process.
  * @param serverType  Server type tag (for generating property names).
  * @param tr  Trace object for event logging.
- * @param myTtagGenerator Counter to generate tags for 'find' requests to the broker.
+ * @param myTagGenerator Counter to generate tags for 'find' requests to the broker.
  */
 class Server(
         private val myProps: ElkoProperties,
@@ -53,7 +53,8 @@ class Server(
         private val traceFactory: TraceFactory,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
-        private val myTtagGenerator: IdGenerator)
+        private val myTagGenerator: IdGenerator,
+        private val myLoadMonitor: ServerLoadMonitor)
     : ConnectionCountMonitor, ServiceFinder {
 
     /** The name of this server (for logging).  */
@@ -89,9 +90,6 @@ class Server(
 
     /** Objects to be notified when the server is reinitialized.  */
     private val myReinitWatchers: MutableList<ReinitWatcher> = LinkedList()
-
-    /** Accumulator tracking system load.  */
-    private val myLoadMonitor = ServerLoadMonitor(this, timer, clock)
 
     /** Trace object for mandatory startup and shutdown messages.  */
     private val trServer = traceFactory.trace("server")
@@ -219,7 +217,7 @@ class Server(
      */
     override fun findService(service: String, handler: Consumer<in Array<ServiceDesc>>, monitor: Boolean) {
         if (myBrokerHost != null) {
-            val tag = myTtagGenerator.generate().toString()
+            val tag = myTagGenerator.generate().toString()
             myPendingFinds.add(service, ServiceQuery(service, handler, monitor, tag))
             myBrokerActor?.run {
                 findService(service, monitor, tag)

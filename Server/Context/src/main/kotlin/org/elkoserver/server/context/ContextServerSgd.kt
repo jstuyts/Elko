@@ -3,8 +3,10 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
@@ -44,6 +46,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val presencerGroupGorgel by Once { req(provided.baseGorgel()).getChild(PresencerGroup::class) }
 
     val reservationGorgel by Once { req(provided.baseGorgel()).getChild(Reservation::class) }
+
+    val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
 
     val sessionClientGorgel by Once { req(provided.baseGorgel()).getChild(Session::class, Tag("category", "client")) }
 
@@ -92,8 +96,25 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(provided.traceFactory()),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
-                req(serverTagGenerator))
+                req(serverTagGenerator),
+                req(serverLoadMonitor))
     }
+
+    val serverLoadMonitor by Once {
+        ServerLoadMonitor(
+                req(provided.timer()),
+                req(provided.clock()),
+                req(provided.props()).intProperty("conf.load.time", ServerLoadMonitor.DEFAULT_LOAD_SAMPLE_TIMEOUT) * 1000)
+    }
+            .init {
+                if (req(provided.props()).testProperty("conf.load.log")) {
+                    it.registerLoadWatcher(object : LoadWatcher {
+                        override fun noteLoadSample(loadFactor: Double) {
+                            req(serverLoadMonitorGorgel).d?.run { debug("Load $loadFactor") }
+                        }
+                    })
+                }
+            }
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
