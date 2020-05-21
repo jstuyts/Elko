@@ -397,8 +397,8 @@ class Server(
      *
      * @param watcher  An object to notify about load samples.
      */
-    fun registerLoadWatcher(watcher: LoadWatcher?) {
-        myLoadMonitor.registerLoadWatcher(watcher!!)
+    fun registerLoadWatcher(watcher: LoadWatcher) {
+        myLoadMonitor.registerLoadWatcher(watcher)
     }
 
     /**
@@ -407,8 +407,8 @@ class Server(
      *
      * @param watcher  The object to stop notifying about load samples.
      */
-    fun unregisterLoadWatcher(watcher: LoadWatcher?) {
-        myLoadMonitor.unregisterLoadWatcher(watcher!!)
+    fun unregisterLoadWatcher(watcher: LoadWatcher) {
+        myLoadMonitor.unregisterLoadWatcher(watcher)
     }
 
     /**

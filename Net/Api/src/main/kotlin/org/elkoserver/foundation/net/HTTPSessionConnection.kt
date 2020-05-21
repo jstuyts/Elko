@@ -398,6 +398,7 @@ class HTTPSessionConnection private constructor(
         private val theHTTPCloseMarker: Any = "(end of session)"
 
         /** Random number generator, for creating session IDs.  */
+        @Deprecated("Global variable")
         private val theRandom = SecureRandom()
 
         /**

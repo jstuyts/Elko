@@ -21,11 +21,8 @@ import javax.net.ssl.SSLContext
  */
 class NetworkManager(
         private val myConnectionCountMonitor: ConnectionCountMonitor,
-        private val myProps: ElkoProperties, loadMonitor: LoadMonitor,
+        private val myProps: ElkoProperties, private val myLoadMonitor: LoadMonitor,
         private val myRunner: Runner, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) {
-
-    /** System load tracker.  */
-    private val myLoadMonitor: LoadMonitor
 
     /** Initialized SSL context, if supporting SSL, else null.  */
     private var mySSLContext: SSLContext? = null
@@ -302,7 +299,6 @@ class NetworkManager(
         // FIXME: Initialize somewhere else
         HTTPSessionConnection.initializeRNG()
         RTCPSessionConnection.initializeRNG()
-        myLoadMonitor = loadMonitor
         if (myProps.testProperty("conf.ssl.enable")) {
             setupSSL()
         }
