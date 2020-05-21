@@ -36,7 +36,14 @@ import java.util.function.Consumer
  *    contents of this object, or null if there are no contents now.
  */
 abstract class BasicObject internal constructor(
-        var myName: String?, mods: Array<Mod>?, isContainer: Boolean, contents: Array<Item>?) : DefaultDispatchTarget, DispatchTarget, Encodable, MessageRetargeter, Referenceable {
+        myName: String?, mods: Array<Mod>?, isContainer: Boolean, contents: Array<Item>?) : DefaultDispatchTarget, DispatchTarget, Encodable, MessageRetargeter, Referenceable {
+
+    var name: String? = myName
+        set(value) {
+            field = value
+            markAsChanged()
+        }
+
     /** Flag that this object needs to be checkpointed to the database.  */
     private var amChanged = false
 
@@ -429,13 +436,6 @@ abstract class BasicObject internal constructor(
     }
 
     /**
-     * Obtain this object's name, if it has one.
-     *
-     * @return this object's name, or null if it is nameless.
-     */
-    fun name() = myName
-
-    /**
      * Note another object that needs to be checkpointed when this object is
      * checkpointed (in order to maintain data consistency).  An object may
      * have any number of codependents.
@@ -512,16 +512,6 @@ abstract class BasicObject internal constructor(
      */
     fun sendToClones(message: JSONLiteral) {
         assertActivated { it.relay(this, message) }
-    }
-
-    /**
-     * Set this object's name.
-     *
-     * @param name  The new name for the object to have.
-     */
-    fun setName(name: String) {
-        myName = name
-        markAsChanged()
     }
 
     /**

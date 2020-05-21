@@ -17,13 +17,14 @@ import kotlin.experimental.and
  */
 class ActorDesc : Encodable {
     /** The mandatory, invariant, unique, machine readable identifier.  */
-    private var myID: String
+    internal val id: String
 
     /** The optional, unique, internal use identifier.  */
     private var myInternalID: String?
 
     /** The optional, variable, non-unique, human readable identifier.  */
-    private var myName: String?
+    internal var name: String?
+        private set
 
     /** Password for login, or null if not password protected.  */
     private var myPassword: String? = null
@@ -32,7 +33,8 @@ class ActorDesc : Encodable {
     private var mySalt: ByteArray? = null
 
     /** Flag controlling permission for actor to modify their own password.  */
-    private var myCanSetPass: Boolean
+    internal var canSetPass: Boolean
+        private set
 
     companion object {
         /** Random number generator, for generating password salt.  */
@@ -68,11 +70,11 @@ class ActorDesc : Encodable {
      */
     constructor(id: String, internalID: String?, name: String?, password: String?,
                 canSetPass: Boolean) {
-        myID = id
+        this.id = id
         myInternalID = internalID
-        myName = name
+        this.name = name
         setPassword(password)
-        myCanSetPass = canSetPass
+        this.canSetPass = canSetPass
     }
 
     /**
@@ -87,9 +89,9 @@ class ActorDesc : Encodable {
     @JSONMethod("id", "iid", "name", "password", "cansetpass")
     constructor(id: String, optInternalID: OptString, optName: OptString,
                 optPassword: OptString, optCanSetPass: OptBoolean) {
-        myID = id
+        this.id = id
         myInternalID = optInternalID.value<String?>(null)
-        myName = optName.value<String?>(null)
+        name = optName.value<String?>(null)
         myPassword = optPassword.value<String?>(null)
         val currentPassword = myPassword
         if (currentPassword == null) {
@@ -102,15 +104,8 @@ class ActorDesc : Encodable {
                 salt[i] = (frag.toInt(16) and 0xFF).toByte()
             }
         }
-        myCanSetPass = optCanSetPass.value(true)
+        canSetPass = optCanSetPass.value(true)
     }
-
-    /**
-     * Test if this actor can set their own password.
-     *
-     * @return true if this actor can set their own password.
-     */
-    fun canSetPass(): Boolean = myCanSetPass
 
     /**
      * Encode this object for transmission or persistence.
@@ -122,11 +117,11 @@ class ActorDesc : Encodable {
      */
     override fun encode(control: EncodeControl): JSONLiteral {
         val result = type("actor", control)
-        result.addParameter("id", myID)
+        result.addParameter("id", id)
         result.addParameterOpt("iid", myInternalID)
-        result.addParameterOpt("name", myName)
+        result.addParameterOpt("name", name)
         result.addParameterOpt("password", myPassword)
-        if (!myCanSetPass) {
+        if (!canSetPass) {
             result.addParameter("cansetpass", false)
         }
         result.finish()
@@ -156,13 +151,6 @@ class ActorDesc : Encodable {
     }
 
     /**
-     * Get this actor's unique ID.
-     *
-     * @return this actor's unique ID.
-     */
-    fun id(): String = myID
-
-    /**
      * Get this actor's internal ID.
      *
      * @return this actor's internal ID.
@@ -171,16 +159,9 @@ class ActorDesc : Encodable {
         return if (myInternalID != null) {
             myInternalID
         } else {
-            myID
+            id
         }
     }
-
-    /**
-     * Get this actor's human-readable label.
-     *
-     * @return this actor's human-readable label.
-     */
-    fun name(): String? = myName
 
     /**
      * Set this actor's permission to change their password.
@@ -188,7 +169,7 @@ class ActorDesc : Encodable {
      * @param canSetPass  true if actor can change their password, false if not
      */
     fun setCanSetPass(canSetPass: Boolean) {
-        myCanSetPass = canSetPass
+        this.canSetPass = canSetPass
     }
 
     /**
@@ -210,7 +191,7 @@ class ActorDesc : Encodable {
      * @param name  New name.
      */
     fun setName(name: String?) {
-        myName = if ("" == name) {
+        this.name = if ("" == name) {
             null
         } else {
             name

@@ -82,7 +82,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
         override fun handle(results: Array<ObjectDesc>?) {
             var obj: Any? = null
             if (results != null) {
-                val failure = results[0].failure()
+                val failure = results[0].failure
                 obj = if (failure == null) {
                     decodeObject(myRef, results)
                 } else {
@@ -140,7 +140,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
 
         override fun handle(results: Array<out ResultDesc>) {
             if (myRunnable != null) {
-                myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, results[0].failure()))
+                myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, results[0].failure))
             }
         }
     }
@@ -158,7 +158,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
         override fun handle(results: Array<out ResultDesc>) {
             if (myRunnable != null) {
                 val realResult = results[0] as UpdateResultDesc
-                var failure = realResult.failure()
+                var failure = realResult.failure
                 if (realResult.isAtomicFailure) {
                     // XXX This is an egregious hack. We should refactor the
                     // error handling path to pass a generic result object all
@@ -202,7 +202,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
         override fun handle(results: Array<ObjectDesc>?) {
             var objs: Array<Any?>? = null
             if (results != null && results.isNotEmpty()) {
-                val failure = results[0].failure()
+                val failure = results[0].failure
                 objs = if (failure == null) {
                     decodeObjectSet(results)
                 } else {
@@ -217,7 +217,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
             val results = arrayOfNulls<Any>(descs.size)
             for (i in descs.indices) {
                 try {
-                    val jsonObj = jsonObjectFromString(descs[i].obj()!!)!!
+                    val jsonObj = jsonObjectFromString(descs[i].obj!!)!!
                     if (jsonObj.getString<String?>("type", null) != null) {
                         results[i] = decodeJSONObject(jsonObj)
                     } else {
@@ -260,7 +260,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
 
         override fun handle(results: Array<out ResultDesc>) {
             if (myRunnable != null) {
-                myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, results[0].failure()))
+                myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, results[0].failure))
             }
         }
     }

@@ -20,10 +20,10 @@ import java.util.function.Consumer
  *
  * @param myNetworkManager  A network manager for making the outbound
  *    connections required.
- * @param myGatekeeper  The gatekeeper.
+ * @param gatekeeper  The gatekeeper.
  * @param tr  Trace object for diagnostics.
  */
-internal class DirectorActorFactory(private val myNetworkManager: NetworkManager, private val myGatekeeper: Gatekeeper,
+internal class DirectorActorFactory(private val myNetworkManager: NetworkManager, internal val gatekeeper: Gatekeeper,
                                     private val gorgel: Gorgel,
                                     private val tr: Trace, private val timer: Timer, private val traceFactory: TraceFactory, clock: Clock) : MessageHandlerFactory {
     /** Descriptor for the director host.  */
@@ -42,8 +42,8 @@ internal class DirectorActorFactory(private val myNetworkManager: NetworkManager
      * @param director  Host and port of director to open a connection to.
      */
     fun connectDirector(director: HostDesc) {
-        if (director.protocol() != "tcp") {
-            gorgel.error("unknown director access protocol '${director.protocol()}' for access to ${director.hostPort()}")
+        if (director.protocol != "tcp") {
+            gorgel.error("unknown director access protocol '${director.protocol}' for access to ${director.hostPort}")
         } else {
             myConnectionRetrier?.giveUp()
             myDirectorHost = director
@@ -82,11 +82,6 @@ internal class DirectorActorFactory(private val myNetworkManager: NetworkManager
             currentDirector.requestReservation(protocol, context, actor, handler)
         }
     }
-
-    /**
-     * Get the gatekeeper itself.
-     */
-    fun gatekeeper() = myGatekeeper
 
     /**
      * Set the active director connection.

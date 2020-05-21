@@ -148,13 +148,13 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
     /**
      * Launcher for a single cluster component.
      *
-     * @param myComponentName          Component name.
+     * @param componentName          Component name.
      * @param myLaunchScript        Launch script.
      * @param optInitial    Optional "initial" flag; defaults to false.
      * @param optRunSetting Optional "run setting" flag; defaults to true.
      */
     internal class Launcher @JSONMethod("name", "script", "initial", "on") constructor(
-            private val myComponentName: String,
+            internal val componentName: String,
             private val myLaunchScript: String, optInitial: OptBoolean, optRunSetting: OptBoolean) : Encodable {
         internal lateinit var gorgel: Gorgel
 
@@ -179,7 +179,7 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
          */
         override fun encode(control: EncodeControl) =
                 JSONLiteralFactory.type("launcher", control).apply {
-                    addParameter("name", myComponentName)
+                    addParameter("name", componentName)
                     addParameter("script", myLaunchScript)
                     addParameter("on", isRunSettingOn)
                     if (isInitialLauncher) {
@@ -187,13 +187,6 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
                     }
                     finish()
                 }
-
-        /**
-         * Obtain the name of the component this launcher launches.
-         *
-         * @return the component name.
-         */
-        fun componentName() = myComponentName
 
         /**
          * Execute this launcher by starting a new process that begins by
@@ -209,12 +202,12 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
                         exploded.add(parser.nextToken())
                     }
                     ProcessBuilder(exploded).start()
-                    gorgel.i?.run { info("start process '$myComponentName'") }
+                    gorgel.i?.run { info("start process '$componentName'") }
                     isRunSettingOn = true
                     null
                 } catch (e: IOException) {
-                    gorgel.i?.run { info("process launch '$myComponentName' failed: $e") }
-                    "fail $myComponentName $e"
+                    gorgel.i?.run { info("process launch '$componentName' failed: $e") }
+                    "fail $componentName $e"
                 }
 
         init {
@@ -234,7 +227,7 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
 
     init {
         for (launcher in launchers) {
-            myLaunchers[launcher.componentName()] = launcher
+            myLaunchers[launcher.componentName] = launcher
         }
     }
 }

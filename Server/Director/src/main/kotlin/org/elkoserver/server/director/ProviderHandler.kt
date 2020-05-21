@@ -58,7 +58,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory, r
     @JSONMethod("protocol", "hostport")
     fun address(from: DirectorActor, protocol: String, hostPort: String) {
         from.ensureAuthorizedProvider()
-        from.provider()!!.addProtocol(protocol, hostPort)
+        from.provider!!.addProtocol(protocol, hostPort)
     }
 
     /**
@@ -86,9 +86,9 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory, r
             val maxCapacity = optMaxCapacity.value(-1)
             val baseCapacity = optBaseCapacity.value(maxCapacity)
             val restricted = optRestricted.value(false)
-            from.provider()!!.noteContextOpen(context, mine, maxCapacity, baseCapacity, restricted)
+            from.provider!!.noteContextOpen(context, mine, maxCapacity, baseCapacity, restricted)
         } else {
-            from.provider()!!.noteContextClose(context)
+            from.provider!!.noteContextClose(context)
         }
     }
 
@@ -107,7 +107,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory, r
     @JSONMethod("context", "open", "reason")
     fun gate(from: DirectorActor, context: String, open: Boolean, optReason: OptString) {
         from.ensureAuthorizedProvider()
-        from.provider()!!.noteContextGateSetting(context, open, optReason.value<String?>(null))
+        from.provider!!.noteContextGateSetting(context, open, optReason.value<String?>(null))
     }
 
     /**
@@ -121,7 +121,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory, r
     @JSONMethod("factor")
     fun load(from: DirectorActor, factor: Double) {
         from.ensureAuthorizedProvider()
-        from.provider()!!.setLoadFactor(factor)
+        from.provider!!.loadFactor = factor
     }
 
     /**
@@ -137,7 +137,7 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory, r
     @JSONMethod("context", "user", "msg")
     fun relay(from: DirectorActor, context: OptString, user: OptString, msg: JsonObject) {
         from.ensureAuthorizedProvider()
-        director().doRelay(from, context, user, msg)
+        director.doRelay(from, context, user, msg)
     }
 
     /**
@@ -154,9 +154,9 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory, r
     fun user(from: DirectorActor, context: String, user: String, on: Boolean) {
         from.ensureAuthorizedProvider()
         if (on) {
-            from.provider()!!.noteUserEntry(context, user)
+            from.provider!!.noteUserEntry(context, user)
         } else {
-            from.provider()!!.noteUserExit(context, user)
+            from.provider!!.noteUserExit(context, user)
         }
     }
 
@@ -174,6 +174,6 @@ internal class ProviderHandler(director: Director, traceFactory: TraceFactory, r
     @JSONMethod("context", "capacity", "restricted")
     fun willserve(from: DirectorActor, context: String, capacity: OptInteger, restricted: OptBoolean) {
         from.ensureAuthorizedProvider()
-        from.provider()!!.addService(context, capacity.value(-1), restricted.value(false))
+        from.provider!!.addService(context, capacity.value(-1), restricted.value(false))
     }
 }

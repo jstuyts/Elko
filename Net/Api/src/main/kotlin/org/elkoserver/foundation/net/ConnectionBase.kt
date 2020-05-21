@@ -9,7 +9,7 @@ import java.time.Clock
  *
  * @param mgr  Network manager for this server.
  */
-abstract class ConnectionBase protected constructor(mgr: NetworkManager, protected var clock: Clock, protected var traceFactory: TraceFactory) : Connection {
+abstract class ConnectionBase protected constructor(mgr: NetworkManager, protected var clock: Clock, protected val traceFactory: TraceFactory) : Connection {
     /** Number identifying this connection in log messages.  */
     private val myID: Int
 
@@ -17,7 +17,7 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
     private var myMessageHandler: MessageHandler? = null
 
     /** The run queue in which messages will be handled.  */ /* protected */
-    private val myRunner = mgr.runner()
+    private val myRunner = mgr.runner
 
     /** System load tracker.  */
     private val myLoadMonitor: LoadMonitor?
@@ -128,7 +128,7 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
     }
 
     init {
-        myLoadMonitor = mgr.loadMonitor()
+        myLoadMonitor = mgr.loadMonitor
         myID = theIDCounter++
     }
 }

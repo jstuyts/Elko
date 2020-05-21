@@ -16,7 +16,10 @@ internal class Client(private val myBroker: Broker, private val myActor: BrokerA
     /**
      * Client load factor.
      */
-    private var myLoadFactor = 0.0
+    internal var loadFactor = 0.0
+        set(value) {
+            field = value.coerceAtLeast(0.0)
+        }
 
     /**
      * Services offered by this client.
@@ -26,7 +29,7 @@ internal class Client(private val myBroker: Broker, private val myActor: BrokerA
     /**
      * Provider ID associated with this client.
      */
-    private val myProviderID = theNextProviderID++
+    internal val providerID = theNextProviderID++
 
     /**
      * Add a service to the list for this client.
@@ -34,8 +37,8 @@ internal class Client(private val myBroker: Broker, private val myActor: BrokerA
      * @param service Description of the service to add.
      */
     fun addService(service: ServiceDesc) {
-        service.setProviderID(myProviderID)
-        myServices.add(service.service(), service)
+        service.providerID = providerID
+        myServices.add(service.service, service)
         myBroker.addService(service)
     }
 
@@ -49,11 +52,6 @@ internal class Client(private val myBroker: Broker, private val myActor: BrokerA
     }
 
     /**
-     * Return this client's load factor.
-     */
-    fun loadFactor() = myLoadFactor
-
-    /**
      * Test if a given label matches this client.
      *
      *
@@ -63,27 +61,22 @@ internal class Client(private val myBroker: Broker, private val myActor: BrokerA
      * @param label The label to match against.
      */
     fun matchLabel(label: String): Boolean {
-        if (myActor.label() == label) {
+        if (myActor.label == label) {
             return true
         }
         for (service in myServices.values()) {
-            if (service.hostport() == label) {
+            if (service.hostport == label) {
                 return true
             }
         }
         try {
-            if (label.toInt() == myProviderID) {
+            if (label.toInt() == providerID) {
                 return true
             }
         } catch (e: NumberFormatException) {
         }
         return false
     }
-
-    /**
-     * Return this client's provider ID.
-     */
-    fun providerID() = myProviderID
 
     /**
      * Remove a (group of) service(s) from the list for this client.
@@ -102,20 +95,12 @@ internal class Client(private val myBroker: Broker, private val myActor: BrokerA
      */
     private fun services() = myServices.values()
 
-    /**
-     * Set this clients's load factor.
-     *
-     * @param loadFactor The value to set it to.
-     */
-    fun setLoadFactor(loadFactor: Double) {
-        myLoadFactor = loadFactor.coerceAtLeast(0.0)
-    }
-
     companion object {
         /**
          * Counter for allocating provider IDs.  Starts with 1 because ID 0 is
          * reserved for the broker itself.
          */
+        @Deprecated("Global variable")
         private var theNextProviderID = 1
     }
 }

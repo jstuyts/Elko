@@ -83,7 +83,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
                 if (ref == null) {
                     emptyList()
                 } else {
-                    val result = myGroup.contextor().clones(ref)
+                    val result = myGroup.contextor.clones(ref)
                     if (result.isEmpty()) {
                         throw MessageHandlerException("$ref not found")
                     } else {
@@ -217,7 +217,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
     @JSONMethod("context", "user", "reservation")
     fun doreserve(from: DirectorActor, context: String, user: OptString, reservation: String) {
         myGroup.addReservation(Reservation(user.value<String?>(null), context,
-                reservation, myGroup.reservationTimeout(), from, timer, reservationGorgel))
+                reservation, myGroup.reservationTimeout, from, timer, reservationGorgel))
     }
 
     /**
@@ -227,7 +227,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
      */
     @JSONMethod
     fun reinit(from: DirectorActor) {
-        myGroup.contextor().reinitServer()
+        myGroup.contextor.reinitServer()
     }
 
     /**
@@ -239,7 +239,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
     fun relay(from: DirectorActor, context: OptString, user: OptString, msg: JsonObject) {
         val iter = RelayIterator(context, user)
         while (iter.hasNext()) {
-            myGroup.contextor().deliverMessage(iter.next() as BasicObject, msg)
+            myGroup.contextor.deliverMessage(iter.next() as BasicObject, msg)
         }
     }
 
@@ -322,7 +322,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
      */
     @JSONMethod
     fun shutdown(from: DirectorActor) {
-        myGroup.contextor().shutdownServer()
+        myGroup.contextor.shutdownServer()
     }
 
     companion object {
@@ -389,11 +389,11 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
 
     init {
         myGroup.admitMember(this)
-        send(msgAuth(this, host.auth(), myGroup.contextor().serverName()))
-        myGroup.listeners()
-                .filter { "reservation" == it.auth()!!.mode() }
-                .forEach { send(msgAddress(this, it.protocol()!!, it.hostPort()!!)) }
-        for (family in myGroup.contextor().contextFamilies()) {
+        send(msgAuth(this, host.auth, myGroup.contextor.serverName()))
+        myGroup.listeners
+                .filter { "reservation" == it.auth.mode }
+                .forEach { send(msgAddress(this, it.protocol!!, it.hostPort!!)) }
+        for (family in myGroup.contextor.contextFamilies) {
             if (family.startsWith("$")) {
                 send(msgWillserve(this, family.substring(1), myGroup.capacity(),
                         true))

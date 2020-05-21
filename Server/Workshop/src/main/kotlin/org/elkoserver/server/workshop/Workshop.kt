@@ -39,7 +39,7 @@ class Workshop private constructor(
         private val myServer: Server,
         private val gorgel: Gorgel,
         private val startupWorkerListGorgel: Gorgel,
-        private val tr: Trace, traceFactory: TraceFactory, clock: Clock) : RefTable(myODB, traceFactory, clock) {
+        @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace, traceFactory: TraceFactory, clock: Clock) : RefTable(myODB, traceFactory, clock) {
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown: Boolean
@@ -65,14 +65,6 @@ class Workshop private constructor(
     fun addWorkerObject(key: String, worker: WorkerObject) {
         worker.activate(key, this)
     }
-
-    /**
-     * Obtain the application trace object for the workshop.
-     *
-     * @return the workshop's trace object.
-     */
-    @Deprecated(message = "An injected Gorgel must be used.")
-    fun appTrace(): Trace = tr
 
     /**
      * Load the statically configured worker objects.
@@ -111,7 +103,7 @@ class Workshop private constructor(
     fun registerService(serviceName: String) {
         val services = myServer.services()
         val newServices: MutableList<ServiceDesc> = services
-                .filter { "workshop-service" == it.service() }
+                .filter { "workshop-service" == it.service }
                 .mapTo(LinkedList()) { it.subService(serviceName) }
         for (service in newServices) {
             myServer.registerService(service)

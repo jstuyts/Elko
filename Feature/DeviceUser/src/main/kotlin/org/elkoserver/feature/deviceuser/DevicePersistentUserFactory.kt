@@ -35,11 +35,11 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
      * be the user object that was produced, or null if none could be.
      */
     override fun provideUser(contextor: Contextor, connection: Connection?, param: JsonObject?, handler: Consumer<in User?>) {
-        val creds = extractCredentials(contextor.appTrace(), param)
+        val creds = extractCredentials(contextor.tr, param)
         if (creds == null) {
             handler.accept(null)
         } else {
-            contextor.server().enqueueSlowTask(Callable {
+            contextor.server.enqueueSlowTask(Callable {
                 contextor.queryObjects(deviceQuery(creds.uuid), null, 0,
                         DeviceQueryResultHandler(contextor, creds, handler))
                 null
@@ -54,13 +54,13 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
             @Suppress("UNCHECKED_CAST") val result = queryResult as Array<Any>?
             if (result != null && result.isNotEmpty()) {
                 if (result.size > 1) {
-                    myContextor.appTrace().warningm("uuid query loaded ${result.size} users, choosing first")
+                    myContextor.tr.warningm("uuid query loaded ${result.size} users, choosing first")
                 }
                 user = result[0] as User
             } else {
                 val name = myCreds.name ?: "AnonUser"
                 val uuid = myCreds.uuid
-                myContextor.appTrace().eventi("synthesizing user record for $uuid")
+                myContextor.tr.eventi("synthesizing user record for $uuid")
                 val mod = DeviceUserMod(uuid)
                 user = User(name, arrayOf<Mod>(mod), null, myContextor.uniqueID("u"))
                 user.markAsChanged()

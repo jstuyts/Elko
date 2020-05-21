@@ -70,7 +70,7 @@ class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory) : B
                         }
                     }
                     HTTP_STAGE_BODY -> {
-                        val bodyLen = myRequest.contentLength()
+                        val bodyLen = myRequest.contentLength
                         if (bodyLen > Communication.MAX_MSG_LENGTH) {
                             throw IOException("message too large: $bodyLen > ${Communication.MAX_MSG_LENGTH}")
                         } else if (bodyLen > 0) {
@@ -86,7 +86,7 @@ class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory) : B
                                 contentBuilder.append(character.toChar())
                                 character = isr.read()
                             }
-                            myRequest.setContent(contentBuilder.toString())
+                            myRequest.content = contentBuilder.toString()
                         }
                         myReceiver.receiveMsg(myRequest)
                         myRequest = HTTPRequest()
@@ -133,8 +133,8 @@ class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory) : B
                     $reply
                     """.trimIndent()
             } else if (message is HTTPError) {
-                reply = message.messageString()
-                reply = """HTTP/1.1 ${message.errorNumber()} ${message.errorString()}
+                reply = message.messageString
+                reply = """HTTP/1.1 ${message.errorNumber} ${message.errorString}
 Access-Control-Allow-Origin: *
 Content-Length: ${utf8Length(reply)}
 

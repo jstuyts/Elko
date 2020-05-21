@@ -11,21 +11,33 @@ import org.elkoserver.json.JSONLiteralFactory
 /**
  * Description of a (possibly) registered service.
  *
- * @param myService  The name of the service.
- * @param myHostport  Where to reach the service.
- * @param myProtocol  Protocol to speak to the sevice with.
- * @param myLabel  Printable name for the service.
- * @param auth  Authorization configuration for connection to the service.
- * @param myFailure  Optional error message.
- * @param myProviderID  Provider ID, or -1 if not set.
+ * @param service  The name of the service.
+ * @param hostport  Where to reach the service.
+ * @param protocol  Protocol to speak to the sevice with.
+ * @param theLabel  Printable name for the service.
+ * @param theAuth  Authorization configuration for connection to the service.
+ * @param failure  Optional error message.
+ * @param theProviderID  Provider ID, or -1 if not set.
  */
-class ServiceDesc(private val myService: String, private val myHostport: String?, private val myProtocol: String?,
-                  private var myLabel: String?, auth: AuthDesc?,
-                  private val myFailure: String?,
-                  private var myProviderID: Int) : Encodable {
+class ServiceDesc(val service: String, val hostport: String?, val protocol: String?,
+                  theLabel: String?, theAuth: AuthDesc?,
+                  val failure: String?,
+                  theProviderID: Int) : Encodable {
+
+    private var label: String? = theLabel
+        private set
+
+    var providerID: Int = theProviderID
+        set(value) {
+            field = if (field == -1) {
+                value
+            } else {
+                throw Error("attempt to set provider ID that is already set")
+            }
+        }
 
     /** Authorization configuration to connect to the service.  */
-    private val myAuth: AuthDesc = auth ?: AuthDesc.theOpenAuth
+    val auth: AuthDesc = theAuth ?: AuthDesc.theOpenAuth
 
     /**
      * Error constructor.
@@ -62,78 +74,15 @@ class ServiceDesc(private val myService: String, private val myHostport: String?
      *
      * @return a HostDesc for this service's host.
      */
-    fun asHostDesc(retryInterval: Int) = HostDesc(myProtocol, false, myHostport, myAuth, retryInterval)
+    fun asHostDesc(retryInterval: Int) = HostDesc(protocol, false, hostport, auth, retryInterval)
 
     /**
      * Set this service's a label string.
      *
-     * @param label  The new label string for this service.
+     * @param newLabel  The new label string for this service.
      */
-    fun attachLabel(label: String?) {
-        myLabel = label
-    }
-
-    /**
-     * Get this service's authorization configuration.
-     *
-     * @return this services's authorization configuration.
-     */
-    fun auth() = myAuth
-
-    /**
-     * Get this descriptor's error message.
-     *
-     * @return this descriptors's error message (or null if there is none).
-     */
-    fun failure() = myFailure
-
-    /**
-     * Get this service's host:port string.
-     *
-     * @return this services's host:port string (or null if there is none).
-     */
-    fun hostport() = myHostport
-
-    /**
-     * Get this service's label string.
-     *
-     * @return this service's label (or null if there is no label).
-     */
-    fun label() = myLabel
-
-    /**
-     * Get this service's protocol string.
-     *
-     * @return this service's protocol (or null if there is none).
-     */
-    fun protocol() = myProtocol
-
-    /**
-     * Get this service's provider ID.
-     *
-     * @return this service's provider ID (or -1 if it has none).
-     */
-    fun providerID() = myProviderID
-
-    /**
-     * Get this services's service name.
-     *
-     * @return this services's service name (or null if it has none).
-     */
-    fun service() = myService
-
-    /**
-     * Set this service's provider ID.  It is an error to set this value if it
-     * has already been set.
-     *
-     * @param providerID  Nominal provider ID number for this service.
-     */
-    fun setProviderID(providerID: Int) {
-        myProviderID = if (myProviderID == -1) {
-            providerID
-        } else {
-            throw Error("attempt to set provider ID that is already set")
-        }
+    fun attachLabel(newLabel: String?) {
+        label = newLabel
     }
 
     /**
@@ -145,8 +94,8 @@ class ServiceDesc(private val myService: String, private val myHostport: String?
      * but with a subsidary service name appended.
      */
     fun subService(service: String): ServiceDesc {
-        val label = myLabel?.let { "$it ($service)" }
-        return ServiceDesc("$myService-$service", myHostport, myProtocol, label, myAuth, myFailure, myProviderID)
+        val label = label?.let { "$it ($service)" }
+        return ServiceDesc("${this.service}-$service", hostport, protocol, label, auth, failure, providerID)
     }
 
     /**
@@ -159,14 +108,14 @@ class ServiceDesc(private val myService: String, private val myHostport: String?
      */
     override fun encode(control: EncodeControl) =
             JSONLiteralFactory.type("servicedesc", control).apply {
-                addParameter("service", myService)
-                addParameterOpt("hostport", myHostport)
-                addParameterOpt("protocol", myProtocol)
-                addParameterOpt("label", myLabel)
-                addParameterOpt("auth", myAuth)
-                addParameterOpt("failure", myFailure)
-                if (myProviderID != -1) {
-                    addParameter("provider", myProviderID)
+                addParameter("service", service)
+                addParameterOpt("hostport", hostport)
+                addParameterOpt("protocol", protocol)
+                addParameterOpt("label", label)
+                addParameterOpt("auth", auth)
+                addParameterOpt("failure", failure)
+                if (providerID != -1) {
+                    addParameter("provider", providerID)
                 }
                 finish()
             }

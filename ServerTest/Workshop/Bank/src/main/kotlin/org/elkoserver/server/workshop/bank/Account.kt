@@ -13,25 +13,27 @@ import java.util.function.Consumer
  * Object representing an account: a store of money in some currency belonging
  * to some user.
  *
- * @param myRef  Reference string for account.
+ * @param ref  Reference string for account.
  * @param myVersion  The current version number of the account.
- * @param myCurrency  Currency in which account will be denominated.
- * @param myOwner  Ref of account owner.
- * @param myMemo  Annotation on account.
+ * @param currency  Currency in which account will be denominated.
+ * @param owner  Ref of account owner.
+ * @param memo  Annotation on account.
  */
-internal class Account(private val myRef: String, private var myVersion: Int, private val myCurrency: String?, private val myOwner: String?, private val myMemo: String?) : Encodable {
+internal class Account(internal val ref: String, private var myVersion: Int, internal val currency: String?, internal val owner: String?, internal val memo: String?) : Encodable {
 
     /** Flag that account is blocked from participating in transactions.  */
     var isFrozen = false
 
     /** Total amount of money (both available & encumbered) in the account.  */
-    private var myTotalBalance = 0
+    internal var totalBalance = 0
+        private set
 
     /** Amount of unencumbered funds in account.  */
-    private var myAvailBalance = 0
+    internal var availBalance = 0
+        private set
 
     /** Collection of encumbrances, sorted by expiration date.  */
-    private val myEncumbrancesByExpiration = TreeSet<Encumbrance>()
+    internal val encumbrances = TreeSet<Encumbrance>()
 
     /** Collection of encumbrances, indexed by ref.  */
     private val myEncumbrancesByRef: MutableMap<String, Encumbrance> = HashMap()
@@ -56,15 +58,15 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
     constructor(ref: String, version: Int, currency: String, owner: String,
                 memo: String, totalBalance: Int, frozen: Boolean,
                 encumbrances: Array<Encumbrance>, deleted: OptBoolean) : this(ref, version, currency, owner, memo) {
-        myTotalBalance = totalBalance
-        myAvailBalance = totalBalance
+        this.totalBalance = totalBalance
+        availBalance = totalBalance
         isFrozen = frozen
         for (enc in encumbrances) {
             if (!enc.isExpired) {
-                enc.setAccount(this)
-                myEncumbrancesByExpiration.add(enc)
-                myEncumbrancesByRef[enc.ref()] = enc
-                myAvailBalance -= enc.amount()
+                enc.account = this
+                this.encumbrances.add(enc)
+                myEncumbrancesByRef[enc.ref] = enc
+                availBalance -= enc.amount
             }
         }
         isDeleted = deleted.value(false)
@@ -81,14 +83,14 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
                 JSONLiteralFactory.type("bankacct", control).apply {
-                    addParameter("ref", myRef)
+                    addParameter("ref", ref)
                     addParameter("version", myVersion)
-                    addParameter("curr", myCurrency)
-                    addParameter("owner", myOwner)
-                    addParameter("memo", myMemo)
-                    addParameter("bal", myTotalBalance)
+                    addParameter("curr", currency)
+                    addParameter("owner", owner)
+                    addParameter("memo", memo)
+                    addParameter("bal", totalBalance)
                     addParameter("frozen", isFrozen)
-                    addParameter("encs", myEncumbrancesByExpiration.toTypedArray())
+                    addParameter("encs", encumbrances.toTypedArray())
                     if (isDeleted) {
                         addParameter("deleted", true)
                     }
@@ -97,14 +99,6 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
             } else {
                 null
             }
-
-    /**
-     * Obtain the available account balance.  This is the amount of
-     * unencumbered funds currently in the account.
-     *
-     * @return the quantity of available funds in the account.
-     */
-    fun availBalance() = myAvailBalance
 
     /**
      * Save the state of this account to persistent storage.
@@ -118,24 +112,17 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
     fun checkpoint(workshop: Workshop, collection: String?, resultHandler: Consumer<Any?>?) {
         if (myVersion == 0) {
             myVersion = 1
-            workshop.putObject(myRef, this, collection, resultHandler)
+            workshop.putObject(ref, this, collection, resultHandler)
         } else {
-            workshop.updateObject(myRef, myVersion++, this, collection, resultHandler)
+            workshop.updateObject(ref, myVersion++, this, collection, resultHandler)
         }
     }
-
-    /**
-     * Obtain the currency in which this account is denominated.
-     *
-     * @return the name of this account's currency.
-     */
-    fun currency(): String? = myCurrency
 
     /**
      * Mark this account as deleted.
      */
     fun delete() {
-        if (myTotalBalance > 0) {
+        if (totalBalance > 0) {
             throw Error("attempt to delete non-empty account")
         }
         isDeleted = true
@@ -150,8 +137,8 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
         if (amount < 0) {
             throw Error("deposit negative amount")
         }
-        myTotalBalance += amount
-        myAvailBalance += amount
+        totalBalance += amount
+        availBalance += amount
     }
 
     /**
@@ -160,21 +147,13 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
      * @param enc  The encumbrance to add to this account.
      */
     fun encumber(enc: Encumbrance) {
-        if (myAvailBalance < enc.amount()) {
+        if (availBalance < enc.amount) {
             throw Error("insufficient funds")
         }
-        myEncumbrancesByExpiration.add(enc)
-        myEncumbrancesByRef[enc.ref()] = enc
-        myAvailBalance -= enc.amount()
+        encumbrances.add(enc)
+        myEncumbrancesByRef[enc.ref] = enc
+        availBalance -= enc.amount
     }
-
-    /**
-     * Obtain an object that can be used for enumerating the account's
-     * encumbrances.
-     *
-     * @return an interable over the current collection of encumbrances.
-     */
-    fun encumbrances() = myEncumbrancesByExpiration
 
     /**
      * Obtain one of this account's encumbrances.
@@ -187,21 +166,6 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
     fun getEncumbrance(encRef: String) = myEncumbrancesByRef[encRef]
 
     /**
-     * Obtain this account's memo string, an arbitrary annotation associated
-     * with the account when it was created.
-     *
-     * @return this account's memo.
-     */
-    fun memo() = myMemo
-
-    /**
-     * Obtain the ref of the account's owner.
-     *
-     * @return this account's owner ref.
-     */
-    fun owner() = myOwner
-
-    /**
      * Redeem an encumbrance on this account, subtracting the encumbered
      * amount from the total balance.
      *
@@ -210,18 +174,11 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
      * @return the amount of money withdrawn by the redemption.
      */
     fun redeemEncumbrance(enc: Encumbrance): Int {
-        myEncumbrancesByExpiration.remove(enc)
-        myEncumbrancesByRef.remove(enc.ref())
-        myTotalBalance -= enc.amount()
-        return enc.amount()
+        encumbrances.remove(enc)
+        myEncumbrancesByRef.remove(enc.ref)
+        totalBalance -= enc.amount
+        return enc.amount
     }
-
-    /**
-     * Obtain this account's unique identifier string.
-     *
-     * @return this account's ref.
-     */
-    fun ref() = myRef
 
     /**
      * Release an encumbrance from this account, adding the encumbered amount
@@ -230,19 +187,19 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
      * @param enc  The encumbrance to release.
      */
     fun releaseEncumbrance(enc: Encumbrance) {
-        if (!myEncumbrancesByExpiration.remove(enc)) {
+        if (!encumbrances.remove(enc)) {
             throw Error("attempt to remove encumbrance that wasn't there")
         }
-        myEncumbrancesByRef.remove(enc.ref())
-        myAvailBalance += enc.amount()
+        myEncumbrancesByRef.remove(enc.ref)
+        availBalance += enc.amount
     }
 
     /**
      * Release any expired encumbrances on this account.
      */
     fun releaseExpiredEncumbrances() {
-        while (!myEncumbrancesByExpiration.isEmpty()) {
-            val first = myEncumbrancesByExpiration.first()
+        while (!encumbrances.isEmpty()) {
+            val first = encumbrances.first()
             if (first.isExpired) {
                 first.release()
             } else {
@@ -252,14 +209,6 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
     }
 
     /**
-     * Obtain the total amount of money in this account, both available and
-     * encumbered.
-     *
-     * @return this account's total balance.
-     */
-    fun totalBalance() = myTotalBalance
-
-    /**
      * Subtract from this account's balance.
      *
      * @param amount  The amount of funds to withdraw.
@@ -267,10 +216,10 @@ internal class Account(private val myRef: String, private var myVersion: Int, pr
     fun withdraw(amount: Int) {
         if (amount < 0) {
             throw Error("withdraw negative amount")
-        } else if (myAvailBalance < amount) {
+        } else if (availBalance < amount) {
             throw Error("insufficient funds")
         }
-        myTotalBalance -= amount
-        myAvailBalance -= amount
+        totalBalance -= amount
+        availBalance -= amount
     }
 }

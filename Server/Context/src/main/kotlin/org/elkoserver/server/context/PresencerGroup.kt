@@ -80,7 +80,7 @@ internal class PresencerGroup(server: Server, contextor: Contextor,
      * @param open  true if the context is being opened, false if being closed
      */
     fun noteContext(context: Context, open: Boolean) {
-        val subscriptions = context.subscriptions()
+        val subscriptions = context.subscriptions
         if (subscriptions != null) {
             if (open) {
                 send(msgSubscribe(context.ref(), subscriptions, true))
@@ -97,7 +97,7 @@ internal class PresencerGroup(server: Server, contextor: Contextor,
      * @param on  true if now online, false if now offline.
      */
     fun noteUser(user: User, on: Boolean) {
-        if (user.context().subscriptions() != null) {
+        if (user.context().subscriptions != null) {
             send(msgUser(user.context().ref(), user.baseRef(), on,
                     userMeta(user), contextMeta(user.context())))
         }
@@ -109,7 +109,7 @@ internal class PresencerGroup(server: Server, contextor: Contextor,
      * @param presencer  The presence server to be updated.
      */
     private fun updatePresencer(presencer: PresencerActor) {
-        for (user in contextor().users()) {
+        for (user in contextor.users()) {
             presencer.send(msgUser(user.context().ref(), user.baseRef(), true,
                     userMeta(user),
                     contextMeta(user.context())))
@@ -126,7 +126,7 @@ internal class PresencerGroup(server: Server, contextor: Contextor,
      */
     private fun contextMeta(context: Context) =
             JSONLiteral().apply {
-                addParameter("name", context.name())
+                addParameter("name", context.name)
                 finish()
             }
 
@@ -140,7 +140,7 @@ internal class PresencerGroup(server: Server, contextor: Contextor,
      */
     private fun userMeta(user: User) =
             JSONLiteral().apply {
-                addParameter("name", user.name())
+                addParameter("name", user.name)
                 finish()
             }
 

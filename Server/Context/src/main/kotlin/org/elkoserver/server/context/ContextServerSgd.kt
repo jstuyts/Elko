@@ -120,7 +120,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
-    val serverListeners by Once { req(server).listeners() }
+    val serverListeners by Once { req(server).listeners }
 
     val objectDatabase by Once {
         req(server).openObjectDatabase("conf.context")!!.apply {

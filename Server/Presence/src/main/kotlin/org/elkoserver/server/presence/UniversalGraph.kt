@@ -29,7 +29,7 @@ internal class UniversalGraph : SocialGraph {
         myMaster = master
         myDomain = domain
         myPseudoFriendCount = conf.getInt("friends", -1)
-        gorgel.i?.run { info("init UniversalGraph for domain '${domain.name()}'") }
+        gorgel.i?.run { info("init UniversalGraph for domain '${domain.name}'") }
     }
 
     /**
@@ -40,7 +40,7 @@ internal class UniversalGraph : SocialGraph {
     override fun domain() = myDomain
 
     private class UserFilter : FilteringIterator.Filter<ActiveUser, String> {
-        override fun transform(from: ActiveUser) = from.ref()
+        override fun transform(from: ActiveUser) = from.ref
     }
 
     private inner class PseudoFriendFilter<V> internal constructor(base: Iterator<V>, private val myExclusion: V) : ExcludingIterator<V>(base) {
@@ -72,7 +72,7 @@ internal class UniversalGraph : SocialGraph {
      */
     override fun loadUserGraph(user: ActiveUser) {
         val friends = Iterable {
-            PseudoFriendFilter(FilteringIterator(myMaster.users().iterator(), UserFilter()), user.ref())
+            PseudoFriendFilter(FilteringIterator(myMaster.users().iterator(), UserFilter()), user.ref)
         }
         user.userGraphIsReady(friends, myDomain, myMaster)
     }

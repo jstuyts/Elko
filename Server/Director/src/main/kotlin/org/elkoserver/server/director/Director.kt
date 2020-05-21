@@ -35,7 +35,7 @@ internal class Director(
         private val myEstimatedLoadIncrement: Double,
         private val myProviderLimit: Int) {
     /** Table for mapping object references in messages.  */
-    private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false
@@ -61,7 +61,7 @@ internal class Director(
     private val myAdminHandler: AdminHandler
 
     /** The provider object.  */
-    private val myProviderHandler = ProviderHandler(this, traceFactory, random)
+    internal val providerHandler = ProviderHandler(this, traceFactory, random)
 
     /** Map of context names to sets of watching admin actors.  */
     private val myWatchedContexts = HashMapMulti<String, DirectorActor>()
@@ -75,11 +75,11 @@ internal class Director(
      * @param context  Context description.
      */
     fun addContext(context: OpenContext) {
-        var name = context.name()
+        var name = context.name
         myContexts[name] = context
         noteWatchedContext(name)
         if (context.isClone) {
-            name = context.cloneSetName()!!
+            name = context.cloneSetName!!
             myContextCloneSets.add(name, context)
             noteWatchedContext(name)
         }
@@ -137,8 +137,8 @@ internal class Director(
     fun doRelay(from: DirectorActor?, optContext: OptString, optUser: OptString, msg: JsonObject) {
         val contextName = optContext.value<String?>(null)
         val userName = optUser.value<String?>(null)
-        val relay = msgRelay(myProviderHandler, contextName, userName, msg)
-        targetedBroadCast(from?.provider(), contextName, userName, relay)
+        val relay = msgRelay(providerHandler, contextName, userName, msg)
+        targetedBroadCast(from?.provider, contextName, userName, relay)
     }
 
     /**
@@ -180,11 +180,11 @@ internal class Director(
         val service = serviceName(contextName)
         val logString = StringBuilder()
         for (provider in myProviders.keys) {
-            logString.append("[").append(provider).append("/").append(provider.loadFactor()).append("]")
+            logString.append("[").append(provider).append("/").append(provider.loadFactor).append("]")
         }
         for (provider in myProviders.keys) {
             if (provider.willServe(service, protocol, internal)) {
-                provider.setLoadFactor(provider.loadFactor() + myEstimatedLoadIncrement)
+                provider.loadFactor = provider.loadFactor + myEstimatedLoadIncrement
                 gorgel.i?.run { info("choose $provider from $logString") }
                 return provider
             }
@@ -215,21 +215,11 @@ internal class Director(
     }
 
     /**
-     * Return this director's provider handler object.
-     */
-    fun providerHandler() = myProviderHandler
-
-    /**
      * Get a read-only view of the set of known providers.
      *
      * @return the set of known providers.
      */
     fun providers(): Set<Provider> = myProviders.keys
-
-    /**
-     * Return the object ref table.
-     */
-    fun refTable() = myRefTable
 
     /**
      * Reinitialize the server.
@@ -247,11 +237,11 @@ internal class Director(
         for (userName in context.users()) {
             removeUser(userName, context)
         }
-        var name = context.name()
+        var name = context.name
         myContexts.remove(name)
         noteWatchedContext(name)
         if (context.isClone) {
-            name = context.cloneSetName()!!
+            name = context.cloneSetName!!
             myContextCloneSets.remove(name, context)
             noteWatchedContext(name)
         }
@@ -340,18 +330,18 @@ internal class Director(
                     throw MessageHandlerException("user $userRef is not in context $contextRef")
                 }
             }
-            val provider = context.provider()
+            val provider = context.provider
             if (provider != omitProvider) {
-                provider.actor().send(msg)
+                provider.actor.send(msg)
             }
         } else if (clones != null) {
             myProviders.keys
                     .filter { it != omitProvider && it.hasClone(contextRef!!) && (userRef == null || it.hasUser(userRef)) }
-                    .forEach { it.actor().send(msg) }
+                    .forEach { it.actor.send(msg) }
         } else if (directorHasUser) {
             myProviders.keys
                     .filter { it != omitProvider && it.hasUser(userRef!!) }
-                    .forEach { it.actor().send(msg) }
+                    .forEach { it.actor.send(msg) }
         } else {
             throw MessageHandlerException(
                     "request message missing context or user")
@@ -466,18 +456,18 @@ internal class Director(
     }
 
     init {
-        myRefTable.addRef(myProviderHandler)
-        myRefTable.addRef("session", myProviderHandler)
-        myRefTable.addRef(UserHandler(this, traceFactory, random))
+        refTable.addRef(providerHandler)
+        refTable.addRef("session", providerHandler)
+        refTable.addRef(UserHandler(this, traceFactory, random))
         myAdminHandler = AdminHandler(this, traceFactory)
-        myRefTable.addRef(myAdminHandler)
+        refTable.addRef(myAdminHandler)
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 isShuttingDown = true
                 val doomedProviders = LinkedList(myProviders.keys)
                 myProviders.clear()
                 for (provider in doomedProviders) {
-                    provider.actor().close()
+                    provider.actor.close()
                 }
             }
         })

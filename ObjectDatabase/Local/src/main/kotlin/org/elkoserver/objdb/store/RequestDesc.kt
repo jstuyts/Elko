@@ -10,15 +10,15 @@ import org.elkoserver.json.JSONLiteralFactory.type
 /**
  * Description of a request for an object.
  *
- * @param myRef  Reference string identifying the object requested.
- * @param myCollectionName  Name of collection to get from, or null to take
+ * @param ref  Reference string identifying the object requested.
+ * @param collectionName  Name of collection to get from, or null to take
  *    the configured default.
- * @param myContents If true, retrieve the referenced object and any objects
+ * @param contents If true, retrieve the referenced object and any objects
  *    it contains; if false, only retrieve the referenced object itself.
  *
  * @see ObjectStore.getObjects ObjectStore.getObjects
  */
-class RequestDesc(private val myRef: String, private val myCollectionName: String?, private val myContents: Boolean) : Encodable {
+class RequestDesc(val ref: String, val collectionName: String?, private val contents: Boolean) : Encodable {
 
     /**
      * JSON-driven constructor.
@@ -35,21 +35,6 @@ class RequestDesc(private val myRef: String, private val myCollectionName: Strin
             : this(ref, collectionName.value<String?>(null), contents.value(false))
 
     /**
-     * Get the name of the collection being queried, or null if it's to be the
-     * default.
-     *
-     * @return the value of this request's collection name.
-     */
-    fun collectionName() = myCollectionName
-
-    /**
-     * Get the value of the contents flag.
-     *
-     * @return the value of this request's contents flag.
-     */
-    fun contents() = myContents
-
-    /**
      * Encode this object for transmission or persistence.
      *
      * @param control  Encode control determining what flavor of encoding
@@ -59,17 +44,10 @@ class RequestDesc(private val myRef: String, private val myCollectionName: Strin
      */
     override fun encode(control: EncodeControl) =
             type("reqi", control).apply {
-                addParameter("ref", myRef)
-                if (myContents) {
-                    addParameter("contents", myContents)
+                addParameter("ref", ref)
+                if (contents) {
+                    addParameter("contents", contents)
                 }
                 finish()
             }
-
-    /**
-     * Get the reference string of the requested object.
-     *
-     * @return the reference string of the requested object.
-     */
-    fun ref() = myRef
 }

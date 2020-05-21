@@ -51,7 +51,7 @@ class ConnectionRetrier(
      * Attempt to make the connection.
      */
     private fun doConnect(outerHandlerFactory: MessageHandlerFactory) {
-        myNetworkManager.connectTCP(myHost.hostPort()!!, outerHandlerFactory, myFramerFactory, myTrace)
+        myNetworkManager.connectTCP(myHost.hostPort!!, outerHandlerFactory, myFramerFactory, myTrace)
     }
 
     /**
@@ -65,7 +65,7 @@ class ConnectionRetrier(
         myFramerFactory = JSONByteIOFramerFactory(myTrace, traceFactory!!)
         myNetworkManager = networkManager
         myActualFactory = actualFactory
-        myTrace.eventi("connecting to $myLabel at ${myHost.hostPort()}")
+        myTrace.eventi("connecting to $myLabel at ${myHost.hostPort}")
         myRetryTimeout = object : TimeoutNoticer {
             override fun noticeTimeout() {
                 handleRetryTimeout()
@@ -79,7 +79,7 @@ class ConnectionRetrier(
 
     private fun handleRetryTimeout() {
         if (myKeepTryingFlag) {
-            myTrace.eventi("retrying connection to $myLabel at ${myHost.hostPort()}")
+            myTrace.eventi("retrying connection to $myLabel at ${myHost.hostPort}")
             doConnect(myRetryHandlerFactory)
         }
     }
@@ -87,7 +87,7 @@ class ConnectionRetrier(
     private fun createRetryHandler(connection: Connection?, timer: Timer): MessageHandler? {
         return if (connection == null) {
             if (myKeepTryingFlag) {
-                timer.after(myHost.retryInterval() * 1000.toLong(), myRetryTimeout)
+                timer.after(myHost.retryInterval * 1000.toLong(), myRetryTimeout)
             }
             null
         } else {

@@ -22,7 +22,7 @@ internal class PasswdAuthorizerSgd(provided: AuthorizerProvided, configuration: 
 
     val authHandler by Once { AuthHandler(req(authorizer), req(provided.gatekeeper()), req(provided.traceFactory())) }
             .wire {
-                req(provided.gatekeeper()).refTable().addRef(it)
+                req(provided.gatekeeper()).refTable.addRef(it)
             }
             .eager()
 

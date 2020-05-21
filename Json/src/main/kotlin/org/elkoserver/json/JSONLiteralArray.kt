@@ -12,14 +12,14 @@ import org.elkoserver.json.JSONLiteral.Companion.appendValueString
  * calling the [.finish] method.  After the literal is completed, it may
  * be used as another literal's parameter value.
  *
- * @param myStringBuilder  The buffer into which to build the literal string.
- * @param myControl  Encode control determining what flavor of encoding
+ * @param stringBuilder  The buffer into which to build the literal string.
+ * @param control  Encode control determining what flavor of encoding
  *    is being done.
  */
-class JSONLiteralArray internal constructor(private val myStringBuilder: StringBuilder, private val myControl: EncodeControl) {
+class JSONLiteralArray internal constructor(internal val stringBuilder: StringBuilder, private val control: EncodeControl) {
 
     /** Start of this literal's portion of buffer.  */
-    private val myStartPos = myStringBuilder.length
+    private val myStartPos = stringBuilder.length
 
     /** End of this literal's portion of buffer.  */
     private var myEndPos = myStartPos
@@ -28,7 +28,8 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
     private var myState = JsonLiteralArrayState.INITIAL
 
     /** Number of elements successfully added.  */
-    private var mySize = 0
+    var size = 0
+        private set
 
     /**
      * Begin a new array literal that will be filled in incrementally.
@@ -51,22 +52,22 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
     fun addElement(value: Any?) {
         if (value is Array<*>) {
             beginElement()
-            val arr = JSONLiteralArray(myStringBuilder, myControl)
+            val arr = JSONLiteralArray(stringBuilder, control)
             for (o in value) {
                 arr.addElement(o)
             }
             arr.finish()
         } else if (value != null) {
-            val start = myStringBuilder.length
+            val start = stringBuilder.length
             val starting = myState == JsonLiteralArrayState.INITIAL
             beginElement()
-            if (appendValueString(myStringBuilder, value, myControl)) {
-                myStringBuilder.setLength(start)
+            if (appendValueString(stringBuilder, value, control)) {
+                stringBuilder.setLength(start)
                 if (starting) {
                     myState = JsonLiteralArrayState.INITIAL
                 }
             } else {
-                mySize += 1
+                size += 1
             }
         }
     }
@@ -110,19 +111,12 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
                 /* Have added first element */
                 myState = JsonLiteralArrayState.STARTED
             } else {
-                myStringBuilder.append(", ")
+                stringBuilder.append(", ")
             }
         } else {
             throw Error("attempt to add element to completed array")
         }
     }
-
-    /**
-     * Obtain the encode control governing this literal.
-     *
-     * @return this literal array's encode control.
-     */
-    fun control(): EncodeControl? = myControl
 
     /**
      * Finish construction of the literal.
@@ -131,9 +125,9 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
      */
     fun finish() {
         if (myState != JsonLiteralArrayState.COMPLETE) {
-            myStringBuilder.append(']')
+            stringBuilder.append(']')
             myState = JsonLiteralArrayState.COMPLETE
-            myEndPos = myStringBuilder.length
+            myEndPos = stringBuilder.length
         } else {
             throw Error("attempt to finish already completed array")
         }
@@ -151,20 +145,8 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
         if (myState != JsonLiteralArrayState.COMPLETE) {
             finish()
         }
-        return myStringBuilder.substring(myStartPos, myEndPos)
+        return stringBuilder.substring(myStartPos, myEndPos)
     }
-
-    /**
-     * Obtain the array's element count.
-     *
-     * @return the number of elements in this array (so far).
-     */
-    fun size(): Int = mySize
-
-    /**
-     * Get the internal string buffer, for collusion with JSONLiteral.
-     */
-    fun stringBuilder(): StringBuilder = myStringBuilder
 
     /**
      * Obtain a printable String representation of this literal, in whatever
@@ -175,13 +157,13 @@ class JSONLiteralArray internal constructor(private val myStringBuilder: StringB
     override fun toString(): String {
         var end = myEndPos
         if (myState != JsonLiteralArrayState.COMPLETE) {
-            end = myStringBuilder.length
+            end = stringBuilder.length
         }
-        return myStringBuilder.substring(myStartPos, end)
+        return stringBuilder.substring(myStartPos, end)
     }
 
     init {
-        myStringBuilder.append("[")
+        stringBuilder.append("[")
     }
 }
 

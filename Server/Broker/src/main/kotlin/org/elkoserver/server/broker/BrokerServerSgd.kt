@@ -61,7 +61,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                     req(brokerBootGorgel).error("no listeners specified")
                 }
                 for (service in it.services()) {
-                    service.setProviderID(0)
+                    service.providerID = 0
                     req(broker).addService(service)
                 }
             }

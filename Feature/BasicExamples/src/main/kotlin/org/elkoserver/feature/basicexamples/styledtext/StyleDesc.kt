@@ -12,19 +12,19 @@ import org.elkoserver.json.JSONLiteralFactory
  * Note: this is not a mod.  StyleDesc objects are used by mods and by the
  * [StyleOptions] object.
  *
- * @param myColor  Foreground (text) color, or null if none.
- * @param myBackgroundColor  Background color, or null if none.
- * @param myBorderColor  Border color, or null if none.
- * @param myTextStyle Style string for text (e.g, "bold", "italic", etc.), or
+ * @param color  Foreground (text) color, or null if none.
+ * @param backgroundColor  Background color, or null if none.
+ * @param borderColor  Border color, or null if none.
+ * @param textStyle Style string for text (e.g, "bold", "italic", etc.), or
  *    null if none.
- * @param myIcon URL of an icon to go with the text, or null if none.
+ * @param icon URL of an icon to go with the text, or null if none.
  */
 class StyleDesc(
-        private val myColor: String?,
-        private val myBackgroundColor: String?,
-        private val myBorderColor: String?,
-        private val myTextStyle: String?,
-        private val myIcon: String?) : Encodable {
+        internal val color: String?,
+        internal val backgroundColor: String?,
+        internal val borderColor: String?,
+        internal val textStyle: String?,
+        internal val icon: String?) : Encodable {
 
     /**
      * JSON-driven constructor.
@@ -43,27 +43,6 @@ class StyleDesc(
             borderColor.value<String?>(null), textStyle.value<String?>(null), icon.value<String?>(null))
 
     /**
-     * Get the background color.
-     *
-     * @return this style's background color, or null if there is none.
-     */
-    fun backgroundColor(): String? = myBackgroundColor
-
-    /**
-     * Get the border color.
-     *
-     * @return this style's border color, or null if there is none.
-     */
-    fun borderColor(): String? = myBorderColor
-
-    /**
-     * Get the foreground (text) color.
-     *
-     * @return this style's foreground color, or null if there is none.
-     */
-    fun color(): String? = myColor
-
-    /**
      * Encode this object for transmission or persistence.
      *
      * @param control  Encode control determining what flavor of encoding
@@ -73,20 +52,13 @@ class StyleDesc(
      */
     override fun encode(control: EncodeControl) =
             JSONLiteralFactory.type("style", control).apply {
-                addParameterOpt("color", myColor)
-                addParameterOpt("backgroundColor", myBackgroundColor)
-                addParameterOpt("borderColor", myBorderColor)
-                addParameterOpt("textStyle", myTextStyle)
-                addParameterOpt("icon", myIcon)
+                addParameterOpt("color", color)
+                addParameterOpt("backgroundColor", backgroundColor)
+                addParameterOpt("borderColor", borderColor)
+                addParameterOpt("textStyle", textStyle)
+                addParameterOpt("icon", icon)
                 finish()
             }
-
-    /**
-     * Get the icon URL.
-     *
-     * @return this style's icon URL, or null if there is none.
-     */
-    fun icon(): String? = myIcon
 
     /**
      * Merge this StyleDesc with another, partially specified StyleDesc,
@@ -99,11 +71,11 @@ class StyleDesc(
      * not specify them.
      */
     fun mergeStyle(partial: StyleDesc) =
-            StyleDesc(overlay(partial.color(), myColor),
-                    overlay(partial.backgroundColor(), myBackgroundColor),
-                    overlay(partial.borderColor(), myBorderColor),
-                    overlay(partial.textStyle(), myTextStyle),
-                    overlay(partial.icon(), myIcon))
+            StyleDesc(overlay(partial.color, color),
+                    overlay(partial.backgroundColor, backgroundColor),
+                    overlay(partial.borderColor, borderColor),
+                    overlay(partial.textStyle, textStyle),
+                    overlay(partial.icon, icon))
 
     /**
      * Overlay a new value on an old one.
@@ -115,12 +87,4 @@ class StyleDesc(
      */
     private fun overlay(newChoice: String?, oldChoice: String?) =
             newChoice ?: oldChoice
-
-    /**
-     * Get the text style for this StyleDesc.  This is a string that specifies
-     * attributes such as typeface, bold, italic, etc.
-     *
-     * @return this style's text style string, or null if there is none.
-     */
-    fun textStyle(): String? = myTextStyle
 }

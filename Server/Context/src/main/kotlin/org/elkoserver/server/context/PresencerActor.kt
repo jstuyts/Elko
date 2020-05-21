@@ -51,7 +51,7 @@ internal class PresencerActor(connection: Connection, dispatcher: MessageDispatc
     fun gtou(from: PresencerActor, userRef: String, contextRef: String, group: Array<GToUDomainInfo>) {
         for (info in group) {
             for (friend in info.friends) {
-                myGroup.contextor().observePresenceChange(
+                myGroup.contextor.observePresenceChange(
                         contextRef, userRef, info.domain, friend.user,
                         friend.userMeta, friend.context, friend.contextMeta, true)
             }
@@ -80,7 +80,7 @@ internal class PresencerActor(connection: Connection, dispatcher: MessageDispatc
         for (domainInfo in toGroup) {
             for (contextInfo in domainInfo.who) {
                 for (friend in contextInfo.users) {
-                    myGroup.contextor().observePresenceChange(
+                    myGroup.contextor.observePresenceChange(
                             contextInfo.context, friend, domainInfo.domain,
                             userRef, userMeta, contextRef, contextMeta, on)
                 }
@@ -94,6 +94,6 @@ internal class PresencerActor(connection: Connection, dispatcher: MessageDispatc
 
     init {
         myGroup.admitMember(this)
-        send(msgAuth(this, host.auth(), myGroup.contextor().serverName()))
+        send(msgAuth(this, host.auth, myGroup.contextor.serverName()))
     }
 }

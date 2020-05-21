@@ -10,17 +10,10 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * MessageHandlerFactory class to create new actors for new connections to a
  * context server's internal listen port.
  *
- * @param myContextor  The contextor itself.
+ * @param contextor  The contextor itself.
  * @param myAuth  The authorization needed for connections to this port.
  */
-internal class InternalActorFactory(private val myContextor: Contextor, private val myAuth: AuthDesc, private val internalActorGorgel: Gorgel, private val traceFactory: TraceFactory) : MessageHandlerFactory {
-
-    /**
-     * Get this factory's contextor.
-     *
-     * @return the contextor object this factory uses.
-     */
-    fun contextor() = myContextor
+internal class InternalActorFactory(internal val contextor: Contextor, private val myAuth: AuthDesc, private val internalActorGorgel: Gorgel, private val traceFactory: TraceFactory) : MessageHandlerFactory {
 
     /**
      * Produce a new actor for a new connection.

@@ -16,8 +16,8 @@ abstract class HTTPFramer
 /**
  * Constructor.
  *
- * @param myMsgTrace  Trace object for logging message traffic.
- */ protected constructor(private val myMsgTrace: Trace) {
+ * @param msgTrace  Trace object for logging message traffic.
+ */ protected constructor(internal val msgTrace: Trace) {
 
     /**
      * Produce the HTTP reply body for responding to an unrecognized URL (that
@@ -131,15 +131,6 @@ endless others exist<p>
      * POST or GET delivering messages to the server.
      */
     fun makeXmitReply(seqNumber: Int): String = "{ \"seqnum\": \"$seqNumber\" }\n"
-
-    /**
-     * Get the message trace object for this framer.  This trace object should
-     * only be used for logging the content of message traffic.  Other server
-     * events should be logged to Trace.comm.
-     *
-     * @return this framer's message trace object.
-     */
-    fun msgTrace(): Trace = myMsgTrace
 
     /**
      * Return an iterator that will return the application-level message or

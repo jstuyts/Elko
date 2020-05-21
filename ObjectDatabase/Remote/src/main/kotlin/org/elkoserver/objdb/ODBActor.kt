@@ -93,7 +93,7 @@ class ODBActor(connection: Connection, private val myODB: ObjDBRemote, localName
     }
 
     init {
-        send(msgAuth(this, host.auth(), localName))
+        send(msgAuth(this, host.auth, localName))
         myODB.repositoryConnected(this)
     }
 }

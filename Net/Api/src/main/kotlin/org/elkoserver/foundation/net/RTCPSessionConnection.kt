@@ -17,28 +17,29 @@ import kotlin.math.abs
  * message session out of a series of potentially transient TCP connections.
  *
  * @param mySessionFactory  Factory for creating RTCP message handler objects
- * @param sessionID  The session ID for the session.
+ * @param sessionIDAsLong  The session ID for the session.
  */
 class RTCPSessionConnection private constructor(
         private val mySessionFactory: RTCPMessageHandlerFactory,
-        sessionID: Long, private val timer: Timer, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(mySessionFactory.networkManager(), clock, traceFactory) {
+        sessionIDAsLong: Long, private val timer: Timer, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(mySessionFactory.networkManager, clock, traceFactory) {
     /** Trace object for logging message traffic.  */
-    private val trMsg: Trace
+    private val trMsg: Trace = mySessionFactory.msgTrace
 
     /** Sequence number of last client->server message received here.  */
-    private var myClientSendSeqNum: Int
+    internal var clientSendSeqNum: Int = 0
+        private set
 
     /** Sequence number of last server->client message sent from here.  */
-    private var myServerSendSeqNum: Int
+    private var myServerSendSeqNum: Int = 0
 
     /** Queue of outgoing messages not yet ack'd by the client.  */
-    private val myQueue: LinkedList<RTCPMessage>
+    private val myQueue: LinkedList<RTCPMessage> = LinkedList()
 
     /** Current volume of unacknowledged messages in the outgoing queue.  */
-    private var myQueueBacklog: Int
+    private var myQueueBacklog: Int = 0
 
     /** Flag indicating that connection is in the midst of shutting down.  */
-    private var amClosing: Boolean
+    private var amClosing: Boolean = false
 
     /** TCP connection for transmitting messages to the client, if a connection
      * is currently open, or null if not.  */
@@ -48,11 +49,11 @@ class RTCPSessionConnection private constructor(
     private val myInactivityClock: org.elkoserver.foundation.timer.Clock
 
     /** Timeout for closing an abandoned session.  */
-    private var myDisconnectedTimeout: Timeout?
+    private var myDisconnectedTimeout: Timeout? = null
 
     /** Last time that there was any traffic on this connection from the user,
      * to enable detection of inactive sessions.  */
-    private var myLastActivityTime: Long
+    private var myLastActivityTime: Long = clock.millis()
 
     /** Time a session may sit idle before closing it, in milliseconds.  */
     private var myInactivityTimeoutInterval: Int
@@ -61,7 +62,7 @@ class RTCPSessionConnection private constructor(
     private var myDisconnectedTimeoutInterval: Int
 
     /** Session ID -- a swiss number to authenticate client RTCP requests.  */
-    private val mySessionID: String
+    internal val sessionID: String = sessionIDAsLong.toString()
 
     /**
      * Make a new RTCP session connection object for an incoming connection,
@@ -100,19 +101,10 @@ class RTCPSessionConnection private constructor(
         }
         discardAcknowledgedMessages(clientRecvSeqNum)
         if (timeInactive > myInactivityTimeoutInterval / 4) {
-            val ack = mySessionFactory.makeAck(myClientSendSeqNum)
+            val ack = mySessionFactory.makeAck(clientSendSeqNum)
             sendMsg(ack)
         }
     }
-
-    /**
-     * Obtain this connection's client send sequence number, the sequence
-     * number of the most recent client to server message received by the
-     * server.
-     *
-     * @return this connection's client send sequence number.
-     */
-    fun clientSendSeqNum(): Int = myClientSendSeqNum
 
     /**
      * Shut down the connection.
@@ -211,7 +203,7 @@ class RTCPSessionConnection private constructor(
             if (traceFactory.comm.debug) {
                 traceFactory.comm.debugm("$this tick: RTCP session acking")
             }
-            val ack = mySessionFactory.makeAck(myClientSendSeqNum)
+            val ack = mySessionFactory.makeAck(clientSendSeqNum)
             sendMsg(ack)
         } else {
             if (traceFactory.comm.debug) {
@@ -228,12 +220,12 @@ class RTCPSessionConnection private constructor(
      */
     fun receiveMessage(request: RTCPRequest) {
         noteClientActivity()
-        if (request.clientSendSeqNum() != myClientSendSeqNum + 1) {
-            traceFactory.comm.errorm("$this expected client seq # ${myClientSendSeqNum + 1}, got ${request.clientSendSeqNum()}")
+        if (request.clientSendSeqNum != clientSendSeqNum + 1) {
+            traceFactory.comm.errorm("$this expected client seq # ${clientSendSeqNum + 1}, got ${request.clientSendSeqNum}")
             val reply = mySessionFactory.makeErrorReply("sequenceError")
             sendMsg(reply)
         } else {
-            discardAcknowledgedMessages(request.clientRecvSeqNum())
+            discardAcknowledgedMessages(request.clientRecvSeqNum)
             var message = request.nextMessage()
             while (message != null) {
                 if (trMsg.event) {
@@ -242,7 +234,7 @@ class RTCPSessionConnection private constructor(
                 enqueueReceivedMessage(message)
                 message = request.nextMessage()
             }
-            ++myClientSendSeqNum
+            ++clientSendSeqNum
         }
     }
 
@@ -257,7 +249,7 @@ class RTCPSessionConnection private constructor(
         discardAcknowledgedMessages(seqNum)
         for (elem in myQueue) {
             val messageString = mySessionFactory.makeMessage(elem.seqNum,
-                    myClientSendSeqNum,
+                    clientSendSeqNum,
                     elem.message.sendableString())
             if (traceFactory.comm.debug) {
                 traceFactory.comm.debugm("$this resend ${elem.seqNum}")
@@ -284,16 +276,16 @@ class RTCPSessionConnection private constructor(
             if (traceFactory.comm.debug) {
                 traceFactory.comm.debugm("$this queue backlog increased to $myQueueBacklog")
             }
-            if (myQueueBacklog > mySessionFactory.sessionBacklogLimit()) {
+            if (myQueueBacklog > mySessionFactory.sessionBacklogLimit) {
                 traceFactory.comm.eventm("$this queue backlog limit exceeded")
                 close()
             }
             myQueue.addLast(qMsg)
             messageString = mySessionFactory.makeMessage(myServerSendSeqNum,
-                    myClientSendSeqNum,
+                    clientSendSeqNum,
                     message.sendableString())
             if (trMsg.debug) {
-                trMsg.debugm("$myLiveConnection <| $myServerSendSeqNum $myClientSendSeqNum")
+                trMsg.debugm("$myLiveConnection <| $myServerSendSeqNum $clientSendSeqNum")
             }
             if (trMsg.event) {
                 trMsg.msgi(this, false, message)
@@ -312,13 +304,6 @@ class RTCPSessionConnection private constructor(
             myLiveConnection!!.sendMsg(messageString)
         }
     }
-
-    /**
-     * Obtain this connection's session ID.
-     *
-     * @return the session ID number of this session.
-     */
-    fun sessionID(): String = mySessionID
 
     /**
      * Turn debug features for this connection on or off. In the case of an
@@ -392,20 +377,10 @@ class RTCPSessionConnection private constructor(
     }
 
     init {
-        this.traceFactory = traceFactory
-        trMsg = mySessionFactory.msgTrace()
-        mySessionID = sessionID.toString()
         mySessionFactory.addSession(this)
-        myLastActivityTime = clock.millis()
         if (traceFactory.comm.event) {
-            traceFactory.comm.eventi("$this new connection session $mySessionID")
+            traceFactory.comm.eventi("$this new connection session ${this.sessionID}")
         }
-        myServerSendSeqNum = 0
-        myClientSendSeqNum = 0
-        myQueue = LinkedList()
-        myQueueBacklog = 0
-        amClosing = false
-        myDisconnectedTimeout = null
         myDisconnectedTimeoutInterval = mySessionFactory.sessionDisconnectedTimeout(false)
         myInactivityTimeoutInterval = mySessionFactory.sessionInactivityTimeout(false)
         myInactivityClock = timer.every(myInactivityTimeoutInterval / 2 + 1000.toLong(), object : TickNoticer {
@@ -414,6 +389,6 @@ class RTCPSessionConnection private constructor(
             }
         })
         myInactivityClock.start()
-        enqueueHandlerFactory(mySessionFactory.innerFactory())
+        enqueueHandlerFactory(mySessionFactory.innerFactory)
     }
 }

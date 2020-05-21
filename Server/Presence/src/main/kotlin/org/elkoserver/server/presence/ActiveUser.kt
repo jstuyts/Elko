@@ -13,16 +13,17 @@ import java.util.LinkedList
  * particular, we track the user's presences: all the contexts in which the
  * user is current present.
  *
- * @param myRef  The ref associated with the client.
+ * @param ref  The ref associated with the client.
  */
-internal class ActiveUser(private val myRef: String) {
+internal class ActiveUser(internal val ref: String) {
 
     /** Number of domains that are loaded.  */
     private var myDomainLoadCount = 0
 
     /** Current online presences of this user, stored in the form of an array
      * of the refs of the contexts in which they are present.  */
-    private var myPresences: Array<String?> = arrayOf()
+    internal var presences: Array<String?> = arrayOf()
+        private set
 
     /** The members of the user's social graph, or null if not yet loaded, by
      * domain index.  Note: these are called 'friends' because the word is
@@ -50,25 +51,25 @@ internal class ActiveUser(private val myRef: String) {
            entries by linear search of the array is quite reasonable and does
            not justify the additional storage overhead of a more complicated
            data structure. */
-        if (myPresences.isEmpty()) {
+        if (presences.isEmpty()) {
             /* Start with a single element array, to hold the one presence. */
-            myPresences = arrayOf(context)
+            presences = arrayOf(context)
         } else {
             /* If there are existing presences, scan the presences array for a
                null entry, so that we can reuse an existing slot in the array
                rather than reallocating and copying it. */
             /* A vacant slot! remember it in case we need one. */
-            val nullIdx = myPresences.indices.firstOrNull { myPresences[it] == null }
+            val nullIdx = presences.indices.firstOrNull { presences[it] == null }
                     ?: -1
             if (nullIdx >= 0) {
                 /* If we found a vacant slot, put the new entry there. */
-                myPresences[nullIdx] = context
+                presences[nullIdx] = context
             } else {
                 /* Otherwise, enlarge the presences array by one and put the
                    new entry at the end. We expand by just one because, as with
                    the justification for using an array in the first place, the
                    size is unlikely to grow further. */
-                myPresences = arrayOf(*myPresences, context)
+                presences = arrayOf(*presences, context)
             }
         }
         /* If the social graph is loaded, perform the notifications associated
@@ -94,7 +95,7 @@ internal class ActiveUser(private val myRef: String) {
             myFriendsByDomain!!.indices
                     .map {
                         JSONLiteral().apply {
-                            addParameter("domain", Domain.domain(it).name())
+                            addParameter("domain", Domain.domain(it).name)
                             addParameter("friends", myFriendsByDomain!![it])
                             finish()
                         }
@@ -115,15 +116,6 @@ internal class ActiveUser(private val myRef: String) {
         return myFriendsByDomain != null &&
                 myDomainLoadCount == Domain.maxIndex()
     }
-
-    /**
-     * Obtain the array of presence contexts, suitable for delivery in a server
-     * state dump.  This is intended for debugging and testing, so we are not
-     * being careful to put the return value in a read-only wrapper. Take care.
-     *
-     * @return a string array containing this user's current presences.
-     */
-    fun presences(): Array<String?>? = myPresences
 
     /**
      * Notify this user's friends about this user's change in presence.
@@ -150,14 +142,14 @@ internal class ActiveUser(private val myRef: String) {
                 friends
                         .mapNotNull(master::getActiveUser)
                         .forEach {
-                            for (context in it.myPresences) {
+                            for (context in it.presences) {
                                 if (context != null) {
                                     val client = domain.subscriber(context)
                                     if (client != null) {
                                         val dtell = tell.computeIfAbsent(client) { HashMap() }
                                         val ctell = dtell.computeIfAbsent(domain) { HashMap() }
                                         val nameList = ctell.computeIfAbsent(context) { LinkedList() }
-                                        nameList.add(it.ref())
+                                        nameList.add(it.ref)
                                     }
                                 }
                             }
@@ -165,7 +157,7 @@ internal class ActiveUser(private val myRef: String) {
             }
         }
         for ((key, value) in tell) {
-            key.send(msgUserToGroup(myRef, myMetadata, userContext,
+            key.send(msgUserToGroup(ref, myMetadata, userContext,
                     on, value, master))
         }
     }
@@ -192,7 +184,7 @@ internal class ActiveUser(private val myRef: String) {
                 if (client != null) {
                     for (friendName in myFriendsByDomain!![i]!!) {
                         val friend = master.getActiveUser(friendName)
-                        friend?.myPresences?.filterNotNull()?.mapTo(friendList) {
+                        friend?.presences?.filterNotNull()?.mapTo(friendList) {
                             FriendInfo(friendName,
                                     friend.myMetadata,
                                     it,
@@ -206,7 +198,7 @@ internal class ActiveUser(private val myRef: String) {
         if (friends.isNotEmpty() && client != null) {
             /* Only send me a message telling me about my friend's presences if
                I actually have (online) friends. */
-            client.send(msgGroupToUser(myRef, userContext, friends))
+            client.send(msgGroupToUser(ref, userContext, friends))
         }
     }
 
@@ -215,14 +207,7 @@ internal class ActiveUser(private val myRef: String) {
      *
      * @return the count of presences for this user.
      */
-    fun presenceCount() = myPresences.count { it != null }
-
-    /**
-     * Obtain the reference string of the user whose presence this is.
-     *
-     * @return this presence's user's reference string.
-     */
-    fun ref() = myRef
+    fun presenceCount() = presences.count { it != null }
 
     /**
      * Remove an existing presence for this user from the collection we are
@@ -234,9 +219,9 @@ internal class ActiveUser(private val myRef: String) {
      * @return true if the presence was successfully removed, false if not
      */
     fun removePresence(context: String, master: PresenceServer): Boolean {
-        for (i in myPresences.indices) {
-            if (context == myPresences[i]) {
-                myPresences[i] = null
+        for (i in presences.indices) {
+            if (context == presences[i]) {
+                presences[i] = null
                 notifyFriendsAboutMe(false, context, master)
                 return true
             }
@@ -266,13 +251,13 @@ internal class ActiveUser(private val myRef: String) {
                 myFriendsByDomain!!.add(null)
             }
         }
-        if (myFriendsByDomain!![domain.index()] != null) {
-            throw RuntimeException("duplicate setFriends call for user $myRef, domain ${domain.name()}")
+        if (myFriendsByDomain!![domain.index] != null) {
+            throw RuntimeException("duplicate setFriends call for user $ref, domain ${domain.name}")
         }
-        myFriendsByDomain!![domain.index()] = friends
+        myFriendsByDomain!![domain.index] = friends
         ++myDomainLoadCount
         if (graphsAreReady()) {
-            for (context in myPresences) {
+            for (context in presences) {
                 notifyFriendsAboutMe(true, context, master)
                 notifyMeAboutFriends(context, master)
             }
@@ -295,7 +280,7 @@ internal class ActiveUser(private val myRef: String) {
                 val group = JSONLiteralArray().apply {
                     for ((key, value) in friends) {
                         val domainInfo = JSONLiteral().apply {
-                            addParameter("domain", key.name())
+                            addParameter("domain", key.name)
                             addParameter("friends", value)
                             finish()
                         }
@@ -332,7 +317,7 @@ internal class ActiveUser(private val myRef: String) {
                 val group = JSONLiteralArray().apply {
                     for ((domain, who) in friends) {
                         val obj = JSONLiteral().apply {
-                            addParameter("domain", domain.name())
+                            addParameter("domain", domain.name)
                             val whoArr = JSONLiteralArray().apply {
                                 for ((key, value) in who) {
                                     val ctxInfo = JSONLiteral().apply {

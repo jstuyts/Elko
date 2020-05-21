@@ -19,15 +19,15 @@ import java.util.HashMap
  * from the RTCP requests, so the RTCP message handler factory needs to
  * wrap the application-level message handler factory.
  *
- * @param myInnerFactory  The application-level message handler factory that
+ * @param innerFactory  The application-level message handler factory that
  * is to be wrapped by this.
- * @param trMsg   Trace object for logging message traffic
- * @param myManager  Network manager for this server.
+ * @param msgTrace   Trace object for logging message traffic
+ * @param networkManager  Network manager for this server.
  */
 internal class RTCPMessageHandlerFactory(
-        private val myInnerFactory: MessageHandlerFactory,
-        private val trMsg: Trace,
-        private val myManager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) : MessageHandlerFactory {
+        internal val innerFactory: MessageHandlerFactory,
+        internal val msgTrace: Trace,
+        internal val networkManager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) : MessageHandlerFactory {
 
     /** Table of current sessions, indexed by session ID.  */
     private val mySessions = HashMap<String, RTCPSessionConnection>()
@@ -49,7 +49,7 @@ internal class RTCPMessageHandlerFactory(
 
     /** Volume of message backlog an RTCP session can tolerate before being
      * closed, in characters.  */
-    private val mySessionBacklogLimit: Int
+    internal val sessionBacklogLimit: Int
 
     /**
      * Associate a particular TCP connection with an RTCP session.
@@ -69,7 +69,7 @@ internal class RTCPMessageHandlerFactory(
      * @param session  The session to add.
      */
     fun addSession(session: RTCPSessionConnection) {
-        mySessions[session.sessionID()] = session
+        mySessions[session.sessionID] = session
     }
 
     /**
@@ -102,7 +102,7 @@ internal class RTCPMessageHandlerFactory(
         if (session != null) {
             session.close()
         } else {
-            trMsg.errorm("got RTCP end request on connection with no associated session $connection")
+            msgTrace.errorm("got RTCP end request on connection with no associated session $connection")
         }
     }
 
@@ -114,9 +114,9 @@ internal class RTCPMessageHandlerFactory(
      * @param errorTag  The error tag string from the request
      */
     fun doError(connection: Connection, errorTag: String) {
-        if (trMsg.usage) {
+        if (msgTrace.usage) {
             val aux = ""
-            trMsg.usagem("$connection received error request $errorTag$aux")
+            msgTrace.usagem("$connection received error request $errorTag$aux")
         }
     }
 
@@ -158,12 +158,12 @@ internal class RTCPMessageHandlerFactory(
             session = getSession(sessionID)
             if (session != null) {
                 acquireTCPConnection(session, connection)
-                if (trMsg.event) {
-                    trMsg.eventm("$session resume ${session.sessionID()}")
+                if (msgTrace.event) {
+                    msgTrace.eventm("$session resume ${session.sessionID}")
                 }
                 sendWithLog(connection,
-                        makeResumeReply(session.sessionID(),
-                                session.clientSendSeqNum()))
+                        makeResumeReply(session.sessionID,
+                                session.clientSendSeqNum))
                 session.replayUnacknowledgedMessages(clientRecvSeqNum)
             } else {
                 reply = makeErrorReply("noSuchSession")
@@ -186,10 +186,10 @@ internal class RTCPMessageHandlerFactory(
         } else {
             session = RTCPSessionConnection(this, timer, clock, traceFactory)
             acquireTCPConnection(session, connection)
-            if (trMsg.event) {
-                trMsg.eventm("$session start ${session.sessionID()}")
+            if (msgTrace.event) {
+                msgTrace.eventm("$session start ${session.sessionID}")
             }
-            reply = makeStartReply(session.sessionID())
+            reply = makeStartReply(session.sessionID)
         }
         sendWithLog(connection, reply)
     }
@@ -203,16 +203,6 @@ internal class RTCPMessageHandlerFactory(
      * no such session.
      */
     private fun getSession(sessionID: String): RTCPSessionConnection? = mySessions[sessionID]
-
-    /**
-     * Obtain the inner message handler factory for this factory.  This is the
-     * factory for providing message handlers for the messages embedded inside
-     * the RTCP requests whose handlers are in turn provided by this (outer)
-     * factory.
-     *
-     * @return the inner message handler factory for this factory.
-     */
-    fun innerFactory(): MessageHandlerFactory = myInnerFactory
 
     /**
      * Generate the request line for an RTCP 'ack' request, acknowledging
@@ -274,22 +264,6 @@ internal class RTCPMessageHandlerFactory(
     private fun makeStartReply(sessionID: String): String = "start $sessionID\n"
 
     /**
-     * Get the message trace object for this factory.  This trace object should
-     * only be used for logging the content of message traffic.  Other server
-     * events should be logged to Trace.comm.
-     *
-     * @return this framer's message trace object.
-     */
-    fun msgTrace(): Trace = trMsg
-
-    /**
-     * Obtain the network manager for this factory.
-     *
-     * @return this factory's network manager object.
-     */
-    fun networkManager(): NetworkManager = myManager
-
-    /**
      * Provide a message handler for a new (RTCP over TCP) connection.
      *
      * @param connection  The TCP connection object that was just created.
@@ -305,7 +279,7 @@ internal class RTCPMessageHandlerFactory(
      * @param session  The session to remove.
      */
     fun removeSession(session: RTCPSessionConnection) {
-        mySessions.remove(session.sessionID())
+        mySessions.remove(session.sessionID)
     }
 
     /**
@@ -315,20 +289,11 @@ internal class RTCPMessageHandlerFactory(
      * @param msg  The message to send.
      */
     private fun sendWithLog(connection: Connection, msg: String) {
-        if (trMsg.debug) {
-            trMsg.debugm("$connection <| ${msg.trim { it <= ' ' }}")
+        if (msgTrace.debug) {
+            msgTrace.debugm("$connection <| ${msg.trim { it <= ' ' }}")
         }
         connection.sendMsg(msg)
     }
-
-    /**
-     * Obtain the RTCP session message backlog limit: the amount of outbound
-     * message traffic we'll allow to accumulate before deeming the client
-     * unmutual and closing the session.
-     *
-     * @return the session backlog limit, in characters.
-     */
-    fun sessionBacklogLimit(): Int = mySessionBacklogLimit
 
     /**
      * Obtain the RTCP session disconnected timeout interval: the time an RTCP
@@ -375,12 +340,12 @@ internal class RTCPMessageHandlerFactory(
         val session = mySessionsByConnection.remove(connection)
         if (session != null) {
             session.loseTCPConnection(connection)
-            if (trMsg.event) {
-                trMsg.eventm("$connection lost under $session-${session.sessionID()}: $reason")
+            if (msgTrace.event) {
+                msgTrace.eventm("$connection lost under $session-${session.sessionID}: $reason")
             }
         } else {
-            if (trMsg.event) {
-                trMsg.eventm("$connection lost under no known RTCP session: $reason")
+            if (msgTrace.event) {
+                msgTrace.eventm("$connection lost under no known RTCP session: $reason")
             }
         }
     }
@@ -397,7 +362,7 @@ internal class RTCPMessageHandlerFactory(
     }
 
     init {
-        val props = myManager.props()
+        val props = networkManager.props
         mySessionInactivityTimeout = props.intProperty("conf.comm.rtcptimeout",
                 DEFAULT_SESSION_INACTIVITY_TIMEOUT) * 1000
         myDebugSessionInactivityTimeout = props.intProperty("conf.comm.rtcptimeout.debug",
@@ -406,7 +371,7 @@ internal class RTCPMessageHandlerFactory(
                 DEFAULT_SESSION_DISCONNECTED_TIMEOUT) * 1000
         myDebugSessionDisconnectedTimeout = props.intProperty("conf.comm.rtcpdisconntimeout.debug",
                 DEFAULT_SESSION_DISCONNECTED_TIMEOUT) * 1000
-        mySessionBacklogLimit = props.intProperty("conf.comm.rtcpbacklog",
+        sessionBacklogLimit = props.intProperty("conf.comm.rtcpbacklog",
                 DEFAULT_SESSION_BACKLOG_LIMIT)
     }
 }

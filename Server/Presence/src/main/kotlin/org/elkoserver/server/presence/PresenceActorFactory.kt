@@ -40,7 +40,7 @@ internal class PresenceActorFactory(internal val myPresenceServer: PresenceServe
      *
      * @return the object ref table this factory uses.
      */
-    fun refTable() = myPresenceServer.refTable()
+    fun refTable() = myPresenceServer.refTable
 
     /**
      * Check the actor's authorization.

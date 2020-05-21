@@ -10,46 +10,25 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * MessageHandlerFactory class to create new actors for new connections to a
  * director's listen port.
  *
- * @param myDirector  The director itself.
+ * @param director  The director itself.
  * @param myAuth  The authorization needed for connections to this port.
- * @param amAllowAdmin  If true, allow 'admin' connections.
+ * @param allowAdmin  If true, allow 'admin' connections.
  * @param amAllowProvider  If true, allow 'provider' connections.
- * @param amAllowUser  If true, allow 'user' connections.
+ * @param allowUser  If true, allow 'user' connections.
  */
-internal class DirectorActorFactory(private val myDirector: Director, private val myAuth: AuthDesc, private val amAllowAdmin: Boolean,
-                                    private val amAllowProvider: Boolean, private val amAllowUser: Boolean,
+internal class DirectorActorFactory(internal val director: Director, private val myAuth: AuthDesc, internal val allowAdmin: Boolean,
+                                    private val amAllowProvider: Boolean, internal val allowUser: Boolean,
                                     private val directorActorGorgel: Gorgel,
                                     private val providerGorgel: Gorgel,
                                     private val traceFactory: TraceFactory,
                                     private val ordinalGenerator: OrdinalGenerator) : MessageHandlerFactory {
 
     /**
-     * Test whether admin connections are allowed.
-     *
-     * @return true if 'admin' connections are allowed.
-     */
-    fun allowAdmin() = amAllowAdmin
-
-    /**
      * Test whether provider connections are allowed.
      *
      * @return true if 'provider' connections are allowed.
      */
-    fun allowProvider() = amAllowProvider && !myDirector.isShuttingDown
-
-    /**
-     * Test whether user connections are allowed.
-     *
-     * @return true if 'user' connections are allowed.
-     */
-    fun allowUser() = amAllowUser
-
-    /**
-     * Get this factory's director.
-     *
-     * @return the director object this factory uses.
-     */
-    fun director() = myDirector
+    fun allowProvider() = amAllowProvider && !director.isShuttingDown
 
     /**
      * Produce a new actor for a new connection.
@@ -64,7 +43,7 @@ internal class DirectorActorFactory(private val myDirector: Director, private va
      *
      * @return the object ref table this factory uses.
      */
-    fun refTable() = myDirector.refTable()
+    fun refTable() = director.refTable
 
     /**
      * Check the actor's authorization.

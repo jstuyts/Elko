@@ -47,9 +47,9 @@ class FileObjectStore : ObjectStore {
      *
      * @param props  Properties describing configuration information.
      * @param propRoot  Prefix string for selecting relevant properties.
-     * @param appTrace  Trace object for use in logging.
+     * @param trace  Trace object for use in logging.
      */
-    override fun initialize(props: ElkoProperties, propRoot: String, appTrace: Trace) {
+    override fun initialize(props: ElkoProperties, propRoot: String, trace: Trace) {
         val dirname = props.getProperty("$propRoot.odb")
                 ?: throw java.lang.IllegalStateException("no object database directory specified")
         myODBDirectory = File(dirname)
@@ -189,7 +189,7 @@ class FileObjectStore : ObjectStore {
     override fun getObjects(what: Array<RequestDesc>, handler: GetResultHandler) {
         val resultList: MutableList<ObjectDesc> = LinkedList()
         for (req in what) {
-            resultList.addAll(doGet(req.ref()))
+            resultList.addAll(doGet(req.ref))
         }
         handler.handle(resultList.toTypedArray())
     }
@@ -212,7 +212,7 @@ class FileObjectStore : ObjectStore {
      * failure indicators), when available.
      */
     override fun putObjects(what: Array<PutDesc>, handler: RequestResultHandler) {
-        val results = Array(what.size) { doPut(what[it].ref(), what[it].obj(), what[it].isRequireNew) }
+        val results = Array(what.size) { doPut(what[it].ref, what[it].obj, what[it].isRequireNew) }
         handler.handle(results)
     }
 
@@ -238,7 +238,7 @@ class FileObjectStore : ObjectStore {
      * failure indicators), when available.
      */
     override fun removeObjects(what: Array<RequestDesc>, handler: RequestResultHandler) {
-        val results = Array(what.size) { doRemove(what[it].ref()) }
+        val results = Array(what.size) { doRemove(what[it].ref) }
         handler.handle(results)
     }
 

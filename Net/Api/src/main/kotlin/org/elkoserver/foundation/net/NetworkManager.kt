@@ -15,17 +15,18 @@ import javax.net.ssl.SSLContext
  * Manage network connections between this server and other entities.
  *
  * @param myConnectionCountMonitor  Monitor for tracking session count.
- * @param myProps  Boot properties for this server.
+ * @param props  Boot properties for this server.
  * @param loadMonitor  Load monitor for tracking system load.
- * @param myRunner  The Runner managing this server's run queue.
+ * @param runner  The Runner managing this server's run queue.
  */
 class NetworkManager(
         private val myConnectionCountMonitor: ConnectionCountMonitor,
-        private val myProps: ElkoProperties, private val myLoadMonitor: LoadMonitor,
-        private val myRunner: Runner, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) {
+        internal val props: ElkoProperties, internal val loadMonitor: LoadMonitor,
+        internal val runner: Runner, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) {
 
     /** Initialized SSL context, if supporting SSL, else null.  */
-    private var mySSLContext: SSLContext? = null
+    internal var sslContext: SSLContext? = null
+        private set
 
     /** Select thread for non-blocking I/O.  */
     private var mySelectThread: SelectThread? = null
@@ -127,7 +128,7 @@ class NetworkManager(
      */
     private fun ensureSelectThread() {
         if (mySelectThread == null) {
-            mySelectThread = SelectThread(this, mySSLContext, clock, traceFactory)
+            mySelectThread = SelectThread(this, sslContext, clock, traceFactory)
         }
     }
 
@@ -259,47 +260,19 @@ class NetworkManager(
     }
 
     /**
-     * Get the load monitor for this server.
-     *
-     * @return the load monitor.
-     */
-    fun loadMonitor(): LoadMonitor = myLoadMonitor
-
-    /**
-     * Get the run queue for this server.
-     *
-     * @return the current runner.
-     */
-    fun runner(): Runner = myRunner
-
-    /**
-     * Get this server's properties.
-     *
-     * @return the properties
-     */
-    fun props(): ElkoProperties = myProps
-
-    /**
      * Do all the various key and certificate management stuff needed to set
      * up to support SSL connections.
      */
     private fun setupSSL() {
-        mySSLContext = SslSetup.setupSsl(myProps, "conf.ssl.", traceFactory.startup)
+        sslContext = SslSetup.setupSsl(props, "conf.ssl.", traceFactory.startup)
     }
-
-    /**
-     * Obtain the SSL context for SSL connections, if there is one.
-     *
-     * @return the SSL context, if supporting SSL, else null.
-     */
-    fun sslContext(): SSLContext? = mySSLContext
 
     init {
         myConnectionManagers = HashMap()
         // FIXME: Initialize somewhere else
         HTTPSessionConnection.initializeRNG()
         RTCPSessionConnection.initializeRNG()
-        if (myProps.testProperty("conf.ssl.enable")) {
+        if (props.testProperty("conf.ssl.enable")) {
             setupSSL()
         }
     }

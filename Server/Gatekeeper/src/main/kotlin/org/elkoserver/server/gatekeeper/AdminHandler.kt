@@ -51,8 +51,8 @@ internal class AdminHandler(private val myGatekeeper: Gatekeeper, traceFactory: 
         if (hostportStr != null) {
             myGatekeeper.setDirectorHost(HostDesc("tcp", false, hostportStr, AuthDesc.theOpenAuth, -1))
         }
-        val directorHost = myGatekeeper.directorHost()
-        from.send(msgDirector(this, directorHost!!.hostPort()!!))
+        val directorHost = myGatekeeper.directorHost
+        from.send(msgDirector(this, directorHost!!.hostPort!!))
     }
 
     /**

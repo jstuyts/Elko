@@ -25,30 +25,25 @@ internal class DirectorActor(
         private val providerGorgel: Gorgel,
         traceFactory: TraceFactory,
         private val ordinalGenerator: OrdinalGenerator) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
-    private val myDirector = myFactory.director()
+    private val myDirector = myFactory.director
 
     /** True if actor has been disconnected.  */
     private var amLoggedOut = false
 
     /** Optional convenience label for logging and such.  */
-    private var myLabel: String? = null
+    internal var label: String? = null
+        private set
 
     /** Admin object if this actor is an admin, else null.  */
-    private var myAdmin: Admin? = null
+    internal var admin: Admin? = null
+        private set
 
     /** Provider object if this actor is a provider, else null.  */
-    private var myProvider: Provider? = null
+    internal var provider: Provider? = null
+        private set
 
     /** True if this actor is a user.  */
     private var amUser = false
-
-    /**
-     * Get this actor's admin facet.
-     *
-     * @return the Admin object associated with this actor, or null if this
-     * actor isn't an admin.
-     */
-    fun admin() = myAdmin
 
     /**
      * Handle loss of connection from the user.
@@ -64,27 +59,27 @@ internal class DirectorActor(
     /**
      * Do the actual work of authorizing an actor.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
-        myLabel = label
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, newLabel: String): Boolean {
+        label = newLabel
         var success = false
         if (myFactory.verifyAuthorization(auth)) {
             if (handler is AdminHandler) {
-                if (myAdmin == null && myFactory.allowAdmin()) {
-                    myAdmin = Admin(myDirector, this)
+                if (admin == null && myFactory.allowAdmin) {
+                    admin = Admin(myDirector, this)
                     success = true
                 } else {
                     gorgel.warn("auth failed: admin access not allowed")
                 }
             } else if (handler is ProviderHandler) {
-                if (myProvider == null && myFactory.allowProvider() &&
+                if (provider == null && myFactory.allowProvider() &&
                         !myDirector.isFull) {
-                    myProvider = Provider(myDirector, this, providerGorgel, ordinalGenerator)
+                    provider = Provider(myDirector, this, providerGorgel, ordinalGenerator)
                     success = true
                 } else {
                     gorgel.warn("auth failed: provider access not allowed")
                 }
             } else if (handler is UserHandler) {
-                if (!amUser && myFactory.allowUser()) {
+                if (!amUser && myFactory.allowUser) {
                     amUser = true
                     success = true
                 } else {
@@ -105,8 +100,8 @@ internal class DirectorActor(
     override fun doDisconnect() {
         if (!amLoggedOut) {
             gorgel.i?.run { info("disconnecting ${this@DirectorActor}") }
-            myProvider?.doDisconnect()
-            myAdmin?.doDisconnect()
+            provider?.doDisconnect()
+            admin?.doDisconnect()
             amLoggedOut = true
             close()
         }
@@ -119,7 +114,7 @@ internal class DirectorActor(
     fun ensureAuthorizedAdmin() {
         if (amLoggedOut) {
             throw MessageHandlerException("actor $this attempted admin operation after logout")
-        } else if (myAdmin == null) {
+        } else if (admin == null) {
             doDisconnect()
             throw MessageHandlerException("actor $this attempted admin operation without authorization")
         }
@@ -132,7 +127,7 @@ internal class DirectorActor(
     fun ensureAuthorizedProvider() {
         if (amLoggedOut) {
             throw MessageHandlerException("actor $this attempted provider operation after logout")
-        } else if (myProvider == null) {
+        } else if (provider == null) {
             doDisconnect()
             throw MessageHandlerException("actor $this attempted provider operation without authorization")
         }
@@ -145,7 +140,7 @@ internal class DirectorActor(
     fun ensureAuthorizedUser() {
         if (amLoggedOut) {
             throw MessageHandlerException("actor $this attempted user operation after logout")
-        } else if (!amUser && myProvider == null && myAdmin == null) {
+        } else if (!amUser && provider == null && admin == null) {
             doDisconnect()
             throw MessageHandlerException("actor $this attempted user operation without authorization")
         }
@@ -156,23 +151,10 @@ internal class DirectorActor(
      * server farm, i.e., that it is not just a user.
      */
     val isInternal: Boolean
-        get() = myProvider != null
-
-    /**
-     * Return this actor's label.
-     */
-    fun label() = myLabel
-
-    /**
-     * Get this actor's provider facet.
-     *
-     * @return the Provider object associated with this actor, or null if this
-     * actor isn't a provider.
-     */
-    fun provider() = myProvider
+        get() = provider != null
 
     /**
      * @return a printable representation of this actor.
      */
-    override fun toString() = myLabel ?: super.toString()
+    override fun toString() = label ?: super.toString()
 }

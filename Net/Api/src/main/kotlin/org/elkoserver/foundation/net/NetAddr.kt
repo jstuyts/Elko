@@ -9,7 +9,7 @@ import java.net.InetAddress
  */
 class NetAddr {
     /** The address.  A null means "all local IP addresses".  */
-    private val myInetAddress: InetAddress?
+    internal val inetAddress: InetAddress?
 
     /**
      * Get the port number.
@@ -47,7 +47,7 @@ class NetAddr {
         if (slash >= 0) {
             actualAddressStr = actualAddressStr.substring(slash + 1)
         }
-        myInetAddress = if (actualAddressStr.isNotEmpty()) {
+        inetAddress = if (actualAddressStr.isNotEmpty()) {
             InetAddress.getByName(actualAddressStr)
         } else {
             null
@@ -61,7 +61,7 @@ class NetAddr {
      * @param portNumber  A port at that IP address.
      */
     constructor(inetAddress: InetAddress, portNumber: Int) {
-        myInetAddress = inetAddress
+        this.inetAddress = inetAddress
         port = portNumber
     }
 
@@ -78,21 +78,14 @@ class NetAddr {
         if (port != other.port) {
             return false
         }
-        val otherInetAddress = other.myInetAddress
-        if (myInetAddress === otherInetAddress) {
+        val otherInetAddress = other.inetAddress
+        if (inetAddress === otherInetAddress) {
             return true
         }
-        return if (myInetAddress == null || otherInetAddress == null) {
+        return if (inetAddress == null || otherInetAddress == null) {
             false
-        } else myInetAddress == otherInetAddress
+        } else inetAddress == otherInetAddress
     }
-
-    /**
-     * Get the IP address.
-     *
-     * @return the IP address embodied by this object.
-     */
-    fun inetAddress(): InetAddress? = myInetAddress
 
     /**
      * Get a hash code for this address.
@@ -100,10 +93,10 @@ class NetAddr {
      * @return a hash code that accounts for both the IP address and port.
      */
     override fun hashCode(): Int {
-        return if (myInetAddress == null) {
+        return if (inetAddress == null) {
             port
         } else {
-            myInetAddress.hashCode() xor port
+            inetAddress.hashCode() xor port
         }
     }
 
@@ -113,10 +106,10 @@ class NetAddr {
      * @return a nicely formatted string representing this address.
      */
     override fun toString(): String {
-        return if (myInetAddress == null) {
+        return if (inetAddress == null) {
             ":$port"
         } else {
-            "${myInetAddress.hostAddress}:$port"
+            "${inetAddress.hostAddress}:$port"
         }
     }
 }

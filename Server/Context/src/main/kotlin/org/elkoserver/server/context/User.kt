@@ -35,7 +35,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
 
     /** Client session ID for this user's connection to the context (null if
      * the client isn't concerned with identifying this).  */
-    private var mySess: String? = null
+    internal var sess: String? = null
 
     /* Fields below here only apply to active Users. */
 
@@ -73,18 +73,18 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param subID  Clone sub identity, or the empty string for non-clones.
      * @param contextor  The contextor for this server.
      * @param name  The (revised) name for this user.
-     * @param sess  Client session ID for this user's connection to their
+     * @param theSess  Client session ID for this user's connection to their
      * context, or null if the client doesn't care.
      * @param isEphemeral  True if this user is ephemeral (won't checkpoint).
      * @param isAnonymous  True if this user is anonymous
      * @param actor  The actor through which this user communicates.
      */
     fun activate(ref: String, subID: String, contextor: Contextor, name: String,
-                 sess: String?, isEphemeral: Boolean, isAnonymous: Boolean,
+                 theSess: String?, isEphemeral: Boolean, isAnonymous: Boolean,
                  actor: UserActor, gorgel: Gorgel) {
         super.activate(ref, subID, isEphemeral, contextor, gorgel)
-        myName = name
-        mySess = sess
+        this.name = name
+        sess = theSess
         myActor = actor
         this.isAnonymous = isAnonymous
         amEntered = true
@@ -163,9 +163,9 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
         if (control.toClient()) {
             result.addParameter("ref", myRef)
         }
-        result.addParameter("name", myName)
+        result.addParameter("name", name)
         val mods = myModSet.encode(control)
-        if (mods.size() > 0) {
+        if (mods.size > 0) {
             result.addParameter("mods", mods)
         }
         result.finish()
@@ -187,7 +187,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
         return if (problem == null) {
             isArrived = true
             myGroup.expelMember(this)
-            myGroup = context.group()
+            myGroup = context.group
             myGroup.admitMember(this)
             context.attachUserMods(this)
             objectIsComplete()
@@ -251,7 +251,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      */
     fun exitWithContextChange(contextRef: String, hostPort: String?, reservation: String?) {
         checkpoint(Consumer<Any?> { ignored: Any? ->
-            assertActivated { send(msgPushContext(it.session(), contextRef, hostPort, reservation)) }
+            assertActivated { send(msgPushContext(it.session, contextRef, hostPort, reservation)) }
         })
     }
 
@@ -296,7 +296,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return the protocol string for this user's connection
      */
-    fun protocol() = myActor.protocol()
+    fun protocol() = myActor.protocol
 
     /**
      * Begin the sequence of events that will push this user to a different
@@ -346,13 +346,6 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
         }
         to.send(msgReady(this))
     }
-
-    /**
-     * Get this user's client-provided context session ID.
-     *
-     * @return the session ID for this user's context.
-     */
-    fun sess() = mySess
 
     /**
      * Test if an oject or any of its contents have a context entry key that

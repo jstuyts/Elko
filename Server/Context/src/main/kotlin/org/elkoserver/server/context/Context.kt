@@ -26,7 +26,7 @@ import java.util.NoSuchElementException
  * is one of the three basic object types (along with [User] and [ ]).
  *
  * @param name  Context name.
- * @param myMaxCapacity   Maximum number of users allowed (-1 if unlimited).
+ * @param maxCapacity   Maximum number of users allowed (-1 if unlimited).
  * @param baseCapacity   Maximum number of users before cloning (-1, the
  * default, if context is not to be cloned).
  * @param isSemiPrivate  Flag that context is semi-private (false by
@@ -53,7 +53,7 @@ import java.util.NoSuchElementException
  */
 class Context @JSONMethod("name", "capacity", "basecapacity", "semiprivate", "restricted", "agnostic", "multientry", "mods", "?usermods", "?contents", "ref", "?subscribe", "ephemeral", "template", "templateonly", "allowanonymous")
 internal constructor(name: String,
-                     private val myMaxCapacity: Int, baseCapacity: OptInteger,
+                     internal val maxCapacity: Int, baseCapacity: OptInteger,
                      isSemiPrivate: OptBoolean, isEntryRestricted: OptBoolean,
                      isContentAgnostic: OptBoolean, isMultiEntry: OptBoolean,
                      mods: Array<Mod>, userMods: Array<Mod>?, contents: Array<Item>?, ref: OptString,
@@ -61,10 +61,11 @@ internal constructor(name: String,
                      isAllowableTemplate: OptBoolean, isMandatoryTemplate: OptBoolean,
                      isAllowAnonymous: OptBoolean) : BasicObject(name, mods, true, contents), Deliverer {
     /** Send group for users in this context.  */
-    private lateinit var myGroup: LiveGroup
+    internal lateinit var group: LiveGroup
+        private set
 
     /** Maximum number of users allowed in the context before it clones.  */
-    private val myBaseCapacity = baseCapacity.value(-1)
+    internal val baseCapacity = baseCapacity.value(-1)
 
     /** True if users in this context can't see one another.  */
     val isSemiPrivate: Boolean = isSemiPrivate.value(false)
@@ -95,11 +96,12 @@ internal constructor(name: String,
 
     /** Presence domains that this context subscribes to.  Empty if not
      * subscribing to any, null if not providing presence information.  */
-    private val mySubscriptions: Array<String>? = subscribe
+    internal val subscriptions: Array<String>? = subscribe
 
     /* Fields below here only apply to active contexts. */
     /** Number of users currently in the context.  */
-    private var myUserCount = 0
+    var userCount = 0
+        private set
 
     /** Users here by base ref, or null if this context is multientry.  */
     private var myUsers: MutableMap<String?, User?>? = null
@@ -108,10 +110,12 @@ internal constructor(name: String,
     private var myRetainCount = 0
 
     /** Ref of context descriptor from which this context was loaded.  */
-    private lateinit var myLoadedFromRef: String
+    private lateinit var loadedFromRef: String
+        private set
 
     /** Director who originally requested this context to be opened, if any.  */
-    private var myOpener: DirectorActor? = null
+    internal var opener: DirectorActor? = null
+        private set
 
     /** Entities that want to be notified when users arrive or depart.  */
     private var myUserWatchers: MutableList<UserWatcher>? = null
@@ -126,7 +130,8 @@ internal constructor(name: String,
     private var amForceClosing = false
 
     /** Reason this context is closed to user entry, or null if it is not.  */
-    private var myGateClosedReason: String? = null
+    internal var gateClosedReason: String? = null
+        private set
 
     /** Optional watcher for friend presence changes.  */
     private var myPresenceWatcher: PresenceWatcher? = null
@@ -149,13 +154,13 @@ internal constructor(name: String,
                  opener: DirectorActor?, gorgel: Gorgel, timer: Timer) {
         super.activate(ref, subID, isEphemeral, contextor, gorgel)
         this.timer = timer
-        myGroup = LiveGroup()
-        myUserCount = 0
+        group = LiveGroup()
+        userCount = 0
         myRetainCount = 0
         myUserWatchers = null
         myContextShutdownWatchers = null
-        myOpener = opener
-        myLoadedFromRef = loadedFromRef
+        this.opener = opener
+        this.loadedFromRef = loadedFromRef
         amClosing = false
         amForceClosing = false
         contextor.noteContext(this, true)
@@ -199,22 +204,10 @@ internal constructor(name: String,
     }
 
     /**
-     * Obtain the number of users who may enter (a clone of) this context
-     * before another clone must be created.  When the user count of the
-     * context reaches this number, users may still enter this specific clone
-     * if they specify its cloned context ID explicitly (and as long as [ ][.maxCapacity] is not exceeded), but users who request entry to the
-     * context by specifying its generic context ID (that is, its ID before
-     * cloning) will be directed to a different clone.
-     *
-     * @return the number of users who may enter before the context clones.
-     */
-    fun baseCapacity(): Int = myBaseCapacity
-
-    /**
      * If nobody is using this context any more, checkpoint and discard it.
      */
     private fun checkForContextShutdown() {
-        if (myUserCount == 0 && (myRetainCount == 0 || amForceClosing)) {
+        if (userCount == 0 && (myRetainCount == 0 || amForceClosing)) {
             if (!amClosing) {
                 amClosing = true
                 myGorgel.info("shutting down")
@@ -234,7 +227,7 @@ internal constructor(name: String,
      * @param reason  String describing why this is being done.
      */
     fun closeGate(reason: String?) {
-        myGateClosedReason = reason ?: "context closed to new entries"
+        gateClosedReason = reason ?: "context closed to new entries"
         assertActivated { it.noteContextGate(this, false, reason) }
     }
 
@@ -250,17 +243,17 @@ internal constructor(name: String,
            count here, even if entry ends up being prevented, since a blocked
            entry will result in user exit and thus a call to exitContext()
            that will decrement the count again. */
-        myUserCount += 1
+        userCount += 1
         return if (isRestricted && !who.entryEnabled(myRef!!)) {
             myGorgel.info("$who forbidden entry (entry restricted)")
             "restricted"
         } else if (!amAllowAnonymous && who.isAnonymous) {
             myGorgel.info("$who forbidden entry (anonymous users forbidden)")
             "noanonymity"
-        } else if (myGateClosedReason != null) {
-            myGorgel.info("$who forbidden entry (gate closed: $myGateClosedReason)")
+        } else if (gateClosedReason != null) {
+            myGorgel.info("$who forbidden entry (gate closed: $gateClosedReason)")
             "gateclosed"
-        } else if (myUserCount > myMaxCapacity && myMaxCapacity != -1) {
+        } else if (userCount > maxCapacity && maxCapacity != -1) {
             myGorgel.info("$who forbidden entry (capacity limit reached)")
             "full"
         } else if (amClosing) {
@@ -277,7 +270,7 @@ internal constructor(name: String,
                 }
                 currentUsers[who.baseRef()] = who
             }
-            sendContextDescription(who, assertActivated(Contextor::session))
+            sendContextDescription(who, assertActivated({ it.session }))
             noteUserArrival(who)
             myGorgel.info("$who enters")
             null
@@ -301,7 +294,7 @@ internal constructor(name: String,
             }
             noteUserDeparture(who)
         }
-        --myUserCount
+        --userCount
         checkForContextShutdown()
     }
 
@@ -323,19 +316,11 @@ internal constructor(name: String,
      */
     fun forceClose(dup: Boolean) {
         amForceClosing = true
-        val members: List<Deliverer> = LinkedList(myGroup.members())
+        val members: List<Deliverer> = LinkedList(group.members())
         members
                 .map { it as User }
                 .forEach { it.exitContext("context closing", "contextclose", dup) }
     }
-
-    /**
-     * Obtain a string describing the reason this context's gate is closed.
-     *
-     * @return a reason string for this context's gate closure, or null if the
-     * gate is open.
-     */
-    fun gateClosedReason() = myGateClosedReason
 
     /**
      * Test if this context's gate is closed.  If the gate is closed, new users
@@ -343,7 +328,7 @@ internal constructor(name: String,
      *
      * @return true iff this context's gate is closed.
      */
-    fun gateIsClosed() = myGateClosedReason != null
+    fun gateIsClosed() = gateClosedReason != null
 
     /**
      * Look up an object in this context's namespace.  Note that the context's
@@ -376,33 +361,12 @@ internal constructor(name: String,
     fun getStaticObject(ref: String): Any? = assertActivated { it.getStaticObject(ref) }
 
     /**
-     * Obtain this context's send group.
-     *
-     * @return the send group for this context.
-     */
-    fun group(): SendGroup = myGroup
-
-    /**
      * Test if this context may be used as a template for other contexts.
      *
      * @return true iff this context is an allowable template context.
      */
     val isAllowableTemplate: Boolean
         get() = amAllowableTemplate || isMandatoryTemplate
-
-    /**
-     * Obtain the ref of the context descriptor from which this context was
-     * loaded.
-     */
-    fun loadedFromRef(): String? = myLoadedFromRef
-
-    /**
-     * Obtain the number of users who may enter before no more are allowed in.
-     *
-     * @return the number of users who may enter before the context becomes
-     * full.
-     */
-    fun maxCapacity(): Int = myMaxCapacity
 
     /**
      * Notify anybody who has expressed an interest in this context shutting
@@ -456,18 +420,11 @@ internal constructor(name: String,
     }
 
     /**
-     * Obtain the director who opened this context.
-     *
-     * @return the director who asked for this context to be opened.
-     */
-    fun opener(): DirectorActor? = myOpener
-
-    /**
      * Open this context's gate, allowing new users in if the context is not
      * full.
      */
     fun openGate() {
-        myGateClosedReason = null
+        gateClosedReason = null
         assertActivated { it.noteContextGate(this, true, null) }
     }
 
@@ -563,7 +520,7 @@ internal constructor(name: String,
      */
     private inner class ContextEventThunk internal constructor(private val myThunk: Runnable) : Runnable, TimeoutNoticer {
         override fun noticeTimeout() {
-            assertActivated { it.server().enqueue(this) }
+            assertActivated { it.server.enqueue(this) }
         }
 
         override fun run() {
@@ -596,11 +553,11 @@ internal constructor(name: String,
     private fun sendContextDescription(to: Deliverer, maker: Referenceable) {
         var sess: String? = null
         if (to is User) {
-            sess = to.sess()
+            sess = to.sess
         }
         to.send(msgMake(maker, this, sess))
         if (!isSemiPrivate) {
-            myGroup.members()
+            group.members()
                     .filterIsInstance<User>()
                     .forEach { it.sendUserDescription(to, this, false) }
         }
@@ -619,10 +576,8 @@ internal constructor(name: String,
      * @param message  The message to send.
      */
     fun sendToNeighbors(exclude: Deliverer?, message: JSONLiteral?) {
-        myGroup.sendToNeighbors(exclude!!, message!!)
+        group.sendToNeighbors(exclude!!, message!!)
     }
-
-    fun subscriptions(): Array<String>? = mySubscriptions
 
     /**
      * Obtain a Deliverer that will deliver to all of a user's neighbors in
@@ -647,15 +602,8 @@ internal constructor(name: String,
      */
     override fun toString() = "Context '${ref()}'"
 
-    /**
-     * Get the number of users in this context.
-     *
-     * @return the number of users currently in this context.
-     */
-    fun userCount() = myUserCount
-
     private inner class UserIterator internal constructor() : MutableIterator<User> {
-        private val myInnerIterator = myGroup.members().iterator()
+        private val myInnerIterator = group.members().iterator()
         private var myNext: User?
         override fun hasNext(): Boolean = myNext != null
 
@@ -745,7 +693,7 @@ internal constructor(name: String,
      * @param message  The message to send.
      */
     override fun send(message: JSONLiteral) {
-        myGroup.send(message)
+        group.send(message)
     }
     /* ----- Encodable. interface, inherited from BasicObject -------------- */
     /**
@@ -761,9 +709,9 @@ internal constructor(name: String,
         if (control.toClient()) {
             result.addParameter("ref", myRef)
         } else {
-            result.addParameter("capacity", myMaxCapacity)
-            if (myBaseCapacity != -1) {
-                result.addParameter("basecapacity", myBaseCapacity)
+            result.addParameter("capacity", maxCapacity)
+            if (baseCapacity != -1) {
+                result.addParameter("basecapacity", baseCapacity)
             }
             if (isSemiPrivate) {
                 result.addParameter("semiprivate", isSemiPrivate)
@@ -783,13 +731,13 @@ internal constructor(name: String,
             if (myUsers == null) {
                 result.addParameter("multientry", true)
             }
-            if (mySubscriptions != null) {
-                result.addParameter("subscribe", mySubscriptions)
+            if (subscriptions != null) {
+                result.addParameter("subscribe", subscriptions)
             }
         }
-        result.addParameter("name", myName)
+        result.addParameter("name", name)
         val mods = myModSet.encode(control)
-        if (mods.size() > 0) {
+        if (mods.size > 0) {
             result.addParameter("mods", mods)
         }
         if (control.toRepository() && myUserMods != null) {
@@ -797,7 +745,7 @@ internal constructor(name: String,
             for (mod in myUserMods) {
                 userMods.addElement(mod)
             }
-            if (userMods.size() > 0) {
+            if (userMods.size > 0) {
                 result.addParameter("usermods", userMods)
             }
         }

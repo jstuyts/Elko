@@ -9,14 +9,9 @@ import org.elkoserver.server.context.UserMod
 /**
  * This Mod holds device specific identity information for a user.
  *
- * @param myDeviceUUID  The Device specific user ID, a device dependent user ID
+ * @param uuid  The Device specific user ID, a device dependent user ID
  */
-class DeviceUserMod @JSONMethod("uuid") constructor(private val myDeviceUUID: String) : Mod(), UserMod {
-
-    /**
-     * Get the Device UID
-     */
-    fun uuid(): String = myDeviceUUID
+class DeviceUserMod @JSONMethod("uuid") constructor(private val uuid: String) : Mod(), UserMod {
 
     /**
      * Encode this mod for transmission or persistence.  This mod is
@@ -30,7 +25,7 @@ class DeviceUserMod @JSONMethod("uuid") constructor(private val myDeviceUUID: St
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
                 JSONLiteralFactory.type("deviceuser", control).apply {
-                    addParameter("uuid", myDeviceUUID)
+                    addParameter("uuid", uuid)
                     finish()
                 }
             } else {

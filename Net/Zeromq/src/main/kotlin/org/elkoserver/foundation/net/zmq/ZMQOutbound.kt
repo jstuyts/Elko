@@ -34,16 +34,16 @@ class ZMQOutbound @JSONMethod("address") constructor(private val myAddress: Stri
      */
     override fun activate(ref: String, contextor: Contextor) {
         super.activate(ref, contextor)
-        contextor.server().networkManager().connectVia(
+        contextor.server.networkManager.connectVia(
                 "org.elkoserver.foundation.net.zmq.ZeroMQConnectionManager",
                 "",
                 myAddress,
                 object : MessageHandlerFactory {
                     override fun provideMessageHandler(connection: Connection?): MessageHandler? {
                         this@ZMQOutbound.connection = connection
-                        return NullMessageHandler(contextor.appTrace())
+                        return NullMessageHandler(contextor.tr)
                     }
                 },
-                contextor.appTrace())
+                contextor.tr)
     }
 }

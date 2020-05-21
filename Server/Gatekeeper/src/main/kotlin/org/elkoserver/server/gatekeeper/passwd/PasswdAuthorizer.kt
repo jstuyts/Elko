@@ -38,7 +38,7 @@ class PasswdAuthorizer(
      * @param actor  The actor description for the actor to add.
      */
     fun addActor(actor: ActorDesc) {
-        myODB.putObject("a-${actor.id()}", actor, null, false, null)
+        myODB.putObject("a-${actor.id}", actor, null, false, null)
     }
 
     /**
@@ -58,7 +58,7 @@ class PasswdAuthorizer(
      * @param actor  The actor description for the actor to checkpoint.
      */
     fun checkpointActor(actor: ActorDesc) {
-        myODB.putObject("a-${actor.id()}", actor, null, false, null)
+        myODB.putObject("a-${actor.id}", actor, null, false, null)
     }
 
     /**
@@ -169,10 +169,10 @@ class PasswdAuthorizer(
             if (obj != null) {
                 when (obj) {
                     is ActorDesc -> myActor = obj
-                    is PlaceDesc -> myContextID = obj.contextID()
+                    is PlaceDesc -> myContextID = obj.contextID
                     is ReservationResult -> {
                         reservation = obj
-                        failure = reservation.deny()
+                        failure = reservation.deny
                     }
                     else -> throw Error("bad object class: ${obj.javaClass}")
                 }
@@ -185,9 +185,9 @@ class PasswdAuthorizer(
                 if (myActor != null) {
                     if (myActor!!.testPassword(myPassword)) {
                         if (myName == null) {
-                            myName = myActor!!.name()
+                            myName = myActor!!.name
                         }
-                        myID = myActor!!.id()
+                        myID = myActor!!.id
                         iid = myActor!!.internalID()
                     } else {
                         failure = "bad password"
@@ -202,11 +202,11 @@ class PasswdAuthorizer(
             if (failure != null) {
                 myHandler.handleFailure(failure)
             } else if (reservation != null) {
-                myHandler.handleReservation(reservation.actor(),
-                        reservation.contextID(),
+                myHandler.handleReservation(reservation.actor,
+                        reservation.contextID,
                         myName,
-                        reservation.hostport(),
-                        reservation.auth())
+                        reservation.hostport,
+                        reservation.auth)
             }
         }
 
@@ -229,7 +229,7 @@ class PasswdAuthorizer(
                     if (obj != null) {
                         val actor = obj as ActorDesc
                         if (actor.testPassword(oldPassword)) {
-                            if (actor.canSetPass()) {
+                            if (actor.canSetPass) {
                                 actor.setPassword(newPassword)
                                 checkpointActor(actor)
                                 null

@@ -16,7 +16,7 @@ interface BasicProtocolActor : Deliverer {
      * @param handler  Handler requesting the authorization.
      * @param auth  Authorization information from the authorization request
      * message, or null if no authorization information was provided.
-     * @param label  Label (e.g., displayable user name) string from the
+     * @param newLabel  Label (e.g., displayable user name) string from the
      * authorization request message, or "&lt;anonymous&gt;" if no value was
      * specified.
      *
@@ -24,7 +24,7 @@ interface BasicProtocolActor : Deliverer {
      * allowed to proceed, false if it did not and the session should be
      * disconnected.
      */
-    fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean
+    fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, newLabel: String): Boolean
 
     /**
      * Disconnect this actor.

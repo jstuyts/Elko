@@ -9,13 +9,13 @@ import org.elkoserver.json.JSONLiteralFactory.type
 /**
  * Description of a requested object returned from the object store.
  *
- * @param myRef  Object reference of the object requested.
- * @param myObj Object description (a JSON string describing the object, if
+ * @param ref  Object reference of the object requested.
+ * @param obj Object description (a JSON string describing the object, if
  *    the object was retrieved, or null if retrieval failed).
- * @param myFailure  Error message string if retrieval failed, or null if
+ * @param failure  Error message string if retrieval failed, or null if
  *    retrieval succeeded.
  */
-class ObjectDesc(private val myRef: String, private val myObj: String?, private val myFailure: String?) : Encodable {
+class ObjectDesc(internal val ref: String, val obj: String?, val failure: String?) : Encodable {
 
     /**
      * JSON-driven constructor.
@@ -37,32 +37,9 @@ class ObjectDesc(private val myRef: String, private val myObj: String?, private 
      */
     override fun encode(control: EncodeControl) =
             type("obji", control).apply {
-                addParameter("ref", myRef)
-                addParameterOpt("obj", myObj)
-                addParameterOpt("failure", myFailure)
+                addParameter("ref", ref)
+                addParameterOpt("obj", obj)
+                addParameterOpt("failure", failure)
                 finish()
             }
-
-    /**
-     * Get the error message string.
-     *
-     * @return the error message string, or null if there is none (i.e., if
-     * this represents a success result).
-     */
-    fun failure() = myFailure
-
-    /**
-     * Get the requested object's description.
-     *
-     * @return the requested object's description (a JSON string), or null if
-     * there is no object (i.e., if this represents an error result).
-     */
-    fun obj() = myObj
-
-    /**
-     * Get the requested object's reference string.
-     *
-     * @return the object reference string of the requested object.
-     */
-    fun ref() = myRef
 }

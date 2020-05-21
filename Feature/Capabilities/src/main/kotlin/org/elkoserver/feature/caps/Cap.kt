@@ -143,7 +143,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
     @JSONMethod("label")
     fun setlabel(from: User, label: String) {
         ensureReachable(from)
-        `object`().setName(label)
+        `object`().name = label
     }
 
     /**
@@ -268,7 +268,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
         if (!expireOK) {
             throw MessageHandlerException("illegal rights amplification")
         }
-        val capItem = container.createItem(`object`().name()!!, false, true)
+        val capItem = container.createItem(`object`().name!!, false, true)
         try {
             clone() as Cap
         } catch (e: CloneNotSupportedException) {

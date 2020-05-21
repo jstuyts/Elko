@@ -22,7 +22,7 @@ class Reservation(
     private val communicationsGorgel = myGorgel.withAdditionalStaticTags(Tag("category", "comm"))
 
     /** The director that issued this reservation.  */
-    private var myIssuer: DirectorActor? = null
+    internal var issuer: DirectorActor? = null
 
     /** Timeout for expiring an unredeemed reservation.  */
     private var myExpirationTimeout: Timeout? = null
@@ -32,8 +32,8 @@ class Reservation(
     private var amRedeemed = false
 
     constructor(who: String?, where: String, authCode: String, expirationTime: Int,
-                issuer: DirectorActor?, timer: Timer, gorgel: Gorgel) : this(who, where, authCode, gorgel) {
-        myIssuer = issuer
+                theIssuer: DirectorActor?, timer: Timer, gorgel: Gorgel) : this(who, where, authCode, gorgel) {
+        issuer = theIssuer
         myExpirationTimeout = timer.after(expirationTime.toLong(), this)
     }
 
@@ -71,19 +71,12 @@ class Reservation(
     }
 
     /**
-     * Get this reservations issuer.
-     *
-     * @return this reservation's issuer.
-     */
-    fun issuer() = myIssuer
-
-    /**
      * Handle reservation expiration.
      */
     override fun noticeTimeout() {
         if (!amRedeemed) {
             amRedeemed = true
-            myIssuer!!.removeReservation(this)
+            issuer!!.removeReservation(this)
             communicationsGorgel.i?.run { info("expiring reservation $myWho|$myWhere|$myAuthCode") }
         }
     }
@@ -94,7 +87,7 @@ class Reservation(
     fun redeem() {
         if (!amRedeemed) {
             amRedeemed = true
-            myIssuer!!.removeReservation(this)
+            issuer!!.removeReservation(this)
             myExpirationTimeout?.cancel()
         }
     }

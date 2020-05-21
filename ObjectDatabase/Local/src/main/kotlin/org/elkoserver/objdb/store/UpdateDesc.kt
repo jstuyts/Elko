@@ -9,14 +9,14 @@ import org.elkoserver.json.JSONLiteralFactory.type
  * Description of a request to update to the object store.
  *
  * @param ref  Object reference for the object.
- * @param myVersion  Object version being updated
+ * @param version  Object version being updated
  * @param obj Object description (a JSON string describing the object).
  * @param collectionName  Name of collection to write to, or null to take
  *    the configured default.
  *
  * @see ObjectStore.updateObjects ObjectStore.updateObjects
  */
-class UpdateDesc(ref: String, private val myVersion: Int, obj: String, collectionName: String?)
+class UpdateDesc(ref: String, val version: Int, obj: String, collectionName: String?)
     : PutDesc(ref, obj, collectionName, false) {
 
     /**
@@ -42,17 +42,10 @@ class UpdateDesc(ref: String, private val myVersion: Int, obj: String, collectio
      */
     override fun encode(control: EncodeControl) =
             type("updatei", control).apply {
-                addParameter("ref", ref())
-                addParameter("version", myVersion)
-                addParameterOpt("obj", obj())
-                addParameterOpt("coll", collectionName())
+                addParameter("ref", ref)
+                addParameter("version", version)
+                addParameterOpt("obj", obj)
+                addParameterOpt("coll", collectionName)
                 finish()
             }
-
-    /**
-     * Get the version number.
-     *
-     * @return the version number of the version being updated.
-     */
-    fun version() = myVersion
 }

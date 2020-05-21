@@ -12,24 +12,24 @@ import org.elkoserver.json.JSONLiteralFactory
  *
  * Note: this is not a mod.  StyleOptions objects are used by mods.
  *
- * @param myColors  Permissible foreground (text) colors.
- * @param myBackgroundColors  Permissible background colors.
- * @param myBorderColors  Permissible border colors.
- * @param myTextStyles  Permissible text styles.
- * @param myIcons  Permissible icon URLs.
- * @param iconWidth  Common width of icons, or -1 if not relevant.
- * @param iconHeight  Common height of icons, or -1 if not relevant.
+ * @param colors  Permissible foreground (text) colors.
+ * @param backgroundColors  Permissible background colors.
+ * @param borderColors  Permissible border colors.
+ * @param textStyles  Permissible text styles.
+ * @param icons  Permissible icon URLs.
+ * @param theIconWidth  Common width of icons, or -1 if not relevant.
+ * @param theIconHeight  Common height of icons, or -1 if not relevant.
  */
 class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "textStyles", "icons", "iconWidth", "iconHeight") constructor(
-        private val myColors: Array<String>,
-        private val myBackgroundColors: Array<String>,
-        private val myBorderColors: Array<String>,
-        private val myTextStyles: Array<String>,
-        private val myIcons: Array<String>,
-        iconWidth: OptInteger,
-        iconHeight: OptInteger) : Encodable {
-    private val myIconWidth: Int = iconWidth.value(-1)
-    private val myIconHeight: Int = iconHeight.value(-1)
+        internal val colors: Array<String>,
+        internal val backgroundColors: Array<String>,
+        private val borderColors: Array<String>,
+        internal val textStyles: Array<String>,
+        internal val icons: Array<String>,
+        theIconWidth: OptInteger,
+        theIconHeight: OptInteger) : Encodable {
+    private val iconWidth: Int = theIconWidth.value(-1)
+    private val iconHeight: Int = theIconHeight.value(-1)
 
     /**
      * Test if a particular string is a member of an array of allowed choices.
@@ -61,33 +61,12 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
      * @return true if 'style' is acceptable to this object, false if not.
      */
     fun allowedStyle(style: StyleDesc): Boolean {
-        return allowedChoice(style.color(), myColors) &&
-                allowedChoice(style.backgroundColor(), myBackgroundColors) &&
-                allowedChoice(style.borderColor(), myBorderColors) &&
-                allowedChoice(style.textStyle(), myTextStyles) &&
-                allowedChoice(style.icon(), myIcons)
+        return allowedChoice(style.color, colors) &&
+                allowedChoice(style.backgroundColor, backgroundColors) &&
+                allowedChoice(style.borderColor, borderColors) &&
+                allowedChoice(style.textStyle, textStyles) &&
+                allowedChoice(style.icon, icons)
     }
-
-    /**
-     * Get the permissible background colors.
-     *
-     * @return an array of the permissible background colors.
-     */
-    fun backgroundColors(): Array<String>? = myBackgroundColors
-
-    /**
-     * Get the permissible border colors.
-     *
-     * @return an array of the permissible border colors.
-     */
-    fun borderColors(): Array<String>? = myBorderColors
-
-    /**
-     * Get the permissible foreground (text) colors.
-     *
-     * @return an array of the permissible foreground colors.
-     */
-    fun colors(): Array<String>? = myColors
 
     /**
      * Encode this object for transmission or persistence.
@@ -99,26 +78,26 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
      */
     override fun encode(control: EncodeControl) =
             JSONLiteralFactory.type("styleoptions", control).apply {
-                if (myColors != null && myColors.isNotEmpty()) {
-                    addParameter("colors", myColors)
+                if (colors != null && colors.isNotEmpty()) {
+                    addParameter("colors", colors)
                 }
-                if (myBackgroundColors != null && myBackgroundColors.isNotEmpty()) {
-                    addParameter("backgroundColors", myBackgroundColors)
+                if (backgroundColors != null && backgroundColors.isNotEmpty()) {
+                    addParameter("backgroundColors", backgroundColors)
                 }
-                if (myBorderColors != null && myBorderColors.isNotEmpty()) {
-                    addParameter("borderColors", myBorderColors)
+                if (borderColors != null && borderColors.isNotEmpty()) {
+                    addParameter("borderColors", borderColors)
                 }
-                if (myTextStyles != null && myTextStyles.isNotEmpty()) {
-                    addParameter("textStyles", myTextStyles)
+                if (textStyles != null && textStyles.isNotEmpty()) {
+                    addParameter("textStyles", textStyles)
                 }
-                if (myIcons != null && myIcons.isNotEmpty()) {
-                    addParameter("icons", myIcons)
+                if (icons != null && icons.isNotEmpty()) {
+                    addParameter("icons", icons)
                 }
-                if (myIconWidth >= 0) {
-                    addParameter("iconWidth", myIconWidth)
+                if (iconWidth >= 0) {
+                    addParameter("iconWidth", iconWidth)
                 }
-                if (myIconHeight >= 0) {
-                    addParameter("iconHeight", myIconHeight)
+                if (iconHeight >= 0) {
+                    addParameter("iconHeight", iconHeight)
                 }
                 finish()
             }
@@ -141,29 +120,6 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
     }
 
     /**
-     * Get the permissible icon URLs.
-     *
-     * @return an array of the permissible icon URLs.
-     */
-    fun icons(): Array<String>? = myIcons
-
-    /**
-     * Get the height of the icons.
-     *
-     * @return the (common) height of the icons, or -1 if they do not have a
-     * common height.
-     */
-    fun iconHeight(): Int = myIconHeight
-
-    /**
-     * Get the width of the icons.
-     *
-     * @return the (common) width of the icons, or -1 if they do not have a
-     * common width.
-     */
-    fun iconWidth(): Int = myIconWidth
-
-    /**
      * Produce a new [StyleDesc] object given another, partially
      * specified, [StyleDesc] object.
      *
@@ -181,17 +137,17 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
         val icon: String?
         val textStyle: String?
         if (style == null) {
-            backgroundColor = extract(null, myBackgroundColors)
-            borderColor = extract(null, myBorderColors)
-            color = extract(null, myColors)
-            icon = extract(null, myIcons)
-            textStyle = extract(null, myTextStyles)
+            backgroundColor = extract(null, backgroundColors)
+            borderColor = extract(null, borderColors)
+            color = extract(null, colors)
+            icon = extract(null, icons)
+            textStyle = extract(null, textStyles)
         } else {
-            backgroundColor = extract(style.backgroundColor(), myBackgroundColors)
-            borderColor = extract(style.borderColor(), myBorderColors)
-            color = extract(style.color(), myColors)
-            icon = extract(style.icon(), myIcons)
-            textStyle = extract(style.textStyle(), myTextStyles)
+            backgroundColor = extract(style.backgroundColor, backgroundColors)
+            borderColor = extract(style.borderColor, borderColors)
+            color = extract(style.color, colors)
+            icon = extract(style.icon, icons)
+            textStyle = extract(style.textStyle, textStyles)
         }
         val result = StyleDesc(color, backgroundColor, borderColor, textStyle, icon)
         return if (allowedStyle(result)) {
@@ -200,11 +156,4 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
             null
         }
     }
-
-    /**
-     * Get the permissible text styles.
-     *
-     * @return an array of the permissible text styles.
-     */
-    fun textStyles(): Array<String>? = myTextStyles
 }

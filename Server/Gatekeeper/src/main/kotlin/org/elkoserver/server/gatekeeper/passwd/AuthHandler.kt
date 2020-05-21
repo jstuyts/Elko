@@ -139,7 +139,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
                 from.send(msgLookupActor(this@AuthHandler, id, null, null, "no such actor"))
             } else {
                 val actor = obj as ActorDesc
-                from.send(msgLookupActor(this@AuthHandler, id, actor.internalID(), actor.name(), null))
+                from.send(msgLookupActor(this@AuthHandler, id, actor.internalID(), actor.name, null))
             }
         })
     }
@@ -157,7 +157,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.getPlace(name, Consumer { obj: Any? ->
             val place = obj as PlaceDesc?
-            val contextID = place?.contextID()
+            val contextID = place?.contextID
             from.send(msgLookupPlace(this@AuthHandler, name, contextID))
         })
     }
@@ -177,7 +177,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
         myAuthorizer.getActor(id, Consumer { obj: Any? ->
             if (obj != null) {
                 val actor = obj as ActorDesc
-                if (actor.canSetPass() != canSetPass) {
+                if (actor.canSetPass != canSetPass) {
                     actor.setCanSetPass(canSetPass)
                     myAuthorizer.checkpointActor(actor)
                 }
@@ -227,7 +227,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
             if (obj != null) {
                 val name = optName.value<String?>(null)
                 val actor = obj as ActorDesc
-                if (name != actor.name()) {
+                if (name != actor.name) {
                     actor.setName(name)
                     myAuthorizer.checkpointActor(actor)
                 }

@@ -43,15 +43,15 @@ import kotlin.math.abs
  * then possess it in a parameter variable whence it can be both passed to
  * the superclass constructor and saved in an instance variable.
  *
- * @param myODB  Database for persistent object storage.
- * @param myServer  Server object.
+ * @param odb  Database for persistent object storage.
+ * @param server  Server object.
  * @param tr  Trace object for diagnostics.
  * @param myRandom Random number generator, for creating unique IDs and sub-IDs.
  */
 class Contextor internal constructor(
-        private val myODB: ObjDB,
-        private val myServer: Server,
-        private val tr: Trace,
+        val odb: ObjDB,
+        val server: Server,
+        @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace,
         private val contextorGorgel: Gorgel,
         private val contextGorgelWithoutRef: Gorgel,
         private val itemGorgelWithoutRef: Gorgel,
@@ -63,17 +63,17 @@ class Contextor internal constructor(
         private val timer: Timer,
         traceFactory: TraceFactory,
         clock: Clock,
-        private val myEntryTimeout: Int,
-        private val myLimit: Int,
+        internal val entryTimeout: Int,
+        internal val limit: Int,
         private val myRandom: Random,
         staticsToLoad: String?,
         private val reservationTimeout: Int,
         private val families: String?,
         sessionPassword: String?,
-        private val props: ElkoProperties) : RefTable(myODB, traceFactory, clock) {
+        private val props: ElkoProperties) : RefTable(odb, traceFactory, clock) {
 
     /** The generic 'session' object for talking to this server.  */
-    private val mySession: Session = Session(this, sessionPassword, sessionGorgel, traceFactory)
+    internal val session: Session = Session(this, sessionPassword, sessionGorgel, traceFactory)
 
     /** Sets of entities awaiting objects from the object database, by object
      * reference string.  */
@@ -99,7 +99,7 @@ class Contextor internal constructor(
 
     /** Context families served by this server.  Names prefixed by '$'
      * represent restricted contexts.  */
-    private val myContextFamilies: Set<String>
+    internal val contextFamilies: Set<String>
 
     /** User names gathered from presence notification metadata.  */
     private val myUserNames: MutableMap<String, String> = HashMap()
@@ -133,7 +133,7 @@ class Contextor internal constructor(
             false
         } else {
             val family = ref.take(delim)
-            myContextFamilies.contains(family) || myContextFamilies.contains("$$family")
+            contextFamilies.contains(family) || contextFamilies.contains("$$family")
         }
     }
 
@@ -223,14 +223,6 @@ class Contextor internal constructor(
     }
 
     /**
-     * Obtain the application trace object for this context server.
-     *
-     * @return the context server's trace object.
-     */
-    @Deprecated(message = "An injected Gorgel must be used.")
-    fun appTrace() = tr
-
-    /**
      * Save all changed objects that need saving.
      */
     private fun checkpointAll() {
@@ -238,13 +230,6 @@ class Contextor internal constructor(
                 .filterIsInstance<BasicObject>()
                 .forEach(BasicObject::checkpointWithoutContents)
     }
-
-    /**
-     * Get a read-only view of the collection of context families.
-     *
-     * @return the current set of context families.
-     */
-    fun contextFamilies() = myContextFamilies
 
     /**
      * Get a read-only view of the context set.
@@ -310,7 +295,7 @@ class Contextor internal constructor(
      */
     fun createObjectRecord(ref: String?, contRef: String?, obj: BasicObject) {
         val actualRef = ref ?: uniqueID(obj.type())
-        myODB.putObject(actualRef, obj, null, false, null)
+        odb.putObject(actualRef, obj, null, false, null)
     }
 
     /**
@@ -319,7 +304,7 @@ class Contextor internal constructor(
      * @param ref  Reference string identifying the user to be deleted.
      */
     fun deleteUserRecord(ref: String) {
-        myODB.removeObject(ref, null, null)
+        odb.removeObject(ref, null, null)
     }
 
     /**
@@ -337,13 +322,6 @@ class Contextor internal constructor(
     }
 
     /**
-     * Return the entry timeout value.
-     *
-     * @return the entry timeout interval, in milliseconds.
-     */
-    fun entryTimeout() = myEntryTimeout
-
-    /**
      * Locate an available clone of some context.
      *
      * @param ref  Base reference of the context sought.
@@ -353,7 +331,7 @@ class Contextor internal constructor(
      * context or if all the clones are full.
      */
     private fun findContextClone(ref: String): Context? =
-            myContextClones.getMulti(ref).firstOrNull { it.userCount() < it.baseCapacity() && !it.gateIsClosed() }
+            myContextClones.getMulti(ref).firstOrNull { it.userCount < it.baseCapacity && !it.gateIsClosed() }
 
     /**
      * Find or make a connection to an external service.
@@ -364,7 +342,7 @@ class Contextor internal constructor(
      * will be passed a null if no connection was possible.
      */
     fun findServiceLink(serviceName: String, handler: Consumer<in ServiceLink?>) {
-        myServer.findServiceLink("workshop-service-$serviceName", handler)
+        server.findServiceLink("workshop-service-$serviceName", handler)
     }
 
     /**
@@ -394,7 +372,7 @@ class Contextor internal constructor(
                 val contentsHandler = ContentsHandler(null, getHandler)
                 val contextReceiver = Consumer { obj: Any? -> contentsHandler.receiveContainer(obj as BasicObject?) }
                 if (addPendingGet(actualContextTemplate, contextHandler)) {
-                    myODB.getObject(actualContextTemplate, null, contextReceiver)
+                    odb.getObject(actualContextTemplate, null, contextReceiver)
                     loadContentsOfContainer(contextRef, contentsHandler)
                 }
             } else {
@@ -593,7 +571,7 @@ class Contextor internal constructor(
             }
             if (context != null) {
                 val spawningTemplate = myContextRef != myContextTemplate
-                val spawningClone = context.baseCapacity() > 0
+                val spawningClone = context.baseCapacity > 0
                 if (!spawningTemplate && context.isMandatoryTemplate) {
                     contextorGorgel.error("context '$myContextRef' may only be used as a template")
                     context = null
@@ -645,7 +623,7 @@ class Contextor internal constructor(
             val result = get(itemRef) as Item?
             if (result == null) {
                 if (addPendingGet(itemRef, itemHandler)) {
-                    myODB.getObject(itemRef, null,
+                    odb.getObject(itemRef, null,
                             GetItemHandler(itemRef))
                 }
             } else {
@@ -681,12 +659,6 @@ class Contextor internal constructor(
     fun getStaticObject(ref: String) = myStaticObjects[ref]
 
     /**
-     * Return the limit on how many users are allowed to connect to this
-     * server.
-     */
-    fun limit() = myLimit
-
-    /**
      * Load the contents of a previously closed container.
      *
      * @param item  The item whose contents are to be loaded.
@@ -706,14 +678,14 @@ class Contextor internal constructor(
      * object names.
      */
     private fun loadStaticObjects(staticListRefs: String?) {
-        myODB.addClass("statics", StaticObjectList::class.java)
-        myODB.getObject("statics", null,
+        odb.addClass("statics", StaticObjectList::class.java)
+        odb.getObject("statics", null,
                 StaticObjectListReceiver("statics"))
         if (staticListRefs != null) {
             val tags = StringTokenizer(staticListRefs, " ,;:")
             while (tags.hasMoreTokens()) {
                 val tag = tags.nextToken()
-                myODB.getObject(tag, null, StaticObjectListReceiver(tag))
+                odb.getObject(tag, null, StaticObjectListReceiver(tag))
             }
         }
     }
@@ -723,7 +695,7 @@ class Contextor internal constructor(
             val statics = obj as StaticObjectList?
             if (statics != null) {
                 contextorGorgel.i?.run { info("loading static object list '$myTag'") }
-                statics.fetchFromODB(myODB, this@Contextor, staticObjectReceiverGorgel)
+                statics.fetchFromODB(odb, this@Contextor, staticObjectReceiverGorgel)
             } else {
                 contextorGorgel.i?.run { info("unable to load static object list '$myTag'") }
             }
@@ -750,7 +722,7 @@ class Contextor internal constructor(
             val contentsHandler = ContentsHandler(null, getHandler)
             val userReceiver = Consumer { obj: Any? -> contentsHandler.receiveContainer(obj as BasicObject?) }
             if (addPendingGet(userRef, actualUserHandler)) {
-                myODB.getObject(userRef, null, userReceiver)
+                odb.getObject(userRef, null, userReceiver)
                 loadContentsOfContainer(userRef, contentsHandler)
             }
         } else {
@@ -842,12 +814,12 @@ class Contextor internal constructor(
     fun noteContext(context: Context, open: Boolean) {
         if (open) {
             myContexts.add(context)
-            if (context.baseCapacity() > 0) {
+            if (context.baseCapacity > 0) {
                 myContextClones.add(context.baseRef(), context)
             }
         } else {
             myContexts.remove(context)
-            if (context.baseCapacity() > 0) {
+            if (context.baseCapacity > 0) {
                 myContextClones.remove(context.baseRef(), context)
             }
         }
@@ -950,13 +922,6 @@ class Contextor internal constructor(
     fun getMetadataUserName(userRef: String) = myUserNames[userRef]
 
     /**
-     * Return a reference to the attached object store.
-     *
-     * XXX Is this a POLA (Principle of Least Authority) violation??
-     */
-    fun odb() = myODB
-
-    /**
      * Push a user to a different context: obtain a reservation for the new
      * context, send it to the user, and then kick them out.  If we're not
      * using a director, just send them directly without a reservation.
@@ -988,7 +953,7 @@ class Contextor internal constructor(
      * XXX Is this a POLA (Principle of Least Authority) violation??
      */
     fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>) {
-        myODB.queryObjects(template, collectionName, maxResults, handler)
+        odb.queryObjects(template, collectionName, maxResults, handler)
     }
 
     /**
@@ -1007,7 +972,7 @@ class Contextor internal constructor(
      * listeners to register with the indicated directors.
      */
     fun registerWithDirectors(directors: MutableList<HostDesc>, listeners: List<HostDesc>) {
-        val group = DirectorGroup(myServer, this, directors, listeners, tr, directorGroupGorgel, reservationGorgel, timer, traceFactory, clock, reservationTimeout, props)
+        val group = DirectorGroup(server, this, directors, listeners, tr, directorGroupGorgel, reservationGorgel, timer, traceFactory, clock, reservationTimeout, props)
         if (group.isLive) {
             myDirectorGroup = group
         }
@@ -1020,7 +985,7 @@ class Contextor internal constructor(
      * with whom to register.
      */
     fun registerWithPresencers(presencers: MutableList<HostDesc>) {
-        val group = PresencerGroup(myServer, this, presencers, tr, presencerGroupGorgel, timer, traceFactory, clock, props)
+        val group = PresencerGroup(server, this, presencers, tr, presencerGroupGorgel, timer, traceFactory, clock, props)
         if (group.isLive) {
             myPresencerGroup = group
         }
@@ -1030,7 +995,7 @@ class Contextor internal constructor(
      * Reinitialize the server.
      */
     fun reinitServer() {
-        myServer.reinit()
+        server.reinit()
     }
 
     /**
@@ -1113,23 +1078,11 @@ class Contextor internal constructor(
     }
 
     /**
-     * Obtain the server object for this Context Server.
-     *
-     * @return this Context Server's server object.
-     */
-    fun server() = myServer
-
-    /**
      * Get the server name.
      *
      * @return the server's name.
      */
-    fun serverName() = myServer.serverName()
-
-    /**
-     * @return the session object for this server.
-     */
-    fun session() = mySession
+    fun serverName() = server.serverName
 
     /**
      * Convert an array of Items into the contents of a container.  This
@@ -1151,7 +1104,7 @@ class Contextor internal constructor(
      * Cause the server to be shutdown.
      */
     fun shutdownServer() {
-        myServer.shutdown()
+        server.shutdown()
     }
 
     /**
@@ -1220,7 +1173,7 @@ class Contextor internal constructor(
      * @param handler  Completion handler.
      */
     fun writeObjectDelete(ref: String, handler: Consumer<Any?>? = null) {
-        myODB.removeObject(ref, null, handler)
+        odb.removeObject(ref, null, handler)
     }
 
     /**
@@ -1231,7 +1184,7 @@ class Contextor internal constructor(
      * @param handler  Completion handler
      */
     fun writeObjectState(ref: String, state: BasicObject, handler: Consumer<Any?>? = null) {
-        myODB.putObject(ref, state, null, false, handler)
+        odb.putObject(ref, state, null, false, handler)
     }
 
     companion object {
@@ -1324,11 +1277,11 @@ class Contextor internal constructor(
     }
 
     init {
-        addRef(mySession)
-        myServer.setServiceRefTable(this)
-        myContextFamilies = initializeContextFamilies()
+        addRef(session)
+        server.setServiceRefTable(this)
+        contextFamilies = initializeContextFamilies()
         loadStaticObjects(staticsToLoad)
-        myServer.registerShutdownWatcher(object : ShutdownWatcher {
+        server.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 /* List copy to avert ConcurrentModificationException */
                 val saveUsers: List<User> = LinkedList(myUsers)
@@ -1339,7 +1292,7 @@ class Contextor internal constructor(
                 myDirectorGroup?.disconnectHosts()
                 myPresencerGroup?.disconnectHosts()
                 checkpointAll()
-                myODB.shutdown()
+                odb.shutdown()
             }
         })
     }

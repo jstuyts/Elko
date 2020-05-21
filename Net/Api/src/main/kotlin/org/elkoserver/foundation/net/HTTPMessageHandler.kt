@@ -79,15 +79,15 @@ internal class HTTPMessageHandler(
         if (traceFactory.comm.verbose) {
             traceFactory.comm.verbosem("$connection $actualMessage")
         } else if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("$connection |> ${actualMessage.uri()}")
+            traceFactory.comm.debugm("$connection |> ${actualMessage.uri}")
         }
-        when (actualMessage.method()!!.toUpperCase(Locale.ENGLISH)) {
-            "GET" -> myFactory.handleGET(connection, actualMessage.uri()!!, actualMessage.isNonPersistent)
-            "POST" -> myFactory.handlePOST(connection, actualMessage.uri()!!, actualMessage.isNonPersistent, actualMessage.content())
+        when (actualMessage.method!!.toUpperCase(Locale.ENGLISH)) {
+            "GET" -> myFactory.handleGET(connection, actualMessage.uri!!, actualMessage.isNonPersistent)
+            "POST" -> myFactory.handlePOST(connection, actualMessage.uri!!, actualMessage.isNonPersistent, actualMessage.content)
             "OPTIONS" -> myFactory.handleOPTIONS(connection, actualMessage)
             else -> {
                 if (traceFactory.comm.usage) {
-                    traceFactory.comm.usagem("Received invalid HTTP method ${actualMessage.method()} from $connection")
+                    traceFactory.comm.usagem("Received invalid HTTP method ${actualMessage.method} from $connection")
                 }
                 connection.close()
             }

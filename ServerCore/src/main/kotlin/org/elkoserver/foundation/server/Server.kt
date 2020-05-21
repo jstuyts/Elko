@@ -47,7 +47,7 @@ import java.util.function.Consumer
 class Server(
         private val myProps: ElkoProperties,
         serverType: String,
-        private val tr: Trace,
+        internal val tr: Trace,
         private val timer: Timer,
         private val clock: Clock,
         private val traceFactory: TraceFactory,
@@ -58,7 +58,7 @@ class Server(
     : ConnectionCountMonitor, ServiceFinder {
 
     /** The name of this server (for logging).  */
-    private val myServerName: String = myProps.getProperty("conf.$serverType.name", "<anonymous>")
+    val serverName: String = myProps.getProperty("conf.$serverType.name", "<anonymous>")
 
     /** Name of service, to distinguish variants of same service type.  */
     private val myServiceName: String = myProps.getProperty("conf.$serverType.service")?.let { "-$it" } ?: ""
@@ -67,7 +67,7 @@ class Server(
     private val myServices: MutableList<ServiceDesc> = LinkedList()
 
     /** List of host information for this server's configured listeners.  */
-    private lateinit var myListeners: List<HostDesc>
+    lateinit var listeners: List<HostDesc>
 
     /** Connection to the broker, if there is one.  */
     private var myBrokerActor: BrokerActor? = null
@@ -98,7 +98,7 @@ class Server(
     private val myMainRunner = currentRunner(traceFactory)
 
     /** Network manager, for setting up network communications.  */
-    private val myNetworkManager: NetworkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory)
+    val networkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory)
 
     /** Thread pool isolation for external blocking tasks.  */
     private val mySlowRunner = SlowServiceRunner(myMainRunner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))
@@ -136,7 +136,7 @@ class Server(
         } else {
             for (key in myPendingFinds.keys()) {
                 for (query in myPendingFinds.getMulti(key)) {
-                    brokerActor.findService(key, query.isMonitor, query.tag())
+                    brokerActor.findService(key, query.isMonitor, query.tag)
                 }
             }
         }
@@ -147,7 +147,7 @@ class Server(
      */
     private fun connectToBroker() {
         if (!amShuttingDown) {
-            ConnectionRetrier(myBrokerHost!!, "broker", myNetworkManager, BrokerMessageHandlerFactory(), timer, tr, traceFactory)
+            ConnectionRetrier(myBrokerHost!!, "broker", networkManager, BrokerMessageHandlerFactory(), timer, tr, traceFactory)
         }
     }
 
@@ -290,18 +290,18 @@ class Server(
          */
         override fun accept(obj: Array<ServiceDesc>) {
             myDesc = obj[0]
-            if (myDesc!!.failure() != null) {
-                tr.warningi("service query for $myLabel failed: ${myDesc!!.failure()}")
+            if (myDesc!!.failure != null) {
+                tr.warningi("service query for $myLabel failed: ${myDesc!!.failure}")
                 myInnerHandler.accept(null)
                 return
             }
             if (obj.size > 1) {
                 tr.warningm("service query for $myLabel returned multiple results; using first one")
             }
-            val actor = myServiceActorsByProviderID[myDesc!!.providerID()]
+            val actor = myServiceActorsByProviderID[myDesc!!.providerID]
             actor?.let(::connectLinkToActor)
                     ?: ConnectionRetrier(myDesc!!.asHostDesc(-1), myLabel,
-                            myNetworkManager, this, timer, tr, traceFactory)
+                            networkManager, this, timer, tr, traceFactory)
         }
 
         /**
@@ -312,7 +312,7 @@ class Server(
         override fun provideMessageHandler(connection: Connection?): MessageHandler {
             val actor = ServiceActor(connection, myServiceRefTable, myDesc!!,
                     this@Server, traceFactory)
-            myServiceActorsByProviderID[myDesc!!.providerID()] = actor
+            myServiceActorsByProviderID[myDesc!!.providerID] = actor
             connectLinkToActor(actor)
             return actor
         }
@@ -325,7 +325,7 @@ class Server(
          * @param actor The actor for the new service link.
          */
         private fun connectLinkToActor(actor: ServiceActor) {
-            myServiceLinksByService[myDesc!!.service()] = myLink
+            myServiceLinksByService[myDesc!!.service] = myLink
             actor.addLink(myLink)
             myInnerHandler.accept(myLink)
         }
@@ -339,11 +339,11 @@ class Server(
      * @param tag  Tag string for matching queries with responses.
      */
     fun foundService(services: Array<ServiceDesc>, tag: String) {
-        val service = services[0].service() /* all must have same name */
+        val service = services[0].service /* all must have same name */
         val iter = myPendingFinds.getMulti(service).iterator()
         while (iter.hasNext()) {
             val query = iter.next()
-            if (tag == query.tag()) {
+            if (tag == query.tag) {
                 query.result(services)
                 if (!query.isMonitor) {
                     iter.remove()
@@ -351,21 +351,6 @@ class Server(
             }
         }
     }
-
-    /**
-     * Get the configured listeners for this server.
-     *
-     * @return a read-only list of host information for the currently
-     * configured listeners.
-     */
-    fun listeners() = myListeners
-
-    /**
-     * Get this server's network manager.
-     *
-     * @return the network manager
-     */
-    fun networkManager() = myNetworkManager
 
     /**
      * Open an asynchronous object database whose location (directory path or
@@ -383,7 +368,7 @@ class Server(
         } else {
             if (myProps.getProperty("$propRoot.repository.host") != null ||
                     myProps.getProperty("$propRoot.repository.service") != null) {
-                ObjDBRemote(this, myNetworkManager, myServerName,
+                ObjDBRemote(this, networkManager, serverName,
                         myProps, propRoot, tr, traceFactory, timer, clock)
             } else {
                 null
@@ -484,17 +469,10 @@ class Server(
         myMainRunner.orderlyShutdown()
     }
 
-    /**
-     * Get this server's name.
-     *
-     * @return the server name.
-     */
-    fun serverName() = myServerName
-
     fun serviceActorDied(deadActor: ServiceActor) {
-        myServiceActorsByProviderID.remove(deadActor.providerID())
-        for (link in deadActor.serviceLinks()) {
-            myServiceLinksByService.remove(link.service())
+        myServiceActorsByProviderID.remove(deadActor.providerID)
+        for (link in deadActor.serviceLinks) {
+            myServiceLinksByService.remove(link.service)
         }
     }
 
@@ -523,7 +501,7 @@ class Server(
     fun shutdown() {
         if (!amShuttingDown) {
             amShuttingDown = true
-            trServer.worldi("Shutting down $myServerName")
+            trServer.worldi("Shutting down $serverName")
             if (myBrokerActor != null) {
                 myBrokerActor!!.close()
             }
@@ -572,12 +550,12 @@ class Server(
         val secure = myProps.testProperty("$propRoot.secure")
         val mgrClass = myProps.getProperty("$propRoot.class")
         val connectionSetup: ConnectionSetup
-        connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory) }
+        connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, networkManager, actorFactory, trServer, tr, traceFactory) }
                 ?: when (protocol) {
-                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory)
-                    "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory)
-                    "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory)
-                    "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, myNetworkManager, actorFactory, trServer, tr, traceFactory)
+                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, trServer, tr, traceFactory)
+                    "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, trServer, tr, traceFactory)
+                    "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, trServer, tr, traceFactory)
+                    "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, trServer, tr, traceFactory)
                     else -> {
                         tr.errorm("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
                         throw IllegalStateException()
@@ -603,26 +581,21 @@ class Server(
     fun startListeners(propRoot: String, serviceFactory: ServiceFactory): Int {
         var listenerPropRoot = propRoot
         var listenerCount = 0
-        val listeners: MutableList<HostDesc> = LinkedList()
+        val theListeners: MutableList<HostDesc> = LinkedList()
         while (true) {
             val hostName = myProps.getProperty("$listenerPropRoot.host") ?: break
             val listener = startOneListener(listenerPropRoot, hostName, serviceFactory)
             if (listener != null) {
-                listeners.add(listener)
+                theListeners.add(listener)
             }
             listenerPropRoot = propRoot + ++listenerCount
         }
         if (myBrokerHost != null) {
             connectToBroker()
         }
-        myListeners = listeners
+        listeners = theListeners
         return listenerCount
     }
-
-    /**
-     * Return the application trace object for this server.
-     */
-    fun trace() = tr
 
     /**
      * Return the version ID string for this build.
@@ -637,7 +610,7 @@ class Server(
     init {
         trServer.noticei(version())
         trServer.noticei("Copyright 2016 ElkoServer.org; see LICENSE")
-        trServer.noticei("Starting $myServerName")
+        trServer.noticei("Starting $serverName")
 
         myDispatcher.addClass(BrokerActor::class.java)
 

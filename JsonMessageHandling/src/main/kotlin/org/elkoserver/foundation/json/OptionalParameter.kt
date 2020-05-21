@@ -6,14 +6,7 @@ package org.elkoserver.foundation.json
  *
  * @param isPresent  true=>value is present, false=>it's not
  */
-abstract class OptionalParameter internal constructor(var isPresent: Boolean) {
-
-    /**
-     * Test if this parameter's value was present.
-     *
-     * @return true if the parameter value was present, false if not.
-     */
-    fun present(): Boolean = isPresent
+abstract class OptionalParameter internal constructor(val present: Boolean) {
 
     companion object {
         /**

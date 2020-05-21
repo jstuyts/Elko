@@ -25,7 +25,7 @@ internal class RepositoryActor(connection: Connection, private val myFactory: Re
     private var amLoggedOut = false
 
     /** Optional convenience label for logging and such.  */
-    private var myLabel: String? = null
+    private var label: String? = null
 
     /** True if actor is authorized to perform admin operations.  */
     private var amAdmin = false
@@ -47,8 +47,8 @@ internal class RepositoryActor(connection: Connection, private val myFactory: Re
     /**
      * Do the actual work of authorizing an actor.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
-        myLabel = label
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, newLabel: String): Boolean {
+        label = newLabel
         var success = false
         if (myFactory.verifyAuthorization(auth)) {
             if (handler is AdminHandler) {
@@ -110,12 +110,7 @@ internal class RepositoryActor(connection: Connection, private val myFactory: Re
     }
 
     /**
-     * Return this actor's label.
-     */
-    fun label() = myLabel
-
-    /**
      * @return a printable representation of this actor.
      */
-    override fun toString() = myLabel ?: super.toString()
+    override fun toString() = label ?: super.toString()
 }

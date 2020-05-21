@@ -17,7 +17,8 @@ class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<ServiceLink
     private var myServiceLink: ServiceLink? = null
 
     /** Tag string indicating the current state of the service connection.  */
-    private var myStatus = "startup"
+    internal var status = "startup"
+        private set
 
     /** Ordered list of handlers for pending requests to the service.  */
     private val myResultHandlers = LinkedList<Consumer<in String>>()
@@ -32,7 +33,7 @@ class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<ServiceLink
      */
     override fun activate(ref: String, contextor: Contextor) {
         super.activate(ref, contextor)
-        myStatus = "connecting"
+        status = "connecting"
         contextor.findServiceLink("echo", this)
     }
 
@@ -46,9 +47,9 @@ class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<ServiceLink
     override fun accept(obj: ServiceLink?) {
         if (obj != null) {
             myServiceLink = obj
-            myStatus = "connected"
+            status = "connected"
         } else {
-            myStatus = "failed"
+            status = "failed"
         }
     }
 
@@ -74,13 +75,6 @@ class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<ServiceLink
             resultHandler.accept("no connection to echo service")
         }
     }
-
-    /**
-     * Get the current status of the connection to the external service.
-     *
-     * @return a tag string describing the current connection state.
-     */
-    fun status() = myStatus
 
     /**
      * Handler for the 'echo' message, which is a reply to earlier an echo

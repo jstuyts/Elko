@@ -10,34 +10,13 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * MessageHandlerFactory class to create actors for new connections to a
  * broker's listen port.
  *
- * @param myBroker  The broker itself.
+ * @param broker  The broker itself.
  * @param myAuth  The authorization needed for connections to this port.
- * @param amAllowAdmin  If true, allow 'admin' connections.
- * @param amAllowClient  If true, allow 'client' connections.
+ * @param allowAdmin  If true, allow 'admin' connections.
+ * @param allowClient  If true, allow 'client' connections.
  */
-internal class BrokerActorFactory(private val myBroker: Broker, private val myAuth: AuthDesc, private val amAllowAdmin: Boolean,
-                                  private val amAllowClient: Boolean, private val brokerActorGorgel: Gorgel, private val traceFactory: TraceFactory) : MessageHandlerFactory {
-
-    /**
-     * Test whether admin connections are allowed.
-     *
-     * @return true if 'admin' connections are allowed.
-     */
-    fun allowAdmin() = amAllowAdmin
-
-    /**
-     * Test whether client connections are allowed.
-     *
-     * @return true if 'client' connections are allowed.
-     */
-    fun allowClient() = amAllowClient
-
-    /**
-     * Get this factory's broker.
-     *
-     * @return the broker object this factory uses.
-     */
-    fun broker() = myBroker
+internal class BrokerActorFactory(internal val broker: Broker, private val myAuth: AuthDesc, internal val allowAdmin: Boolean,
+                                  internal val allowClient: Boolean, private val brokerActorGorgel: Gorgel, private val traceFactory: TraceFactory) : MessageHandlerFactory {
 
     /**
      * Produce a new actor for a new connection.
@@ -52,7 +31,7 @@ internal class BrokerActorFactory(private val myBroker: Broker, private val myAu
      *
      * @return the object ref table this factory uses.
      */
-    fun refTable() = myBroker.refTable()
+    fun refTable() = broker.refTable
 
     /**
      * Check the actor's authorization.

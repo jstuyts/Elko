@@ -12,14 +12,14 @@ import org.elkoserver.json.JSONLiteralFactory.type
  *
  * @see ObjectStore.putObjects ObjectStore.putObjects
  *
- * @param myRef  Object reference for the object.
- * @param myObj Object description (a JSON string describing the object).
- * @param myCollectionName  Name of collection to write to, or null to take
+ * @param ref  Object reference for the object.
+ * @param obj Object description (a JSON string describing the object).
+ * @param collectionName  Name of collection to write to, or null to take
  *    the configured default.
  * @param isRequireNew  If true and an object with the given ref already
  *     exists, the write fails.
  */
-open class PutDesc(private val myRef: String, private val myObj: String, private val myCollectionName: String?, val isRequireNew: Boolean) : Encodable {
+open class PutDesc(val ref: String, val obj: String, val collectionName: String?, val isRequireNew: Boolean) : Encodable {
     /**
      * Test if this write must be to a new object.
      *
@@ -50,33 +50,12 @@ open class PutDesc(private val myRef: String, private val myObj: String, private
      */
     override fun encode(control: EncodeControl) =
             type("puti", control).apply {
-                addParameter("ref", myRef)
-                addParameterOpt("obj", myObj)
-                addParameterOpt("coll", myCollectionName)
+                addParameter("ref", ref)
+                addParameterOpt("obj", obj)
+                addParameterOpt("coll", collectionName)
                 if (isRequireNew) {
                     addParameter("requirenew", isRequireNew)
                 }
                 finish()
             }
-
-    /**
-     * Get the collection name.
-     *
-     * @return the collection name to write to, or null to indicate the default
-     */
-    fun collectionName() = myCollectionName
-
-    /**
-     * Get the object's description.
-     *
-     * @return the object's description (a JSON string).
-     */
-    fun obj() = myObj
-
-    /**
-     * Get the object's reference string.
-     *
-     * @return the object reference string of the object to write.
-     */
-    fun ref() = myRef
 }

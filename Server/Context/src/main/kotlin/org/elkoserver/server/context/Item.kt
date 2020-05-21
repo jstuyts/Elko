@@ -169,9 +169,9 @@ class Item : BasicObject {
 
     private fun baseEncode(result: JSONLiteral, control: EncodeControl) {
         result.addParameter("ref", myRef)
-        result.addParameterOpt("name", myName)
+        result.addParameterOpt("name", name)
         val mods = myModSet.encode(control)
-        if (mods.size() > 0) {
+        if (mods.size > 0) {
             result.addParameter("mods", mods)
         }
         if (!isContainer) {

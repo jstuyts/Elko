@@ -86,7 +86,7 @@ class WebSocketByteIOFramerFactory(private val trMsg: Trace, private val myHostA
                                 myIn.preserveBuffers()
                                 return
                             }
-                            myRequest.setCrazyKey(crazyKey)
+                            myRequest.crazyKey = crazyKey
                         }
                         myReceiver.receiveMsg(myRequest)
                         myWSParseStage = Companion.WS_STAGE_MESSAGES
@@ -139,8 +139,8 @@ class WebSocketByteIOFramerFactory(private val trMsg: Trace, private val myHostA
                 frame
             } else if (msg is WebSocketHandshake) {
                 val handshake = msg
-                if (handshake.version() == 0) {
-                    val handshakeBytes = handshake.bytes()
+                if (handshake.version == 0) {
+                    val handshakeBytes = handshake.bytes
                     val header = """
                     HTTP/1.1 101 WebSocket Protocol Handshake
                     Upgrade: WebSocket
@@ -161,12 +161,12 @@ class WebSocketByteIOFramerFactory(private val trMsg: Trace, private val myHostA
                         trMsg.debugm("WS sending handshake:\n$header${byteArrayToASCII(handshakeBytes, 0, handshakeBytes.size)}")
                     }
                     reply
-                } else if (handshake.version() == 6) {
+                } else if (handshake.version == 6) {
                     val header = """
                     HTTP/1.1 101 Switching Protocols
                     Upgrade: Websocket
                     Connection: Upgrade
-                    Sec-WebSocket-Accept: ${base64Encoder.encodeToString(handshake.bytes())}
+                    Sec-WebSocket-Accept: ${base64Encoder.encodeToString(handshake.bytes)}
                     
                     
                     """.trimIndent()
@@ -180,8 +180,8 @@ class WebSocketByteIOFramerFactory(private val trMsg: Trace, private val myHostA
                 }
             } else if (msg is HTTPError) {
                 val error = msg
-                var reply = error.messageString()
-                reply = """HTTP/1.1 ${error.errorNumber()} ${error.errorString()}
+                var reply = error.messageString
+                reply = """HTTP/1.1 ${error.errorNumber} ${error.errorString}
 Access-Control-Allow-Origin: *
 Content-Length: ${reply.length}
 

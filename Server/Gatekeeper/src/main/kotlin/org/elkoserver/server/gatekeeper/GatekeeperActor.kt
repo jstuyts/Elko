@@ -27,7 +27,7 @@ internal class GatekeeperActor(connection: Connection, private val myFactory: Ga
     private var amLoggedOut = false
 
     /** Optional convenience label for logging and such.  */
-    private var myLabel: String? = null
+    private var label: String? = null
 
     /**
      * Test if this actor is an authenticated administrator.
@@ -76,15 +76,15 @@ internal class GatekeeperActor(connection: Connection, private val myFactory: Ga
      * @param handler  The handler that is requesting the authorization (not
      * used here).
      * @param auth  Authorization information from the authorization request.
-     * @param label  The label string from the authorization request.
+     * @param newLabel  The label string from the authorization request.
      *
      * @return true if the given arguments are sufficient to authorize
      * administrative access to this server, false if not.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, newLabel: String): Boolean {
         becomeLive()
-        myLabel = label
-        if (myFactory.verifyAuthorization(auth) && myFactory.allowAdmin()) {
+        label = newLabel
+        if (myFactory.verifyAuthorization(auth) && myFactory.allowAdmin) {
             isAdmin = true
         }
         return isAdmin
@@ -118,18 +118,11 @@ internal class GatekeeperActor(connection: Connection, private val myFactory: Ga
     }
 
     /**
-     * Get this actor's label.
-     *
-     * @return the label string for this actor.
-     */
-    fun label() = myLabel
-
-    /**
      * Get a printable representation of this actor.
      *
      * @return a printable representation of this actor.
      */
-    override fun toString() = myLabel ?: super.toString()
+    override fun toString() = label ?: super.toString()
 
     init {
         myActionTimeout = timer.after(actionTime.toLong(), object : TimeoutNoticer {

@@ -68,8 +68,8 @@ class ZMQSendTester @JSONMethod("address") constructor(private val myAddress: St
     override fun objectIsComplete() {
         context().registerContextShutdownWatcher(this)
         val contextor = `object`().contextor()
-        tr = contextor.appTrace().subTrace("zmq")
-        contextor.server().networkManager().connectVia(
+        tr = contextor.tr.subTrace("zmq")
+        contextor.server.networkManager.connectVia(
                 "org.elkoserver.foundation.net.zmq.ZeroMQConnectionManager",
                 "",  // XXX propRoot, needs to come from somewhere
                 myAddress,

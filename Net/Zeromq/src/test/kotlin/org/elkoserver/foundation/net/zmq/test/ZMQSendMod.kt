@@ -62,7 +62,7 @@ class ZMQSendMod @JSONMethod("outbound") constructor(private val myOutboundName:
 
     override fun objectIsComplete() {
         val contextor = `object`().contextor()
-        tr = contextor.appTrace()
+        tr = contextor.tr
         val outbound = contextor.getStaticObject(myOutboundName) as ZMQOutbound
         myConnection = outbound.connection
     }

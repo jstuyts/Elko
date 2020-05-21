@@ -1,12 +1,8 @@
 package org.elkoserver.server.presence
 
-internal class Domain(private val myName: String) {
-    private val myIndex: Int
+internal class Domain(internal val name: String) {
+    internal val index: Int
     private val mySubscribers: MutableMap<String, PresenceActor> = HashMap()
-    fun index() = myIndex
-
-    fun name() = myName
-
     fun subscriber(context: String) = mySubscribers[context]
 
     fun addSubscriber(context: String, client: PresenceActor) {
@@ -34,7 +30,7 @@ internal class Domain(private val myName: String) {
     }
 
     init {
-        myIndex = theNextIndex++
-        theDomains.add(myIndex, this)
+        index = theNextIndex++
+        theDomains.add(index, this)
     }
 }

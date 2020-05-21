@@ -6,12 +6,12 @@ import java.util.function.Consumer
 /**
  * A pending service lookup query to a broker.
  *
- * @param myService  The name of the service sought.
+ * @param service  The name of the service sought.
  * @param myHandler  Handler to handle results when they arrive.
  * @param isMonitor   If true, continue waiting for more results.
- * @param myTag  Optional tag string for matching response with the request.
+ * @param tag  Optional tag string for matching response with the request.
  */
-internal class ServiceQuery(private val myService: String, private var myHandler: Consumer<in Array<ServiceDesc>>?, val isMonitor: Boolean, private val myTag: String) {
+internal class ServiceQuery(private val service: String, private var myHandler: Consumer<in Array<ServiceDesc>>?, val isMonitor: Boolean, internal val tag: String) {
     /**
      * Handle a result.
      *
@@ -26,18 +26,4 @@ internal class ServiceQuery(private val myService: String, private var myHandler
             }
         }
     }
-
-    /**
-     * Get the service that was requested.
-     *
-     * @return the name of the service sought.
-     */
-    fun service() = myService
-
-    /**
-     * Return the tag ID string.
-     *
-     * @return the tag string for the request that was sent.
-     */
-    fun tag() = myTag
 }

@@ -33,7 +33,7 @@ import java.util.function.Consumer
  */
 abstract class OutboundGroup(propRoot: String,
                              private val myServer: Server,
-                             contextor: Contextor,
+                             internal val contextor: Contextor,
                              hosts: MutableList<HostDesc>,
                              private val tr: Trace,
                              gorgel: Gorgel,
@@ -55,9 +55,6 @@ abstract class OutboundGroup(propRoot: String,
 
     /** How often to retry connections, in seconds, or -1 for the default.  */
     private val myRetryInterval: Int
-
-    /** Contextor for overall server operations.  */
-    private val myContextor: Contextor
 
     /**
      * Obtain the class of actors in this group.
@@ -89,7 +86,7 @@ abstract class OutboundGroup(propRoot: String,
          */
         override fun accept(obj: Array<ServiceDesc>) {
             obj
-                    .filter { it.failure() == null }
+                    .filter { it.failure == null }
                     .map { it.asHostDesc(myRetryInterval) }
                     .forEach {
                         ConnectionRetrier(it, label(), myNetworkManager,
@@ -112,13 +109,6 @@ abstract class OutboundGroup(propRoot: String,
         override fun provideMessageHandler(connection: Connection?): MessageHandler = provideActor(connection!!, myDispatcher, myHost)
 
     }
-
-    /**
-     * Get this server's contextor.
-     *
-     * @return the contextor.
-     */
-    fun contextor(): Contextor = myContextor
 
     /**
      * Close connections to all open external servers.
@@ -176,8 +166,7 @@ abstract class OutboundGroup(propRoot: String,
                 connectHosts()
             }
         })
-        myNetworkManager = myServer.networkManager()
-        myContextor = contextor
+        myNetworkManager = myServer.networkManager
         myHosts = hosts
         myDispatcher = MessageDispatcher(null, traceFactory, clock)
         @Suppress("LeakingThis")
@@ -187,9 +176,10 @@ abstract class OutboundGroup(propRoot: String,
         val iter = hosts.iterator()
         while (iter.hasNext()) {
             val host = iter.next()
-            if (host.protocol() != "tcp") {
+            if (host.protocol != "tcp") {
+                // FIXME: Do not modify constructor parameters. Pass the correct value instead. Validate if needed
                 iter.remove()
-                gorgel.error("unknown $propRoot server access protocol '${host.protocol()}' for access to ${host.hostPort()} (configuration ignored)")
+                gorgel.error("unknown $propRoot server access protocol '${host.protocol}' for access to ${host.hostPort} (configuration ignored)")
             }
         }
     }

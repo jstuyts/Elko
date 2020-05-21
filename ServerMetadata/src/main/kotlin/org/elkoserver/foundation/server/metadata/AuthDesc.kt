@@ -12,11 +12,11 @@ import org.elkoserver.util.trace.Trace
  * Descriptor containing information required or presented to authorize a
  * connection.
  *
- * @param myMode  Authorization mode.
- * @param myCode  Authorization code, or null if not relevant.
- * @param myID  Authorization ID, or null if not relevant.
+ * @param mode  Authorization mode.
+ * @param code  Authorization code, or null if not relevant.
+ * @param id  Authorization ID, or null if not relevant.
  */
-class AuthDesc(private val myMode: String, private val myCode: String?, private val myID: String?) : Encodable {
+class AuthDesc(val mode: String, private val code: String?, private val id: String?) : Encodable {
 
     /**
      * JSON-driven constructor.
@@ -27,27 +27,6 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
      */
     @JSONMethod("mode", "code", "id")
     constructor(mode: String, code: OptString, id: OptString) : this(mode, code.value<String?>(null), id.value<String?>(null))
-
-    /**
-     * Get the authorization code.
-     *
-     * @return the authorization code (or null if there is none).
-     */
-    private fun code() = myCode
-
-    /**
-     * Get the authorization ID.
-     *
-     * @return the authorization ID (or null if there is none).
-     */
-    fun id() = myID
-
-    /**
-     * Get the authorization mode.
-     *
-     * @return the authorization mode.
-     */
-    fun mode() = myMode
 
     /**
      * Check an authorization.  This authorization descriptor is treated as a
@@ -63,11 +42,11 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
      */
     fun verify(auth: AuthDesc?): Boolean {
         return when {
-            auth == null -> myMode == "open"
-            myMode == auth.mode() ->
-                when (myMode) {
+            auth == null -> mode == "open"
+            mode == auth.mode ->
+                when (mode) {
                     "open" -> true
-                    "password" -> myCode == auth.code()
+                    "password" -> code == auth.code
                     else -> false
                 }
             else -> false
@@ -83,13 +62,13 @@ class AuthDesc(private val myMode: String, private val myCode: String?, private 
      * @return a JSON literal representing this object.
      */
     override fun encode(control: EncodeControl) =
-            if (control.toClient() && myMode == "open") {
+            if (control.toClient() && mode == "open") {
                 null
             } else {
                 val result = JSONLiteralFactory.type("auth", control)
-                result.addParameter("mode", myMode)
-                result.addParameterOpt("id", myID)
-                result.addParameterOpt("code", myCode)
+                result.addParameter("mode", mode)
+                result.addParameterOpt("id", id)
+                result.addParameterOpt("code", code)
                 result.finish()
                 result
             }

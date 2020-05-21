@@ -10,10 +10,10 @@ import org.elkoserver.server.context.UserMod
 /**
  * Position class representing an integer (x,y) coordinate on a plane.
  *
- * @param myX  X-coordinate
- * @param myY Y-coordinate
+ * @param x  X-coordinate
+ * @param y Y-coordinate
  */
-class CartesianPosition @JSONMethod("x", "y") constructor(private var myX: Int, private var myY: Int) : Mod(), UserMod, ItemMod {
+class CartesianPosition @JSONMethod("x", "y") constructor(var x: Int, var y: Int) : Mod(), UserMod, ItemMod {
 
     /**
      * Encode this position for transmission or persistence.
@@ -25,28 +25,14 @@ class CartesianPosition @JSONMethod("x", "y") constructor(private var myX: Int, 
      */
     override fun encode(control: EncodeControl) =
             JSONLiteralFactory.type("cartpos", control).apply {
-                addParameter("x", myX)
-                addParameter("y", myY)
+                addParameter("x", x)
+                addParameter("y", y)
                 finish()
             }
 
-    /**
-     * Obtain the X-coordinate of this position.
-     *
-     * @return this position's X-coordinate.
-     */
-    fun x() = myX
-
-    /**
-     * Obtain the Y-coordinate of this position.
-     *
-     * @return this position's Y-coordinate.
-     */
-    fun y() = myY
-
-    operator fun set(x: Int, y: Int) {
-        myX = x
-        myY = y
+    operator fun set(newX: Int, newY: Int) {
+        x = newX
+        y = newY
         markAsChanged()
     }
 }

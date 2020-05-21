@@ -23,10 +23,10 @@ internal class PresenceServer(
         traceFactory: TraceFactory,
         clock: Clock) {
     /** Database that this server stores stuff in.  */
-    private val myODB: ObjDB
+    internal val objDB: ObjDB
 
     /** Table for mapping object references in messages.  */
-    private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
     /**
      * Test if the server is in the midst of shutdown.
@@ -50,7 +50,7 @@ internal class PresenceServer(
     private val myContextMetadata: MutableMap<String, JsonObject>
 
     /** The client object.  */
-    private val myClientHandler = ClientHandler(this, traceFactory)
+    private val clientHandler = ClientHandler(this, traceFactory)
 
     /** The social graphs themselves.  */
     private val mySocialGraphs = HashMap<String, SocialGraph>()
@@ -160,11 +160,6 @@ internal class PresenceServer(
     fun getContextMetadata(contextRef: String): JsonObject? = myContextMetadata[contextRef]
 
     /**
-     * Get the handler for client messages.
-     */
-    fun clientHandler(): ClientHandler = myClientHandler
-
-    /**
      * Obtain the active user info for a named user.
      *
      * @param userRef  The reference string for the user of interest
@@ -173,13 +168,6 @@ internal class PresenceServer(
      * currently has no presences.
      */
     fun getActiveUser(userRef: String): ActiveUser? = myUsers[userRef]
-
-    fun objDB() = myODB
-
-    /**
-     * Return the object ref table.
-     */
-    fun refTable(): RefTable = myRefTable
 
     /**
      * Reinitialize the server.
@@ -248,21 +236,21 @@ internal class PresenceServer(
     fun users(): Collection<ActiveUser> = myUsers.values
 
     init {
-        myRefTable.addRef(myClientHandler)
+        refTable.addRef(clientHandler)
         val myAdminHandler = AdminHandler(this, traceFactory)
-        myRefTable.addRef(myAdminHandler)
+        refTable.addRef(myAdminHandler)
         myActors = HashSet()
         myUsers = HashMap()
         myVisibles = HashMap()
         myContextMetadata = HashMap()
-        myODB = myServer.openObjectDatabase("conf.presence") ?: throw IllegalStateException("no database specified")
-        myODB.addClass("graphtable", GraphTable::class.java)
-        myODB.getObject("graphs", null, Consumer { obj: Any? ->
+        objDB = myServer.openObjectDatabase("conf.presence") ?: throw IllegalStateException("no database specified")
+        objDB.addClass("graphtable", GraphTable::class.java)
+        objDB.getObject("graphs", null, Consumer { obj: Any? ->
             if (obj != null) {
                 val info = obj as GraphTable
                 info.graphs
                         .mapNotNull { it.init(this@PresenceServer, graphDescGorgel, socialGraphGorgel) }
-                        .forEach { mySocialGraphs[it.domain().name()] = it }
+                        .forEach { mySocialGraphs[it.domain().name] = it }
             } else {
                 gorgel.warn("unable to load social graph metadata table")
             }
@@ -274,7 +262,7 @@ internal class PresenceServer(
                 for (actor in actorListCopy) {
                     actor.doDisconnect()
                 }
-                myODB.shutdown()
+                objDB.shutdown()
             }
         })
     }

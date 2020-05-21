@@ -8,17 +8,10 @@ import org.elkoserver.json.JSONLiteralFactory
 /**
  * Database object describing a place name to context mapping.
  *
- * @param myName  The place name.
- * @param myContextID  Identifier of the context that 'name' maps to.
+ * @param name  The place name.
+ * @param contextID  Identifier of the context that 'name' maps to.
  */
-internal class PlaceDesc @JSONMethod("name", "context") constructor(private val myName: String, private val myContextID: String) : Encodable {
-
-    /**
-     * Obtain this place's context identifier.
-     *
-     * @return this place's context identifier string.
-     */
-    fun contextID() = myContextID
+internal class PlaceDesc @JSONMethod("name", "context") constructor(private val name: String, internal val contextID: String) : Encodable {
 
     /**
      * Encode this place for transmission or persistence.
@@ -30,15 +23,8 @@ internal class PlaceDesc @JSONMethod("name", "context") constructor(private val 
      */
     override fun encode(control: EncodeControl) =
             JSONLiteralFactory.type("place", control).apply {
-                addParameter("name", myName)
-                addParameter("context", myContextID)
+                addParameter("name", name)
+                addParameter("context", contextID)
                 finish()
             }
-
-    /**
-     * Obtain this place's name.
-     *
-     * @return this place's name string.
-     */
-    fun name() = myName
 }

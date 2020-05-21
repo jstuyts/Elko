@@ -14,10 +14,10 @@ import org.elkoserver.json.JsonArraySerialization.encodeLiteral
  * extracted by calling [.sendableString].
  *
  * @param myStringBuilder  The buffer into which to build the literal string.
- * @param myControl  Encode control determining what flavor of encoding
+ * @param control  Encode control determining what flavor of encoding
  *    is being done.
  */
-class JSONLiteral internal constructor(private val myStringBuilder: StringBuilder, private val myControl: EncodeControl) {
+class JSONLiteral internal constructor(private val myStringBuilder: StringBuilder, private val control: EncodeControl) {
 
     /** Start of this literal's portion of buffer.  */
     private val myStartPos = myStringBuilder.length
@@ -54,7 +54,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
     fun addParameter(param: String?, value: Any?) {
         val start = myStringBuilder.length
         beginParameter(param)
-        if (appendValueString(myStringBuilder, value, myControl)) {
+        if (appendValueString(myStringBuilder, value, control)) {
             myStringBuilder.setLength(start)
         }
     }
@@ -79,7 +79,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      */
     fun addParameter(param: String?, value: Array<Any?>) {
         beginParameter(param)
-        val arr = JSONLiteralArray(myStringBuilder, myControl)
+        val arr = JSONLiteralArray(myStringBuilder, control)
         for (element in value) {
             arr.addElement(element)
         }
@@ -102,7 +102,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      */
     fun addParameter(param: String?, value: Collection<*>) {
         beginParameter(param)
-        val arr = JSONLiteralArray(myStringBuilder, myControl)
+        val arr = JSONLiteralArray(myStringBuilder, control)
         for (element in value) {
             arr.addElement(element)
         }
@@ -143,7 +143,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      */
     private fun addParameter(param: String, value: IntArray) {
         beginParameter(param)
-        val arr = JSONLiteralArray(myStringBuilder, myControl)
+        val arr = JSONLiteralArray(myStringBuilder, control)
         for (element in value) {
             arr.addElement(element)
         }
@@ -170,7 +170,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      */
     private fun addParameter(param: String, value: LongArray) {
         beginParameter(param)
-        val arr = JSONLiteralArray(myStringBuilder, myControl)
+        val arr = JSONLiteralArray(myStringBuilder, control)
         for (element in value) {
             arr.addElement(element)
         }
@@ -197,7 +197,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      */
     private fun addParameter(param: String, value: DoubleArray) {
         beginParameter(param)
-        val arr = JSONLiteralArray(myStringBuilder, myControl)
+        val arr = JSONLiteralArray(myStringBuilder, control)
         for (element in value) {
             arr.addElement(element)
         }
@@ -224,7 +224,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      */
     private fun addParameter(param: String, value: BooleanArray) {
         beginParameter(param)
-        val arr = JSONLiteralArray(myStringBuilder, myControl)
+        val arr = JSONLiteralArray(myStringBuilder, control)
         for (element in value) {
             arr.addElement(element)
         }
@@ -440,13 +440,6 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
     }
 
     /**
-     * Obtain the encode control governing this literal.
-     *
-     * @return this literal's encode control.
-     */
-    fun control(): EncodeControl? = myControl
-
-    /**
      * Finish construction of the literal.
      *
      * @throws Error if you try to finish a literal that is already complete.
@@ -556,7 +549,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
             } else if (value is JSONLiteral) {
                 buf.append(value.myStringBuilder)
             } else if (value is JSONLiteralArray) {
-                buf.append(value.stringBuilder())
+                buf.append(value.stringBuilder)
             } else if (value is JsonObject) {
                 JsonObjectSerialization.encodeLiteral(value, buf, control)
             } else if (value is JsonArray) {

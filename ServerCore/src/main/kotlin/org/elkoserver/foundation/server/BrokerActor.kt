@@ -147,7 +147,7 @@ class BrokerActor(connection: Connection?, dispatcher: MessageDispatcher?,
     }
 
     init {
-        send(msgAuth(this, host.auth(), myServer.serverName()))
+        send(msgAuth(this, host.auth, myServer.serverName))
         send(msgWillserve(this, myServer.services()))
         myServer.registerLoadWatcher(myLoadWatcher)
         myServer.brokerConnected(this)

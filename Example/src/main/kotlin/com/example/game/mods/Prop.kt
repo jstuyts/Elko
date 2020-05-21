@@ -26,8 +26,8 @@ class Prop @JSONMethod("kind") constructor(private val myKind: String) : Mod(), 
         assertIsPortable()
         val userPos = getUserPosition(from)
         val itemPos = getItemPosition(item, from)
-        val dx = itemPos.x() - userPos.x()
-        val dy = itemPos.y() - userPos.y()
+        val dx = itemPos.x - userPos.x
+        val dy = itemPos.y - userPos.y
         assertWithinGrabDistance(dx, dy, item)
         item.setContainer(from)
         itemPos.detach()
@@ -43,14 +43,14 @@ class Prop @JSONMethod("kind") constructor(private val myKind: String) : Mod(), 
         val userPos = getUserPosition(from)
         var itemPos = item.getMod(CartesianPosition::class.java)
         if (itemPos == null) {
-            itemPos = CartesianPosition(userPos.x(), userPos.y())
+            itemPos = CartesianPosition(userPos.x, userPos.y)
             itemPos.attachTo(item)
         } else {
-            itemPos[userPos.x()] = userPos.y()
+            itemPos[userPos.x] = userPos.y
         }
         item.setContainer(context())
         item.sendObjectDescription(context().neighbors(from), context())
-        from.send(msgMove(item, userPos.x(), userPos.y(), context()))
+        from.send(msgMove(item, userPos.x, userPos.y, context()))
     }
 
     private fun assertIsPortable() {

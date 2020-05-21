@@ -22,13 +22,13 @@ internal class SimpleSocialGraph : SocialGraph {
     private lateinit var myPrefix: String
 
     override fun init(master: PresenceServer, gorgel: Gorgel, domain: Domain, conf: JsonObject) {
-        myODB = master.objDB()
+        myODB = master.objDB
         myODB.addClass("ugraf", UserGraphDesc::class.java)
         myMaster = master
         myDomain = domain
         myGorgel = gorgel
         myPrefix = conf.getString("prefix", "g")
-        myGorgel.i?.run { info("init SimpleSocialGraph for domain '${domain.name()}', odb prefix '$myPrefix-'") }
+        myGorgel.i?.run { info("init SimpleSocialGraph for domain '${domain.name}', odb prefix '$myPrefix-'") }
     }
 
     /**
@@ -44,14 +44,14 @@ internal class SimpleSocialGraph : SocialGraph {
      * @param user  The user whose social graph should be fetched.
      */
     override fun loadUserGraph(user: ActiveUser) {
-        myODB.getObject("$myPrefix-${user.ref()}", null, Consumer<Any?> { obj ->
+        myODB.getObject("$myPrefix-${user.ref}", null, Consumer<Any?> { obj ->
             if (obj != null) {
                 val desc = obj as UserGraphDesc
                 val friends = Iterable { ArrayIterator(desc.friends) }
                 user.userGraphIsReady(friends, myDomain, myMaster)
             } else {
                 user.userGraphIsReady(null, myDomain, myMaster)
-                myGorgel.warn("no social graph info for user ${user.ref()} in domain ${myDomain.name()}")
+                myGorgel.warn("no social graph info for user ${user.ref} in domain ${myDomain.name}")
             }
         })
     }

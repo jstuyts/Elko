@@ -119,7 +119,7 @@ internal class SelectThread(
         myQueue.enqueue(Callable<Any?> {
             try {
                 val remoteNetAddr = NetAddr(remoteAddr)
-                val socketAddress = InetSocketAddress(remoteNetAddr.inetAddress(),
+                val socketAddress = InetSocketAddress(remoteNetAddr.inetAddress,
                         remoteNetAddr.port)
                 traceFactory.comm.eventi("connecting to $remoteNetAddr")
                 val channel = SocketChannel.open(socketAddress)

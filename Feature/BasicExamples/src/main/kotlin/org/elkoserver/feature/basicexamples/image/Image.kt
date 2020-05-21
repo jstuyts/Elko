@@ -30,10 +30,10 @@ class Image @JSONMethod("width", "height", "img") constructor(private val myWidt
      */
     override fun encode(control: EncodeControl) =
             JSONLiteralFactory.type("image", control).apply {
-                if (myWidth.present()) {
+                if (myWidth.present) {
                     addParameter("width", myWidth.value())
                 }
-                if (myHeight.present()) {
+                if (myHeight.present) {
                     addParameter("height", myHeight.value())
                 }
                 addParameter("img", myImg)

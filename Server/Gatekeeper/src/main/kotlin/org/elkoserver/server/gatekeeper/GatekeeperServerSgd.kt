@@ -138,7 +138,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val userHandler by Once { UserHandler(req(authorizer), req(provided.traceFactory())) }
             .wire {
-                req(gatekeeper).refTable().addRef(it)
+                req(gatekeeper).refTable.addRef(it)
             }
             .eager()
 }

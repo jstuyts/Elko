@@ -113,7 +113,7 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
     @JSONMethod("factor")
     fun load(from: BrokerActor, factor: Double) {
         from.ensureAuthorizedClient()
-        from.client()!!.setLoadFactor(factor)
+        from.client!!.loadFactor = factor
         myBroker.noteLoadDesc(from)
     }
 
@@ -125,7 +125,7 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
      *
      * @return true if the given service has a valid description, false if not.
      */
-    private fun validServiceDescription(service: ServiceDesc): Boolean = service.hostport() != null && service.failure() == null
+    private fun validServiceDescription(service: ServiceDesc): Boolean = service.hostport != null && service.failure == null
 
     /**
      * Handle the 'willserve' verb.
@@ -140,7 +140,7 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
         from.ensureAuthorizedClient()
         services
                 .filter(this@ClientHandler::validServiceDescription)
-                .forEach(from.client()!!::addService)
+                .forEach(from.client!!::addService)
     }
 
     /**
@@ -155,7 +155,7 @@ internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFa
     fun wontserve(from: BrokerActor, services: Array<String>) {
         from.ensureAuthorizedClient()
         for (service in services) {
-            from.client()!!.removeService(service)
+            from.client!!.removeService(service)
         }
     }
 

@@ -61,10 +61,10 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
     private fun sendLoadDesc(who: BrokerActor, what: String?) {
         val array = JSONLiteralArray()
         for (actor in myBroker.actors()) {
-            val client = actor.client()
+            val client = actor.client
             if (client != null) {
                 if (what == null || client.matchLabel(what)) {
-                    val desc = LoadDesc(actor.label()!!, client.loadFactor(), client.providerID())
+                    val desc = LoadDesc(actor.label!!, client.loadFactor, client.providerID)
                     array.addElement(desc)
                 }
             }
@@ -99,7 +99,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
     @JSONMethod("name")
     fun launch(from: BrokerActor, name: String) {
         from.ensureAuthorizedAdmin()
-        var status = myBroker.launcherTable()!!.launch(name)
+        var status = myBroker.launcherTable!!.launch(name)
         if (status == null) {
             status = "start $name"
         }
@@ -118,7 +118,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
     fun launcherdesc(from: BrokerActor) {
         from.ensureAuthorizedAdmin()
         from.send(msgLauncherDesc(this,
-                myBroker.launcherTable()!!.encodeAsArray()))
+                myBroker.launcherTable!!.encodeAsArray()))
     }
 
     /**
@@ -150,9 +150,9 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
         from.ensureAuthorizedAdmin()
         val serverName = optServer.value<String?>(null)
         if (serverName != null) {
-            val msg = msgReinit(myBroker.clientHandler())
+            val msg = msgReinit(myBroker.clientHandler)
             for (actor in myBroker.actors()) {
-                val client = actor.client()
+                val client = actor.client
                 if (client != null) {
                     if (serverName == "all" ||
                             client.matchLabel(serverName)) {
@@ -200,16 +200,16 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
         val serverName = optServer.value<String?>(null)
         val componentShutdown = !optCluster.value(false)
         if (serverName != null) {
-            val msg = msgShutdown(myBroker.clientHandler())
+            val msg = msgShutdown(myBroker.clientHandler)
             val actorsToShutdown: List<BrokerActor> = LinkedList(myBroker.actors())
             for (actor in actorsToShutdown) {
-                val client = actor.client()
+                val client = actor.client
                 if (client != null) {
                     if (serverName == "all" ||
                             client.matchLabel(serverName)) {
                         if (componentShutdown) {
                             // FIXME: Check if having no launcher table is a state that should be supported.
-                            myBroker.launcherTable()!!.setRunSettingOn(serverName)
+                            myBroker.launcherTable!!.setRunSettingOn(serverName)
                         }
                         actor.send(msg)
                     }
@@ -238,7 +238,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
     @JSONMethod("services", "load")
     fun watch(from: BrokerActor, services: OptBoolean, load: OptBoolean) {
         from.ensureAuthorizedAdmin()
-        if (services.present()) {
+        if (services.present) {
             if (services.value()) {
                 sendServiceDesc(from, null, null)
                 myBroker.watchServices(from)
@@ -246,7 +246,7 @@ internal class AdminHandler(private val myBroker: Broker, traceFactory: TraceFac
                 myBroker.unwatchServices(from)
             }
         }
-        if (load.present()) {
+        if (load.present) {
             if (load.value()) {
                 sendLoadDesc(from, null)
                 myBroker.watchLoad(from)

@@ -14,13 +14,13 @@ import java.util.function.Consumer
  * A pending request to the repository.
  *
  * @param myHandler  Handler to call on the request result.
- * @param myRef  Object reference being operated on.
+ * @param ref  Object reference being operated on.
  * @param myCollectionName  Name of collection to get from, or null to take
  *    the configured default.
  */
-internal class PendingRequest private constructor(private val myHandler: Consumer<Any?>?, private val myRef: String, private val myCollectionName: String?, messageProvider: (String) -> JSONLiteral) {
+internal class PendingRequest private constructor(private val myHandler: Consumer<Any?>?, internal val ref: String, private val myCollectionName: String?, messageProvider: (String) -> JSONLiteral) {
     /** Tag to match request with reply  */
-    private val myTag: String
+    internal val tag: String
 
     /** Encoded request message.  */
     private val myMsg: JSONLiteral
@@ -35,11 +35,6 @@ internal class PendingRequest private constructor(private val myHandler: Consume
     }
 
     /**
-     * Return the object reference associated with this request.
-     */
-    fun ref() = myRef
-
-    /**
      * Transmit the request message to the repository.
      *
      * @param odbActor  Actor representing the connection to the repository.
@@ -47,13 +42,6 @@ internal class PendingRequest private constructor(private val myHandler: Consume
     fun sendRequest(odbActor: ODBActor) {
         odbActor.send(myMsg)
     }
-
-    /**
-     * Obtain this request's tag string, to match replies with requests.
-     *
-     * @return this request's tag string.
-     */
-    fun tag() = myTag
 
     companion object {
         /** Counter for generating request tags.  */
@@ -269,7 +257,7 @@ internal class PendingRequest private constructor(private val myHandler: Consume
     init {
         // FIXME: tag is created inside the constructor, and then the message is created. Create the tag and message
         // outside and pass both as a parameter.
-        myTag = (++theTagCounter).toString()
-        myMsg = messageProvider(myTag)
+        tag = (++theTagCounter).toString()
+        myMsg = messageProvider(tag)
     }
 }

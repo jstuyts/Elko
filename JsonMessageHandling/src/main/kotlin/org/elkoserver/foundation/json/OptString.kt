@@ -30,7 +30,7 @@ class OptString : OptionalParameter {
      * @throws Error if the value is not present.
      */
     fun value() =
-            if (isPresent) {
+            if (present) {
                 myValue
             } else {
                 throw Error("extraction of value from non-present OptString")
@@ -46,7 +46,7 @@ class OptString : OptionalParameter {
      * value of 'defaultValue' if not present.
      */
     fun <TDefault : String?> value(defaultValue: TDefault): TDefault =
-            if (isPresent) {
+            if (present) {
                 myValue as TDefault
             } else {
                 defaultValue

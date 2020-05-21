@@ -66,8 +66,8 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
      */
     fun decodeObject(ref: String, results: Array<ObjectDesc>): Any? {
         val objStr: String? = results
-                .firstOrNull { ref == it.ref() }
-                ?.obj()
+                .firstOrNull { ref == it.ref }
+                ?.obj
         return if (objStr == null) {
             tr.errorm("no object retrieved from ODB for ref $ref")
             null

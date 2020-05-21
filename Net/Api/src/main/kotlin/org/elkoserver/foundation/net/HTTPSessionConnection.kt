@@ -17,14 +17,14 @@ import kotlin.math.abs
  * Make a new HTTP session connection object for an incoming connection,
  * with a given session ID.
  *
- * @param mySessionFactory  Factory for creating HTTP message handler objects
- * @param mySessionID  The session ID for the session.
+ * @param sessionFactory  Factory for creating HTTP message handler objects
+ * @param sessionID  The session ID for the session.
  */
 class HTTPSessionConnection private constructor(
-        private val mySessionFactory: HTTPMessageHandlerFactory,
-        private val mySessionID: Long, timer: Timer, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(mySessionFactory.networkManager(), clock, traceFactory) {
+        private val sessionFactory: HTTPMessageHandlerFactory,
+        internal val sessionID: Long, timer: Timer, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(sessionFactory.networkManager, clock, traceFactory) {
     /** Trace object for logging message traffic.  */
-    private val trMsg: Trace = mySessionFactory.httpFramer().msgTrace()
+    private val trMsg: Trace = sessionFactory.httpFramer.msgTrace
 
     /** Server to client message sequence number.  */
     private var mySelectSequenceNumber: Int
@@ -113,7 +113,7 @@ class HTTPSessionConnection private constructor(
             connectionsToClose
                     .filter { it !== myDownstreamConnection }
                     .forEach(Connection::close)
-            mySessionFactory.removeSession(this)
+            sessionFactory.removeSession(this)
             myInactivityClock.stop()
             mySelectClock.stop()
             mySelectWaitStartTime = 0
@@ -341,20 +341,6 @@ class HTTPSessionConnection private constructor(
     }
 
     /**
-     * Get this session's session factory.
-     *
-     * @return the HTTP session factory object for this session.
-     */
-    fun sessionFactory(): HTTPMessageHandlerFactory = mySessionFactory
-
-    /**
-     * Get this session's ID number.
-     *
-     * @return the session ID number of this session.
-     */
-    fun sessionID(): Long = mySessionID
-
-    /**
      * Turn debug features for this connection on or off. In the case of an
      * HTTP session, debug mode involves using longer timeouts so that things
      * work on a human time scale when debugging.
@@ -362,8 +348,8 @@ class HTTPSessionConnection private constructor(
      * @param mode  If true, turn debug mode on; if false, turn it off.
      */
     override fun setDebugMode(mode: Boolean) {
-        mySelectTimeoutInterval = mySessionFactory.selectTimeout(mode)
-        mySessionTimeoutInterval = mySessionFactory.sessionTimeout(mode)
+        mySelectTimeoutInterval = sessionFactory.selectTimeout(mode)
+        mySessionTimeoutInterval = sessionFactory.sessionTimeout(mode)
     }
 
     /**
@@ -388,7 +374,7 @@ class HTTPSessionConnection private constructor(
      *
      * @return a printable representation of this connection.
      */
-    override fun toString(): String = "HTTP(${id()},$mySessionID)"
+    override fun toString(): String = "HTTP(${id()},$sessionID)"
 
     companion object {
         /** Marker on send queue for select timeout.  */
@@ -421,7 +407,7 @@ class HTTPSessionConnection private constructor(
     }
 
     init {
-        mySessionFactory.addSession(this)
+        sessionFactory.addSession(this)
         myConnections = HashSet()
         myLastActivityTime = clock.millis()
         if (trMsg.event) {
@@ -431,22 +417,22 @@ class HTTPSessionConnection private constructor(
         myXmitSequenceNumber = 1
         clearDownstreamConnection()
         myQueue = Queue()
-        myHTTPFramer = mySessionFactory.httpFramer()
+        myHTTPFramer = sessionFactory.httpFramer
         amClosing = false
-        mySelectTimeoutInterval = mySessionFactory.selectTimeout(false)
+        mySelectTimeoutInterval = sessionFactory.selectTimeout(false)
         mySelectClock = timer.every((mySelectTimeoutInterval + 1000) / 4.toLong(), object : TickNoticer {
             override fun noticeTick(ticks: Int) {
                 noticeSelectTick()
             }
         })
         mySelectClock.start()
-        mySessionTimeoutInterval = mySessionFactory.sessionTimeout(false)
+        mySessionTimeoutInterval = sessionFactory.sessionTimeout(false)
         myInactivityClock = timer.every(mySessionTimeoutInterval + 1000.toLong(), object : TickNoticer {
             override fun noticeTick(ticks: Int) {
                 noticeInactivityTick()
             }
         })
         myInactivityClock.start()
-        enqueueHandlerFactory(mySessionFactory.innerFactory())
+        enqueueHandlerFactory(sessionFactory.innerFactory)
     }
 }

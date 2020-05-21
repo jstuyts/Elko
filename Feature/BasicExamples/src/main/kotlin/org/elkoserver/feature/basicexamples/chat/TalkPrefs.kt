@@ -98,11 +98,11 @@ class TalkPrefs @JSONMethod("style") constructor(private var myStyle: StyleDesc)
         val newBackgroundColor = backgroundColor.value<String?>(null)
         val newIcon = icon.value<String?>(null)
         val newTextStyle = textStyle.value<String?>(null)
-        val style = StyleDesc(newColor ?: myStyle.color(),
-                newBackgroundColor ?: myStyle.backgroundColor(),
+        val style = StyleDesc(newColor ?: myStyle.color,
+                newBackgroundColor ?: myStyle.backgroundColor,
                 null,
-                newTextStyle ?: myStyle.textStyle(),
-                newIcon ?: myStyle.icon())
+                newTextStyle ?: myStyle.textStyle,
+                newIcon ?: myStyle.icon)
         val rules = context().getMod(TalkOptions::class.java)
         if (rules == null || rules.allowedStyle(style)) {
             myStyle = style

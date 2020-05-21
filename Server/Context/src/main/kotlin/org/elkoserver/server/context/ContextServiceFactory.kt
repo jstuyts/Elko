@@ -37,8 +37,8 @@ class ContextServiceFactory(
             InternalActorFactory(myContextor, auth, internalActorGorgel, traceFactory)
         } else {
             val reservationRequired: Boolean = when {
-                auth.mode() == "open" -> false
-                auth.mode() == "reservation" -> true
+                auth.mode == "open" -> false
+                auth.mode == "reservation" -> true
                 else -> {
                     gorgel.error("invalid authorization configuration for $label")
                     throw IllegalStateException()

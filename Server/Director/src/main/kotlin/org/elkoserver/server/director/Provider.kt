@@ -9,17 +9,22 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * protocol.
  *
  * @param myDirector  The director that is tracking the provider.
- * @param myActor  The actor associated with the provider.
+ * @param actor  The actor associated with the provider.
  * @param myOrdinalGenerator Counter for assigning ordinal values to new providers.
  */
 internal class Provider(
         private val myDirector: Director,
-        private val myActor: DirectorActor,
+        internal val actor: DirectorActor,
         private val gorgel: Gorgel,
         private val myOrdinalGenerator: OrdinalGenerator) : Comparable<Provider> {
 
     /** Provider load factor.  */
-    private var myLoadFactor = 0.0
+    internal var loadFactor = 0.0
+        internal set(value) {
+            myDirector.removeProvider(this)
+            field = value.coerceAtLeast(0.0)
+            myDirector.addProvider(this)
+        }
 
     /** Names of context families served.  */
     private val myServices: MutableSet<String> = HashSet()
@@ -28,7 +33,8 @@ internal class Provider(
     private val myRestrictedServices: MutableSet<String> = HashSet()
 
     /** Number of users provider is willing to serve (-1 for no limit).  */
-    private var myCapacity = -1
+    internal var capacity = -1
+        private set
 
     /** Number of users currently being served.  */
     private var myUserCount = 0
@@ -48,18 +54,11 @@ internal class Provider(
     override fun toString() = "P($myOrdinal)"
 
     /**
-     * Get the actor associated with this provider.
-     *
-     * @return the actor through whom this provider communicates.
-     */
-    fun actor() = myActor
-
-    /**
      * Compare this provider to another for sorting (comparison is by load
      * factor).
      */
     override fun compareTo(other: Provider): Int {
-        val diff = myLoadFactor - other.myLoadFactor
+        val diff = loadFactor - other.loadFactor
         return when {
             diff < 0.0 -> -1
             diff > 0.0 -> 1
@@ -81,23 +80,15 @@ internal class Provider(
      * Add a service to the list for this provider.
      *
      * @param contextFamily  The name of the context family to add.
-     * @param capacity  The capacity of the provider, or -1 for no limit.
+     * @param newCapacity  The capacity of the provider, or -1 for no limit.
      */
-    fun addService(contextFamily: String, capacity: Int, restricted: Boolean) {
+    fun addService(contextFamily: String, newCapacity: Int, restricted: Boolean) {
         myServices.add(contextFamily)
         if (restricted) {
             myRestrictedServices.add(contextFamily)
         }
-        myCapacity = capacity
+        capacity = newCapacity
     }
-
-    /**
-     * Obtain this provider's capacity.
-     *
-     * @return the number of users this provider is willing to serve, or -1 if
-     * there is no limit.
-     */
-    fun capacity() = myCapacity
 
     /**
      * Get a read-only view of the contexts currently opened by this provider.
@@ -167,12 +158,7 @@ internal class Provider(
      * @return true if this provider has reached its capacity limit.
      */
     val isFull: Boolean
-        get() = myCapacity in 0..myUserCount
-
-    /**
-     * Return this provider's load factor.
-     */
-    fun loadFactor() = myLoadFactor
+        get() = capacity in 0..myUserCount
 
     /**
      * Test if a given label matches this provider.
@@ -182,7 +168,7 @@ internal class Provider(
      *
      * @param label  The label to match against.
      */
-    fun matchLabel(label: String) = myActor.label() == label || myHostPorts.containsValue(label)
+    fun matchLabel(label: String) = actor.label == label || myHostPorts.containsValue(label)
 
     /**
      * Take note that this provider has closed a context.
@@ -195,14 +181,14 @@ internal class Provider(
             myDirector.removeContext(context)
             myContexts.remove(name)
             if (context.isClone) {
-                myCloneSets.remove(context.cloneSetName()!!, context)
+                myCloneSets.remove(context.cloneSetName!!, context)
             }
         } else {
             context = myDirector.getContext(name)
             if (context != null) {
-                gorgel.i?.run { info("$myActor reported closure of context $name belonging to another provider (likely dup)") }
+                gorgel.i?.run { info("$actor reported closure of context $name belonging to another provider (likely dup)") }
             } else {
-                gorgel.i?.run { info("$myActor reported closure of non-existent context $name") }
+                gorgel.i?.run { info("$actor reported closure of non-existent context $name") }
             }
         }
     }
@@ -224,7 +210,7 @@ internal class Provider(
                 context.closeGate(reason)
             }
         } else {
-            gorgel.i?.run { info("$myActor set gate for non-existent context $name") }
+            gorgel.i?.run { info("$actor set gate for non-existent context $name") }
         }
     }
 
@@ -246,9 +232,9 @@ internal class Provider(
         if (oldContext != null) {
             val dupToClose = oldContext.pickDupToClose(newContext!!)
             if (dupToClose.isMine) {
-                dupToClose.provider().actor().send(
-                        AdminHandler.msgClose(myDirector.providerHandler(),
-                                dupToClose.name(), null, true))
+                dupToClose.provider.actor.send(
+                        AdminHandler.msgClose(myDirector.providerHandler,
+                                dupToClose.name, null, true))
             }
             if (dupToClose === newContext) {
                 newContext = null
@@ -260,7 +246,7 @@ internal class Provider(
             myDirector.addContext(newContext)
             myContexts[name] = newContext
             if (newContext.isClone) {
-                myCloneSets.add(newContext.cloneSetName()!!, newContext)
+                myCloneSets.add(newContext.cloneSetName!!, newContext)
             }
         }
     }
@@ -278,7 +264,7 @@ internal class Provider(
             myDirector.addUser(userName, context)
             ++myUserCount
         } else {
-            gorgel.error("$myActor reported entry of $userName to non-existent context $contextName")
+            gorgel.error("$actor reported entry of $userName to non-existent context $contextName")
         }
     }
 
@@ -295,7 +281,7 @@ internal class Provider(
             context.removeUser(userName)
             --myUserCount
         } else {
-            gorgel.error("$myActor reported exit of $userName from non-existent context $contextName")
+            gorgel.error("$actor reported exit of $userName from non-existent context $contextName")
         }
     }
 
@@ -312,17 +298,6 @@ internal class Provider(
      * @return a set of this provider's services.
      */
     fun services(): Set<String> = myServices
-
-    /**
-     * Set this provider's load factor.
-     *
-     * @param loadFactor  The value to set it to.
-     */
-    fun setLoadFactor(loadFactor: Double) {
-        myDirector.removeProvider(this)
-        myLoadFactor = loadFactor.coerceAtLeast(0.0)
-        myDirector.addProvider(this)
-    }
 
     /**
      * Test if this provider will provide a particular service.

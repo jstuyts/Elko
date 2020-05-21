@@ -20,7 +20,7 @@ internal abstract class BaseConnectionSetup(label: String?, val host: String, pr
         val result: NetAddr
         try {
             result = tryToStartListener()
-            trServer.noticei("listening for $protocol connections$connectionsSuffixForNotice on $listenAddressDescription${(if (bind != valueToCompareWithBind) " ($bind)" else "")} (${auth.mode()})${if (secure) " (secure mode)" else ""}")
+            trServer.noticei("listening for $protocol connections$connectionsSuffixForNotice on $listenAddressDescription${(if (bind != valueToCompareWithBind) " ($bind)" else "")} (${auth.mode})${if (secure) " (secure mode)" else ""}")
         } catch (e: IOException) {
             tr.errorm("unable to open $protocol$protocolSuffixForErrorMessage listener $propRoot on requested host: $e")
             throw IllegalStateException()

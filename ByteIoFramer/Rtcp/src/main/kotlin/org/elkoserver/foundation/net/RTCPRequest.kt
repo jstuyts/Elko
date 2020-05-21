@@ -13,20 +13,20 @@ class RTCPRequest {
     private var myParseState = STATE_AWAITING_VERB
 
     /** RTCP request verb  */
-    private var myVerb = 0
+    var verb = 0
     /* The following elements will be present or not according to whether the
        message indicated by the verb is supposed to container them. */
     /** Highest seq number of message from us that client claims receipt of.  */
-    private var myClientRecvSeqNum = 0
+    var clientRecvSeqNum = 0
 
     /** Seq number of message bundle from client to us (message delivery).  */
-    private var myClientSendSeqNum = 0
+    var clientSendSeqNum = 0
 
     /** Session ID ("resume").  */
-    private var mySessionID: String? = null
+    var sessionID: String? = null
 
     /** Error tag ("error").  */
-    private var myError: String? = null
+    var error: String? = null
 
     /** First message in a message bundle (message delivery).  */
     private var myMessage: JsonObject? = null
@@ -58,34 +58,6 @@ class RTCPRequest {
             actualOtherMessages.addLast(message)
         }
     }
-
-    /**
-     * Obtain the client received sequence number, which is the highest message
-     * sequence number of messages from us to the client that client claims to
-     * have received successfully.
-     *
-     * This will be present in "resume", "ack", "end", and message delivery
-     * requests.
-     *
-     * @return this request's client receive sequence number.
-     */
-    fun clientRecvSeqNum() = myClientRecvSeqNum
-
-    /**
-     * Obtain the client send sequence number, which is the sequence number of
-     * message bundle carried by this message delivery request.
-     *
-     * @return this request's client send sequence number.
-     */
-    fun clientSendSeqNum() = myClientSendSeqNum
-
-    /**
-     * Obtain the error tag from this request.  This will be present in "error"
-     * requests and as the consequence of parse failures.
-     *
-     * @return this request's error tag string.
-     */
-    fun error() = myError
 
     /**
      * Test if the request described by this object has been completely parsed
@@ -127,9 +99,9 @@ class RTCPRequest {
      * @param problem  Exception describing what the issue was
      */
     fun noteProblem(problem: Exception) {
-        myError = problem.message
+        error = problem.message
         myParseState = STATE_COMPLETE
-        myVerb = VERB_ERROR
+        verb = VERB_ERROR
     }
 
     /**
@@ -145,101 +117,85 @@ class RTCPRequest {
         var actualLine = line
         actualLine = actualLine.trim { it <= ' ' }
         val frags = theDelimiterPattern.split(actualLine)
-        val verb = frags[0]
+        val verbAsString = frags[0]
         myParseState = STATE_COMPLETE
-        if (verb == "start") {
-            myVerb = VERB_START
+        if (verbAsString == "start") {
+            verb = VERB_START
             if (frags.size != 1) {
-                myVerb = VERB_ERROR
-                myError = "invalid start request"
+                verb = VERB_ERROR
+                error = "invalid start request"
             }
-        } else if (verb == "resume") {
-            myVerb = VERB_RESUME
+        } else if (verbAsString == "resume") {
+            verb = VERB_RESUME
             if (frags.size != 3) {
-                myVerb = VERB_ERROR
-                myError = "invalid resume request"
+                verb = VERB_ERROR
+                error = "invalid resume request"
             } else {
-                mySessionID = frags[1]
+                sessionID = frags[1]
                 try {
-                    myClientRecvSeqNum = frags[2].toInt()
+                    clientRecvSeqNum = frags[2].toInt()
                 } catch (e: NumberFormatException) {
-                    myVerb = VERB_ERROR
-                    myError = "invalid resume request"
+                    verb = VERB_ERROR
+                    error = "invalid resume request"
                 }
             }
-        } else if (verb == "ack") {
-            myVerb = VERB_ACK
+        } else if (verbAsString == "ack") {
+            verb = VERB_ACK
             if (frags.size != 2) {
-                myVerb = VERB_ERROR
-                myError = "invalid resume request"
+                verb = VERB_ERROR
+                error = "invalid resume request"
             } else {
                 try {
-                    myClientRecvSeqNum = frags[1].toInt()
+                    clientRecvSeqNum = frags[1].toInt()
                 } catch (e: NumberFormatException) {
-                    myVerb = VERB_ERROR
-                    myError = "invalid ack request"
+                    verb = VERB_ERROR
+                    error = "invalid ack request"
                 }
             }
-        } else if (verb == "end") {
-            myVerb = VERB_END
+        } else if (verbAsString == "end") {
+            verb = VERB_END
             if (frags.size != 2) {
-                myVerb = VERB_ERROR
-                myError = "invalid end request"
+                verb = VERB_ERROR
+                error = "invalid end request"
             } else {
                 try {
-                    myClientRecvSeqNum = frags[1].toInt()
+                    clientRecvSeqNum = frags[1].toInt()
                 } catch (e: NumberFormatException) {
-                    myVerb = VERB_ERROR
-                    myError = "invalid end request"
+                    verb = VERB_ERROR
+                    error = "invalid end request"
                 }
             }
-        } else if (verb == "error") {
-            myVerb = VERB_ERROR
-            myError = if (frags.size != 2) {
+        } else if (verbAsString == "error") {
+            verb = VERB_ERROR
+            error = if (frags.size != 2) {
                 "invalid error request"
             } else {
                 "client reported error: ${frags[1]}"
             }
         } else {
-            myVerb = VERB_MESSAGE
+            verb = VERB_MESSAGE
             try {
-                myClientSendSeqNum = verb.toInt()
+                clientSendSeqNum = verbAsString.toInt()
                 if (frags.size != 2) {
-                    myVerb = VERB_ERROR
-                    myError = "invalid message request"
+                    verb = VERB_ERROR
+                    error = "invalid message request"
                 } else {
                     try {
-                        myClientRecvSeqNum = frags[1].toInt()
+                        clientRecvSeqNum = frags[1].toInt()
                     } catch (e: NumberFormatException) {
-                        myVerb = VERB_ERROR
-                        myError = "invalid message request"
+                        verb = VERB_ERROR
+                        error = "invalid message request"
                     }
                 }
             } catch (e: NumberFormatException) {
-                myVerb = VERB_ERROR
-                myError = "invalid RTCP verb $verb"
+                verb = VERB_ERROR
+                error = "invalid RTCP verb $verbAsString"
             }
-            if (myVerb == VERB_MESSAGE) {
+            if (verb == VERB_MESSAGE) {
                 myParseState = STATE_AWAITING_MESSAGE
             }
         }
     }
-
-    /**
-     * Obtain the session ID from this request.  This will be present only in
-     * "resume" requests.
-     *
-     * @return this request's session ID.
-     */
-    fun sessionID() = mySessionID
-
-    /**
-     * Obtain this request's verb.  This will be one of the VERB_XXX
-     * constants defined by this class.
-     *
-     * @return This requests' request verb code.
-     */
-    fun verb() = myVerb
 
     /**
      * Obtain a printable String representation of this request.
@@ -247,13 +203,13 @@ class RTCPRequest {
      * @return a printable dump of the request state.
      */
     override fun toString(): String {
-        return when (myVerb) {
+        return when (verb) {
             VERB_START -> "start"
-            VERB_RESUME -> "resume $mySessionID $myClientRecvSeqNum"
-            VERB_ACK -> "ack $myClientRecvSeqNum"
-            VERB_MESSAGE -> "msg $myClientSendSeqNum $myClientRecvSeqNum"
-            VERB_END -> "end $myClientRecvSeqNum"
-            VERB_ERROR -> "error $myError"
+            VERB_RESUME -> "resume $sessionID $clientRecvSeqNum"
+            VERB_ACK -> "ack $clientRecvSeqNum"
+            VERB_MESSAGE -> "msg $clientSendSeqNum $clientRecvSeqNum"
+            VERB_END -> "end $clientRecvSeqNum"
+            VERB_ERROR -> "error $error"
             else -> "<unknown RTCP verb>"
         }
     }

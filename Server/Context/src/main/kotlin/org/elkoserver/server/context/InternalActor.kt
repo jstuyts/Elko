@@ -19,13 +19,13 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param tr  Trace object for diagnostics.
  */
 class InternalActor internal constructor(connection: Connection, private val myFactory: InternalActorFactory,
-                                         private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.contextor(), traceFactory), BasicProtocolActor {
+                                         private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.contextor, traceFactory), BasicProtocolActor {
 
     /** Flag that connection has been authorized.  */
     private var amAuthorized = false
 
     /** Optional convenience label for logging and such.  */
-    private var myLabel: String? = null
+    private var label: String? = null
 
     /**
      * Handle loss of connection from the actor.
@@ -41,8 +41,8 @@ class InternalActor internal constructor(connection: Connection, private val myF
     /**
      * Do the actual work of authorizing an actor.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
-        myLabel = label
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, newLabel: String): Boolean {
+        label = newLabel
         amAuthorized = myFactory.verifyInternalAuthorization(auth)
         return amAuthorized
     }
@@ -66,12 +66,7 @@ class InternalActor internal constructor(connection: Connection, private val myF
     }
 
     /**
-     * Return this actor's label.
-     */
-    fun label() = myLabel
-
-    /**
      * @return a printable representation of this actor.
      */
-    override fun toString() = myLabel ?: super.toString()
+    override fun toString() = label ?: super.toString()
 }

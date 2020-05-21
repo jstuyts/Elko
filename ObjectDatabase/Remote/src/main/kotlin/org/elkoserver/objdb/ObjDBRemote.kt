@@ -104,8 +104,8 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
 
     private inner class RepositoryFoundHandler : Consumer<Array<ServiceDesc>> {
         override fun accept(obj: Array<ServiceDesc>) {
-            if (obj[0].failure() != null) {
-                tr.errorm("unable to find repository: ${obj[0].failure()}")
+            if (obj[0].failure != null) {
+                tr.errorm("unable to find repository: ${obj[0].failure}")
             } else {
                 myRepHost = obj[0].asHostDesc(myRetryInterval)
                 connectToRepository()
@@ -182,7 +182,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     fun handlePutResult(tag: String?, results: Array<ResultDesc>?) {
         val req = myPendingRequests.remove(tag)
         if (req != null && results != null) {
-            req.handleReply(results[0].failure())
+            req.handleReply(results[0].failure)
         }
     }
 
@@ -195,7 +195,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     fun handleUpdateResult(tag: String?, results: Array<ResultDesc>?) {
         val req = myPendingRequests.remove(tag)
         if (req != null && results != null) {
-            req.handleReply(results[0].failure())
+            req.handleReply(results[0].failure)
         }
     }
 
@@ -213,12 +213,12 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
         val req = myPendingRequests.remove(tag)
         if (req != null && results != null) {
             val obj: Any?
-            val failure = results[0].failure()
+            val failure = results[0].failure
             /* XXX this is just wrong. (As previously documented for queries. But why not for gets?) */
             obj = if (failure == null) {
-                decodeObject(req.ref(), results)
+                decodeObject(req.ref, results)
             } else {
-                tr.errorm("repository error getting ${req.ref()}: $failure")
+                tr.errorm("repository error getting ${req.ref}: $failure")
                 null
             }
             req.handleReply(obj)
@@ -234,7 +234,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     fun handleRemoveResult(tag: String?, results: Array<ResultDesc>?) {
         val req = myPendingRequests.remove(tag)
         if (req != null && results != null) {
-            req.handleReply(results[0].failure())
+            req.handleReply(results[0].failure)
         }
     }
 
@@ -245,7 +245,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * @param req  The new request.
      */
     private fun newRequest(req: PendingRequest) {
-        myPendingRequests[req.tag()] = req
+        myPendingRequests[req.tag] = req
         val currentOdbActor = myODBActor
         if (currentOdbActor != null) {
             req.sendRequest(currentOdbActor)

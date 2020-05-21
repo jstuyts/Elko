@@ -14,10 +14,10 @@ import java.time.Clock
  * @param paramTypes  The types of the various parameters (including the
  *    mandatory first Deliverer parameter).
  * @param paramNames  JSON names for the parameters.
- * @param myNext  Next JSON method in a growing chain.
+ * @param next  Next JSON method in a growing chain.
  */
 internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Class<*>>, paramNames: Array<out String>,
-                             private val myNext: MethodInvoker?, traceFactory: TraceFactory, clock: Clock) : Invoker<Any>(myMethod, paramTypes, paramNames, 1, traceFactory, clock) {
+                             internal val next: MethodInvoker?, traceFactory: TraceFactory, clock: Clock) : Invoker<Any>(myMethod, paramTypes, paramNames, 1, traceFactory, clock) {
 
     /** The Java class that defined the method.  */
     @Suppress("UNCHECKED_CAST")
@@ -81,14 +81,6 @@ internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Cla
             throw ParameterMismatchException(params, myMethod.parameterTypes)
         }
     }
-
-    /**
-     * Follow the chain of linked methods of the same name.
-     *
-     * @return the next method in the chain of which this object is a part, or
-     * null if there are no more methods in the chain.
-     */
-    operator fun next() = myNext
 
     override fun toString() = "Method($myMethod)"
 }

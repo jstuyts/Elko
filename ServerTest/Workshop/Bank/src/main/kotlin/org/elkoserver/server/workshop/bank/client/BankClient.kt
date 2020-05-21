@@ -22,7 +22,8 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
     private var myServiceLink: ServiceLink? = null
 
     /** Tag string indicating the current state of the service connection.  */
-    private var myStatus = "startup"
+    private var status = "startup"
+        private set
 
     /** Collection of handlers for pending requests to the service.  */
     private val myResultHandlers: MutableMap<String, BankReplyHandler> = HashMap()
@@ -42,8 +43,8 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      */
     override fun activate(ref: String, contextor: Contextor) {
         super.activate(ref, contextor)
-        myStatus = "connecting"
-        tr = contextor.appTrace()
+        status = "connecting"
+        tr = contextor.tr
         contextor.findServiceLink(myServiceName, this)
     }
 
@@ -57,18 +58,11 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
     override fun accept(obj: ServiceLink?) {
         if (obj != null) {
             myServiceLink = obj
-            myStatus = "connected"
+            status = "connected"
         } else {
-            myStatus = "failed"
+            status = "failed"
         }
     }
-
-    /**
-     * Get the current status of the connection to the external service.
-     *
-     * @return a tag string describing the current connection state.
-     */
-    fun status() = myStatus
 
     /**
      * Handle a failure result, internal version: log the error and then

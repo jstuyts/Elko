@@ -64,7 +64,7 @@ class EchoMod @JSONMethod constructor() : Mod(), ContextMod, ObjectCompletionWat
     fun status(from: User) {
         ensureSameContext(from)
         val msg = JSONLiteralFactory.targetVerb(`object`(), "status").apply {
-            addParameter("status", myService?.status() ?: "no service")
+            addParameter("status", myService?.status ?: "no service")
             finish()
         }
         from.send(msg)

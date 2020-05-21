@@ -358,7 +358,7 @@ class MongoObjectStore : ObjectStore {
     override fun getObjects(what: Array<RequestDesc>, handler: GetResultHandler) {
         val resultList: MutableList<ObjectDesc> = LinkedList()
         for (req in what) {
-            resultList.addAll(doGet(req.ref(), getCollection(req.collectionName())))
+            resultList.addAll(doGet(req.ref, getCollection(req.collectionName)))
         }
         handler.handle(resultList.toTypedArray())
     }
@@ -373,8 +373,8 @@ class MongoObjectStore : ObjectStore {
      */
     override fun putObjects(what: Array<PutDesc>, handler: RequestResultHandler) {
         val results = Array(what.size) {
-            val collection = getCollection(what[it].collectionName())
-            doPut(what[it].ref(), what[it].obj(), collection, what[it].isRequireNew)
+            val collection = getCollection(what[it].collectionName)
+            doPut(what[it].ref, what[it].obj, collection, what[it].isRequireNew)
         }
         handler.handle(results)
     }
@@ -390,8 +390,8 @@ class MongoObjectStore : ObjectStore {
      */
     override fun updateObjects(what: Array<UpdateDesc>, handler: RequestResultHandler) {
         val results = Array(what.size) {
-            val collection = getCollection(what[it].collectionName())
-            doUpdate(what[it].ref(), what[it].version(), what[it].obj(), collection)
+            val collection = getCollection(what[it].collectionName)
+            doUpdate(what[it].ref, what[it].version, what[it].obj, collection)
         }
         handler.handle(results)
     }
@@ -452,8 +452,8 @@ class MongoObjectStore : ObjectStore {
     override fun queryObjects(what: Array<QueryDesc>, handler: GetResultHandler) {
         val resultList: MutableList<ObjectDesc> = LinkedList()
         for (req in what) {
-            val collection = getCollection(req.collectionName())
-            resultList.addAll(doQuery(req.template(), collection, req.maxResults()))
+            val collection = getCollection(req.collectionName)
+            resultList.addAll(doQuery(req.template, collection, req.maxResults))
         }
         handler.handle(resultList.toTypedArray())
     }
@@ -467,7 +467,7 @@ class MongoObjectStore : ObjectStore {
      * failure indicators), when available.
      */
     override fun removeObjects(what: Array<RequestDesc>, handler: RequestResultHandler) {
-        val results = Array(what.size) { doRemove(what[it].ref(), getCollection(what[it].collectionName())) }
+        val results = Array(what.size) { doRemove(what[it].ref, getCollection(what[it].collectionName)) }
         handler.handle(results)
     }
 

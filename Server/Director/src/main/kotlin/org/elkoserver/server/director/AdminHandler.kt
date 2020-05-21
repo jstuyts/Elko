@@ -84,12 +84,12 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         } else if (userName != null) {
             findUser(userName, from)
             if (watch) {
-                from.admin()!!.watchUser(userName)
+                from.admin!!.watchUser(userName)
             }
         } else  /* if (contextName != null) */ {
             findContext(contextName, from)
             if (watch) {
-                from.admin()!!.watchContext(contextName!!)
+                from.admin!!.watchContext(contextName!!)
             }
         }
     }
@@ -103,7 +103,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
     fun findContext(contextName: String?, admin: DirectorActor) {
         val context = myDirector.getContext(contextName!!)
         if (context != null) {
-            admin.send(msgContext(this, contextName, true, context.provider().actor().label(), null))
+            admin.send(msgContext(this, contextName, true, context.provider.actor.label, null))
         } else {
             val clones = myDirector.contextClones(contextName)
             if (!clones.isEmpty) {
@@ -156,7 +156,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         from.ensureAuthorizedAdmin()
         val contextName = context.value<String?>(null)
         val userName = user.value<String?>(null)
-        val msg = msgClose(myDirector.providerHandler(), contextName,
+        val msg = msgClose(myDirector.providerHandler, contextName,
                 userName, false)
         myDirector.targetedBroadCast(null, contextName, userName, msg)
     }
@@ -183,10 +183,10 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         for (subj in myDirector.providers()) {
             if (providerName == null || subj.matchLabel(providerName)) {
                 val providerDump = ProviderDump(depth, subj, contextName)
-                if (providerDump.numContexts() > 0 || contextName == null) {
+                if (providerDump.numContexts > 0 || contextName == null) {
                     ++numProviders
-                    numContexts += providerDump.numContexts()
-                    numUsers += providerDump.numUsers()
+                    numContexts += providerDump.numContexts
+                    numUsers += providerDump.numUsers
                     if (depth > 0) {
                         providerList.add(providerDump)
                     }
@@ -198,20 +198,19 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
     }
 
     private class ProviderDump internal constructor(depth: Int, private val myProvider: Provider, contextName: String?) : Encodable {
-        private var myNumContexts = 0
-        private var myNumUsers = 0
+        internal var numContexts = 0
+            private set
+        internal var numUsers = 0
+            private set
         private val myOpenContexts = LinkedList<ContextDump>()
-        fun numContexts(): Int = myNumContexts
-
-        fun numUsers(): Int = myNumUsers
 
         override fun encode(control: EncodeControl) =
                 JSONLiteralFactory.type("providerdesc", control).apply {
-                    addParameter("provider", myProvider.actor().label())
-                    addParameter("numcontexts", myNumContexts)
-                    addParameter("numusers", myNumUsers)
-                    addParameter("load", myProvider.loadFactor())
-                    addParameter("capacity", myProvider.capacity())
+                    addParameter("provider", myProvider.actor.label)
+                    addParameter("numcontexts", numContexts)
+                    addParameter("numusers", numUsers)
+                    addParameter("load", myProvider.loadFactor)
+                    addParameter("capacity", myProvider.capacity)
                     addParameter("hostports", encodeStrings(myProvider.hostPorts()))
                     addParameter("protocols", encodeStrings(myProvider.protocols()))
                     addParameter("serving", encodeStrings(myProvider.services()))
@@ -223,10 +222,10 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
 
         init {
             for (context in myProvider.contexts()) {
-                if (contextName == null || contextName == context.name()) {
+                if (contextName == null || contextName == context.name) {
                     val contextDump = ContextDump(depth, context)
-                    ++myNumContexts
-                    myNumUsers += context.userCount()
+                    ++numContexts
+                    numUsers += context.userCount()
                     if (depth > 1) {
                         myOpenContexts.add(contextDump)
                     }
@@ -238,7 +237,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
     private class ContextDump internal constructor(private val myDepth: Int, private val myContext: OpenContext) : Encodable {
         override fun encode(control: EncodeControl): JSONLiteral {
             val literal = JSONLiteralFactory.type("contextdesc", control)
-            literal.addParameter("context", myContext.name())
+            literal.addParameter("context", myContext.name)
             literal.addParameter("numusers", myContext.userCount())
             if (myDepth > 2) {
                 literal.addParameter("users",
@@ -320,13 +319,13 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         from.ensureAuthorizedAdmin()
         val providerName = provider.value<String?>(null)
         if (providerName != null) {
-            val msg = msgReinit(myDirector.providerHandler())
+            val msg = msgReinit(myDirector.providerHandler)
             myDirector.providers()
                     .filter {
                         providerName == "all" ||
                                 it.matchLabel(providerName)
                     }
-                    .forEach { it.actor().send(msg) }
+                    .forEach { it.actor.send(msg) }
         }
         if (director.value(false)) {
             myDirector.reinitServer()
@@ -364,7 +363,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         from.ensureAuthorizedAdmin()
         val contextName = context.value<String?>(null)
         val userName = user.value<String?>(null)
-        val msg = msgSay(myDirector.providerHandler(), contextName,
+        val msg = msgSay(myDirector.providerHandler, contextName,
                 userName, text)
         myDirector.targetedBroadCast(null, contextName, userName, msg)
     }
@@ -383,13 +382,13 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         from.ensureAuthorizedAdmin()
         val providerName = provider.value<String?>(null)
         if (providerName != null) {
-            val msg = msgShutdown(myDirector.providerHandler())
+            val msg = msgShutdown(myDirector.providerHandler)
             myDirector.providers()
                     .filter {
                         providerName == "all" ||
                                 it.matchLabel(providerName)
                     }
-                    .forEach { it.actor().send(msg) }
+                    .forEach { it.actor.send(msg) }
         }
         if (director.value(false)) {
             myDirector.shutdownServer()
@@ -417,9 +416,9 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
             throw MessageHandlerException(
                     "context or user parameter missing")
         } else if (contextName != null) {
-            from.admin()!!.unwatchContext(contextName)
+            from.admin!!.unwatchContext(contextName)
         } else  /* if (userName != null) */ {
-            from.admin()!!.unwatchUser(userName!!)
+            from.admin!!.unwatchUser(userName!!)
         }
     }
 
@@ -447,7 +446,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         private fun encodeContexts(contexts: Iterable<OpenContext>) =
                 JSONLiteralArray().apply {
                     for (context in contexts) {
-                        addElement(context.name())
+                        addElement(context.name)
                     }
                     finish()
                 }
@@ -470,7 +469,7 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
         private fun encodeProviders(providers: Set<Provider>) =
                 JSONLiteralArray().apply {
                     for (subj in providers) {
-                        addElement(subj.actor().label())
+                        addElement(subj.actor.label)
                     }
                     finish()
                 }

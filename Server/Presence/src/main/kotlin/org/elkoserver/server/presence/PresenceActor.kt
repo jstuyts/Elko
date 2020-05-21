@@ -27,10 +27,11 @@ internal class PresenceActor(connection: Connection, private val myFactory: Pres
     private var amLoggedOut = false
 
     /** Label for logging and such.  */
-    private var myLabel: String? = null
+    private var label: String? = null
 
     /** Client object if this actor is a client, else null.  */
-    private var myClient: Client? = null
+    internal var client: Client? = null
+        private set
 
     /** True if actor is authorized to perform admin operations.  */
     private var amAdmin = false
@@ -49,19 +50,19 @@ internal class PresenceActor(connection: Connection, private val myFactory: Pres
     /**
      * Do the actual work of authorizing an actor.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, newLabel: String): Boolean {
         var success = false
         if (myFactory.verifyAuthorization(auth)) {
             if (handler is AdminHandler) {
                 if (!amAdmin && myFactory.amAllowAdmin) {
                     amAdmin = true
-                    myLabel = label
+                    label = newLabel
                     success = true
                 }
             } else if (handler is ClientHandler) {
-                if (myClient == null && myFactory.allowClient()) {
-                    myClient = Client(myPresenceServer, this)
-                    myLabel = label
+                if (client == null && myFactory.allowClient()) {
+                    client = Client(myPresenceServer, this)
+                    label = newLabel
                     success = true
                 }
             }
@@ -75,20 +76,12 @@ internal class PresenceActor(connection: Connection, private val myFactory: Pres
     override fun doDisconnect() {
         if (!amLoggedOut) {
             gorgel.i?.run { info("disconnecting ${this@PresenceActor}") }
-            myClient?.doDisconnect()
+            client?.doDisconnect()
             myPresenceServer.removeActor(this)
             amLoggedOut = true
             close()
         }
     }
-
-    /**
-     * Get this actor's client facet.
-     *
-     * @return the Client object associated with this actor, or null if this
-     * actor isn't a client.
-     */
-    fun client() = myClient
 
     /**
      * Guard function to guarantee that an operation is being attempted by an
@@ -110,21 +103,16 @@ internal class PresenceActor(connection: Connection, private val myFactory: Pres
     fun ensureAuthorizedClient() {
         if (amLoggedOut) {
             throw MessageHandlerException("actor $this attempted client operation after logout")
-        } else if (myClient == null) {
+        } else if (client == null) {
             doDisconnect()
             throw MessageHandlerException("actor $this attempted client operation without authorization")
         }
     }
 
     /**
-     * Return this actor's label.
-     */
-    fun label() = myLabel
-
-    /**
      * @return a printable representation of this actor.
      */
-    override fun toString() = myLabel ?: super.toString()
+    override fun toString() = label ?: super.toString()
 
     init {
         myPresenceServer.addActor(this)

@@ -13,19 +13,19 @@ import java.util.Arrays.binarySearch
  * actions.
  *
  * @param myParent  The key's parent key.
- * @param myRef  Reference string for the key.
- * @param myAuth  Auth code denoting the key's authority.
- * @param currencies  Optional currencies scoping the key's authority.
- * @param myExpires  The key's expiration date.
- * @param myMemo  Annotation on key.
+ * @param ref  Reference string for the key.
+ * @param auth  Auth code denoting the key's authority.
+ * @param theCurrencies  Optional currencies scoping the key's authority.
+ * @param expires  The key's expiration date.
+ * @param memo  Annotation on key.
  */
 internal class Key(
-        private var myParent: Key?, private val myRef: String?, private val myAuth: String, currencies: Array<String>?,
-        private val myExpires: ExpirationDate, private val myMemo: String?) : Encodable {
+        private var myParent: Key?, internal val ref: String?, internal val auth: String, theCurrencies: Array<String>?,
+        internal val expires: ExpirationDate, private val memo: String?) : Encodable {
 
     /** Currencies upon which this key authorizes action, or null if the key is
      * not scoped by currency.  */
-    private val myCurrencies: Array<String>?
+    internal val currencies: Array<String>?
 
     /** Ref of parent key.  Note that this field is valid only during the
      * extended key decode/construction process, and must be null in a
@@ -59,12 +59,12 @@ internal class Key(
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
                 JSONLiteral(control).apply {
-                    addParameter("ref", myRef)
-                    addParameter("parent", myParent!!.ref())
-                    addParameter("currs", myCurrencies)
-                    addParameter("auth", myAuth)
-                    addParameter("expires", myExpires)
-                    addParameterOpt("memo", myMemo)
+                    addParameter("ref", ref)
+                    addParameter("parent", myParent!!.ref)
+                    addParameter("currs", currencies)
+                    addParameter("auth", auth)
+                    addParameter("expires", expires)
+                    addParameterOpt("memo", memo)
                     finish()
                 }
             } else {
@@ -83,7 +83,7 @@ internal class Key(
         if (myParentRef != null) {
             throw Error("attempt to exercise authority of incomplete key")
         }
-        return myCurrencies == null || binarySearch(myCurrencies, currency) >= 0
+        return currencies == null || binarySearch(currencies, currency) >= 0
     }
 
     /**
@@ -98,30 +98,8 @@ internal class Key(
         if (myParentRef != null) {
             throw Error("attempt to exercise authority of incomplete key")
         }
-        return if (myAuth == "full" || myAuth == "curr") true else myAuth == authNeed
+        return if (auth == "full" || auth == "curr") true else auth == authNeed
     }
-
-    /**
-     * Obtain the kind of authority this key grants.
-     *
-     * @return this key's auth value.
-     */
-    fun auth() = myAuth
-
-    /**
-     * Obtain the currencies that scope this key's authority.
-     *
-     * @return this key's scoping currencies, or null if its authority is not
-     * currency scoped.
-     */
-    fun currencies() = myCurrencies
-
-    /**
-     * Obtain the date after which this key no longer works.
-     *
-     * @return this key's expiration date.
-     */
-    fun expires() = myExpires
 
     /**
      * Test if a given key is somewhere in this key's creation ancestry.
@@ -160,22 +138,7 @@ internal class Key(
      * @return true if this key is expired, false if not.
      */
     val isExpired: Boolean
-        get() = myExpires.isExpired
-
-    /**
-     * Obtain this key's memo string, an arbitrary annotation associated with
-     * the key when it was created.
-     *
-     * @return this key's memo.
-     */
-    fun memo() = myMemo
-
-    /**
-     * Obtain this key's unique identifier string.
-     *
-     * @return this key's ref.
-     */
-    fun ref() = myRef
+        get() = expires.isExpired
 
     /**
      * Assign this key's parent key.  This operation may only be done once
@@ -192,9 +155,9 @@ internal class Key(
     }
 
     init {
-        if (currencies != null) {
-            Arrays.sort(currencies)
+        if (theCurrencies != null) {
+            Arrays.sort(theCurrencies)
         }
-        myCurrencies = currencies
+        currencies = theCurrencies
     }
 }

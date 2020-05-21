@@ -27,14 +27,14 @@ import java.util.function.Consumer
  * @param myContextor  The contextor for this server.
  * @param amAuthRequired  True if this use needs to tender a reservation in
  *    order to enter.
- * @param myProtocol  Protocol being used on the new connection
+ * @param protocol  Protocol being used on the new connection
  * @param myIdGenerator Counter for assigning ephemeral user IDs.
  */
 class UserActor(
         private val myConnection: Connection,
         private val myContextor: Contextor,
         private val amAuthRequired: Boolean,
-        private val myProtocol: String,
+        internal val protocol: String,
         private val userActorGorgel: Gorgel,
         private val userGorgelWithoutRef: Gorgel,
         private val timer: Timer,
@@ -57,7 +57,7 @@ class UserActor(
      * @param whyCode  Machine readable code tag version of 'why'
      */
     private fun abruptExit(why: String, whyCode: String) {
-        send(msgExit(myContextor.session(), why, whyCode, false))
+        send(msgExit(myContextor.session, why, whyCode, false))
         userActorGorgel.i?.run { info("abrupt exit: $why") }
         if (!amDead && myUsers.isEmpty()) {
             userActorGorgel.i?.run { info("abrupt exit disconnects pre-entry user") }
@@ -77,7 +77,7 @@ class UserActor(
         if (!amDead) {
             amDead = true
             val users: List<User> = LinkedList(myUsers.values)
-            myContextor.server().enqueue(Runnable {
+            myContextor.server.enqueue(Runnable {
                 for (user in users) {
                     user.connectionDied(connection)
                 }
@@ -94,7 +94,7 @@ class UserActor(
      * @param handler  Handler requesting the authorization.
      * @param auth  Authorization information from the authorization request
      * message, or null if no authorization information was provided.
-     * @param label  Label (e.g., displayable user name) string from the
+     * @param newLabel  Label (e.g., displayable user name) string from the
      * authorization request message, or "&lt;anonymous&gt;" if no value was
      * specified.
      *
@@ -102,7 +102,7 @@ class UserActor(
      * allowed to proceed, false if it did not and the session should be
      * disconnected.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String) = false
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, newLabel: String) = false
 
     /**
      * Obtain this user actors's connection ID.
@@ -155,8 +155,8 @@ class UserActor(
         if (debug) {
             myConnection.setDebugMode(true)
         }
-        if (myContextor.limit() > 0 &&
-                myContextor.userCount() >= myContextor.limit()) {
+        if (myContextor.limit > 0 &&
+                myContextor.userCount() >= myContextor.limit) {
             abruptExit("server full", "full")
             return
         }
@@ -191,7 +191,7 @@ class UserActor(
                 abruptExit("invalid reservation", "badres")
                 return
             }
-            opener = reservation.issuer()
+            opener = reservation.issuer
             reservation.redeem()
         }
         val runnable = EnterRunnable(actualUserRef, isEphemeral, isAnonymous, actualName, contextRef, sess)
@@ -243,7 +243,7 @@ class UserActor(
                         if (myUserRef == null) {
                             myUserRef = myContextor.uniqueID("u")
                         }
-                        var name = currentUser.name()
+                        var name = currentUser.name
                         if (name == null) {
                             name = myEntryName!!
                         }
@@ -296,18 +296,11 @@ class UserActor(
             }
 
     /**
-     * Get the protocol associated with this actor's connection.
-     *
-     * @return a string labeling this actor's connection's protocol.
-     */
-    fun protocol() = myProtocol
-
-    /**
      * Initiate a timeout waiting for the user to enter a context.  If the
      * timeout trips before the user acts, the user will be disconnected.
      */
     private fun startEntryTimeout() {
-        myEntryTimeout = timer.after(myContextor.entryTimeout().toLong(), object : TimeoutNoticer {
+        myEntryTimeout = timer.after(myContextor.entryTimeout.toLong(), object : TimeoutNoticer {
             override fun noticeTimeout() {
                 if (myEntryTimeout != null) {
                     myEntryTimeout = null

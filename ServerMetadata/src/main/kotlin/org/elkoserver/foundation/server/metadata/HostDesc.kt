@@ -6,50 +6,23 @@ import org.elkoserver.util.trace.TraceFactory
 /**
  * Contact information for establishing a network connection to a host.
  *
- * @param protocol  Protocol spoken.
+ * @param theProtocol  Protocol spoken.
  * @param isSecure  Flag that is true if protocol is secure.
- * @param myHostPort  Host/port/path to address for service.
- * @param myAuth  Authorization.
+ * @param hostPort  Host/port/path to address for service.
+ * @param auth  Authorization.
  * @param retryInterval  Connection retry interval, in seconds, or -1 to
  *    accept the default (currently 15).
  */
-class HostDesc(protocol: String?, isSecure: Boolean,
-               private val myHostPort: String?,
-               private val myAuth: AuthDesc, retryInterval: Int) {
+class HostDesc(theProtocol: String?, isSecure: Boolean,
+               val hostPort: String?,
+               val auth: AuthDesc, retryInterval: Int) {
     /** Protocol spoken.  */
-    private var myProtocol: String? = null
+    var protocol: String? = null
+        private set
 
     /** Retry interval for reconnect attempts, in seconds (-1 for default).  */
-    private var myRetryInterval = 0
-
-    /**
-     * Get this host's authorization information.
-     *
-     * @return this host's authorization information, or null if there isn't
-     * any (equivalent to open access).
-     */
-    fun auth() = myAuth
-
-    /**
-     * Get this host's contact address.
-     *
-     * @return this host's contact address.
-     */
-    fun hostPort() = myHostPort
-
-    /**
-     * Get this host's protocol.
-     *
-     * @return this host's protocol.
-     */
-    fun protocol() = myProtocol
-
-    /**
-     * Get this host's retry interval.
-     *
-     * @return this host's retry interval, in seconds.
-     */
-    fun retryInterval() = myRetryInterval
+    var retryInterval = 0
+        private set
 
     companion object {
         /** Connection retry interval default, in seconds.  */
@@ -90,7 +63,7 @@ class HostDesc(protocol: String?, isSecure: Boolean,
     }
 
     init {
-        myProtocol = if (isSecure) "s$protocol" else protocol
-        myRetryInterval = if (retryInterval == -1) DEFAULT_CONNECT_RETRY_TIMEOUT else retryInterval
+        protocol = if (isSecure) "s$theProtocol" else theProtocol
+        this.retryInterval = if (retryInterval == -1) DEFAULT_CONNECT_RETRY_TIMEOUT else retryInterval
     }
 }

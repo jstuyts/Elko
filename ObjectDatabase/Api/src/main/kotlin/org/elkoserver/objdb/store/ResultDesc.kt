@@ -9,12 +9,12 @@ import org.elkoserver.json.JSONLiteralFactory.type
 /**
  * Description of the result status of an object store operation.
  *
- * @param myRef  Object reference of the object that was the subject of the
+ * @param ref  Object reference of the object that was the subject of the
  *    operation.
- * @param myFailure  Error message string, or null if the operation was
+ * @param failure  Error message string, or null if the operation was
  *    successful.
  */
-open class ResultDesc(private val myRef: String, private val myFailure: String?) : Encodable {
+open class ResultDesc(protected val ref: String, val failure: String?) : Encodable {
 
     /**
      * JSON-driven constructor.
@@ -35,23 +35,8 @@ open class ResultDesc(private val myRef: String, private val myFailure: String?)
      */
     override fun encode(control: EncodeControl) =
             type("stati", control).apply {
-                addParameter("ref", myRef)
-                addParameterOpt("failure", myFailure)
+                addParameter("ref", ref)
+                addParameterOpt("failure", failure)
                 finish()
             }
-
-    /**
-     * Get the error message string.
-     *
-     * @return the error message string, or null if there is none (i.e., if
-     * this represents a success result).
-     */
-    fun failure() = myFailure
-
-    /**
-     * Get the subject object's reference string.
-     *
-     * @return the object reference string of the subject object.
-     */
-    fun ref() = myRef
 }

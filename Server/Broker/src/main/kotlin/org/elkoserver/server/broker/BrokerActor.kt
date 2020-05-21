@@ -21,16 +21,16 @@ internal class BrokerActor(connection: Connection, private val myFactory: Broker
                            private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
 
     /** The broker itself.  */
-    private val myBroker: Broker = myFactory.broker()
+    private val myBroker: Broker = myFactory.broker
 
     /** True if actor has been disconnected.  */
     private var amLoggedOut = false
 
     /** Label for logging and such.  */
-    private var myLabel: String? = null
+    internal var label: String? = null
 
     /** Client object if this actor is a client, else null.  */
-    private var myClient: Client? = null
+    internal var client: Client? = null
 
     /** True if actor is authorized to perform admin operations.  */
     private var amAdmin = false
@@ -49,19 +49,19 @@ internal class BrokerActor(connection: Connection, private val myFactory: Broker
     /**
      * Do the actual work of authorizing an actor.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, label: String): Boolean {
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, newLabel: String): Boolean {
         var success = false
         if (myFactory.verifyAuthorization(auth)) {
             if (handler is AdminHandler) {
-                if (!amAdmin && myFactory.allowAdmin()) {
+                if (!amAdmin && myFactory.allowAdmin) {
                     amAdmin = true
-                    myLabel = label
+                    label = newLabel
                     success = true
                 }
             } else if (handler is ClientHandler) {
-                if (myClient == null && myFactory.allowClient()) {
-                    myClient = Client(myBroker, this)
-                    myLabel = label
+                if (client == null && myFactory.allowClient) {
+                    client = Client(myBroker, this)
+                    label = newLabel
                     success = true
                 }
             }
@@ -75,7 +75,7 @@ internal class BrokerActor(connection: Connection, private val myFactory: Broker
     override fun doDisconnect() {
         if (!amLoggedOut) {
             gorgel.i?.run { info("disconnecting ${this@BrokerActor}") }
-            myClient?.doDisconnect()
+            client?.doDisconnect()
             if (amAdmin) {
                 myBroker.unwatchServices(this)
                 myBroker.unwatchLoad(this)
@@ -85,14 +85,6 @@ internal class BrokerActor(connection: Connection, private val myFactory: Broker
             close()
         }
     }
-
-    /**
-     * Get this actor's client facet.
-     *
-     * @return the Client object associated with this actor, or null if this
-     * actor isn't a client.
-     */
-    fun client() = myClient
 
     /**
      * Guard function to guarantee that an operation is being attempted by an
@@ -114,21 +106,16 @@ internal class BrokerActor(connection: Connection, private val myFactory: Broker
     fun ensureAuthorizedClient() {
         if (amLoggedOut) {
             throw MessageHandlerException("actor $this attempted client operation after logout")
-        } else if (myClient == null) {
+        } else if (client == null) {
             doDisconnect()
             throw MessageHandlerException("actor $this attempted client operation without authorization")
         }
     }
 
     /**
-     * Return this actor's label.
-     */
-    fun label() = myLabel
-
-    /**
      * @return a printable representation of this actor.
      */
-    override fun toString() = myLabel ?: super.toString()
+    override fun toString() = label ?: super.toString()
 
     init {
         myBroker.addActor(this)

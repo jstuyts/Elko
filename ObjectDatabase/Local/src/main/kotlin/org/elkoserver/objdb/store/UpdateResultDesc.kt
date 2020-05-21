@@ -39,8 +39,8 @@ class UpdateResultDesc(ref: String, failure: String?, val isAtomicFailure: Boole
      */
     override fun encode(control: EncodeControl) =
             type("ustati", control).apply {
-                addParameter("ref", ref())
-                addParameterOpt("failure", failure())
+                addParameter("ref", ref)
+                addParameterOpt("failure", failure)
                 addParameter("atomic", isAtomicFailure)
                 finish()
             }

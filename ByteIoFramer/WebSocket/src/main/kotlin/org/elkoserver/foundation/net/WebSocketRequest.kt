@@ -7,16 +7,5 @@ class WebSocketRequest : HTTPRequest() {
     /** Goofy byte string at the start of the request body, used as part of the
      * insane connection initiation protocol specified by some versions of the
      * WebSockets spec.  */
-    private var myCrazyKey: ByteArray? = null
-
-    /**
-     * Get the crazy handshake key.
-     *
-     * @return the 8 bytes from the start of the request body.
-     */
-    fun crazyKey() = myCrazyKey
-
-    fun setCrazyKey(crazyKey: ByteArray) {
-        myCrazyKey = crazyKey
-    }
+    var crazyKey: ByteArray? = null
 }

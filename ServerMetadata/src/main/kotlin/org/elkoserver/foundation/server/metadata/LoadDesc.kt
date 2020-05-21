@@ -9,28 +9,7 @@ import org.elkoserver.json.JSONLiteralFactory
 /**
  * Description of the load on a server.
  */
-class LoadDesc @JSONMethod("label", "load", "provider") constructor(private val myLabel: String, private val myLoad: Double, private val myProviderID: Int) : Encodable {
-
-    /**
-     * Get the label for the server being described.
-     *
-     * @return the server label.
-     */
-    fun label() = myLabel
-
-    /**
-     * Get the reported load factor.
-     *
-     * @return the load factor.
-     */
-    fun load() = myLoad
-
-    /**
-     * Get the provider ID for the server being described.
-     *
-     * @return the provider ID.
-     */
-    fun providerID() = myProviderID
+class LoadDesc @JSONMethod("label", "load", "provider") constructor(private val label: String, private val load: Double, private val providerID: Int) : Encodable {
 
     /**
      * Encode this object for transmission or persistence.
@@ -42,9 +21,9 @@ class LoadDesc @JSONMethod("label", "load", "provider") constructor(private val 
      */
     override fun encode(control: EncodeControl) =
             JSONLiteralFactory.type("loaddesc", control).apply {
-                addParameter("label", myLabel)
-                addParameter("load", myLoad)
-                addParameter("provider", myProviderID)
+                addParameter("label", label)
+                addParameter("load", load)
+                addParameter("provider", providerID)
                 finish()
             }
 

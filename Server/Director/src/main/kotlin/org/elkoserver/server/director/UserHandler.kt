@@ -17,17 +17,10 @@ import kotlin.math.abs
  * 'reserve' - Requests a reservation on the user's behalf for entry into a
  * particular context.
  *
- * @param myDirector  The director object for this handler.
+ * @param director  The director object for this handler.
  * @param myRandom Random number generator, for reservations.
  */
-internal open class UserHandler(private val myDirector: Director, traceFactory: TraceFactory, private val myRandom: Random) : BasicProtocolHandler(traceFactory) {
-
-    /**
-     * Obtain the director object for this server.
-     *
-     * @return the director object this handler is handling for.
-     */
-    fun director() = myDirector
+internal open class UserHandler(protected val director: Director, traceFactory: TraceFactory, private val myRandom: Random) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -56,22 +49,22 @@ internal open class UserHandler(private val myDirector: Director, traceFactory: 
         val tag = optTag.value<String?>(null)
 
         /* See if somebody is serving the requested context. */
-        var context = myDirector.getContext(contextName)
+        var context = director.getContext(contextName)
 
         /* If nobody is serving it, look for somebody serving a clone. */
         var actualContextName = contextName
         if (context == null) {
-            for (clone in myDirector.contextClones(actualContextName)) {
-                if (!clone.isFullClone && !clone.provider().isFull && !clone.gateIsClosed()) {
+            for (clone in director.contextClones(actualContextName)) {
+                if (!clone.isFullClone && !clone.provider.isFull && !clone.gateIsClosed()) {
                     context = clone
-                    actualContextName = clone.name()
+                    actualContextName = clone.name
                     break
                 }
             }
         }
         if (context == null) {
             /* If nobody is serving it, pick a provider to start it up. */
-            provider = myDirector.locateProvider(actualContextName, protocol, from.isInternal)
+            provider = director.locateProvider(actualContextName, protocol, from.isInternal)
             if (provider == null) {
                 from.send(msgReserve(this, actualContextName, userName, null, null, "unable to find suitable server", tag))
                 return
@@ -82,23 +75,23 @@ internal open class UserHandler(private val myDirector: Director, traceFactory: 
                 from.send(msgReserve(this, actualContextName, userName, null, null, "unable to find suitable server", tag))
                 return
             } else if (context.gateIsClosed()) {
-                from.send(msgReserve(this, actualContextName, userName, null, null, context.gateClosedReason(), tag))
+                from.send(msgReserve(this, actualContextName, userName, null, null, context.gateClosedReason, tag))
                 return
             } else if (context.isFull) {
                 from.send(msgReserve(this, actualContextName, userName, null, null, "requested context full", tag))
                 return
-            } else if (context.provider().isFull) {
+            } else if (context.provider.isFull) {
                 from.send(msgReserve(this, actualContextName, userName, null, null, "server full", tag))
                 return
             } else {
-                context.provider()
+                context.provider
             }
         }
         val hostPort = provider.hostPort(protocol)
         if (hostPort != null) {
             /* Issue reservation to provider and user. */
             val reservation = abs(myRandom.nextLong()).toString()
-            provider.actor().send(msgDoReserve(myDirector.providerHandler(), actualContextName, userName, reservation))
+            provider.actor.send(msgDoReserve(director.providerHandler, actualContextName, userName, reservation))
             from.send(msgReserve(this, actualContextName, userName, hostPort, reservation, null, tag))
         } else {
             /* Sorry dude, no can do. */

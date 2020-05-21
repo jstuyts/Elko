@@ -135,6 +135,6 @@ internal class DirectorActor(connection: Connection, dispatcher: MessageDispatch
 
     init {
         myFactory.setDirector(this)
-        send(msgAuth(this, director.auth(), myFactory.gatekeeper().serverName()))
+        send(msgAuth(this, director.auth, myFactory.gatekeeper.serverName()))
     }
 }

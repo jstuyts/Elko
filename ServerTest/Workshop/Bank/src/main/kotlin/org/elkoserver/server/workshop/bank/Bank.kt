@@ -104,7 +104,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
                 if (parentKey != null) {
                     key.setParent(parentKey)
                 } else {
-                    throw Error("key ${key.ref()} claims non-existent parent key ${key.parentRef()}")
+                    throw Error("key ${key.ref} claims non-existent parent key ${key.parentRef()}")
                 }
             }
         }
@@ -141,7 +141,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
      */
     fun activate(workshop: Workshop?) {
         myWorkshop = workshop
-        myTrace = myWorkshop!!.appTrace()
+        myTrace = myWorkshop!!.tr
         if (myVirginRootKey != null) {
             checkpoint()
         }
@@ -170,10 +170,10 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
     fun deleteKey(key: Key?) {
         for (otherKey in myKeys.values) {
             if (otherKey!!.hasAncestor(key!!)) {
-                myKeys.remove(otherKey.ref())
+                myKeys.remove(otherKey.ref)
             }
         }
-        myKeys.remove(key!!.ref())
+        myKeys.remove(key!!.ref)
         checkpoint()
     }
 
@@ -200,12 +200,12 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
                         failure == null -> updater.complete(null)
                         failure[0] == '@' -> {
                             /* Retryable error */
-                            myTrace!!.debugm("${allegedAccount.ref()} transaction retry: $failure")
-                            withAccount(allegedAccount.ref(), updater)
+                            myTrace!!.debugm("${allegedAccount.ref} transaction retry: $failure")
+                            withAccount(allegedAccount.ref, updater)
                         }
                         else -> {
                             /* Un-retryable error */
-                            myTrace!!.errorm("${allegedAccount.ref()} transaction aborted: $failure")
+                            myTrace!!.errorm("${allegedAccount.ref} transaction aborted: $failure")
                             updater.complete(failure)
                         }
                     }
@@ -249,7 +249,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
                 allegedAccount2 is Account) {
             var readAccount1 = allegedAccount1
             var readAccount2 = allegedAccount2
-            if (refRef2 != readAccount2.ref()) {
+            if (refRef2 != readAccount2.ref) {
                 val temp = readAccount1
                 readAccount1 = readAccount2
                 readAccount2 = temp
@@ -269,22 +269,22 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
                                     failure2 == null -> updater.complete(null)
                                     failure2[0] == '@' -> {
                                         /* Not-really-retryable error */
-                                        myTrace!!.errorm("Egregious failure: ${account2.ref()} atomic update failure: $failure2 AFTER phase 1 update success!")
+                                        myTrace!!.errorm("Egregious failure: ${account2.ref} atomic update failure: $failure2 AFTER phase 1 update success!")
                                     }
                                     else -> {
                                         /* Really-unretryable error */
-                                        myTrace!!.errorm("Egregious failure: ${account2.ref()} write failure: $failure2 AFTER phase 1 update success!")
+                                        myTrace!!.errorm("Egregious failure: ${account2.ref} write failure: $failure2 AFTER phase 1 update success!")
                                     }
                                 }
                             })
                         failure[0] == '@' -> {
                             /* Retryable error */
-                            myTrace!!.debugm("${account1.ref()} transaction retry: $failure")
-                            withTwoAccounts(account1.ref(), account2.ref(), updater)
+                            myTrace!!.debugm("${account1.ref} transaction retry: $failure")
+                            withTwoAccounts(account1.ref, account2.ref, updater)
                         }
                         else -> {
                             /* Un-retryable error */
-                            myTrace!!.errorm("${account1.ref()} transaction aborted: $failure")
+                            myTrace!!.errorm("${account1.ref} transaction aborted: $failure")
                             updater.complete(failure)
                         }
                     }
@@ -393,7 +393,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
     fun makeKey(parentKey: Key?, auth: String?, currs: Array<String>?,
                 expires: ExpirationDate?, memo: String?): Key {
         val key = Key(parentKey, generateRef("key"), auth!!, currs, expires!!, memo!!)
-        myKeys[key.ref()] = key
+        myKeys[key.ref] = key
         checkpoint()
         return key
     }
@@ -605,10 +605,10 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
 
     init {
         for (curr in currencies) {
-            myCurrencies[curr.name()] = curr
+            myCurrencies[curr.name] = curr
         }
         for (key in keys) {
-            myKeys[key.ref()] = key
+            myKeys[key.ref] = key
         }
         myAccountCollection = accountCollection.value<String?>(null)
         myRootKeyRef = rootKeyRef.value<String?>(null)

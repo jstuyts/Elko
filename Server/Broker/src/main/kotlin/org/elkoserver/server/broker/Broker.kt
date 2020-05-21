@@ -31,7 +31,7 @@ internal class Broker(
         clock: Clock,
         startMode: Int) {
     /** Table for mapping object references in messages.  */
-    private val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
 
     /** Database for configuration data.  */
     private val myODB: ObjDB?
@@ -57,10 +57,10 @@ internal class Broker(
     private val myAdminHandler: AdminHandler
 
     /** The client object.  */
-    private val myClientHandler: ClientHandler = ClientHandler(this, traceFactory)
+    internal val clientHandler: ClientHandler = ClientHandler(this, traceFactory)
 
     /** Table of servers that this broker can launch.  */
-    private var myLauncherTable: LauncherTable? = null
+    internal var launcherTable: LauncherTable? = null
 
     /**
      * Get a read-only view of the set of connected actors.
@@ -84,7 +84,7 @@ internal class Broker(
      * @param service  Description of the service to add.
      */
     fun addService(service: ServiceDesc) {
-        myServices.add(serviceKey(service.service(), service.protocol()!!), service)
+        myServices.add(serviceKey(service.service, service.protocol!!), service)
         noteServiceArrival(service)
     }
 
@@ -92,20 +92,8 @@ internal class Broker(
      * Make sure the state of the launch table is saved in persistent form.
      */
     fun checkpoint() {
-        myLauncherTable?.checkpoint(myODB)
+        launcherTable?.checkpoint(myODB)
     }
-
-    /**
-     * Get the handler for client messages.
-     */
-    fun clientHandler() = myClientHandler
-
-    /**
-     * Obtain this broker's launcher table.
-     *
-     * @return the launch table.
-     */
-    fun launcherTable() = myLauncherTable
 
     /**
      * Return an iterable over a set of registered services.
@@ -129,9 +117,9 @@ internal class Broker(
      * @param service  Description of the new service.
      */
     private fun noteServiceArrival(service: ServiceDesc) {
-        val deadWaiters: MutableList<WaiterForService> = myWaiters.getMulti(service.service()).filterTo(LinkedList()) { it.noteServiceArrival(service) }
+        val deadWaiters: MutableList<WaiterForService> = myWaiters.getMulti(service.service).filterTo(LinkedList()) { it.noteServiceArrival(service) }
         for (waiter in deadWaiters) {
-            myWaiters.remove(waiter.service(), waiter)
+            myWaiters.remove(waiter.service, waiter)
         }
         val msg = AdminHandler.msgServiceDesc(myAdminHandler, service.encodeAsArray(), true)
         for (watcher in myServiceWatchers) {
@@ -146,8 +134,8 @@ internal class Broker(
      * @param server  Server for which new load information is available.
      */
     fun noteLoadDesc(server: BrokerActor) {
-        val client = server.client()!!
-        val desc = LoadDesc(server.label()!!, client.loadFactor(), client.providerID())
+        val client = server.client!!
+        val desc = LoadDesc(server.label!!, client.loadFactor, client.providerID)
         val msg = AdminHandler.msgLoadDesc(myAdminHandler, desc.encodeAsArray())
         for (watcher in myLoadWatchers) {
             watcher.send(msg)
@@ -166,11 +154,6 @@ internal class Broker(
             watcher.send(msg)
         }
     }
-
-    /**
-     * Return the object ref table.
-     */
-    fun refTable() = myRefTable
 
     /**
      * Reinitialize the server.
@@ -194,7 +177,7 @@ internal class Broker(
      * @param service  Description of the service to remove.
      */
     fun removeService(service: ServiceDesc) {
-        myServices.remove(serviceKey(service.service(), service.protocol()!!), service)
+        myServices.remove(serviceKey(service.service, service.protocol!!), service)
         noteServiceDeparture(service)
     }
 
@@ -260,7 +243,7 @@ internal class Broker(
     /**
      * Object representing one client waiting for one service.
      *
-     * @param myService  The name of the service sought.
+     * @param service  The name of the service sought.
      * @param myWaiter  The client who is waiting.
      * @param amKeepWatching  Flag to keep waiting, even if the service
      *    appears.
@@ -270,7 +253,7 @@ internal class Broker(
      * @param myTag  Arbitrary tag that will be sent back with the response,
      *    to match up requests and responses.
      */
-    private inner class WaiterForService internal constructor(private val myService: String, private val myWaiter: BrokerActor,
+    private inner class WaiterForService internal constructor(internal val service: String, private val myWaiter: BrokerActor,
                                                               private val amKeepWatching: Boolean, timeout: Int, private var amSuccessful: Boolean, private val myTag: String?, timer: Timer) : TimeoutNoticer {
         private var myTimeout: Timeout? = null
 
@@ -290,7 +273,7 @@ internal class Broker(
                     myTimeout = null
                 }
             }
-            myClientHandler.findSuccess(myWaiter, service, myTag)
+            clientHandler.findSuccess(myWaiter, service, myTag)
             return !amKeepWatching
         }
 
@@ -299,16 +282,11 @@ internal class Broker(
          */
         override fun noticeTimeout() {
             myTimeout = null
-            myWaiters.remove(myService, this)
+            myWaiters.remove(service, this)
             if (!amSuccessful) {
-                myClientHandler.findFailure(myWaiter, myService, myTag)
+                clientHandler.findFailure(myWaiter, service, myTag)
             }
         }
-
-        /**
-         * Return the service name being waited for.
-         */
-        fun service() = myService
 
         init {
             myTimeout = if (timeout > 0) timer.after(timeout * 1000.toLong(), this) else null
@@ -334,22 +312,22 @@ internal class Broker(
     }
 
     init {
-        myRefTable.addRef(myClientHandler)
+        refTable.addRef(clientHandler)
         myAdminHandler = AdminHandler(this, traceFactory)
-        myRefTable.addRef(myAdminHandler)
+        refTable.addRef(myAdminHandler)
         myODB = myServer.openObjectDatabase("conf.broker")
         if (myODB != null) {
             myODB.addClass("launchertable", LauncherTable::class.java)
             myODB.addClass("launcher", LauncherTable.Launcher::class.java)
             myODB.getObject("launchertable", null, Consumer { obj: Any? ->
                 if (obj != null) {
-                    myLauncherTable = (obj as LauncherTable?)?.apply {
-                        myLaunchers.values.forEach { it.gorgel = launcherTableGorgel.withAdditionalStaticTags(Tag("launcherComponent", it.componentName())) }
+                    launcherTable = (obj as LauncherTable?)?.apply {
+                        myLaunchers.values.forEach { it.gorgel = launcherTableGorgel.withAdditionalStaticTags(Tag("launcherComponent", it.componentName)) }
                         doStartupLaunches(startMode)
                     }
                 } else {
                     gorgel.warn("unable to load launcher table")
-                    myLauncherTable = LauncherTable("launchertable", arrayOf())
+                    launcherTable = LauncherTable("launchertable", arrayOf())
                 }
             })
         } else {

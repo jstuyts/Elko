@@ -31,16 +31,15 @@ import java.util.ConcurrentModificationException
 class DirectorGroup(server: Server,
                     contextor: Contextor,
                     directors: MutableList<HostDesc>,
-                    listeners: List<HostDesc>,
+                    internal val listeners: List<HostDesc>,
                     tr: Trace,
                     gorgel: Gorgel,
                     private val reservationGorgel: Gorgel,
                     timer: Timer,
                     traceFactory: TraceFactory,
                     clock: Clock,
-                    reservationTimeout: Int,
+                    internal val reservationTimeout: Int,
                     props: ElkoProperties) : OutboundGroup("conf.register", server, contextor, directors, tr, gorgel, timer, traceFactory, clock, props) {
-    private val myListeners: List<HostDesc>
 
     /** Iterator for cycling through arbitrary relays.  */
     private var myDirectorPicker: Iterator<Deliverer>? = null
@@ -48,8 +47,6 @@ class DirectorGroup(server: Server,
     /** Pending reservations.  */
     private val myReservations: MutableMap<Reservation, Reservation> = HashMap()
 
-    /** How long reservations are good for, in milliseconds.  */
-    private val myReservationTimeout: Int
     /* ----- required OutboundGroup methods ----- */
     /**
      * Obtain the class of actors in this group, in this case, DirectorActor.
@@ -108,14 +105,7 @@ class DirectorGroup(server: Server,
      *
      * @return the capacity of this server.
      */
-    fun capacity() = contextor().limit()
-
-    /**
-     * Get a read-only view of the list of active listeners.
-     *
-     * @return a list of the active listeners.
-     */
-    fun listeners() = myListeners
+    fun capacity() = contextor.limit
 
     /**
      * Lookup a reservation.
@@ -138,10 +128,10 @@ class DirectorGroup(server: Server,
      * @param open  true if opened, false if closed.
      */
     fun noteContext(context: Context, open: Boolean) {
-        val opener = context.opener()
+        val opener = context.opener
         val ref = context.ref()
-        val maxCap = context.maxCapacity()
-        val baseCap = context.baseCapacity()
+        val maxCap = context.maxCapacity
+        val baseCap = context.baseCapacity
         val restricted = context.isRestricted
         if (opener != null) {
             opener.send(msgContext(ref, open, true, maxCap, baseCap,
@@ -236,29 +226,22 @@ class DirectorGroup(server: Server,
     }
 
     /**
-     * Obtain the reservation expiration timeout.
-     *
-     * @return the reservation expiration timeout interval, in milliseconds.
-     */
-    fun reservationTimeout() = myReservationTimeout
-
-    /**
      * Update a newly connected director as to what contexts and users are
      * open.
      *
      * @param director  The director to be updated.
      */
     private fun updateDirector(director: DirectorActor) {
-        for (context in contextor().contexts()) {
+        for (context in contextor.contexts()) {
             director.send(msgContext(context.ref(), true, false,
-                    context.maxCapacity(),
-                    context.baseCapacity(),
+                    context.maxCapacity,
+                    context.baseCapacity,
                     context.isRestricted))
             if (context.gateIsClosed()) {
-                director.send(msgGate(context.ref(), true, context.gateClosedReason()!!))
+                director.send(msgGate(context.ref(), true, context.gateClosedReason!!))
             }
         }
-        for (user in contextor().users()) {
+        for (user in contextor.users()) {
             director.send(msgUser(user.context().ref(), user.ref(), true))
         }
     }
@@ -361,8 +344,6 @@ class DirectorGroup(server: Server,
                 send(msgLoad(loadFactor))
             }
         })
-        myListeners = listeners
-        myReservationTimeout = reservationTimeout
         connectHosts()
     }
 }

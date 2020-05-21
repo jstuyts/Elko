@@ -7,19 +7,20 @@ import org.elkoserver.util.HashSetMulti
 /**
  * Information describing an open context.
  *
- * @param myProvider  Who is providing the context.
- * @param myName  Context name.
+ * @param provider  Who is providing the context.
+ * @param name  Context name.
  * @param isMine  true if the context was opened by request of this director.
  * @param myMaxCapacity  The maximum user capacity for the context.
  * @param myBaseCapacity  The base capacity for the (clone) context.
  * @param isRestricted  true if the context is entry restricted
  */
-internal class OpenContext(private val myProvider: Provider, private val myName: String,
+internal class OpenContext(internal val provider: Provider, internal val name: String,
                            val isMine: Boolean, private val myMaxCapacity: Int, private val myBaseCapacity: Int,
                            val isRestricted: Boolean) {
 
     /** Context clone set name, if a clone (null if not).  */
-    private var myCloneSetName: String?
+    internal var cloneSetName: String?
+        private set
 
     /** True if this context is a clone.  */
     var isClone: Boolean
@@ -31,7 +32,8 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
     private val myUserClones = HashSetMulti<String>()
 
     /** Reason this context is closed to user entry, or null if it is not.  */
-    private var myGateClosedReason: String? = null
+    internal var gateClosedReason: String? = null
+        private set
 
     /**
      * Add a user to this context.
@@ -46,28 +48,13 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
     }
 
     /**
-     * Get this context's clone set name.
-     *
-     * @return the name of this context's clone set.
-     */
-    fun cloneSetName() = myCloneSetName
-
-    /**
      * Close this context's gate, blocking new users from entering.
      *
      * @param reason  String describing why this is being done.
      */
     fun closeGate(reason: String?) {
-        myGateClosedReason = reason ?: "context closed to new entries"
+        gateClosedReason = reason ?: "context closed to new entries"
     }
-
-    /**
-     * Obtain a string describing the reason this context's gate is closed.
-     *
-     * @return a reason string for this context's gate closure, or null if the
-     * gate is open.
-     */
-    fun gateClosedReason() = myGateClosedReason
 
     /**
      * Test if this context's gate is closed.  If the gate is closed, new users
@@ -75,7 +62,7 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
      *
      * @return true iff this context's gate is closed.
      */
-    fun gateIsClosed() = myGateClosedReason != null
+    fun gateIsClosed() = gateClosedReason != null
 
     /**
      * Test if this context has reached its maximum capacity.
@@ -109,18 +96,11 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
     fun hasUser(user: String) = myUsers.contains(user) || myUserClones.contains(user)
 
     /**
-     * Get the name of this context.
-     *
-     * @return this context's name.
-     */
-    fun name() = myName
-
-    /**
      * Open this context's gate, allowing new users in if the context is not
      * full.
      */
     fun openGate() {
-        myGateClosedReason = null
+        gateClosedReason = null
     }
 
     /**
@@ -133,17 +113,10 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
      * @return the context (this or other) that should be closed.
      */
     fun pickDupToClose(other: OpenContext): OpenContext {
-        val thisKey = myProvider.dupKey()
-        val otherKey = other.myProvider.dupKey()
+        val thisKey = provider.dupKey()
+        val otherKey = other.provider.dupKey()
         return if (thisKey!! < otherKey!!) this else other
     }
-
-    /**
-     * Get the provider for this context.
-     *
-     * @return the provider that is running this context.
-     */
-    fun provider() = myProvider
 
     /**
      * Remove a user from this context.
@@ -175,7 +148,7 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
         var dashPos = 0
         var dashCount = 0
         while (dashPos >= 0) {
-            dashPos = myName.indexOf('-', dashPos)
+            dashPos = name.indexOf('-', dashPos)
             if (dashPos >= 0) {
                 ++dashCount
                 ++dashPos
@@ -183,11 +156,11 @@ internal class OpenContext(private val myProvider: Provider, private val myName:
         }
         if (dashCount > 1) {
             isClone = true
-            dashPos = myName.lastIndexOf('-')
-            myCloneSetName = myName.take(dashPos)
+            dashPos = name.lastIndexOf('-')
+            cloneSetName = name.take(dashPos)
         } else {
             isClone = false
-            myCloneSetName = null
+            cloneSetName = null
         }
     }
 }

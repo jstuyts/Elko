@@ -30,7 +30,7 @@ class OptInteger : OptionalParameter {
      * @throws Error if the value is not present.
      */
     fun value() =
-            if (isPresent) {
+            if (present) {
                 myValue
             } else {
                 throw Error("extraction of value from non-present OptInteger")
@@ -46,7 +46,7 @@ class OptInteger : OptionalParameter {
      * 'defaultValue' if not present.
      */
     fun value(defaultValue: Int) =
-            if (isPresent) {
+            if (present) {
                 myValue
             } else {
                 defaultValue

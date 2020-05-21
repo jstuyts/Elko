@@ -129,29 +129,29 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                         val reqContextRef = params.getString("context")
                         if (reqContextRef != null &&
                                 reqContextRef != contextRef) {
-                            contextor.appTrace().errorm("context ref mismatch")
+                            contextor.tr.errorm("context ref mismatch")
                             throw IllegalStateException()
                         }
                         val reqContextTemplate = params.getString("ctmpl")
                         if (reqContextTemplate != null &&
                                 reqContextTemplate != contextTemplate) {
-                            contextor.appTrace().errorm(
+                            contextor.tr.errorm(
                                     "context template ref mismatch")
                             throw IllegalStateException()
                         }
-                        val result = decode(User::class.java, userDesc, contextor.odb(), traceFactory, clock)
+                        val result = decode(User::class.java, userDesc, contextor.odb, traceFactory, clock)
                         return result as User
                     }
-                    contextor.appTrace().errorm("reused nonce")
+                    contextor.tr.errorm("reused nonce")
                 } else {
-                    contextor.appTrace().errorm("expired nonce")
+                    contextor.tr.errorm("expired nonce")
                 }
             } catch (e: IOException) {
-                contextor.appTrace().errorm("malformed cryptoblob")
+                contextor.tr.errorm("malformed cryptoblob")
             } catch (e: JsonParserException) {
-                contextor.appTrace().errorm("bad JSON string in cryptoblob")
+                contextor.tr.errorm("bad JSON string in cryptoblob")
             } catch (e: JSONDecodingException) {
-                contextor.appTrace().errorm("missing or improperly typed property in cryptoblob")
+                contextor.tr.errorm("missing or improperly typed property in cryptoblob")
             }
         }
         throw IllegalStateException()

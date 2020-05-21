@@ -32,10 +32,11 @@ class Gatekeeper internal constructor(
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         props: ElkoProperties) {
     /** Table for mapping object references in messages.  */
-    private val myRefTable: RefTable = RefTable(null, traceFactory, clock)
+    internal val refTable: RefTable = RefTable(null, traceFactory, clock)
 
     /** Host description for the director.  */
-    private var myDirectorHost: HostDesc? = null
+    internal var directorHost: HostDesc? = null
+        private set
 
     /** Retry interval for connection to director, in seconds, or -1 to take
      * the default.  */
@@ -46,20 +47,13 @@ class Gatekeeper internal constructor(
 
     private inner class DirectorFoundRunnable : Consumer<Array<ServiceDesc>> {
         override fun accept(obj: Array<ServiceDesc>) {
-            if (obj[0].failure() != null) {
-                gorgel.error("unable to find director: ${obj[0].failure()}")
+            if (obj[0].failure != null) {
+                gorgel.error("unable to find director: ${obj[0].failure}")
             } else {
                 setDirectorHost(obj[0].asHostDesc(myRetryInterval))
             }
         }
     }
-
-    /**
-     * Get the current director host.
-     *
-     * @return a host descriptor describing the current director connection.
-     */
-    fun directorHost() = myDirectorHost
 
     /**
      * Guard function to guarantee that an operation is being attempted by an
@@ -76,13 +70,6 @@ class Gatekeeper internal constructor(
             throw MessageHandlerException("actor $from attempted admin operation without authorization")
         }
     }
-
-    /**
-     * Get the object reference table for this gatekeeper.
-     *
-     * @return the object reference table.
-     */
-    fun refTable() = myRefTable
 
     /**
      * Reinitialize the server.
@@ -103,7 +90,7 @@ class Gatekeeper internal constructor(
      * result becomes available, it will be passed as an instance of [    ].
      */
     fun requestReservation(protocol: String, context: String, actor: String, handler: Consumer<in ReservationResult>) {
-        if (myDirectorHost == null) {
+        if (directorHost == null) {
             handler.accept(ReservationResult(context, actor, "no director host specified"))
         } else {
             myDirectorActorFactory.requestReservation(protocol, context, actor, handler)
@@ -116,7 +103,7 @@ class Gatekeeper internal constructor(
      *
      * @return the server's name.
      */
-    fun serverName() = myServer.serverName()
+    fun serverName() = myServer.serverName
 
     /**
      * Change the director to which this gatekeeper is connected.  This
@@ -126,10 +113,10 @@ class Gatekeeper internal constructor(
      * @param host  The new director host.
      */
     fun setDirectorHost(host: HostDesc) {
-        if (myDirectorHost != null) {
+        if (directorHost != null) {
             myDirectorActorFactory.disconnectDirector()
         }
-        myDirectorHost = host
+        directorHost = host
         myDirectorActorFactory.connectDirector(host)
     }
 
@@ -141,17 +128,17 @@ class Gatekeeper internal constructor(
     }
 
     init {
-        myRefTable.addRef(AdminHandler(this, traceFactory))
-        myDirectorActorFactory = DirectorActorFactory(myServer.networkManager(), this, directorActorFactoryGorgel, tr, timer, traceFactory, clock)
+        refTable.addRef(AdminHandler(this, traceFactory))
+        myDirectorActorFactory = DirectorActorFactory(myServer.networkManager, this, directorActorFactoryGorgel, tr, timer, traceFactory, clock)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
         if (props.testProperty("conf.gatekeeper.director.auto")) {
             myServer.findService("director-user", DirectorFoundRunnable(), false)
         } else {
-            val directorHost = hostDescFromPropertiesFactory.fromProperties("conf.gatekeeper.director")
-            if (directorHost == null) {
+            val newDirectorHost = hostDescFromPropertiesFactory.fromProperties("conf.gatekeeper.director")
+            if (newDirectorHost == null) {
                 gorgel.error("no director specified")
             } else {
-                setDirectorHost(directorHost)
+                setDirectorHost(newDirectorHost)
             }
         }
         myServer.registerShutdownWatcher(object : ShutdownWatcher {

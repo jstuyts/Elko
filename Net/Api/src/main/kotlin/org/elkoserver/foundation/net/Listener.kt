@@ -90,11 +90,11 @@ internal class Listener(
 
     init {
         val netAddr = NetAddr(myLocalAddress)
-        myOptIP = netAddr.inetAddress()!!
+        myOptIP = netAddr.inetAddress!!
         val localPort = netAddr.port
         val asSSL: SSLServerSocketChannel
         if (amSecure) {
-            asSSL = SSLServerSocketChannel.open(myMgr.sslContext())
+            asSSL = SSLServerSocketChannel.open(myMgr.sslContext)
             myChannel = asSSL
             asSSL.socket().needClientAuth = false
         } else {

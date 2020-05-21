@@ -22,32 +22,26 @@ import java.util.HashMap
  * from the HTTP requests, so the HTTP message handler factory needs to
  * wrap the application-level message handler factory.
  *
- * @param myInnerFactory  The application-level message handler factor that
+ * @param innerFactory  The application-level message handler factor that
  * is to be wrapped by this.
  * @param rootURI  The root URI for GETs and POSTs.
  * @param httpFramer  HTTP framer to interpret HTTP POSTs and format HTTP
  * replies.
- * @param manager  Network manager for this server.
+ * @param networkManager  Network manager for this server.
  */
 class HTTPMessageHandlerFactory internal constructor(
-        private val myInnerFactory: MessageHandlerFactory,
-        rootURI: String, httpFramer: HTTPFramer,
-        manager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) : MessageHandlerFactory {
-
-    /** HTTP framer to interpret HTTP POSTs and format HTTP replies.  */
-    private val myHTTPFramer: HTTPFramer
+        internal val innerFactory: MessageHandlerFactory,
+        rootURI: String, internal val httpFramer: HTTPFramer,
+        internal val networkManager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) : MessageHandlerFactory {
 
     /** The root URI for GETs and POSTs.  */
     private val myRootURI: String = "/$rootURI/"
 
     /** Table of current sessions, indexed by ID number.  */
-    private val mySessions: MutableMap<Long, HTTPSessionConnection>
+    private val mySessions: MutableMap<Long, HTTPSessionConnection> = HashMap()
 
     /** Table of current sessions, indexed by TCP connection.  */
-    private val mySessionsByConnection: MutableMap<Connection, HTTPSessionConnection>
-
-    /** Network manager for this server  */
-    private val myManager: NetworkManager
+    private val mySessionsByConnection: MutableMap<Connection, HTTPSessionConnection> = HashMap()
 
     /** Time an HTTP select request can wait before it must be responded to, in
      * milliseconds.  */
@@ -69,7 +63,7 @@ class HTTPMessageHandlerFactory internal constructor(
      * @param session  The session to add.
      */
     fun addSession(session: HTTPSessionConnection) {
-        mySessions[session.sessionID()] = session
+        mySessions[session.sessionID] = session
     }
 
     /**
@@ -100,7 +94,7 @@ class HTTPMessageHandlerFactory internal constructor(
         if (traceFactory.comm.event) {
             traceFactory.comm.eventm("$session connect over $connection")
         }
-        val reply = myHTTPFramer.makeConnectReply(session.sessionID())
+        val reply = httpFramer.makeConnectReply(session.sessionID)
         connection.sendMsg(reply)
         return true
     }
@@ -124,9 +118,9 @@ class HTTPMessageHandlerFactory internal constructor(
         val reply: String
         reply = if (session == null) {
             traceFactory.comm.errorm("got disconnect with invalid session ${uri.sessionID}")
-            myHTTPFramer.makeSequenceErrorReply("sessionIDError")
+            httpFramer.makeSequenceErrorReply("sessionIDError")
         } else {
-            myHTTPFramer.makeDisconnectReply()
+            httpFramer.makeDisconnectReply()
         }
         connection.sendMsg(reply)
         session?.close()
@@ -147,7 +141,7 @@ class HTTPMessageHandlerFactory internal constructor(
             traceFactory.comm.usagem("$connection received invalid URI in HTTP request $uri")
         }
         connection.sendMsg(HTTPError(404, "Not Found",
-                myHTTPFramer.makeBadURLReply(uri)))
+                httpFramer.makeBadURLReply(uri)))
         return true
     }
 
@@ -171,7 +165,7 @@ class HTTPMessageHandlerFactory internal constructor(
         } else {
             traceFactory.comm.errorm("got select with invalid session ${uri.sessionID}")
             connection.sendMsg(
-                    myHTTPFramer.makeSequenceErrorReply("sessionIDError"))
+                    httpFramer.makeSequenceErrorReply("sessionIDError"))
             true
         }
     }
@@ -196,7 +190,7 @@ class HTTPMessageHandlerFactory internal constructor(
         } else {
             traceFactory.comm.errorm("got xmit with invalid session ${uri.sessionID}")
             connection.sendMsg(
-                    myHTTPFramer.makeSequenceErrorReply("sessionIDError"))
+                    httpFramer.makeSequenceErrorReply("sessionIDError"))
         }
         return true
     }
@@ -290,23 +284,6 @@ class HTTPMessageHandlerFactory internal constructor(
     }
 
     /**
-     * Get the HTTP framer for this factory.
-     *
-     * @return this factory's HTTP framer object.
-     */
-    fun httpFramer(): HTTPFramer = myHTTPFramer
-
-    /**
-     * Obtain the inner message handler factory for this factory.  This is the
-     * factory for providing message handlers for the messages embedded inside
-     * the HTTP requests whose handlers are in turn provided by this (outer)
-     * factory.
-     *
-     * @return the inner message handler factory for this factory.
-     */
-    fun innerFactory(): MessageHandlerFactory = myInnerFactory
-
-    /**
      * Determine the HTTP session object associated with a requested URI.
      *
      * @param connection  The connection that referenced the URI.
@@ -328,13 +305,6 @@ class HTTPMessageHandlerFactory internal constructor(
     }
 
     /**
-     * Get the network manager for this factory.
-     *
-     * @return this factory's network manager object.
-     */
-    fun networkManager(): NetworkManager = myManager
-
-    /**
      * Provide a message handler for a new (HTTP over TCP) connection.
      *
      * @param connection  The TCP connection object that was just created.
@@ -347,7 +317,7 @@ class HTTPMessageHandlerFactory internal constructor(
      * @param session  The session to remove.
      */
     fun removeSession(session: HTTPSessionConnection) {
-        mySessions.remove(session.sessionID())
+        mySessions.remove(session.sessionID)
     }
 
     /**
@@ -414,11 +384,7 @@ class HTTPMessageHandlerFactory internal constructor(
     }
 
     init {
-        mySessions = HashMap()
-        mySessionsByConnection = HashMap()
-        myHTTPFramer = httpFramer
-        myManager = manager
-        val props = manager.props()
+        val props = networkManager.props
         mySelectTimeout = props.intProperty("conf.comm.httpselectwait",
                 DEFAULT_SELECT_TIMEOUT) * 1000
         myDebugSelectTimeout = props.intProperty("conf.comm.httpselectwait.debug",

@@ -63,14 +63,14 @@ internal class RTCPMessageHandler(
         if (traceFactory.comm.debug) {
             traceFactory.comm.debugm("$connection $actualMessage")
         }
-        when (actualMessage.verb()) {
+        when (actualMessage.verb) {
             RTCPRequest.VERB_START -> myFactory.doStart(connection)
-            RTCPRequest.VERB_RESUME -> myFactory.doResume(connection, actualMessage.sessionID()!!,
-                    actualMessage.clientRecvSeqNum())
-            RTCPRequest.VERB_ACK -> myFactory.doAck(connection, actualMessage.clientRecvSeqNum())
+            RTCPRequest.VERB_RESUME -> myFactory.doResume(connection, actualMessage.sessionID!!,
+                    actualMessage.clientRecvSeqNum)
+            RTCPRequest.VERB_ACK -> myFactory.doAck(connection, actualMessage.clientRecvSeqNum)
             RTCPRequest.VERB_MESSAGE -> myFactory.doMessage(connection, actualMessage)
             RTCPRequest.VERB_END -> myFactory.doEnd(connection)
-            RTCPRequest.VERB_ERROR -> myFactory.doError(connection, actualMessage.error()!!)
+            RTCPRequest.VERB_ERROR -> myFactory.doError(connection, actualMessage.error!!)
         }
     }
 

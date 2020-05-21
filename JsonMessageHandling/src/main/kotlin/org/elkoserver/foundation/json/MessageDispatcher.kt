@@ -133,7 +133,7 @@ class MessageDispatcher(private val myResolver: TypeResolver?, private val trace
                     invoker.handle(actualTarget, actualFrom, message, myResolver)
                     return
                 }
-                invoker = invoker.next()
+                invoker = invoker.next
             }
             if (target is DefaultDispatchTarget) {
                 val defaultTarget = target as DefaultDispatchTarget

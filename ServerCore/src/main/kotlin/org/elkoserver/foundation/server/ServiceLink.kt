@@ -10,13 +10,13 @@ import java.util.LinkedList
  * connectivity to specific connected entities, at the cost of allowing some
  * of the state associated with the connection be ephemeral.
  *
- * @param myService  The name of the service this link will connect to.
+ * @param service  The name of the service this link will connect to.
  * @param myServer  The server this link is working for.
  */
-class ServiceLink internal constructor(private val myService: String, private val myServer: Server) : Deliverer {
+class ServiceLink internal constructor(internal val service: String, private val myServer: Server) : Deliverer {
     /** The actor this link uses to communicate with its service, or null if
      * the connection is currently not up.  */
-    private var myActor: ServiceActor? = null
+    private var actor: ServiceActor? = null
 
     /** A list of messages awaiting transmission, accumulated when the
      * connection is down.  */
@@ -26,21 +26,14 @@ class ServiceLink internal constructor(private val myService: String, private va
     private var amFailed = false
 
     /**
-     * Obtain the actor this link is currently using for message sends.
-     *
-     * @return this link's associated actor.
-     */
-    fun actor() = myActor
-
-    /**
      * Take note that the actor this link was dependent on lost its connection.
      * Begin re-establishing the connection, and meanwhile start queuing
      * messages.
      */
     fun actorDied() {
-        myActor = null
+        actor = null
         if (!amFailed) {
-            myServer.reestablishServiceConnection(myService, this)
+            myServer.reestablishServiceConnection(service, this)
         }
     }
 
@@ -49,14 +42,14 @@ class ServiceLink internal constructor(private val myService: String, private va
      * lost).  Any messages that have been queued up in the interim will be
      * sent.
      *
-     * @param actor  The new actor to use.
+     * @param theActor  The new actor to use.
      */
-    fun connectActor(actor: ServiceActor?) {
-        myActor = actor
+    fun connectActor(theActor: ServiceActor?) {
+        actor = theActor
         while (myPendingMessages != null) {
             val message = myPendingMessages!!.peek()
-            myActor!!.send(message)
-            if (myActor == null) {
+            actor!!.send(message)
+            if (actor == null) {
                 break
             }
             myPendingMessages!!.removeFirst()
@@ -72,7 +65,7 @@ class ServiceLink internal constructor(private val myService: String, private va
     fun fail() {
         amFailed = true
         if (myPendingMessages != null && !myPendingMessages!!.isEmpty()) {
-            myServer.trace().errorm(this.toString() +
+            myServer.tr.errorm(this.toString() +
                     " failed with pending outbound messages")
         }
     }
@@ -86,22 +79,15 @@ class ServiceLink internal constructor(private val myService: String, private va
         if (amFailed) {
             throw RuntimeException("message send on failed $this")
         }
-        if (myActor == null) {
+        if (actor == null) {
             if (myPendingMessages == null) {
                 myPendingMessages = LinkedList()
             }
             myPendingMessages!!.addLast(message)
         } else {
-            myActor!!.send(message)
+            actor!!.send(message)
         }
     }
 
-    /**
-     * Obtain the name of the service that this link connects to.
-     *
-     * @return the service name associated with this link.
-     */
-    fun service(): String = myService
-
-    override fun toString() = "ServiceLink to $myService"
+    override fun toString() = "ServiceLink to $service"
 }

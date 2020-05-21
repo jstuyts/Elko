@@ -59,9 +59,9 @@ internal class WebSocketMessageHandlerFactory(
         val key = request.header("sec-websocket-key")
         val key1 = request.header("sec-websocket-key1")
         val key2 = request.header("sec-websocket-key2")
-        if (!request.method().equals("GET", ignoreCase = true)) {
+        if (!request.method.equals("GET", ignoreCase = true)) {
             sendError(connection, "WebSocket connection start requires GET")
-        } else if (!request.uri().equals(mySocketURI, ignoreCase = true)) {
+        } else if (!request.uri.equals(mySocketURI, ignoreCase = true)) {
             sendError(connection, "Invalid WebSocket endpoint URI")
         } else if (!"WebSocket".equals(request.header("upgrade"), ignoreCase = true)) {
             sendError(connection, "Invalid WebSocket Upgrade header")
@@ -69,13 +69,13 @@ internal class WebSocketMessageHandlerFactory(
             sendError(connection, "Invalid WebSocket Connection header")
         } else if (key != null) {
             connection!!.sendMsg(generateRidiculousHandshake6(key))
-        } else if (request.crazyKey() == null) {
+        } else if (request.crazyKey == null) {
             sendError(connection, "Invalid WebSocket client token")
         } else if (key1 == null || key2 == null) {
             sendError(connection, "Invalid WebSocket key header")
         } else {
             connection!!.sendMsg(generateRidiculousHandshake0(key1, key2,
-                    request.crazyKey()))
+                    request.crazyKey))
         }
     }
 

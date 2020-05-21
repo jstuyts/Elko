@@ -19,13 +19,13 @@ import java.util.LinkedList
 class ServiceActor internal constructor(connection: Connection?, refTable: RefTable?, desc: ServiceDesc,
                                         private val myServer: Server, traceFactory: TraceFactory?) : RoutingActor(connection!!, refTable!!, traceFactory!!) {
     /** Optional convenience label for logging and such.  */
-    private val myLabel: String
+    private val label: String
 
     /** List of service links using this actor.  */
-    private val myServiceLinks = LinkedList<ServiceLink>()
+    internal val serviceLinks = LinkedList<ServiceLink>()
 
     /** Provider ID of the host we are connected to.  */
-    private val myProviderID: Int
+    internal val providerID: Int
 
     /** Trace object for diagnostics.  */
     private val tr: Trace
@@ -37,7 +37,7 @@ class ServiceActor internal constructor(connection: Connection?, refTable: RefTa
      * @param link  The new link to add.
      */
     fun addLink(link: ServiceLink) {
-        myServiceLinks.add(link)
+        serviceLinks.add(link)
         link.connectActor(this)
     }
 
@@ -50,40 +50,20 @@ class ServiceActor internal constructor(connection: Connection?, refTable: RefTa
     override fun connectionDied(connection: Connection, reason: Throwable) {
         tr.eventm("$this connection died: $connection $reason")
         myServer.serviceActorDied(this)
-        for (link in myServiceLinks) {
+        for (link in serviceLinks) {
             link.actorDied()
         }
     }
 
     /**
-     * Return this actor's label.
-     */
-    fun label() = myLabel
-
-    /**
-     * Get the Broker-issed provider ID of the server at the other end of
-     * this actor's connection.
-     *
-     * @return this actor's provider ID.
-     */
-    fun providerID() = myProviderID
-
-    /**
-     * Obtain a list of the services currently linked to through this actor.
-     *
-     * @return a list of this actor's service links.
-     */
-    fun serviceLinks() = myServiceLinks
-
-    /**
      * @return a printable representation of this actor.
      */
-    override fun toString() = myLabel
+    override fun toString() = label
 
     init {
-        send(msgAuth("workshop", desc.auth(), myServer.serverName()))
-        myLabel = "workshop-${desc.hostport()}"
-        myProviderID = desc.providerID()
-        tr = myServer.trace()
+        send(msgAuth("workshop", desc.auth, myServer.serverName))
+        label = "workshop-${desc.hostport}"
+        providerID = desc.providerID
+        tr = myServer.tr
     }
 }

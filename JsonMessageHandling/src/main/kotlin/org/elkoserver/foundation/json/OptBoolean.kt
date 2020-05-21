@@ -30,7 +30,7 @@ class OptBoolean : OptionalParameter {
      * @throws Error if the value is not present.
      */
     fun value() =
-            if (isPresent) {
+            if (present) {
                 myValue
             } else {
                 throw Error("extraction of value from non-present OptBoolean")
@@ -46,7 +46,7 @@ class OptBoolean : OptionalParameter {
      * 'defaultValue' if not present.
      */
     fun value(defaultValue: Boolean) =
-            if (isPresent) {
+            if (present) {
                 myValue
             } else {
                 defaultValue
