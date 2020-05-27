@@ -39,7 +39,9 @@ class Workshop private constructor(
         private val myServer: Server,
         private val gorgel: Gorgel,
         private val startupWorkerListGorgel: Gorgel,
-        @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace, traceFactory: TraceFactory, clock: Clock) : RefTable(myODB, traceFactory, clock) {
+        @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace, traceFactory: TraceFactory, clock: Clock) {
+    /** Table for mapping object references in messages.  */
+    internal val refTable = RefTable(myODB, traceFactory, clock)
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown: Boolean
@@ -239,8 +241,8 @@ class Workshop private constructor(
 
     init {
         myODB.addClass("auth", AuthDesc::class.java)
-        addRef(ClientHandler(this, traceFactory))
-        addRef(AdminHandler(this, traceFactory))
+        refTable.addRef(ClientHandler(this, traceFactory))
+        refTable.addRef(AdminHandler(this, traceFactory))
         isShuttingDown = false
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {

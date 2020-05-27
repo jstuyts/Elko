@@ -62,8 +62,8 @@ class Contextor internal constructor(
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
         sessionGorgel: Gorgel,
         private val timer: Timer,
-        traceFactory: TraceFactory,
-        clock: Clock,
+        private val traceFactory: TraceFactory,
+        private val clock: Clock,
         internal val entryTimeout: Int,
         internal val limit: Int,
         private val myRandom: Random,
@@ -71,7 +71,9 @@ class Contextor internal constructor(
         private val reservationTimeout: Int,
         private val families: String?,
         sessionPassword: String?,
-        private val props: ElkoProperties) : RefTable(odb, traceFactory, clock) {
+        private val props: ElkoProperties) {
+    /** Table for mapping object references in messages.  */
+    internal val refTable = RefTable(odb, traceFactory, clock)
 
     /** The generic 'session' object for talking to this server.  */
     internal val session: Session = Session(this, sessionPassword, sessionGorgel, traceFactory)
@@ -219,7 +221,7 @@ class Contextor internal constructor(
         myStaticObjects[key] = obj
         if (obj is InternalObject) {
             obj.activate(key, this)
-            (obj as? AdminObject)?.let(this@Contextor::addRef)
+            (obj as? AdminObject)?.let { refTable.addRef(it) }
         }
     }
 
@@ -227,7 +229,7 @@ class Contextor internal constructor(
      * Save all changed objects that need saving.
      */
     private fun checkpointAll() {
-        this
+        refTable
                 .filterIsInstance<BasicObject>()
                 .forEach(BasicObject::checkpointWithoutContents)
     }
@@ -316,7 +318,7 @@ class Contextor internal constructor(
      */
     fun deliverMessage(destination: BasicObject, message: JsonObject) {
         try {
-            dispatchMessage(null, destination, message)
+            refTable.dispatchMessage(null, destination, message)
         } catch (e: MessageHandlerException) {
             contextorGorgel.i?.run { info("ignoring error from internal msg relay: $e") }
         }
@@ -363,7 +365,7 @@ class Contextor internal constructor(
         if (isValidContextRef(contextRef)) {
             var result = findContextClone(contextRef)
             if (result == null) {
-                result = get(contextRef) as Context?
+                result = refTable.get(contextRef) as Context?
             }
             if (result == null) {
                 if (actualContextTemplate == null) {
@@ -621,7 +623,7 @@ class Contextor internal constructor(
      */
     fun getOrLoadItem(itemRef: String, itemHandler: Consumer<Any?>) {
         if (itemRef.startsWith("item-") || itemRef.startsWith("i-")) {
-            val result = get(itemRef) as Item?
+            val result = refTable.get(itemRef) as Item?
             if (result == null) {
                 if (addPendingGet(itemRef, itemHandler)) {
                     odb.getObject(itemRef, null,
@@ -874,9 +876,7 @@ class Contextor internal constructor(
         if (whoMeta != null) {
             try {
                 val name = whoMeta.getString("name")
-                if (name != null) {
-                    myUserNames[whoRef] = name
-                }
+                myUserNames[whoRef] = name
             } catch (e: JSONDecodingException) {
                 // No action needed. Do not add a user name.
             }
@@ -884,14 +884,12 @@ class Contextor internal constructor(
         if (whereMeta != null) {
             try {
                 val name = whereMeta.getString("name")
-                if (name != null) {
-                    myContextNames[whereRef] = name
-                }
+                myContextNames[whereRef] = name
             } catch (e: JSONDecodingException) {
                 // No action needed. Do not add a context name.
             }
         }
-        val subscriber = get(contextRef) as Context?
+        val subscriber = refTable.get(contextRef) as Context?
         if (subscriber != null) {
             subscriber.observePresenceChange(observerRef, domain, whoRef,
                     whereRef, on)
@@ -1018,7 +1016,7 @@ class Contextor internal constructor(
                 throw Error("relay from inappropriate object")
             }
             var msgObject: JsonObject? = null
-            for (target in clones(baseRef)) {
+            for (target in refTable.clones(baseRef)) {
                 val obj = target as BasicObject
                 if (obj !== source) {
                     if (msgObject == null) {
@@ -1056,7 +1054,7 @@ class Contextor internal constructor(
         for (item in `object`.contents()) {
             remove(item)
         }
-        super.remove(`object`)
+        refTable.remove(`object`)
     }
 
     /**
@@ -1278,8 +1276,8 @@ class Contextor internal constructor(
     }
 
     init {
-        addRef(session)
-        server.setServiceRefTable(this)
+        refTable.addRef(session)
+        server.setServiceRefTable(refTable)
         contextFamilies = initializeContextFamilies()
         loadStaticObjects(staticsToLoad)
         server.registerShutdownWatcher(object : ShutdownWatcher {

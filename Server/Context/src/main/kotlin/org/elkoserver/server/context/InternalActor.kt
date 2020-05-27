@@ -19,7 +19,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param tr  Trace object for diagnostics.
  */
 class InternalActor internal constructor(connection: Connection, private val myFactory: InternalActorFactory,
-                                         private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.contextor, traceFactory), BasicProtocolActor {
+                                         private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.contextor.refTable, traceFactory), BasicProtocolActor {
 
     /** Flag that connection has been authorized.  */
     private var amAuthorized = false

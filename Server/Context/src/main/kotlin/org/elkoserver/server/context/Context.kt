@@ -346,7 +346,7 @@ internal constructor(name: String,
         return if (ref == "context") {
             this
         } else {
-            assertActivated { it[ref] as BasicObject }
+            assertActivated { it.refTable[ref] as BasicObject }
         }
     }
 

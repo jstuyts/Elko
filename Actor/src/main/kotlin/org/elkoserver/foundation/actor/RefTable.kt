@@ -33,7 +33,7 @@ import java.util.LinkedList
  * @param resolver  Type resolver for the type tags of JSON encoded
  *    object descriptors.
  */
-open class RefTable(resolver: TypeResolver?, protected val traceFactory: TraceFactory, protected val clock: Clock) : Iterable<DispatchTarget?> {
+class RefTable(resolver: TypeResolver?, traceFactory: TraceFactory, clock: Clock) : Iterable<DispatchTarget?> {
     /** Mapped Objects, indexed by reference.  */
     private val myObjects: MutableMap<String?, DispatchTarget> = HashMap()
 
@@ -82,7 +82,7 @@ open class RefTable(resolver: TypeResolver?, protected val traceFactory: TraceFa
         myObjects[ref] = target
         myDispatcher.addClass(target.javaClass)
         val groupRef = rootRef(ref)
-        val group = myObjectGroups.computeIfAbsent(groupRef) { k: String? -> LinkedList() }
+        val group = myObjectGroups.computeIfAbsent(groupRef) { LinkedList() }
         group.add(target)
     }
 
@@ -130,7 +130,7 @@ open class RefTable(resolver: TypeResolver?, protected val traceFactory: TraceFa
      * @throws MessageHandlerException if there was some kind of problem
      * handling the message.
      */
-    protected fun dispatchMessage(from: Deliverer?, target: DispatchTarget, message: JsonObject) {
+    fun dispatchMessage(from: Deliverer?, target: DispatchTarget, message: JsonObject) {
         myDispatcher.dispatchMessage(from, target, message)
     }
 

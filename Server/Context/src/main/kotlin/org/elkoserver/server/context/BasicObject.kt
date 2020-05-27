@@ -130,7 +130,7 @@ abstract class BasicObject internal constructor(
             markAsEphemeral()
         }
         myContextor = contextor
-        contextor.addRef(this)
+        contextor.refTable.addRef(this)
         myModSet.attachTo(this)
         activatePassiveContents(subID)
     }
@@ -165,7 +165,7 @@ abstract class BasicObject internal constructor(
      */
     open fun attachMod(mod: Mod) {
         myModSet = withMod(myModSet, mod)
-        myContextor?.addClass(mod.javaClass)
+        myContextor!!.refTable.addClass(mod.javaClass)
         if (mod is DefaultDispatchTarget) {
             if (myDefaultDispatchTarget == null) {
                 myDefaultDispatchTarget = mod

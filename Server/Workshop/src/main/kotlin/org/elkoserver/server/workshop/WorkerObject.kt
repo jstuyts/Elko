@@ -29,7 +29,7 @@ abstract class WorkerObject protected constructor(private val myServiceName: Str
         myRef = ref
         myWorkshop = workshop
         if (ref != null) {
-            workshop.addRef(this)
+            workshop.refTable.addRef(this)
         }
         myServiceName?.let(workshop::registerService)
         activate()
