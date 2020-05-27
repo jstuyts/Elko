@@ -19,6 +19,8 @@ dependencies {
     api(project(":Trace"))
 
     implementation(project(":Actor"))
+    implementation(project(":ObjectDatabase:Local"))
+    implementation(project(":ObjectDatabase:Remote"))
     implementation(project(":ServerCore"))
     implementation(project(":Util"))
     implementation(kotlin("stdlib-jdk8"))

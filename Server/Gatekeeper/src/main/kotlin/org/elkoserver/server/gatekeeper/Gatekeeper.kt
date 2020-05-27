@@ -25,6 +25,7 @@ class Gatekeeper internal constructor(
         private val myServer: Server,
         private val gorgel: Gorgel,
         directorActorFactoryGorgel: Gorgel,
+        connectionRetrierWithoutLabelGorgel: Gorgel,
         tr: Trace,
         timer: Timer,
         traceFactory: TraceFactory,
@@ -129,7 +130,7 @@ class Gatekeeper internal constructor(
 
     init {
         refTable.addRef(AdminHandler(this, traceFactory))
-        myDirectorActorFactory = DirectorActorFactory(myServer.networkManager, this, directorActorFactoryGorgel, tr, timer, traceFactory, clock)
+        myDirectorActorFactory = DirectorActorFactory(myServer.networkManager, this, directorActorFactoryGorgel, connectionRetrierWithoutLabelGorgel, tr, timer, traceFactory, clock)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
         if (props.testProperty("conf.gatekeeper.director.auto")) {
             myServer.findService("director-user", DirectorFoundRunnable(), false)

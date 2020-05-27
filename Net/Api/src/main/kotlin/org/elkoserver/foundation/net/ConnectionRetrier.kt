@@ -5,6 +5,7 @@ import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Worker object to manage an ongoing attempt to establish an outbound TCP
@@ -24,7 +25,9 @@ class ConnectionRetrier(
         networkManager: NetworkManager,
         actualFactory: MessageHandlerFactory,
         timer: Timer,
-        appTrace: Trace, traceFactory: TraceFactory?) {
+        private val gorgel: Gorgel,
+        appTrace: Trace,
+        traceFactory: TraceFactory) {
 
     /** Low-level I/O framer factory for the new connection.  */
     private val myFramerFactory: JSONByteIOFramerFactory
@@ -62,10 +65,10 @@ class ConnectionRetrier(
     }
 
     init {
-        myFramerFactory = JSONByteIOFramerFactory(myTrace, traceFactory!!)
+        myFramerFactory = JSONByteIOFramerFactory(myTrace, traceFactory)
         myNetworkManager = networkManager
         myActualFactory = actualFactory
-        myTrace.eventi("connecting to $myLabel at ${myHost.hostPort}")
+        gorgel.i?.run { info("connecting to $myLabel at ${myHost.hostPort}") }
         myRetryTimeout = object : TimeoutNoticer {
             override fun noticeTimeout() {
                 handleRetryTimeout()
@@ -79,7 +82,7 @@ class ConnectionRetrier(
 
     private fun handleRetryTimeout() {
         if (myKeepTryingFlag) {
-            myTrace.eventi("retrying connection to $myLabel at ${myHost.hostPort}")
+            gorgel.i?.run { info("retrying connection to $myLabel at ${myHost.hostPort}") }
             doConnect(myRetryHandlerFactory)
         }
     }

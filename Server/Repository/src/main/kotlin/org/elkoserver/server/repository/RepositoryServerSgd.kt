@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.repository
 
+import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.LoadWatcher
@@ -14,6 +15,8 @@ import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.objdb.ObjDBLocal
+import org.elkoserver.objdb.ObjDBRemote
 import org.elkoserver.objdb.ObjectStoreFactory
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -42,6 +45,12 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val bootGorgel by Once { req(provided.baseGorgel()).getChild(RepositoryBoot::class) }
 
+    val connectionRetrierWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(ConnectionRetrier::class) }
+
+    val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
+
+    val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBRemote::class) }
+
     val repositoryActorGorgel by Once { req(provided.baseGorgel()).getChild(RepositoryActor::class) }
 
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
@@ -60,6 +69,10 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
                 req(baseConnectionSetupGorgel),
+                req(objDbLocalGorgel),
+                req(objDbRemoteGorgel),
+                req(provided.baseGorgel()),
+                req(connectionRetrierWithoutLabelGorgel),
                 req(repoTrace),
                 req(provided.timer()),
                 req(provided.clock()),
@@ -95,7 +108,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val repository: D<Repository> by Once { Repository(req(server), req(provided.traceFactory()), req(provided.clock()), req(objectStore)) }
 
-    val objectStore by Once { ObjectStoreFactory.createAndInitializeObjectStore(req(provided.props()), "conf.rep", req(repoTrace))  }
+    val objectStore by Once { ObjectStoreFactory.createAndInitializeObjectStore(req(provided.props()), "conf.rep", req(provided.baseGorgel()))  }
 
     val repositoryServiceFactory by Once { RepositoryServiceFactory(req(repository), req(repositoryActorGorgel), req(provided.traceFactory())) }
 }

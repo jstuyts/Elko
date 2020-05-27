@@ -59,6 +59,7 @@ class Contextor internal constructor(
         private val directorGroupGorgel: Gorgel,
         private val presencerGroupGorgel: Gorgel,
         private val reservationGorgel: Gorgel,
+        private val connectionRetrierWithoutLabelGorgel: Gorgel,
         sessionGorgel: Gorgel,
         private val timer: Timer,
         traceFactory: TraceFactory,
@@ -972,7 +973,7 @@ class Contextor internal constructor(
      * listeners to register with the indicated directors.
      */
     fun registerWithDirectors(directors: MutableList<HostDesc>, listeners: List<HostDesc>) {
-        val group = DirectorGroup(server, this, directors, listeners, tr, directorGroupGorgel, reservationGorgel, timer, traceFactory, clock, reservationTimeout, props)
+        val group = DirectorGroup(server, this, directors, listeners, tr, directorGroupGorgel, reservationGorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, reservationTimeout, props)
         if (group.isLive) {
             myDirectorGroup = group
         }
@@ -985,7 +986,7 @@ class Contextor internal constructor(
      * with whom to register.
      */
     fun registerWithPresencers(presencers: MutableList<HostDesc>) {
-        val group = PresencerGroup(server, this, presencers, tr, presencerGroupGorgel, timer, traceFactory, clock, props)
+        val group = PresencerGroup(server, this, presencers, tr, presencerGroupGorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, props)
         if (group.isLive) {
             myPresencerGroup = group
         }

@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.gatekeeper
 
+import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.LoadWatcher
@@ -13,6 +14,8 @@ import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.objdb.ObjDBLocal
+import org.elkoserver.objdb.ObjDBRemote
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
@@ -42,11 +45,17 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val bootGorgel by Once { req(provided.baseGorgel()).getChild(GatekeeperBoot::class) }
 
+    val connectionRetrierWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(ConnectionRetrier::class) }
+
     val directorActorFactoryGorgel by Once { req(provided.baseGorgel()).getChild(DirectorActorFactory::class) }
 
     val gatekeeperGorgel by Once { req(provided.baseGorgel()).getChild(Gatekeeper::class) }
 
     val gatekeeperActorGorgel by Once { req(provided.baseGorgel()).getChild(GatekeeperActor::class) }
+
+    val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
+
+    val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBRemote::class) }
 
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 
@@ -64,6 +73,10 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
                 req(baseConnectionSetupGorgel),
+                req(objDbLocalGorgel),
+                req(objDbRemoteGorgel),
+                req(provided.baseGorgel()),
+                req(connectionRetrierWithoutLabelGorgel),
                 req(gateTrace),
                 req(provided.timer()),
                 req(provided.clock()),
@@ -102,6 +115,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(server),
                 req(gatekeeperGorgel),
                 req(directorActorFactoryGorgel),
+                req(connectionRetrierWithoutLabelGorgel),
                 req(gateTrace),
                 req(provided.timer()),
                 req(provided.traceFactory()),
@@ -112,7 +126,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val actionTimeout by Once { 1000 * req(provided.props()).intProperty("conf.gatekeeper.actiontimeout", GatekeeperBoot.DEFAULT_ACTION_TIMEOUT) }
 
-    val gatekeeperServiceFactory by Once { GatekeeperServiceFactory(req(gatekeeper), req(actionTimeout), req(gatekeeperActorGorgel), req(gateTrace), req(provided.timer()), req(provided.traceFactory())) }
+    val gatekeeperServiceFactory by Once { GatekeeperServiceFactory(req(gatekeeper), req(actionTimeout), req(gatekeeperActorGorgel), req(provided.timer()), req(provided.traceFactory())) }
 
     val authorizerOgdClassName by Once {
         req(provided.props()).getProperty("conf.gatekeeper.authorizer",

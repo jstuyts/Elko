@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.director
 
+import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.LoadWatcher
@@ -13,6 +14,8 @@ import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.objdb.ObjDBLocal
+import org.elkoserver.objdb.ObjDBRemote
 import org.elkoserver.server.director.Director.Companion.DEFAULT_ESTIMATED_LOAD_INCREMENT
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -42,9 +45,15 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val bootGorgel by Once { req(provided.baseGorgel()).getChild(DirectorBoot::class) }
 
+    val connectionRetrierWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(ConnectionRetrier::class) }
+
     val directorGorgel by Once { req(provided.baseGorgel()).getChild(Director::class) }
 
     val directorActorGorgel by Once { req(provided.baseGorgel()).getChild(DirectorActor::class) }
+
+    val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
+
+    val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBRemote::class) }
 
     val providerGorgel by Once { req(provided.baseGorgel()).getChild(Provider::class) }
 
@@ -64,6 +73,10 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
                 req(baseConnectionSetupGorgel),
+                req(objDbLocalGorgel),
+                req(objDbRemoteGorgel),
+                req(provided.baseGorgel()),
+                req(connectionRetrierWithoutLabelGorgel),
                 req(direTrace),
                 req(provided.timer()),
                 req(provided.clock()),

@@ -294,7 +294,7 @@ class BankWorker
         workshop().getObject(myBankRef, Consumer { obj: Any? ->
             if (obj is Bank) {
                 myBank = obj
-                myBank!!.activate(workshop())
+                obj.activate(workshop())
             } else {
                 workshop().tr.errorm("alleged bank object $myBankRef is not a bank")
             }

@@ -6,8 +6,8 @@ import org.elkoserver.json.JsonArray
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
 import org.elkoserver.objdb.store.ObjectDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.HashMap
 import java.util.LinkedList
@@ -18,7 +18,7 @@ import java.util.function.Consumer
  * Base class for both local and remote concrete implementations of the ObjDB
  * interface.
  */
-abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: TraceFactory, private val clock: Clock) : ObjDB {
+abstract class ObjDBBase(protected val gorgel: Gorgel, private val traceFactory: TraceFactory, private val clock: Clock) : ObjDB {
     /** Table mapping JSON object type tags to Java classes.  */
     private val myClasses: MutableMap<String, Class<*>> = HashMap()
 
@@ -48,7 +48,7 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
             if (type != null) {
                 result = decode(type, jsonObj, this, traceFactory, clock)
             } else {
-                tr.errorm("no class for type tag '$typeTag'")
+                gorgel.error("no class for type tag '$typeTag'")
             }
         }
         return result
@@ -69,7 +69,7 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
                 .firstOrNull { ref == it.ref }
                 ?.obj
         return if (objStr == null) {
-            tr.errorm("no object retrieved from ODB for ref $ref")
+            gorgel.error("no object retrieved from ODB for ref $ref")
             null
         } else {
             try {
@@ -77,7 +77,7 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
                 insertContents(jsonObj, results)
                 decodeJSONObject(jsonObj)
             } catch (e: JsonParserException) {
-                tr.errorm("object store syntax error getting $ref: ${e.message}")
+                gorgel.error("object store syntax error getting $ref: ${e.message}")
                 null
             }
         }
@@ -196,10 +196,10 @@ abstract class ObjDBBase(protected val tr: Trace, private val traceFactory: Trac
         override fun accept(obj: Any?) {
             val classes = obj as ClassDesc?
             if (classes != null) {
-                tr.eventi("loading classDesc '$myTag'")
-                classes.useInODB(this@ObjDBBase, tr)
+                gorgel.i?.run { info("loading classDesc '$myTag'") }
+                classes.useInODB(this@ObjDBBase, gorgel)
             } else {
-                tr.errorm("unable to load classDesc '$myTag'")
+                gorgel.error("unable to load classDesc '$myTag'")
             }
         }
 

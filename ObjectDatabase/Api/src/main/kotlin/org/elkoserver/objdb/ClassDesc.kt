@@ -1,7 +1,7 @@
 package org.elkoserver.objdb
 
 import org.elkoserver.foundation.json.JSONMethod
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Object stored in the object database that keeps track of the mapping between
@@ -14,11 +14,10 @@ internal class ClassDesc @JSONMethod("classes") constructor(private val myClasse
      * Tell an object database about all the classes this object describes.
      *
      * @param odb The object database to tell.
-     * @param tr  Trace object for error logging.
      */
-    fun useInODB(odb: ObjDB, tr: Trace) {
+    fun useInODB(odb: ObjDB, gorgel: Gorgel) {
         for (odbClass in myClasses) {
-            odbClass.useInODB(odb, tr)
+            odbClass.useInODB(odb, gorgel)
         }
     }
 }

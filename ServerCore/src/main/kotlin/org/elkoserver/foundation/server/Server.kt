@@ -26,6 +26,7 @@ import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
+import org.elkoserver.util.trace.slf4j.Tag
 import java.time.Clock
 import java.util.HashMap
 import java.util.HashSet
@@ -52,6 +53,10 @@ class Server(
         private val serviceLinkGorgel: Gorgel,
         private val serviceActorGorgel: Gorgel,
         private val baseConnectionSetupGorgel: Gorgel,
+        private val objDbLocalGorgel: Gorgel,
+        private val objDbRemoteGorgel: Gorgel,
+        private val baseGorgel: Gorgel,
+        private val connectionRetrierWithoutLabelGorgel: Gorgel,
         private val tr: Trace,
         private val timer: Timer,
         private val clock: Clock,
@@ -149,7 +154,7 @@ class Server(
      */
     private fun connectToBroker() {
         if (!amShuttingDown) {
-            ConnectionRetrier(myBrokerHost!!, "broker", networkManager, BrokerMessageHandlerFactory(), timer, tr, traceFactory)
+            ConnectionRetrier(myBrokerHost!!, "broker", networkManager, BrokerMessageHandlerFactory(), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "broker")), tr, traceFactory)
         }
     }
 
@@ -291,19 +296,20 @@ class Server(
          * located.  Normally this will be a single element array.
          */
         override fun accept(obj: Array<ServiceDesc>) {
-            myDesc = obj[0]
-            if (myDesc!!.failure != null) {
-                gorgel.warn("service query for $myLabel failed: ${myDesc!!.failure}")
+            val desc = obj[0]
+            myDesc = desc
+            if (desc.failure != null) {
+                gorgel.warn("service query for $myLabel failed: ${desc.failure}")
                 myInnerHandler.accept(null)
                 return
             }
             if (obj.size > 1) {
                 gorgel.warn("service query for $myLabel returned multiple results; using first one")
             }
-            val actor = myServiceActorsByProviderID[myDesc!!.providerID]
+            val actor = myServiceActorsByProviderID[desc.providerID]
             actor?.let(::connectLinkToActor)
-                    ?: ConnectionRetrier(myDesc!!.asHostDesc(-1), myLabel,
-                            networkManager, this, timer, tr, traceFactory)
+                    ?: ConnectionRetrier(desc.asHostDesc(-1), myLabel,
+                            networkManager, this, timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", myLabel)), tr, traceFactory)
         }
 
         /**
@@ -366,12 +372,12 @@ class Server(
      */
     fun openObjectDatabase(propRoot: String): ObjDB? {
         return if (myProps.getProperty("$propRoot.odb") != null) {
-            ObjDBLocal(myProps, propRoot, tr, traceFactory, clock)
+            ObjDBLocal(myProps, propRoot, objDbLocalGorgel, baseGorgel, traceFactory, clock)
         } else {
             if (myProps.getProperty("$propRoot.repository.host") != null ||
                     myProps.getProperty("$propRoot.repository.service") != null) {
                 ObjDBRemote(this, networkManager, serverName,
-                        myProps, propRoot, tr, traceFactory, timer, clock)
+                        myProps, propRoot, objDbRemoteGorgel, connectionRetrierWithoutLabelGorgel, traceFactory, timer, clock)
             } else {
                 null
             }

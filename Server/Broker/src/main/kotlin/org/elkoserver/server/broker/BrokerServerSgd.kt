@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.broker
 
+import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.LoadWatcher
@@ -13,6 +14,8 @@ import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.objdb.ObjDBLocal
+import org.elkoserver.objdb.ObjDBRemote
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
@@ -44,7 +47,13 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val brokerActorGorgel by Once { req(provided.baseGorgel()).getChild(BrokerActor::class) }
 
+    val connectionRetrierWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(ConnectionRetrier::class) }
+
     val launcherTableGorgel by Once { req(provided.baseGorgel()).getChild(LauncherTable::class) }
+
+    val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
+
+    val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBRemote::class) }
 
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 
@@ -62,6 +71,10 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
                 req(baseConnectionSetupGorgel),
+                req(objDbLocalGorgel),
+                req(objDbRemoteGorgel),
+                req(provided.baseGorgel()),
+                req(connectionRetrierWithoutLabelGorgel),
                 req(brokTrace),
                 req(provided.timer()),
                 req(provided.clock()),

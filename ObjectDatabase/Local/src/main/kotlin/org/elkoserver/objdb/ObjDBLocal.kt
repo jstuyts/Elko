@@ -20,8 +20,8 @@ import org.elkoserver.objdb.store.RequestResultHandler
 import org.elkoserver.objdb.store.ResultDesc
 import org.elkoserver.objdb.store.UpdateDesc
 import org.elkoserver.objdb.store.UpdateResultDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.function.Consumer
 
@@ -44,11 +44,10 @@ import java.util.function.Consumer
  * @param props  Properties that the hosting server was configured with
  * @param propRoot  Prefix string for selecting relevant configuration
  *    properties.
- * @param appTrace  Trace object for event logging.
  */
-class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, traceFactory: TraceFactory, clock: Clock) : ObjDBBase(appTrace, traceFactory, clock) {
+class ObjDBLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) : ObjDBBase(gorgel, traceFactory, clock) {
     /** Local object storage module.  */
-    private val myObjectStore: ObjectStore = createAndInitializeObjectStore(props, propRoot, tr)
+    private val myObjectStore: ObjectStore = createAndInitializeObjectStore(props, propRoot, baseGorgel)
 
     /** Async run queue for giving tasks to the ODB thread.  */
     private val myRunner: Runner = Runner("Elko RunQueue LocalObjDB", traceFactory)
@@ -86,7 +85,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
                 obj = if (failure == null) {
                     decodeObject(myRef, results)
                 } else {
-                    tr.errorm("object store error getting $myRef: $failure")
+                    gorgel.error("object store error getting $myRef: $failure")
                     null
                 }
             }
@@ -206,7 +205,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, appTrace: Trace, trace
                 objs = if (failure == null) {
                     decodeObjectSet(results)
                 } else {
-                    tr.errorm("object store error getting query results: $failure")
+                    gorgel.error("object store error getting query results: $failure")
                     null
                 }
             }

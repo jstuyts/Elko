@@ -24,8 +24,8 @@ import java.time.Clock
  * @param tr  Trace object for diagnostics.
  */
 internal class PresencerGroup(server: Server, contextor: Contextor,
-                              presencers: MutableList<HostDesc>, tr: Trace, gorgel: Gorgel, timer: Timer, traceFactory: TraceFactory, clock: Clock, props: ElkoProperties)
-    : OutboundGroup("conf.presence", server, contextor, presencers, tr, gorgel, timer, traceFactory, clock, props) {
+                              presencers: MutableList<HostDesc>, tr: Trace, gorgel: Gorgel, connectionRetrierWithoutLabelGorgel: Gorgel, timer: Timer, traceFactory: TraceFactory, clock: Clock, props: ElkoProperties)
+    : OutboundGroup("conf.presence", server, contextor, presencers, tr, gorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, props) {
     /* ----- required OutboundGroup methods ----- */
     /**
      * Obtain the class of actors in this group (in this case, PresenceActor).

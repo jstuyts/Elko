@@ -16,6 +16,7 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
+import org.elkoserver.util.trace.slf4j.Tag
 import java.time.Clock
 import java.util.function.Consumer
 
@@ -37,6 +38,7 @@ abstract class OutboundGroup(propRoot: String,
                              hosts: MutableList<HostDesc>,
                              private val tr: Trace,
                              gorgel: Gorgel,
+                             private val connectionRetrierWithoutLabelGorgel: Gorgel,
                              protected val timer: Timer,
                              protected val traceFactory: TraceFactory,
                              clock: Clock,
@@ -70,7 +72,7 @@ abstract class OutboundGroup(propRoot: String,
     fun connectHosts() {
         for (host in myHosts) {
             ConnectionRetrier(host, label(), myNetworkManager,
-                    HostConnector(host), timer, tr, traceFactory)
+                    HostConnector(host), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, traceFactory)
         }
         if (amAutoRegister) {
             myServer.findService(service(), HostFoundHandler(), true)
@@ -90,7 +92,7 @@ abstract class OutboundGroup(propRoot: String,
                     .map { it.asHostDesc(myRetryInterval) }
                     .forEach {
                         ConnectionRetrier(it, label(), myNetworkManager,
-                                HostConnector(it), timer, tr, traceFactory)
+                                HostConnector(it), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, traceFactory)
                     }
         }
     }

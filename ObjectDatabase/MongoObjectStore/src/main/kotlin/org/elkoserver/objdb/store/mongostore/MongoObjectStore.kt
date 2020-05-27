@@ -24,7 +24,7 @@ import org.elkoserver.objdb.store.RequestResultHandler
 import org.elkoserver.objdb.store.ResultDesc
 import org.elkoserver.objdb.store.UpdateDesc
 import org.elkoserver.objdb.store.UpdateResultDesc
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 
 /**
@@ -61,9 +61,8 @@ class MongoObjectStore : ObjectStore {
      *
      * @param props  Properties describing configuration information.
      * @param propRoot  Prefix string for selecting relevant properties.
-     * @param trace  Trace object for use in logging.
      */
-    override fun initialize(props: ElkoProperties, propRoot: String, trace: Trace) {
+    override fun initialize(props: ElkoProperties, propRoot: String, gorgel: Gorgel) {
         val mongoPropRoot = "$propRoot.odb.mongo"
         val addressStr = props.getProperty("$mongoPropRoot.hostport")
                 ?: throw IllegalStateException("no mongo database server address specified")

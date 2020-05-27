@@ -2,11 +2,11 @@ package org.elkoserver.objdb
 
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.objdb.store.ObjectStore
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.InvocationTargetException
 
 object ObjectStoreFactory {
-    fun createAndInitializeObjectStore(props: ElkoProperties, propRoot: String, trace: Trace): ObjectStore {
+    fun createAndInitializeObjectStore(props: ElkoProperties, propRoot: String, baseGorgel: Gorgel): ObjectStore {
         val result: ObjectStore
         val objectStoreClassName = props.getProperty("$propRoot.objstore",
                 "org.elkoserver.objdb.store.filestore.FileObjectStore")
@@ -27,7 +27,7 @@ object ObjectStoreFactory {
         } catch (e: InvocationTargetException) {
             throw IllegalStateException("error during invocation of object store constructor", e)
         }
-        result.initialize(props, propRoot, trace)
+        result.initialize(props, propRoot, baseGorgel.getChild(objectStoreClass.kotlin))
         return result
     }
 }

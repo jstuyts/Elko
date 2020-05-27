@@ -13,7 +13,7 @@ import org.elkoserver.objdb.store.RequestDesc
 import org.elkoserver.objdb.store.RequestResultHandler
 import org.elkoserver.objdb.store.ResultDesc
 import org.elkoserver.objdb.store.UpdateDesc
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
@@ -47,9 +47,8 @@ class FileObjectStore : ObjectStore {
      *
      * @param props  Properties describing configuration information.
      * @param propRoot  Prefix string for selecting relevant properties.
-     * @param trace  Trace object for use in logging.
      */
-    override fun initialize(props: ElkoProperties, propRoot: String, trace: Trace) {
+    override fun initialize(props: ElkoProperties, propRoot: String, gorgel: Gorgel) {
         val dirname = props.getProperty("$propRoot.odb")
                 ?: throw java.lang.IllegalStateException("no object database directory specified")
         myODBDirectory = File(dirname)

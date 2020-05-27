@@ -34,12 +34,13 @@ class DirectorGroup(server: Server,
                     internal val listeners: List<HostDesc>,
                     tr: Trace,
                     gorgel: Gorgel,
+                    connectionRetrierWithoutLabelGorgel: Gorgel,
                     private val reservationGorgel: Gorgel,
                     timer: Timer,
                     traceFactory: TraceFactory,
                     clock: Clock,
                     internal val reservationTimeout: Int,
-                    props: ElkoProperties) : OutboundGroup("conf.register", server, contextor, directors, tr, gorgel, timer, traceFactory, clock, props) {
+                    props: ElkoProperties) : OutboundGroup("conf.register", server, contextor, directors, tr, gorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, props) {
 
     /** Iterator for cycling through arbitrary relays.  */
     private var myDirectorPicker: Iterator<Deliverer>? = null

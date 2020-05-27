@@ -3,7 +3,6 @@ package org.elkoserver.objdb
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionRetrier
-import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -16,8 +15,9 @@ import org.elkoserver.json.Encodable
 import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.store.ObjectDesc
 import org.elkoserver.objdb.store.ResultDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
+import org.elkoserver.util.trace.slf4j.Tag
 import java.time.Clock
 import java.util.HashMap
 import java.util.LinkedList
@@ -58,17 +58,17 @@ import java.util.function.Consumer
  * @param props  Properties that the hosting server was configured with
  * @param propRoot  Prefix string for generating relevant configuration
  *    property names.
- * @param appTrace  Trace object for event logging.
  */
 class ObjDBRemote(serviceFinder: ServiceFinder,
                   private val myNetworkManager: NetworkManager,
                   localName: String,
                   props: ElkoProperties,
                   propRoot: String,
-                  appTrace: Trace,
+                  gorgel: Gorgel,
+                  private val connectionRetrierWithoutLabelGorgel: Gorgel,
                   private val traceFactory: TraceFactory,
                   private val timer: Timer,
-                  clock: Clock) : ObjDBBase(appTrace, traceFactory, clock) {
+                  clock: Clock) : ObjDBBase(gorgel, traceFactory, clock) {
     /** Connection to the repository, if there is one.  */
     private var myODBActor: ODBActor? = null
 
@@ -87,7 +87,9 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     private var myRepHost: HostDesc? = null
 
     /** Message dispatcher for repository connections.  */
-    private val myDispatcher: MessageDispatcher
+    private val myDispatcher = MessageDispatcher(this, traceFactory, clock).apply {
+        addClass(ODBActor::class.java)
+    }
 
     /** Repository connection retry interval, in seconds, or -1 to take the
      * default.  */
@@ -96,16 +98,16 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     /** Flag to prevent reopening repository connection while shutting down.  */
     private var amClosing = false
 
-    /** Trace object for logging message traffic.  */
-    private val myMsgTrace: Trace
-
     /** Message handler factory for repository connections.  */
-    private val myMessageHandlerFactory: MessageHandlerFactory
+    private val myMessageHandlerFactory = object : MessageHandlerFactory {
+        override fun provideMessageHandler(connection: Connection?) =
+                ODBActor(connection!!, this@ObjDBRemote, localName, myRepHost!!, myDispatcher, traceFactory)
+    }
 
     private inner class RepositoryFoundHandler : Consumer<Array<ServiceDesc>> {
         override fun accept(obj: Array<ServiceDesc>) {
             if (obj[0].failure != null) {
-                tr.errorm("unable to find repository: ${obj[0].failure}")
+                gorgel.error("unable to find repository: ${obj[0].failure}")
             } else {
                 myRepHost = obj[0].asHostDesc(myRetryInterval)
                 connectToRepository()
@@ -125,7 +127,8 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                         myNetworkManager,
                         myMessageHandlerFactory,
                         timer,
-                        myMsgTrace, traceFactory)
+                        connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "repository")),
+                        traceFactory.comm, traceFactory)
             }
         }
     }
@@ -218,7 +221,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
             obj = if (failure == null) {
                 decodeObject(req.ref, results)
             } else {
-                tr.errorm("repository error getting ${req.ref}: $failure")
+                gorgel.error("repository error getting ${req.ref}: $failure")
                 null
             }
             req.handleReply(obj)
@@ -337,16 +340,10 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     init {
         addClass("obji", ObjectDesc::class.java)
         addClass("stati", ResultDesc::class.java)
-        myDispatcher = MessageDispatcher(this, traceFactory, clock)
-        myDispatcher.addClass(ODBActor::class.java)
-        myMessageHandlerFactory = object : MessageHandlerFactory {
-            override fun provideMessageHandler(connection: Connection?): MessageHandler = ODBActor(connection!!, this@ObjDBRemote, localName, myRepHost!!, myDispatcher, traceFactory)
-        }
         loadClassDesc(props.getProperty("$propRoot.classdesc"))
         val odbPropRoot = "$propRoot.repository"
         myRetryInterval = props.intProperty("$odbPropRoot.retry", -1)
         var serviceName = props.getProperty("$odbPropRoot.service")
-        myMsgTrace = traceFactory.comm
         if (serviceName != null) {
             myRepHost = null
             serviceName = if (serviceName == "any") "repository-rep" else "repository-rep-$serviceName"

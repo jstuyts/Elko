@@ -173,16 +173,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
     }
 
     /**
-     * Output an informational log message at <tt>NOTICE</tt> level (which is
-     * unblockable).
-     *
-     * @param message  The message string
-     */
-    fun noticei(message: String) {
-        recordInfoMessage(message, Level.NOTICE)
-    }
-
-    /**
      * Output a log message describing a comm message.
      *
      * @param conn  The connection over which the message was sent or received.

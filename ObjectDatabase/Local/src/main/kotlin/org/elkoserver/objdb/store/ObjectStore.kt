@@ -1,7 +1,7 @@
 package org.elkoserver.objdb.store
 
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Access to a persistent object data storage mechanism.
@@ -20,9 +20,8 @@ interface ObjectStore {
      *
      * @param props  Properties describing configuration information.
      * @param propRoot  Prefix string for selecting relevant properties.
-     * @param trace  Trace object for use in logging.
      */
-    fun initialize(props: ElkoProperties, propRoot: String, trace: Trace)
+    fun initialize(props: ElkoProperties, propRoot: String, gorgel: Gorgel)
 
     /**
      * Service a 'get' request.  This is a request to retrieve one or more

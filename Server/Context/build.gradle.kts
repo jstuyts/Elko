@@ -26,6 +26,8 @@ dependencies {
     api(project(":Trace"))
     api(Libraries.nanojson)
 
+    implementation(project(":ObjectDatabase:Local"))
+    implementation(project(":ObjectDatabase:Remote"))
     implementation(project(":Util"))
     implementation(kotlin("stdlib-jdk8"))
     implementation(Libraries.ooverkommelig)

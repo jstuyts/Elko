@@ -23,6 +23,8 @@ dependencies {
     api(Libraries.nanojson)
 
     implementation(kotlin("stdlib-jdk8"))
+    implementation(project(":ObjectDatabase:Local"))
+    implementation(project(":ObjectDatabase:Remote"))
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

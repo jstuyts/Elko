@@ -21,6 +21,7 @@ dependencies {
     implementation(project(":Actor"))
     implementation(project(":JsonMessageHandling"))
     implementation(project(":ObjectDatabase:Local"))
+    implementation(project(":ObjectDatabase:Remote"))
     implementation(project(":ServerCore"))
     implementation(kotlin("stdlib-jdk8"))
 }

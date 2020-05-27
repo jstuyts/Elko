@@ -139,9 +139,9 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
      *
      * @param workshop  The workshop this bank is running inside.
      */
-    fun activate(workshop: Workshop?) {
+    fun activate(workshop: Workshop) {
         myWorkshop = workshop
-        myTrace = myWorkshop!!.tr
+        myTrace = workshop.tr
         if (myVirginRootKey != null) {
             checkpoint()
         }
