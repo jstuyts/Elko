@@ -5,11 +5,11 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
-internal class HttpConnectionSetup(label: String?, host: String, auth: AuthDesc?, secure: Boolean, props: ElkoProperties, propRoot: String, private val myNetworkManager: NetworkManager, private val actorFactory: MessageHandlerFactory, trServer: Trace?, tr: Trace?, traceFactory: TraceFactory?) : BaseConnectionSetup(label, host, auth!!, secure, props, propRoot, trServer!!, tr!!, traceFactory!!) {
+internal class HttpConnectionSetup(label: String?, host: String, auth: AuthDesc?, secure: Boolean, props: ElkoProperties, propRoot: String, private val myNetworkManager: NetworkManager, private val actorFactory: MessageHandlerFactory, gorgel: Gorgel, traceFactory: TraceFactory) : BaseConnectionSetup(label, host, auth!!, secure, props, propRoot, gorgel, traceFactory) {
     private val domain: String?
     private val rootURI: String
     override val serverAddress: String

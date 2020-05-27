@@ -25,6 +25,7 @@ import org.elkoserver.objdb.ObjDBRemote
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.HashMap
 import java.util.HashSet
@@ -47,7 +48,11 @@ import java.util.function.Consumer
 class Server(
         private val myProps: ElkoProperties,
         serverType: String,
-        internal val tr: Trace,
+        private val gorgel: Gorgel,
+        private val serviceLinkGorgel: Gorgel,
+        private val serviceActorGorgel: Gorgel,
+        private val baseConnectionSetupGorgel: Gorgel,
+        private val tr: Trace,
         private val timer: Timer,
         private val clock: Clock,
         private val traceFactory: TraceFactory,
@@ -90,9 +95,6 @@ class Server(
 
     /** Objects to be notified when the server is reinitialized.  */
     private val myReinitWatchers: MutableList<ReinitWatcher> = LinkedList()
-
-    /** Trace object for mandatory startup and shutdown messages.  */
-    private val trServer = traceFactory.trace("server")
 
     /** Run queue that the server services its clients in.  */
     private val myMainRunner = currentRunner(traceFactory)
@@ -164,7 +166,7 @@ class Server(
     override fun connectionCountChange(delta: Int) {
         myConnectionCount += delta
         if (myConnectionCount < 0) {
-            tr.errorm("negative connection count: $myConnectionCount")
+            gorgel.error("negative connection count: $myConnectionCount")
         }
         if (amShuttingDown && myConnectionCount <= 0) {
             serverExit()
@@ -223,7 +225,7 @@ class Server(
                 findService(service, monitor, tag)
             }
         } else {
-            tr.errori("can't find service $service, no broker specified")
+            gorgel.error("can't find service $service, no broker specified")
         }
     }
 
@@ -271,7 +273,7 @@ class Server(
 
         /** A service link to be associated with the connection, or null if a
          * new link should be allocated.  */
-        private val myLink: ServiceLink = link ?: ServiceLink(myLabel, this@Server)
+        private val myLink: ServiceLink = link ?: ServiceLink(myLabel, this@Server, serviceLinkGorgel)
 
         /**
          * Handle the location of a service by the broker.  If we already have
@@ -291,12 +293,12 @@ class Server(
         override fun accept(obj: Array<ServiceDesc>) {
             myDesc = obj[0]
             if (myDesc!!.failure != null) {
-                tr.warningi("service query for $myLabel failed: ${myDesc!!.failure}")
+                gorgel.warn("service query for $myLabel failed: ${myDesc!!.failure}")
                 myInnerHandler.accept(null)
                 return
             }
             if (obj.size > 1) {
-                tr.warningm("service query for $myLabel returned multiple results; using first one")
+                gorgel.warn("service query for $myLabel returned multiple results; using first one")
             }
             val actor = myServiceActorsByProviderID[myDesc!!.providerID]
             actor?.let(::connectLinkToActor)
@@ -310,8 +312,8 @@ class Server(
          * @param connection  The Connection object that was just created.
          */
         override fun provideMessageHandler(connection: Connection?): MessageHandler {
-            val actor = ServiceActor(connection, myServiceRefTable, myDesc!!,
-                    this@Server, traceFactory)
+            val actor = ServiceActor(connection!!, myServiceRefTable!!, myDesc!!,
+                    this@Server, serviceActorGorgel, traceFactory)
             myServiceActorsByProviderID[myDesc!!.providerID] = actor
             connectLinkToActor(actor)
             return actor
@@ -465,7 +467,7 @@ class Server(
      * Really shut down the server.
      */
     private fun serverExit() {
-        trServer.worldi("Good bye")
+        gorgel.i?.run { info("Good bye") }
         myMainRunner.orderlyShutdown()
     }
 
@@ -501,7 +503,7 @@ class Server(
     fun shutdown() {
         if (!amShuttingDown) {
             amShuttingDown = true
-            trServer.worldi("Shutting down $serverName")
+            gorgel.i?.run { info("Shutting down $serverName") }
             if (myBrokerActor != null) {
                 myBrokerActor!!.close()
             }
@@ -550,14 +552,14 @@ class Server(
         val secure = myProps.testProperty("$propRoot.secure")
         val mgrClass = myProps.getProperty("$propRoot.class")
         val connectionSetup: ConnectionSetup
-        connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, networkManager, actorFactory, trServer, tr, traceFactory) }
+        connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory) }
                 ?: when (protocol) {
-                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, trServer, tr, traceFactory)
-                    "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, trServer, tr, traceFactory)
-                    "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, trServer, tr, traceFactory)
-                    "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, trServer, tr, traceFactory)
+                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
+                    "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
+                    "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
+                    "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
                     else -> {
-                        tr.errorm("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
+                        gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
                         throw IllegalStateException()
                     }
                 }
@@ -608,9 +610,11 @@ class Server(
     }
 
     init {
-        trServer.noticei(version())
-        trServer.noticei("Copyright 2016 ElkoServer.org; see LICENSE")
-        trServer.noticei("Starting $serverName")
+        gorgel.i?.run {
+            info(version())
+            info(("Copyright 2016 ElkoServer.org; see LICENSE"))
+            info("Starting $serverName")
+        }
 
         myDispatcher.addClass(BrokerActor::class.java)
 

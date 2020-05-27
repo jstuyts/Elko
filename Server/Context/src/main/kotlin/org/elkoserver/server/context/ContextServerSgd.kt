@@ -3,10 +3,13 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerLoadMonitor
+import org.elkoserver.foundation.server.ServiceActor
+import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
@@ -37,6 +40,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val contTrace by Once { req(provided.traceFactory()).trace("cont") }
 
+    val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class)}
+
     val contextorGorgel by Once { req(provided.baseGorgel()).getChild(Contextor::class) }
 
     val contextServiceFactoryGorgel by Once { req(provided.baseGorgel()).getChild(ContextServiceFactory::class) }
@@ -49,7 +54,13 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val reservationGorgel by Once { req(provided.baseGorgel()).getChild(Reservation::class) }
 
+    val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
+
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
+
+    val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
+
+    val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
     val sessionClientGorgel by Once { req(provided.baseGorgel()).getChild(Session::class, Tag("category", "client")) }
 
@@ -92,6 +103,10 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
         Server(
                 req(provided.props()),
                 "context",
+                req(serverGorgel),
+                req(serviceLinkGorgel),
+                req(serviceActorGorgel),
+                req(baseConnectionSetupGorgel),
                 req(contTrace),
                 req(provided.timer()),
                 req(provided.clock()),

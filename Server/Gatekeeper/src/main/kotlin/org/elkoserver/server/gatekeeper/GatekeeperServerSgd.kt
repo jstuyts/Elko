@@ -3,10 +3,13 @@
 package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerLoadMonitor
+import org.elkoserver.foundation.server.ServiceActor
+import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
@@ -35,6 +38,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val gateTrace by Once { req(provided.traceFactory()).trace("gate") }
 
+    val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class)}
+
     val bootGorgel by Once { req(provided.baseGorgel()).getChild(GatekeeperBoot::class) }
 
     val directorActorFactoryGorgel by Once { req(provided.baseGorgel()).getChild(DirectorActorFactory::class) }
@@ -43,12 +48,22 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val gatekeeperActorGorgel by Once { req(provided.baseGorgel()).getChild(GatekeeperActor::class) }
 
+    val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
+
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
+
+    val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
+
+    val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
     val server by Once {
         Server(
                 req(provided.props()),
                 "gatekeeper",
+                req(serverGorgel),
+                req(serviceLinkGorgel),
+                req(serviceActorGorgel),
+                req(baseConnectionSetupGorgel),
                 req(gateTrace),
                 req(provided.timer()),
                 req(provided.clock()),

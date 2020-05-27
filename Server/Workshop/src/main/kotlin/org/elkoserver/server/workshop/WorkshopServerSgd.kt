@@ -3,10 +3,13 @@
 package org.elkoserver.server.workshop
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerLoadMonitor
+import org.elkoserver.foundation.server.ServiceActor
+import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
@@ -33,9 +36,17 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val workTrace by Once { req(provided.traceFactory()).trace("work") }
 
+    val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class)}
+
     val bootGorgel by Once { req(provided.baseGorgel()).getChild(WorkshopBoot::class) }
 
+    val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
+
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
+
+    val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
+
+    val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
     val startupWorkerListGorgel by Once { req(provided.baseGorgel()).getChild(StartupWorkerList::class) }
 
@@ -47,6 +58,10 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
         Server(
                 req(provided.props()),
                 "workshop",
+                req(serverGorgel),
+                req(serviceLinkGorgel),
+                req(serviceActorGorgel),
+                req(baseConnectionSetupGorgel),
                 req(workTrace),
                 req(provided.timer()),
                 req(provided.clock()),

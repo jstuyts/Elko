@@ -31,14 +31,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
     var warning = false
 
     /**
-     * Flag to control tracing of world messages.  World messages track the
-     * state of the world as a whole.   They are the sort of things server
-     * operators ask for specifically, such as "can you tell me when someone
-     * connects."   They should appear only occasionally.
-     */
-    private var world = false
-
-    /**
      * Flag to control tracing of usage messages.  Usage messages are used to
      * answer the question "who did what up to the point the bug appeared?"
      * They are also used to collect higher-level usability information.
@@ -105,7 +97,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
         debug = false
         event = false
         usage = false
-        world = false
         warning = false
         error = false
         when (myThreshold) {
@@ -114,7 +105,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
                 debug = true
                 event = true
                 usage = true
-                world = true
                 warning = true
                 error = true
             }
@@ -122,25 +112,21 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
                 debug = true
                 event = true
                 usage = true
-                world = true
                 warning = true
                 error = true
             }
             Level.EVENT -> {
                 event = true
                 usage = true
-                world = true
                 warning = true
                 error = true
             }
             Level.USAGE -> {
                 usage = true
-                world = true
                 warning = true
                 error = true
             }
             Level.WORLD -> {
-                world = true
                 warning = true
                 error = true
             }
@@ -212,15 +198,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
     }
 
     /**
-     * Output an informational log message at <tt>DEBUG</tt> level.
-     *
-     * @param message  The message to write to the log.
-     */
-    fun debugi(message: String) {
-        if (debug) recordInfoMessage(message, Level.DEBUG)
-    }
-
-    /**
      * Output a log message at <tt>DEBUG</tt> level.
      *
      * @param message  The message to write to the log.
@@ -237,15 +214,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      */
     fun debugm(message: String, obj: Any?) {
         if (debug) recordDebugMessage(message, Level.DEBUG, obj)
-    }
-
-    /**
-     * Output an informational log message at <tt>ERROR</tt> level.
-     *
-     * @param message  The message to write to the log.
-     */
-    fun errori(message: String) {
-        if (error) recordInfoMessage(message, Level.ERROR)
     }
 
     /**
@@ -338,15 +306,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      */
     fun warningm(message: String) {
         if (warning) recordDebugMessage(message, Level.WARNING, null)
-    }
-
-    /**
-     * Output an informational log message at <tt>WORLD</tt> level.
-     *
-     * @param message  The message to write to the log.
-     */
-    fun worldi(message: String) {
-        if (world) recordInfoMessage(message, Level.WORLD)
     }
 
     init {

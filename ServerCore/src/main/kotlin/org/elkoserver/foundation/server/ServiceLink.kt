@@ -2,6 +2,7 @@ package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.json.JSONLiteral
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 
 /**
@@ -13,7 +14,7 @@ import java.util.LinkedList
  * @param service  The name of the service this link will connect to.
  * @param myServer  The server this link is working for.
  */
-class ServiceLink internal constructor(internal val service: String, private val myServer: Server) : Deliverer {
+class ServiceLink internal constructor(internal val service: String, private val myServer: Server, private val gorgel: Gorgel) : Deliverer {
     /** The actor this link uses to communicate with its service, or null if
      * the connection is currently not up.  */
     private var actor: ServiceActor? = null
@@ -65,8 +66,7 @@ class ServiceLink internal constructor(internal val service: String, private val
     fun fail() {
         amFailed = true
         if (myPendingMessages != null && !myPendingMessages!!.isEmpty()) {
-            myServer.tr.errorm(this.toString() +
-                    " failed with pending outbound messages")
+            gorgel.error("$this failed with pending outbound messages")
         }
     }
 
