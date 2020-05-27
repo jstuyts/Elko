@@ -83,7 +83,7 @@ class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
                 if (ref == null) {
                     emptyList()
                 } else {
-                    val result = myGroup.contextor.clones(ref)
+                    val result = myGroup.contextor.refTable.clones(ref)
                     if (result.isEmpty()) {
                         throw MessageHandlerException("$ref not found")
                     } else {
