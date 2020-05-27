@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.server
+package org.elkoserver.idgeneration
 
 class LongIdGenerator(private var nextId: Long = 0L) : IdGenerator {
     override fun generate(): Long {

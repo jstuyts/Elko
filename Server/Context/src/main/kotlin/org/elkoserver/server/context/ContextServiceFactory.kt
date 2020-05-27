@@ -1,10 +1,10 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.server.IdGenerator
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 

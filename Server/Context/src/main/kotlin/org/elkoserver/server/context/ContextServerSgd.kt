@@ -6,7 +6,6 @@ import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.LoadWatcher
-import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.ServiceActor
@@ -14,6 +13,8 @@ import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.idgeneration.LongIdGenerator
+import org.elkoserver.idgeneration.RandomIdGenerator
 import org.elkoserver.objdb.ObjDBLocal
 import org.elkoserver.objdb.ObjDBRemote
 import org.elkoserver.server.context.DirectorGroup.Companion.DEFAULT_RESERVATION_EXPIRATION_TIMEOUT
@@ -127,7 +128,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
-                req(serverLoadMonitor))
+                req(serverLoadMonitor),
+                req(sessionIdGenerator))
     }
 
     val serverLoadMonitor by Once {
@@ -145,6 +147,11 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                     })
                 }
             }
+
+    val sessionIdGenerator by Once { RandomIdGenerator(req(sessionIdRandom)) }
+
+    val sessionIdRandom by Once { SecureRandom() }
+            .init { it.nextBoolean() }
 
     val serverTagGenerator by Once { LongIdGenerator() }
 

@@ -7,10 +7,8 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
-import java.security.SecureRandom
 import java.time.Clock
 import java.util.LinkedList
-import kotlin.math.abs
 
 /**
  * An implementation of [Connection] that virtualizes a continuous
@@ -19,7 +17,7 @@ import kotlin.math.abs
  * @param mySessionFactory  Factory for creating RTCP message handler objects
  * @param sessionIDAsLong  The session ID for the session.
  */
-class RTCPSessionConnection private constructor(
+class RTCPSessionConnection internal constructor(
         private val mySessionFactory: RTCPMessageHandlerFactory,
         sessionIDAsLong: Long, private val timer: Timer, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(mySessionFactory.networkManager, clock, traceFactory) {
     /** Trace object for logging message traffic.  */
@@ -63,14 +61,6 @@ class RTCPSessionConnection private constructor(
 
     /** Session ID -- a swiss number to authenticate client RTCP requests.  */
     internal val sessionID: String = sessionIDAsLong.toString()
-
-    /**
-     * Make a new RTCP session connection object for an incoming connection,
-     * with a new, internally generated, session ID.
-     *
-     * @param sessionFactory  Factory for creating RTCP message handler objects
-     */
-    internal constructor(sessionFactory: RTCPMessageHandlerFactory, timer: Timer, clock: Clock, traceFactory: TraceFactory) : this(sessionFactory, abs(theRandom.nextLong()), timer, clock, traceFactory)
 
     /**
      * Associate a TCP connection with this session.
@@ -351,30 +341,6 @@ class RTCPSessionConnection private constructor(
      * numbers in the message replay queue.
      */
     private class RTCPMessage internal constructor(var seqNum: Int, var message: JSONLiteral)
-
-    companion object {
-        /** Random number generator, for creating session IDs.  */
-        @Deprecated("Global variable")
-        private val theRandom = SecureRandom()
-
-        /**
-         * Force initialization of the secure random number generator.
-         *
-         * This is a kludge motivated by said initialization being very slow.
-         * Ideally, any long initialization delay ought to happen at system startup
-         * time, before anybody is using the system who would care.  However,
-         * Java's random number generator uses lazy initialization and won't
-         * actually initialize itself until the first time it is used.  In ordinary
-         * use, that would be the first time somebody tried to connect.  Users
-         * shouldn't be subjected to random, mysterious long delays, so generating
-         * one gratuitous random number here forces the initialization cost to be
-         * paid at startup time as was desired.
-         */
-        fun initializeRNG() {
-            /* Get the initialization delay over right now */
-            theRandom.nextBoolean()
-        }
-    }
 
     init {
         mySessionFactory.addSession(this)

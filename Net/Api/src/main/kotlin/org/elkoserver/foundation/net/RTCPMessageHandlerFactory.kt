@@ -1,6 +1,7 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
@@ -27,7 +28,8 @@ import java.util.HashMap
 internal class RTCPMessageHandlerFactory(
         internal val innerFactory: MessageHandlerFactory,
         internal val msgTrace: Trace,
-        internal val networkManager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) : MessageHandlerFactory {
+        internal val networkManager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory,
+        private val sessionIdGenerator: IdGenerator) : MessageHandlerFactory {
 
     /** Table of current sessions, indexed by session ID.  */
     private val mySessions = HashMap<String, RTCPSessionConnection>()
@@ -184,7 +186,7 @@ internal class RTCPMessageHandlerFactory(
         if (session != null) {
             reply = makeErrorReply("sessionInProgress")
         } else {
-            session = RTCPSessionConnection(this, timer, clock, traceFactory)
+            session = RTCPSessionConnection(this, sessionIdGenerator.generate(), timer, clock, traceFactory)
             acquireTCPConnection(session, connection)
             if (msgTrace.event) {
                 msgTrace.eventm("$session start ${session.sessionID}")

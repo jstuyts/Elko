@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.server
+package org.elkoserver.idgeneration
 
 interface IdGenerator {
     fun generate(): Long

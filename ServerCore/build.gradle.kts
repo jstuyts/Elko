@@ -15,6 +15,7 @@ repositories {
 
 dependencies {
     api(project(":Actor"))
+    api(project(":IdGeneration"))
     api(project(":JsonMessageHandling"))
     api(project(":Net:Api"))
     api(project(":ObjectDatabase:Api"))

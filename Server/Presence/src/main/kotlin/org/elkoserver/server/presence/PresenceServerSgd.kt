@@ -6,7 +6,6 @@ import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.LoadWatcher
-import org.elkoserver.foundation.server.LongIdGenerator
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.ServiceActor
@@ -14,6 +13,8 @@ import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.idgeneration.LongIdGenerator
+import org.elkoserver.idgeneration.RandomIdGenerator
 import org.elkoserver.objdb.ObjDBLocal
 import org.elkoserver.objdb.ObjDBRemote
 import org.elkoserver.util.trace.TraceFactory
@@ -24,6 +25,7 @@ import org.ooverkommelig.Once
 import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.req
+import java.security.SecureRandom
 import java.time.Clock
 
 internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
@@ -84,7 +86,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
-                req(serverLoadMonitor))
+                req(serverLoadMonitor),
+                req(sessionIdGenerator))
     }
             .init {
                 if (it.startListeners("conf.listen", req(presenceServiceFactory)) == 0) {
@@ -107,6 +110,11 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                     })
                 }
             }
+
+    val sessionIdGenerator by Once { RandomIdGenerator(req(sessionIdRandom)) }
+
+    val sessionIdRandom by Once { SecureRandom() }
+            .init { it.nextBoolean() }
 
     val serverTagGenerator by Once { LongIdGenerator() }
 

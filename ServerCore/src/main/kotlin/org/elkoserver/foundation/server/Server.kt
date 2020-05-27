@@ -19,6 +19,7 @@ import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.objdb.ObjDBLocal
 import org.elkoserver.objdb.ObjDBRemote
@@ -64,7 +65,8 @@ class Server(
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         private val myTagGenerator: IdGenerator,
-        private val myLoadMonitor: ServerLoadMonitor)
+        private val myLoadMonitor: ServerLoadMonitor,
+        sessionIdGenerator: IdGenerator)
     : ConnectionCountMonitor, ServiceFinder {
 
     /** The name of this server (for logging).  */
@@ -105,7 +107,7 @@ class Server(
     private val myMainRunner = currentRunner(traceFactory)
 
     /** Network manager, for setting up network communications.  */
-    val networkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory)
+    val networkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory, sessionIdGenerator)
 
     /** Thread pool isolation for external blocking tasks.  */
     private val mySlowRunner = SlowServiceRunner(myMainRunner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))

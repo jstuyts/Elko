@@ -15,6 +15,7 @@ repositories {
 
 dependencies {
     api(project(":ByteIoFramer:Api"))
+    api(project(":IdGeneration"))
     api(project(":Properties"))
     api(project(":Running"))
     api(project(":ServerMetadata"))

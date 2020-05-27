@@ -7,11 +7,11 @@ import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.SourceRetargeter
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.server.IdGenerator
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Msg.msgExit
 import org.elkoserver.util.trace.TraceFactory

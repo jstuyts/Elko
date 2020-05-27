@@ -5,10 +5,8 @@ import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
-import java.security.SecureRandom
 import java.time.Clock
 import java.util.HashSet
-import kotlin.math.abs
 
 /**
  * An implementation of [Connection] that virtualizes a continuous
@@ -20,7 +18,7 @@ import kotlin.math.abs
  * @param sessionFactory  Factory for creating HTTP message handler objects
  * @param sessionID  The session ID for the session.
  */
-class HTTPSessionConnection private constructor(
+class HTTPSessionConnection internal constructor(
         private val sessionFactory: HTTPMessageHandlerFactory,
         internal val sessionID: Long, timer: Timer, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(sessionFactory.networkManager, clock, traceFactory) {
     /** Trace object for logging message traffic.  */
@@ -71,14 +69,6 @@ class HTTPSessionConnection private constructor(
 
     /** Open TCP connections associated with this session, for cleanup.  */
     private var myConnections: MutableSet<Connection>
-
-    /**
-     * Make a new HTTP session connection object for an incoming connection,
-     * with a new, internally generated, session ID.
-     *
-     * @param sessionFactory  Factory for creating HTTP message handler objects
-     */
-    internal constructor(sessionFactory: HTTPMessageHandlerFactory, timer: Timer, clock: Clock, traceFactory: TraceFactory) : this(sessionFactory, abs(theRandom.nextLong()), timer, clock, traceFactory)
 
     /**
      * Associate a TCP connection with this session.
@@ -382,28 +372,6 @@ class HTTPSessionConnection private constructor(
 
         /** Marker on send queue for connection close.  */
         private val theHTTPCloseMarker: Any = "(end of session)"
-
-        /** Random number generator, for creating session IDs.  */
-        @Deprecated("Global variable")
-        private val theRandom = SecureRandom()
-
-        /**
-         * Force initialization of the secure random number generator.
-         *
-         * This is a kludge motivated by said initialization being very slow.
-         * Ideally, any long initialization delay ought to happen at system startup
-         * time, before anybody is using the system who would care.  However,
-         * Java's random number generator uses lazy initialization and won't
-         * actually initialize itself until the first time it is used.  In ordinary
-         * use, that would be the first time somebody tried to connect.  Users
-         * shouldn't be subjected to random, mysterious long delays, so generating
-         * one gratuitous random number here forces the initialization cost to be
-         * paid at startup time as was desired.
-         */
-        fun initializeRNG() {
-            /* Get the initialization delay over right now */
-            theRandom.nextBoolean()
-        }
     }
 
     init {

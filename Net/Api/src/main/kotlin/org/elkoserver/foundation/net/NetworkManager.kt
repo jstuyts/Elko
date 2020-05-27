@@ -3,6 +3,7 @@ package org.elkoserver.foundation.net
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.io.IOException
@@ -22,7 +23,8 @@ import javax.net.ssl.SSLContext
 class NetworkManager(
         private val myConnectionCountMonitor: ConnectionCountMonitor,
         internal val props: ElkoProperties, internal val loadMonitor: LoadMonitor,
-        internal val runner: Runner, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory) {
+        internal val runner: Runner, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory,
+        private val sessionIdGenerator: IdGenerator) {
 
     /** Initialized SSL context, if supporting SSL, else null.  */
     internal var sslContext: SSLContext? = null
@@ -32,7 +34,7 @@ class NetworkManager(
     private var mySelectThread: SelectThread? = null
 
     /** Connection managers, indexed by class name.  */
-    private val myConnectionManagers: MutableMap<String, ConnectionManager?>
+    private val myConnectionManagers: MutableMap<String, ConnectionManager?> = HashMap()
 
     /**
      * Keep track of the number of connections.
@@ -152,7 +154,7 @@ class NetworkManager(
                    innerHandlerFactory: MessageHandlerFactory,
                    trace: Trace?, secure: Boolean, rootURI: String, httpFramer: HTTPFramer): NetAddr {
         val outerHandlerFactory: MessageHandlerFactory = HTTPMessageHandlerFactory(
-                innerHandlerFactory, rootURI, httpFramer, this, timer, clock, traceFactory)
+                innerHandlerFactory, rootURI, httpFramer, this, timer, clock, traceFactory, sessionIdGenerator)
         val framerFactory: ByteIOFramerFactory = HTTPRequestByteIOFramerFactory(traceFactory)
         return listenTCP(listenAddress, outerHandlerFactory, trace, secure, framerFactory)
     }
@@ -174,7 +176,7 @@ class NetworkManager(
                    innerHandlerFactory: MessageHandlerFactory,
                    msgTrace: Trace,
                    secure: Boolean): NetAddr {
-        val outerHandlerFactory: MessageHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, msgTrace, this, timer, clock, traceFactory)
+        val outerHandlerFactory: MessageHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, msgTrace, this, timer, clock, traceFactory, sessionIdGenerator)
         val framerFactory: ByteIOFramerFactory = RTCPRequestByteIOFramerFactory(msgTrace, traceFactory)
         return listenTCP(listenAddress, outerHandlerFactory, msgTrace, secure, framerFactory)
     }
@@ -268,10 +270,6 @@ class NetworkManager(
     }
 
     init {
-        myConnectionManagers = HashMap()
-        // FIXME: Initialize somewhere else
-        HTTPSessionConnection.initializeRNG()
-        RTCPSessionConnection.initializeRNG()
         if (props.testProperty("conf.ssl.enable")) {
             setupSSL()
         }
