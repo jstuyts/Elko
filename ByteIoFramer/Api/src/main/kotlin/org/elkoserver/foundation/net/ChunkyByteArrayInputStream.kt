@@ -321,7 +321,7 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
     @Throws(IOException::class)
     private fun readLine(doUTF8: Boolean): String? {
         val myLine = StringBuilder(1000)
-        val inCharCode = if (doUTF8) readUTF8Char() else read()
+        var inCharCode = if (doUTF8) readUTF8Char() else read()
         return if (inCharCode == -1) {
             null
         } else {
@@ -330,10 +330,11 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
                 ""
             } else {
                 do {
-                    if (inChar != '\r' && inChar.toInt() != 0) {
+                    if (inCharCode != -1 && inChar != '\r' && inChar.toInt() != 0) {
                         myLine.append(inChar)
                     }
-                    inChar = (if (doUTF8) readUTF8Char() else read()).toChar()
+                    inCharCode = if (doUTF8) readUTF8Char() else read()
+                    inChar = inCharCode.toChar()
                 } while (inChar != '\n')
                 myLine.toString()
             }
