@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.context
 
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
@@ -55,6 +56,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val directorGroupGorgel by Once { req(provided.baseGorgel()).getChild(DirectorGroup::class) }
 
     val internalActorGorgel by Once { req(provided.baseGorgel()).getChild(InternalActor::class) }
+
+    val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
     val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
 
@@ -129,7 +132,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
-                req(sessionIdGenerator))
+                req(sessionIdGenerator),
+                req(jsonToObjectDeserializer))
     }
 
     val serverLoadMonitor by Once {
@@ -152,6 +156,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }
+
+    val jsonToObjectDeserializer by Once { JsonToObjectDeserializer(req(jsonToObjectDeserializerGorgel), req(provided.traceFactory()), req(provided.clock())) }
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
@@ -198,7 +204,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(reservationTimeout),
                 opt(families),
                 opt(sessionPassword),
-                req(provided.props()))
+                req(provided.props()),
+                req(jsonToObjectDeserializer))
     }
 
     val sessionPassword by Once { req(provided.props()).getProperty<String?>("conf.context.shutdownpassword", null) }

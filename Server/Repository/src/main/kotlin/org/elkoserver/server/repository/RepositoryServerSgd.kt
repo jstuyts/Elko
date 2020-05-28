@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.repository
 
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
@@ -43,11 +44,13 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val repoTrace by Once { req(provided.traceFactory()).trace("repo") }
 
-    val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class)}
+    val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class) }
 
     val bootGorgel by Once { req(provided.baseGorgel()).getChild(RepositoryBoot::class) }
 
     val connectionRetrierWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(ConnectionRetrier::class) }
+
+    val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
     val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
 
@@ -83,7 +86,8 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
-                req(sessionIdGenerator))
+                req(sessionIdGenerator),
+                req(jsonToObjectDeserializer))
     }
             .init {
                 if (it.startListeners("conf.listen", req(repositoryServiceFactory)) == 0) {
@@ -112,11 +116,13 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }
 
+    val jsonToObjectDeserializer by Once { JsonToObjectDeserializer(req(jsonToObjectDeserializerGorgel), req(provided.traceFactory()), req(provided.clock())) }
+
     val serverTagGenerator by Once { LongIdGenerator() }
 
-    val repository: D<Repository> by Once { Repository(req(server), req(provided.traceFactory()), req(provided.clock()), req(objectStore)) }
+    val repository: D<Repository> by Once { Repository(req(server), req(provided.traceFactory()), req(provided.clock()), req(objectStore), req(jsonToObjectDeserializer)) }
 
-    val objectStore by Once { ObjectStoreFactory.createAndInitializeObjectStore(req(provided.props()), "conf.rep", req(provided.baseGorgel()))  }
+    val objectStore by Once { ObjectStoreFactory.createAndInitializeObjectStore(req(provided.props()), "conf.rep", req(provided.baseGorgel())) }
 
     val repositoryServiceFactory by Once { RepositoryServiceFactory(req(repository), req(repositoryActorGorgel), req(provided.traceFactory())) }
 }

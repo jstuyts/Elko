@@ -1,6 +1,5 @@
 package org.elkoserver.foundation.json
 
-import org.elkoserver.foundation.json.ObjectDecoder.Companion.decode
 import org.elkoserver.foundation.json.OptionalParameter.Companion.missingValue
 import org.elkoserver.json.JsonArray
 import org.elkoserver.json.JsonObject
@@ -23,7 +22,14 @@ import java.time.Clock
  * @param myParamNames  JSON names for the parameters.
  * @param firstIndex  Index of first JSON parameter.
  */
-internal abstract class Invoker<in TTarget>(method: Member, private val myParamTypes: Array<Class<*>>, private val myParamNames: Array<out String>, firstIndex: Int, protected val traceFactory: TraceFactory, protected val clock: Clock) {
+internal abstract class Invoker<in TTarget>(
+        method: Member,
+        private val myParamTypes: Array<Class<*>>,
+        private val myParamNames: Array<out String>,
+        firstIndex: Int,
+        protected val traceFactory: TraceFactory,
+        protected val clock: Clock,
+        private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Mapping of JSON parameter names to Java parameter positions  */
     private val myParamMap: MutableMap<String, Int>
 
@@ -233,7 +239,7 @@ internal abstract class Invoker<in TTarget>(method: Member, private val myParamT
             if (paramType == JsonObject::class.java) {
                 actualValue
             } else {
-                decode(paramType, actualValue, resolver, traceFactory, clock)
+                jsonToObjectDeserializer.decode(paramType, actualValue, resolver)
             }
         } else if (valueType == paramType) {
             value

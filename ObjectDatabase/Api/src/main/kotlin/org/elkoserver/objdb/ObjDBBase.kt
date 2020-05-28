@@ -1,14 +1,12 @@
 package org.elkoserver.objdb
 
 import com.grack.nanojson.JsonParserException
-import org.elkoserver.foundation.json.ObjectDecoder.Companion.decode
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.json.JsonArray
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
 import org.elkoserver.objdb.store.ObjectDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.time.Clock
 import java.util.HashMap
 import java.util.LinkedList
 import java.util.StringTokenizer
@@ -18,7 +16,9 @@ import java.util.function.Consumer
  * Base class for both local and remote concrete implementations of the ObjDB
  * interface.
  */
-abstract class ObjDBBase(protected val gorgel: Gorgel, private val traceFactory: TraceFactory, private val clock: Clock) : ObjDB {
+abstract class ObjDBBase(
+        protected val gorgel: Gorgel,
+        private val jsonToObjectDeserializer: JsonToObjectDeserializer) : ObjDB {
     /** Table mapping JSON object type tags to Java classes.  */
     private val myClasses: MutableMap<String, Class<*>> = HashMap()
 
@@ -46,7 +46,7 @@ abstract class ObjDBBase(protected val gorgel: Gorgel, private val traceFactory:
         if (typeTag != null) {
             val type = myClasses[typeTag]
             if (type != null) {
-                result = decode(type, jsonObj, this, traceFactory, clock)
+                result = jsonToObjectDeserializer.decode(type, jsonObj, this)
             } else {
                 gorgel.error("no class for type tag '$typeTag'")
             }

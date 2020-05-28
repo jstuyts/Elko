@@ -4,7 +4,7 @@ import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.json.ClockUsingObject
 import org.elkoserver.foundation.json.Cryptor
 import org.elkoserver.foundation.json.JSONMethod
-import org.elkoserver.foundation.json.ObjectDecoder.Companion.decode
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.PostInjectionInitializingObject
 import org.elkoserver.foundation.json.TraceFactoryUsingObject
 import org.elkoserver.foundation.net.Connection
@@ -14,6 +14,9 @@ import org.elkoserver.server.context.Contextor
 import org.elkoserver.server.context.EphemeralUserFactory
 import org.elkoserver.server.context.User
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.GorgelImpl
+import org.slf4j.LoggerFactory
+import org.slf4j.MarkerFactory
 import java.io.IOException
 import java.time.Clock
 import java.util.SortedSet
@@ -64,6 +67,7 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
     private var myLastPurgeTime: Long = 0
     private lateinit var traceFactory: TraceFactory
     private lateinit var clock: Clock
+    private lateinit var jsonToObjectDeserializer: JsonToObjectDeserializer
 
     /**
      * Nonce.  Our nonces consist of an unguessable random string and an
@@ -91,7 +95,8 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
     }
 
     override fun initialize() {
-        myCryptor = Cryptor(key, traceFactory, clock)
+        jsonToObjectDeserializer = JsonToObjectDeserializer(GorgelImpl(LoggerFactory.getLogger(JsonToObjectDeserializer::class.java), LoggerFactory.getILoggerFactory(), MarkerFactory.getIMarkerFactory()), traceFactory, clock)
+        myCryptor = Cryptor(key, traceFactory, jsonToObjectDeserializer)
     }
 
     /**
@@ -139,7 +144,7 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                                     "context template ref mismatch")
                             throw IllegalStateException()
                         }
-                        val result = decode(User::class.java, userDesc, contextor.odb, traceFactory, clock)
+                        val result = jsonToObjectDeserializer.decode(User::class.java, userDesc, contextor.odb)
                         return result as User
                     }
                     contextor.tr.errorm("reused nonce")

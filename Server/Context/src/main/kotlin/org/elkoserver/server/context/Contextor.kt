@@ -2,6 +2,7 @@ package org.elkoserver.server.context
 
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.actor.RefTable
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -71,9 +72,10 @@ class Contextor internal constructor(
         private val reservationTimeout: Int,
         private val families: String?,
         sessionPassword: String?,
-        private val props: ElkoProperties) {
+        private val props: ElkoProperties,
+        private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(odb, traceFactory, clock)
+    internal val refTable = RefTable(odb, traceFactory, clock, jsonToObjectDeserializer)
 
     /** The generic 'session' object for talking to this server.  */
     internal val session: Session = Session(this, sessionPassword, sessionGorgel, traceFactory)
@@ -971,7 +973,7 @@ class Contextor internal constructor(
      * listeners to register with the indicated directors.
      */
     fun registerWithDirectors(directors: MutableList<HostDesc>, listeners: List<HostDesc>) {
-        val group = DirectorGroup(server, this, directors, listeners, tr, directorGroupGorgel, reservationGorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, reservationTimeout, props)
+        val group = DirectorGroup(server, this, directors, listeners, tr, directorGroupGorgel, reservationGorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, reservationTimeout, props, jsonToObjectDeserializer)
         if (group.isLive) {
             myDirectorGroup = group
         }
@@ -984,7 +986,7 @@ class Contextor internal constructor(
      * with whom to register.
      */
     fun registerWithPresencers(presencers: MutableList<HostDesc>) {
-        val group = PresencerGroup(server, this, presencers, tr, presencerGroupGorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, props)
+        val group = PresencerGroup(server, this, presencers, tr, presencerGroupGorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, props, jsonToObjectDeserializer)
         if (group.isLive) {
             myPresencerGroup = group
         }

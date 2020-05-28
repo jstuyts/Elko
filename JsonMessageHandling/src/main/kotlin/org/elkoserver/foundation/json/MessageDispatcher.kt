@@ -12,7 +12,11 @@ import java.time.Clock
  * @param myResolver Type resolver for the type tags of JSON encoded message
  *    parameter objects.
  */
-class MessageDispatcher(private val myResolver: TypeResolver?, private val traceFactory: TraceFactory, private val clock: Clock) {
+class MessageDispatcher(
+        private val myResolver: TypeResolver?,
+        private val traceFactory: TraceFactory,
+        private val clock: Clock,
+        private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Mapping of message verbs to MethodInvoker objects.  Each entry is
      * actually the head of a linked list of MethodInvoker objects, each of
      * which handles the verb for a different class.  To dispatch an incoming
@@ -75,7 +79,7 @@ class MessageDispatcher(private val myResolver: TypeResolver?, private val trace
                     }
                     val name = method.name
                     val prev = myInvokers[name]
-                    myInvokers[name] = MethodInvoker(method, paramTypes, paramNames, prev, traceFactory, clock)
+                    myInvokers[name] = MethodInvoker(method, paramTypes, paramNames, prev, traceFactory, clock, jsonToObjectDeserializer)
                 }
             }
             myClasses.add(targetClass)

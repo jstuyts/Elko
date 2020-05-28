@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.director
 
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
@@ -52,6 +53,8 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val directorActorGorgel by Once { req(provided.baseGorgel()).getChild(DirectorActor::class) }
 
+    val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
+
     val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
 
     val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBRemote::class) }
@@ -86,7 +89,8 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
-                req(sessionIdGenerator))
+                req(sessionIdGenerator),
+                req(jsonToObjectDeserializer))
     }
             .init {
                 if (it.startListeners("conf.listen", req(directorServiceFactory)) == 0) {
@@ -115,6 +119,8 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }
 
+    val jsonToObjectDeserializer by Once { JsonToObjectDeserializer(req(jsonToObjectDeserializerGorgel), req(provided.traceFactory()), req(provided.clock())) }
+
     val serverTagGenerator by Once { LongIdGenerator() }
 
     val providerLimit by Once { req(provided.props()).intProperty("conf.director.providerlimit", 0) }
@@ -129,7 +135,8 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.clock()),
                 req(random),
                 req(estimatedLoadIncrement),
-                req(providerLimit))
+                req(providerLimit),
+                req(jsonToObjectDeserializer))
     }
 
     val random by Once { SecureRandom() }

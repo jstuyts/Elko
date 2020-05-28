@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.gatekeeper
 
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
@@ -55,6 +56,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val gatekeeperActorGorgel by Once { req(provided.baseGorgel()).getChild(GatekeeperActor::class) }
 
+    val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
+
     val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
 
     val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBRemote::class) }
@@ -87,7 +90,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
-                req(sessionIdGenerator))
+                req(sessionIdGenerator),
+                req(jsonToObjectDeserializer))
     }
             .init {
                 if (it.startListeners("conf.listen", req(gatekeeperServiceFactory)) == 0) {
@@ -116,6 +120,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }
 
+    val jsonToObjectDeserializer by Once { JsonToObjectDeserializer(req(jsonToObjectDeserializerGorgel), req(provided.traceFactory()), req(provided.clock())) }
+
     val serverTagGenerator by Once { LongIdGenerator() }
 
     val gatekeeper: D<Gatekeeper> by Once {
@@ -129,7 +135,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.traceFactory()),
                 req(provided.clock()),
                 req(provided.hostDescFromPropertiesFactory()),
-                req(provided.props()))
+                req(provided.props()),
+                req(jsonToObjectDeserializer))
     }
 
     val actionTimeout by Once { 1000 * req(provided.props()).intProperty("conf.gatekeeper.actiontimeout", GatekeeperBoot.DEFAULT_ACTION_TIMEOUT) }

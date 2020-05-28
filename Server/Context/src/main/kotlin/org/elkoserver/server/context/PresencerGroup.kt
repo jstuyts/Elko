@@ -1,6 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.Actor
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -23,9 +24,19 @@ import java.time.Clock
  *    servers with whom to register.
  * @param tr  Trace object for diagnostics.
  */
-internal class PresencerGroup(server: Server, contextor: Contextor,
-                              presencers: MutableList<HostDesc>, tr: Trace, gorgel: Gorgel, connectionRetrierWithoutLabelGorgel: Gorgel, timer: Timer, traceFactory: TraceFactory, clock: Clock, props: ElkoProperties)
-    : OutboundGroup("conf.presence", server, contextor, presencers, tr, gorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, props) {
+internal class PresencerGroup(
+        server: Server,
+        contextor: Contextor,
+        presencers: MutableList<HostDesc>,
+        tr: Trace,
+        gorgel: Gorgel,
+        connectionRetrierWithoutLabelGorgel: Gorgel,
+        timer: Timer,
+        traceFactory: TraceFactory,
+        clock: Clock,
+        props: ElkoProperties,
+        jsonToObjectDeserializer: JsonToObjectDeserializer)
+    : OutboundGroup("conf.presence", server, contextor, presencers, tr, gorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, props, jsonToObjectDeserializer) {
     /* ----- required OutboundGroup methods ----- */
     /**
      * Obtain the class of actors in this group (in this case, PresenceActor).

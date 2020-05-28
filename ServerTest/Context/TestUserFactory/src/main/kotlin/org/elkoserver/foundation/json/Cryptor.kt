@@ -1,7 +1,6 @@
 package org.elkoserver.foundation.json
 
 import com.grack.nanojson.JsonParserException
-import org.elkoserver.foundation.json.ObjectDecoder.Companion.decode
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
 import org.elkoserver.util.trace.TraceFactory
@@ -11,7 +10,6 @@ import java.security.InvalidAlgorithmParameterException
 import java.security.InvalidKeyException
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
-import java.time.Clock
 import java.util.Base64
 import javax.crypto.BadPaddingException
 import javax.crypto.Cipher
@@ -28,7 +26,7 @@ import javax.crypto.spec.SecretKeySpec
  *
  * @param keyStr Base64-encoded symmetric key.
  */
-class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private val clock: Clock) {
+class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     private var myCipher: Cipher? = null
     private val myKey: SecretKey
 
@@ -97,7 +95,7 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
      * could not be decoded for some reason.
      * @throws IOException if the input string is malformed
      */
-    fun decryptObject(baseType: Class<*>?, str: String): Any? = decode(baseType!!, decrypt(str), traceFactory, clock)
+    fun decryptObject(baseType: Class<*>?, str: String): Any? = jsonToObjectDeserializer.decode(baseType!!, decrypt(str))
 
     /**
      * Produce a (base-64 encoded) encrypted version of a string.

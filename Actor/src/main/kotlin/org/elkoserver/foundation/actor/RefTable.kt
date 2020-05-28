@@ -2,6 +2,7 @@ package org.elkoserver.foundation.actor
 
 import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.DispatchTarget
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.TypeResolver
@@ -33,7 +34,7 @@ import java.util.LinkedList
  * @param resolver  Type resolver for the type tags of JSON encoded
  *    object descriptors.
  */
-class RefTable(resolver: TypeResolver?, traceFactory: TraceFactory, clock: Clock) : Iterable<DispatchTarget?> {
+class RefTable(resolver: TypeResolver?, traceFactory: TraceFactory, clock: Clock, jsonToObjectDeserializer: JsonToObjectDeserializer) : Iterable<DispatchTarget?> {
     /** Mapped Objects, indexed by reference.  */
     private val myObjects: MutableMap<String?, DispatchTarget> = HashMap()
 
@@ -44,7 +45,7 @@ class RefTable(resolver: TypeResolver?, traceFactory: TraceFactory, clock: Clock
 
     /** Mapping from message verbs to MethodInvoker objects (which contain
      * precomputed Java reflection objects).  */
-    private val myDispatcher = MessageDispatcher(resolver, traceFactory, clock)
+    private val myDispatcher = MessageDispatcher(resolver, traceFactory, clock, jsonToObjectDeserializer)
 
     /**
      * Internal error handler object that is the target of debug JSON messages.

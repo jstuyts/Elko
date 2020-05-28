@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.presence
 
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
@@ -49,6 +50,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val graphDescGorgel by Once { req(provided.baseGorgel()).getChild(GraphDesc::class) }
 
+    val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
+
     val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
 
     val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBRemote::class) }
@@ -87,7 +90,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
-                req(sessionIdGenerator))
+                req(sessionIdGenerator),
+                req(jsonToObjectDeserializer))
     }
             .init {
                 if (it.startListeners("conf.listen", req(presenceServiceFactory)) == 0) {
@@ -116,9 +120,11 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }
 
+    val jsonToObjectDeserializer by Once { JsonToObjectDeserializer(req(jsonToObjectDeserializerGorgel), req(provided.traceFactory()), req(provided.clock())) }
+
     val serverTagGenerator by Once { LongIdGenerator() }
 
-    val presenceServer: D<PresenceServer> by Once { PresenceServer(req(server), req(presenceServerGorgel), req(graphDescGorgel), req(socialGraphGorgel), req(provided.traceFactory()), req(provided.clock())) }
+    val presenceServer: D<PresenceServer> by Once { PresenceServer(req(server), req(presenceServerGorgel), req(graphDescGorgel), req(socialGraphGorgel), req(provided.traceFactory()), req(provided.clock()), req(jsonToObjectDeserializer)) }
 
     val presenceServiceFactory by Once { PresenceServiceFactory(req(presenceServer), req(presenceActorGorgel), req(provided.traceFactory())) }
 }

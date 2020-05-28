@@ -2,6 +2,7 @@ package org.elkoserver.server.broker
 
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.LoadDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
@@ -29,9 +30,10 @@ internal class Broker(
         private val timer: Timer,
         traceFactory: TraceFactory,
         clock: Clock,
-        startMode: Int) {
+        startMode: Int,
+        jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock, jsonToObjectDeserializer)
 
     /** Database for configuration data.  */
     private val myODB: ObjDB?

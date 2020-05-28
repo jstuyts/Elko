@@ -16,8 +16,14 @@ import java.time.Clock
  * @param paramNames  JSON names for the parameters.
  * @param next  Next JSON method in a growing chain.
  */
-internal class MethodInvoker(private val myMethod: Method, paramTypes: Array<Class<*>>, paramNames: Array<out String>,
-                             internal val next: MethodInvoker?, traceFactory: TraceFactory, clock: Clock) : Invoker<Any>(myMethod, paramTypes, paramNames, 1, traceFactory, clock) {
+internal class MethodInvoker(
+        private val myMethod: Method,
+        paramTypes: Array<Class<*>>,
+        paramNames: Array<out String>,
+        internal val next: MethodInvoker?,
+        traceFactory: TraceFactory,
+        clock: Clock,
+        jsonToObjectDeserializer: JsonToObjectDeserializer) : Invoker<Any>(myMethod, paramTypes, paramNames, 1, traceFactory, clock, jsonToObjectDeserializer) {
 
     /** The Java class that defined the method.  */
     @Suppress("UNCHECKED_CAST")

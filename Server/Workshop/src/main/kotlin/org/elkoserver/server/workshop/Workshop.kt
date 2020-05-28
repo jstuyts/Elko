@@ -1,6 +1,7 @@
 package org.elkoserver.server.workshop
 
 import org.elkoserver.foundation.actor.RefTable
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.AuthDesc
@@ -39,9 +40,12 @@ class Workshop private constructor(
         private val myServer: Server,
         private val gorgel: Gorgel,
         private val startupWorkerListGorgel: Gorgel,
-        @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace, traceFactory: TraceFactory, clock: Clock) {
+        @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace,
+        traceFactory: TraceFactory,
+        clock: Clock,
+        jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(myODB, traceFactory, clock)
+    internal val refTable = RefTable(myODB, traceFactory, clock, jsonToObjectDeserializer)
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown: Boolean
@@ -55,8 +59,11 @@ class Workshop private constructor(
     internal constructor(server: Server,
                          gorgel: Gorgel,
                          startupWorkerListGorgel: Gorgel,
-                         appTrace: Trace, traceFactory: TraceFactory, clock: Clock) :
-            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, gorgel, startupWorkerListGorgel, appTrace, traceFactory, clock)
+                         appTrace: Trace,
+                         traceFactory: TraceFactory,
+                         clock: Clock,
+                         jsonToObjectDeserializer: JsonToObjectDeserializer) :
+            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, gorgel, startupWorkerListGorgel, appTrace, traceFactory, clock, jsonToObjectDeserializer)
 
     /**
      * Add a worker to the object table.

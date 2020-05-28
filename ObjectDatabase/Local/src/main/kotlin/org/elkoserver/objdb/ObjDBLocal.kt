@@ -1,6 +1,7 @@
 package org.elkoserver.objdb
 
 import com.grack.nanojson.JsonParserException
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.Runner.Companion.currentRunner
@@ -22,7 +23,6 @@ import org.elkoserver.objdb.store.UpdateDesc
 import org.elkoserver.objdb.store.UpdateResultDesc
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.time.Clock
 import java.util.function.Consumer
 
 /**
@@ -45,7 +45,7 @@ import java.util.function.Consumer
  * @param propRoot  Prefix string for selecting relevant configuration
  *    properties.
  */
-class ObjDBLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) : ObjDBBase(gorgel, traceFactory, clock) {
+class ObjDBLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGorgel: Gorgel, traceFactory: TraceFactory, jsonToObjectDeserializer: JsonToObjectDeserializer) : ObjDBBase(gorgel, jsonToObjectDeserializer) {
     /** Local object storage module.  */
     private val myObjectStore: ObjectStore = createAndInitializeObjectStore(props, propRoot, baseGorgel)
 

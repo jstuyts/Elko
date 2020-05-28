@@ -1,5 +1,6 @@
 package org.elkoserver.server.gatekeeper
 
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionRetrier
@@ -24,16 +25,22 @@ import java.util.function.Consumer
  * @param gatekeeper  The gatekeeper.
  * @param tr  Trace object for diagnostics.
  */
-internal class DirectorActorFactory(private val myNetworkManager: NetworkManager, internal val gatekeeper: Gatekeeper,
-                                    private val gorgel: Gorgel,
-                                    private val connectionRetrierWithoutLabelGorgel: Gorgel,
-                                    private val tr: Trace, private val timer: Timer, private val traceFactory: TraceFactory, clock: Clock) : MessageHandlerFactory {
+internal class DirectorActorFactory(
+        private val myNetworkManager: NetworkManager,
+        internal val gatekeeper: Gatekeeper,
+        private val gorgel: Gorgel,
+        private val connectionRetrierWithoutLabelGorgel: Gorgel,
+        private val tr: Trace,
+        private val timer: Timer,
+        private val traceFactory: TraceFactory,
+        clock: Clock,
+        jsonToObjectDeserializer: JsonToObjectDeserializer) : MessageHandlerFactory {
     /** Descriptor for the director host.  */
     private var myDirectorHost: HostDesc? = null
 
     /** The active director connection, if there is one.  */
     private var myDirector: DirectorActor? = null
-    private val myDispatcher = MessageDispatcher(null, traceFactory, clock)
+    private val myDispatcher = MessageDispatcher(null, traceFactory, clock, jsonToObjectDeserializer)
 
     /** Object currently attempting to establish a director connection.  */
     private var myConnectionRetrier: ConnectionRetrier? = null

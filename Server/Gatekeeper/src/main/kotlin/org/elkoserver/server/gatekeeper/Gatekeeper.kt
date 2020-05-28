@@ -2,6 +2,7 @@ package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.actor.BasicProtocolActor
 import org.elkoserver.foundation.actor.RefTable
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
@@ -31,9 +32,10 @@ class Gatekeeper internal constructor(
         traceFactory: TraceFactory,
         clock: Clock,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
-        props: ElkoProperties) {
+        props: ElkoProperties,
+        jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable: RefTable = RefTable(null, traceFactory, clock)
+    internal val refTable: RefTable = RefTable(null, traceFactory, clock, jsonToObjectDeserializer)
 
     /** Host description for the director.  */
     internal var directorHost: HostDesc? = null
@@ -130,7 +132,7 @@ class Gatekeeper internal constructor(
 
     init {
         refTable.addRef(AdminHandler(this, traceFactory))
-        myDirectorActorFactory = DirectorActorFactory(myServer.networkManager, this, directorActorFactoryGorgel, connectionRetrierWithoutLabelGorgel, tr, timer, traceFactory, clock)
+        myDirectorActorFactory = DirectorActorFactory(myServer.networkManager, this, directorActorFactoryGorgel, connectionRetrierWithoutLabelGorgel, tr, timer, traceFactory, clock, jsonToObjectDeserializer)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
         if (props.testProperty("conf.gatekeeper.director.auto")) {
             myServer.findService("director-user", DirectorFoundRunnable(), false)

@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.broker
 
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.BaseConnectionSetup
@@ -51,6 +52,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val connectionRetrierWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(ConnectionRetrier::class) }
 
+    val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
+
     val launcherTableGorgel by Once { req(provided.baseGorgel()).getChild(LauncherTable::class) }
 
     val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
@@ -85,7 +88,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
-                req(sessionIdGenerator))
+                req(sessionIdGenerator),
+                req(jsonToObjectDeserializer))
     }
             .init {
                 if (it.startListeners("conf.listen", req(brokerServiceFactory)) == 0) {
@@ -118,6 +122,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }
 
+    val jsonToObjectDeserializer by Once { JsonToObjectDeserializer(req(jsonToObjectDeserializerGorgel), req(provided.traceFactory()), req(provided.clock())) }
+
     val serverTagGenerator by Once { LongIdGenerator() }
 
     val startMode by Once {
@@ -141,7 +147,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(provided.timer()),
                 req(provided.traceFactory()),
                 req(provided.clock()),
-                req(startMode))
+                req(startMode),
+                req(jsonToObjectDeserializer))
     }
 
     val brokerServiceFactory by Once { BrokerServiceFactory(req(broker), req(brokerActorGorgel), req(provided.traceFactory())) }

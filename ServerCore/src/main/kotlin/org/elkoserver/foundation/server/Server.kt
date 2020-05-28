@@ -2,6 +2,7 @@ package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Communication
 import org.elkoserver.foundation.net.Connection
@@ -66,7 +67,8 @@ class Server(
         private val hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         private val myTagGenerator: IdGenerator,
         private val myLoadMonitor: ServerLoadMonitor,
-        sessionIdGenerator: IdGenerator)
+        sessionIdGenerator: IdGenerator,
+        private val jsonToObjectDeserializer: JsonToObjectDeserializer)
     : ConnectionCountMonitor, ServiceFinder {
 
     /** The name of this server (for logging).  */
@@ -88,7 +90,7 @@ class Server(
     private val myBrokerHost: HostDesc? = hostDescFromPropertiesFactory.fromProperties("conf.broker")
 
     /** Message dispatcher for broker connections.  */
-    private val myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, traceFactory, clock)
+    private val myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, traceFactory, clock, jsonToObjectDeserializer)
 
     /** Table of 'find' requests that have been issued to the broker, for which
      * responses are still pending.  Indexed by the service name queried.  */
@@ -374,12 +376,12 @@ class Server(
      */
     fun openObjectDatabase(propRoot: String): ObjDB? {
         return if (myProps.getProperty("$propRoot.odb") != null) {
-            ObjDBLocal(myProps, propRoot, objDbLocalGorgel, baseGorgel, traceFactory, clock)
+            ObjDBLocal(myProps, propRoot, objDbLocalGorgel, baseGorgel, traceFactory, jsonToObjectDeserializer)
         } else {
             if (myProps.getProperty("$propRoot.repository.host") != null ||
                     myProps.getProperty("$propRoot.repository.service") != null) {
                 ObjDBRemote(this, networkManager, serverName,
-                        myProps, propRoot, objDbRemoteGorgel, connectionRetrierWithoutLabelGorgel, traceFactory, timer, clock, hostDescFromPropertiesFactory)
+                        myProps, propRoot, objDbRemoteGorgel, connectionRetrierWithoutLabelGorgel, traceFactory, timer, clock, hostDescFromPropertiesFactory, jsonToObjectDeserializer)
             } else {
                 null
             }

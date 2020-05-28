@@ -1,12 +1,16 @@
 package org.elkoserver.foundation.json.test
 
 import org.elkoserver.foundation.json.Cryptor
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.util.trace.TraceController
 import org.elkoserver.util.trace.acceptor.file.TraceLog
+import org.elkoserver.util.trace.slf4j.GorgelImpl
+import org.slf4j.LoggerFactory
+import org.slf4j.MarkerFactory
 import java.io.IOException
 import java.security.SecureRandom
 import java.time.Clock
@@ -72,7 +76,8 @@ internal object CryptoTest {
         if (keyStr == null) {
             keyStr = Cryptor.generateKey(traceController.factory)
         }
-        val cryptor = Cryptor(keyStr, traceController.factory, Clock.systemDefaultZone())
+        val jsonToObjectDeserializer = JsonToObjectDeserializer(GorgelImpl(LoggerFactory.getLogger(JsonToObjectDeserializer::class.java), LoggerFactory.getILoggerFactory(), MarkerFactory.getIMarkerFactory()), traceController.factory, clock)
+        val cryptor = Cryptor(keyStr, traceController.factory, jsonToObjectDeserializer)
         if (cypherText != null) {
             try {
                 plainText = cryptor.decrypt(cypherText)

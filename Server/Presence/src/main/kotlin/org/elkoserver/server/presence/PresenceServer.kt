@@ -2,6 +2,7 @@ package org.elkoserver.server.presence
 
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonObject
@@ -21,12 +22,13 @@ internal class PresenceServer(
         private val graphDescGorgel: Gorgel,
         private val socialGraphGorgel: Gorgel,
         traceFactory: TraceFactory,
-        clock: Clock) {
+        clock: Clock,
+        jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Database that this server stores stuff in.  */
     internal val objDB: ObjDB
 
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock, jsonToObjectDeserializer)
 
     /**
      * Test if the server is in the midst of shutdown.

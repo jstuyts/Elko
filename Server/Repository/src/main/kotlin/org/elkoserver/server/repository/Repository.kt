@@ -2,6 +2,7 @@ package org.elkoserver.server.repository
 
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.objdb.store.ObjectStore
@@ -12,11 +13,10 @@ import java.time.Clock
  * Main state data structure in a Repository.
  *
  * @param myServer Server object.
- * @param appTrace  Trace object for diagnostics.
  */
-internal class Repository(private val myServer: Server, traceFactory: TraceFactory, clock: Clock, internal val myObjectStore: ObjectStore) {
+internal class Repository(private val myServer: Server, traceFactory: TraceFactory, clock: Clock, internal val myObjectStore: ObjectStore, jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock)
+    internal val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock, jsonToObjectDeserializer)
 
     /** Number of repository clients currently connected.  */
     private var myRepClientCount = 0

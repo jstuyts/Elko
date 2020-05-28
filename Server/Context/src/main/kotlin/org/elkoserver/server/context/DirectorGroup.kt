@@ -2,6 +2,7 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.json.Deliverer
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -40,7 +41,8 @@ class DirectorGroup(server: Server,
                     traceFactory: TraceFactory,
                     clock: Clock,
                     internal val reservationTimeout: Int,
-                    props: ElkoProperties) : OutboundGroup("conf.register", server, contextor, directors, tr, gorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, props) {
+                    props: ElkoProperties,
+                    jsonToObjectDeserializer: JsonToObjectDeserializer) : OutboundGroup("conf.register", server, contextor, directors, tr, gorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, props, jsonToObjectDeserializer) {
 
     /** Iterator for cycling through arbitrary relays.  */
     private var myDirectorPicker: Iterator<Deliverer>? = null

@@ -1,6 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.Actor
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionRetrier
@@ -42,7 +43,8 @@ abstract class OutboundGroup(propRoot: String,
                              protected val timer: Timer,
                              protected val traceFactory: TraceFactory,
                              clock: Clock,
-                             props: ElkoProperties) : LiveGroup() {
+                             props: ElkoProperties,
+                             jsonToObjectDeserializer: JsonToObjectDeserializer) : LiveGroup() {
     /** The statically configured external servers in this group.  */
     private val myHosts: List<HostDesc>
 
@@ -170,7 +172,7 @@ abstract class OutboundGroup(propRoot: String,
         })
         myNetworkManager = myServer.networkManager
         myHosts = hosts
-        myDispatcher = MessageDispatcher(null, traceFactory, clock)
+        myDispatcher = MessageDispatcher(null, traceFactory, clock, jsonToObjectDeserializer)
         @Suppress("LeakingThis")
         myDispatcher.addClass(actorClass())
         amAutoRegister = props.testProperty("$propRoot.auto")
