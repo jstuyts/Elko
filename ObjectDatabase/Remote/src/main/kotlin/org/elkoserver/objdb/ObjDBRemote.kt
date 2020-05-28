@@ -7,7 +7,7 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.HostDesc
-import org.elkoserver.foundation.server.metadata.HostDesc.Companion.fromProperties
+import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.foundation.timer.Timer
@@ -68,7 +68,8 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                   private val connectionRetrierWithoutLabelGorgel: Gorgel,
                   private val traceFactory: TraceFactory,
                   private val timer: Timer,
-                  clock: Clock) : ObjDBBase(gorgel, traceFactory, clock) {
+                  clock: Clock,
+                  hostDescFromPropertiesFactory: HostDescFromPropertiesFactory) : ObjDBBase(gorgel, traceFactory, clock) {
     /** Connection to the repository, if there is one.  */
     private var myODBActor: ODBActor? = null
 
@@ -349,7 +350,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
             serviceName = if (serviceName == "any") "repository-rep" else "repository-rep-$serviceName"
             serviceFinder.findService(serviceName, RepositoryFoundHandler(), false)
         } else {
-            myRepHost = fromProperties(props, odbPropRoot, traceFactory)
+            myRepHost = hostDescFromPropertiesFactory.fromProperties(odbPropRoot)
             connectToRepository()
         }
     }

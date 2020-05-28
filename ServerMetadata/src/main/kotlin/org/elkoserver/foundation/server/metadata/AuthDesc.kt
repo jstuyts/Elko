@@ -2,11 +2,9 @@ package org.elkoserver.foundation.server.metadata
 
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteralFactory
-import org.elkoserver.util.trace.Trace
 
 /**
  * Descriptor containing information required or presented to authorize a
@@ -78,60 +76,5 @@ class AuthDesc(val mode: String, private val code: String?, private val id: Stri
          * circumstances where open mode authorization is required or
          * presented.  */
         val theOpenAuth = AuthDesc("open", null, null)
-
-        /**
-         * Produce an AuthDesc object from information contained in the server
-         * configuration properties.
-         *
-         * The authorization mode is extracted from propRoot+".auth.mode".
-         * Currently, there are three possible authorization mode values that are
-         * recognized: "open", "password", and "reservation".
-         *
-         * Open mode is unrestricted access.  No additional descriptive
-         * information is required for open mode.
-         *
-         * Password mode requires a secret code string for access.  This code
-         * string is extracted from propRoot+".auth.code".  Additionally, an
-         * identifier may also be required, which will be extracted from
-         * propRoot+".auth.id" if that property is present.
-         *
-         * Reservation mode requires a reservation string for access.  The
-         * reservation string is communicated via a separate pathway, but it
-         * optionally may be associated with an identifier extracted from
-         * propRoot+".auth.id".
-         *
-         * @param props  The properties themselves.
-         * @param propRoot  Prefix string for all the properties describing the
-         * authorization information of interest.
-         * @param appTrace  Trace object for error logging.
-         *
-         * @return an AuthDesc object constructed according to the properties
-         * rooted at 'propRoot' as described above, or null if no such valid
-         * authorization information could be found.
-         */
-        @Deprecated(message = "Top-level function which require passing in objects for dependencies. Use an instance of the factory instead.",
-                replaceWith = ReplaceWith(
-                        imports = ["org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory"],
-                        expression = "authDescFromPropertiesFactory.fromProperties(propRoot)"))
-        fun fromProperties(props: ElkoProperties, propRoot: String, appTrace: Trace): AuthDesc {
-            val actualPropRoot = "$propRoot.auth"
-            val mode = props.getProperty("$actualPropRoot.mode", "open")
-            return if (mode == "open") {
-                theOpenAuth
-            } else {
-                val code = props.getProperty<String?>("$actualPropRoot.code", null)
-                if (mode == "password") {
-                    if (code == null) {
-                        appTrace.errorm("missing value for $actualPropRoot.code")
-                        throw IllegalStateException()
-                    }
-                } else if (mode != "reservation") {
-                    appTrace.errorm("unknown value for $actualPropRoot.auth.mode: $mode")
-                    throw IllegalStateException()
-                }
-                val id = props.getProperty<String?>("$actualPropRoot.id", null)
-                AuthDesc(mode, code, id)
-            }
-        }
     }
 }

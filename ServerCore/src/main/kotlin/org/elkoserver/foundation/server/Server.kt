@@ -63,7 +63,7 @@ class Server(
         private val clock: Clock,
         private val traceFactory: TraceFactory,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
-        hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
+        private val hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         private val myTagGenerator: IdGenerator,
         private val myLoadMonitor: ServerLoadMonitor,
         sessionIdGenerator: IdGenerator)
@@ -379,7 +379,7 @@ class Server(
             if (myProps.getProperty("$propRoot.repository.host") != null ||
                     myProps.getProperty("$propRoot.repository.service") != null) {
                 ObjDBRemote(this, networkManager, serverName,
-                        myProps, propRoot, objDbRemoteGorgel, connectionRetrierWithoutLabelGorgel, traceFactory, timer, clock)
+                        myProps, propRoot, objDbRemoteGorgel, connectionRetrierWithoutLabelGorgel, traceFactory, timer, clock, hostDescFromPropertiesFactory)
             } else {
                 null
             }
