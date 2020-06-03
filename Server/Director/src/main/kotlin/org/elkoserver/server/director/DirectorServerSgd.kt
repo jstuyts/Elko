@@ -5,6 +5,7 @@ package org.elkoserver.server.director
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.run.RunnerRef
 import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.Server
@@ -16,8 +17,15 @@ import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.LongIdGenerator
 import org.elkoserver.idgeneration.RandomIdGenerator
+import org.elkoserver.objdb.GetRequestFactory
 import org.elkoserver.objdb.ObjDBLocal
 import org.elkoserver.objdb.ObjDBRemote
+import org.elkoserver.objdb.ObjDBRemoteFactory
+import org.elkoserver.objdb.PutRequestFactory
+import org.elkoserver.objdb.QueryRequestFactory
+import org.elkoserver.objdb.RemoveRequestFactory
+import org.elkoserver.objdb.UpdateRequestFactory
+import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
 import org.elkoserver.server.director.Director.Companion.DEFAULT_ESTIMATED_LOAD_INCREMENT
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -43,7 +51,7 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val direTrace by Once { req(provided.traceFactory()).trace("dire") }
 
-    val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class)}
+    val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class) }
 
     val bootGorgel by Once { req(provided.baseGorgel()).getChild(DirectorBoot::class) }
 
@@ -78,7 +86,6 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serviceActorGorgel),
                 req(baseConnectionSetupGorgel),
                 req(objDbLocalGorgel),
-                req(objDbRemoteGorgel),
                 req(provided.baseGorgel()),
                 req(connectionRetrierWithoutLabelGorgel),
                 req(direTrace),
@@ -90,7 +97,9 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
                 req(sessionIdGenerator),
-                req(jsonToObjectDeserializer))
+                req(jsonToObjectDeserializer),
+                req(runnerRef),
+                req(objDBRemoteFactory))
     }
             .init {
                 if (it.startListeners("conf.listen", req(directorServiceFactory)) == 0) {
@@ -121,7 +130,38 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val jsonToObjectDeserializer by Once { JsonToObjectDeserializer(req(jsonToObjectDeserializerGorgel), req(provided.traceFactory()), req(provided.clock())) }
 
+    val runnerRef by Once { RunnerRef(req(provided.traceFactory())) }
+
     val serverTagGenerator by Once { LongIdGenerator() }
+
+    val objDBRemoteFactory by Once {
+        ObjDBRemoteFactory(
+                req(provided.props()),
+                req(objDbRemoteGorgel),
+                req(connectionRetrierWithoutLabelGorgel),
+                req(provided.traceFactory()),
+                req(provided.timer()),
+                req(provided.clock()),
+                req(provided.hostDescFromPropertiesFactory()),
+                req(jsonToObjectDeserializer),
+                req(getRequestFactory),
+                req(putRequestFactory),
+                req(updateRequestFactory),
+                req(queryRequestFactory),
+                req(removeRequestFactory))
+    }
+
+    val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
+
+    val putRequestFactory by Once { PutRequestFactory(req(requestTagGenerator)) }
+
+    val updateRequestFactory by Once { UpdateRequestFactory(req(requestTagGenerator)) }
+
+    val queryRequestFactory by Once { QueryRequestFactory(req(requestTagGenerator)) }
+
+    val removeRequestFactory by Once { RemoveRequestFactory(req(requestTagGenerator)) }
+
+    val requestTagGenerator by Once { LongIdGenerator(1L) }
 
     val providerLimit by Once { req(provided.props()).intProperty("conf.director.providerlimit", 0) }
 
@@ -138,7 +178,7 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(providerLimit),
                 req(jsonToObjectDeserializer))
     }
-
+    
     val random by Once { SecureRandom() }
 
     val directorServiceFactory by Once { DirectorServiceFactory(req(director), req(directorActorGorgel), req(providerGorgel), req(provided.traceFactory()), req(ordinalGenerator)) }

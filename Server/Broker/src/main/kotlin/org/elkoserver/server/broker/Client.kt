@@ -1,6 +1,7 @@
 package org.elkoserver.server.broker
 
 import org.elkoserver.foundation.server.metadata.ServiceDesc
+import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
 import org.elkoserver.util.HashMapMulti
 
 /**
@@ -11,7 +12,7 @@ import org.elkoserver.util.HashMapMulti
  * @param myBroker  The broker whose client this is.
  * @param myActor  The actor associated with the client.
  */
-internal class Client(private val myBroker: Broker, private val myActor: BrokerActor) {
+internal class Client(private val myBroker: Broker, private val myActor: BrokerActor, clientOrdinalGenerator: LongOrdinalGenerator) {
 
     /**
      * Client load factor.
@@ -29,7 +30,7 @@ internal class Client(private val myBroker: Broker, private val myActor: BrokerA
     /**
      * Provider ID associated with this client.
      */
-    internal val providerID = theNextProviderID++
+    internal val providerID = clientOrdinalGenerator.generate().also { require(it <= Int.MAX_VALUE) }.toInt()
 
     /**
      * Add a service to the list for this client.
@@ -94,13 +95,4 @@ internal class Client(private val myBroker: Broker, private val myActor: BrokerA
      * Return an iterable for the set of services this provider supports.
      */
     private fun services() = myServices.values()
-
-    companion object {
-        /**
-         * Counter for allocating provider IDs.  Starts with 1 because ID 0 is
-         * reserved for the broker itself.
-         */
-        @Deprecated("Global variable")
-        private var theNextProviderID = 1
-    }
 }

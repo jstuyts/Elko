@@ -1,5 +1,6 @@
 package org.elkoserver.server.director
 
+import org.elkoserver.ordinalgeneration.OrdinalGenerator
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.slf4j.Gorgel
 

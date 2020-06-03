@@ -19,6 +19,7 @@ dependencies {
     api(project(":JsonMessageHandling"))
     api(project(":Net:Api"))
     api(project(":ObjectDatabase:Api"))
+    api(project(":OrdinalGeneration"))
     api(project(":Properties"))
     api(project(":ServerCore"))
     api(project(":ServerMetadata"))

@@ -22,6 +22,7 @@ dependencies {
     implementation(project(":JsonMessageHandling"))
     implementation(project(":ObjectDatabase:Local"))
     implementation(project(":ObjectDatabase:Remote"))
+    implementation(project(":OrdinalGeneration"))
     implementation(project(":ServerCore"))
     implementation(project(":Timer"))
     implementation(project(":Util"))

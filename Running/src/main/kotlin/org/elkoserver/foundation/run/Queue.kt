@@ -37,8 +37,7 @@ class Queue<TElement> : Enumeration<TElement> {
                 try {
                     myQLock.wait()
                 } catch (ie: InterruptedException) {
-                    /* Ignored on purpose, but we do recheck the queue rather 
-                       than just waiting again. */
+                    /* FIXME. Do not ignore. Old comment: Ignored on purpose, but we do recheck the queue rather than just waiting again. */
                 }
             }
         }

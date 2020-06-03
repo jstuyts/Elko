@@ -6,6 +6,7 @@ import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
+import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -18,7 +19,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param myFactory  The factory that created this actor.
  */
 internal class BrokerActor(connection: Connection, private val myFactory: BrokerActorFactory,
-                           private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+                           private val gorgel: Gorgel, traceFactory: TraceFactory, private val clientOrdinalGenerator: LongOrdinalGenerator) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
 
     /** The broker itself.  */
     private val myBroker: Broker = myFactory.broker
@@ -60,7 +61,7 @@ internal class BrokerActor(connection: Connection, private val myFactory: Broker
                 }
             } else if (handler is ClientHandler) {
                 if (client == null && myFactory.allowClient) {
-                    client = Client(myBroker, this)
+                    client = Client(myBroker, this, clientOrdinalGenerator)
                     label = newLabel
                     success = true
                 }

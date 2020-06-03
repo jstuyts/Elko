@@ -3,6 +3,7 @@ package org.elkoserver.server.broker
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
+import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -14,7 +15,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * broker/client - for servers being brokered or requesting brokerage
  * broker/admin  - for system administrators
  */
-internal class BrokerServiceFactory(private val broker: Broker, private val brokerActorGorgel: Gorgel, private val traceFactory: TraceFactory) : ServiceFactory {
+internal class BrokerServiceFactory(private val broker: Broker, private val brokerActorGorgel: Gorgel, private val traceFactory: TraceFactory, private val clientOrdinalGenerator: LongOrdinalGenerator) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
                                 allow: Set<String>,
@@ -38,6 +39,6 @@ internal class BrokerServiceFactory(private val broker: Broker, private val brok
         if (allowClient) {
             serviceNames.add("broker-client")
         }
-        return BrokerActorFactory(broker, auth, allowAdmin, allowClient, brokerActorGorgel, traceFactory)
+        return BrokerActorFactory(broker, auth, allowAdmin, allowClient, brokerActorGorgel, traceFactory, clientOrdinalGenerator)
     }
 }

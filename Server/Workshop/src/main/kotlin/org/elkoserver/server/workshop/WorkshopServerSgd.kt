@@ -5,6 +5,7 @@ package org.elkoserver.server.workshop
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.run.RunnerRef
 import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.Server
@@ -16,8 +17,14 @@ import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.LongIdGenerator
 import org.elkoserver.idgeneration.RandomIdGenerator
+import org.elkoserver.objdb.GetRequestFactory
 import org.elkoserver.objdb.ObjDBLocal
 import org.elkoserver.objdb.ObjDBRemote
+import org.elkoserver.objdb.ObjDBRemoteFactory
+import org.elkoserver.objdb.PutRequestFactory
+import org.elkoserver.objdb.QueryRequestFactory
+import org.elkoserver.objdb.RemoveRequestFactory
+import org.elkoserver.objdb.UpdateRequestFactory
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
@@ -77,7 +84,6 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serviceActorGorgel),
                 req(baseConnectionSetupGorgel),
                 req(objDbLocalGorgel),
-                req(objDbRemoteGorgel),
                 req(provided.baseGorgel()),
                 req(connectionRetrierWithoutLabelGorgel),
                 req(workTrace),
@@ -89,7 +95,9 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
                 req(sessionIdGenerator),
-                req(jsonToObjectDeserializer))
+                req(jsonToObjectDeserializer),
+                req(runnerRef),
+                req(objDBRemoteFactory))
     }
             .init {
                 if (it.startListeners("conf.listen", req(workshopServiceFactory)) == 0) {
@@ -122,6 +130,37 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
             .init { it.nextBoolean() }
 
     val jsonToObjectDeserializer by Once { JsonToObjectDeserializer(req(jsonToObjectDeserializerGorgel), req(provided.traceFactory()), req(provided.clock())) }
+
+    val runnerRef by Once { RunnerRef(req(provided.traceFactory())) }
+
+    val objDBRemoteFactory by Once {
+        ObjDBRemoteFactory(
+                req(provided.props()),
+                req(objDbRemoteGorgel),
+                req(connectionRetrierWithoutLabelGorgel),
+                req(provided.traceFactory()),
+                req(provided.timer()),
+                req(provided.clock()),
+                req(provided.hostDescFromPropertiesFactory()),
+                req(jsonToObjectDeserializer),
+                req(getRequestFactory),
+                req(putRequestFactory),
+                req(updateRequestFactory),
+                req(queryRequestFactory),
+                req(removeRequestFactory))
+    }
+
+    val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
+
+    val putRequestFactory by Once { PutRequestFactory(req(requestTagGenerator)) }
+
+    val updateRequestFactory by Once { UpdateRequestFactory(req(requestTagGenerator)) }
+
+    val queryRequestFactory by Once { QueryRequestFactory(req(requestTagGenerator)) }
+
+    val removeRequestFactory by Once { RemoveRequestFactory(req(requestTagGenerator)) }
+
+    val requestTagGenerator by Once { LongIdGenerator(1L) }
 
     val serverTagGenerator by Once { LongIdGenerator() }
 

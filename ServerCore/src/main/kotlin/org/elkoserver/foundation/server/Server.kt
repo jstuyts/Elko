@@ -12,7 +12,7 @@ import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner.Companion.currentRunner
+import org.elkoserver.foundation.run.RunnerRef
 import org.elkoserver.foundation.run.SlowServiceRunner
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -23,7 +23,7 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.objdb.ObjDBLocal
-import org.elkoserver.objdb.ObjDBRemote
+import org.elkoserver.objdb.ObjDBRemoteFactory
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
@@ -56,19 +56,20 @@ class Server(
         private val serviceActorGorgel: Gorgel,
         private val baseConnectionSetupGorgel: Gorgel,
         private val objDbLocalGorgel: Gorgel,
-        private val objDbRemoteGorgel: Gorgel,
         private val baseGorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
         private val tr: Trace,
         private val timer: Timer,
-        private val clock: Clock,
+        clock: Clock,
         private val traceFactory: TraceFactory,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
-        private val hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
+        hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         private val myTagGenerator: IdGenerator,
         private val myLoadMonitor: ServerLoadMonitor,
         sessionIdGenerator: IdGenerator,
-        private val jsonToObjectDeserializer: JsonToObjectDeserializer)
+        private val jsonToObjectDeserializer: JsonToObjectDeserializer,
+        private val runnerRef: RunnerRef,
+        private val objDBRemoteFactory: ObjDBRemoteFactory)
     : ConnectionCountMonitor, ServiceFinder {
 
     /** The name of this server (for logging).  */
@@ -106,7 +107,7 @@ class Server(
     private val myReinitWatchers: MutableList<ReinitWatcher> = LinkedList()
 
     /** Run queue that the server services its clients in.  */
-    private val myMainRunner = currentRunner(traceFactory)
+    private val myMainRunner = runnerRef.get()
 
     /** Network manager, for setting up network communications.  */
     val networkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory, sessionIdGenerator)
@@ -376,12 +377,11 @@ class Server(
      */
     fun openObjectDatabase(propRoot: String): ObjDB? {
         return if (myProps.getProperty("$propRoot.odb") != null) {
-            ObjDBLocal(myProps, propRoot, objDbLocalGorgel, baseGorgel, traceFactory, jsonToObjectDeserializer)
+            ObjDBLocal(myProps, propRoot, objDbLocalGorgel, baseGorgel, traceFactory, jsonToObjectDeserializer, runnerRef)
         } else {
             if (myProps.getProperty("$propRoot.repository.host") != null ||
                     myProps.getProperty("$propRoot.repository.service") != null) {
-                ObjDBRemote(this, networkManager, serverName,
-                        myProps, propRoot, objDbRemoteGorgel, connectionRetrierWithoutLabelGorgel, traceFactory, timer, clock, hostDescFromPropertiesFactory, jsonToObjectDeserializer)
+                objDBRemoteFactory.create(this, networkManager, serverName, propRoot)
             } else {
                 null
             }
@@ -609,11 +609,6 @@ class Server(
         return listenerCount
     }
 
-    /**
-     * Return the version ID string for this build.
-     */
-    private fun version() = BuildVersion.version
-
     companion object {
         /** Default value for max number of threads in slow service thread pool.  */
         private const val DEFAULT_SLOW_THREADS = 5
@@ -621,7 +616,7 @@ class Server(
 
     init {
         gorgel.i?.run {
-            info(version())
+            info(BuildVersion.version)
             info(("Copyright 2016 ElkoServer.org; see LICENSE"))
             info("Starting $serverName")
         }

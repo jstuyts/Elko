@@ -71,7 +71,12 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                   private val timer: Timer,
                   clock: Clock,
                   hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
-                  jsonToObjectDeserializer: JsonToObjectDeserializer) : ObjDBBase(gorgel, jsonToObjectDeserializer) {
+                  jsonToObjectDeserializer: JsonToObjectDeserializer,
+                  private val getRequestFactory: GetRequestFactory,
+                  private val putRequestFactory: PutRequestFactory,
+                  private val updateRequestFactory: UpdateRequestFactory,
+                  private val queryRequestFactory: QueryRequestFactory,
+                  private val removeRequestFactory: RemoveRequestFactory) : ObjDBBase(gorgel, jsonToObjectDeserializer) {
     /** Connection to the repository, if there is one.  */
     private var myODBActor: ODBActor? = null
 
@@ -166,7 +171,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * retrieved.
      */
     override fun getObject(ref: String, collectionName: String?, handler: Consumer<Any?>) {
-        newRequest(PendingRequest.getReq(ref, collectionName, handler))
+        newRequest(getRequestFactory.create(ref, collectionName, handler))
     }
 
     /**
@@ -281,7 +286,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * or null if the operation was successful.
      */
     override fun putObject(ref: String, obj: Encodable, collectionName: String?, requireNew: Boolean, handler: Consumer<Any?>?) {
-        newRequest(PendingRequest.putReq(ref, obj, collectionName, requireNew, handler))
+        newRequest(putRequestFactory.create(ref, obj, collectionName, requireNew, handler))
     }
 
     /**
@@ -297,7 +302,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * or null if the operation was successful.
      */
     override fun updateObject(ref: String, version: Int, obj: Encodable, collectionName: String?, handler: Consumer<Any?>?) {
-        newRequest(PendingRequest.updateReq(ref, version, obj, collectionName, handler))
+        newRequest(updateRequestFactory.create(ref, version, obj, collectionName, handler))
     }
 
     /**
@@ -313,7 +318,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * be retrieved.
      */
     override fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>) {
-        newRequest(PendingRequest.queryReq(template, collectionName, maxResults, handler))
+        newRequest(queryRequestFactory.create(template, collectionName, maxResults, handler))
     }
 
     /**
@@ -329,7 +334,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
      * or null if the operation was successful.
      */
     override fun removeObject(ref: String, collectionName: String?, handler: Consumer<Any?>?) {
-        newRequest(PendingRequest.removeReq(ref, collectionName, handler))
+        newRequest(removeRequestFactory.create(ref, collectionName, handler))
     }
 
     /**

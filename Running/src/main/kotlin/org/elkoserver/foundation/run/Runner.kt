@@ -50,23 +50,10 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
     private var myNeedsNotify = false
 
     /**
-     * Tests if an orderlyShutdown been requested.  Note that messages already
-     * enqueued will still be serviced before the shutdown request is
-     * honored.
-     *
-     * @return true if the Runner is shutting down
-     */
-    /**
-     * Has an orderly shutdown been requested?
-     */
-    var isShuttingDown = false
-        private set
-
-    /**
      * Makes a Runner, and starts the thread that services its queue.
      * The name of the thread will be "Elko RunQueue".
      */
-    private constructor(traceFactory: TraceFactory) : this("Elko RunQueue", traceFactory)
+    internal constructor(traceFactory: TraceFactory) : this("Elko RunQueue", traceFactory)
 
     /**
      * Queues something for this Runnable's thread to do.  May be called
@@ -113,16 +100,19 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
      */
     fun orderlyShutdown() {
         enqueue(ShutdownRunQException())
-        isShuttingDown = true
+
+        enqueue(Runnable { mustStop = true})
     }
 
-    /**
+    private var mustStop = false
+
+    /**\
      * Called only by [Thread.start].  Pulls Runnables off of the queue
      * until there aren't any more, then waits until there's more to do.
      */
     override fun run() {
         var msgCount = 0
-        while (true) {
+        while (!mustStop) {
             try {
                 Thread.yield()
                 var todo: Runnable? = null
@@ -159,7 +149,7 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
                             try {
                                 waitForMore()
                             } catch (e: InterruptedException) {
-                                /* ignore */
+                                /* FIXME. Do not ignore. */
                             } finally {
                                 myNeedsNotify = false
                             }
@@ -196,7 +186,7 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
      */
     @Throws(InterruptedException::class)
     private fun waitForMore() {
-        myNotifyLock.wait()
+        myNotifyLock.wait(100L)
     }
 
     companion object {
@@ -206,39 +196,11 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
          */
         @Deprecated("Global variable")
         private var theRunnerCount = 0
-
-        /**
-         * DANGER DANGER: Mutable static.
-         */
-        @Deprecated("Global variable")
-        private var theDefaultRunner: Runner? = null
-
         /**
          * The number of Runnables to dequeue and run in one go.
          * Must be >= 1.
          */
         private const val DEQUEUE_GRANULARITY = 25
-
-        /**
-         * If called from within a thread servicing a Runner, returns that
-         * Runner.  Otherwise, returns the default Runner.
-         */
-        fun currentRunner(traceFactory: TraceFactory): Runner {
-            val t = Thread.currentThread()
-            return if (t is RunnerThread) {
-                t.myRunnable as Runner
-            } else {
-                val result: Runner
-                val currentDefaultRunner = theDefaultRunner
-                if (currentDefaultRunner == null) {
-                    result = Runner(traceFactory)
-                    theDefaultRunner = result
-                } else {
-                    result = currentDefaultRunner
-                }
-                result
-            }
-        }
 
         /**
          * Utility routine to either swallow or throw exceptions, depending on

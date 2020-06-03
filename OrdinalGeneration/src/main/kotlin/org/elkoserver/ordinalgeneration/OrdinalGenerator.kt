@@ -1,4 +1,4 @@
-package org.elkoserver.server.director
+package org.elkoserver.ordinalgeneration
 
 interface OrdinalGenerator {
     fun generate() : Long

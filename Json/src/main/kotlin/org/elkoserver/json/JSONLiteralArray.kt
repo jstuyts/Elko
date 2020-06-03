@@ -165,6 +165,21 @@ class JSONLiteralArray internal constructor(internal val stringBuilder: StringBu
     init {
         stringBuilder.append("[")
     }
+
+    companion object {
+        /**
+         * Convenience function to encode an object in a single-element array.
+         *
+         * @param elem  The object to put in the array.
+         *
+         * @return a JSONLiteralArray containing the encoded 'elem'.
+         */
+        fun singleElementArray(elem: JSONLiteral) =
+                JSONLiteralArray().apply {
+                    addElement(elem)
+                    finish()
+                }
+    }
 }
 
 private enum class JsonLiteralArrayState {

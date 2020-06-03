@@ -22,6 +22,7 @@ dependencies {
     implementation(project(":JsonMessageHandling"))
     implementation(project(":ObjectDatabase:Local"))
     implementation(project(":ObjectDatabase:Remote"))
+    api(project(":OrdinalGeneration"))
     implementation(project(":ServerCore"))
     implementation(kotlin("stdlib-jdk8"))
 }
