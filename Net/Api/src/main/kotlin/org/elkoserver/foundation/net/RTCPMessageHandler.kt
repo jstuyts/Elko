@@ -55,10 +55,10 @@ internal class RTCPMessageHandler(
             /* They were kicked off for lacktivity, so ignore the message. */
             return
         }
-        if (myStartupTimeout != null) {
-            myStartupTimeout!!.cancel()
-            myStartupTimeout = null
-        }
+
+        myStartupTimeout?.cancel()
+        myStartupTimeout = null
+
         val actualMessage = message as RTCPRequest
         if (traceFactory.comm.debug) {
             traceFactory.comm.debugm("$connection $actualMessage")

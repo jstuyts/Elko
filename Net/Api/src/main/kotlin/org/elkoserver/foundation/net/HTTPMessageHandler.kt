@@ -71,10 +71,10 @@ internal class HTTPMessageHandler(
             /* They were kicked off for lacktivity, so ignore the message. */
             return
         }
-        if (myStartupTimeout != null) {
-            myStartupTimeout!!.cancel()
-            myStartupTimeout = null
-        }
+
+        myStartupTimeout?.cancel()
+        myStartupTimeout = null
+
         val actualMessage = message as HTTPRequest
         if (traceFactory.comm.verbose) {
             traceFactory.comm.verbosem("$connection $actualMessage")

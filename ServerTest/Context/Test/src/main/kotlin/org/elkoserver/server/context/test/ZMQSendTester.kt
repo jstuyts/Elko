@@ -89,9 +89,7 @@ class ZMQSendTester @JSONMethod("address") constructor(private val myAddress: St
     override fun noteContextShutdown() {
         if (!amDead) {
             amDead = true
-            if (myOutbound != null) {
-                myOutbound!!.close()
-            }
+            myOutbound?.close()
         }
     }
 }

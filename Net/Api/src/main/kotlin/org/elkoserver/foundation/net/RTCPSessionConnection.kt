@@ -104,11 +104,8 @@ class RTCPSessionConnection internal constructor(
             amClosing = true
             mySessionFactory.removeSession(this)
             myInactivityClock.stop()
-            if (myLiveConnection != null) {
-                myLiveConnection!!.close()
-            }
-            connectionDied(
-                    ConnectionCloseException("Normal RTCP session close"))
+            myLiveConnection?.close()
+            connectionDied(ConnectionCloseException("Normal RTCP session close"))
         }
     }
 
@@ -290,9 +287,7 @@ class RTCPSessionConnection internal constructor(
         } else {
             throw IllegalArgumentException("Invalid message type: ${message.javaClass.name}")
         }
-        if (myLiveConnection != null) {
-            myLiveConnection!!.sendMsg(messageString)
-        }
+        myLiveConnection?.sendMsg(messageString)
     }
 
     /**

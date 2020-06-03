@@ -436,9 +436,7 @@ class Server(
      */
     fun registerService(service: ServiceDesc) {
         myServices.add(service)
-        if (myBrokerActor != null) {
-            myBrokerActor!!.registerService(service)
-        }
+        myBrokerActor?.registerService(service)
     }
 
     /**
@@ -465,9 +463,7 @@ class Server(
      * Reinitialize the server.
      */
     fun reinit() {
-        if (myBrokerActor != null) {
-            myBrokerActor!!.close()
-        }
+        myBrokerActor?.close()
         for (watcher in myReinitWatchers) {
             watcher.noteReinit()
         }
@@ -514,9 +510,7 @@ class Server(
         if (!amShuttingDown) {
             amShuttingDown = true
             gorgel.i?.run { info("Shutting down $serverName") }
-            if (myBrokerActor != null) {
-                myBrokerActor!!.close()
-            }
+            myBrokerActor?.close()
             for (watcher in myShutdownWatchers) {
                 watcher.noteShutdown()
             }
