@@ -9,7 +9,7 @@ import java.util.NoSuchElementException
  *
  * @param myArray  The array to iterate over.
  */
-internal class ArrayIterator<out V>(private val myArray: Array<V>?) : MutableIterator<V> {
+internal class ArrayIterator<out V>(private val myArray: Array<V>) : MutableIterator<V> {
 
     /** Iteration position  */
     private var myIndex = 0
@@ -21,7 +21,7 @@ internal class ArrayIterator<out V>(private val myArray: Array<V>?) : MutableIte
      *
      * @return true if the iterator has more elements.
      */
-    override fun hasNext() = myArray != null && myIndex < myArray.size
+    override fun hasNext() = myIndex < myArray.size
 
     /**
      * Returns the next element in the iteration.
@@ -32,7 +32,7 @@ internal class ArrayIterator<out V>(private val myArray: Array<V>?) : MutableIte
      */
     override fun next() =
             if (hasNext()) {
-                myArray!![myIndex++]
+                myArray[myIndex++]
             } else {
                 throw NoSuchElementException()
             }

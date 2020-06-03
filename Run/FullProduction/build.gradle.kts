@@ -2,6 +2,7 @@ plugins {
     java
 }
 
+val logbackRunConfigurationFilePath: String by project(":Run").extra
 val mongodbHostAndPort: String? by project
 val actualMongodbHostAndPort = mongodbHostAndPort ?: "localhost:27017"
 
@@ -56,7 +57,7 @@ val startFullProductionBroker by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=broker",
             "gorgel.system.identifier=full-production",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_brok=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=brok",
@@ -122,7 +123,7 @@ val startFullProductionContext by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=context",
             "gorgel.system.identifier=full-production",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_cont=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=cont",
@@ -189,7 +190,7 @@ val startFullProductionDirector by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=director",
             "gorgel.system.identifier=full-production",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_dire=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=dire",
@@ -247,7 +248,7 @@ val startFullProductionPresence by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=presence",
             "gorgel.system.identifier=full-production",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_pres=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=pres",
@@ -304,7 +305,7 @@ val startFullProductionWorkshop by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=workshop",
             "gorgel.system.identifier=full-production",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_work=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=work",

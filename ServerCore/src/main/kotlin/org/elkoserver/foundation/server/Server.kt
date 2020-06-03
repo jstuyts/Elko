@@ -164,7 +164,7 @@ class Server(
     }
 
     private inner class BrokerMessageHandlerFactory : MessageHandlerFactory {
-        override fun provideMessageHandler(connection: Connection?): MessageHandler = BrokerActor(connection, myDispatcher, this@Server, myBrokerHost!!, traceFactory)
+        override fun provideMessageHandler(connection: Connection?): MessageHandler = BrokerActor(connection!!, myDispatcher, this@Server, myBrokerHost!!, traceFactory)
     }
 
     /**
@@ -200,9 +200,8 @@ class Server(
      * @param resultHandler  Thunk that will be invoked with the result
      * returned by the task.  This will be executed on the main run queue.
      */
-    fun enqueueSlowTask(task: Callable<Any?>?,
-                        resultHandler: Consumer<Any?>?) {
-        mySlowRunner.enqueueTask(task!!, resultHandler)
+    fun enqueueSlowTask(task: Callable<Any?>, resultHandler: Consumer<Any?>?) {
+        mySlowRunner.enqueueTask(task, resultHandler)
     }
 
     /**

@@ -575,8 +575,8 @@ internal constructor(name: String,
      * @param exclude  Who to exclude from the send operation.
      * @param message  The message to send.
      */
-    fun sendToNeighbors(exclude: Deliverer?, message: JSONLiteral?) {
-        group.sendToNeighbors(exclude!!, message!!)
+    fun sendToNeighbors(exclude: Deliverer, message: JSONLiteral) {
+        group.sendToNeighbors(exclude, message)
     }
 
     /**
@@ -587,7 +587,7 @@ internal constructor(name: String,
      *
      * @return a Deliverer that wraps Context.sendToNeighbors
      */
-    fun neighbors(exclude: Deliverer?): Deliverer {
+    fun neighbors(exclude: Deliverer): Deliverer {
         return object : Deliverer {
             override fun send(message: JSONLiteral) {
                 sendToNeighbors(exclude, message)

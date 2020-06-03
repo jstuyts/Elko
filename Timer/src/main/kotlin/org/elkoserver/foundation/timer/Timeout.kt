@@ -25,7 +25,7 @@ class Timeout internal constructor(private var myThread: TimerThread?, private v
         return if (currentThread == null) {
             false
         } else {
-            val result = currentThread.cancelTimeout(myEvent!!)
+            val result = currentThread.cancelTimeout(myEvent)
             myThread = null
             result
         }

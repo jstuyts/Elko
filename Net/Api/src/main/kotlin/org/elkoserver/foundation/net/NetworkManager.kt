@@ -255,7 +255,7 @@ class NetworkManager(
                   listenAddress: String,
                   handlerFactory: MessageHandlerFactory,
                   msgTrace: Trace,
-                  secure: Boolean): NetAddr? {
+                  secure: Boolean): NetAddr {
         val connMgr = connectionManager(connectionManagerClassName, msgTrace)
                 ?: throw IOException("no connection manager $connectionManagerClassName")
         return connMgr.listen(propRoot, listenAddress, handlerFactory, secure)

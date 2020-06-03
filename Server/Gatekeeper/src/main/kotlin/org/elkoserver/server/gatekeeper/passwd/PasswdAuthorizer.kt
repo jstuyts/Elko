@@ -182,13 +182,14 @@ class PasswdAuthorizer(
                     myContextID = myContextName
                 }
                 var iid: String? = null
-                if (myActor != null) {
-                    if (myActor!!.testPassword(myPassword)) {
+                val currentActor = myActor
+                if (currentActor != null) {
+                    if (currentActor.testPassword(myPassword)) {
                         if (myName == null) {
-                            myName = myActor!!.name
+                            myName = currentActor.name
                         }
-                        myID = myActor!!.id
-                        iid = myActor!!.internalID()
+                        myID = currentActor.id
+                        iid = currentActor.internalID()
                     } else {
                         failure = "bad password"
                     }

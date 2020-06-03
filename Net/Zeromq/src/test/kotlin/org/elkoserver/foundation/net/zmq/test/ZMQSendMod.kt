@@ -46,8 +46,8 @@ class ZMQSendMod @JSONMethod("outbound") constructor(private val myOutboundName:
      * @param str  String to log
      */
     @JSONMethod("str")
-    fun log(from: User?, str: String?) {
-        ensureInContext(from!!)
+    fun log(from: User, str: String?) {
+        ensureInContext(from)
         val currentConnection = myConnection
         if (currentConnection != null) {
             val msg = JSONLiteralFactory.targetVerb("logger", "log").apply {

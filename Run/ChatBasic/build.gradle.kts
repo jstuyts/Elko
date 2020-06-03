@@ -5,6 +5,7 @@ plugins {
     java
 }
 
+val logbackRunConfigurationFilePath: String by project(":Run").extra
 val mongodbHostAndPort: String? by project
 val actualMongodbHostAndPort = mongodbHostAndPort ?: "localhost:27017"
 val databaseName = "chatbasic"
@@ -49,7 +50,7 @@ val startChatBasicContext by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=context",
             "gorgel.system.identifier=chat-basic",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_cont=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=contlog",

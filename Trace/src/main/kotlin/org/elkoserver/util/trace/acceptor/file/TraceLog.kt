@@ -309,9 +309,9 @@ class TraceLog(clock: Clock) : TraceMessageAcceptor {
      */
     private fun drainQueue() {
         if (amWriteEnabled && isQueuing) {
-            val queueToDrain: List<TraceMessage>? = myQueuedMessages
+            val queueToDrain = myQueuedMessages!!
             myQueuedMessages = null
-            for (message in queueToDrain!!) {
+            for (message in queueToDrain) {
                 outputMessage(message)
             }
         }

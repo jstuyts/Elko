@@ -2,6 +2,8 @@ plugins {
     java
 }
 
+val logbackRunConfigurationFilePath: String by project(":Run").extra
+
 repositories {
     jcenter()
     mavenCentral()
@@ -50,7 +52,7 @@ val startRepositoryDev by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=repository",
             "gorgel.system.identifier=dev",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_repo=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=repolog",

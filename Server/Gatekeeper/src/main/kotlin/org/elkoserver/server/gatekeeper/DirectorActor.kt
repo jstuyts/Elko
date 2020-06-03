@@ -94,19 +94,20 @@ internal class DirectorActor(connection: Connection, dispatcher: MessageDispatch
         val deny = optDeny.value<String?>(null)
         val actor = optActor.value<String?>(null)
         val nonNullActor = actor ?: ""
-        var contextKey: String? = context
+        var contextKey = context
+        var haveAllSlashesBeenProcessed = false
         var handler: Consumer<in ReservationResult>?
         do {
             handler = myPendingReservations.remove("$contextKey|$nonNullActor")
             if (handler == null) {
-                val slash = contextKey!!.lastIndexOf('-')
-                contextKey = if (slash > -1) {
-                    contextKey.take(slash)
+                val slash = contextKey.lastIndexOf('-')
+                if (slash > -1) {
+                    contextKey = contextKey.take(slash)
                 } else {
-                    null
+                    haveAllSlashesBeenProcessed = true
                 }
             }
-        } while (handler == null && contextKey != null)
+        } while (handler == null && !haveAllSlashesBeenProcessed)
         when {
             handler == null -> traceFactory.comm.errorm("received unexpected reservation for $context $nonNullActor")
             deny == null -> handler.accept(ReservationResult(context, actor!!, hostport, auth))

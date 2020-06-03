@@ -53,7 +53,7 @@ class Clock internal constructor(private val myThread: TimerThread, private val 
      */
     fun stop() {
         if (amTicking) {
-            myThread.cancelTimeout(myEvent!!)
+            myThread.cancelTimeout(myEvent)
             myEvent = null
             amTicking = false
         }

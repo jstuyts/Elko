@@ -2,6 +2,7 @@ plugins {
     java
 }
 
+val logbackRunConfigurationFilePath: String by project(":Run").extra
 val mongodbHostAndPort: String? by project
 val actualMongodbHostAndPort = mongodbHostAndPort ?: "localhost:27017"
 
@@ -56,7 +57,7 @@ val startExampleBroker by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=broker",
             "gorgel.system.identifier=example",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_brok=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=brok",
@@ -122,7 +123,7 @@ val startExampleContext by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=context",
             "gorgel.system.identifier=example",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_cont=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=cont",
@@ -188,7 +189,7 @@ val startExampleDirector by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=director",
             "gorgel.system.identifier=example",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_dire=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=dire",
@@ -246,7 +247,7 @@ val startExampleWorkshop by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=workshop",
             "gorgel.system.identifier=example",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_work=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=work",

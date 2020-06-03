@@ -2,6 +2,7 @@ plugins {
     java
 }
 
+val logbackRunConfigurationFilePath: String by project(":Run").extra
 val mongodbHostAndPort: String? by project
 val actualMongodbHostAndPort = mongodbHostAndPort ?: "localhost:27017"
 
@@ -55,7 +56,7 @@ val startClusterManagedBroker by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=broker",
             "gorgel.system.identifier=cluster-managed",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_brok=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=broker",
@@ -105,7 +106,7 @@ val startClusterManagedContext by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=context",
             "gorgel.system.identifier=cluster-managed",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_cont=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=ContextServer",
@@ -162,7 +163,7 @@ val startClusterManagedDirector by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=director",
             "gorgel.system.identifier=cluster-managed",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_dire=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=director",
@@ -208,7 +209,7 @@ val startClusterManagedGatekeeper by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=gatekeeper",
             "gorgel.system.identifier=cluster-managed",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_gate=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=gatekeeper",

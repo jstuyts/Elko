@@ -2,6 +2,7 @@ plugins {
     java
 }
 
+val logbackRunConfigurationFilePath: String by project(":Run").extra
 val mongodbHostAndPort: String? by project
 val actualMongodbHostAndPort = mongodbHostAndPort ?: "localhost:27017"
 
@@ -28,7 +29,7 @@ val startWorkshopDev by tasks.registering(JavaExec::class) {
     args = mutableListOf(
             "gorgel.system.type=workshop",
             "gorgel.system.identifier=dev",
-            "gorgel.configuration.file=${project.parent!!.file("logback-run-configuration.xml").absolutePath}",
+            "gorgel.configuration.file=$logbackRunConfigurationFilePath",
             "trace_work=EVENT",
             "trace_comm=EVENT",
             "tracelog_tag=work",

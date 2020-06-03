@@ -200,11 +200,11 @@ internal class TraceLogDescriptor(private val clock: Clock) : Cloneable {
         }
         val nextFile =
                 if (previous != null) {
-                    previous.myNextFile
+                    previous.myNextFile!!
                 } else {
                     desiredLogFile()
                 }
-        if (nextFile!!.isDirectory) {
+        if (nextFile.isDirectory) {
             throw IOException("opening directory as a logfile")
         }
         try {

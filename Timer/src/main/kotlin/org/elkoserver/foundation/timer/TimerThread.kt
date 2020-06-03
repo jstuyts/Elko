@@ -18,7 +18,7 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
      * Flag to control execution
      */
     private var myRunning = true
-    fun cancelTimeout(event: TimerQEntry): Boolean {
+    fun cancelTimeout(event: TimerQEntry?): Boolean {
         synchronized(this) { return@cancelTimeout myEvents.remove(event) != null }
     }
 
