@@ -31,6 +31,8 @@ internal class SelectThread(
     /** Queue of unserviced I/O requests.  */
     private val myQueue = Queue<Any>()
 
+    private var mustStop = false
+
     /**
      * The body of the thread.  Responsible for dequeueing I/O requests and
      * acting upon them, and for selecting over the currently open set of
@@ -40,7 +42,7 @@ internal class SelectThread(
         if (traceFactory.comm.debug) {
             traceFactory.comm.debugm("select thread running")
         }
-        while (true) {
+        while (!mustStop) {
             try {
                 val selectedCount = mySelector!!.select()
                 if (traceFactory.comm.debug) {
@@ -205,6 +207,11 @@ internal class SelectThread(
         }
         myQueue.enqueue(connection)
         mySelector!!.wakeup()
+    }
+
+    fun shutDown() {
+        mustStop = true
+        interrupt()
     }
 
     init {

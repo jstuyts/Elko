@@ -3,7 +3,6 @@ package org.elkoserver.foundation.run
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.util.concurrent.Callable
-import kotlin.system.exitProcess
 
 /**
  * Runs when it can, but never on empty.  A thread services a queue
@@ -99,14 +98,12 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
      * happen in the meantime.
      */
     fun orderlyShutdown() {
-        enqueue(ShutdownRunQException())
-
         enqueue(Runnable { mustStop = true})
     }
 
     private var mustStop = false
 
-    /**\
+    /**
      * Called only by [Thread.start].  Pulls Runnables off of the queue
      * until there aren't any more, then waits until there's more to do.
      */
@@ -156,16 +153,6 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
                         }
                     }
                 }
-            } catch (sdve: ShutdownRunQException) {
-                /* This kludge is the least painful way I could think of to do
-                   an orderly shutdown of a runner thread without imposing
-                   *any* extra overhead on the normal case. */
-                --theRunnerCount
-                if (theRunnerCount == 0) {
-                    // FIXME: Never use "exit(...)" for an orderly shutdown.
-                    exitProcess(0)
-                }
-                return
             } catch (t: Throwable) {
                 if (tr.error) {
                     tr.errorReportException(t,
@@ -191,12 +178,6 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
 
     companion object {
         /**
-         * Number of Runners currently in operation.  When this goes to 0, it is
-         * time to exit.
-         */
-        @Deprecated("Global variable")
-        private var theRunnerCount = 0
-        /**
          * The number of Runnables to dequeue and run in one go.
          * Must be >= 1.
          */
@@ -221,7 +202,6 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
     }
 
     init {
-        ++theRunnerCount
         myWorker = RunnerThread(this, name)
         myWorker.start()
     }

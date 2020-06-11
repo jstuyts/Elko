@@ -23,6 +23,7 @@ class TimerSgd(provided: Provided, configuration: ObjectGraphConfiguration = Obj
 
     internal val timerThread by Once { TimerThread(req(provided.clock()), req(exceptionReporter)) }
             .init(TimerThread::start)
+            .dispose(TimerThread::shutdown)
 
     val timerThreadExceptionGorgel by Once { req(provided.baseGorgel()).getChild(TimerThread::class, Tag("category", "exception")) }
 

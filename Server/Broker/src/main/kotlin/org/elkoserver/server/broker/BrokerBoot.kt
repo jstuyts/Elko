@@ -2,6 +2,7 @@ package org.elkoserver.server.broker
 
 import org.elkoserver.foundation.boot.Bootable
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.ConstantDefinition
@@ -22,11 +23,18 @@ import java.time.Clock
 class BrokerBoot : Bootable {
     override fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
         val myGorgel = gorgel.getChild(BrokerBoot::class)
-        val brokerServerGraph = BrokerServerOgd(object : BrokerServerOgd.Provided, ProvidedAdministration() {
+        lateinit var brokerServerGraph: BrokerServerOgd.Graph
+        val graphClosingShutdownWatcher = object : ShutdownWatcher {
+            override fun noteShutdown() {
+                brokerServerGraph.close()
+            }
+        }
+        brokerServerGraph = BrokerServerOgd(object : BrokerServerOgd.Provided, ProvidedAdministration() {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
             override fun traceFactory() = ConstantDefinition(traceFactory)
             override fun props() = ConstantDefinition(props)
+            override fun externalShutdownWatcher() = ConstantDefinition(graphClosingShutdownWatcher)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {
             override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
                 myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)

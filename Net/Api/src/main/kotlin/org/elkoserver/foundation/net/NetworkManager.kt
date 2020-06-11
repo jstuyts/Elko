@@ -269,6 +269,10 @@ class NetworkManager(
         sslContext = SslSetup.setupSsl(props, "conf.ssl.", traceFactory.startup)
     }
 
+    fun shutDown() {
+        mySelectThread?.shutDown()
+    }
+
     init {
         if (props.testProperty("conf.ssl.enable")) {
             setupSSL()

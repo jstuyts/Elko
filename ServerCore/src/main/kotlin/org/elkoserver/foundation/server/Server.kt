@@ -509,6 +509,7 @@ class Server(
         if (!amShuttingDown) {
             amShuttingDown = true
             gorgel.i?.run { info("Shutting down $serverName") }
+            networkManager.shutDown()
             myBrokerActor?.close()
             for (watcher in myShutdownWatchers) {
                 watcher.noteShutdown()
@@ -538,7 +539,7 @@ class Server(
      * the operation failed for some reason.
      */
     private fun startOneListener(propRoot: String, host: String,
-                                 metaFactory: ServiceFactory): HostDesc? {
+                                 metaFactory: ServiceFactory): HostDesc {
         val auth = authDescFromPropertiesFactory.fromProperties(propRoot)
         val allowString = myProps.getProperty("$propRoot.allow")
         val allow: MutableSet<String> = HashSet()
@@ -554,8 +555,7 @@ class Server(
         val label = myProps.getProperty("$propRoot.label")
         val secure = myProps.testProperty("$propRoot.secure")
         val mgrClass = myProps.getProperty("$propRoot.class")
-        val connectionSetup: ConnectionSetup
-        connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory) }
+        val connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory) }
                 ?: when (protocol) {
                     "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
                     "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
@@ -590,9 +590,7 @@ class Server(
         while (true) {
             val hostName = myProps.getProperty("$listenerPropRoot.host") ?: break
             val listener = startOneListener(listenerPropRoot, hostName, serviceFactory)
-            if (listener != null) {
-                theListeners.add(listener)
-            }
+            theListeners.add(listener)
             listenerPropRoot = propRoot + ++listenerCount
         }
         if (myBrokerHost != null) {
