@@ -2,6 +2,7 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.boot.Bootable
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.ConstantDefinition
@@ -18,11 +19,18 @@ import java.time.Clock
 class ContextServerBoot : Bootable {
     override fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
         val myGorgel = gorgel.getChild(ContextServerBoot::class)
-        val contextServerGraph = ContextServerOgd(object : ContextServerOgd.Provided, ProvidedAdministration() {
+        lateinit var contextServerGraph: ContextServerOgd.Graph
+        val graphClosingShutdownWatcher = object : ShutdownWatcher {
+            override fun noteShutdown() {
+                contextServerGraph.close()
+            }
+        }
+        contextServerGraph = ContextServerOgd(object : ContextServerOgd.Provided, ProvidedAdministration() {
             override fun clock() = ConstantDefinition(clock)
             override fun props() = ConstantDefinition(props)
             override fun traceFactory() = ConstantDefinition(traceFactory)
             override fun baseGorgel() = ConstantDefinition(gorgel)
+            override fun externalShutdownWatcher() = ConstantDefinition(graphClosingShutdownWatcher)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {
             override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
                 myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)

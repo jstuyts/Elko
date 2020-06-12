@@ -13,6 +13,7 @@ import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.ServerLoadMonitor.Companion.DEFAULT_LOAD_SAMPLE_TIMEOUT
 import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceLink
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
@@ -47,6 +48,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
         fun baseGorgel(): D<Gorgel>
         fun authDescFromPropertiesFactory(): D<AuthDescFromPropertiesFactory>
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
+        fun externalShutdownWatcher(): D<ShutdownWatcher>
     }
 
     val repoTrace by Once { req(provided.traceFactory()).trace("repo") }
@@ -97,6 +99,9 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(runnerRef),
                 req(objDBRemoteFactory))
     }
+            .wire {
+                it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
+            }
             .init {
                 if (it.startListeners("conf.listen", req(repositoryServiceFactory)) == 0) {
                     req(bootGorgel).error("no listeners specified")
@@ -127,6 +132,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
     val jsonToObjectDeserializer by Once { JsonToObjectDeserializer(req(jsonToObjectDeserializerGorgel), req(provided.traceFactory()), req(provided.clock())) }
 
     val runnerRef by Once { RunnerRef(req(provided.traceFactory())) }
+            .dispose { it.shutDown() }
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
