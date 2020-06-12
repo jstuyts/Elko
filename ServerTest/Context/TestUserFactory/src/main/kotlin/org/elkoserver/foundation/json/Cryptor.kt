@@ -134,7 +134,7 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
         private val base64Encoder = Base64.getEncoder()
         private val base64Decoder = Base64.getDecoder()
 
-        @Deprecated("Global variable")
+        @Deprecated("Obsolete code. Global variable")
         private val theRandom = SecureRandom()
         private const val KEY_ALGORITHM = "AES"
         private const val CRYPTO_ALGORITHM = "AES/CBC/PKCS5Padding"
