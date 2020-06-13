@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets
  *
  * FIXME: nanomsg parser cannot parse multiple messages in 1 string
  */
-class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory) : HTTPFramer(appTrace) {
+class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory, private val mustSendDebugReplies: Boolean) : HTTPFramer(appTrace) {
 
     /**
      * Produce the HTTP for responding to an HTTP GET of the /select/ URL by
@@ -63,7 +63,7 @@ class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory) : 
      * @return an iterator that can be called upon to return the JSON
      * message(s) contained within 'body'.
      */
-    override fun postBodyUnpacker(postBody: String): Iterator<Any> = JSONBodyUnpacker(postBody, traceFactory)
+    override fun postBodyUnpacker(postBody: String): Iterator<Any> = JSONBodyUnpacker(postBody, traceFactory, mustSendDebugReplies)
 
     /**
      * Post body unpacker for a bundle of JSON messages.  In this case, the
@@ -71,7 +71,7 @@ class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory) : 
      *
      * @param postBody  The HTTP message body was POSTed.
      */
-    private class JSONBodyUnpacker internal constructor(postBody: String, private val traceFactory: TraceFactory) : MutableIterator<Any> {
+    private class JSONBodyUnpacker internal constructor(postBody: String, private val traceFactory: TraceFactory, private val mustSendDebugReplies: Boolean) : MutableIterator<Any> {
         private var postBody: String
 
         /** Last JSON message parsed.  This will be the next JSON message to be
@@ -126,7 +126,7 @@ class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory) : 
                 postBody = ""
                 result
             } catch (e: JsonParserException) {
-                if (Communication.TheDebugReplyFlag) {
+                if (mustSendDebugReplies) {
                     return e
                 }
                 if (traceFactory.comm.warning) {

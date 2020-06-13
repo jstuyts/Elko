@@ -75,6 +75,8 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
+    val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -97,7 +99,8 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(sessionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
-                req(objDBRemoteFactory))
+                req(objDBRemoteFactory),
+                req(mustSendDebugReplies))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -150,7 +153,8 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(putRequestFactory),
                 req(updateRequestFactory),
                 req(queryRequestFactory),
-                req(removeRequestFactory))
+                req(removeRequestFactory),
+                req(mustSendDebugReplies))
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
@@ -169,5 +173,11 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val objectStore by Once { ObjectStoreFactory.createAndInitializeObjectStore(req(provided.props()), "conf.rep", req(provided.baseGorgel())) }
 
-    val repositoryServiceFactory by Once { RepositoryServiceFactory(req(repository), req(repositoryActorGorgel), req(provided.traceFactory())) }
+    val repositoryServiceFactory by Once {
+        RepositoryServiceFactory(
+                req(repository),
+                req(repositoryActorGorgel),
+                req(provided.traceFactory()),
+                req(mustSendDebugReplies))
+    }
 }

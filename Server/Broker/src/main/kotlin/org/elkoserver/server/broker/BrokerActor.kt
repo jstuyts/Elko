@@ -18,8 +18,13 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param connection  The connection for talking to this actor.
  * @param myFactory  The factory that created this actor.
  */
-internal class BrokerActor(connection: Connection, private val myFactory: BrokerActorFactory,
-                           private val gorgel: Gorgel, traceFactory: TraceFactory, private val clientOrdinalGenerator: LongOrdinalGenerator) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+internal class BrokerActor(
+        connection: Connection,
+        private val myFactory: BrokerActorFactory,
+                           private val gorgel: Gorgel,
+        traceFactory: TraceFactory,
+        private val clientOrdinalGenerator: LongOrdinalGenerator,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), traceFactory, mustSendDebugReplies), BasicProtocolActor {
 
     /** The broker itself.  */
     private val myBroker: Broker = myFactory.broker

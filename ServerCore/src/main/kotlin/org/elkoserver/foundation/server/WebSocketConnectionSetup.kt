@@ -9,7 +9,17 @@ import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
-internal class WebSocketConnectionSetup(label: String?, host: String, auth: AuthDesc, secure: Boolean, props: ElkoProperties, propRoot: String, private val myNetworkManager: NetworkManager, private val actorFactory: MessageHandlerFactory, gorgel: Gorgel, traceFactory: TraceFactory)
+internal class WebSocketConnectionSetup(
+        label: String?,
+        host: String,
+        auth: AuthDesc,
+        secure: Boolean,
+        props: ElkoProperties,
+        propRoot: String,
+        private val myNetworkManager: NetworkManager,
+        private val actorFactory: MessageHandlerFactory,
+        gorgel: Gorgel,
+        traceFactory: TraceFactory)
     : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel, traceFactory) {
     private val socketURI: String = props.getProperty("$propRoot.sock", "")
     override val serverAddress: String

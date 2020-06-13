@@ -18,7 +18,7 @@ import org.elkoserver.json.Referenceable
  * @param myConnection  Connection to communicate with the entity at the
  *    other end.
  */
-abstract class Actor internal constructor(private val myConnection: Connection) : Deliverer, MessageHandler {
+abstract class Actor internal constructor(private val myConnection: Connection, protected val mustSendDebugReplies: Boolean) : Deliverer, MessageHandler {
 
     /**
      * Close this Actor's connection.

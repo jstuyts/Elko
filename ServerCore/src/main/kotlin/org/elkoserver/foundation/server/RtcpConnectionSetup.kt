@@ -8,7 +8,17 @@ import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
-internal class RtcpConnectionSetup(label: String?, host: String, auth: AuthDesc, secure: Boolean, props: ElkoProperties, propRoot: String, myNetworkManager: NetworkManager, actorFactory: MessageHandlerFactory, gorgel: Gorgel, traceFactory: TraceFactory)
+internal class RtcpConnectionSetup(
+        label: String?,
+        host: String,
+        auth: AuthDesc,
+        secure: Boolean,
+        props: ElkoProperties,
+        propRoot: String,
+        myNetworkManager: NetworkManager,
+        actorFactory: MessageHandlerFactory,
+        gorgel: Gorgel,
+        traceFactory: TraceFactory)
     : BaseTcpConnectionSetup(label, host, auth, secure, props, propRoot, myNetworkManager, actorFactory, gorgel, traceFactory) {
     override val protocol: String = "rtcp"
 

@@ -26,6 +26,7 @@ dependencies {
     api(project(":Trace"))
     api(Libraries.nanojson)
 
+    implementation(project(":Communication"))
     implementation(project(":ObjectDatabase:Local"))
     implementation(project(":ObjectDatabase:Remote"))
     implementation(project(":Util"))

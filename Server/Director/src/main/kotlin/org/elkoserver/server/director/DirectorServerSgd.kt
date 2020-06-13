@@ -79,6 +79,8 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
+    val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -101,7 +103,8 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(sessionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
-                req(objDBRemoteFactory))
+                req(objDBRemoteFactory),
+                req(mustSendDebugReplies))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -154,7 +157,8 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(putRequestFactory),
                 req(updateRequestFactory),
                 req(queryRequestFactory),
-                req(removeRequestFactory))
+                req(removeRequestFactory),
+                req(mustSendDebugReplies))
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
@@ -184,10 +188,18 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(providerLimit),
                 req(jsonToObjectDeserializer))
     }
-    
+
     val random by Once { SecureRandom() }
 
-    val directorServiceFactory by Once { DirectorServiceFactory(req(director), req(directorActorGorgel), req(providerGorgel), req(provided.traceFactory()), req(ordinalGenerator)) }
+    val directorServiceFactory by Once {
+        DirectorServiceFactory(
+                req(director),
+                req(directorActorGorgel),
+                req(providerGorgel),
+                req(provided.traceFactory()),
+                req(ordinalGenerator),
+                req(mustSendDebugReplies))
+    }
 
     val ordinalGenerator by Once { LongOrdinalGenerator() }
 }

@@ -100,7 +100,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(sessionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
-                req(objDBRemoteFactory))
+                req(objDBRemoteFactory),
+                req(mustSendDebugReplies))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -143,6 +144,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
+    val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
+
     val objDBRemoteFactory by Once {
         ObjDBRemoteFactory(
                 req(provided.props()),
@@ -157,7 +160,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(putRequestFactory),
                 req(updateRequestFactory),
                 req(queryRequestFactory),
-                req(removeRequestFactory))
+                req(removeRequestFactory),
+                req(mustSendDebugReplies))
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
@@ -197,7 +201,14 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(jsonToObjectDeserializer))
     }
 
-    val brokerServiceFactory by Once { BrokerServiceFactory(req(broker), req(brokerActorGorgel), req(provided.traceFactory()), req(clientOrdinalGenerator)) }
+    val brokerServiceFactory by Once {
+        BrokerServiceFactory(
+                req(broker),
+                req(brokerActorGorgel),
+                req(provided.traceFactory()),
+                req(clientOrdinalGenerator),
+                req(mustSendDebugReplies))
+    }
 
     val clientOrdinalGenerator by Once { LongOrdinalGenerator() }
 }

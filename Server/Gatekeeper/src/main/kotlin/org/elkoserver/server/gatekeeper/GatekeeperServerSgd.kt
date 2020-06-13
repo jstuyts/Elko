@@ -79,6 +79,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
+    val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -101,7 +103,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(sessionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
-                req(objDBRemoteFactory))
+                req(objDBRemoteFactory),
+                req(mustSendDebugReplies))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -154,7 +157,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(putRequestFactory),
                 req(updateRequestFactory),
                 req(queryRequestFactory),
-                req(removeRequestFactory))
+                req(removeRequestFactory),
+                req(mustSendDebugReplies))
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
@@ -181,12 +185,13 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.clock()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(provided.props()),
-                req(jsonToObjectDeserializer))
+                req(jsonToObjectDeserializer),
+                req(mustSendDebugReplies))
     }
 
     val actionTimeout by Once { 1000 * req(provided.props()).intProperty("conf.gatekeeper.actiontimeout", GatekeeperBoot.DEFAULT_ACTION_TIMEOUT) }
 
-    val gatekeeperServiceFactory by Once { GatekeeperServiceFactory(req(gatekeeper), req(actionTimeout), req(gatekeeperActorGorgel), req(provided.timer()), req(provided.traceFactory())) }
+    val gatekeeperServiceFactory by Once { GatekeeperServiceFactory(req(gatekeeper), req(actionTimeout), req(gatekeeperActorGorgel), req(provided.timer()), req(provided.traceFactory()), req(mustSendDebugReplies)) }
 
     val authorizerOgdClassName by Once {
         req(provided.props()).getProperty("conf.gatekeeper.authorizer",

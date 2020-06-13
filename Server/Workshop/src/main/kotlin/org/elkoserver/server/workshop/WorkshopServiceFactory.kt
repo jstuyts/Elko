@@ -14,7 +14,11 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * workshop-service - for messages to objects offering services
  * workshop-admin - for system administrators
  */
-internal class WorkshopServiceFactory(private val workshop: Workshop, private val workshopActorGorgel: Gorgel, private val traceFactory: TraceFactory) : ServiceFactory {
+internal class WorkshopServiceFactory(
+        private val workshop: Workshop,
+        private val workshopActorGorgel: Gorgel,
+        private val traceFactory: TraceFactory,
+        private val mustSendDebugReplies: Boolean) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
                                 allow: Set<String>,
@@ -38,6 +42,6 @@ internal class WorkshopServiceFactory(private val workshop: Workshop, private va
         if (allowClient) {
             serviceNames.add("workshop-service")
         }
-        return WorkshopActorFactory(workshop, auth, allowAdmin, allowClient, workshopActorGorgel, traceFactory)
+        return WorkshopActorFactory(workshop, auth, allowAdmin, allowClient, workshopActorGorgel, traceFactory, mustSendDebugReplies)
     }
 }

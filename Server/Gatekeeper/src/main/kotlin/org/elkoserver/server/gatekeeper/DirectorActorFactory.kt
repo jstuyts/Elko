@@ -34,7 +34,8 @@ internal class DirectorActorFactory(
         private val timer: Timer,
         private val traceFactory: TraceFactory,
         clock: Clock,
-        jsonToObjectDeserializer: JsonToObjectDeserializer) : MessageHandlerFactory {
+        jsonToObjectDeserializer: JsonToObjectDeserializer,
+        private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
     /** Descriptor for the director host.  */
     private var myDirectorHost: HostDesc? = null
 
@@ -56,7 +57,16 @@ internal class DirectorActorFactory(
         } else {
             myConnectionRetrier?.giveUp()
             myDirectorHost = director
-            myConnectionRetrier = ConnectionRetrier(director, "director", myNetworkManager, this, timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "director")), tr, traceFactory)
+            myConnectionRetrier = ConnectionRetrier(
+                    director,
+                    "director",
+                    myNetworkManager,
+                    this,
+                    timer,
+                    connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "director")),
+                    tr,
+                    traceFactory,
+                    mustSendDebugReplies)
         }
     }
 
@@ -73,7 +83,7 @@ internal class DirectorActorFactory(
      * @param connection  The Connection object that was just created.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            DirectorActor(connection!!, myDispatcher, this, myDirectorHost!!, traceFactory)
+            DirectorActor(connection!!, myDispatcher, this, myDirectorHost!!, traceFactory, mustSendDebugReplies)
 
     /**
      * Issue a reservation request to the director.

@@ -39,7 +39,8 @@ class UserActor(
         private val userGorgelWithoutRef: Gorgel,
         private val timer: Timer,
         traceFactory: TraceFactory,
-        private val myIdGenerator: IdGenerator) : RoutingActor(myConnection, myContextor.refTable, traceFactory), SourceRetargeter, BasicProtocolActor {
+        private val myIdGenerator: IdGenerator,
+        mustSendDebugReplies: Boolean) : RoutingActor(myConnection, myContextor.refTable, traceFactory, mustSendDebugReplies), SourceRetargeter, BasicProtocolActor {
     /** The users this actor is the actor for, by context.  */
     private val myUsers: MutableMap<Context, User> = HashMap()
 

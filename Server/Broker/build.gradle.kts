@@ -19,6 +19,7 @@ dependencies {
     api(project(":Trace"))
 
     implementation(project(":Actor"))
+    implementation(project(":Communication"))
     implementation(project(":ObjectDatabase:Local"))
     implementation(project(":ObjectDatabase:Remote"))
     implementation(project(":OrdinalGeneration"))

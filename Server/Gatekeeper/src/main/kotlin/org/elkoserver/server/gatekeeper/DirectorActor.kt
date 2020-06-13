@@ -25,8 +25,13 @@ import java.util.function.Consumer
  * @param myFactory  The factory that created this actor.
  * @param director  Host description for the director connected to.
  */
-internal class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
-                             private val myFactory: DirectorActorFactory, director: HostDesc, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
+internal class DirectorActor(
+        connection: Connection,
+        dispatcher: MessageDispatcher,
+                             private val myFactory: DirectorActorFactory,
+        director: HostDesc,
+        traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, traceFactory, mustSendDebugReplies) {
 
     /** Flag that this connection is still active.  */
     private var amLive = true

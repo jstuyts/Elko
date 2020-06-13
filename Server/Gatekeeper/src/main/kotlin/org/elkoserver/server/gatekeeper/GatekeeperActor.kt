@@ -20,8 +20,14 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param actionTime  How long the user has to act before being kicked off,
  *    in milliseconds.
  */
-internal class GatekeeperActor(connection: Connection, private val myFactory: GatekeeperActorFactory,
-                               actionTime: Int, private val gorgel: Gorgel, timer: Timer, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+internal class GatekeeperActor(
+        connection: Connection,
+        private val myFactory: GatekeeperActorFactory,
+                               actionTime: Int,
+        private val gorgel: Gorgel,
+        timer: Timer,
+        traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), traceFactory, mustSendDebugReplies), BasicProtocolActor {
 
     /** True if actor has been disconnected.  */
     private var amLoggedOut = false

@@ -17,12 +17,17 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param amAllowProvider  If true, allow 'provider' connections.
  * @param allowUser  If true, allow 'user' connections.
  */
-internal class DirectorActorFactory(internal val director: Director, private val myAuth: AuthDesc, internal val allowAdmin: Boolean,
-                                    private val amAllowProvider: Boolean, internal val allowUser: Boolean,
-                                    private val directorActorGorgel: Gorgel,
-                                    private val providerGorgel: Gorgel,
-                                    private val traceFactory: TraceFactory,
-                                    private val ordinalGenerator: OrdinalGenerator) : MessageHandlerFactory {
+internal class DirectorActorFactory(
+        internal val director: Director,
+        private val myAuth: AuthDesc,
+        internal val allowAdmin: Boolean,
+        private val amAllowProvider: Boolean,
+        internal val allowUser: Boolean,
+        private val directorActorGorgel: Gorgel,
+        private val providerGorgel: Gorgel,
+        private val traceFactory: TraceFactory,
+        private val ordinalGenerator: OrdinalGenerator,
+        private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
      * Test whether provider connections are allowed.
@@ -37,7 +42,7 @@ internal class DirectorActorFactory(internal val director: Director, private val
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            DirectorActor(connection!!, this, directorActorGorgel, providerGorgel, traceFactory, ordinalGenerator)
+            DirectorActor(connection!!, this, directorActorGorgel, providerGorgel, traceFactory, ordinalGenerator, mustSendDebugReplies)
 
     /**
      * Get this factory's ref table.

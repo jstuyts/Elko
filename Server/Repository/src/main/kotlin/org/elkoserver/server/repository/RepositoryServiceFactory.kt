@@ -17,7 +17,8 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 internal class RepositoryServiceFactory(
         private val repository: Repository,
         private val repositoryActorGorgel: Gorgel,
-        private val traceFactory: TraceFactory) : ServiceFactory {
+        private val traceFactory: TraceFactory,
+        private val mustSendDebugReplies: Boolean) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
                                 allow: Set<String>,
@@ -42,6 +43,6 @@ internal class RepositoryServiceFactory(
             serviceNames.add("repository-rep")
         }
         return RepositoryActorFactory(repository, auth, allowAdmin,
-                allowRep, repositoryActorGorgel, traceFactory)
+                allowRep, repositoryActorGorgel, traceFactory, mustSendDebugReplies)
     }
 }

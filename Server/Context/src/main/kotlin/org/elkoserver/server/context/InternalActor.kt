@@ -18,8 +18,12 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param myFactory  Factory of the listener that accepted the connection.
  * @param tr  Trace object for diagnostics.
  */
-class InternalActor internal constructor(connection: Connection, private val myFactory: InternalActorFactory,
-                                         private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.contextor.refTable, traceFactory), BasicProtocolActor {
+class InternalActor internal constructor(
+        connection: Connection,
+        private val myFactory: InternalActorFactory,
+                                         private val gorgel: Gorgel,
+        traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.contextor.refTable, traceFactory, mustSendDebugReplies), BasicProtocolActor {
 
     /** Flag that connection has been authorized.  */
     private var amAuthorized = false

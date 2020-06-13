@@ -23,6 +23,7 @@ dependencies {
     api(Libraries.nanojson)
 
     implementation(kotlin("stdlib-jdk8"))
+    implementation(project(":Communication"))
     implementation(project(":ObjectDatabase:Local"))
     implementation(project(":ObjectDatabase:Remote"))
 }

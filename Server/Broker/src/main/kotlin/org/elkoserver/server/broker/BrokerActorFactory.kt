@@ -16,8 +16,15 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param allowAdmin  If true, allow 'admin' connections.
  * @param allowClient  If true, allow 'client' connections.
  */
-internal class BrokerActorFactory(internal val broker: Broker, private val myAuth: AuthDesc, internal val allowAdmin: Boolean,
-                                  internal val allowClient: Boolean, private val brokerActorGorgel: Gorgel, private val traceFactory: TraceFactory, private val clientOrdinalGenerator: LongOrdinalGenerator) : MessageHandlerFactory {
+internal class BrokerActorFactory(
+        internal val broker: Broker,
+        private val myAuth: AuthDesc,
+        internal val allowAdmin: Boolean,
+        internal val allowClient: Boolean,
+        private val brokerActorGorgel: Gorgel,
+        private val traceFactory: TraceFactory,
+        private val clientOrdinalGenerator: LongOrdinalGenerator,
+        private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
      * Produce a new actor for a new connection.
@@ -25,7 +32,7 @@ internal class BrokerActorFactory(internal val broker: Broker, private val myAut
      * @param connection The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            BrokerActor(connection!!, this, brokerActorGorgel, traceFactory, clientOrdinalGenerator)
+            BrokerActor(connection!!, this, brokerActorGorgel, traceFactory, clientOrdinalGenerator, mustSendDebugReplies)
 
     /**
      * Get this factory's ref table.

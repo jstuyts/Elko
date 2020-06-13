@@ -22,9 +22,14 @@ import javax.net.ssl.SSLContext
  */
 class NetworkManager(
         private val myConnectionCountMonitor: ConnectionCountMonitor,
-        internal val props: ElkoProperties, internal val loadMonitor: LoadMonitor,
-        internal val runner: Runner, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory,
-        private val sessionIdGenerator: IdGenerator) {
+        internal val props: ElkoProperties,
+        internal val loadMonitor: LoadMonitor,
+        internal val runner: Runner,
+        private val timer: Timer,
+        private val clock: Clock,
+        private val traceFactory: TraceFactory,
+        private val sessionIdGenerator: IdGenerator,
+        private val mustSendDebugReplies: Boolean) {
 
     /** Initialized SSL context, if supporting SSL, else null.  */
     internal var sslContext: SSLContext? = null
@@ -62,7 +67,7 @@ class NetworkManager(
         if (result == null) {
             try {
                 result = Class.forName(className).getConstructor().newInstance() as ConnectionManager
-                result.init(this, msgTrace, clock, traceFactory)
+                result.init(this, msgTrace, clock, traceFactory, mustSendDebugReplies)
                 myConnectionManagers[className] = result
             } catch (e: ClassNotFoundException) {
                 traceFactory.comm.errorm("ConnectionManager class $className not found: $e")
@@ -177,7 +182,7 @@ class NetworkManager(
                    msgTrace: Trace,
                    secure: Boolean): NetAddr {
         val outerHandlerFactory: MessageHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, msgTrace, this, timer, clock, traceFactory, sessionIdGenerator)
-        val framerFactory: ByteIOFramerFactory = RTCPRequestByteIOFramerFactory(msgTrace, traceFactory)
+        val framerFactory: ByteIOFramerFactory = RTCPRequestByteIOFramerFactory(msgTrace, traceFactory, mustSendDebugReplies)
         return listenTCP(listenAddress, outerHandlerFactory, msgTrace, secure, framerFactory)
     }
 
@@ -204,7 +209,7 @@ class NetworkManager(
         }
         val outerHandlerFactory: MessageHandlerFactory = WebSocketMessageHandlerFactory(innerHandlerFactory, actualSocketURI,
                 msgTrace)
-        val framerFactory: ByteIOFramerFactory = WebSocketByteIOFramerFactory(msgTrace, listenAddress, actualSocketURI, traceFactory)
+        val framerFactory: ByteIOFramerFactory = WebSocketByteIOFramerFactory(msgTrace, listenAddress, actualSocketURI, traceFactory, mustSendDebugReplies)
         return listenTCP(listenAddress, outerHandlerFactory, msgTrace, secure, framerFactory)
     }
 

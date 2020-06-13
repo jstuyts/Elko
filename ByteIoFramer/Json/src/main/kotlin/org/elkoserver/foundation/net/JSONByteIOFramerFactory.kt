@@ -17,7 +17,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param trMsg  Trace object for logging message traffic.
  */
-class JSONByteIOFramerFactory(private val trMsg: Trace, private val traceFactory: TraceFactory) : ByteIOFramerFactory {
+class JSONByteIOFramerFactory(private val trMsg: Trace, private val traceFactory: TraceFactory, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new connection.
@@ -26,5 +26,5 @@ class JSONByteIOFramerFactory(private val trMsg: Trace, private val traceFactory
      * @param label  A printable label identifying the associated connection.
      */
     override fun provideFramer(receiver: MessageReceiver, label: String) =
-            JSONByteIOFramer(trMsg, receiver, label, traceFactory)
+            JSONByteIOFramer(trMsg, receiver, label, traceFactory, mustSendDebugReplies)
 }

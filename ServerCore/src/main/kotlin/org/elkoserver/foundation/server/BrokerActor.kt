@@ -20,8 +20,13 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myServer  This actor's own server.
  * @param host  The broker's host address.
  */
-class BrokerActor(connection: Connection, dispatcher: MessageDispatcher,
-                  private val myServer: Server, host: HostDesc, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
+class BrokerActor(
+        connection: Connection,
+        dispatcher: MessageDispatcher,
+                  private val myServer: Server,
+        host: HostDesc,
+        traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, traceFactory, mustSendDebugReplies) {
 
     /** Load watcher for this actor to report load to the broker.  */
     private val myLoadWatcher: LoadWatcher = object : LoadWatcher {

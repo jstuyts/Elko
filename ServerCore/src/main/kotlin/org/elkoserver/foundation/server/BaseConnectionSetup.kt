@@ -7,7 +7,15 @@ import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
-abstract class BaseConnectionSetup(label: String?, val host: String, private val auth: AuthDesc, val secure: Boolean, props: ElkoProperties, val propRoot: String, private val gorgel: Gorgel, protected var traceFactory: TraceFactory) : ConnectionSetup {
+abstract class BaseConnectionSetup(
+        label: String?,
+        val host: String,
+        private val auth: AuthDesc,
+        val secure: Boolean,
+        props: ElkoProperties,
+        val propRoot: String,
+        private val gorgel: Gorgel,
+        protected var traceFactory: TraceFactory) : ConnectionSetup {
     val bind: String = props.getProperty("$propRoot.bind", host)
 
     var msgTrace = if (label != null) {

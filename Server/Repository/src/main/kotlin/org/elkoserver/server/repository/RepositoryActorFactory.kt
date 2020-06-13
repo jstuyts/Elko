@@ -15,10 +15,14 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param amAllowAdmin  If true, permit admin connections.
  * @param amAllowRep  If true, permit repository connections.
  */
-internal class RepositoryActorFactory(internal val myRepository: Repository, private val myAuth: AuthDesc,
-                                      internal val amAllowAdmin: Boolean, private val amAllowRep: Boolean,
-                                      private val repositoryActorGorgel: Gorgel,
-                                      private val traceFactory: TraceFactory) : MessageHandlerFactory {
+internal class RepositoryActorFactory(
+        internal val myRepository: Repository,
+        private val myAuth: AuthDesc,
+        internal val amAllowAdmin: Boolean,
+        private val amAllowRep: Boolean,
+        private val repositoryActorGorgel: Gorgel,
+        private val traceFactory: TraceFactory,
+        private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
      * Test whether repository connections are allowed.
@@ -33,7 +37,7 @@ internal class RepositoryActorFactory(internal val myRepository: Repository, pri
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            RepositoryActor(connection!!, this, repositoryActorGorgel, traceFactory)
+            RepositoryActor(connection!!, this, repositoryActorGorgel, traceFactory, mustSendDebugReplies)
 
     /**
      * Return the object ref table for this factor.

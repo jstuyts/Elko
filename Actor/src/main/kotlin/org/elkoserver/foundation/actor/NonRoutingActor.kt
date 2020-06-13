@@ -6,7 +6,6 @@ import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.foundation.net.Communication
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JSONLiteralFactory.targetVerb
 import org.elkoserver.json.JsonObject
@@ -16,9 +15,9 @@ import org.elkoserver.util.trace.TraceFactory
 /**
  * An [Actor] that receives untargeted JSON messages over its connection.
  *
- * This class is abstract, in that its implementation of the [ ] interface is
- * incomplete: it implements the [ ][org.elkoserver.foundation.net.MessageHandler.processMessage]
- * method, but subclasses must implement the [ ][org.elkoserver.foundation.net.MessageHandler.connectionDied]
+ * This class is abstract, in that its implementation of the [org.elkoserver.foundation.net.MessageHandler] interface is
+ * incomplete: it implements the [org.elkoserver.foundation.net.MessageHandler.processMessage]
+ * method, but subclasses must implement the [org.elkoserver.foundation.net.MessageHandler.connectionDied]
  * method (as well as any [JSONMethod] methods for whatever specific
  * object behavior the subclass is intended for).
  *
@@ -35,7 +34,11 @@ import org.elkoserver.util.trace.TraceFactory
  * @param connection  Connection associated with this actor.
  * @param myDispatcher  Dispatcher to invoke message handlers based on 'op'.
  */
-abstract class NonRoutingActor protected constructor(connection: Connection, private val myDispatcher: MessageDispatcher, protected val traceFactory: TraceFactory) : Actor(connection), Referenceable, DispatchTarget {
+abstract class NonRoutingActor protected constructor(
+        connection: Connection,
+        private val myDispatcher: MessageDispatcher,
+        protected val traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) : Actor(connection, mustSendDebugReplies), Referenceable, DispatchTarget {
 
     /**
      * Send a 'debug' message over the connection, addressed to the 'error'
@@ -80,7 +83,7 @@ abstract class NonRoutingActor protected constructor(connection: Connection, pri
         if (report != null) {
             val warning = "message handler error: $report"
             traceFactory.comm.warningm(warning)
-            if (Communication.TheDebugReplyFlag) {
+            if (mustSendDebugReplies) {
                 debugMsg(warning)
             }
         }

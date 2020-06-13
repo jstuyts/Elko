@@ -18,8 +18,12 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param connection  The connection for talking to this actor.
  * @param myFactory  The factory that created this actor.
  */
-internal class PresenceActor(connection: Connection, private val myFactory: PresenceActorFactory,
-                             private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+internal class PresenceActor(
+        connection: Connection,
+        private val myFactory: PresenceActorFactory,
+                             private val gorgel: Gorgel,
+        traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), traceFactory, mustSendDebugReplies), BasicProtocolActor {
     /** The presence server itself. */
     private val myPresenceServer: PresenceServer = myFactory.myPresenceServer
 

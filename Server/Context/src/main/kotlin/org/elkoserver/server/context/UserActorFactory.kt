@@ -15,10 +15,16 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *    needed for entry.
  * @param myProtocol  Protocol these new connections will be speaking
  */
-internal class UserActorFactory(private val myContextor: Contextor, private val amAuthRequired: Boolean,
-                                private val myProtocol: String, private val userActorGorgel: Gorgel,
-                                private val userGorgelWithoutRef: Gorgel, private val timer: Timer,
-                                private val traceFactory: TraceFactory, private val idGenerator: IdGenerator) : MessageHandlerFactory {
+internal class UserActorFactory(
+        private val myContextor: Contextor,
+        private val amAuthRequired: Boolean,
+        private val myProtocol: String,
+        private val userActorGorgel: Gorgel,
+        private val userGorgelWithoutRef: Gorgel,
+        private val timer: Timer,
+        private val traceFactory: TraceFactory,
+        private val idGenerator: IdGenerator,
+        private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
      * Produce a new user for a new connection.
@@ -26,5 +32,5 @@ internal class UserActorFactory(private val myContextor: Contextor, private val 
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            UserActor(connection!!, myContextor, amAuthRequired, myProtocol, userActorGorgel, userGorgelWithoutRef, timer, traceFactory, idGenerator)
+            UserActor(connection!!, myContextor, amAuthRequired, myProtocol, userActorGorgel, userGorgelWithoutRef, timer, traceFactory, idGenerator, mustSendDebugReplies)
 }

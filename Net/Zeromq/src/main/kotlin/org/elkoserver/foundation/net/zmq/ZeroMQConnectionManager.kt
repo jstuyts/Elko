@@ -18,6 +18,7 @@ class ZeroMQConnectionManager : ConnectionManager {
     private lateinit var myZeroMQThread: ZeroMQThread
     private lateinit var myMsgTrace: Trace
     private lateinit var traceFactory: TraceFactory
+    private var mustSendDebugReplies = false
 
     /**
      * Initialize this connection manager.
@@ -25,10 +26,11 @@ class ZeroMQConnectionManager : ConnectionManager {
      * @param networkManager  The network manager this connection manager will
      * be managing connections for.
      */
-    override fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, traceFactory: TraceFactory) {
+    override fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, traceFactory: TraceFactory, mustSendDebugReplies: Boolean) {
         this.traceFactory = traceFactory
         myZeroMQThread = ZeroMQThread(networkManager, traceFactory, clock)
         myMsgTrace = msgTrace
+        this.mustSendDebugReplies = mustSendDebugReplies
     }
 
     /**
@@ -43,7 +45,7 @@ class ZeroMQConnectionManager : ConnectionManager {
      * separated by a colon.  For example, "bithlo.example.com:8002".
      */
     override fun connect(propRoot: String, handlerFactory: MessageHandlerFactory, hostPort: String) {
-        val framerFactory = JSONByteIOFramerFactory(myMsgTrace, traceFactory)
+        val framerFactory = JSONByteIOFramerFactory(myMsgTrace, traceFactory, mustSendDebugReplies)
         myZeroMQThread.connect(handlerFactory, framerFactory, hostPort)
     }
 
@@ -63,7 +65,7 @@ class ZeroMQConnectionManager : ConnectionManager {
      * @throws IOException if there was a problem establishing the listener
      */
     override fun listen(propRoot: String, listenAddress: String, handlerFactory: MessageHandlerFactory, secure: Boolean): NetAddr {
-        val framerFactory = JSONByteIOFramerFactory(myMsgTrace, traceFactory)
+        val framerFactory = JSONByteIOFramerFactory(myMsgTrace, traceFactory, mustSendDebugReplies)
         return myZeroMQThread.listen(listenAddress, handlerFactory, framerFactory, secure)
     }
 }

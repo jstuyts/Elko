@@ -15,10 +15,14 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param amAllowAdmin  If true, allow 'admin' connections.
  * @param amAllowClient  If true, allow 'client' connections.
  */
-internal class PresenceActorFactory(internal val myPresenceServer: PresenceServer, private val myAuth: AuthDesc,
-                                    internal val amAllowAdmin: Boolean, private val amAllowClient: Boolean,
-                                    private val presenceActorGorgel: Gorgel,
-                                    private val traceFactory: TraceFactory) : MessageHandlerFactory {
+internal class PresenceActorFactory(
+        internal val myPresenceServer: PresenceServer,
+        private val myAuth: AuthDesc,
+        internal val amAllowAdmin: Boolean,
+        private val amAllowClient: Boolean,
+        private val presenceActorGorgel: Gorgel,
+        private val traceFactory: TraceFactory,
+        private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
      * Test whether client connections are allowed.
@@ -33,7 +37,7 @@ internal class PresenceActorFactory(internal val myPresenceServer: PresenceServe
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            PresenceActor(connection!!, this, presenceActorGorgel, traceFactory)
+            PresenceActor(connection!!, this, presenceActorGorgel, traceFactory, mustSendDebugReplies)
 
     /**
      * Get this factory's ref table.

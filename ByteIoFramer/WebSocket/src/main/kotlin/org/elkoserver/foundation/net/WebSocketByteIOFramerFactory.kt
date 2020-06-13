@@ -14,7 +14,12 @@ import java.util.Base64
  *
  * @param trMsg  Trace object for logging message traffic.
  */
-class WebSocketByteIOFramerFactory(private val trMsg: Trace, private val myHostAddress: String, private val mySocketURI: String, private val traceFactory: TraceFactory) : ByteIOFramerFactory {
+class WebSocketByteIOFramerFactory(
+        private val trMsg: Trace,
+        private val myHostAddress: String,
+        private val mySocketURI: String,
+        private val traceFactory: TraceFactory,
+        private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
 
     /** The host address, stripped of port number.  */
     private var myHostName: String? = null
@@ -91,7 +96,7 @@ class WebSocketByteIOFramerFactory(private val trMsg: Trace, private val myHostA
                         myReceiver.receiveMsg(myRequest)
                         myWSParseStage = Companion.WS_STAGE_MESSAGES
                         myIn.enableWebSocketFraming()
-                        myMessageFramer = JSONByteIOFramer(trMsg, myReceiver, myLabel, myIn)
+                        myMessageFramer = JSONByteIOFramer(trMsg, myReceiver, myLabel, myIn, mustSendDebugReplies)
                         return
                     }
                     Companion.WS_STAGE_MESSAGES -> {

@@ -77,6 +77,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val workshopActorGorgel by Once { req(provided.baseGorgel()).getChild(WorkshopActor::class) }
 
+    val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -99,7 +101,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(sessionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
-                req(objDBRemoteFactory))
+                req(objDBRemoteFactory),
+                req(mustSendDebugReplies))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -153,7 +156,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(putRequestFactory),
                 req(updateRequestFactory),
                 req(queryRequestFactory),
-                req(removeRequestFactory))
+                req(removeRequestFactory),
+                req(mustSendDebugReplies))
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
@@ -172,5 +176,5 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val workshop: D<Workshop> by Once { Workshop(req(server), req(workshopGorgel), req(startupWorkerListGorgel), req(workTrace), req(provided.traceFactory()), req(provided.clock()), req(jsonToObjectDeserializer)) }
 
-    val workshopServiceFactory by Once { WorkshopServiceFactory(req(workshop), req(workshopActorGorgel), req(provided.traceFactory())) }
+    val workshopServiceFactory by Once { WorkshopServiceFactory(req(workshop), req(workshopActorGorgel), req(provided.traceFactory()), req(mustSendDebugReplies)) }
 }

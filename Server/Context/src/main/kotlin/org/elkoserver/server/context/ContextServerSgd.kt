@@ -105,7 +105,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(userGorgelWithoutRef),
                 req(provided.traceFactory()),
                 req(provided.timer()),
-                req(idGenerator))
+                req(idGenerator),
+                req(mustSendDebugReplies))
     }
             .init {
                 if (req(server).startListeners("conf.listen", it) == 0) {
@@ -120,6 +121,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
             .eager()
 
     val idGenerator by Once { LongIdGenerator(1L) }
+
+    val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
 
     val server by Once {
         Server(
@@ -143,7 +146,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(sessionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
-                req(objDBRemoteFactory))
+                req(objDBRemoteFactory),
+                req(mustSendDebugReplies))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -191,7 +195,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(putRequestFactory),
                 req(updateRequestFactory),
                 req(queryRequestFactory),
-                req(removeRequestFactory))
+                req(removeRequestFactory),
+                req(mustSendDebugReplies))
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
@@ -250,7 +255,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 opt(families),
                 opt(sessionPassword),
                 req(provided.props()),
-                req(jsonToObjectDeserializer))
+                req(jsonToObjectDeserializer),
+                req(mustSendDebugReplies))
     }
 
     val sessionPassword by Once { req(provided.props()).getProperty<String?>("conf.context.shutdownpassword", null) }

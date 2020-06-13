@@ -76,7 +76,8 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                   private val putRequestFactory: PutRequestFactory,
                   private val updateRequestFactory: UpdateRequestFactory,
                   private val queryRequestFactory: QueryRequestFactory,
-                  private val removeRequestFactory: RemoveRequestFactory) : ObjDBBase(gorgel, jsonToObjectDeserializer) {
+                  private val removeRequestFactory: RemoveRequestFactory,
+                  private val mustSendDebugReplies: Boolean) : ObjDBBase(gorgel, jsonToObjectDeserializer) {
     /** Connection to the repository, if there is one.  */
     private var myODBActor: ODBActor? = null
 
@@ -109,7 +110,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     /** Message handler factory for repository connections.  */
     private val myMessageHandlerFactory = object : MessageHandlerFactory {
         override fun provideMessageHandler(connection: Connection?) =
-                ODBActor(connection!!, this@ObjDBRemote, localName, myRepHost!!, myDispatcher, traceFactory)
+                ODBActor(connection!!, this@ObjDBRemote, localName, myRepHost!!, myDispatcher, traceFactory, mustSendDebugReplies)
     }
 
     private inner class RepositoryFoundHandler : Consumer<Array<ServiceDesc>> {
@@ -131,12 +132,15 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
         if (!amClosing) {
             val currentRepHost = myRepHost
             if (currentRepHost != null) {
-                ConnectionRetrier(currentRepHost, "repository",
+                ConnectionRetrier(currentRepHost,
+                        "repository",
                         myNetworkManager,
                         myMessageHandlerFactory,
                         timer,
                         connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "repository")),
-                        traceFactory.comm, traceFactory)
+                        traceFactory.comm,
+                        traceFactory,
+                        mustSendDebugReplies)
             }
         }
     }

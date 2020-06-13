@@ -15,11 +15,16 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param myAuth  The authorization needed for connections to this port.
  * @param allowAdmin  If true, allow 'admin' connections.
  */
-internal class GatekeeperActorFactory(private val gatekeeper: Gatekeeper, private val myAuth: AuthDesc,
-                                      internal val allowAdmin: Boolean, private val allowUser: Boolean,
-                                      private val myActionTimeout: Int,
-                                      private val gatekeeperActorGorgel: Gorgel,
-                                      private val timer: Timer, private val traceFactory: TraceFactory) : MessageHandlerFactory {
+internal class GatekeeperActorFactory(
+        private val gatekeeper: Gatekeeper,
+        private val myAuth: AuthDesc,
+        internal val allowAdmin: Boolean,
+        private val allowUser: Boolean,
+        private val myActionTimeout: Int,
+        private val gatekeeperActorGorgel: Gorgel,
+        private val timer: Timer,
+        private val traceFactory: TraceFactory,
+        private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
      * Produce a new user for a new connection.
@@ -27,7 +32,7 @@ internal class GatekeeperActorFactory(private val gatekeeper: Gatekeeper, privat
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            GatekeeperActor(connection!!, this, myActionTimeout, gatekeeperActorGorgel, timer, traceFactory)
+            GatekeeperActor(connection!!, this, myActionTimeout, gatekeeperActorGorgel, timer, traceFactory, mustSendDebugReplies)
 
     /**
      * Get this factory's ref table.

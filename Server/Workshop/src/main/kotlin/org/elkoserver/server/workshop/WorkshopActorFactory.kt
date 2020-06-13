@@ -22,7 +22,8 @@ internal class WorkshopActorFactory(
         internal val allowAdmin: Boolean,
         private val amAllowClient: Boolean,
         private val workshopActorGorgel: Gorgel,
-        private val traceFactory: TraceFactory) : MessageHandlerFactory {
+        private val traceFactory: TraceFactory,
+        private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
      * Test whether workshop client connections are allowed.
@@ -37,7 +38,7 @@ internal class WorkshopActorFactory(
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            WorkshopActor(connection!!, this, workshopActorGorgel, traceFactory)
+            WorkshopActor(connection!!, this, workshopActorGorgel, traceFactory, mustSendDebugReplies)
 
     /**
      * Check an actor's authorization.

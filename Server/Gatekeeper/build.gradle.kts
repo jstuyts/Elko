@@ -25,6 +25,7 @@ dependencies {
     api(project(":Timer"))
     api(Libraries.nanojson)
 
+    implementation(project(":Communication"))
     implementation(project(":ObjectDatabase:Local"))
     implementation(project(":ObjectDatabase:Remote"))
     implementation(kotlin("stdlib-jdk8"))

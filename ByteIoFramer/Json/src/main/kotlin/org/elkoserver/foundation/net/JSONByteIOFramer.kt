@@ -14,7 +14,12 @@ import java.nio.charset.StandardCharsets
 /**
  * I/O framer implementation for JSON messages.
  */
-class JSONByteIOFramer(private val trMsg: Trace, private val myReceiver: MessageReceiver, private val myLabel: String, private val myIn: ChunkyByteArrayInputStream) : ByteIOFramer {
+class JSONByteIOFramer(
+        private val trMsg: Trace,
+        private val myReceiver: MessageReceiver,
+        private val myLabel: String,
+        private val myIn: ChunkyByteArrayInputStream,
+        private val mustSendDebugReplies: Boolean) : ByteIOFramer {
 
     /** Message input currently in progress.  */
     private val myMsgBuffer = StringBuilder(1000)
@@ -22,7 +27,8 @@ class JSONByteIOFramer(private val trMsg: Trace, private val myReceiver: Message
     /**
      * Constructor.
      */
-    constructor(msgTrace: Trace, receiver: MessageReceiver, label: String, traceFactory: TraceFactory) : this(msgTrace, receiver, label, ChunkyByteArrayInputStream(traceFactory))
+    constructor(msgTrace: Trace, receiver: MessageReceiver, label: String, traceFactory: TraceFactory, mustSendDebugReplies: Boolean)
+            : this(msgTrace, receiver, label, ChunkyByteArrayInputStream(traceFactory), mustSendDebugReplies)
 
     /**
      * Process bytes of data received.
@@ -54,7 +60,7 @@ class JSONByteIOFramer(private val trMsg: Trace, private val myReceiver: Message
                         }
                     } catch (e: JsonParserException) {
                         needsFurtherParsing = false
-                        if (Communication.TheDebugReplyFlag) {
+                        if (mustSendDebugReplies) {
                             myReceiver.receiveMsg(e)
                         }
                         if (trMsg.warning) {

@@ -42,7 +42,21 @@ class DirectorGroup(server: Server,
                     clock: Clock,
                     internal val reservationTimeout: Int,
                     props: ElkoProperties,
-                    jsonToObjectDeserializer: JsonToObjectDeserializer) : OutboundGroup("conf.register", server, contextor, directors, tr, gorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, props, jsonToObjectDeserializer) {
+                    jsonToObjectDeserializer: JsonToObjectDeserializer,
+                    private val mustSendDebugReplies: Boolean) : OutboundGroup(
+        "conf.register",
+        server,
+        contextor,
+        directors,
+        tr,
+        gorgel,
+        connectionRetrierWithoutLabelGorgel,
+        timer,
+        traceFactory,
+        clock,
+        props,
+        jsonToObjectDeserializer,
+        mustSendDebugReplies) {
 
     /** Iterator for cycling through arbitrary relays.  */
     private var myDirectorPicker: Iterator<Deliverer>? = null
@@ -79,7 +93,7 @@ class DirectorGroup(server: Server,
      * @return a new Actor object for use on this new connection
      */
     override fun provideActor(connection: Connection, dispatcher: MessageDispatcher, host: HostDesc): Actor {
-        val director = DirectorActor(connection, dispatcher, this, host, timer, reservationGorgel, traceFactory)
+        val director = DirectorActor(connection, dispatcher, this, host, timer, reservationGorgel, traceFactory, mustSendDebugReplies)
         updateDirector(director)
         return director
     }

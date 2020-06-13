@@ -25,7 +25,8 @@ internal class DirectorActor(
         private val gorgel: Gorgel,
         private val providerGorgel: Gorgel,
         traceFactory: TraceFactory,
-        private val ordinalGenerator: OrdinalGenerator) : RoutingActor(connection, myFactory.refTable(), traceFactory), BasicProtocolActor {
+        private val ordinalGenerator: OrdinalGenerator,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), traceFactory, mustSendDebugReplies), BasicProtocolActor {
     private val myDirector = myFactory.director
 
     /** True if actor has been disconnected.  */

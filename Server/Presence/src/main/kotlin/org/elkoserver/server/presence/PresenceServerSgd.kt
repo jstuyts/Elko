@@ -79,6 +79,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val socialGraphGorgel by Once { req(provided.baseGorgel()).getChild(SocialGraph::class) }
 
+    val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -101,7 +103,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(sessionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
-                req(objDBRemoteFactory))
+                req(objDBRemoteFactory),
+                req(mustSendDebugReplies))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -154,7 +157,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(putRequestFactory),
                 req(updateRequestFactory),
                 req(queryRequestFactory),
-                req(removeRequestFactory))
+                req(removeRequestFactory),
+                req(mustSendDebugReplies))
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
@@ -171,5 +175,10 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val presenceServer: D<PresenceServer> by Once { PresenceServer(req(server), req(presenceServerGorgel), req(graphDescGorgel), req(socialGraphGorgel), req(provided.traceFactory()), req(provided.clock()), req(jsonToObjectDeserializer)) }
 
-    val presenceServiceFactory by Once { PresenceServiceFactory(req(presenceServer), req(presenceActorGorgel), req(provided.traceFactory())) }
+    val presenceServiceFactory by Once {
+        PresenceServiceFactory(
+                req(presenceServer),
+                req(presenceActorGorgel),
+                req(provided.traceFactory()),
+                req(mustSendDebugReplies)) }
 }

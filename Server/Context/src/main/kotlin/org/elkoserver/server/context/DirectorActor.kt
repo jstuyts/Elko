@@ -28,9 +28,15 @@ import java.util.NoSuchElementException
  * @param myGroup  The send group for all the directors.
  * @param host  Host description for this connection.
  */
-class DirectorActor(connection: Connection, dispatcher: MessageDispatcher,
-                    private val myGroup: DirectorGroup, host: HostDesc, private val timer: Timer,
-                    private val reservationGorgel: Gorgel, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
+class DirectorActor(
+        connection: Connection,
+        dispatcher: MessageDispatcher,
+                    private val myGroup: DirectorGroup,
+        host: HostDesc,
+        private val timer: Timer,
+                    private val reservationGorgel: Gorgel,
+        traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, traceFactory, mustSendDebugReplies) {
 
     /** Map from tag strings to users awaiting reservations.  */
     private val myPendingReservationRequests: MutableMap<String, User> = HashMap()

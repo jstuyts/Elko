@@ -13,7 +13,12 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param contextor  The contextor itself.
  * @param myAuth  The authorization needed for connections to this port.
  */
-internal class InternalActorFactory(internal val contextor: Contextor, private val myAuth: AuthDesc, private val internalActorGorgel: Gorgel, private val traceFactory: TraceFactory) : MessageHandlerFactory {
+internal class InternalActorFactory(
+        internal val contextor: Contextor,
+        private val myAuth: AuthDesc,
+        private val internalActorGorgel: Gorgel,
+        private val traceFactory: TraceFactory,
+        private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
      * Produce a new actor for a new connection.
@@ -21,7 +26,7 @@ internal class InternalActorFactory(internal val contextor: Contextor, private v
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            InternalActor(connection!!, this, internalActorGorgel, traceFactory)
+            InternalActor(connection!!, this, internalActorGorgel, traceFactory, mustSendDebugReplies)
 
     /**
      * Check the actor's authorization.

@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets
  * time this class gets its hands on it, so output framing consists of merely
  * ensuring that the proper character encoding is used.
  */
-class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val traceFactory: TraceFactory) : ByteIOFramerFactory {
+class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val traceFactory: TraceFactory, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new RTCP connection.
@@ -103,7 +103,7 @@ class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val trace
                                     }
                                 } catch (e: JsonParserException) {
                                     needsFurtherParsing = false
-                                    if (Communication.TheDebugReplyFlag) {
+                                    if (mustSendDebugReplies) {
                                         myRequest.noteProblem(e)
                                     }
                                     if (trMsg.warning) {

@@ -21,7 +21,7 @@ interface ConnectionManager {
      * be managing connections for.
      * @param msgTrace  Trace object for logging message traffic.
      */
-    fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, traceFactory: TraceFactory)
+    fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, traceFactory: TraceFactory, mustSendDebugReplies: Boolean)
 
     /**
      * Make a connection, using this connection manager's communications

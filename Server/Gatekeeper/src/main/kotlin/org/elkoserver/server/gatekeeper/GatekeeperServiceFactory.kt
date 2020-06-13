@@ -20,7 +20,8 @@ internal class GatekeeperServiceFactory(
         private val actionTimeout: Int,
         private val gatekeeperActorGorgel: Gorgel,
         private val timer: Timer,
-        private val traceFactory: TraceFactory) : ServiceFactory {
+        private val traceFactory: TraceFactory,
+        private val mustSendDebugReplies: Boolean) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
                                 allow: Set<String>,
@@ -45,6 +46,6 @@ internal class GatekeeperServiceFactory(
             serviceNames.add("gatekeeper-user")
         }
         return GatekeeperActorFactory(gatekeeper, auth, allowAdmin,
-                allowUser, actionTimeout, gatekeeperActorGorgel, timer, traceFactory)
+                allowUser, actionTimeout, gatekeeperActorGorgel, timer, traceFactory, mustSendDebugReplies)
     }
 }

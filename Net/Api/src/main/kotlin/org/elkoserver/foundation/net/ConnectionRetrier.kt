@@ -27,7 +27,8 @@ class ConnectionRetrier(
         timer: Timer,
         private val gorgel: Gorgel,
         appTrace: Trace,
-        traceFactory: TraceFactory) {
+        traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) {
 
     /** Low-level I/O framer factory for the new connection.  */
     private val myFramerFactory: JSONByteIOFramerFactory
@@ -65,7 +66,7 @@ class ConnectionRetrier(
     }
 
     init {
-        myFramerFactory = JSONByteIOFramerFactory(myTrace, traceFactory)
+        myFramerFactory = JSONByteIOFramerFactory(myTrace, traceFactory, mustSendDebugReplies)
         myNetworkManager = networkManager
         myActualFactory = actualFactory
         gorgel.i?.run { info("connecting to $myLabel at ${myHost.hostPort}") }

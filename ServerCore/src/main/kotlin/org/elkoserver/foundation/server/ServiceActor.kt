@@ -22,7 +22,8 @@ class ServiceActor internal constructor(
         desc: ServiceDesc,
         private val myServer: Server,
         private val gorgel: Gorgel,
-        traceFactory: TraceFactory) : RoutingActor(connection, refTable, traceFactory) {
+        traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, refTable, traceFactory, mustSendDebugReplies) {
     /** Optional convenience label for logging and such.  */
     private val label: String
 

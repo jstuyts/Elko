@@ -2,7 +2,6 @@ package org.elkoserver.foundation.actor
 
 import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.MessageHandlerException
-import org.elkoserver.foundation.net.Communication
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JSONLiteralFactory.targetVerb
 import org.elkoserver.json.JsonObject
@@ -12,16 +11,20 @@ import org.elkoserver.util.trace.TraceFactory
  * An [Actor] that receives targeted JSON messages over its connection.
  *
  *
- * This class is abstract, in that its implementation of the [ ] interface is
- * incomplete: it implements the [ ][org.elkoserver.foundation.net.MessageHandler.processMessage]
- * method, but subclasses must implement [ ][org.elkoserver.foundation.net.MessageHandler.connectionDied]
+ * This class is abstract, in that its implementation of the [org.elkoserver.foundation.net.MessageHandler] interface is
+ * incomplete: it implements the [org.elkoserver.foundation.net.MessageHandler.processMessage]
+ * method, but subclasses must implement [org.elkoserver.foundation.net.MessageHandler.connectionDied]
  * method (as well as any [org.elkoserver.foundation.json.JSONMethod] methods for whatever specific
  * object behavior the subclass is intended for).
  *
  * @param connection  Connection associated with this actor.
  * @param myRefTable  Table for object ref decoding and message dispatch.
  */
-abstract class RoutingActor protected constructor(connection: Connection, private val myRefTable: RefTable, protected val traceFactory: TraceFactory) : Actor(connection), DispatchTarget {
+abstract class RoutingActor protected constructor(
+        connection: Connection,
+        private val myRefTable: RefTable,
+        protected val traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) : Actor(connection, mustSendDebugReplies), DispatchTarget {
 
     /**
      * Send a 'debug' message over the connection, addressed to the 'error'
@@ -67,7 +70,7 @@ abstract class RoutingActor protected constructor(connection: Connection, privat
         if (problem != null) {
             val warning = "error handling message: $problem"
             traceFactory.comm.warningm(warning)
-            if (Communication.TheDebugReplyFlag) {
+            if (mustSendDebugReplies) {
                 debugMsg(warning)
             }
         }

@@ -17,8 +17,12 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param connection  The connection for talking to this actor.
  * @param myFactory  The factory that created this actor.
  */
-class WorkshopActor internal constructor(connection: Connection, private val myFactory: WorkshopActorFactory,
-                                         private val gorgel: Gorgel, traceFactory: TraceFactory) : RoutingActor(connection, myFactory.workshop.refTable, traceFactory), BasicProtocolActor {
+class WorkshopActor internal constructor(
+        connection: Connection,
+        private val myFactory: WorkshopActorFactory,
+                                         private val gorgel: Gorgel,
+        traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.workshop.refTable, traceFactory, mustSendDebugReplies), BasicProtocolActor {
 
     /** True if actor has been disconnected.  */
     private var amLoggedOut = false

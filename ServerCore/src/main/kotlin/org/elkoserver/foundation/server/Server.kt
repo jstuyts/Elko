@@ -4,7 +4,6 @@ import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
-import org.elkoserver.foundation.net.Communication
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionCountMonitor
 import org.elkoserver.foundation.net.ConnectionRetrier
@@ -69,7 +68,8 @@ class Server(
         sessionIdGenerator: IdGenerator,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val runnerRef: RunnerRef,
-        private val objDBRemoteFactory: ObjDBRemoteFactory)
+        private val objDBRemoteFactory: ObjDBRemoteFactory,
+        private val mustSendDebugReplies: Boolean)
     : ConnectionCountMonitor, ServiceFinder {
 
     /** The name of this server (for logging).  */
@@ -110,7 +110,7 @@ class Server(
     private val myMainRunner = runnerRef.get()
 
     /** Network manager, for setting up network communications.  */
-    val networkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory, sessionIdGenerator)
+    val networkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory, sessionIdGenerator, mustSendDebugReplies)
 
     /** Thread pool isolation for external blocking tasks.  */
     private val mySlowRunner = SlowServiceRunner(myMainRunner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))
@@ -159,12 +159,12 @@ class Server(
      */
     private fun connectToBroker() {
         if (!amShuttingDown) {
-            ConnectionRetrier(myBrokerHost!!, "broker", networkManager, BrokerMessageHandlerFactory(), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "broker")), tr, traceFactory)
+            ConnectionRetrier(myBrokerHost!!, "broker", networkManager, BrokerMessageHandlerFactory(), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "broker")), tr, traceFactory, mustSendDebugReplies)
         }
     }
 
     private inner class BrokerMessageHandlerFactory : MessageHandlerFactory {
-        override fun provideMessageHandler(connection: Connection?): MessageHandler = BrokerActor(connection!!, myDispatcher, this@Server, myBrokerHost!!, traceFactory)
+        override fun provideMessageHandler(connection: Connection?): MessageHandler = BrokerActor(connection!!, myDispatcher, this@Server, myBrokerHost!!, traceFactory, mustSendDebugReplies)
     }
 
     /**
@@ -313,7 +313,7 @@ class Server(
             val actor = myServiceActorsByProviderID[desc.providerID]
             actor?.let(::connectLinkToActor)
                     ?: ConnectionRetrier(desc.asHostDesc(-1), myLabel,
-                            networkManager, this, timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", myLabel)), tr, traceFactory)
+                            networkManager, this, timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", myLabel)), tr, traceFactory, mustSendDebugReplies)
         }
 
         /**
@@ -323,7 +323,7 @@ class Server(
          */
         override fun provideMessageHandler(connection: Connection?): MessageHandler {
             val actor = ServiceActor(connection!!, myServiceRefTable!!, myDesc!!,
-                    this@Server, serviceActorGorgel, traceFactory)
+                    this@Server, serviceActorGorgel, traceFactory, mustSendDebugReplies)
             myServiceActorsByProviderID[myDesc!!.providerID] = actor
             connectLinkToActor(actor)
             return actor
@@ -557,9 +557,9 @@ class Server(
         val mgrClass = myProps.getProperty("$propRoot.class")
         val connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory) }
                 ?: when (protocol) {
-                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
+                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory, mustSendDebugReplies)
                     "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
-                    "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
+                    "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory, mustSendDebugReplies)
                     "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
                     else -> {
                         gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
@@ -613,9 +613,5 @@ class Server(
         }
 
         myDispatcher.addClass(BrokerActor::class.java)
-
-        if (myProps.testProperty("conf.msgdiagnostics")) {
-            Communication.TheDebugReplyFlag = true
-        }
     }
 }

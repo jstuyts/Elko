@@ -17,7 +17,8 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 internal class PresenceServiceFactory(
         private val presenceServer: PresenceServer,
         private val presenceActorGorgel: Gorgel,
-        private val traceFactory: TraceFactory) : ServiceFactory {
+        private val traceFactory: TraceFactory,
+        private val mustSendDebugReplies: Boolean) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
                                 allow: Set<String>,
@@ -41,6 +42,6 @@ internal class PresenceServiceFactory(
         if (allowClient) {
             serviceNames.add("presence-client")
         }
-        return PresenceActorFactory(presenceServer, auth, allowAdmin, allowClient, presenceActorGorgel, traceFactory)
+        return PresenceActorFactory(presenceServer, auth, allowAdmin, allowClient, presenceActorGorgel, traceFactory, mustSendDebugReplies)
     }
 }

@@ -16,7 +16,8 @@ class ContextServiceFactory(
         private val userGorgelWithoutRef: Gorgel,
         private val traceFactory: TraceFactory,
         private val timer: Timer,
-        private val idGenerator: IdGenerator) : ServiceFactory {
+        private val idGenerator: IdGenerator,
+        private val mustSendDebugReplies: Boolean) : ServiceFactory {
     /**
      * Provide a message handler factory for a new listener.
      *
@@ -34,7 +35,7 @@ class ContextServiceFactory(
     override fun provideFactory(label: String, auth: AuthDesc, allow: Set<String>, serviceNames: MutableList<String>, protocol: String): MessageHandlerFactory {
         return if (allow.contains("internal")) {
             serviceNames.add("context-internal")
-            InternalActorFactory(myContextor, auth, internalActorGorgel, traceFactory)
+            InternalActorFactory(myContextor, auth, internalActorGorgel, traceFactory, mustSendDebugReplies)
         } else {
             val reservationRequired: Boolean = when {
                 auth.mode == "open" -> false
@@ -45,7 +46,7 @@ class ContextServiceFactory(
                 }
             }
             serviceNames.add("context-user")
-            UserActorFactory(myContextor, reservationRequired, protocol, userActorGorgel, userGorgelWithoutRef, timer, traceFactory, idGenerator)
+            UserActorFactory(myContextor, reservationRequired, protocol, userActorGorgel, userGorgelWithoutRef, timer, traceFactory, idGenerator, mustSendDebugReplies)
         }
     }
 }

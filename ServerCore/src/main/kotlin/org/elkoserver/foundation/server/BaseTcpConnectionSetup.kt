@@ -9,7 +9,17 @@ import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
-internal abstract class BaseTcpConnectionSetup(label: String?, override var serverAddress: String, auth: AuthDesc, secure: Boolean, props: ElkoProperties, propRoot: String, val myNetworkManager: NetworkManager, val actorFactory: MessageHandlerFactory, gorgel: Gorgel, traceFactory: TraceFactory)
+internal abstract class BaseTcpConnectionSetup(
+        label: String?,
+        override var serverAddress: String,
+        auth: AuthDesc,
+        secure: Boolean,
+        props: ElkoProperties,
+        propRoot: String,
+        val myNetworkManager: NetworkManager,
+        val actorFactory: MessageHandlerFactory,
+        gorgel: Gorgel,
+        traceFactory: TraceFactory)
     : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, traceFactory) {
 
     @Throws(IOException::class)

@@ -16,8 +16,13 @@ import org.elkoserver.util.trace.TraceFactory
  * @param myGroup  The send group for all the directors.
  * @param host  Host description for this connection.
  */
-internal class PresencerActor(connection: Connection, dispatcher: MessageDispatcher,
-                              private val myGroup: PresencerGroup, host: HostDesc, traceFactory: TraceFactory) : NonRoutingActor(connection, dispatcher, traceFactory) {
+internal class PresencerActor(
+        connection: Connection,
+        dispatcher: MessageDispatcher,
+                              private val myGroup: PresencerGroup,
+        host: HostDesc,
+        traceFactory: TraceFactory,
+        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, traceFactory, mustSendDebugReplies) {
 
     /**
      * Handle loss of connection from the director.

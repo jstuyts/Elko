@@ -33,7 +33,8 @@ class Gatekeeper internal constructor(
         clock: Clock,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         props: ElkoProperties,
-        jsonToObjectDeserializer: JsonToObjectDeserializer) {
+        jsonToObjectDeserializer: JsonToObjectDeserializer,
+        private val mustSendDebugReplies: Boolean) {
     /** Table for mapping object references in messages.  */
     internal val refTable: RefTable = RefTable(null, traceFactory, clock, jsonToObjectDeserializer)
 
@@ -132,7 +133,17 @@ class Gatekeeper internal constructor(
 
     init {
         refTable.addRef(AdminHandler(this, traceFactory))
-        myDirectorActorFactory = DirectorActorFactory(myServer.networkManager, this, directorActorFactoryGorgel, connectionRetrierWithoutLabelGorgel, tr, timer, traceFactory, clock, jsonToObjectDeserializer)
+        myDirectorActorFactory = DirectorActorFactory(
+                myServer.networkManager,
+                this,
+                directorActorFactoryGorgel,
+                connectionRetrierWithoutLabelGorgel,
+                tr,
+                timer,
+                traceFactory,
+                clock,
+                jsonToObjectDeserializer,
+                mustSendDebugReplies)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
         if (props.testProperty("conf.gatekeeper.director.auto")) {
             myServer.findService("director-user", DirectorFoundRunnable(), false)

@@ -73,7 +73,8 @@ class Contextor internal constructor(
         private val families: String?,
         sessionPassword: String?,
         private val props: ElkoProperties,
-        private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
+        private val jsonToObjectDeserializer: JsonToObjectDeserializer,
+        private val mustSendDebugReplies: Boolean) {
     /** Table for mapping object references in messages.  */
     internal val refTable = RefTable(odb, traceFactory, clock, jsonToObjectDeserializer)
 
@@ -973,7 +974,22 @@ class Contextor internal constructor(
      * listeners to register with the indicated directors.
      */
     fun registerWithDirectors(directors: MutableList<HostDesc>, listeners: List<HostDesc>) {
-        val group = DirectorGroup(server, this, directors, listeners, tr, directorGroupGorgel, reservationGorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, reservationTimeout, props, jsonToObjectDeserializer)
+        val group = DirectorGroup(
+                server,
+                this,
+                directors,
+                listeners,
+                tr,
+                directorGroupGorgel,
+                reservationGorgel,
+                connectionRetrierWithoutLabelGorgel,
+                timer,
+                traceFactory,
+                clock,
+                reservationTimeout,
+                props,
+                jsonToObjectDeserializer,
+                mustSendDebugReplies)
         if (group.isLive) {
             myDirectorGroup = group
         }
@@ -986,7 +1002,19 @@ class Contextor internal constructor(
      * with whom to register.
      */
     fun registerWithPresencers(presencers: MutableList<HostDesc>) {
-        val group = PresencerGroup(server, this, presencers, tr, presencerGroupGorgel, connectionRetrierWithoutLabelGorgel, timer, traceFactory, clock, props, jsonToObjectDeserializer)
+        val group = PresencerGroup(
+                server,
+                this,
+                presencers,
+                tr,
+                presencerGroupGorgel,
+                connectionRetrierWithoutLabelGorgel,
+                timer,
+                traceFactory,
+                clock,
+                props,
+                jsonToObjectDeserializer,
+                mustSendDebugReplies)
         if (group.isLive) {
             myPresencerGroup = group
         }

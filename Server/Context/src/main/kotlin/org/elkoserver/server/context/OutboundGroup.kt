@@ -44,7 +44,8 @@ abstract class OutboundGroup(propRoot: String,
                              protected val traceFactory: TraceFactory,
                              clock: Clock,
                              props: ElkoProperties,
-                             jsonToObjectDeserializer: JsonToObjectDeserializer) : LiveGroup() {
+                             jsonToObjectDeserializer: JsonToObjectDeserializer,
+                             private val mustSendDebugReplies: Boolean) : LiveGroup() {
     /** The statically configured external servers in this group.  */
     private val myHosts: List<HostDesc>
 
@@ -74,7 +75,7 @@ abstract class OutboundGroup(propRoot: String,
     fun connectHosts() {
         for (host in myHosts) {
             ConnectionRetrier(host, label(), myNetworkManager,
-                    HostConnector(host), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, traceFactory)
+                    HostConnector(host), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, traceFactory, mustSendDebugReplies)
         }
         if (amAutoRegister) {
             myServer.findService(service(), HostFoundHandler(), true)
@@ -94,7 +95,7 @@ abstract class OutboundGroup(propRoot: String,
                     .map { it.asHostDesc(myRetryInterval) }
                     .forEach {
                         ConnectionRetrier(it, label(), myNetworkManager,
-                                HostConnector(it), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, traceFactory)
+                                HostConnector(it), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, traceFactory, mustSendDebugReplies)
                     }
         }
     }
