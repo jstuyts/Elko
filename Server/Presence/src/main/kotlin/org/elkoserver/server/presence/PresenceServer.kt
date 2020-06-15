@@ -23,7 +23,8 @@ internal class PresenceServer(
         private val socialGraphGorgel: Gorgel,
         traceFactory: TraceFactory,
         clock: Clock,
-        jsonToObjectDeserializer: JsonToObjectDeserializer) {
+        jsonToObjectDeserializer: JsonToObjectDeserializer,
+        private val domainRegistry: DomainRegistry) {
     /** Database that this server stores stuff in.  */
     internal val objDB: ObjDB
 
@@ -108,7 +109,7 @@ internal class PresenceServer(
     private fun getUser(userRef: String): ActiveUser {
         var user = myUsers[userRef]
         if (user == null) {
-            user = ActiveUser(userRef)
+            user = ActiveUser(userRef, domainRegistry)
             myUsers[userRef] = user
             for (graph in mySocialGraphs.values) {
                 graph.loadUserGraph(user)

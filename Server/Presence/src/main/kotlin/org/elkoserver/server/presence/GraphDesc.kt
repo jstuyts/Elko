@@ -5,13 +5,19 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.InvocationTargetException
 
-internal class GraphDesc @JSONMethod("class", "name", "?conf") constructor(private val myClassName: String, private val myGraphName: String, conf: JsonObject?) {
+internal class GraphDesc @JSONMethod("class", "name", "?conf") constructor(private val myClassName: String, private val myGraphName: String, conf: JsonObject?) : DomainRegistryUsingObject {
     private val myConf: JsonObject = conf ?: JsonObject()
+
+    private lateinit var myDomainRegistry: DomainRegistry
+
+    override fun setDomainRegistry(domainRegistry: DomainRegistry) {
+        myDomainRegistry = domainRegistry
+    }
 
     fun init(master: PresenceServer, gorgel: Gorgel, socialGraphGorgel: Gorgel) =
             try {
                 (Class.forName(myClassName).getConstructor().newInstance() as SocialGraph).apply {
-                    init(master, socialGraphGorgel, Domain(myGraphName), myConf)
+                    init(master, socialGraphGorgel, Domain(myGraphName, myDomainRegistry), myConf)
                 }
             } catch (e: ClassNotFoundException) {
                 gorgel.error("class $myClassName not found")

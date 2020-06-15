@@ -15,7 +15,7 @@ import java.util.LinkedList
  *
  * @param ref  The ref associated with the client.
  */
-internal class ActiveUser(internal val ref: String) {
+internal class ActiveUser(internal val ref: String, private val domainRegistry: DomainRegistry) {
 
     /** Number of domains that are loaded.  */
     private var myDomainLoadCount = 0
@@ -95,7 +95,7 @@ internal class ActiveUser(internal val ref: String) {
             myFriendsByDomain!!.indices
                     .map {
                         JSONLiteral().apply {
-                            addParameter("domain", Domain.domain(it).name)
+                            addParameter("domain", domainRegistry.domain(it).name)
                             addParameter("friends", myFriendsByDomain!![it])
                             finish()
                         }
@@ -114,7 +114,7 @@ internal class ActiveUser(internal val ref: String) {
      */
     private fun graphsAreReady(): Boolean {
         return myFriendsByDomain != null &&
-                myDomainLoadCount == Domain.maxIndex()
+                myDomainLoadCount == domainRegistry.maxIndex()
     }
 
     /**
@@ -138,7 +138,7 @@ internal class ActiveUser(internal val ref: String) {
         for (i in myFriendsByDomain!!.indices) {
             val friends = myFriendsByDomain!![i]
             if (friends != null) {
-                val domain = Domain.domain(i)
+                val domain = domainRegistry.domain(i)
                 friends
                         .mapNotNull(master::getActiveUser)
                         .forEach {
@@ -176,10 +176,10 @@ internal class ActiveUser(internal val ref: String) {
     private fun notifyMeAboutFriends(userContext: String?, master: PresenceServer) {
         val friends: MutableMap<Domain, List<FriendInfo?>> = HashMap()
         var client: PresenceActor? = null
-        for (i in 0 until Domain.maxIndex()) {
+        for (i in 0 until domainRegistry.maxIndex()) {
             if (myFriendsByDomain!![i] != null) {
                 val friendList: MutableList<FriendInfo?> = LinkedList()
-                val domain = Domain.domain(i)
+                val domain = domainRegistry.domain(i)
                 client = userContext?.let(domain::subscriber)
                 if (client != null) {
                     for (friendName in myFriendsByDomain!![i]!!) {
@@ -245,7 +245,7 @@ internal class ActiveUser(internal val ref: String) {
     fun userGraphIsReady(friends: Iterable<String>?, domain: Domain,
                          master: PresenceServer) {
         if (myFriendsByDomain == null) {
-            val count = Domain.maxIndex()
+            val count = domainRegistry.maxIndex()
             myFriendsByDomain = ArrayList(count)
             for (i in 0 until count) {
                 myFriendsByDomain!!.add(null)

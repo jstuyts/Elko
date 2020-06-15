@@ -144,8 +144,17 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.traceFactory()),
                 req(provided.clock()),
                 req(deserializedObjectRandom),
-                req(deserializedObjectMessageDigest))
+                req(deserializedObjectMessageDigest),
+                req(injectors))
     }
+
+    val injectors by Once {
+        listOf(req(domainRegistryInjector))
+    }
+
+    val domainRegistryInjector by Once { DomainRegistryInjector(req(domainRegistry)) }
+
+    val domainRegistry by Once { DomainRegistryImpl() }
 
     val deserializedObjectRandom by Once { SecureRandom() }
 
@@ -197,7 +206,17 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val requestTagGenerator by Once { LongIdGenerator(1L) }
 
-    val presenceServer: D<PresenceServer> by Once { PresenceServer(req(server), req(presenceServerGorgel), req(graphDescGorgel), req(socialGraphGorgel), req(provided.traceFactory()), req(provided.clock()), req(jsonToObjectDeserializer)) }
+    val presenceServer: D<PresenceServer> by Once {
+        PresenceServer(
+                req(server),
+                req(presenceServerGorgel),
+                req(graphDescGorgel),
+                req(socialGraphGorgel),
+                req(provided.traceFactory()),
+                req(provided.clock()),
+                req(jsonToObjectDeserializer),
+                req(domainRegistry))
+    }
 
     val presenceServiceFactory by Once {
         PresenceServiceFactory(

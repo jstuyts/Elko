@@ -37,7 +37,14 @@ import java.util.Random
  *
  * @param decodeClass  The Java class to construct a decoder for
  */
-class ObjectDecoder internal constructor(decodeClass: Class<*>, traceFactory: TraceFactory, clock: Clock, jsonToObjectDeserializer: JsonToObjectDeserializer, random: Random, messageDigest: MessageDigest) {
+class ObjectDecoder internal constructor(
+        decodeClass: Class<*>,
+        traceFactory: TraceFactory,
+        clock: Clock,
+        jsonToObjectDeserializer: JsonToObjectDeserializer,
+        random: Random,
+        messageDigest: MessageDigest,
+        injectors: Collection<Injector>) {
     /** Reflection information for the Java constructor this decoder invokes. */
     private val myConstructor: ConstructorInvoker
 
@@ -79,6 +86,6 @@ class ObjectDecoder internal constructor(decodeClass: Class<*>, traceFactory: Tr
         if (jsonConstructor == null) {
             throw JSONSetupError("no JSON constructor for class ${decodeClass.name}")
         }
-        myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, jsonConstructor.parameterTypes, paramNames!!, traceFactory, clock, jsonToObjectDeserializer, random, messageDigest)
+        myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, jsonConstructor.parameterTypes, paramNames!!, traceFactory, clock, jsonToObjectDeserializer, random, messageDigest, injectors)
     }
 }

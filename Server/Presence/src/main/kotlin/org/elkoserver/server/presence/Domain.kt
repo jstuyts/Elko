@@ -1,7 +1,7 @@
 package org.elkoserver.server.presence
 
-internal class Domain(internal val name: String) {
-    internal val index: Int
+internal class Domain(internal val name: String, domainRegistry: DomainRegistry) {
+    internal val index = domainRegistry.add(this)
     private val mySubscribers: MutableMap<String, PresenceActor> = HashMap()
     fun subscriber(context: String) = mySubscribers[context]
 
@@ -15,22 +15,5 @@ internal class Domain(internal val name: String) {
 
     fun removeSubscriber(context: String) {
         mySubscribers.remove(context)
-    }
-
-    companion object {
-        @Deprecated("Global variable")
-        private var theNextIndex = 0
-
-        @Deprecated("Global variable")
-        private val theDomains = ArrayList<Domain>()
-
-        fun domain(index: Int) = theDomains[index]
-
-        fun maxIndex() = theNextIndex
-    }
-
-    init {
-        index = theNextIndex++
-        theDomains.add(index, this)
     }
 }

@@ -14,7 +14,8 @@ class JsonToObjectDeserializer(
         private val traceFactory: TraceFactory,
         private val clock: Clock,
         private val random: Random,
-        private val messageDigest: MessageDigest) {
+        private val messageDigest: MessageDigest,
+        private val injectors: Collection<Injector> = emptyList()) {
     /** Mapping from Java class to the specific decoder for that class.  This
      * is a cache of decoders, to avoid recomputing reflection information.  */
     private val theDecoders: MutableMap<Class<*>, ObjectDecoder> = HashMap()
@@ -31,7 +32,7 @@ class JsonToObjectDeserializer(
         var decoder = theDecoders[decodeClass]
         if (decoder == null) {
             try {
-                decoder = ObjectDecoder(decodeClass, traceFactory, clock, this, random, messageDigest)
+                decoder = ObjectDecoder(decodeClass, traceFactory, clock, this, random, messageDigest, injectors)
                 theDecoders[decodeClass] = decoder
             } catch (e: JSONSetupError) {
                 gorgel.error(e.message ?: e.toString())

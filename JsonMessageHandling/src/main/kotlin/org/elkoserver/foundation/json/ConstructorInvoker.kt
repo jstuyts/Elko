@@ -28,7 +28,8 @@ internal class ConstructorInvoker(
         clock: Clock,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val random: Random,
-        private val messageDigest: MessageDigest) : Invoker<Any?>(myConstructor, paramTypes, paramNames, if (amIncludingRawObject) 1 else 0, traceFactory, clock, jsonToObjectDeserializer) {
+        private val messageDigest: MessageDigest,
+        private val injectors: Collection<Injector>) : Invoker<Any?>(myConstructor, paramTypes, paramNames, if (amIncludingRawObject) 1 else 0, traceFactory, clock, jsonToObjectDeserializer) {
 
     /**
      * Invoke the constructor on a JSON object descriptor.
@@ -72,6 +73,7 @@ internal class ConstructorInvoker(
         if (result is MessageDigestUsingObject) {
             result.setMessageDigest(messageDigest)
         }
+        injectors.forEach { it.inject(result) }
         if (result is PostInjectionInitializingObject) {
             result.initialize()
         }
