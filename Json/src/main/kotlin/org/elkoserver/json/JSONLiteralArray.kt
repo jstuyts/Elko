@@ -1,5 +1,6 @@
 package org.elkoserver.json
 
+import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 import org.elkoserver.json.JSONLiteral.Companion.appendValueString
 
 /**
@@ -37,7 +38,7 @@ class JSONLiteralArray internal constructor(internal val stringBuilder: StringBu
      * @param control  Encode control determining what flavor of encoding
      * is being done.
      */
-    constructor(control: EncodeControl = EncodeControl.forClient) : this(StringBuilder(500), control)
+    constructor(control: EncodeControl = ForClientEncodeControl) : this(StringBuilder(500), control)
 
     /**
      * Add an element to the incomplete array literal. Note that any element

@@ -1,5 +1,7 @@
 package org.elkoserver.json
 
+import org.elkoserver.json.EncodeControl.ForRepositoryEncodeControl
+
 // FIXME: This class is here because:
 // - The toString() has complex behavior. Not sure if this is only for diagnostic purposes or for production use.
 // - The behavior of getters without default value.
@@ -17,7 +19,7 @@ class JsonObject {
     }
 
     override fun toString() =
-            JsonObjectSerialization.literal(this, EncodeControl.forRepository).sendableString()
+            JsonObjectSerialization.literal(this, ForRepositoryEncodeControl).sendableString()
 
     @Throws(JSONDecodingException::class)
     fun getString(key: String): String {

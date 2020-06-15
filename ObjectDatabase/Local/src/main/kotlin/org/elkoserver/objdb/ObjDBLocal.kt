@@ -6,7 +6,7 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.RunnerRef
 import org.elkoserver.json.Encodable
-import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.EncodeControl.ForRepositoryEncodeControl
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
@@ -107,7 +107,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGo
      * or null if the operation was successful.
      */
     override fun putObject(ref: String, obj: Encodable, collectionName: String?, requireNew: Boolean, handler: Consumer<Any?>?) {
-        val objToWrite = obj.encode(EncodeControl.forRepository)!!
+        val objToWrite = obj.encode(ForRepositoryEncodeControl)!!
         myRunner.enqueue(PutCallHandler(ref, objToWrite, collectionName, requireNew, handler))
     }
 
@@ -124,7 +124,7 @@ class ObjDBLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGo
      * or null if the operation was successful.
      */
     override fun updateObject(ref: String, version: Int, obj: Encodable, collectionName: String?, handler: Consumer<Any?>?) {
-        val objToWrite = obj.encode(EncodeControl.forRepository)!!
+        val objToWrite = obj.encode(ForRepositoryEncodeControl)!!
         myRunner.enqueue(UpdateCallHandler(ref, version, objToWrite, collectionName, handler))
     }
 

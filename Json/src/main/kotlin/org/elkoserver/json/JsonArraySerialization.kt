@@ -1,5 +1,7 @@
 package org.elkoserver.json
 
+import org.elkoserver.json.EncodeControl.ForClientEncodeControl
+
 object JsonArraySerialization {
     /**
      * Encode this JSONArray into an externally provided string buffer.
@@ -37,5 +39,5 @@ object JsonArraySerialization {
      *
      * @return a sendable string representation of this array.
      */
-    fun sendableString(array: JsonArray) = literal(array, EncodeControl.forClient).sendableString()
+    fun sendableString(array: JsonArray) = literal(array, ForClientEncodeControl).sendableString()
 }

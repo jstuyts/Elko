@@ -124,6 +124,7 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
         val theCloseMarker = Any()
 
         /** Counter for allocating connection IDs.  */
+        @Deprecated("Global variable")
         private var theIDCounter = 0
     }
 

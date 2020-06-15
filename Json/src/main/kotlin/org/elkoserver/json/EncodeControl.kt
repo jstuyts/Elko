@@ -30,7 +30,7 @@ sealed class EncodeControl {
 
     /** A global, encoding control representing the intention to encode for the
      * client.  */
-    private object ForClientEncodeControl : EncodeControl() {
+    object ForClientEncodeControl : EncodeControl() {
         override fun toClient() = true
 
         override fun toRepository() = false
@@ -38,19 +38,9 @@ sealed class EncodeControl {
 
     /** A global, encoding control representing the intention to encode for the
      * repository.  */
-    private object ForRepositoryEncodeControl : EncodeControl() {
+    object ForRepositoryEncodeControl : EncodeControl() {
         override fun toClient() = false
 
         override fun toRepository() = true
-    }
-
-    companion object {
-        /** A global, encoding control representing the intention to encode for the
-         * client.  */
-        val forClient: EncodeControl = ForClientEncodeControl
-
-        /** A global, encoding control representing the intention to encode for the
-         * repository.  */
-        val forRepository: EncodeControl = ForRepositoryEncodeControl
     }
 }

@@ -1,5 +1,7 @@
 package org.elkoserver.json
 
+import org.elkoserver.json.EncodeControl.ForClientEncodeControl
+
 object JsonObjectSerialization {
     /**
      * Convert this JSONObject into a JSONLiteral.
@@ -47,5 +49,5 @@ object JsonObjectSerialization {
      *
      * @return a sendable [String] representation of this object
      */
-    fun sendableString(jsonObject: JsonObject) = literal(jsonObject, EncodeControl.forClient).sendableString()
+    fun sendableString(jsonObject: JsonObject) = literal(jsonObject, ForClientEncodeControl).sendableString()
 }

@@ -1,5 +1,6 @@
 package org.elkoserver.json
 
+import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 import org.elkoserver.json.JsonArraySerialization.encodeLiteral
 
 /**
@@ -34,7 +35,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param control  Encode control determining what flavor of encoding
      * is being done.
      */
-    constructor(control: EncodeControl = EncodeControl.forClient) : this(StringBuilder(1000), control)
+    constructor(control: EncodeControl = ForClientEncodeControl) : this(StringBuilder(1000), control)
 
     fun addParameter(param: String, jsonLiteral: JSONLiteral?) {
         addParameter(param, jsonLiteral as Any?)

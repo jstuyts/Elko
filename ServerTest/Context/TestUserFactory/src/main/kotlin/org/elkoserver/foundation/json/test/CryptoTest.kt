@@ -3,7 +3,7 @@ package org.elkoserver.foundation.json.test
 import org.elkoserver.foundation.json.Cryptor
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.util.trace.TraceController
@@ -37,7 +37,7 @@ internal object CryptoTest {
             }
             addParameter("nonce", idstr.toString())
             addParameter("expire", clock.millis() / 1000 + timeout.toInt())
-            val user = JSONLiteralFactory.type("user", EncodeControl.forClient).apply {
+            val user = JSONLiteralFactory.type("user", ForClientEncodeControl).apply {
                 addParameter("name", userName)
                 finish()
             }

@@ -1,6 +1,7 @@
 package org.elkoserver.json
 
 import com.grack.nanojson.JsonArray
+import org.elkoserver.json.EncodeControl.ForRepositoryEncodeControl
 
 // FIXME: This class is here because:
 // - The toString() has complex behavior. Not sure if this is only for diagnostic purposes or for production use.
@@ -17,7 +18,7 @@ class JsonArray : Iterable<Any?> {
 
     override fun iterator(): Iterator<Any?> = JsonArrayIterator(impl.iterator())
 
-    override fun toString() = JsonArraySerialization.literal(this, EncodeControl.forRepository).sendableString()
+    override fun toString() = JsonArraySerialization.literal(this, ForRepositoryEncodeControl).sendableString()
 
     fun toArray(): Array<Any> {
         val result = impl.toTypedArray()

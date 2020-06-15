@@ -2,7 +2,8 @@ package org.elkoserver.objdb
 
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.json.Encodable
-import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.EncodeControl.ForClientEncodeControl
+import org.elkoserver.json.EncodeControl.ForRepositoryEncodeControl
 import org.elkoserver.json.JSONLiteralArray
 import org.elkoserver.json.JSONLiteralFactory
 import java.util.function.Consumer
@@ -25,10 +26,10 @@ class UpdateRequestFactory(private val tagGenerator: IdGenerator) {
     private fun msgUpdate(ref: String, tag: String, version: Int, obj: Encodable, collectionName: String?) =
             JSONLiteralFactory.targetVerb("rep", "update").apply {
                 addParameter("tag", tag)
-                val what = JSONLiteralFactory.type("updatei", EncodeControl.forClient).apply {
+                val what = JSONLiteralFactory.type("updatei", ForClientEncodeControl).apply {
                     addParameter("ref", ref)
                     addParameter("version", version)
-                    addParameter("obj", obj.encode(EncodeControl.forRepository)!!.sendableString())
+                    addParameter("obj", obj.encode(ForRepositoryEncodeControl)!!.sendableString())
                     addParameterOpt("coll", collectionName)
                     finish()
                 }

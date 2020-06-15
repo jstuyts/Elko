@@ -1,7 +1,7 @@
 package org.elkoserver.objdb
 
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 import org.elkoserver.json.JSONLiteralArray
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonObject
@@ -25,7 +25,7 @@ class QueryRequestFactory(private val tagGenerator: IdGenerator) {
     private fun msgQuery(template: JsonObject, tag: String, collectionName: String?, maxResults: Int) =
             JSONLiteralFactory.targetVerb("rep", "query").apply {
                 addParameter("tag", tag)
-                val what = JSONLiteralFactory.type("queryi", EncodeControl.forClient).apply {
+                val what = JSONLiteralFactory.type("queryi", ForClientEncodeControl).apply {
                     addParameter("template", template)
                     addParameterOpt("coll", collectionName)
                     if (maxResults > 0) {
