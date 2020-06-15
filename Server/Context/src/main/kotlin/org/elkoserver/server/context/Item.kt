@@ -168,26 +168,28 @@ class Item : BasicObject {
     }
 
     private fun baseEncode(result: JSONLiteral, control: EncodeControl) {
-        result.addParameter("ref", myRef)
-        result.addParameterOpt("name", name)
-        val mods = myModSet.encode(control)
-        if (mods.size > 0) {
-            result.addParameter("mods", mods)
-        }
-        if (!isContainer) {
-            result.addParameter("cont", false)
-        } else {
-            if (isClosed) {
-                result.addParameter("closed", true)
+        result.run {
+            addParameter("ref", myRef)
+            addParameterOpt("name", name)
+            val mods = myModSet.encode(control)
+            if (mods.size > 0) {
+                addParameter("mods", mods)
             }
-        }
-        if (isPortable) {
-            result.addParameter("portable", true)
-        }
-        if (control.toRepository()) {
-            myContainer?.let { result.addParameter("in", it.baseRef()) }
-            if (isDeletable) {
-                result.addParameter("deletable", true)
+            if (!isContainer) {
+                addParameter("cont", false)
+            } else {
+                if (isClosed) {
+                    addParameter("closed", true)
+                }
+            }
+            if (isPortable) {
+                addParameter("portable", true)
+            }
+            if (control.toRepository()) {
+                myContainer?.let { addParameter("in", it.baseRef()) }
+                if (isDeletable) {
+                    addParameter("deletable", true)
+                }
             }
         }
     }

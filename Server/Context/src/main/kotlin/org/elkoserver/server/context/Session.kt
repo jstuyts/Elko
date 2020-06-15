@@ -63,30 +63,31 @@ class Session(private val myContextor: Contextor, private val password: String?,
     fun dump(from: Deliverer, what: String, testPassword: OptString, optContext: OptString) {
         val contextRef = optContext.value<String?>(null)
         if (password == null || password == testPassword.value<String?>(null)) {
-            val reply = JSONLiteralFactory.targetVerb("session", "dump")
-            reply.addParameter("what", what)
-            when (what) {
-                "contexts" -> {
-                    val list = JSONLiteralArray()
-                    for (ctx in myContextor.contexts()) {
-                        list.addElement(ctx.ref())
+            val reply = JSONLiteralFactory.targetVerb("session", "dump").apply {
+                addParameter("what", what)
+                when (what) {
+                    "contexts" -> {
+                        val list = JSONLiteralArray()
+                        for (ctx in myContextor.contexts()) {
+                            list.addElement(ctx.ref())
+                        }
+                        list.finish()
+                        addParameter("contexts", list)
                     }
-                    list.finish()
-                    reply.addParameter("contexts", list)
+                    "users" -> {
+                        val list = JSONLiteralArray()
+                        myContextor.users()
+                                .filter { contextRef == null || it.context().ref() == contextRef }
+                                .forEach { list.addElement(it.ref()) }
+                        list.finish()
+                        addParameter("users", list)
+                    }
+                    "items" -> {
+                    }
+                    else -> addParameter("error", "unknown 'what' value: $what")
                 }
-                "users" -> {
-                    val list = JSONLiteralArray()
-                    myContextor.users()
-                            .filter { contextRef == null || it.context().ref() == contextRef }
-                            .forEach { list.addElement(it.ref()) }
-                    list.finish()
-                    reply.addParameter("users", list)
-                }
-                "items" -> {
-                }
-                else -> reply.addParameter("error", "unknown 'what' value: $what")
+                finish()
             }
-            reply.finish()
             from.send(reply)
         }
     }

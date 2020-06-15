@@ -704,54 +704,53 @@ internal constructor(name: String,
      *
      * @return a JSON literal representing this context.
      */
-    override fun encode(control: EncodeControl): JSONLiteral {
-        val result = JSONLiteralFactory.type("context", control)
-        if (control.toClient()) {
-            result.addParameter("ref", myRef)
-        } else {
-            result.addParameter("capacity", maxCapacity)
-            if (baseCapacity != -1) {
-                result.addParameter("basecapacity", baseCapacity)
+    override fun encode(control: EncodeControl) =
+            JSONLiteralFactory.type("context", control).apply {
+                if (control.toClient()) {
+                    addParameter("ref", myRef)
+                } else {
+                    addParameter("capacity", maxCapacity)
+                    if (baseCapacity != -1) {
+                        addParameter("basecapacity", baseCapacity)
+                    }
+                    if (isSemiPrivate) {
+                        addParameter("semiprivate", isSemiPrivate)
+                    }
+                    if (isRestricted) {
+                        addParameter("restricted", isRestricted)
+                    }
+                    if (amContentAgnostic) {
+                        addParameter("agnostic", amContentAgnostic)
+                    }
+                    if (amAllowableTemplate) {
+                        addParameter("template", true)
+                    }
+                    if (isMandatoryTemplate) {
+                        addParameter("templateonly", true)
+                    }
+                    if (myUsers == null) {
+                        addParameter("multientry", true)
+                    }
+                    if (subscriptions != null) {
+                        addParameter("subscribe", subscriptions)
+                    }
+                }
+                addParameter("name", name)
+                val mods = myModSet.encode(control)
+                if (mods.size > 0) {
+                    addParameter("mods", mods)
+                }
+                if (control.toRepository() && myUserMods != null) {
+                    val userMods = JSONLiteralArray(control)
+                    for (mod in myUserMods) {
+                        userMods.addElement(mod)
+                    }
+                    if (userMods.size > 0) {
+                        addParameter("usermods", userMods)
+                    }
+                }
+                finish()
             }
-            if (isSemiPrivate) {
-                result.addParameter("semiprivate", isSemiPrivate)
-            }
-            if (isRestricted) {
-                result.addParameter("restricted", isRestricted)
-            }
-            if (amContentAgnostic) {
-                result.addParameter("agnostic", amContentAgnostic)
-            }
-            if (amAllowableTemplate) {
-                result.addParameter("template", true)
-            }
-            if (isMandatoryTemplate) {
-                result.addParameter("templateonly", true)
-            }
-            if (myUsers == null) {
-                result.addParameter("multientry", true)
-            }
-            if (subscriptions != null) {
-                result.addParameter("subscribe", subscriptions)
-            }
-        }
-        result.addParameter("name", name)
-        val mods = myModSet.encode(control)
-        if (mods.size > 0) {
-            result.addParameter("mods", mods)
-        }
-        if (control.toRepository() && myUserMods != null) {
-            val userMods = JSONLiteralArray(control)
-            for (mod in myUserMods) {
-                userMods.addElement(mod)
-            }
-            if (userMods.size > 0) {
-                result.addParameter("usermods", userMods)
-            }
-        }
-        result.finish()
-        return result
-    }
 
     companion object {
         /**

@@ -162,10 +162,11 @@ class BankWorker
          */
         fun fail(fail: String?, desc: String?) {
             if (rep != null) {
-                val reply = beginReply()
-                reply.addParameter("fail", fail)
-                reply.addParameter("desc", desc)
-                reply.finish()
+                val reply = beginReply().apply {
+                    addParameter("fail", fail)
+                    addParameter("desc", desc)
+                    finish()
+                }
                 from.send(reply)
             }
         }
@@ -368,9 +369,10 @@ class BankWorker
             env.fail("onceonly",
                     "the root key for this bank has already been issued")
         } else {
-            val reply = env.beginReply()
-            reply.addParameter("rootkey", rootKey.ref)
-            reply.finish()
+            val reply = env.beginReply().apply {
+                addParameter("rootkey", rootKey.ref)
+                finish()
+            }
             from.send(reply)
         }
     }
@@ -439,14 +441,13 @@ class BankWorker
 
             override fun complete(failure: String?) {
                 if (!env.accountWriteFailure(failure, "xfer")) {
-                    val reply = env.beginReply()
-                    reply.addParameter("src", src)
-                    reply.addParameter("srcbal",
-                            mySrcAccount!!.availBalance)
-                    reply.addParameter("dst", dst)
-                    reply.addParameter("dstbal",
-                            myDstAccount!!.availBalance)
-                    reply.finish()
+                    val reply = env.beginReply().apply {
+                        addParameter("src", src)
+                        addParameter("srcbal", mySrcAccount!!.availBalance)
+                        addParameter("dst", dst)
+                        addParameter("dstbal", myDstAccount!!.availBalance)
+                        finish()
+                    }
                     from.send(reply)
                 }
             }
@@ -495,10 +496,11 @@ class BankWorker
 
             override fun complete(failure: String?) {
                 if (!env.accountWriteFailure(failure, "dst")) {
-                    val reply = env.beginReply()
-                    reply.addParameter("dst", dst)
-                    reply.addParameter("dstbal", myDstAccount!!.availBalance)
-                    reply.finish()
+                    val reply = env.beginReply().apply {
+                        addParameter("dst", dst)
+                        addParameter("dstbal", myDstAccount!!.availBalance)
+                        finish()
+                    }
                     from.send(reply)
                 }
             }
@@ -548,10 +550,11 @@ class BankWorker
 
             override fun complete(failure: String?) {
                 if (!env.accountWriteFailure(failure, "src")) {
-                    val reply = env.beginReply()
-                    reply.addParameter("srcbal", mySrcAccount!!.availBalance)
-                    reply.addParameter("src", src)
-                    reply.finish()
+                    val reply = env.beginReply().apply {
+                        addParameter("srcbal", mySrcAccount!!.availBalance)
+                        addParameter("src", src)
+                        finish()
+                    }
                     from.send(reply)
                 }
             }
@@ -609,10 +612,11 @@ class BankWorker
 
             override fun complete(failure: String?) {
                 if (!env.accountWriteFailure(failure, "src")) {
-                    val reply = env.beginReply()
-                    reply.addParameter("enc", myEnc!!.ref)
-                    reply.addParameter("srcbal", mySrcAccount!!.availBalance)
-                    reply.finish()
+                    val reply = env.beginReply().apply {
+                        addParameter("enc", myEnc!!.ref)
+                        addParameter("srcbal", mySrcAccount!!.availBalance)
+                        finish()
+                    }
                     from.send(reply)
                 }
             }
@@ -655,12 +659,12 @@ class BankWorker
 
             override fun complete(failure: String?) {
                 if (!env.accountWriteFailure(failure, "src")) {
-                    val reply = env.beginReply()
-                    reply.addParameter("src", myEnc!!.account!!.ref)
-                    reply.addParameter("srcbal",
-                            myEnc!!.account!!.availBalance)
-                    reply.addParameter("active", !myEnc!!.isExpired)
-                    reply.finish()
+                    val reply = env.beginReply().apply {
+                        addParameter("src", myEnc!!.account!!.ref)
+                        addParameter("srcbal", myEnc!!.account!!.availBalance)
+                        addParameter("active", !myEnc!!.isExpired)
+                        finish()
+                    }
                     from.send(reply)
                 }
             }
@@ -725,12 +729,13 @@ class BankWorker
 
             override fun complete(failure: String?) {
                 if (!env.accountWriteFailure(failure, "xfer")) {
-                    val reply = env.beginReply()
-                    reply.addParameter("src", mySrcAccount!!.ref)
-                    reply.addParameter("srcbal", mySrcAccount!!.availBalance)
-                    reply.addParameter("dst", dst)
-                    reply.addParameter("dstbal", myDstAccount!!.availBalance)
-                    reply.finish()
+                    val reply = env.beginReply().apply {
+                        addParameter("src", mySrcAccount!!.ref)
+                        addParameter("srcbal", mySrcAccount!!.availBalance)
+                        addParameter("dst", dst)
+                        addParameter("dstbal", myDstAccount!!.availBalance)
+                        finish()
+                    }
                     from.send(reply)
                 }
             }
@@ -774,10 +779,11 @@ class BankWorker
 
             override fun complete(failure: String?) {
                 if (!env.accountWriteFailure(failure, "src")) {
-                    val reply = env.beginReply()
-                    reply.addParameter("src", myEnc!!.account!!.ref)
-                    reply.addParameter("srcbal", myEnc!!.account!!.availBalance)
-                    reply.finish()
+                    val reply = env.beginReply().apply {
+                        addParameter("src", myEnc!!.account!!.ref)
+                        addParameter("srcbal", myEnc!!.account!!.availBalance)
+                        finish()
+                    }
                     from.send(reply)
                 }
             }
@@ -814,14 +820,15 @@ class BankWorker
                 if (env.currencyAuthorityFailure(account.currency)) {
                     return false
                 }
-                val reply = env.beginReply()
-                reply.addParameter("enc", enc!!.ref)
-                reply.addParameter("curr", account.currency)
-                reply.addParameter("account", account.ref)
-                reply.addParameter("amount", enc.amount)
-                reply.addParameter("expires", enc.expires.toString())
-                reply.addParameterOpt("memo", enc.memo)
-                reply.finish()
+                val reply = env.beginReply().apply {
+                    addParameter("enc", enc!!.ref)
+                    addParameter("curr", account.currency)
+                    addParameter("account", account.ref)
+                    addParameter("amount", enc.amount)
+                    addParameter("expires", enc.expires.toString())
+                    addParameterOpt("memo", enc.memo)
+                    finish()
+                }
                 from.send(reply)
                 /* Don't write, hence even success is a form of failure. */
                 return false
@@ -864,9 +871,10 @@ class BankWorker
                 .map { myBank!!.makeAccount(it, owner, env.memo) }
                 .forEach { replyAccounts.addElement(it.ref) }
         replyAccounts.finish()
-        val reply = env.beginReply()
-        reply.addParameter("accounts", replyAccounts)
-        reply.finish()
+        val reply = env.beginReply().apply {
+            addParameter("accounts", replyAccounts)
+            finish()
+        }
         from.send(reply)
     }
 
@@ -906,9 +914,10 @@ class BankWorker
 
             override fun complete(failure: String?) {
                 if (!env.accountWriteFailure(failure, "src")) {
-                    val reply = env.beginReply()
-                    reply.addParameter("account", account)
-                    reply.finish()
+                    val reply = env.beginReply().apply {
+                        addParameter("account", account)
+                        finish()
+                    }
                     from.send(reply)
                 }
             }
@@ -955,30 +964,31 @@ class BankWorker
                     amFailed = true
                     return false
                 }
-                val accountDesc = JSONLiteral()
-                accountDesc.addParameter("account", account.ref)
-                accountDesc.addParameter("curr", account.currency)
-                accountDesc.addParameter("total", account.totalBalance)
-                accountDesc.addParameter("avail", account.availBalance)
-                accountDesc.addParameter("frozen", account.isFrozen)
-                accountDesc.addParameter("memo", account.memo)
-                accountDesc.addParameter("owner", account.owner)
-                if (encs.value(false)) {
-                    val encsList = JSONLiteralArray()
-                    for (enc in account.encumbrances) {
-                        val encDesc = JSONLiteral()
-                        encDesc.addParameter("enc", enc.ref)
-                        encDesc.addParameter("amount", enc.amount)
-                        encDesc.addParameter("expires",
-                                enc.expires.toString())
-                        encDesc.addParameterOpt("memo", enc.memo)
-                        encDesc.finish()
-                        encsList.addElement(encDesc)
+                val accountDesc = JSONLiteral().apply {
+                    addParameter("account", account.ref)
+                    addParameter("curr", account.currency)
+                    addParameter("total", account.totalBalance)
+                    addParameter("avail", account.availBalance)
+                    addParameter("frozen", account.isFrozen)
+                    addParameter("memo", account.memo)
+                    addParameter("owner", account.owner)
+                    if (encs.value(false)) {
+                        val encsList = JSONLiteralArray()
+                        account.encumbrances.forEach { enc ->
+                            val encDesc = JSONLiteral().apply {
+                                addParameter("enc", enc.ref)
+                                addParameter("amount", enc.amount)
+                                addParameter("expires", enc.expires.toString())
+                                addParameterOpt("memo", enc.memo)
+                                finish()
+                            }
+                            encsList.addElement(encDesc)
+                        }
+                        encsList.finish()
+                        addParameter("encs", encsList)
                     }
-                    encsList.finish()
-                    accountDesc.addParameter("encs", encsList)
+                    finish()
                 }
-                accountDesc.finish()
                 for (i in accounts.indices) {
                     if (accounts[i] == account.ref) {
                         myAccountDescs[i] = accountDesc
@@ -987,9 +997,10 @@ class BankWorker
                 }
                 ++myResultCount
                 if (myResultCount == accounts.size) {
-                    val reply = env.beginReply()
-                    reply.addParameter("accounts", myAccountDescs)
-                    reply.finish()
+                    val reply = env.beginReply().apply {
+                        addParameter("accounts", myAccountDescs)
+                        finish()
+                    }
                     from.send(reply)
                 }
                 /* Don't write, hence even success is a form of failure. */
@@ -1038,9 +1049,10 @@ class BankWorker
 
             override fun complete(failure: String?) {
                 if (!env.accountWriteFailure(failure, "src")) {
-                    val reply = env.beginReply()
-                    reply.addParameter("account", account)
-                    reply.finish()
+                    val reply = env.beginReply().apply {
+                        addParameter("account", account)
+                        finish()
+                    }
                     from.send(reply)
                 }
             }
@@ -1080,9 +1092,10 @@ class BankWorker
 
             override fun complete(failure: String?) {
                 if (!env.accountWriteFailure(failure, "src")) {
-                    val reply = env.beginReply()
-                    reply.addParameter("account", account)
-                    reply.finish()
+                    val reply = env.beginReply().apply {
+                        addParameter("account", account)
+                        finish()
+                    }
                     from.send(reply)
                 }
             }
@@ -1111,9 +1124,10 @@ class BankWorker
             return
         }
         myBank!!.makeCurrency(curr, env.memo)
-        val reply = env.beginReply()
-        reply.addParameter("curr", curr)
-        reply.finish()
+        val reply = env.beginReply().apply {
+            addParameter("curr", curr)
+            finish()
+        }
         from.send(reply)
     }
 
@@ -1134,18 +1148,20 @@ class BankWorker
         if (env.operationAuthorityFailure("full")) {
             return
         }
-        val reply = env.beginReply()
-        val currList = JSONLiteralArray()
-        for (curr in myBank!!.currencies()) {
-            val currDesc = JSONLiteral()
-            currDesc.addParameter("curr", curr.name)
-            currDesc.addParameter("memo", curr.memo)
-            currDesc.finish()
-            currList.addElement(currDesc)
+        val reply = env.beginReply().apply {
+            val currList = JSONLiteralArray()
+            myBank!!.currencies().forEach { curr ->
+                val currDesc = JSONLiteral().apply {
+                    addParameter("curr", curr.name)
+                    addParameter("memo", curr.memo)
+                    finish()
+                }
+                currList.addElement(currDesc)
+            }
+            currList.finish()
+            addParameter("currencies", currList)
+            finish()
         }
-        currList.finish()
-        reply.addParameter("currencies", currList)
-        reply.finish()
         from.send(reply)
     }
 
@@ -1186,9 +1202,10 @@ class BankWorker
         }
         val expires = env.getValidExpiration(optExpires.value<String?>(null), true) ?: return
         val newKey = myBank!!.makeKey(env.key, auth, currs, expires, env.memo)
-        val reply = env.beginReply()
-        reply.addParameter("newkey", newKey.ref)
-        reply.finish()
+        val reply = env.beginReply().apply {
+            addParameter("newkey", newKey.ref)
+            finish()
+        }
         from.send(reply)
     }
 
@@ -1216,9 +1233,10 @@ class BankWorker
             return
         }
         myBank!!.deleteKey(toCancel)
-        val reply = env.beginReply()
-        reply.addParameter("cancel", cancel)
-        reply.finish()
+        val reply = env.beginReply().apply {
+            addParameter("cancel", cancel)
+            finish()
+        }
         from.send(reply)
     }
 
@@ -1240,9 +1258,10 @@ class BankWorker
         val expires = env.getValidExpiration(optExpires.value<String?>(null), true) ?: return
         val newKey = myBank!!.makeKey(env.key, env.key!!.auth,
                 env.key.currencies, expires, env.memo)
-        val reply = env.beginReply()
-        reply.addParameter("newkey", newKey.ref)
-        reply.finish()
+        val reply = env.beginReply().apply {
+            addParameter("newkey", newKey.ref)
+            finish()
+        }
         from.send(reply)
     }
 

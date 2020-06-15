@@ -7,7 +7,6 @@ import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralArray
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonObject
@@ -235,17 +234,15 @@ internal class AdminHandler(private val myDirector: Director, traceFactory: Trac
     }
 
     private class ContextDump internal constructor(private val myDepth: Int, private val myContext: OpenContext) : Encodable {
-        override fun encode(control: EncodeControl): JSONLiteral {
-            val literal = JSONLiteralFactory.type("contextdesc", control)
-            literal.addParameter("context", myContext.name)
-            literal.addParameter("numusers", myContext.userCount())
-            if (myDepth > 2) {
-                literal.addParameter("users",
-                        encodeStrings(myContext.users()))
-            }
-            literal.finish()
-            return literal
-        }
+        override fun encode(control: EncodeControl) =
+                JSONLiteralFactory.type("contextdesc", control).apply {
+                    addParameter("context", myContext.name)
+                    addParameter("numusers", myContext.userCount())
+                    if (myDepth > 2) {
+                        addParameter("users", encodeStrings(myContext.users()))
+                    }
+                    finish()
+                }
 
     }
 

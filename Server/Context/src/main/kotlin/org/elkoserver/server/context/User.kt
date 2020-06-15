@@ -158,19 +158,18 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return a JSON literal representing this user.
      */
-    override fun encode(control: EncodeControl): JSONLiteral {
-        val result = JSONLiteralFactory.type("user", control)
-        if (control.toClient()) {
-            result.addParameter("ref", myRef)
-        }
-        result.addParameter("name", name)
-        val mods = myModSet.encode(control)
-        if (mods.size > 0) {
-            result.addParameter("mods", mods)
-        }
-        result.finish()
-        return result
-    }
+    override fun encode(control: EncodeControl) =
+            JSONLiteralFactory.type("user", control).apply {
+                if (control.toClient()) {
+                    addParameter("ref", myRef)
+                }
+                addParameter("name", name)
+                val mods = myModSet.encode(control)
+                if (mods.size > 0) {
+                    addParameter("mods", mods)
+                }
+                finish()
+            }
 
     /**
      * Place this user into a context.  The user will be removed from any

@@ -49,9 +49,10 @@ class Counter @JSONMethod("count") constructor(private var myCount: Int) : Mod()
         ensureSameContext(from)
         ++myCount
         markAsChanged()
-        val announce = JSONLiteralFactory.targetVerb(`object`(), "set")
-        announce.addParameter("count", myCount)
-        announce.finish()
+        val announce = JSONLiteralFactory.targetVerb(`object`(), "set").apply {
+            addParameter("count", myCount)
+            finish()
+        }
         context().send(announce)
     }
 }

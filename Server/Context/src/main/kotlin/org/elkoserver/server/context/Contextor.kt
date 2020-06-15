@@ -963,6 +963,7 @@ class Contextor internal constructor(
      *
      * @return a random long.
      */
+    @Deprecated(message = "Used for 1 specific example, which should have the services it needs injected.")
     fun randomLong() = myRandom.nextLong()
 
     /**

@@ -2,7 +2,6 @@ package org.elkoserver.feature.caps
 
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.ContextKey
@@ -42,11 +41,10 @@ class ContextKeyCap @JSONMethod("contexts") constructor(
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl): JSONLiteral {
-        val result = JSONLiteralFactory.type("ctxkey", control)
-        encodeDefaultParameters(result)
-        result.addParameter("contexts", myContexts)
-        result.finish()
-        return result
-    }
+    override fun encode(control: EncodeControl) =
+            JSONLiteralFactory.type("ctxkey", control).apply {
+                encodeDefaultParameters(this)
+                addParameter("contexts", myContexts)
+                finish()
+            }
 }

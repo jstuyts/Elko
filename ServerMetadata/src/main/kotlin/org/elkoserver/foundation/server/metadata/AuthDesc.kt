@@ -63,12 +63,12 @@ class AuthDesc(val mode: String, private val code: String?, private val id: Stri
             if (control.toClient() && mode == "open") {
                 null
             } else {
-                val result = JSONLiteralFactory.type("auth", control)
-                result.addParameter("mode", mode)
-                result.addParameterOpt("id", id)
-                result.addParameterOpt("code", code)
-                result.finish()
-                result
+                JSONLiteralFactory.type("auth", control).apply {
+                    addParameter("mode", mode)
+                    addParameterOpt("id", id)
+                    addParameterOpt("code", code)
+                    finish()
+                }
             }
 
     companion object {

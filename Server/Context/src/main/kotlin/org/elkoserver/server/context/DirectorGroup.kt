@@ -330,14 +330,13 @@ class DirectorGroup(server: Server,
          * @param open  Flag indicating open or closed
          * @param reason  Reason for closing the gate
          */
-        private fun msgGate(context: String, open: Boolean, reason: String?): JSONLiteral {
-            val msg = JSONLiteralFactory.targetVerb("provider", "gate")
-            msg.addParameter("context", context)
-            msg.addParameter("open", open)
-            msg.addParameterOpt("reason", reason)
-            msg.finish()
-            return msg
-        }
+        private fun msgGate(context: String, open: Boolean, reason: String?) =
+                JSONLiteralFactory.targetVerb("provider", "gate").apply {
+                    addParameter("context", context)
+                    addParameter("open", open)
+                    addParameterOpt("reason", reason)
+                    finish()
+                }
 
         /**
          * Create a "user" message.

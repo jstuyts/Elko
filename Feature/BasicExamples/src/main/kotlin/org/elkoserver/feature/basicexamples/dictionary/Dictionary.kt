@@ -38,22 +38,22 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
      * @return a JSON literal representing this mod.
      */
     override fun encode(control: EncodeControl): JSONLiteral {
-        val result = JSONLiteralFactory.type("dictionary", control)
         val vars =
                 if (control.toClient() || amPersistent) {
                     myVars
                 } else {
                     myOriginalVars
                 }
-        vars?.let {
-            result.addParameter("names", it.keys.toTypedArray() as Array<String?>)
-            result.addParameter("values", it.values.toTypedArray() as Array<String?>)
+        return JSONLiteralFactory.type("dictionary", control).apply {
+            vars?.let {
+                addParameter("names", it.keys.toTypedArray() as Array<out String?>)
+                addParameter("values", it.values.toTypedArray() as Array<out String?>)
+            }
+            if (control.toRepository() && amPersistent) {
+                addParameter("persist", amPersistent)
+            }
+            finish()
         }
-        if (control.toRepository() && amPersistent) {
-            result.addParameter("persist", amPersistent)
-        }
-        result.finish()
-        return result
     }
 
     /**

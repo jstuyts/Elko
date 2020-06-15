@@ -47,12 +47,12 @@ class Die @JSONMethod("sides") constructor(private val mySides: Int) : Mod(), It
     @JSONMethod
     fun roll(from: User) {
         ensureSameContext(from)
-        val announce = JSONLiteralFactory.targetVerb(`object`(), "roll")
-        var value = context().contextor().randomLong().toInt()
-        value = abs(value) % mySides + 1
-        announce.addParameter("value", value)
-        announce.addParameter("from", from.ref())
-        announce.finish()
+        val value = abs(context().contextor().randomLong().toInt()) % mySides + 1
+        val announce = JSONLiteralFactory.targetVerb(`object`(), "roll").apply {
+            addParameter("value", value)
+            addParameter("from", from.ref())
+            finish()
+        }
         context().send(announce)
     }
 }

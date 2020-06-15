@@ -56,15 +56,16 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, traceF
                 ++numUsers
                 numPresences += user.presenceCount()
                 if (depth > 0) {
-                    val elem = JSONLiteral()
-                    elem.addParameter("user", user.ref)
-                    if (depth > 1) {
-                        elem.addParameter("pres", user.presences)
+                    val elem = JSONLiteral().apply {
+                        addParameter("user", user.ref)
+                        if (depth > 1) {
+                            addParameter("pres", user.presences)
+                        }
+                        if (depth > 2) {
+                            addParameter("conn", user.encodeFriendsDump())
+                        }
+                        finish()
                     }
-                    if (depth > 2) {
-                        elem.addParameter("conn", user.encodeFriendsDump())
-                    }
-                    elem.finish()
                     userDump.addElement(elem)
                 }
             }

@@ -36,7 +36,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      */
     constructor(control: EncodeControl = EncodeControl.forClient) : this(StringBuilder(1000), control)
 
-    fun addParameter(param: String?, jsonLiteral: JSONLiteral?) {
+    fun addParameter(param: String, jsonLiteral: JSONLiteral?) {
         addParameter(param, jsonLiteral as Any?)
     }
 
@@ -51,7 +51,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @throws Error if you try to add a parameter to literal that is already
      * complete.
      */
-    fun addParameter(param: String?, value: Any?) {
+    fun addParameter(param: String, value: Any?) {
         val start = myStringBuilder.length
         beginParameter(param)
         if (appendValueString(myStringBuilder, value, control)) {
@@ -67,7 +67,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The optional parameter value.
      */
-    fun addParameterOpt(param: String?, value: Any?) {
+    fun addParameterOpt(param: String, value: Any?) {
         value?.let { addParameter(param, it) }
     }
 
@@ -77,7 +77,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The (array) parameter value.
      */
-    fun addParameter(param: String?, value: Array<Any?>) {
+    fun addParameter(param: String, value: Array<out Any?>) {
         beginParameter(param)
         val arr = JSONLiteralArray(myStringBuilder, control)
         for (element in value) {
@@ -86,12 +86,12 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
         arr.finish()
     }
 
-    fun addParameter(param: String?, value: Array<String?>) {
-        addParameter(param, value as Array<Any?>)
+    fun addParameter(param: String, value: Array<out String?>) {
+        addParameter(param, value as Array<out Any?>)
     }
 
-    fun addParameter(param: String?, value: Array<JSONLiteral?>) {
-        addParameter(param, value as Array<Any?>)
+    fun addParameter(param: String, value: Array<JSONLiteral?>) {
+        addParameter(param, value as Array<out Any?>)
     }
 
     /**
@@ -100,7 +100,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The (collection) parameter value.
      */
-    fun addParameter(param: String?, value: Collection<*>) {
+    fun addParameter(param: String, value: Collection<*>) {
         beginParameter(param)
         val arr = JSONLiteralArray(myStringBuilder, control)
         for (element in value) {
@@ -117,7 +117,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The optional (array) parameter value.
      */
-    fun addParameterOpt(param: String?, value: Array<Any?>?) {
+    fun addParameterOpt(param: String, value: Array<Any?>?) {
         value?.let { addParameter(param, it) }
     }
 
@@ -129,7 +129,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The optional (collection) parameter value.
      */
-    fun addParameterOpt(param: String?, value: Collection<*>?) {
+    fun addParameterOpt(param: String, value: Collection<*>?) {
         if (value != null && value.isNotEmpty()) {
             addParameter(param, value)
         }
@@ -271,7 +271,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The ([JSONLiteralArray]) parameter value.
      */
-    fun addParameter(param: String?, value: JSONLiteralArray?) {
+    fun addParameter(param: String, value: JSONLiteralArray?) {
         addParameter(param, value as Any?)
     }
 
@@ -283,7 +283,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The optional ([JSONLiteralArray]) parameter value
      */
-    fun addParameterOpt(param: String?, value: JSONLiteralArray?) {
+    fun addParameterOpt(param: String, value: JSONLiteralArray?) {
         value?.let { addParameter(param, it) }
     }
 
@@ -293,7 +293,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The ([Encodable]) parameter value.
      */
-    fun addParameter(param: String?, value: Encodable?) {
+    fun addParameter(param: String, value: Encodable?) {
         addParameter(param, value as Any?)
     }
 
@@ -305,7 +305,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The optional ([Encodable]) parameter value.
      */
-    fun addParameterOpt(param: String?, value: Encodable?) {
+    fun addParameterOpt(param: String, value: Encodable?) {
         value?.let { addParameter(param, it) }
     }
 
@@ -315,7 +315,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The (double) parameter value.
      */
-    fun addParameter(param: String?, value: Double) {
+    fun addParameter(param: String, value: Double) {
         addParameter(param, value as Any)
     }
 
@@ -325,7 +325,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The (boolean) parameter value.
      */
-    fun addParameter(param: String?, value: Boolean) {
+    fun addParameter(param: String, value: Boolean) {
         addParameter(param, value as Any)
     }
 
@@ -335,7 +335,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name
      * @param value  The (int) parameter value.
      */
-    fun addParameter(param: String?, value: Int) {
+    fun addParameter(param: String, value: Int) {
         addParameter(param, value as Any)
     }
 
@@ -345,7 +345,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The (long) parameter value.
      */
-    fun addParameter(param: String?, value: Long) {
+    fun addParameter(param: String, value: Long) {
         addParameter(param, value as Any)
     }
 
@@ -355,7 +355,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The ([JsonObject]) parameter value.
      */
-    fun addParameter(param: String?, value: JsonObject?) {
+    fun addParameter(param: String, value: JsonObject?) {
         addParameter(param, value as Any?)
     }
 
@@ -367,7 +367,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The ([JsonObject]) parameter value.
      */
-    fun addParameterOpt(param: String?, value: JsonObject?) {
+    fun addParameterOpt(param: String, value: JsonObject?) {
         value?.let { addParameter(param, it) }
     }
 
@@ -377,7 +377,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The ([Referenceable]) parameter value.
      */
-    fun addParameter(param: String?, value: Referenceable) {
+    fun addParameter(param: String, value: Referenceable) {
         addParameter(param, value.ref() as Any)
     }
 
@@ -389,7 +389,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name
      * @param value  The parameter value
      */
-    fun addParameterOpt(param: String?, value: Referenceable?) {
+    fun addParameterOpt(param: String, value: Referenceable?) {
         value?.let { addParameter(param, it) }
     }
 
@@ -399,7 +399,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The ([String]) parameter value.
      */
-    fun addParameter(param: String?, value: String?) {
+    fun addParameter(param: String, value: String?) {
         addParameter(param, value as Any?)
     }
 
@@ -411,7 +411,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      * @param param  The parameter name.
      * @param value  The parameter value.
      */
-    fun addParameterOpt(param: String?, value: String?) {
+    fun addParameterOpt(param: String, value: String?) {
         value?.let { addParameter(param, it) }
     }
 
@@ -422,7 +422,7 @@ class JSONLiteral internal constructor(private val myStringBuilder: StringBuilde
      *
      * @param param  The parameter name.
      */
-    private fun beginParameter(param: String?) {
+    private fun beginParameter(param: String) {
         if (myState != COMPLETE) {
             if (myState == INITIAL) {
                 /* Have added first parameter */
