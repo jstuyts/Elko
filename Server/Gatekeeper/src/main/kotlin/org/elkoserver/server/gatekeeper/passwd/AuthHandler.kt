@@ -178,7 +178,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
             if (obj != null) {
                 val actor = obj as ActorDesc
                 if (actor.canSetPass != canSetPass) {
-                    actor.setCanSetPass(canSetPass)
+                    actor.canSetPass = canSetPass
                     myAuthorizer.checkpointActor(actor)
                 }
             }

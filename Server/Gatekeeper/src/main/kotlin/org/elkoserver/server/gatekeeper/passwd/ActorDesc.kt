@@ -5,7 +5,6 @@ import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory.type
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -34,7 +33,6 @@ class ActorDesc : Encodable {
 
     /** Flag controlling permission for actor to modify their own password.  */
     internal var canSetPass: Boolean
-        private set
 
     companion object {
         /** Random number generator, for generating password salt.  */
@@ -115,18 +113,17 @@ class ActorDesc : Encodable {
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl): JSONLiteral {
-        val result = type("actor", control)
-        result.addParameter("id", id)
-        result.addParameterOpt("iid", myInternalID)
-        result.addParameterOpt("name", name)
-        result.addParameterOpt("password", myPassword)
-        if (!canSetPass) {
-            result.addParameter("cansetpass", false)
-        }
-        result.finish()
-        return result
-    }
+    override fun encode(control: EncodeControl) =
+            type("actor", control).apply {
+                addParameter("id", id)
+                addParameterOpt("iid", myInternalID)
+                addParameterOpt("name", name)
+                addParameterOpt("password", myPassword)
+                if (!canSetPass) {
+                    addParameter("cansetpass", false)
+                }
+                finish()
+            }
 
     /**
      * Compute a string that represents the SHA hash of a password string.
@@ -155,22 +152,7 @@ class ActorDesc : Encodable {
      *
      * @return this actor's internal ID.
      */
-    fun internalID(): String? {
-        return if (myInternalID != null) {
-            myInternalID
-        } else {
-            id
-        }
-    }
-
-    /**
-     * Set this actor's permission to change their password.
-     *
-     * @param canSetPass  true if actor can change their password, false if not
-     */
-    fun setCanSetPass(canSetPass: Boolean) {
-        this.canSetPass = canSetPass
-    }
+    fun internalID() = myInternalID ?: id
 
     /**
      * Set this actor's internal identifier.
