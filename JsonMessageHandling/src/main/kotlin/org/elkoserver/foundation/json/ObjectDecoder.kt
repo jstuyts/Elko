@@ -3,7 +3,9 @@ package org.elkoserver.foundation.json
 import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.TraceFactory
 import java.lang.reflect.Constructor
+import java.security.MessageDigest
 import java.time.Clock
+import java.util.Random
 
 /**
  * A producer of some class of Java objects from JSON-encoded object
@@ -35,7 +37,7 @@ import java.time.Clock
  *
  * @param decodeClass  The Java class to construct a decoder for
  */
-class ObjectDecoder internal constructor(decodeClass: Class<*>, traceFactory: TraceFactory, clock: Clock, jsonToObjectDeserializer: JsonToObjectDeserializer) {
+class ObjectDecoder internal constructor(decodeClass: Class<*>, traceFactory: TraceFactory, clock: Clock, jsonToObjectDeserializer: JsonToObjectDeserializer, random: Random, messageDigest: MessageDigest) {
     /** Reflection information for the Java constructor this decoder invokes. */
     private val myConstructor: ConstructorInvoker
 
@@ -77,6 +79,6 @@ class ObjectDecoder internal constructor(decodeClass: Class<*>, traceFactory: Tr
         if (jsonConstructor == null) {
             throw JSONSetupError("no JSON constructor for class ${decodeClass.name}")
         }
-        myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, jsonConstructor.parameterTypes, paramNames!!, traceFactory, clock, jsonToObjectDeserializer)
+        myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, jsonConstructor.parameterTypes, paramNames!!, traceFactory, clock, jsonToObjectDeserializer, random, messageDigest)
     }
 }

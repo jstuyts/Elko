@@ -34,6 +34,8 @@ import org.ooverkommelig.Once
 import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.req
+import java.security.MessageDigest
+import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.time.Clock
 
@@ -137,7 +139,29 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }
 
-    val jsonToObjectDeserializer by Once { JsonToObjectDeserializer(req(jsonToObjectDeserializerGorgel), req(provided.traceFactory()), req(provided.clock())) }
+    val jsonToObjectDeserializer by Once {
+        JsonToObjectDeserializer(
+                req(jsonToObjectDeserializerGorgel),
+                req(provided.traceFactory()),
+                req(provided.clock()),
+                req(deserializedObjectRandom),
+                req(deserializedObjectMessageDigest))
+    }
+
+    val deserializedObjectRandom by Once { SecureRandom() }
+
+    val deserializedObjectMessageDigest by Once {
+        try {
+            MessageDigest.getInstance("SHA")
+        } catch (e: NoSuchAlgorithmException) {
+            /* According to Sun's documentation, this exception can't actually
+           happen, since the JVM is required to support the SHA algorithm.
+           However, the compiler requires the catch.  And it *could* happen
+           if either the documentation or the JVM implementation are wrong.
+           Like that ever happens. */
+            throw IllegalStateException("This JVM lacks SHA support", e)
+        }
+    }
 
     val runnerRef by Once { RunnerRef(req(provided.traceFactory())) }
             .dispose { it.shutDown() }

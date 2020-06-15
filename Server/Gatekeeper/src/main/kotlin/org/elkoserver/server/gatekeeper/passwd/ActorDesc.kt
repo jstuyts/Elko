@@ -7,8 +7,7 @@ import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteralFactory.type
 import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
-import java.security.SecureRandom
+import java.util.Random
 import kotlin.experimental.and
 
 /**
@@ -34,28 +33,9 @@ class ActorDesc : Encodable {
     /** Flag controlling permission for actor to modify their own password.  */
     internal var canSetPass: Boolean
 
-    companion object {
-        /** Random number generator, for generating password salt.  */
-        @Deprecated("Global variable")
-        private val theRandom = SecureRandom()
+    private lateinit var myRandom: Random
 
-        /** Object to SHA hash passwords.  */
-        @Deprecated("Global variable")
-        private val theSHA: MessageDigest
-
-        init {
-            theSHA = try {
-                MessageDigest.getInstance("SHA")
-            } catch (e: NoSuchAlgorithmException) {
-                /* According to Sun's documentation, this exception can't actually
-               happen, since the JVM is required to support the SHA algorithm.
-               However, the compiler requires the catch.  And it *could* happen
-               if either the documentation or the JVM implementation are wrong.
-               Like that ever happens. */
-                throw IllegalStateException("This JVM lacks SHA support", e)
-            }
-        }
-    }
+    private lateinit var myMessageDigest: MessageDigest
 
     /**
      * Normal constructor.
@@ -67,12 +47,15 @@ class ActorDesc : Encodable {
      * @param canSetPass  Permission to change password.
      */
     constructor(id: String, internalID: String?, name: String?, password: String?,
-                canSetPass: Boolean) {
+                canSetPass: Boolean, random: Random, messageDigest: MessageDigest) {
         this.id = id
         myInternalID = internalID
         this.name = name
-        setPassword(password)
         this.canSetPass = canSetPass
+        myRandom = random
+        myMessageDigest = messageDigest
+
+        setPassword(password)
     }
 
     /**
@@ -132,9 +115,9 @@ class ActorDesc : Encodable {
      * @param password  The password to hash.
      */
     private fun hashPassword(salt: ByteArray, password: String?): String {
-        theSHA.update(salt)
-        theSHA.update((password ?: "").toByteArray())
-        val hash = theSHA.digest()
+        myMessageDigest.update(salt)
+        myMessageDigest.update((password ?: "").toByteArray())
+        val hash = myMessageDigest.digest()
         val encoded = CharArray(hash.size * 2 + 8)
         for (i in 0..3) {
             encoded[i * 2] = Integer.toHexString(salt[i].and(0xF0.toByte()).toInt() shr 4)[0]
@@ -192,7 +175,7 @@ class ActorDesc : Encodable {
         } else {
             val salt = ByteArray(4)
             mySalt = salt
-            theRandom.nextBytes(mySalt)
+            myRandom.nextBytes(mySalt)
             myPassword = hashPassword(salt, password)
         }
     }

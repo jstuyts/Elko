@@ -9,6 +9,8 @@ import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.gatekeeper.Gatekeeper
 import org.elkoserver.util.trace.TraceFactory
+import java.security.MessageDigest
+import java.util.Random
 import java.util.function.Consumer
 
 /**
@@ -17,7 +19,7 @@ import java.util.function.Consumer
  * @param myAuthorizer  The password authorizer being administered.
  * @param myGatekeeper  The gatekeeper this handler is working for.
  */
-internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private val myGatekeeper: Gatekeeper, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private val myGatekeeper: Gatekeeper, traceFactory: TraceFactory, private val actorRandom: Random, private val actorMessageDigest: MessageDigest) : BasicProtocolHandler(traceFactory) {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -71,7 +73,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
                             "actor ID not available"))
                 }
             } else {
-                val actor = ActorDesc(myID, myInternalID, myName, myPassword, myCanSetPass)
+                val actor = ActorDesc(myID, myInternalID, myName, myPassword, myCanSetPass, actorRandom, actorMessageDigest)
                 myAuthorizer.addActor(actor)
                 myFrom.send(msgCreateActor(this@AuthHandler, myID, null))
             }

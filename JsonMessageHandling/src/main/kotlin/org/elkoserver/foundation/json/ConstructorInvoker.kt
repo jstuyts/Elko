@@ -4,7 +4,9 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.TraceFactory
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
+import java.security.MessageDigest
 import java.time.Clock
+import java.util.Random
 
 /**
  * Invoker subclass for constructors.  Uses Java reflection to invoke a
@@ -24,7 +26,9 @@ internal class ConstructorInvoker(
         paramNames: Array<out String>,
         traceFactory: TraceFactory,
         clock: Clock,
-        jsonToObjectDeserializer: JsonToObjectDeserializer) : Invoker<Any?>(myConstructor, paramTypes, paramNames, if (amIncludingRawObject) 1 else 0, traceFactory, clock, jsonToObjectDeserializer) {
+        jsonToObjectDeserializer: JsonToObjectDeserializer,
+        private val random: Random,
+        private val messageDigest: MessageDigest) : Invoker<Any?>(myConstructor, paramTypes, paramNames, if (amIncludingRawObject) 1 else 0, traceFactory, clock, jsonToObjectDeserializer) {
 
     /**
      * Invoke the constructor on a JSON object descriptor.
@@ -61,6 +65,12 @@ internal class ConstructorInvoker(
         }
         if (result is TraceFactoryUsingObject) {
             result.setTraceFactory(traceFactory)
+        }
+        if (result is RandomUsingObject) {
+            result.setRandom(random)
+        }
+        if (result is MessageDigestUsingObject) {
+            result.setMessageDigest(messageDigest)
         }
         if (result is PostInjectionInitializingObject) {
             result.initialize()
