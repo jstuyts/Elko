@@ -4,7 +4,6 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.TraceFactory
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
-import java.time.Clock
 
 /**
  * Invoker subclass for methods.  Uses Java reflection to invoke a JSON message
@@ -22,8 +21,7 @@ internal class MethodInvoker(
         paramNames: Array<out String>,
         internal val next: MethodInvoker?,
         traceFactory: TraceFactory,
-        clock: Clock,
-        jsonToObjectDeserializer: JsonToObjectDeserializer) : Invoker<Any>(myMethod, paramTypes, paramNames, 1, traceFactory, clock, jsonToObjectDeserializer) {
+        jsonToObjectDeserializer: JsonToObjectDeserializer) : Invoker<Any>(myMethod, paramTypes, paramNames, 1, traceFactory, jsonToObjectDeserializer) {
 
     /** The Java class that defined the method.  */
     @Suppress("UNCHECKED_CAST")

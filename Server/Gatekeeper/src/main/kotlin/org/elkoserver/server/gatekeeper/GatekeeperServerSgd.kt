@@ -2,7 +2,9 @@
 
 package org.elkoserver.server.gatekeeper
 
+import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.RunnerRef
@@ -142,12 +144,16 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
         JsonToObjectDeserializer(
                 req(jsonToObjectDeserializerGorgel),
                 req(provided.traceFactory()),
-                req(provided.clock()),
-                req(deserializedObjectRandom),
-                req(deserializedObjectMessageDigest))
+                req(injectors))
     }
 
+    val clockInjector by Once { ClockInjector(req(provided.clock())) }
+
+    val traceFactoryInjector by Once { TraceFactoryInjector(req(provided.traceFactory())) }
+
     val deserializedObjectRandom by Once { SecureRandom() }
+
+    val deserializedObjectRandomInjector by Once { RandomInjector(req(deserializedObjectRandom)) }
 
     val deserializedObjectMessageDigest by Once {
         try {
@@ -162,6 +168,10 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
         }
     }
 
+    val deserializedObjectMessageDigestInjector by Once { MessageDigestInjector(req(deserializedObjectMessageDigest)) }
+
+    val injectors by Once { listOf(req(clockInjector), req(traceFactoryInjector), req(deserializedObjectRandomInjector), req(deserializedObjectMessageDigestInjector)) }
+
     val runnerRef by Once { RunnerRef(req(provided.traceFactory())) }
             .dispose { it.shutDown() }
 
@@ -174,7 +184,6 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(connectionRetrierWithoutLabelGorgel),
                 req(provided.traceFactory()),
                 req(provided.timer()),
-                req(provided.clock()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(jsonToObjectDeserializer),
                 req(getRequestFactory),
@@ -206,7 +215,6 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(gateTrace),
                 req(provided.timer()),
                 req(provided.traceFactory()),
-                req(provided.clock()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(provided.props()),
                 req(jsonToObjectDeserializer),

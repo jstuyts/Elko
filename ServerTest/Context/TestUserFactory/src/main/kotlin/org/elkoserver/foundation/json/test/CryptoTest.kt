@@ -1,7 +1,9 @@
 package org.elkoserver.foundation.json.test
 
+import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.Cryptor
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 import org.elkoserver.json.JSONLiteral
@@ -12,8 +14,6 @@ import org.elkoserver.util.trace.slf4j.GorgelImpl
 import org.slf4j.LoggerFactory
 import org.slf4j.MarkerFactory
 import java.io.IOException
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.time.Clock
 import kotlin.system.exitProcess
@@ -78,24 +78,12 @@ internal object CryptoTest {
         if (keyStr == null) {
             keyStr = Cryptor.generateKey(traceController.factory)
         }
-        val messageDigest = try {
-            MessageDigest.getInstance("SHA")
-        } catch (e: NoSuchAlgorithmException) {
-            /* According to Sun's documentation, this exception can't actually
-           happen, since the JVM is required to support the SHA algorithm.
-           However, the compiler requires the catch.  And it *could* happen
-           if either the documentation or the JVM implementation are wrong.
-           Like that ever happens. */
-            throw IllegalStateException("This JVM lacks SHA support", e)
-        }
         val jsonToObjectDeserializer = JsonToObjectDeserializer(
                 GorgelImpl(LoggerFactory.getLogger(JsonToObjectDeserializer::class.java),
                         LoggerFactory.getILoggerFactory(),
                         MarkerFactory.getIMarkerFactory()),
                 traceController.factory,
-                clock,
-                SecureRandom(),
-                messageDigest)
+                listOf(ClockInjector(clock), TraceFactoryInjector(traceController.factory)))
         val cryptor = Cryptor(keyStr, traceController.factory, jsonToObjectDeserializer)
         if (cypherText != null) {
             try {

@@ -2,7 +2,9 @@
 
 package org.elkoserver.server.director
 
+import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.RunnerRef
@@ -36,8 +38,6 @@ import org.ooverkommelig.Once
 import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.req
-import java.security.MessageDigest
-import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.time.Clock
 
@@ -142,25 +142,14 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
         JsonToObjectDeserializer(
                 req(jsonToObjectDeserializerGorgel),
                 req(provided.traceFactory()),
-                req(provided.clock()),
-                req(deserializedObjectRandom),
-                req(deserializedObjectMessageDigest))
+                req(injectors))
     }
 
-    val deserializedObjectRandom by Once { SecureRandom() }
+    val clockInjector by Once { ClockInjector(req(provided.clock())) }
 
-    val deserializedObjectMessageDigest by Once {
-        try {
-            MessageDigest.getInstance("SHA")
-        } catch (e: NoSuchAlgorithmException) {
-            /* According to Sun's documentation, this exception can't actually
-           happen, since the JVM is required to support the SHA algorithm.
-           However, the compiler requires the catch.  And it *could* happen
-           if either the documentation or the JVM implementation are wrong.
-           Like that ever happens. */
-            throw IllegalStateException("This JVM lacks SHA support", e)
-        }
-    }
+    val traceFactoryInjector by Once { TraceFactoryInjector(req(provided.traceFactory())) }
+
+    val injectors by Once { listOf(req(clockInjector), req(traceFactoryInjector)) }
 
     val runnerRef by Once { RunnerRef(req(provided.traceFactory())) }
             .dispose { it.shutDown() }
@@ -174,7 +163,6 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(connectionRetrierWithoutLabelGorgel),
                 req(provided.traceFactory()),
                 req(provided.timer()),
-                req(provided.clock()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(jsonToObjectDeserializer),
                 req(getRequestFactory),
@@ -206,7 +194,6 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(server),
                 req(directorGorgel),
                 req(provided.traceFactory()),
-                req(provided.clock()),
                 req(random),
                 req(estimatedLoadIncrement),
                 req(providerLimit),

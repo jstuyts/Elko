@@ -14,7 +14,6 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.time.Clock
 import java.util.function.Consumer
 
 /**
@@ -30,13 +29,12 @@ class Gatekeeper internal constructor(
         tr: Trace,
         timer: Timer,
         traceFactory: TraceFactory,
-        clock: Clock,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         props: ElkoProperties,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val mustSendDebugReplies: Boolean) {
     /** Table for mapping object references in messages.  */
-    internal val refTable: RefTable = RefTable(null, traceFactory, clock, jsonToObjectDeserializer)
+    internal val refTable: RefTable = RefTable(null, traceFactory, jsonToObjectDeserializer)
 
     /** Host description for the director.  */
     internal var directorHost: HostDesc? = null
@@ -141,7 +139,6 @@ class Gatekeeper internal constructor(
                 tr,
                 timer,
                 traceFactory,
-                clock,
                 jsonToObjectDeserializer,
                 mustSendDebugReplies)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)

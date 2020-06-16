@@ -7,16 +7,15 @@ import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.objdb.store.ObjectStore
 import org.elkoserver.util.trace.TraceFactory
-import java.time.Clock
 
 /**
  * Main state data structure in a Repository.
  *
  * @param myServer Server object.
  */
-internal class Repository(private val myServer: Server, traceFactory: TraceFactory, clock: Clock, internal val myObjectStore: ObjectStore, jsonToObjectDeserializer: JsonToObjectDeserializer) {
+internal class Repository(private val myServer: Server, traceFactory: TraceFactory, internal val myObjectStore: ObjectStore, jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock, jsonToObjectDeserializer)
+    internal val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, jsonToObjectDeserializer)
 
     /** Number of repository clients currently connected.  */
     private var myRepClientCount = 0

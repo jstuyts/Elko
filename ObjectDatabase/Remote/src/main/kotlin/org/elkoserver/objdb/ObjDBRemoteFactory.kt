@@ -8,7 +8,6 @@ import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.time.Clock
 
 class ObjDBRemoteFactory(
         private val myProps: ElkoProperties,
@@ -16,7 +15,6 @@ class ObjDBRemoteFactory(
         val connectionRetrierWithoutLabelGorgel: Gorgel,
         val traceFactory: TraceFactory,
         val timer: Timer,
-        val clock: Clock,
         val hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         val jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val getRequestFactory: GetRequestFactory,
@@ -36,7 +34,6 @@ class ObjDBRemoteFactory(
                     connectionRetrierWithoutLabelGorgel,
                     traceFactory,
                     timer,
-                    clock,
                     hostDescFromPropertiesFactory,
                     jsonToObjectDeserializer,
                     getRequestFactory,

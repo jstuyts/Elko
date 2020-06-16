@@ -91,7 +91,7 @@ class Server(
     private val myBrokerHost: HostDesc? = hostDescFromPropertiesFactory.fromProperties("conf.broker")
 
     /** Message dispatcher for broker connections.  */
-    private val myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, traceFactory, clock, jsonToObjectDeserializer)
+    private val myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, traceFactory, jsonToObjectDeserializer)
 
     /** Table of 'find' requests that have been issued to the broker, for which
      * responses are still pending.  Indexed by the service name queried.  */

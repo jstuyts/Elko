@@ -15,7 +15,6 @@ import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.HashSetMulti
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.time.Clock
 import java.util.LinkedList
 import java.util.Random
 import java.util.TreeMap
@@ -31,13 +30,12 @@ internal class Director(
         private val myServer: Server,
         private val gorgel: Gorgel,
         traceFactory: TraceFactory,
-        clock: Clock,
         random: Random,
         private val myEstimatedLoadIncrement: Double,
         private val myProviderLimit: Int,
         jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock, jsonToObjectDeserializer)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, jsonToObjectDeserializer)
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false

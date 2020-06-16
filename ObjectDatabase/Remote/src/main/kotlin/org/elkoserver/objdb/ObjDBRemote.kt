@@ -19,7 +19,6 @@ import org.elkoserver.objdb.store.ResultDesc
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
-import java.time.Clock
 import java.util.HashMap
 import java.util.LinkedList
 import java.util.function.Consumer
@@ -69,7 +68,6 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                   private val connectionRetrierWithoutLabelGorgel: Gorgel,
                   private val traceFactory: TraceFactory,
                   private val timer: Timer,
-                  clock: Clock,
                   hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
                   jsonToObjectDeserializer: JsonToObjectDeserializer,
                   private val getRequestFactory: GetRequestFactory,
@@ -96,7 +94,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     private var myRepHost: HostDesc? = null
 
     /** Message dispatcher for repository connections.  */
-    private val myDispatcher = MessageDispatcher(this, traceFactory, clock, jsonToObjectDeserializer).apply {
+    private val myDispatcher = MessageDispatcher(this, traceFactory, jsonToObjectDeserializer).apply {
         addClass(ODBActor::class.java)
     }
 

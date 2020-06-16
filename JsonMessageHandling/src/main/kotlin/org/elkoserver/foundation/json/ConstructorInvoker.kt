@@ -4,9 +4,6 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.TraceFactory
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
-import java.security.MessageDigest
-import java.time.Clock
-import java.util.Random
 
 /**
  * Invoker subclass for constructors.  Uses Java reflection to invoke a
@@ -25,11 +22,8 @@ internal class ConstructorInvoker(
         paramTypes: Array<Class<*>>,
         paramNames: Array<out String>,
         traceFactory: TraceFactory,
-        clock: Clock,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
-        private val random: Random,
-        private val messageDigest: MessageDigest,
-        private val injectors: Collection<Injector>) : Invoker<Any?>(myConstructor, paramTypes, paramNames, if (amIncludingRawObject) 1 else 0, traceFactory, clock, jsonToObjectDeserializer) {
+        private val injectors: Collection<Injector>) : Invoker<Any?>(myConstructor, paramTypes, paramNames, if (amIncludingRawObject) 1 else 0, traceFactory, jsonToObjectDeserializer) {
 
     /**
      * Invoke the constructor on a JSON object descriptor.
@@ -60,23 +54,10 @@ internal class ConstructorInvoker(
     private fun tryToConstruct(obj: JsonObject, resolver: TypeResolver?): Any? {
         val result = apply(null, if (amIncludingRawObject) obj else null, obj.entrySet(), resolver)
 
-        // FIXME: Injectors must be injected, so they can be extended without having to touch this class
-        if (result is ClockUsingObject) {
-            result.setClock(clock)
-        }
-        if (result is TraceFactoryUsingObject) {
-            result.setTraceFactory(traceFactory)
-        }
-        if (result is RandomUsingObject) {
-            result.setRandom(random)
-        }
-        if (result is MessageDigestUsingObject) {
-            result.setMessageDigest(messageDigest)
-        }
         injectors.forEach { it.inject(result) }
-        if (result is PostInjectionInitializingObject) {
-            result.initialize()
-        }
+
+        (result as? PostInjectionInitializingObject)?.initialize()
+
         return result
     }
 

@@ -5,16 +5,10 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.security.MessageDigest
-import java.time.Clock
-import java.util.Random
 
 class JsonToObjectDeserializer(
         private val gorgel: Gorgel,
         private val traceFactory: TraceFactory,
-        private val clock: Clock,
-        private val random: Random,
-        private val messageDigest: MessageDigest,
         private val injectors: Collection<Injector> = emptyList()) {
     /** Mapping from Java class to the specific decoder for that class.  This
      * is a cache of decoders, to avoid recomputing reflection information.  */
@@ -32,7 +26,7 @@ class JsonToObjectDeserializer(
         var decoder = theDecoders[decodeClass]
         if (decoder == null) {
             try {
-                decoder = ObjectDecoder(decodeClass, traceFactory, clock, this, random, messageDigest, injectors)
+                decoder = ObjectDecoder(decodeClass, traceFactory, this, injectors)
                 theDecoders[decodeClass] = decoder
             } catch (e: JSONSetupError) {
                 gorgel.error(e.message ?: e.toString())

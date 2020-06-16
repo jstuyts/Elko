@@ -14,7 +14,6 @@ import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
-import java.time.Clock
 import java.util.LinkedList
 import java.util.function.Consumer
 
@@ -29,11 +28,10 @@ internal class Broker(
         launcherTableGorgel: Gorgel,
         private val timer: Timer,
         traceFactory: TraceFactory,
-        clock: Clock,
         startMode: Int,
         jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock, jsonToObjectDeserializer)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, jsonToObjectDeserializer)
 
     /** Database for configuration data.  */
     private val myODB: ObjDB?

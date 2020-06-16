@@ -12,7 +12,6 @@ import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.time.Clock
 import java.util.LinkedList
 import java.util.StringTokenizer
 import java.util.function.Consumer
@@ -42,10 +41,9 @@ class Workshop private constructor(
         private val startupWorkerListGorgel: Gorgel,
         @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace,
         traceFactory: TraceFactory,
-        clock: Clock,
         jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(myODB, traceFactory, clock, jsonToObjectDeserializer)
+    internal val refTable = RefTable(myODB, traceFactory, jsonToObjectDeserializer)
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown: Boolean
@@ -61,9 +59,8 @@ class Workshop private constructor(
                          startupWorkerListGorgel: Gorgel,
                          appTrace: Trace,
                          traceFactory: TraceFactory,
-                         clock: Clock,
                          jsonToObjectDeserializer: JsonToObjectDeserializer) :
-            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, gorgel, startupWorkerListGorgel, appTrace, traceFactory, clock, jsonToObjectDeserializer)
+            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, gorgel, startupWorkerListGorgel, appTrace, traceFactory, jsonToObjectDeserializer)
 
     /**
      * Add a worker to the object table.

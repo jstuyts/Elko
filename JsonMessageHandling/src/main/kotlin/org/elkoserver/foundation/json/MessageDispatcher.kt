@@ -3,7 +3,6 @@ package org.elkoserver.foundation.json
 import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.TraceFactory
 import java.lang.reflect.Modifier
-import java.time.Clock
 
 /**
  * A collection of precomputed Java reflection information that can dispatch
@@ -15,7 +14,6 @@ import java.time.Clock
 class MessageDispatcher(
         private val myResolver: TypeResolver?,
         private val traceFactory: TraceFactory,
-        private val clock: Clock,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Mapping of message verbs to MethodInvoker objects.  Each entry is
      * actually the head of a linked list of MethodInvoker objects, each of
@@ -79,7 +77,7 @@ class MessageDispatcher(
                     }
                     val name = method.name
                     val prev = myInvokers[name]
-                    myInvokers[name] = MethodInvoker(method, paramTypes, paramNames, prev, traceFactory, clock, jsonToObjectDeserializer)
+                    myInvokers[name] = MethodInvoker(method, paramTypes, paramNames, prev, traceFactory, jsonToObjectDeserializer)
                 }
             }
             myClasses.add(targetClass)

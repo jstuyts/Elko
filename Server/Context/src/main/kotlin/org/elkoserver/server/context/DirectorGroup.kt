@@ -15,7 +15,6 @@ import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.time.Clock
 import java.util.ConcurrentModificationException
 
 /**
@@ -39,7 +38,6 @@ class DirectorGroup(server: Server,
                     private val reservationGorgel: Gorgel,
                     timer: Timer,
                     traceFactory: TraceFactory,
-                    clock: Clock,
                     internal val reservationTimeout: Int,
                     props: ElkoProperties,
                     jsonToObjectDeserializer: JsonToObjectDeserializer,
@@ -53,7 +51,6 @@ class DirectorGroup(server: Server,
         connectionRetrierWithoutLabelGorgel,
         timer,
         traceFactory,
-        clock,
         props,
         jsonToObjectDeserializer,
         mustSendDebugReplies) {

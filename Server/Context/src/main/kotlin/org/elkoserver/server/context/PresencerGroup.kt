@@ -13,7 +13,6 @@ import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.time.Clock
 
 /**
  * Outbound group containing all the connected presence servers.
@@ -33,7 +32,6 @@ internal class PresencerGroup(
         connectionRetrierWithoutLabelGorgel: Gorgel,
         timer: Timer,
         traceFactory: TraceFactory,
-        clock: Clock,
         props: ElkoProperties,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val mustSendDebugReplies: Boolean)
@@ -47,7 +45,6 @@ internal class PresencerGroup(
         connectionRetrierWithoutLabelGorgel,
         timer,
         traceFactory,
-        clock,
         props,
         jsonToObjectDeserializer,
         mustSendDebugReplies) {

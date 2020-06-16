@@ -9,7 +9,6 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.time.Clock
 import java.util.LinkedList
 import java.util.function.Consumer
 
@@ -22,14 +21,13 @@ internal class PresenceServer(
         private val graphDescGorgel: Gorgel,
         private val socialGraphGorgel: Gorgel,
         traceFactory: TraceFactory,
-        clock: Clock,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val domainRegistry: DomainRegistry) {
     /** Database that this server stores stuff in.  */
     internal val objDB: ObjDB
 
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, clock, jsonToObjectDeserializer)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, jsonToObjectDeserializer)
 
     /**
      * Test if the server is in the midst of shutdown.

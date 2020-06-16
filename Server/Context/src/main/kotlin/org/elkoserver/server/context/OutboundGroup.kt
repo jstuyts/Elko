@@ -18,7 +18,6 @@ import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
-import java.time.Clock
 import java.util.function.Consumer
 
 /**
@@ -42,7 +41,6 @@ abstract class OutboundGroup(propRoot: String,
                              private val connectionRetrierWithoutLabelGorgel: Gorgel,
                              protected val timer: Timer,
                              protected val traceFactory: TraceFactory,
-                             clock: Clock,
                              props: ElkoProperties,
                              jsonToObjectDeserializer: JsonToObjectDeserializer,
                              private val mustSendDebugReplies: Boolean) : LiveGroup() {
@@ -173,7 +171,7 @@ abstract class OutboundGroup(propRoot: String,
         })
         myNetworkManager = myServer.networkManager
         myHosts = hosts
-        myDispatcher = MessageDispatcher(null, traceFactory, clock, jsonToObjectDeserializer)
+        myDispatcher = MessageDispatcher(null, traceFactory, jsonToObjectDeserializer)
         @Suppress("LeakingThis")
         myDispatcher.addClass(actorClass())
         amAutoRegister = props.testProperty("$propRoot.auto")

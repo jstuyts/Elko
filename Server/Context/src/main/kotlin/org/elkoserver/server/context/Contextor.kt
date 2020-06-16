@@ -22,7 +22,6 @@ import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
-import java.time.Clock
 import java.util.LinkedList
 import java.util.Random
 import java.util.StringTokenizer
@@ -64,7 +63,6 @@ class Contextor internal constructor(
         sessionGorgel: Gorgel,
         private val timer: Timer,
         private val traceFactory: TraceFactory,
-        private val clock: Clock,
         internal val entryTimeout: Int,
         internal val limit: Int,
         private val myRandom: Random,
@@ -76,7 +74,7 @@ class Contextor internal constructor(
         private val jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val mustSendDebugReplies: Boolean) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(odb, traceFactory, clock, jsonToObjectDeserializer)
+    internal val refTable = RefTable(odb, traceFactory, jsonToObjectDeserializer)
 
     /** The generic 'session' object for talking to this server.  */
     internal val session: Session = Session(this, sessionPassword, sessionGorgel, traceFactory)
@@ -986,7 +984,6 @@ class Contextor internal constructor(
                 connectionRetrierWithoutLabelGorgel,
                 timer,
                 traceFactory,
-                clock,
                 reservationTimeout,
                 props,
                 jsonToObjectDeserializer,
@@ -1012,7 +1009,6 @@ class Contextor internal constructor(
                 connectionRetrierWithoutLabelGorgel,
                 timer,
                 traceFactory,
-                clock,
                 props,
                 jsonToObjectDeserializer,
                 mustSendDebugReplies)

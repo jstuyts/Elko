@@ -12,7 +12,6 @@ import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
-import java.time.Clock
 import java.util.function.Consumer
 
 /**
@@ -33,7 +32,6 @@ internal class DirectorActorFactory(
         private val tr: Trace,
         private val timer: Timer,
         private val traceFactory: TraceFactory,
-        clock: Clock,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
     /** Descriptor for the director host.  */
@@ -41,7 +39,7 @@ internal class DirectorActorFactory(
 
     /** The active director connection, if there is one.  */
     private var myDirector: DirectorActor? = null
-    private val myDispatcher = MessageDispatcher(null, traceFactory, clock, jsonToObjectDeserializer)
+    private val myDispatcher = MessageDispatcher(null, traceFactory, jsonToObjectDeserializer)
 
     /** Object currently attempting to establish a director connection.  */
     private var myConnectionRetrier: ConnectionRetrier? = null

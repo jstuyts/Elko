@@ -7,7 +7,6 @@ import org.elkoserver.util.trace.TraceFactory
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Member
-import java.time.Clock
 
 /**
  * Precomputed Java reflection information needed invoke a method or
@@ -28,7 +27,6 @@ internal abstract class Invoker<in TTarget>(
         private val myParamNames: Array<out String>,
         firstIndex: Int,
         protected val traceFactory: TraceFactory,
-        protected val clock: Clock,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Mapping of JSON parameter names to Java parameter positions  */
     private val myParamMap: MutableMap<String, Int>
