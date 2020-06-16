@@ -37,7 +37,7 @@ class NetworkManager(
         private set
 
     /** Select thread for non-blocking I/O.  */
-    private var mySelectThread: SelectThread? = null
+    private lateinit var mySelectThread: SelectThread
 
     /** Connection managers, indexed by class name.  */
     private val myConnectionManagers: MutableMap<String, ConnectionManager?> = HashMap()
@@ -97,10 +97,10 @@ class NetworkManager(
      */
     fun connectTCP(hostPort: String,
                    handlerFactory: MessageHandlerFactory,
-                   framerFactory: ByteIOFramerFactory?, trace: Trace?) {
+                   framerFactory: ByteIOFramerFactory, trace: Trace) {
         connectionCount(1)
         ensureSelectThread()
-        mySelectThread!!.connect(handlerFactory, framerFactory, hostPort, trace)
+        mySelectThread.connect(handlerFactory, framerFactory, hostPort, trace)
     }
 
     /**
@@ -135,7 +135,7 @@ class NetworkManager(
      * Start the select thread if it's not already running.
      */
     private fun ensureSelectThread() {
-        if (mySelectThread == null) {
+        if (!this::mySelectThread.isInitialized) {
             mySelectThread = SelectThread(this, sslContext, clock, traceFactory, connectionIdGenerator)
         }
     }
@@ -156,9 +156,9 @@ class NetworkManager(
      * @return the address that ended up being listened upon
      */
     @Throws(IOException::class)
-    fun listenHTTP(listenAddress: String?,
+    fun listenHTTP(listenAddress: String,
                    innerHandlerFactory: MessageHandlerFactory,
-                   trace: Trace?, secure: Boolean, rootURI: String, httpFramer: HTTPFramer): NetAddr {
+                   trace: Trace, secure: Boolean, rootURI: String, httpFramer: HTTPFramer): NetAddr {
         val outerHandlerFactory: MessageHandlerFactory = HTTPMessageHandlerFactory(
                 innerHandlerFactory, rootURI, httpFramer, this, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
         val framerFactory: ByteIOFramerFactory = HTTPRequestByteIOFramerFactory(traceFactory)
@@ -178,7 +178,7 @@ class NetworkManager(
      * @return the address that ended up being listened upon
      */
     @Throws(IOException::class)
-    fun listenRTCP(listenAddress: String?,
+    fun listenRTCP(listenAddress: String,
                    innerHandlerFactory: MessageHandlerFactory,
                    msgTrace: Trace,
                    secure: Boolean): NetAddr {
@@ -228,11 +228,11 @@ class NetworkManager(
      * @return the address that ended up being listened upon
      */
     @Throws(IOException::class)
-    fun listenTCP(listenAddress: String?,
-                  handlerFactory: MessageHandlerFactory?,
-                  portTrace: Trace?, secure: Boolean, framerFactory: ByteIOFramerFactory?): NetAddr {
+    fun listenTCP(listenAddress: String,
+                  handlerFactory: MessageHandlerFactory,
+                  portTrace: Trace, secure: Boolean, framerFactory: ByteIOFramerFactory): NetAddr {
         ensureSelectThread()
-        val listener = mySelectThread!!.listen(listenAddress, handlerFactory,
+        val listener = mySelectThread.listen(listenAddress, handlerFactory,
                 framerFactory, secure, portTrace)
         return listener.listenAddress()
     }
@@ -276,7 +276,9 @@ class NetworkManager(
     }
 
     fun shutDown() {
-        mySelectThread?.shutDown()
+        if (this::mySelectThread.isInitialized) {
+            mySelectThread.shutDown()
+        }
     }
 
     init {

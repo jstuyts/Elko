@@ -132,10 +132,10 @@ internal class RTCPMessageHandlerFactory(
      * @param message   The RTCP request descriptor containing the message(s)
      * sent from the client.
      */
-    fun doMessage(connection: Connection, message: RTCPRequest?) {
+    fun doMessage(connection: Connection, message: RTCPRequest) {
         val session = mySessionsByConnection[connection]
         if (session != null) {
-            session.receiveMessage(message!!)
+            session.receiveMessage(message)
         } else {
             val reply = makeErrorReply("noSession")
             sendWithLog(connection, reply)

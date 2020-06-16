@@ -321,7 +321,7 @@ internal class Broker(
             myODB.addClass("launcher", LauncherTable.Launcher::class.java)
             myODB.getObject("launchertable", null, Consumer { obj: Any? ->
                 if (obj != null) {
-                    launcherTable = (obj as LauncherTable?)?.apply {
+                    launcherTable = (obj as? LauncherTable)?.apply {
                         myLaunchers.values.forEach { it.gorgel = launcherTableGorgel.withAdditionalStaticTags(Tag("launcherComponent", it.componentName)) }
                         doStartupLaunches(startMode)
                     }

@@ -28,7 +28,7 @@ internal class SelectThread(
         private val myMgr: NetworkManager, sslContext: SSLContext?, private val clock: Clock, private val traceFactory: TraceFactory, private val idGenerator: IdGenerator)
     : Thread("Elko Select") {
     /** Selector to await available I/O opportunities.  */
-    private var mySelector: Selector? = null
+    private val mySelector: Selector
 
     /** Queue of unserviced I/O requests.  */
     private val myQueue = Queue<Any>()
@@ -46,7 +46,7 @@ internal class SelectThread(
         }
         while (!mustStop) {
             try {
-                val selectedCount = mySelector!!.select()
+                val selectedCount = mySelector.select()
                 if (traceFactory.comm.debug) {
                     traceFactory.comm.debugm("select() returned with count=$selectedCount")
                 }
@@ -67,7 +67,7 @@ internal class SelectThread(
                     workToDo = myQueue.optDequeue()
                 }
                 if (selectedCount > 0) {
-                    val iter = mySelector!!.selectedKeys().iterator()
+                    val iter = mySelector.selectedKeys().iterator()
                     var actualCount = 0
                     while (iter.hasNext()) {
                         ++actualCount
@@ -118,8 +118,8 @@ internal class SelectThread(
      * @param trace  Trace object to use for activity on the new connectoin.
      */
     fun connect(handlerFactory: MessageHandlerFactory,
-                framerFactory: ByteIOFramerFactory?,
-                remoteAddr: String, trace: Trace?) {
+                framerFactory: ByteIOFramerFactory,
+                remoteAddr: String, trace: Trace) {
         myQueue.enqueue(Callable<Any?> {
             try {
                 val remoteNetAddr = NetAddr(remoteAddr)
@@ -136,7 +136,7 @@ internal class SelectThread(
             }
             null
         })
-        mySelector!!.wakeup()
+        mySelector.wakeup()
     }
 
     /**
@@ -151,13 +151,12 @@ internal class SelectThread(
      * port & its connections
      */
     @Throws(IOException::class)
-    fun listen(localAddress: String?, handlerFactory: MessageHandlerFactory?,
-               framerFactory: ByteIOFramerFactory?, secure: Boolean,
-               portTrace: Trace?): Listener {
-        val listener = Listener(localAddress!!, handlerFactory!!,
-                framerFactory!!, myMgr, secure, portTrace!!)
+    fun listen(localAddress: String, handlerFactory: MessageHandlerFactory,
+               framerFactory: ByteIOFramerFactory, secure: Boolean,
+               portTrace: Trace): Listener {
+        val listener = Listener(localAddress, handlerFactory, framerFactory, myMgr, secure, portTrace)
         myQueue.enqueue(listener)
-        mySelector!!.wakeup()
+        mySelector.wakeup()
         return listener
     }
 
@@ -174,13 +173,13 @@ internal class SelectThread(
      * @param trace  Trace object to use with this new connection.
      */
     fun newChannel(handlerFactory: MessageHandlerFactory,
-                   framerFactory: ByteIOFramerFactory?,
-                   channel: SocketChannel, isSecure: Boolean, trace: Trace?) {
+                   framerFactory: ByteIOFramerFactory,
+                   channel: SocketChannel, isSecure: Boolean, trace: Trace) {
         try {
             channel.configureBlocking(false)
             val key = channel.register(mySelector, SelectionKey.OP_READ)
-            key.attach(TCPConnection(handlerFactory, framerFactory!!,
-                    channel, key, this, myMgr, isSecure, trace!!, clock, traceFactory, idGenerator))
+            key.attach(TCPConnection(handlerFactory, framerFactory,
+                    channel, key, this, myMgr, isSecure, trace, clock, traceFactory, idGenerator))
         } catch (e: ClosedChannelException) {
             myMgr.connectionCount(-1)
             handlerFactory.provideMessageHandler(null)
@@ -208,7 +207,7 @@ internal class SelectThread(
             traceFactory.comm.debugm("$connection ready to send")
         }
         myQueue.enqueue(connection)
-        mySelector!!.wakeup()
+        mySelector.wakeup()
     }
 
     fun shutDown() {
@@ -226,6 +225,7 @@ internal class SelectThread(
             start()
         } catch (e: IOException) {
             traceFactory.comm.errorm("failed to start SelectThread", e)
+            throw IllegalStateException(e)
         }
     }
 }

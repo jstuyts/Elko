@@ -18,7 +18,7 @@ import org.elkoserver.util.trace.TraceFactory
  * circumstances.
  */
 abstract class BasicProtocolHandler : Referenceable, DispatchTarget, TraceFactoryUsingObject {
-    private var traceFactory: TraceFactory? = null
+    private lateinit var traceFactory: TraceFactory
 
     protected constructor()
 
@@ -73,7 +73,7 @@ abstract class BasicProtocolHandler : Referenceable, DispatchTarget, TraceFactor
      */
     @JSONMethod("msg")
     fun debug(from: BasicProtocolActor, msg: String) {
-        traceFactory!!.comm.eventi("Debug msg: $msg")
+        traceFactory.comm.eventi("Debug msg: $msg")
     }
 
     /**

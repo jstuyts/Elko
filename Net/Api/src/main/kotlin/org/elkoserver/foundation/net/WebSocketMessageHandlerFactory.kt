@@ -47,15 +47,15 @@ internal class WebSocketMessageHandlerFactory(
      * received.
      * @param problem  The error that is being reported
      */
-    private fun sendError(connection: Connection?, problem: String) {
+    private fun sendError(connection: Connection, problem: String) {
         if (trMsg.usage) {
             trMsg.usagem("$connection received invalid WebSocket connection startup: $problem")
         }
-        connection!!.sendMsg(HTTPError(400, "Bad Request",
+        connection.sendMsg(HTTPError(400, "Bad Request",
                 makeErrorReply(problem)))
     }
 
-    private fun doConnectionHandshake(connection: Connection?, request: WebSocketRequest) {
+    private fun doConnectionHandshake(connection: Connection, request: WebSocketRequest) {
         val key = request.header("sec-websocket-key")
         val key1 = request.header("sec-websocket-key1")
         val key2 = request.header("sec-websocket-key2")
@@ -68,13 +68,13 @@ internal class WebSocketMessageHandlerFactory(
         } else if (!getConnectionValues(request).contains("Upgrade")) {
             sendError(connection, "Invalid WebSocket Connection header")
         } else if (key != null) {
-            connection!!.sendMsg(generateRidiculousHandshake6(key))
+            connection.sendMsg(generateRidiculousHandshake6(key))
         } else if (request.crazyKey == null) {
             sendError(connection, "Invalid WebSocket client token")
         } else if (key1 == null || key2 == null) {
             sendError(connection, "Invalid WebSocket key header")
         } else {
-            connection!!.sendMsg(generateRidiculousHandshake0(key1, key2,
+            connection.sendMsg(generateRidiculousHandshake0(key1, key2,
                     request.crazyKey))
         }
     }

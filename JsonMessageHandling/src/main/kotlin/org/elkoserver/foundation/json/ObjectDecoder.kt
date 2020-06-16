@@ -2,7 +2,6 @@ package org.elkoserver.foundation.json
 
 import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.TraceFactory
-import java.lang.reflect.Constructor
 
 /**
  * A producer of some class of Java objects from JSON-encoded object
@@ -55,31 +54,28 @@ class ObjectDecoder internal constructor(
     internal fun decode(obj: JsonObject, resolver: TypeResolver?): Any? = myConstructor.construct(obj, resolver)
 
     init {
-        var jsonConstructor: Constructor<*>? = null
-        var includeRawObject = false
-        var paramNames: Array<out String>? = null
-        for (constructor in decodeClass.declaredConstructors) {
-            val note = constructor.getAnnotation(JSONMethod::class.java)
-            if (note != null) {
-                if (jsonConstructor != null) {
-                    throw JSONSetupError("class ${decodeClass.name} has more than one JSON constructor")
-                }
-                val paramTypes = constructor.parameterTypes
-                paramNames = note.value
-                if (paramNames.size + 1 == paramTypes.size) {
-                    if (!JsonObject::class.java.isAssignableFrom(paramTypes[0])) {
-                        throw JSONSetupError("class ${decodeClass.name} JSON constructor lacks a JsonObject first parameter")
-                    }
-                    includeRawObject = true
-                } else if (paramNames.size != paramTypes.size) {
-                    throw JSONSetupError("class ${decodeClass.name} JSON constructor has wrong number of parameters")
-                }
-                jsonConstructor = constructor
+        val jsonConstructors = decodeClass.declaredConstructors.filter { it.getAnnotation(JSONMethod::class.java) != null }
+
+        when  {
+            jsonConstructors.isEmpty() -> throw JSONSetupError("no JSON constructor for class ${decodeClass.name}")
+            1 < jsonConstructors.size ->throw JSONSetupError("class ${decodeClass.name} has more than one JSON constructor")
+        }
+
+        val jsonConstructor = jsonConstructors.first()
+        val paramTypes = jsonConstructor.parameterTypes
+        val note = jsonConstructor.getAnnotation(JSONMethod::class.java)
+        val paramNames = note.value
+        val includeRawObject = if (paramNames.size + 1 == paramTypes.size) {
+            if (!JsonObject::class.java.isAssignableFrom(paramTypes[0])) {
+                throw JSONSetupError("class ${decodeClass.name} JSON constructor lacks a JsonObject first parameter")
             }
+            true
+        } else if (paramNames.size != paramTypes.size) {
+            throw JSONSetupError("class ${decodeClass.name} JSON constructor has wrong number of parameters")
+        } else {
+            false
         }
-        if (jsonConstructor == null) {
-            throw JSONSetupError("no JSON constructor for class ${decodeClass.name}")
-        }
-        myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, jsonConstructor.parameterTypes, paramNames!!, traceFactory, jsonToObjectDeserializer, injectors)
+
+        myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, jsonConstructor.parameterTypes, paramNames, traceFactory, jsonToObjectDeserializer, injectors)
     }
 }

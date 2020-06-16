@@ -78,7 +78,6 @@ class SessionURI(uri: String, rootURI: String) {
 
     init {
         var actualUri = uri
-        val stringptr = arrayOfNulls<String>(1)
         var initSessionID: Long = 0
         var initVerb = 0
         var initSequenceNumber = 0
@@ -114,10 +113,10 @@ class SessionURI(uri: String, rootURI: String) {
         }
         if (initValid) {
             initValid = false
-            stringptr[0] = actualUri
             if (initVerb == VERB_CONNECT) {
                 initValid = true
             } else {
+                val stringptr: Array<String?> = arrayOf(actualUri)
                 initSessionID = intComponent(stringptr)
                 if (stringptr[0] != null) {
                     if (initVerb == VERB_DISCONNECT) {

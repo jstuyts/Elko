@@ -35,7 +35,7 @@ internal class Listener(
     private val myOptIP: InetAddress
 
     /** The channel doing the actual listening.  */
-    private var myChannel: ServerSocketChannel? = null
+    private val myChannel: ServerSocketChannel
 
     /** The thread that does select calls on behalf of this listener.  */
     private var mySelectThread: SelectThread? = null
@@ -48,7 +48,7 @@ internal class Listener(
      */
     fun doAccept() {
         try {
-            val newChannel = myChannel!!.accept()
+            val newChannel = myChannel.accept()
             if (newChannel != null) {
                 myMgr.connectionCount(1)
                 mySelectThread!!.newChannel(myHandlerFactory, myFramerFactory,
@@ -59,7 +59,7 @@ internal class Listener(
         } catch (e: IOException) {
             myTrace.warningm("accept on $myLocalAddress failed -- closing listener, IOException: ${e.message}")
             try {
-                myChannel!!.close()
+                myChannel.close()
             } catch (e2: IOException) {
                 /* Yeah, like I could do something about it... */
             }
@@ -71,7 +71,7 @@ internal class Listener(
      *
      * @return this listener's listen address.
      */
-    fun listenAddress(): NetAddr = NetAddr(myOptIP, myChannel!!.socket().localPort)
+    fun listenAddress(): NetAddr = NetAddr(myOptIP, myChannel.socket().localPort)
 
     /**
      * Register this listener with a selector.
@@ -84,7 +84,7 @@ internal class Listener(
     @Throws(ClosedChannelException::class)
     fun register(selectThread: SelectThread?, selector: Selector?) {
         mySelectThread = selectThread
-        val key = myChannel!!.register(selector, SelectionKey.OP_ACCEPT)
+        val key = myChannel.register(selector, SelectionKey.OP_ACCEPT)
         key.attach(this)
     }
 
@@ -100,7 +100,7 @@ internal class Listener(
         } else {
             myChannel = ServerSocketChannel.open()
         }
-        myChannel!!.configureBlocking(false)
-        myChannel!!.socket().bind(InetSocketAddress(myOptIP, localPort), 50)
+        myChannel.configureBlocking(false)
+        myChannel.socket().bind(InetSocketAddress(myOptIP, localPort), 50)
     }
 }

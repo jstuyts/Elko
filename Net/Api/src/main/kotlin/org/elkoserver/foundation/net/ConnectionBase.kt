@@ -29,11 +29,12 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
      * @param reason  Throwable describing why the connection died.
      */
     protected fun connectionDied(reason: Throwable) {
-        if (myMessageHandler != null) {
+        val currentMessageHandler = myMessageHandler
+        if (currentMessageHandler != null) {
             if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm("$this calls connectionDied in $myMessageHandler")
+                traceFactory.comm.debugm("$this calls connectionDied in $currentMessageHandler")
             }
-            myMessageHandler!!.connectionDied(this, reason)
+            currentMessageHandler.connectionDied(this, reason)
         } else {
             traceFactory.comm.debugm(this.toString() +
                     " ignores connection death while message handler is null")
@@ -65,11 +66,12 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
     private inner class MessageHandlerThunk internal constructor(private val myMessage: Any) : Runnable {
         private var myOnQueueTime: Long = 0
         override fun run() {
-            if (myMessageHandler != null) {
+            val currentMessageHandler = myMessageHandler
+            if (currentMessageHandler != null) {
                 if (traceFactory.comm.verbose) {
-                    traceFactory.comm.verbosem("$this calls processMessage in $myMessageHandler")
+                    traceFactory.comm.verbosem("$this calls processMessage in $currentMessageHandler")
                 }
-                myMessageHandler!!.processMessage(this@ConnectionBase, myMessage)
+                currentMessageHandler.processMessage(this@ConnectionBase, myMessage)
             } else {
                 traceFactory.comm.verbosem("$this ignores message received while message handler is null")
             }

@@ -248,11 +248,11 @@ class HTTPMessageHandlerFactory internal constructor(
      * @param request  The HTTP request itself, from which we will extract
      * header information.
      */
-    fun handleOPTIONS(connection: Connection, request: HTTPRequest?) {
+    fun handleOPTIONS(connection: Connection, request: HTTPRequest) {
         if (traceFactory.comm.event) {
             traceFactory.comm.eventm("OPTIONS request over $connection")
         }
-        val reply = HTTPOptionsReply(request!!)
+        val reply = HTTPOptionsReply(request)
         connection.sendMsg(reply)
     }
 
