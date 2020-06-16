@@ -146,6 +146,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
                 req(sessionIdGenerator),
+                req(connectionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
                 req(objDBRemoteFactory),
@@ -172,6 +173,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
             }
 
     val sessionIdGenerator by Once { RandomIdGenerator(req(sessionIdRandom)) }
+
+    val connectionIdGenerator by Once { LongIdGenerator() }
 
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }

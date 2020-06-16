@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.net
 
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
 
@@ -9,7 +10,7 @@ import java.time.Clock
  *
  * @param mgr  Network manager for this server.
  */
-abstract class ConnectionBase protected constructor(mgr: NetworkManager, protected var clock: Clock, protected val traceFactory: TraceFactory) : Connection {
+abstract class ConnectionBase protected constructor(mgr: NetworkManager, protected var clock: Clock, protected val traceFactory: TraceFactory, idGenerator: IdGenerator) : Connection {
     /** Number identifying this connection in log messages.  */
     private val myID: Int
 
@@ -122,14 +123,10 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
     companion object {
         /** Token to put on send queue to signal close of connection.  */
         val theCloseMarker = Any()
-
-        /** Counter for allocating connection IDs.  */
-        @Deprecated("Global variable")
-        private var theIDCounter = 0
     }
 
     init {
         myLoadMonitor = mgr.loadMonitor
-        myID = theIDCounter++
+        myID = idGenerator.generate().toInt()
     }
 }

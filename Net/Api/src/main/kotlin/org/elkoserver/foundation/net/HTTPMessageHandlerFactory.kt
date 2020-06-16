@@ -34,7 +34,8 @@ class HTTPMessageHandlerFactory internal constructor(
         internal val innerFactory: MessageHandlerFactory,
         rootURI: String, internal val httpFramer: HTTPFramer,
         internal val networkManager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory,
-        private val sessionIdGenerator: IdGenerator) : MessageHandlerFactory {
+        private val sessionIdGenerator: IdGenerator,
+        private val connectionIdGenerator: IdGenerator) : MessageHandlerFactory {
 
     /** The root URI for GETs and POSTs.  */
     private val myRootURI: String = "/$rootURI/"
@@ -91,7 +92,7 @@ class HTTPMessageHandlerFactory internal constructor(
      * @return true if an HTTP reply was sent.
      */
     private fun doConnect(connection: Connection): Boolean {
-        val session = HTTPSessionConnection(this, sessionIdGenerator.generate(), timer, clock, traceFactory)
+        val session = HTTPSessionConnection(this, sessionIdGenerator.generate(), timer, clock, traceFactory, connectionIdGenerator)
         associateTCPConnection(session, connection)
         if (traceFactory.comm.event) {
             traceFactory.comm.eventm("$session connect over $connection")

@@ -4,6 +4,7 @@ package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.RandomInjector
 import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -105,6 +106,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
                 req(sessionIdGenerator),
+                req(connectionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
                 req(objDBRemoteFactory),
@@ -136,6 +138,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
             }
 
     val sessionIdGenerator by Once { RandomIdGenerator(req(sessionIdRandom)) }
+
+    val connectionIdGenerator by Once { LongIdGenerator() }
 
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }

@@ -29,6 +29,7 @@ class NetworkManager(
         private val clock: Clock,
         private val traceFactory: TraceFactory,
         private val sessionIdGenerator: IdGenerator,
+        private val connectionIdGenerator: IdGenerator,
         private val mustSendDebugReplies: Boolean) {
 
     /** Initialized SSL context, if supporting SSL, else null.  */
@@ -67,7 +68,7 @@ class NetworkManager(
         if (result == null) {
             try {
                 result = Class.forName(className).getConstructor().newInstance() as ConnectionManager
-                result.init(this, msgTrace, clock, traceFactory, mustSendDebugReplies)
+                result.init(this, msgTrace, clock, traceFactory, connectionIdGenerator, mustSendDebugReplies)
                 myConnectionManagers[className] = result
             } catch (e: ClassNotFoundException) {
                 traceFactory.comm.errorm("ConnectionManager class $className not found: $e")
@@ -135,7 +136,7 @@ class NetworkManager(
      */
     private fun ensureSelectThread() {
         if (mySelectThread == null) {
-            mySelectThread = SelectThread(this, sslContext, clock, traceFactory)
+            mySelectThread = SelectThread(this, sslContext, clock, traceFactory, connectionIdGenerator)
         }
     }
 
@@ -159,7 +160,7 @@ class NetworkManager(
                    innerHandlerFactory: MessageHandlerFactory,
                    trace: Trace?, secure: Boolean, rootURI: String, httpFramer: HTTPFramer): NetAddr {
         val outerHandlerFactory: MessageHandlerFactory = HTTPMessageHandlerFactory(
-                innerHandlerFactory, rootURI, httpFramer, this, timer, clock, traceFactory, sessionIdGenerator)
+                innerHandlerFactory, rootURI, httpFramer, this, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
         val framerFactory: ByteIOFramerFactory = HTTPRequestByteIOFramerFactory(traceFactory)
         return listenTCP(listenAddress, outerHandlerFactory, trace, secure, framerFactory)
     }
@@ -181,7 +182,7 @@ class NetworkManager(
                    innerHandlerFactory: MessageHandlerFactory,
                    msgTrace: Trace,
                    secure: Boolean): NetAddr {
-        val outerHandlerFactory: MessageHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, msgTrace, this, timer, clock, traceFactory, sessionIdGenerator)
+        val outerHandlerFactory: MessageHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, msgTrace, this, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
         val framerFactory: ByteIOFramerFactory = RTCPRequestByteIOFramerFactory(msgTrace, traceFactory, mustSendDebugReplies)
         return listenTCP(listenAddress, outerHandlerFactory, msgTrace, secure, framerFactory)
     }

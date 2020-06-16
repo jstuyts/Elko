@@ -1,6 +1,5 @@
-package org.elkoserver.server.gatekeeper
+package org.elkoserver.foundation.json
 
-import org.elkoserver.foundation.json.Injector
 import java.util.Random
 
 class RandomInjector(private val random: Random) : Injector {

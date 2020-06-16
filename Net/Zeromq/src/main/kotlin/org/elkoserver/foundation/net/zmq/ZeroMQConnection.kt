@@ -9,6 +9,7 @@ import org.elkoserver.foundation.net.MessageReceiver
 import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.TraceFactory
 import org.zeromq.ZMQ
 import java.io.IOException
@@ -24,7 +25,12 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
                                             private val amSendMode: Boolean,
                                             private val myThread: ZeroMQThread,
                                             private val myMgr: NetworkManager,
-                                            remoteAddr: String, clock: Clock, traceFactory: TraceFactory, private var amOpen: Boolean = true) : ConnectionBase(myMgr, clock, traceFactory), MessageReceiver, Thunk {
+                                            remoteAddr: String,
+                                            clock: Clock,
+                                            traceFactory: TraceFactory,
+                                            idGenerator: IdGenerator,
+                                            private var amOpen: Boolean = true)
+    : ConnectionBase(myMgr, clock, traceFactory, idGenerator), MessageReceiver, Thunk {
     /** Queue of unencoded outbound messages.  */
     private val myOutputQueue = Queue<Any>()
 

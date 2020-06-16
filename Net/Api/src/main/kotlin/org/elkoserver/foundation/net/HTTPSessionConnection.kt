@@ -3,6 +3,7 @@ package org.elkoserver.foundation.net
 import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.time.Clock
@@ -20,7 +21,8 @@ import java.util.HashSet
  */
 class HTTPSessionConnection internal constructor(
         private val sessionFactory: HTTPMessageHandlerFactory,
-        internal val sessionID: Long, timer: Timer, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(sessionFactory.networkManager, clock, traceFactory) {
+        internal val sessionID: Long, timer: Timer, clock: Clock, traceFactory: TraceFactory, idGenerator: IdGenerator)
+    : ConnectionBase(sessionFactory.networkManager, clock, traceFactory, idGenerator) {
     /** Trace object for logging message traffic.  */
     private val trMsg: Trace = sessionFactory.httpFramer.msgTrace
 

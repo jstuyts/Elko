@@ -5,6 +5,7 @@ import org.elkoserver.foundation.net.JSONByteIOFramerFactory
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.net.NetworkManager
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.io.IOException
@@ -26,9 +27,9 @@ class ZeroMQConnectionManager : ConnectionManager {
      * @param networkManager  The network manager this connection manager will
      * be managing connections for.
      */
-    override fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, traceFactory: TraceFactory, mustSendDebugReplies: Boolean) {
+    override fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, traceFactory: TraceFactory, idGenerator: IdGenerator, mustSendDebugReplies: Boolean) {
         this.traceFactory = traceFactory
-        myZeroMQThread = ZeroMQThread(networkManager, traceFactory, clock)
+        myZeroMQThread = ZeroMQThread(networkManager, traceFactory, idGenerator, clock)
         myMsgTrace = msgTrace
         this.mustSendDebugReplies = mustSendDebugReplies
     }

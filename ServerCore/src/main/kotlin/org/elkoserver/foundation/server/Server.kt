@@ -66,6 +66,7 @@ class Server(
         private val myTagGenerator: IdGenerator,
         private val myLoadMonitor: ServerLoadMonitor,
         sessionIdGenerator: IdGenerator,
+        connectionIdGenerator: IdGenerator,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val runnerRef: RunnerRef,
         private val objDBRemoteFactory: ObjDBRemoteFactory,
@@ -110,7 +111,7 @@ class Server(
     private val myMainRunner = runnerRef.get()
 
     /** Network manager, for setting up network communications.  */
-    val networkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory, sessionIdGenerator, mustSendDebugReplies)
+    val networkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator, mustSendDebugReplies)
 
     /** Thread pool isolation for external blocking tasks.  */
     private val mySlowRunner = SlowServiceRunner(myMainRunner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))

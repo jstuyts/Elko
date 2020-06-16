@@ -3,11 +3,11 @@ package org.elkoserver.server.gatekeeper.passwd
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.json.RandomUsingObject
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteralFactory.type
 import org.elkoserver.server.gatekeeper.MessageDigestUsingObject
-import org.elkoserver.server.gatekeeper.RandomUsingObject
 import java.security.MessageDigest
 import java.util.Random
 import kotlin.experimental.and

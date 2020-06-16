@@ -1,4 +1,4 @@
-package org.elkoserver.server.gatekeeper
+package org.elkoserver.foundation.json
 
 import java.util.Random
 

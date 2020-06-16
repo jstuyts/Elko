@@ -1,8 +1,9 @@
 package org.elkoserver.server.presence
 
+import org.elkoserver.foundation.json.RandomUsingObject
 import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.security.SecureRandom
+import java.util.Random
 
 /**
  * Social graph based on the notion that everybody is connected to everybody
@@ -15,12 +16,18 @@ import java.security.SecureRandom
  * stochastic filter that randomly excludes users according to a tunable
  * parameter.
  */
-internal class UniversalGraph : SocialGraph {
+internal class UniversalGraph : SocialGraph, RandomUsingObject {
     /** The presence server lording over us.  */
     private lateinit var myMaster: PresenceServer
 
     /** The domain this graph describes.  */
     private lateinit var myDomain: Domain
+
+    private lateinit var myRandom: Random
+
+    override fun setRandom(random: Random) {
+        myRandom = random
+    }
 
     /** Number of pseudo-friends someone has, for throttling.  A negative
      * value is unthrottled. */
@@ -48,7 +55,7 @@ internal class UniversalGraph : SocialGraph {
         public override fun isExcluded(element: V) = when {
             element == myExclusion -> true
             myStochasticFriendshipOdds >= 1.0f -> false
-            else -> theRandom.nextFloat() < myStochasticFriendshipOdds
+            else -> myRandom.nextFloat() < myStochasticFriendshipOdds
         }
 
         init {
@@ -79,10 +86,4 @@ internal class UniversalGraph : SocialGraph {
 
     override fun shutdown() {}
     override fun update(master: PresenceServer, domain: Domain, conf: JsonObject) {}
-
-    companion object {
-        /** Random number generator, for random friendship.  */
-        @Deprecated("Global variable")
-        private val theRandom = SecureRandom()
-    }
 }

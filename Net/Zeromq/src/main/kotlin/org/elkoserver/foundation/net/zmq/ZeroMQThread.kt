@@ -5,6 +5,7 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.run.Queue
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.TraceFactory
 import org.zeromq.SocketType
 import org.zeromq.ZMQ
@@ -14,7 +15,7 @@ import java.time.Clock
 /**
  * @param myNetworkManager  Network manager for this server.
  */
-internal class ZeroMQThread(private val myNetworkManager: NetworkManager, private val traceFactory: TraceFactory, private val clock: Clock) : Thread("Elko ZeroMQ") {
+internal class ZeroMQThread(private val myNetworkManager: NetworkManager, private val traceFactory: TraceFactory, private val idGenerator: IdGenerator, private val clock: Clock) : Thread("Elko ZeroMQ") {
     /** Queue of unserviced I/O requests.  */
     private val myQueue = Queue<Any>()
 
@@ -173,7 +174,7 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
                 }
                 val connection = ZeroMQConnection(handlerFactory, framerFactory,
                         socket, true, this@ZeroMQThread,
-                        myNetworkManager, finalAddr, clock, traceFactory)
+                        myNetworkManager, finalAddr, clock, traceFactory, idGenerator)
                 myConnections[socket] = connection
             }
         })
@@ -247,7 +248,7 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
                 traceFactory.comm.eventm("ZMQ socket initialized")
                 val connection = ZeroMQConnection(handlerFactory, framerFactory,
                         socket, false, this@ZeroMQThread,
-                        myNetworkManager, "*", clock, traceFactory)
+                        myNetworkManager, "*", clock, traceFactory, idGenerator)
                 myConnections[socket] = connection
                 traceFactory.comm.eventm("watching ZMQ socket")
                 watchSocket(socket, ZMQ.Poller.POLLIN)

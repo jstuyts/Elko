@@ -4,6 +4,7 @@ package org.elkoserver.server.presence
 
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.RandomInjector
 import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -103,6 +104,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
                 req(sessionIdGenerator),
+                req(connectionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
                 req(objDBRemoteFactory),
@@ -135,6 +137,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val sessionIdGenerator by Once { RandomIdGenerator(req(sessionIdRandom)) }
 
+    val connectionIdGenerator by Once { LongIdGenerator() }
+
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }
 
@@ -149,8 +153,18 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val traceFactoryInjector by Once { TraceFactoryInjector(req(provided.traceFactory())) }
 
+    val random by Once { SecureRandom() }
+
+    val randomInjector by Once { RandomInjector(req(random)) }
+
+    val graphInjectors by Once {
+        listOf(req(randomInjector))
+    }
+
+    val graphInjectorsInjector by Once { InjectorsInjector(req(graphInjectors)) }
+
     val injectors by Once {
-        listOf(req(clockInjector), req(traceFactoryInjector), req(domainRegistryInjector))
+        listOf(req(clockInjector), req(traceFactoryInjector), req(domainRegistryInjector), req(graphInjectorsInjector))
     }
 
     val domainRegistryInjector by Once { DomainRegistryInjector(req(domainRegistry)) }

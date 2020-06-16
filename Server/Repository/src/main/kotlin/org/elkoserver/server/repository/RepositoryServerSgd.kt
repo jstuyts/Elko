@@ -99,6 +99,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
                 req(sessionIdGenerator),
+                req(connectionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
                 req(objDBRemoteFactory),
@@ -130,6 +131,8 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
             }
 
     val sessionIdGenerator by Once { RandomIdGenerator(req(sessionIdRandom)) }
+
+    val connectionIdGenerator by Once { LongIdGenerator() }
 
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }

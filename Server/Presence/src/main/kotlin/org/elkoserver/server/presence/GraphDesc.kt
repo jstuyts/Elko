@@ -1,12 +1,18 @@
 package org.elkoserver.server.presence
 
+import org.elkoserver.foundation.json.Injector
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.InvocationTargetException
 
-internal class GraphDesc @JSONMethod("class", "name", "?conf") constructor(private val myClassName: String, private val myGraphName: String, conf: JsonObject?) : DomainRegistryUsingObject {
+internal class GraphDesc @JSONMethod("class", "name", "?conf") constructor(
+        private val myClassName: String,
+        private val myGraphName: String,
+        conf: JsonObject?) : DomainRegistryUsingObject, InjectorsUsingObject {
     private val myConf: JsonObject = conf ?: JsonObject()
+
+    private lateinit var graphInjectors: Collection<Injector>
 
     private lateinit var myDomainRegistry: DomainRegistry
 
@@ -14,9 +20,14 @@ internal class GraphDesc @JSONMethod("class", "name", "?conf") constructor(priva
         myDomainRegistry = domainRegistry
     }
 
+    override fun setInjectors(injectors: Collection<Injector>) {
+        graphInjectors = injectors
+    }
+
     fun init(master: PresenceServer, gorgel: Gorgel, socialGraphGorgel: Gorgel) =
             try {
                 (Class.forName(myClassName).getConstructor().newInstance() as SocialGraph).apply {
+                    graphInjectors.forEach { it.inject(this) }
                     init(master, socialGraphGorgel, Domain(myGraphName, myDomainRegistry), myConf)
                 }
             } catch (e: ClassNotFoundException) {

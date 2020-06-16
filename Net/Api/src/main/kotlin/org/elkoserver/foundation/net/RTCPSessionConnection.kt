@@ -4,6 +4,7 @@ import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
@@ -19,7 +20,8 @@ import java.util.LinkedList
  */
 class RTCPSessionConnection internal constructor(
         private val mySessionFactory: RTCPMessageHandlerFactory,
-        sessionIDAsLong: Long, private val timer: Timer, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(mySessionFactory.networkManager, clock, traceFactory) {
+        sessionIDAsLong: Long, private val timer: Timer, clock: Clock, traceFactory: TraceFactory, idGenerator: IdGenerator)
+    : ConnectionBase(mySessionFactory.networkManager, clock, traceFactory, idGenerator) {
     /** Trace object for logging message traffic.  */
     private val trMsg: Trace = mySessionFactory.msgTrace
 

@@ -1,6 +1,7 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.run.Queue
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import scalablessl.SSLSelector
@@ -24,7 +25,8 @@ import javax.net.ssl.SSLContext
  * @param sslContext  SSL context to use, if supporting SSL, else null
  */
 internal class SelectThread(
-        private val myMgr: NetworkManager, sslContext: SSLContext?, private val clock: Clock, private val traceFactory: TraceFactory) : Thread("Elko Select") {
+        private val myMgr: NetworkManager, sslContext: SSLContext?, private val clock: Clock, private val traceFactory: TraceFactory, private val idGenerator: IdGenerator)
+    : Thread("Elko Select") {
     /** Selector to await available I/O opportunities.  */
     private var mySelector: Selector? = null
 
@@ -178,7 +180,7 @@ internal class SelectThread(
             channel.configureBlocking(false)
             val key = channel.register(mySelector, SelectionKey.OP_READ)
             key.attach(TCPConnection(handlerFactory, framerFactory!!,
-                    channel, key, this, myMgr, isSecure, trace!!, clock, traceFactory))
+                    channel, key, this, myMgr, isSecure, trace!!, clock, traceFactory, idGenerator))
         } catch (e: ClosedChannelException) {
             myMgr.connectionCount(-1)
             handlerFactory.provideMessageHandler(null)

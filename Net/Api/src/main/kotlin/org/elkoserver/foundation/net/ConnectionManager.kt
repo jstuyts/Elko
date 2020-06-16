@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.net
 
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.io.IOException
@@ -21,7 +22,7 @@ interface ConnectionManager {
      * be managing connections for.
      * @param msgTrace  Trace object for logging message traffic.
      */
-    fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, traceFactory: TraceFactory, mustSendDebugReplies: Boolean)
+    fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, traceFactory: TraceFactory, idGenerator: IdGenerator, mustSendDebugReplies: Boolean)
 
     /**
      * Make a connection, using this connection manager's communications

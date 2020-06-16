@@ -2,6 +2,7 @@ package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner.Companion.throwIfMandatory
+import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import java.io.EOFException
@@ -33,7 +34,8 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
                                          key: SelectionKey, selectThread: SelectThread,
                                          mgr: NetworkManager,
                                          private val amSecure: Boolean,
-                                         private val myTrace: Trace, clock: Clock, traceFactory: TraceFactory) : ConnectionBase(mgr, clock, traceFactory), MessageReceiver, Callable<Any?> {
+                                         private val myTrace: Trace, clock: Clock, traceFactory: TraceFactory, idGenerator: IdGenerator)
+    : ConnectionBase(mgr, clock, traceFactory, idGenerator), MessageReceiver, Callable<Any?> {
     /** Queue of unencoded outbound messages.  */
     private val myOutputQueue: Queue<Any>
 

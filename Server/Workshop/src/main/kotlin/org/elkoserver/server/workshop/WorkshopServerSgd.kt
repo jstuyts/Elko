@@ -101,6 +101,7 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
                 req(sessionIdGenerator),
+                req(connectionIdGenerator),
                 req(jsonToObjectDeserializer),
                 req(runnerRef),
                 req(objDBRemoteFactory),
@@ -135,6 +136,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
             }
 
     val sessionIdGenerator by Once { RandomIdGenerator(req(sessionIdRandom)) }
+
+    val connectionIdGenerator by Once { LongIdGenerator() }
 
     val sessionIdRandom by Once { SecureRandom() }
             .init { it.nextBoolean() }

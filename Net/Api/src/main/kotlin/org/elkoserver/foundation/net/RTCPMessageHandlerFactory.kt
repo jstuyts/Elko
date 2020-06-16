@@ -29,7 +29,8 @@ internal class RTCPMessageHandlerFactory(
         internal val innerFactory: MessageHandlerFactory,
         internal val msgTrace: Trace,
         internal val networkManager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory,
-        private val sessionIdGenerator: IdGenerator) : MessageHandlerFactory {
+        private val sessionIdGenerator: IdGenerator,
+        private val connectionIdGenerator: IdGenerator) : MessageHandlerFactory {
 
     /** Table of current sessions, indexed by session ID.  */
     private val mySessions = HashMap<String, RTCPSessionConnection>()
@@ -186,7 +187,7 @@ internal class RTCPMessageHandlerFactory(
         if (session != null) {
             reply = makeErrorReply("sessionInProgress")
         } else {
-            session = RTCPSessionConnection(this, sessionIdGenerator.generate(), timer, clock, traceFactory)
+            session = RTCPSessionConnection(this, sessionIdGenerator.generate(), timer, clock, traceFactory, connectionIdGenerator)
             acquireTCPConnection(session, connection)
             if (msgTrace.event) {
                 msgTrace.eventm("$session start ${session.sessionID}")
