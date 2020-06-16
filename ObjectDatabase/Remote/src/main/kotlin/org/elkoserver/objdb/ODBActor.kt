@@ -8,7 +8,7 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.objdb.store.ObjectDesc
 import org.elkoserver.objdb.store.ResultDesc
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Actor representing a connection to a repository.
@@ -24,10 +24,10 @@ class ODBActor(
         connection: Connection,
         private val myODB: ObjDBRemote,
         localName: String?,
-               host: HostDesc,
+        host: HostDesc,
         dispatcher: MessageDispatcher,
-        traceFactory: TraceFactory,
-        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, traceFactory, mustSendDebugReplies) {
+        gorgel: Gorgel,
+        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
     /**
      * Handle loss of connection from the repository.
@@ -36,7 +36,7 @@ class ODBActor(
      * @param reason  Exception explaining why.
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
-        traceFactory.comm.eventm("lost repository connection $connection: $reason")
+        gorgel.i?.run { info("lost repository connection $connection: $reason") }
         myODB.repositoryConnected(null)
     }
 

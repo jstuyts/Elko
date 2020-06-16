@@ -58,8 +58,10 @@ class Contextor internal constructor(
         private val staticObjectReceiverGorgel: Gorgel,
         private val directorGroupGorgel: Gorgel,
         private val presencerGroupGorgel: Gorgel,
+        private val presencerActorGorgel: Gorgel,
         private val reservationGorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
+        private val directorActorGorgel: Gorgel,
         sessionGorgel: Gorgel,
         private val timer: Timer,
         private val traceFactory: TraceFactory,
@@ -982,6 +984,7 @@ class Contextor internal constructor(
                 directorGroupGorgel,
                 reservationGorgel,
                 connectionRetrierWithoutLabelGorgel,
+                directorActorGorgel,
                 timer,
                 traceFactory,
                 reservationTimeout,
@@ -1011,6 +1014,7 @@ class Contextor internal constructor(
                 traceFactory,
                 props,
                 jsonToObjectDeserializer,
+                presencerActorGorgel,
                 mustSendDebugReplies)
         if (group.isLive) {
             myPresencerGroup = group

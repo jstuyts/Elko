@@ -26,13 +26,14 @@ class Gatekeeper internal constructor(
         private val gorgel: Gorgel,
         directorActorFactoryGorgel: Gorgel,
         connectionRetrierWithoutLabelGorgel: Gorgel,
+        directorActorGorgel: Gorgel,
         tr: Trace,
         timer: Timer,
         traceFactory: TraceFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         props: ElkoProperties,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
-        private val mustSendDebugReplies: Boolean) {
+        mustSendDebugReplies: Boolean) {
     /** Table for mapping object references in messages.  */
     internal val refTable: RefTable = RefTable(null, traceFactory, jsonToObjectDeserializer)
 
@@ -136,6 +137,7 @@ class Gatekeeper internal constructor(
                 this,
                 directorActorFactoryGorgel,
                 connectionRetrierWithoutLabelGorgel,
+                directorActorGorgel,
                 tr,
                 timer,
                 traceFactory,

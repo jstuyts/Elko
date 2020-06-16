@@ -34,6 +34,7 @@ internal class PresencerGroup(
         traceFactory: TraceFactory,
         props: ElkoProperties,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
+        private val presencerActorGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean)
     : OutboundGroup(
         "conf.presence",
@@ -77,7 +78,7 @@ internal class PresencerGroup(
      * @return a new Actor object for use on this new connection
      */
     override fun provideActor(connection: Connection, dispatcher: MessageDispatcher, host: HostDesc): Actor {
-        val presencer = PresencerActor(connection, dispatcher, this, host, traceFactory, mustSendDebugReplies)
+        val presencer = PresencerActor(connection, dispatcher, this, host, presencerActorGorgel, mustSendDebugReplies)
         updatePresencer(presencer)
         return presencer
     }

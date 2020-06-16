@@ -10,7 +10,7 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JSONLiteralFactory.targetVerb
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * An [Actor] that receives untargeted JSON messages over its connection.
@@ -37,7 +37,7 @@ import org.elkoserver.util.trace.TraceFactory
 abstract class NonRoutingActor protected constructor(
         connection: Connection,
         private val myDispatcher: MessageDispatcher,
-        protected val traceFactory: TraceFactory,
+        protected val gorgel: Gorgel,
         mustSendDebugReplies: Boolean) : Actor(connection, mustSendDebugReplies), Referenceable, DispatchTarget {
 
     /**
@@ -73,8 +73,7 @@ abstract class NonRoutingActor protected constructor(
                 if (report == null) {
                     report = result
                 } else {
-                    traceFactory.comm.errorReportException(report,
-                            "exception in message handler")
+                    gorgel.error("exception in message handler", report)
                 }
             }
         } else if (rawMessage is Throwable) {
@@ -82,7 +81,7 @@ abstract class NonRoutingActor protected constructor(
         }
         if (report != null) {
             val warning = "message handler error: $report"
-            traceFactory.comm.warningm(warning)
+            gorgel.warn(warning)
             if (mustSendDebugReplies) {
                 debugMsg(warning)
             }
@@ -107,7 +106,7 @@ abstract class NonRoutingActor protected constructor(
      */
     @JSONMethod("msg")
     fun debug(from: Deliverer, msg: String) {
-        traceFactory.comm.eventi("Debug msg: $msg")
+        gorgel.i?.run { info("Debug msg: $msg") }
     }
 
     /**

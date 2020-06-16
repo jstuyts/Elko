@@ -281,15 +281,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
     }
 
     /**
-     * Output an informational log message at <tt>WARNING</tt> level.
-     *
-     * @param message  The message to write to the log.
-     */
-    fun warningi(message: String) {
-        if (warning) recordInfoMessage(message, Level.WARNING)
-    }
-
-    /**
      * Output a log message at <tt>WARNING</tt> level.
      *
      * @param message  The message to write to the log.

@@ -15,7 +15,6 @@ import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Msg.msgSay
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.NoSuchElementException
@@ -31,12 +30,12 @@ import java.util.NoSuchElementException
 class DirectorActor(
         connection: Connection,
         dispatcher: MessageDispatcher,
-                    private val myGroup: DirectorGroup,
+        private val myGroup: DirectorGroup,
         host: HostDesc,
         private val timer: Timer,
-                    private val reservationGorgel: Gorgel,
-        traceFactory: TraceFactory,
-        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, traceFactory, mustSendDebugReplies) {
+        private val reservationGorgel: Gorgel,
+        gorgel: Gorgel,
+        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
     /** Map from tag strings to users awaiting reservations.  */
     private val myPendingReservationRequests: MutableMap<String, User> = HashMap()
@@ -51,7 +50,7 @@ class DirectorActor(
      * @param reason  Exception explaining why.
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
-        traceFactory.comm.eventm("lost director connection $connection: $reason")
+        gorgel.i?.run { info("lost director connection $connection: $reason") }
         myGroup.expelMember(this)
     }
 
@@ -281,7 +280,7 @@ class DirectorActor(
         if (tag != null) {
             val who = myPendingReservationRequests.remove(tag)
             if (who == null) {
-                traceFactory.comm.warningi("received reservation for unknown tag $tag")
+                gorgel.warn("received reservation for unknown tag $tag")
             } else if (deny != null) {
                 who.exitContext(deny, "dirdeny", false)
             } else if (hostPort == null) {
@@ -294,7 +293,7 @@ class DirectorActor(
                 who.exitWithContextChange(context, hostPort, reservation)
             }
         } else {
-            traceFactory.comm.warningi("received reservation reply without tag")
+            gorgel.warn("received reservation reply without tag")
         }
     }
 

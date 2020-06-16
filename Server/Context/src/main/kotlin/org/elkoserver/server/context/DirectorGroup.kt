@@ -36,6 +36,7 @@ class DirectorGroup(server: Server,
                     gorgel: Gorgel,
                     connectionRetrierWithoutLabelGorgel: Gorgel,
                     private val reservationGorgel: Gorgel,
+                    private val directorActorGorgel: Gorgel,
                     timer: Timer,
                     traceFactory: TraceFactory,
                     internal val reservationTimeout: Int,
@@ -90,7 +91,7 @@ class DirectorGroup(server: Server,
      * @return a new Actor object for use on this new connection
      */
     override fun provideActor(connection: Connection, dispatcher: MessageDispatcher, host: HostDesc): Actor {
-        val director = DirectorActor(connection, dispatcher, this, host, timer, reservationGorgel, traceFactory, mustSendDebugReplies)
+        val director = DirectorActor(connection, dispatcher, this, host, timer, reservationGorgel, directorActorGorgel, mustSendDebugReplies)
         updateDirector(director)
         return director
     }

@@ -57,6 +57,7 @@ class Server(
         private val objDbLocalGorgel: Gorgel,
         private val baseGorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
+        private val brokerActorGorgel: Gorgel,
         private val tr: Trace,
         private val timer: Timer,
         clock: Clock,
@@ -165,7 +166,7 @@ class Server(
     }
 
     private inner class BrokerMessageHandlerFactory : MessageHandlerFactory {
-        override fun provideMessageHandler(connection: Connection?): MessageHandler = BrokerActor(connection!!, myDispatcher, this@Server, myBrokerHost!!, traceFactory, mustSendDebugReplies)
+        override fun provideMessageHandler(connection: Connection?): MessageHandler = BrokerActor(connection!!, myDispatcher, this@Server, myBrokerHost!!, brokerActorGorgel, mustSendDebugReplies)
     }
 
     /**

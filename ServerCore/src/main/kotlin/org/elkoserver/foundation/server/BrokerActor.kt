@@ -10,7 +10,7 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc.Companion.encodeArray
 import org.elkoserver.json.JSONLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Actor representing a server's connection to its farm's broker.
@@ -23,10 +23,10 @@ import org.elkoserver.util.trace.TraceFactory
 class BrokerActor(
         connection: Connection,
         dispatcher: MessageDispatcher,
-                  private val myServer: Server,
+        private val myServer: Server,
         host: HostDesc,
-        traceFactory: TraceFactory,
-        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, traceFactory, mustSendDebugReplies) {
+        gorgel: Gorgel,
+        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
     /** Load watcher for this actor to report load to the broker.  */
     private val myLoadWatcher: LoadWatcher = object : LoadWatcher {
@@ -42,7 +42,7 @@ class BrokerActor(
      * @param reason  Exception explaining why.
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
-        traceFactory.comm.eventm("lost broker connection $connection: $reason")
+        gorgel.i?.run { info("lost broker connection $connection: $reason") }
         myServer.unregisterLoadWatcher(myLoadWatcher)
         myServer.brokerConnected(null)
     }

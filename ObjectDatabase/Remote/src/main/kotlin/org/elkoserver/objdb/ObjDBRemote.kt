@@ -66,6 +66,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                   propRoot: String,
                   gorgel: Gorgel,
                   private val connectionRetrierWithoutLabelGorgel: Gorgel,
+                  private val odbActorGorgel: Gorgel,
                   private val traceFactory: TraceFactory,
                   private val timer: Timer,
                   hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
@@ -108,7 +109,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     /** Message handler factory for repository connections.  */
     private val myMessageHandlerFactory = object : MessageHandlerFactory {
         override fun provideMessageHandler(connection: Connection?) =
-                ODBActor(connection!!, this@ObjDBRemote, localName, myRepHost!!, myDispatcher, traceFactory, mustSendDebugReplies)
+                ODBActor(connection!!, this@ObjDBRemote, localName, myRepHost!!, myDispatcher, odbActorGorgel, mustSendDebugReplies)
     }
 
     private inner class RepositoryFoundHandler : Consumer<Array<ServiceDesc>> {

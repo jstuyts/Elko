@@ -8,7 +8,7 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
 /**
@@ -28,10 +28,10 @@ import java.util.function.Consumer
 internal class DirectorActor(
         connection: Connection,
         dispatcher: MessageDispatcher,
-                             private val myFactory: DirectorActorFactory,
+        private val myFactory: DirectorActorFactory,
         director: HostDesc,
-        traceFactory: TraceFactory,
-        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, traceFactory, mustSendDebugReplies) {
+        gorgel: Gorgel,
+        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
     /** Flag that this connection is still active.  */
     private var amLive = true
@@ -47,7 +47,7 @@ internal class DirectorActor(
      * @param reason  Exception explaining why.
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
-        traceFactory.comm.eventm("lost director connection $connection: $reason")
+        gorgel.i?.run { info("lost director connection $connection: $reason") }
         amLive = false
         myFactory.setDirector(null)
         for ((key, handler) in myPendingReservations) {
@@ -114,7 +114,7 @@ internal class DirectorActor(
             }
         } while (handler == null && !haveAllSlashesBeenProcessed)
         when {
-            handler == null -> traceFactory.comm.errorm("received unexpected reservation for $context $nonNullActor")
+            handler == null -> gorgel.error("received unexpected reservation for $context $nonNullActor")
             deny == null -> handler.accept(ReservationResult(context, actor!!, hostport, auth))
             else -> handler.accept(ReservationResult(context, actor!!, deny))
         }

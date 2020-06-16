@@ -29,6 +29,7 @@ internal class DirectorActorFactory(
         internal val gatekeeper: Gatekeeper,
         private val gorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
+        private val directorActorGorgel: Gorgel,
         private val tr: Trace,
         private val timer: Timer,
         private val traceFactory: TraceFactory,
@@ -81,7 +82,7 @@ internal class DirectorActorFactory(
      * @param connection  The Connection object that was just created.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            DirectorActor(connection!!, myDispatcher, this, myDirectorHost!!, traceFactory, mustSendDebugReplies)
+            DirectorActor(connection!!, myDispatcher, this, myDirectorHost!!, directorActorGorgel, mustSendDebugReplies)
 
     /**
      * Issue a reservation request to the director.

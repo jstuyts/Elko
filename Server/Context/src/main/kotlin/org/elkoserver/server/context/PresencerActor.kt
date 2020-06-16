@@ -6,7 +6,7 @@ import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.json.JsonObject
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Actor representing a connection to a director.
@@ -19,10 +19,10 @@ import org.elkoserver.util.trace.TraceFactory
 internal class PresencerActor(
         connection: Connection,
         dispatcher: MessageDispatcher,
-                              private val myGroup: PresencerGroup,
+        private val myGroup: PresencerGroup,
         host: HostDesc,
-        traceFactory: TraceFactory,
-        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, traceFactory, mustSendDebugReplies) {
+        gorgel: Gorgel,
+        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
     /**
      * Handle loss of connection from the director.
@@ -31,7 +31,7 @@ internal class PresencerActor(
      * @param reason  Exception explaining why.
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
-        traceFactory.comm.eventm("lost director connection $connection: $reason")
+        gorgel.i?.run { info("lost director connection $connection: $reason") }
         myGroup.expelMember(this)
     }
 
