@@ -38,7 +38,7 @@ class JsonObject {
     fun getObject(key: String?, defaultValue: JsonObject?) =
             JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(impl.getObject(key, defaultValue?.impl)) as JsonObject
 
-    fun <TDefault : String?> getString(key: String?, defaultValue: TDefault): TDefault = impl.getString(key, defaultValue) as TDefault
+    fun <TDefault : String?> getString(key: String, defaultValue: TDefault): TDefault = impl.getString(key, defaultValue) as TDefault
 
     fun getDouble(key: String?, defaultValue: Double) = impl.getDouble(key, defaultValue)
 
