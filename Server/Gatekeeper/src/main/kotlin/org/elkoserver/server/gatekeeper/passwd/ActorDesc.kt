@@ -1,8 +1,10 @@
 package org.elkoserver.server.gatekeeper.passwd
 
 import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.MessageDigestUsingObject
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.json.RandomUsingObject
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteralFactory.type
@@ -13,7 +15,7 @@ import kotlin.experimental.and
 /**
  * Database object describing an actor.
  */
-class ActorDesc : Encodable {
+class ActorDesc : Encodable, RandomUsingObject, MessageDigestUsingObject {
     /** The mandatory, invariant, unique, machine readable identifier.  */
     internal val id: String
 
@@ -86,6 +88,14 @@ class ActorDesc : Encodable {
             }
         }
         canSetPass = optCanSetPass.value(true)
+    }
+
+    override fun setRandom(random: Random) {
+        myRandom = random
+    }
+
+    override fun setMessageDigest(messageDigest: MessageDigest) {
+        myMessageDigest = messageDigest
     }
 
     /**
