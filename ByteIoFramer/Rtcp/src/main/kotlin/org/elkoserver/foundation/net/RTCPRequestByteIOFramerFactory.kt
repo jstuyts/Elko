@@ -3,7 +3,7 @@ package org.elkoserver.foundation.net
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 
@@ -28,7 +28,7 @@ import java.nio.charset.StandardCharsets
  * time this class gets its hands on it, so output framing consists of merely
  * ensuring that the proper character encoding is used.
  */
-class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val traceFactory: TraceFactory, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
+class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val inputGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new RTCP connection.
@@ -37,17 +37,17 @@ class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val trace
      * @param label  A printable label identifying the associated connection.
      */
     override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer =
-            RTCPRequestFramer(receiver, label, traceFactory)
+            RTCPRequestFramer(receiver, label)
 
     /**
      * I/O framer implementation for RTCP requests.
      */
     private inner class RTCPRequestFramer internal constructor(
             private val myReceiver: MessageReceiver,
-            private val myLabel: String, traceFactory: TraceFactory) : ByteIOFramer {
+            private val myLabel: String) : ByteIOFramer {
 
         /** Input data source.  */
-        private val myIn: ChunkyByteArrayInputStream = ChunkyByteArrayInputStream(traceFactory)
+        private val myIn: ChunkyByteArrayInputStream = ChunkyByteArrayInputStream(inputGorgel)
 
         /** JSON message input currently in progress.  */
         private val myMsgBuffer: StringBuilder = StringBuilder(1000)

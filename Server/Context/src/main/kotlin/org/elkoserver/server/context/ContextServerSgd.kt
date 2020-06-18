@@ -5,6 +5,7 @@ package org.elkoserver.server.context
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.TraceFactoryInjector
+import org.elkoserver.foundation.net.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.HTTPSessionConnection
 import org.elkoserver.foundation.net.RTCPSessionConnection
@@ -142,6 +143,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val idGenerator by Once { LongIdGenerator(1L) }
 
+    val inputGorgel by Once { req(provided.baseGorgel()).getChild(ChunkyByteArrayInputStream::class, Tag("category", "comm")) }
+
     val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
 
     val server by Once {
@@ -164,6 +167,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(provided.timer()),
                 req(provided.clock()),
                 req(provided.traceFactory()),
+                req(inputGorgel),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
@@ -227,6 +231,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(connectionRetrierWithoutLabelGorgel),
                 req(odbActorGorgel),
                 req(provided.traceFactory()),
+                req(inputGorgel),
                 req(provided.timer()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(jsonToObjectDeserializer),
@@ -285,6 +290,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(reservationGorgel),
                 req(directorActorGorgel),
                 req(connectionRetrierWithoutLabelGorgel),
+                req(inputGorgel),
                 req(provided.timer()),
                 req(provided.traceFactory()),
                 req(contextorEntryTimeout),

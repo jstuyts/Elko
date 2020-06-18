@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Byte I/O framer factory for JSON messaging over a byte stream.  The framing
@@ -17,7 +17,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param trMsg  Trace object for logging message traffic.
  */
-class JSONByteIOFramerFactory(private val trMsg: Trace, private val traceFactory: TraceFactory, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
+class JSONByteIOFramerFactory(private val trMsg: Trace, private val inputGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new connection.
@@ -26,5 +26,5 @@ class JSONByteIOFramerFactory(private val trMsg: Trace, private val traceFactory
      * @param label  A printable label identifying the associated connection.
      */
     override fun provideFramer(receiver: MessageReceiver, label: String) =
-            JSONByteIOFramer(trMsg, receiver, label, traceFactory, mustSendDebugReplies)
+            JSONByteIOFramer(trMsg, receiver, label, inputGorgel, mustSendDebugReplies)
 }

@@ -3,7 +3,7 @@ package org.elkoserver.foundation.net
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.util.Base64
@@ -18,7 +18,7 @@ class WebSocketByteIOFramerFactory(
         private val trMsg: Trace,
         private val myHostAddress: String,
         private val mySocketURI: String,
-        private val traceFactory: TraceFactory,
+        private val inputGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
 
     /** The host address, stripped of port number.  */
@@ -30,17 +30,17 @@ class WebSocketByteIOFramerFactory(
      * @param receiver  Object to deliver received messages to.
      * @param label  A printable label identifying the associated connection.
      */
-    override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer = WebSocketFramer(receiver, label, traceFactory)
+    override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer = WebSocketFramer(receiver, label)
 
     /**
      * I/O framer implementation for HTTP requests.
      */
     private inner class WebSocketFramer internal constructor(
             private val myReceiver: MessageReceiver,
-            private val myLabel: String, traceFactory: TraceFactory) : ByteIOFramer {
+            private val myLabel: String) : ByteIOFramer {
 
         /** Input data source.  */
-        private val myIn: ChunkyByteArrayInputStream = ChunkyByteArrayInputStream(traceFactory)
+        private val myIn: ChunkyByteArrayInputStream = ChunkyByteArrayInputStream(inputGorgel)
 
         /** Lower-level framer once we start actually reading messages.  */
         private var myMessageFramer: JSONByteIOFramer? = null

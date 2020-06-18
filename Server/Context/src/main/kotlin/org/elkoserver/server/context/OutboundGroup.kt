@@ -38,6 +38,7 @@ abstract class OutboundGroup(propRoot: String,
                              hosts: MutableList<HostDesc>,
                              private val tr: Trace,
                              gorgel: Gorgel,
+                             private val inputGorgel: Gorgel,
                              private val connectionRetrierWithoutLabelGorgel: Gorgel,
                              protected val timer: Timer,
                              protected val traceFactory: TraceFactory,
@@ -73,7 +74,7 @@ abstract class OutboundGroup(propRoot: String,
     fun connectHosts() {
         for (host in myHosts) {
             ConnectionRetrier(host, label(), myNetworkManager,
-                    HostConnector(host), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, traceFactory, mustSendDebugReplies)
+                    HostConnector(host), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, inputGorgel, mustSendDebugReplies)
         }
         if (amAutoRegister) {
             myServer.findService(service(), HostFoundHandler(), true)
@@ -93,7 +94,7 @@ abstract class OutboundGroup(propRoot: String,
                     .map { it.asHostDesc(myRetryInterval) }
                     .forEach {
                         ConnectionRetrier(it, label(), myNetworkManager,
-                                HostConnector(it), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, traceFactory, mustSendDebugReplies)
+                                HostConnector(it), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, inputGorgel, mustSendDebugReplies)
                     }
         }
     }

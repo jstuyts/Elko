@@ -19,7 +19,7 @@ import java.time.Clock
 class ZeroMQConnectionManager : ConnectionManager {
     private lateinit var myZeroMQThread: ZeroMQThread
     private lateinit var myMsgTrace: Trace
-    private lateinit var traceFactory: TraceFactory
+    private lateinit var inputGorgel: Gorgel
     private var mustSendDebugReplies = false
 
     /**
@@ -28,8 +28,7 @@ class ZeroMQConnectionManager : ConnectionManager {
      * @param networkManager  The network manager this connection manager will
      * be managing connections for.
      */
-    override fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, baseCommGorgel: Gorgel, traceFactory: TraceFactory, idGenerator: IdGenerator, mustSendDebugReplies: Boolean) {
-        this.traceFactory = traceFactory
+    override fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, baseCommGorgel: Gorgel, inputGorgel: Gorgel, traceFactory: TraceFactory, idGenerator: IdGenerator, mustSendDebugReplies: Boolean) {
         myZeroMQThread = ZeroMQThread(networkManager.runner, networkManager.loadMonitor, networkManager.myConnectionCountMonitor, baseCommGorgel.getChild(ZeroMQConnection::class), traceFactory, idGenerator, clock)
         myMsgTrace = msgTrace
         this.mustSendDebugReplies = mustSendDebugReplies
@@ -47,7 +46,7 @@ class ZeroMQConnectionManager : ConnectionManager {
      * separated by a colon.  For example, "bithlo.example.com:8002".
      */
     override fun connect(propRoot: String, handlerFactory: MessageHandlerFactory, hostPort: String) {
-        val framerFactory = JSONByteIOFramerFactory(myMsgTrace, traceFactory, mustSendDebugReplies)
+        val framerFactory = JSONByteIOFramerFactory(myMsgTrace, inputGorgel, mustSendDebugReplies)
         myZeroMQThread.connect(handlerFactory, framerFactory, hostPort)
     }
 
@@ -67,7 +66,7 @@ class ZeroMQConnectionManager : ConnectionManager {
      * @throws IOException if there was a problem establishing the listener
      */
     override fun listen(propRoot: String, listenAddress: String, handlerFactory: MessageHandlerFactory, secure: Boolean): NetAddr {
-        val framerFactory = JSONByteIOFramerFactory(myMsgTrace, traceFactory, mustSendDebugReplies)
+        val framerFactory = JSONByteIOFramerFactory(myMsgTrace, inputGorgel, mustSendDebugReplies)
         return myZeroMQThread.listen(listenAddress, handlerFactory, framerFactory, secure)
     }
 }

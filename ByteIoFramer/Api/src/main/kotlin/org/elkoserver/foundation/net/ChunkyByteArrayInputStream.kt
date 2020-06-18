@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.util.ByteArrayToAscii
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.EOFException
 import java.io.IOException
 import java.io.InputStream
@@ -11,7 +11,7 @@ import java.util.LinkedList
  * Input stream similar to ByteArrayInputStream but backed by an ongoing series
  * of byte arrays that can be added to during the stream object's lifetime.
  */
-class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : InputStream() {
+class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
     /*
      * This object embodies a couple of assumptions about the nature of what is
      * being read and how this stream is being used:
@@ -112,11 +112,11 @@ class ChunkyByteArrayInputStream(private val traceFactory: TraceFactory) : Input
      * @param length  Number of bytes in 'buf' to read (&lt;= buf.length).
      */
     fun addBuffer(buf: ByteArray, length: Int) {
-        if (traceFactory.comm.debug) {
+        gorgel.d?.run {
             if (length == 0) {
-                traceFactory.comm.debugm("receiving 0 bytes: || (EOF)")
+                debug("receiving 0 bytes: || (EOF)")
             } else {
-                traceFactory.comm.debugm("receiving $length bytes: |${ByteArrayToAscii.byteArrayToASCII(buf, 0, length)}|")
+                debug("receiving $length bytes: |${ByteArrayToAscii.byteArrayToASCII(buf, 0, length)}|")
             }
         }
         if (length == 0) {

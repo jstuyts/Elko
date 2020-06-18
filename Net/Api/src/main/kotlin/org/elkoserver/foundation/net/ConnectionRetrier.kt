@@ -4,7 +4,6 @@ import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -27,7 +26,7 @@ class ConnectionRetrier(
         timer: Timer,
         private val gorgel: Gorgel,
         appTrace: Trace,
-        traceFactory: TraceFactory,
+        inputGorgel: Gorgel,
         mustSendDebugReplies: Boolean) {
 
     /** Low-level I/O framer factory for the new connection.  */
@@ -66,7 +65,7 @@ class ConnectionRetrier(
     }
 
     init {
-        myFramerFactory = JSONByteIOFramerFactory(myTrace, traceFactory, mustSendDebugReplies)
+        myFramerFactory = JSONByteIOFramerFactory(myTrace, inputGorgel, mustSendDebugReplies)
         myNetworkManager = networkManager
         myActualFactory = actualFactory
         gorgel.i?.run { info("connecting to $myLabel at ${myHost.hostPort}") }

@@ -16,9 +16,6 @@ class TraceFactory internal constructor(private val controller: TraceController,
      * <tt>EVENT</tt> or above.  */
     val comm = trace("comm")
 
-    /** Trace object for exceptions.  */
-    val exception = trace("exce")
-
     /** Trace object for the 'startup' subsystem.  This is used for log
      * messages that need to be generated as a part of server boot.  */
     val startup = trace("startup")

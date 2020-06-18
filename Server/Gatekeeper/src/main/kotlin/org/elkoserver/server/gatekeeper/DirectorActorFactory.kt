@@ -32,7 +32,8 @@ internal class DirectorActorFactory(
         private val directorActorGorgel: Gorgel,
         private val tr: Trace,
         private val timer: Timer,
-        private val traceFactory: TraceFactory,
+        traceFactory: TraceFactory,
+        private val inputGorgel: Gorgel,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
     /** Descriptor for the director host.  */
@@ -64,7 +65,7 @@ internal class DirectorActorFactory(
                     timer,
                     connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "director")),
                     tr,
-                    traceFactory,
+                    inputGorgel,
                     mustSendDebugReplies)
         }
     }

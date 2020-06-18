@@ -1,6 +1,7 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
@@ -11,7 +12,7 @@ import java.nio.charset.StandardCharsets
  * responses as described by "RFC 2616: Hypertext Transfer Protocol --
  * HTTP/1.1", except that chunked transfer coding is not supported.
  */
-class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory) : ByteIOFramerFactory {
+class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory, private val inputGorgel: Gorgel) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new HTTP connection.
@@ -20,15 +21,15 @@ class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory) : B
      * @param label  A printable label identifying the associated connection.
      */
     override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer =
-            HTTPRequestFramer(receiver, label, traceFactory)
+            HTTPRequestFramer(receiver, label, traceFactory, inputGorgel)
 
     /**
      * I/O framer implementation for HTTP requests.
      */
-    private class HTTPRequestFramer internal constructor(private val myReceiver: MessageReceiver, private val myLabel: String, private val traceFactory: TraceFactory) : ByteIOFramer {
+    private class HTTPRequestFramer internal constructor(private val myReceiver: MessageReceiver, private val myLabel: String, private val traceFactory: TraceFactory, inputGorgel: Gorgel) : ByteIOFramer {
 
         /** Input data source.  */
-        private val myIn = ChunkyByteArrayInputStream(traceFactory)
+        private val myIn = ChunkyByteArrayInputStream(inputGorgel)
 
         /** Stage of HTTP request reading.  */
         private var myHTTPParseStage = HTTP_STAGE_START

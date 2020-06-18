@@ -5,6 +5,7 @@ package org.elkoserver.server.repository
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.TraceFactoryInjector
+import org.elkoserver.foundation.net.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.HTTPSessionConnection
 import org.elkoserver.foundation.net.RTCPSessionConnection
@@ -92,6 +93,8 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
     val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class, Tag("category", "comm")) }
     val connectionBaseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(Tag("category", "comm")) }
 
+    val inputGorgel by Once { req(provided.baseGorgel()).getChild(ChunkyByteArrayInputStream::class, Tag("category", "comm")) }
+
     val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
 
     val server by Once {
@@ -114,6 +117,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.timer()),
                 req(provided.clock()),
                 req(provided.traceFactory()),
+                req(inputGorgel),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
@@ -182,6 +186,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(connectionRetrierWithoutLabelGorgel),
                 req(odbActorGorgel),
                 req(provided.traceFactory()),
+                req(inputGorgel),
                 req(provided.timer()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(jsonToObjectDeserializer),

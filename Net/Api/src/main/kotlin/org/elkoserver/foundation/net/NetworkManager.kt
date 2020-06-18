@@ -33,6 +33,7 @@ class NetworkManager(
         private val tcpConnectionCommGorgel: Gorgel,
         private val connectionBaseCommGorgel: Gorgel,
         private val traceFactory: TraceFactory,
+        private val inputGorgel: Gorgel,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator,
         private val mustSendDebugReplies: Boolean) {
@@ -63,7 +64,7 @@ class NetworkManager(
         if (result == null) {
             try {
                 result = Class.forName(className).getConstructor().newInstance() as ConnectionManager
-                result.init(this, msgTrace, clock, connectionBaseCommGorgel, traceFactory, connectionIdGenerator, mustSendDebugReplies)
+                result.init(this, msgTrace, clock, connectionBaseCommGorgel, inputGorgel, traceFactory, connectionIdGenerator, mustSendDebugReplies)
                 myConnectionManagers[className] = result
             } catch (e: ClassNotFoundException) {
                 traceFactory.comm.errorm("ConnectionManager class $className not found: $e")
@@ -156,7 +157,7 @@ class NetworkManager(
                    trace: Trace, secure: Boolean, rootURI: String, httpFramer: HTTPFramer): NetAddr {
         val outerHandlerFactory: MessageHandlerFactory = HTTPMessageHandlerFactory(
                 innerHandlerFactory, rootURI, httpFramer, runner, loadMonitor, props, timer, clock, httpSessionConnectionCommGorgel, traceFactory, sessionIdGenerator, connectionIdGenerator)
-        val framerFactory: ByteIOFramerFactory = HTTPRequestByteIOFramerFactory(traceFactory)
+        val framerFactory: ByteIOFramerFactory = HTTPRequestByteIOFramerFactory(traceFactory, inputGorgel)
         return listenTCP(listenAddress, outerHandlerFactory, trace, secure, framerFactory)
     }
 
@@ -178,7 +179,7 @@ class NetworkManager(
                    msgTrace: Trace,
                    secure: Boolean): NetAddr {
         val outerHandlerFactory: MessageHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, rtcpSessionConnectionCommGorgel, msgTrace, runner, loadMonitor, props, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
-        val framerFactory: ByteIOFramerFactory = RTCPRequestByteIOFramerFactory(msgTrace, traceFactory, mustSendDebugReplies)
+        val framerFactory: ByteIOFramerFactory = RTCPRequestByteIOFramerFactory(msgTrace, inputGorgel, mustSendDebugReplies)
         return listenTCP(listenAddress, outerHandlerFactory, msgTrace, secure, framerFactory)
     }
 
@@ -205,7 +206,7 @@ class NetworkManager(
         }
         val outerHandlerFactory: MessageHandlerFactory = WebSocketMessageHandlerFactory(innerHandlerFactory, actualSocketURI,
                 msgTrace)
-        val framerFactory: ByteIOFramerFactory = WebSocketByteIOFramerFactory(msgTrace, listenAddress, actualSocketURI, traceFactory, mustSendDebugReplies)
+        val framerFactory: ByteIOFramerFactory = WebSocketByteIOFramerFactory(msgTrace, listenAddress, actualSocketURI, inputGorgel, mustSendDebugReplies)
         return listenTCP(listenAddress, outerHandlerFactory, msgTrace, secure, framerFactory)
     }
 

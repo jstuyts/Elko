@@ -30,6 +30,7 @@ class Gatekeeper internal constructor(
         tr: Trace,
         timer: Timer,
         traceFactory: TraceFactory,
+        inputGorgel: Gorgel,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         props: ElkoProperties,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
@@ -141,6 +142,7 @@ class Gatekeeper internal constructor(
                 tr,
                 timer,
                 traceFactory,
+                inputGorgel,
                 jsonToObjectDeserializer,
                 mustSendDebugReplies)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)

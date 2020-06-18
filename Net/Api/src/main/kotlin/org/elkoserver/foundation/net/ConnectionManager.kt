@@ -23,7 +23,7 @@ interface ConnectionManager {
      * be managing connections for.
      * @param msgTrace  Trace object for logging message traffic.
      */
-    fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, baseCommGorgel: Gorgel, traceFactory: TraceFactory, idGenerator: IdGenerator, mustSendDebugReplies: Boolean)
+    fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, baseCommGorgel: Gorgel, inputGorgel: Gorgel, traceFactory: TraceFactory, idGenerator: IdGenerator, mustSendDebugReplies: Boolean)
 
     /**
      * Make a connection, using this connection manager's communications

@@ -68,6 +68,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                   private val connectionRetrierWithoutLabelGorgel: Gorgel,
                   private val odbActorGorgel: Gorgel,
                   private val traceFactory: TraceFactory,
+                  private val inputGorgel: Gorgel,
                   private val timer: Timer,
                   hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
                   jsonToObjectDeserializer: JsonToObjectDeserializer,
@@ -138,7 +139,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                         timer,
                         connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "repository")),
                         traceFactory.comm,
-                        traceFactory,
+                        inputGorgel,
                         mustSendDebugReplies)
             }
         }

@@ -66,6 +66,7 @@ class Server(
         private val timer: Timer,
         clock: Clock,
         private val traceFactory: TraceFactory,
+        private val inputGorgel: Gorgel,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         private val myTagGenerator: IdGenerator,
@@ -116,7 +117,22 @@ class Server(
     private val myMainRunner = runnerRef.get()
 
     /** Network manager, for setting up network communications.  */
-    val networkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, httpSessionConnectionCommGorgel, rtcpSessionConnectionCommGorgel, tcpConnectionCommGorgel, connectionBaseCommGorgel, traceFactory, sessionIdGenerator, connectionIdGenerator, mustSendDebugReplies)
+    val networkManager = NetworkManager(
+            this,
+            myProps,
+            myLoadMonitor,
+            myMainRunner,
+            timer,
+            clock,
+            httpSessionConnectionCommGorgel,
+            rtcpSessionConnectionCommGorgel,
+            tcpConnectionCommGorgel,
+            connectionBaseCommGorgel,
+            traceFactory,
+            inputGorgel,
+            sessionIdGenerator,
+            connectionIdGenerator,
+            mustSendDebugReplies)
 
     /** Thread pool isolation for external blocking tasks.  */
     private val mySlowRunner = SlowServiceRunner(myMainRunner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))
@@ -165,7 +181,7 @@ class Server(
      */
     private fun connectToBroker() {
         if (!amShuttingDown) {
-            ConnectionRetrier(myBrokerHost!!, "broker", networkManager, BrokerMessageHandlerFactory(), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "broker")), tr, traceFactory, mustSendDebugReplies)
+            ConnectionRetrier(myBrokerHost!!, "broker", networkManager, BrokerMessageHandlerFactory(), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "broker")), tr, inputGorgel, mustSendDebugReplies)
         }
     }
 
@@ -319,7 +335,7 @@ class Server(
             val actor = myServiceActorsByProviderID[desc.providerID]
             actor?.let(::connectLinkToActor)
                     ?: ConnectionRetrier(desc.asHostDesc(-1), myLabel,
-                            networkManager, this, timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", myLabel)), tr, traceFactory, mustSendDebugReplies)
+                            networkManager, this, timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", myLabel)), tr, inputGorgel, mustSendDebugReplies)
         }
 
         /**
@@ -563,7 +579,7 @@ class Server(
         val mgrClass = myProps.getProperty("$propRoot.class")
         val connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory) }
                 ?: when (protocol) {
-                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory, mustSendDebugReplies)
+                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory, inputGorgel, mustSendDebugReplies)
                     "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
                     "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory, mustSendDebugReplies)
                     "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)

@@ -6,7 +6,7 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonObjectSerialization.sendableString
 import org.elkoserver.json.JsonParsing.jsonObjectFromReader
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.io.StringReader
 import java.nio.charset.StandardCharsets
@@ -27,8 +27,8 @@ class JSONByteIOFramer(
     /**
      * Constructor.
      */
-    constructor(msgTrace: Trace, receiver: MessageReceiver, label: String, traceFactory: TraceFactory, mustSendDebugReplies: Boolean)
-            : this(msgTrace, receiver, label, ChunkyByteArrayInputStream(traceFactory), mustSendDebugReplies)
+    constructor(msgTrace: Trace, receiver: MessageReceiver, label: String, inputGorgel: Gorgel, mustSendDebugReplies: Boolean)
+            : this(msgTrace, receiver, label, ChunkyByteArrayInputStream(inputGorgel), mustSendDebugReplies)
 
     /**
      * Process bytes of data received.
