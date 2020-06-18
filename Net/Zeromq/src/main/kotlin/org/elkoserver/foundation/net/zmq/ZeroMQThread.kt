@@ -1,12 +1,15 @@
 package org.elkoserver.foundation.net.zmq
 
 import org.elkoserver.foundation.net.ByteIOFramerFactory
+import org.elkoserver.foundation.net.ConnectionCountMonitor
+import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
-import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.run.Queue
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import org.zeromq.SocketType
 import org.zeromq.ZMQ
 import java.io.IOException
@@ -15,7 +18,14 @@ import java.time.Clock
 /**
  * @param myNetworkManager  Network manager for this server.
  */
-internal class ZeroMQThread(private val myNetworkManager: NetworkManager, private val traceFactory: TraceFactory, private val idGenerator: IdGenerator, private val clock: Clock) : Thread("Elko ZeroMQ") {
+internal class ZeroMQThread(
+        private val runner: Runner,
+        private val loadMonitor: LoadMonitor,
+        private val connectionCountMonitor: ConnectionCountMonitor,
+        private val connectionCommGorgel: Gorgel,
+        private val traceFactory: TraceFactory,
+        private val idGenerator: IdGenerator,
+        private val clock: Clock) : Thread("Elko ZeroMQ") {
     /** Queue of unserviced I/O requests.  */
     private val myQueue = Queue<Any>()
 
@@ -174,7 +184,7 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
                 }
                 val connection = ZeroMQConnection(handlerFactory, framerFactory,
                         socket, true, this@ZeroMQThread,
-                        myNetworkManager, finalAddr, clock, traceFactory, idGenerator)
+                        connectionCountMonitor, runner, loadMonitor, finalAddr, clock, connectionCommGorgel, idGenerator)
                 myConnections[socket] = connection
             }
         })
@@ -248,7 +258,7 @@ internal class ZeroMQThread(private val myNetworkManager: NetworkManager, privat
                 traceFactory.comm.eventm("ZMQ socket initialized")
                 val connection = ZeroMQConnection(handlerFactory, framerFactory,
                         socket, false, this@ZeroMQThread,
-                        myNetworkManager, "*", clock, traceFactory, idGenerator)
+                        connectionCountMonitor, runner, loadMonitor, "*", clock, connectionCommGorgel, idGenerator)
                 myConnections[socket] = connection
                 traceFactory.comm.eventm("watching ZMQ socket")
                 watchSocket(socket, ZMQ.Poller.POLLIN)

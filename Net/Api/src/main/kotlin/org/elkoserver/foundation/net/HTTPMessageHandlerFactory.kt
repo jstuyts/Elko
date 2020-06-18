@@ -1,8 +1,11 @@
 package org.elkoserver.foundation.net
 
+import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.HashMap
 
@@ -28,12 +31,18 @@ import java.util.HashMap
  * @param rootURI  The root URI for GETs and POSTs.
  * @param httpFramer  HTTP framer to interpret HTTP POSTs and format HTTP
  * replies.
- * @param networkManager  Network manager for this server.
  */
 class HTTPMessageHandlerFactory internal constructor(
         internal val innerFactory: MessageHandlerFactory,
-        rootURI: String, internal val httpFramer: HTTPFramer,
-        internal val networkManager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory,
+        rootURI: String,
+        internal val httpFramer: HTTPFramer,
+        private val myRunner: Runner,
+        private val myLoadMonitor: LoadMonitor,
+        props: ElkoProperties,
+        private val timer: Timer,
+        private val clock: Clock,
+        private val connectionCommGorgel: Gorgel,
+        private val traceFactory: TraceFactory,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator) : MessageHandlerFactory {
 
@@ -92,7 +101,7 @@ class HTTPMessageHandlerFactory internal constructor(
      * @return true if an HTTP reply was sent.
      */
     private fun doConnect(connection: Connection): Boolean {
-        val session = HTTPSessionConnection(this, sessionIdGenerator.generate(), timer, clock, traceFactory, connectionIdGenerator)
+        val session = HTTPSessionConnection(this, myRunner, myLoadMonitor, sessionIdGenerator.generate(), timer, clock, connectionCommGorgel, connectionIdGenerator)
         associateTCPConnection(session, connection)
         if (traceFactory.comm.event) {
             traceFactory.comm.eventm("$session connect over $connection")
@@ -387,7 +396,6 @@ class HTTPMessageHandlerFactory internal constructor(
     }
 
     init {
-        val props = networkManager.props
         mySelectTimeout = props.intProperty("conf.comm.httpselectwait",
                 DEFAULT_SELECT_TIMEOUT) * 1000
         myDebugSelectTimeout = props.intProperty("conf.comm.httpselectwait.debug",

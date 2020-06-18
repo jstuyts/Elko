@@ -6,6 +6,9 @@ import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.ConnectionRetrier
+import org.elkoserver.foundation.net.HTTPSessionConnection
+import org.elkoserver.foundation.net.RTCPSessionConnection
+import org.elkoserver.foundation.net.TCPConnection
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.RunnerRef
 import org.elkoserver.foundation.server.BaseConnectionSetup
@@ -86,6 +89,11 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val workshopActorGorgel by Once { req(provided.baseGorgel()).getChild(WorkshopActor::class) }
 
+    val httpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPSessionConnection::class, Tag("category", "comm")) }
+    val rtcpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPSessionConnection::class, Tag("category", "comm")) }
+    val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class, Tag("category", "comm")) }
+    val connectionBaseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(Tag("category", "comm")) }
+
     val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
 
     val server by Once {
@@ -100,6 +108,10 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.baseGorgel()),
                 req(connectionRetrierWithoutLabelGorgel),
                 req(brokerActorGorgel),
+                req(httpSessionConnectionCommGorgel),
+                req(rtcpSessionConnectionCommGorgel),
+                req(tcpConnectionCommGorgel),
+                req(connectionBaseCommGorgel),
                 req(workTrace),
                 req(provided.timer()),
                 req(provided.clock()),

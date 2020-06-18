@@ -58,6 +58,10 @@ class Server(
         private val baseGorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
         private val brokerActorGorgel: Gorgel,
+        httpSessionConnectionCommGorgel: Gorgel,
+        rtcpSessionConnectionCommGorgel: Gorgel,
+        tcpConnectionCommGorgel: Gorgel,
+        connectionBaseCommGorgel: Gorgel,
         private val tr: Trace,
         private val timer: Timer,
         clock: Clock,
@@ -112,7 +116,7 @@ class Server(
     private val myMainRunner = runnerRef.get()
 
     /** Network manager, for setting up network communications.  */
-    val networkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator, mustSendDebugReplies)
+    val networkManager = NetworkManager(this, myProps, myLoadMonitor, myMainRunner, timer, clock, httpSessionConnectionCommGorgel, rtcpSessionConnectionCommGorgel, tcpConnectionCommGorgel, connectionBaseCommGorgel, traceFactory, sessionIdGenerator, connectionIdGenerator, mustSendDebugReplies)
 
     /** Thread pool isolation for external blocking tasks.  */
     private val mySlowRunner = SlowServiceRunner(myMainRunner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))

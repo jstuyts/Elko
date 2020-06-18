@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.net
 
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
@@ -7,7 +8,7 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.LinkedList
 
@@ -20,8 +21,10 @@ import java.util.LinkedList
  */
 class RTCPSessionConnection internal constructor(
         private val mySessionFactory: RTCPMessageHandlerFactory,
-        sessionIDAsLong: Long, private val timer: Timer, clock: Clock, traceFactory: TraceFactory, idGenerator: IdGenerator)
-    : ConnectionBase(mySessionFactory.networkManager, clock, traceFactory, idGenerator) {
+        runner: Runner,
+        loadMonitor: LoadMonitor,
+        sessionIDAsLong: Long, private val timer: Timer, clock: Clock, commGorgel: Gorgel, idGenerator: IdGenerator)
+    : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator) {
     /** Trace object for logging message traffic.  */
     private val trMsg: Trace = mySessionFactory.msgTrace
 
@@ -74,9 +77,7 @@ class RTCPSessionConnection internal constructor(
         myLiveConnection = connection
         myDisconnectedTimeout?.cancel()
         myDisconnectedTimeout = null
-        if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("acquire $connection for $this")
-        }
+        commGorgel.d?.run { debug("acquire $connection for ${this@RTCPSessionConnection}") }
     }
 
     /**
@@ -88,9 +89,7 @@ class RTCPSessionConnection internal constructor(
     fun clientAck(clientRecvSeqNum: Int) {
         val timeInactive = clock.millis() - myLastActivityTime
         noteClientActivity()
-        if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("$this ack $clientRecvSeqNum")
-        }
+        commGorgel.d?.run { debug("${this@RTCPSessionConnection} ack $clientRecvSeqNum") }
         discardAcknowledgedMessages(clientRecvSeqNum)
         if (timeInactive > myInactivityTimeoutInterval / 4) {
             val ack = mySessionFactory.makeAck(clientSendSeqNum)
@@ -128,9 +127,7 @@ class RTCPSessionConnection internal constructor(
             myQueueBacklog -= peek.message.length()
             myQueue.remove()
         }
-        if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("$this queue backlog decreased to $myQueueBacklog")
-        }
+        commGorgel.d?.run { debug("${this@RTCPSessionConnection} queue backlog decreased to $myQueueBacklog") }
     }
 
     /**
@@ -158,9 +155,7 @@ class RTCPSessionConnection internal constructor(
      */
     private fun noticeDisconnectedTimeout() {
         if (!amClosing && myLiveConnection == null) {
-            if (traceFactory.comm.event) {
-                traceFactory.comm.eventm("$this: disconnected session timeout")
-            }
+            commGorgel.i?.run { info("${this@RTCPSessionConnection}: disconnected session timeout") }
             close()
         }
     }
@@ -184,20 +179,14 @@ class RTCPSessionConnection internal constructor(
     private fun noticeInactivityTick() {
         val timeInactive = clock.millis() - myLastActivityTime
         if (timeInactive > myInactivityTimeoutInterval) {
-            if (traceFactory.comm.event) {
-                traceFactory.comm.eventm("$this tick: RTCP session timeout")
-            }
+            commGorgel.i?.run { info("${this@RTCPSessionConnection} tick: RTCP session timeout") }
             close()
         } else if (timeInactive > myInactivityTimeoutInterval / 2) {
-            if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm("$this tick: RTCP session acking")
-            }
+            commGorgel.d?.run { debug("${this@RTCPSessionConnection} tick: RTCP session acking") }
             val ack = mySessionFactory.makeAck(clientSendSeqNum)
             sendMsg(ack)
         } else {
-            if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm("$this tick: RTCP session waiting")
-            }
+            commGorgel.d?.run { debug("${this@RTCPSessionConnection} tick: RTCP session waiting") }
         }
     }
 
@@ -210,7 +199,7 @@ class RTCPSessionConnection internal constructor(
     fun receiveMessage(request: RTCPRequest) {
         noteClientActivity()
         if (request.clientSendSeqNum != clientSendSeqNum + 1) {
-            traceFactory.comm.errorm("$this expected client seq # ${clientSendSeqNum + 1}, got ${request.clientSendSeqNum}")
+            commGorgel.error("$this expected client seq # ${clientSendSeqNum + 1}, got ${request.clientSendSeqNum}")
             val reply = mySessionFactory.makeErrorReply("sequenceError")
             sendMsg(reply)
         } else {
@@ -240,9 +229,7 @@ class RTCPSessionConnection internal constructor(
             val messageString = mySessionFactory.makeMessage(elem.seqNum,
                     clientSendSeqNum,
                     elem.message.sendableString())
-            if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm("$this resend ${elem.seqNum}")
-            }
+            commGorgel.d?.run { debug("${this@RTCPSessionConnection} resend ${elem.seqNum}") }
             myLiveConnection!!.sendMsg(messageString)
         }
     }
@@ -262,11 +249,9 @@ class RTCPSessionConnection internal constructor(
             ++myServerSendSeqNum
             val qMsg = RTCPMessage(myServerSendSeqNum, message)
             myQueueBacklog += message.length()
-            if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm("$this queue backlog increased to $myQueueBacklog")
-            }
+            commGorgel.d?.run { debug("${this@RTCPSessionConnection} queue backlog increased to $myQueueBacklog") }
             if (myQueueBacklog > mySessionFactory.sessionBacklogLimit) {
-                traceFactory.comm.eventm("$this queue backlog limit exceeded")
+                commGorgel.i?.run { info("${this@RTCPSessionConnection} queue backlog limit exceeded") }
                 close()
             }
             myQueue.addLast(qMsg)
@@ -313,9 +298,7 @@ class RTCPSessionConnection internal constructor(
         if (myLiveConnection === connection) {
             myLiveConnection = null
             noteClientActivity()
-            if (traceFactory.comm.event) {
-                traceFactory.comm.eventm("$this lost $connection")
-            }
+            commGorgel.i?.run { info("${this@RTCPSessionConnection} lost $connection") }
         }
     }
 
@@ -341,9 +324,7 @@ class RTCPSessionConnection internal constructor(
 
     init {
         mySessionFactory.addSession(this)
-        if (traceFactory.comm.event) {
-            traceFactory.comm.eventi("$this new connection session ${this.sessionID}")
-        }
+        commGorgel.i?.run { info("${this@RTCPSessionConnection} new connection session ${sessionID}") }
         myDisconnectedTimeoutInterval = mySessionFactory.sessionDisconnectedTimeout(false)
         myInactivityTimeoutInterval = mySessionFactory.sessionInactivityTimeout(false)
         myInactivityClock = timer.every(myInactivityTimeoutInterval / 2 + 1000.toLong(), object : TickNoticer {

@@ -4,13 +4,14 @@ import org.elkoserver.foundation.net.ByteIOFramer
 import org.elkoserver.foundation.net.ByteIOFramerFactory
 import org.elkoserver.foundation.net.ConnectionBase
 import org.elkoserver.foundation.net.ConnectionCloseException
+import org.elkoserver.foundation.net.ConnectionCountMonitor
+import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.MessageReceiver
-import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import org.zeromq.ZMQ
 import java.io.IOException
 import java.time.Clock
@@ -24,13 +25,15 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
                                             private val mySocket: ZMQ.Socket,
                                             private val amSendMode: Boolean,
                                             private val myThread: ZeroMQThread,
-                                            private val myMgr: NetworkManager,
+                                            private val myConnectionCountMonitor: ConnectionCountMonitor,
+                                            runner: Runner,
+                                            loadMonitor: LoadMonitor,
                                             remoteAddr: String,
                                             clock: Clock,
-                                            traceFactory: TraceFactory,
+                                            commGorgel: Gorgel,
                                             idGenerator: IdGenerator,
                                             private var amOpen: Boolean = true)
-    : ConnectionBase(myMgr, clock, traceFactory, idGenerator), MessageReceiver, Thunk {
+    : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator), MessageReceiver, Thunk {
     /** Queue of unencoded outbound messages.  */
     private val myOutputQueue = Queue<Any>()
 
@@ -47,9 +50,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
      * Shut down the connection.  Any queued messages will be sent.
      */
     override fun close() {
-        if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("$this close")
-        }
+        commGorgel.d?.run { debug("${this@ZeroMQConnection} close") }
 
         /* Enqueue a special object to mark the end of the outgoing message
          * stream.  Output queue handler will call closeIsDone() when it pulls
@@ -70,10 +71,8 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
      */
     private fun closeIsDone(reason: Throwable) {
         mySocket.close()
-        myMgr.connectionCount(-1)
-        if (traceFactory.comm.event) {
-            traceFactory.comm.eventm("$this died: $reason")
-        }
+        myConnectionCountMonitor.connectionCountChange(-1)
+        commGorgel.i?.run { info("${this@ZeroMQConnection} died: $reason") }
         connectionDied(reason)
     }
 
@@ -132,7 +131,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
                 throw ConnectionCloseException("Null ZMQ recv result")
             }
         } catch (t: Throwable) {
-            traceFactory.comm.eventm("$this problem: $t")
+            commGorgel.i?.run { info("${this@ZeroMQConnection} problem", t) }
             close()
             closeIsDone(t)
             Runner.throwIfMandatory(t)
@@ -159,16 +158,14 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
                 mySocket.send(outBytes, 0)
             }
         } catch (e: IOException) {
-            traceFactory.comm.usagem("$this IOException: ${e.message}")
+            commGorgel.error("${this@ZeroMQConnection} IOException", e)
             closeException = e
         }
         if (closeException != null) {
             closeIsDone(closeException)
         } else if (!myOutputQueue.hasMoreElements()) {
             myThread.unwatchSocket(mySocket)
-            if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm("$this set poll off")
-            }
+            commGorgel.d?.run { debug("${this@ZeroMQConnection} set poll off") }
         }
     }
 
@@ -179,9 +176,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
      * String, but this is not required.
      */
     private fun enqueueSentMessage(message: Any) {
-        if (traceFactory.comm.verbose) {
-            traceFactory.comm.verbosem("enqueue $message")
-        }
+        commGorgel.i?.run { info("enqueue $message") }
 
         /* If the connection is going away, the message can be discarded. */
         if (amOpen) {
@@ -226,13 +221,9 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
     override fun run() {
         if (myOutputQueue.hasMoreElements()) {
             myThread.watchSocket(mySocket, ZMQ.Poller.POLLOUT)
-            if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm("$this set poller for write")
-            }
+            commGorgel.d?.run { debug("${this@ZeroMQConnection} set poller for write") }
         }
-        if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("ZMQ thread interested in writes on $this")
-        }
+        commGorgel.d?.run { debug("ZMQ thread interested in writes on ${this@ZeroMQConnection}") }
     }
 
     /**
@@ -242,12 +233,10 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
      */
     override fun sendMsg(message: Any) {
         if (amSendMode) {
-            if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm("$this enqueueing message")
-            }
+            commGorgel.d?.run { debug("${this@ZeroMQConnection} enqueueing message") }
             enqueueSentMessage(message)
         } else {
-            traceFactory.comm.errorm("$this send on a receive-only connection: $message")
+            commGorgel.error("$this send on a receive-only connection: $message")
         }
     }
 
@@ -284,8 +273,6 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
         /* Printable form of the address this connection is connected to. */
         myFramer = framerFactory.provideFramer(this, label())
         enqueueHandlerFactory(handlerFactory)
-        if (traceFactory.comm.event) {
-            traceFactory.comm.eventm("$this new ZMQ connection with $remoteAddr")
-        }
+        commGorgel.i?.run { info("${this@ZeroMQConnection} new ZMQ connection with $remoteAddr") }
     }
 }

@@ -8,6 +8,7 @@ import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.time.Clock
 
@@ -27,9 +28,9 @@ class ZeroMQConnectionManager : ConnectionManager {
      * @param networkManager  The network manager this connection manager will
      * be managing connections for.
      */
-    override fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, traceFactory: TraceFactory, idGenerator: IdGenerator, mustSendDebugReplies: Boolean) {
+    override fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, baseCommGorgel: Gorgel, traceFactory: TraceFactory, idGenerator: IdGenerator, mustSendDebugReplies: Boolean) {
         this.traceFactory = traceFactory
-        myZeroMQThread = ZeroMQThread(networkManager, traceFactory, idGenerator, clock)
+        myZeroMQThread = ZeroMQThread(networkManager.runner, networkManager.loadMonitor, networkManager.myConnectionCountMonitor, baseCommGorgel.getChild(ZeroMQConnection::class), traceFactory, idGenerator, clock)
         myMsgTrace = msgTrace
         this.mustSendDebugReplies = mustSendDebugReplies
     }

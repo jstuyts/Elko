@@ -6,6 +6,7 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.lang.reflect.InvocationTargetException
 import java.time.Clock
@@ -21,12 +22,16 @@ import javax.net.ssl.SSLContext
  * @param runner  The Runner managing this server's run queue.
  */
 class NetworkManager(
-        private val myConnectionCountMonitor: ConnectionCountMonitor,
+        val myConnectionCountMonitor: ConnectionCountMonitor,
         internal val props: ElkoProperties,
-        internal val loadMonitor: LoadMonitor,
-        internal val runner: Runner,
+        val loadMonitor: LoadMonitor,
+        val runner: Runner,
         private val timer: Timer,
         private val clock: Clock,
+        private val httpSessionConnectionCommGorgel: Gorgel,
+        private val rtcpSessionConnectionCommGorgel: Gorgel,
+        private val tcpConnectionCommGorgel: Gorgel,
+        private val connectionBaseCommGorgel: Gorgel,
         private val traceFactory: TraceFactory,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator,
@@ -41,16 +46,6 @@ class NetworkManager(
 
     /** Connection managers, indexed by class name.  */
     private val myConnectionManagers: MutableMap<String, ConnectionManager?> = HashMap()
-
-    /**
-     * Keep track of the number of connections.
-     *
-     * @param adjust  Adjustment being made to the number of active
-     * connections, plus or minus.
-     */
-    fun connectionCount(adjust: Int) {
-        myConnectionCountMonitor.connectionCountChange(adjust)
-    }
 
     /**
      * Obtain the connection manager associated with a particular connection
@@ -68,7 +63,7 @@ class NetworkManager(
         if (result == null) {
             try {
                 result = Class.forName(className).getConstructor().newInstance() as ConnectionManager
-                result.init(this, msgTrace, clock, traceFactory, connectionIdGenerator, mustSendDebugReplies)
+                result.init(this, msgTrace, clock, connectionBaseCommGorgel, traceFactory, connectionIdGenerator, mustSendDebugReplies)
                 myConnectionManagers[className] = result
             } catch (e: ClassNotFoundException) {
                 traceFactory.comm.errorm("ConnectionManager class $className not found: $e")
@@ -98,7 +93,7 @@ class NetworkManager(
     fun connectTCP(hostPort: String,
                    handlerFactory: MessageHandlerFactory,
                    framerFactory: ByteIOFramerFactory, trace: Trace) {
-        connectionCount(1)
+        myConnectionCountMonitor.connectionCountChange(1)
         ensureSelectThread()
         mySelectThread.connect(handlerFactory, framerFactory, hostPort, trace)
     }
@@ -126,7 +121,7 @@ class NetworkManager(
         if (connMgr == null) {
             handlerFactory.provideMessageHandler(null)
         } else {
-            connectionCount(1)
+            myConnectionCountMonitor.connectionCountChange(1)
             connMgr.connect(propRoot, handlerFactory, hostPort)
         }
     }
@@ -136,7 +131,7 @@ class NetworkManager(
      */
     private fun ensureSelectThread() {
         if (!this::mySelectThread.isInitialized) {
-            mySelectThread = SelectThread(this, sslContext, clock, traceFactory, connectionIdGenerator)
+            mySelectThread = SelectThread(this, myConnectionCountMonitor, runner, loadMonitor, sslContext, clock, tcpConnectionCommGorgel, traceFactory, connectionIdGenerator)
         }
     }
 
@@ -160,7 +155,7 @@ class NetworkManager(
                    innerHandlerFactory: MessageHandlerFactory,
                    trace: Trace, secure: Boolean, rootURI: String, httpFramer: HTTPFramer): NetAddr {
         val outerHandlerFactory: MessageHandlerFactory = HTTPMessageHandlerFactory(
-                innerHandlerFactory, rootURI, httpFramer, this, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
+                innerHandlerFactory, rootURI, httpFramer, runner, loadMonitor, props, timer, clock, httpSessionConnectionCommGorgel, traceFactory, sessionIdGenerator, connectionIdGenerator)
         val framerFactory: ByteIOFramerFactory = HTTPRequestByteIOFramerFactory(traceFactory)
         return listenTCP(listenAddress, outerHandlerFactory, trace, secure, framerFactory)
     }
@@ -182,7 +177,7 @@ class NetworkManager(
                    innerHandlerFactory: MessageHandlerFactory,
                    msgTrace: Trace,
                    secure: Boolean): NetAddr {
-        val outerHandlerFactory: MessageHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, msgTrace, this, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
+        val outerHandlerFactory: MessageHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, rtcpSessionConnectionCommGorgel, msgTrace, runner, loadMonitor, props, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
         val framerFactory: ByteIOFramerFactory = RTCPRequestByteIOFramerFactory(msgTrace, traceFactory, mustSendDebugReplies)
         return listenTCP(listenAddress, outerHandlerFactory, msgTrace, secure, framerFactory)
     }

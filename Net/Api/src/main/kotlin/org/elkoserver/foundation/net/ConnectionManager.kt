@@ -3,6 +3,7 @@ package org.elkoserver.foundation.net
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.time.Clock
 
@@ -22,7 +23,7 @@ interface ConnectionManager {
      * be managing connections for.
      * @param msgTrace  Trace object for logging message traffic.
      */
-    fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, traceFactory: TraceFactory, idGenerator: IdGenerator, mustSendDebugReplies: Boolean)
+    fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, baseCommGorgel: Gorgel, traceFactory: TraceFactory, idGenerator: IdGenerator, mustSendDebugReplies: Boolean)
 
     /**
      * Make a connection, using this connection manager's communications

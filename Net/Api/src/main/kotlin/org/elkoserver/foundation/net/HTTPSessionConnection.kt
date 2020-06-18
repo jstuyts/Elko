@@ -1,11 +1,12 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.run.Queue
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.HashSet
 
@@ -21,8 +22,10 @@ import java.util.HashSet
  */
 class HTTPSessionConnection internal constructor(
         private val sessionFactory: HTTPMessageHandlerFactory,
-        internal val sessionID: Long, timer: Timer, clock: Clock, traceFactory: TraceFactory, idGenerator: IdGenerator)
-    : ConnectionBase(sessionFactory.networkManager, clock, traceFactory, idGenerator) {
+        runner: Runner,
+        loadMonitor: LoadMonitor,
+        internal val sessionID: Long, timer: Timer, clock: Clock, commGorgel: Gorgel, idGenerator: IdGenerator)
+    : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator) {
     /** Trace object for logging message traffic.  */
     private val trMsg: Trace = sessionFactory.httpFramer.msgTrace
 

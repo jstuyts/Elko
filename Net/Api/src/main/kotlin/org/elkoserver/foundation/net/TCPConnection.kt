@@ -1,10 +1,11 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.run.Queue
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.Runner.Companion.throwIfMandatory
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.EOFException
 import java.io.IOException
 import java.nio.ByteBuffer
@@ -22,38 +23,29 @@ import java.util.concurrent.Callable
  * @param handlerFactory  Provider of a message handler to process messages
  * received on this connection.
  * @param framerFactory  Byte I/O framer factory for the connection.
- * @param channel  Channel to the TCP connection proper.
- * @param key  Selection key for reads and writes over 'channel'.
- * @param selectThread  Select thread that is managing this connection.
- * @param mgr  Network manager for this server.
+ * @param myChannel  Channel to the TCP connection proper.
+ * @param myKey  Selection key for reads and writes over 'channel'.
+ * @param mySelectThread  Select thread that is managing this connection.
  * @param amSecure  If true, this is an SSL connection.
  * @param myTrace  Trace object to use for this connection.
  */
 class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
-                                         framerFactory: ByteIOFramerFactory, channel: SocketChannel,
-                                         key: SelectionKey, selectThread: SelectThread,
-                                         mgr: NetworkManager,
+                                         framerFactory: ByteIOFramerFactory, private val myChannel: SocketChannel,
+                                         private val myKey: SelectionKey, private val mySelectThread: SelectThread,
+                                         private val connectionCountMonitor: ConnectionCountMonitor,
+                                         runner: Runner,
+                                         loadMonitor: LoadMonitor,
                                          private val amSecure: Boolean,
-                                         private val myTrace: Trace, clock: Clock, traceFactory: TraceFactory, idGenerator: IdGenerator)
-    : ConnectionBase(mgr, clock, traceFactory, idGenerator), MessageReceiver, Callable<Any?> {
+                                         private val myTrace: Trace, clock: Clock, commGorgel: Gorgel, idGenerator: IdGenerator)
+    : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator), MessageReceiver, Callable<Any?> {
     /** Queue of unencoded outbound messages.  */
-    private val myOutputQueue: Queue<Any>
+    private val myOutputQueue = Queue<Any>()
 
     /** Framer to perform low-level message conversion.  */
     private val myFramer: ByteIOFramer
 
     /** Buffer holding actual output bytes.  */
-    private var myOutputBuffer: ByteBuffer?
-
-    /** Thread that does blocking select operations for this connection.  */
-    private val mySelectThread: SelectThread
-
-    /** Channel for sending and receiving over.  */
-    private val myChannel: SocketChannel
-
-    /** Selection key for testing the readability and writability of
-     * 'myChannel'.  */
-    private val myKey: SelectionKey
+    private var myOutputBuffer: ByteBuffer? = null
 
     /** Buffer receiving actual input bytes.  */
     private val myInputBuffer: ByteBuffer
@@ -65,10 +57,8 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
     private var amNeedingToWakeupSelect = false
 
     /** Flag that is true until the connection is closed.  */
-    private var amOpen: Boolean
+    private var amOpen = true
 
-    /** Network manager for this server.  */
-    private val myMgr: NetworkManager
 
     /**
      * Invoked from the selector thread's work queue when the selector is ready
@@ -123,7 +113,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
             myTrace.debugm("$this ignoring IOException on close")
         }
         myKey.attach(null)
-        myMgr.connectionCount(-1)
+        connectionCountMonitor.connectionCountChange(-1)
         if (myTrace.event) {
             myTrace.eventi("$this died: $reason")
         }
@@ -367,20 +357,13 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
 
     init {
         wakeupSelectForWrite()
-        myChannel = channel
-        myKey = key
-        myMgr = mgr
-        amOpen = true
-        channel.configureBlocking(false)
-        val socket = channel.socket()
+        myChannel.configureBlocking(false)
+        val socket = myChannel.socket()
         socket.setSoLinger(true, 0)
         socket.reuseAddress = true
         val myRemoteAddr = "${socket.inetAddress.hostAddress}:${socket.port}"
         myInputBuffer = ByteBuffer.wrap(ByteArray(INPUT_BUFFER_SIZE))
         myFramer = framerFactory.provideFramer(this, label())
-        myOutputBuffer = null
-        myOutputQueue = Queue()
-        mySelectThread = selectThread
         enqueueHandlerFactory(handlerFactory)
         if (myTrace.event) {
             myTrace.eventi("$this new connection from $myRemoteAddr")

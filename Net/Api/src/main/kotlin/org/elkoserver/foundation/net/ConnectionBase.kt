@@ -1,27 +1,25 @@
 package org.elkoserver.foundation.net
 
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 
 /**
  * Base class providing common internals implementation for various types of
  * Connection objects.
- *
- * @param mgr  Network manager for this server.
  */
-abstract class ConnectionBase protected constructor(mgr: NetworkManager, protected var clock: Clock, protected val traceFactory: TraceFactory, idGenerator: IdGenerator) : Connection {
+abstract class ConnectionBase protected constructor(
+        private val myRunner: Runner,
+        private val myLoadMonitor: LoadMonitor,
+        protected var clock: Clock,
+        protected val commGorgel: Gorgel,
+        idGenerator: IdGenerator) : Connection {
     /** Number identifying this connection in log messages.  */
-    private val myID: Int
+    private val myID = idGenerator.generate().toInt()
 
     /** Handler for incoming messages.  */
     private var myMessageHandler: MessageHandler? = null
-
-    /** The run queue in which messages will be handled.  */ /* protected */
-    private val myRunner = mgr.runner
-
-    /** System load tracker.  */
-    private val myLoadMonitor: LoadMonitor?
 
     /**
      * Cope with loss of a connection.
@@ -31,13 +29,10 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
     protected fun connectionDied(reason: Throwable) {
         val currentMessageHandler = myMessageHandler
         if (currentMessageHandler != null) {
-            if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm("$this calls connectionDied in $currentMessageHandler")
-            }
+            commGorgel.d?.run { debug("${this@ConnectionBase} calls connectionDied in $currentMessageHandler") }
             currentMessageHandler.connectionDied(this, reason)
         } else {
-            traceFactory.comm.debugm(this.toString() +
-                    " ignores connection death while message handler is null")
+            commGorgel.d?.run { debug("${this@ConnectionBase} ignores connection death while message handler is null") }
         }
     }
 
@@ -68,21 +63,16 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
         override fun run() {
             val currentMessageHandler = myMessageHandler
             if (currentMessageHandler != null) {
-                if (traceFactory.comm.verbose) {
-                    traceFactory.comm.verbosem("$this calls processMessage in $currentMessageHandler")
-                }
+                commGorgel.i?.run { info("${this@ConnectionBase} calls processMessage in $currentMessageHandler") }
                 currentMessageHandler.processMessage(this@ConnectionBase, myMessage)
             } else {
-                traceFactory.comm.verbosem("$this ignores message received while message handler is null")
+                commGorgel.i?.run { info("${this@ConnectionBase} ignores message received while message handler is null") }
             }
-            myLoadMonitor?.addTime(
-                    clock.millis() - myOnQueueTime)
+            myLoadMonitor.addTime(clock.millis() - myOnQueueTime)
         }
 
         init {
-            if (myLoadMonitor != null) {
-                myOnQueueTime = clock.millis()
-            }
+            myOnQueueTime = clock.millis()
         }
     }
 
@@ -101,9 +91,7 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
         override fun run() {
             myMessageHandler = myHandlerFactory.provideMessageHandler(this@ConnectionBase)
             if (myMessageHandler == null) {
-                if (traceFactory.comm.debug) {
-                    traceFactory.comm.debugm("$this connection setup failed")
-                }
+                commGorgel.d?.run { debug("${this@ConnectionBase} connection setup failed") }
                 close()
             }
         }
@@ -127,8 +115,4 @@ abstract class ConnectionBase protected constructor(mgr: NetworkManager, protect
         val theCloseMarker = Any()
     }
 
-    init {
-        myLoadMonitor = mgr.loadMonitor
-        myID = idGenerator.generate().toInt()
-    }
 }

@@ -29,6 +29,7 @@ internal class Listener(
         private val myHandlerFactory: MessageHandlerFactory,
         private val myFramerFactory: ByteIOFramerFactory,
         private val myMgr: NetworkManager,
+        private val connectionCountMonitor: ConnectionCountMonitor,
         private val amSecure: Boolean,
         private val myTrace: Trace) {
     /** The address to listen on, or null for the default address.  */
@@ -50,7 +51,7 @@ internal class Listener(
         try {
             val newChannel = myChannel.accept()
             if (newChannel != null) {
-                myMgr.connectionCount(1)
+                connectionCountMonitor.connectionCountChange(1)
                 mySelectThread!!.newChannel(myHandlerFactory, myFramerFactory,
                         newChannel, amSecure, myTrace)
             } else {

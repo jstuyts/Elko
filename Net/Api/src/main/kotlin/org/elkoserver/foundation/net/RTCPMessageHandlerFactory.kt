@@ -1,9 +1,12 @@
 package org.elkoserver.foundation.net
 
+import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.HashMap
 
@@ -23,12 +26,17 @@ import java.util.HashMap
  * @param innerFactory  The application-level message handler factory that
  * is to be wrapped by this.
  * @param msgTrace   Trace object for logging message traffic
- * @param networkManager  Network manager for this server.
  */
 internal class RTCPMessageHandlerFactory(
         internal val innerFactory: MessageHandlerFactory,
+        private val connectionCommGorgel: Gorgel,
         internal val msgTrace: Trace,
-        internal val networkManager: NetworkManager, private val timer: Timer, private val clock: Clock, private val traceFactory: TraceFactory,
+        private val myRunner: Runner,
+        private val myLoadMonitor: LoadMonitor,
+        props: ElkoProperties,
+        private val timer: Timer,
+        private val clock: Clock,
+        private val traceFactory: TraceFactory,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator) : MessageHandlerFactory {
 
@@ -187,7 +195,7 @@ internal class RTCPMessageHandlerFactory(
         if (session != null) {
             reply = makeErrorReply("sessionInProgress")
         } else {
-            session = RTCPSessionConnection(this, sessionIdGenerator.generate(), timer, clock, traceFactory, connectionIdGenerator)
+            session = RTCPSessionConnection(this, myRunner, myLoadMonitor, sessionIdGenerator.generate(), timer, clock, connectionCommGorgel, connectionIdGenerator)
             acquireTCPConnection(session, connection)
             if (msgTrace.event) {
                 msgTrace.eventm("$session start ${session.sessionID}")
@@ -365,7 +373,6 @@ internal class RTCPMessageHandlerFactory(
     }
 
     init {
-        val props = networkManager.props
         mySessionInactivityTimeout = props.intProperty("conf.comm.rtcptimeout",
                 DEFAULT_SESSION_INACTIVITY_TIMEOUT) * 1000
         myDebugSessionInactivityTimeout = props.intProperty("conf.comm.rtcptimeout.debug",

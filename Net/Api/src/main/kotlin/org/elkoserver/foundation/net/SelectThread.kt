@@ -1,9 +1,11 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.run.Queue
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import scalablessl.SSLSelector
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -25,7 +27,15 @@ import javax.net.ssl.SSLContext
  * @param sslContext  SSL context to use, if supporting SSL, else null
  */
 internal class SelectThread(
-        private val myMgr: NetworkManager, sslContext: SSLContext?, private val clock: Clock, private val traceFactory: TraceFactory, private val idGenerator: IdGenerator)
+        private val myMgr: NetworkManager,
+        private val connectionCountMonitor: ConnectionCountMonitor,
+        private val runner: Runner,
+        private val loadMonitor: LoadMonitor,
+        sslContext: SSLContext?,
+        private val clock: Clock,
+        private val tcpConnectionCommGorgel: Gorgel,
+        private val traceFactory: TraceFactory,
+        private val idGenerator: IdGenerator)
     : Thread("Elko Select") {
     /** Selector to await available I/O opportunities.  */
     private val mySelector: Selector
@@ -130,7 +140,7 @@ internal class SelectThread(
                 newChannel(handlerFactory, framerFactory, channel, false,
                         trace)
             } catch (e: IOException) {
-                myMgr.connectionCount(-1)
+                connectionCountMonitor.connectionCountChange(-1)
                 traceFactory.comm.errorm("unable to connect to $remoteAddr: $e")
                 handlerFactory.provideMessageHandler(null)
             }
@@ -154,7 +164,7 @@ internal class SelectThread(
     fun listen(localAddress: String, handlerFactory: MessageHandlerFactory,
                framerFactory: ByteIOFramerFactory, secure: Boolean,
                portTrace: Trace): Listener {
-        val listener = Listener(localAddress, handlerFactory, framerFactory, myMgr, secure, portTrace)
+        val listener = Listener(localAddress, handlerFactory, framerFactory, myMgr, connectionCountMonitor, secure, portTrace)
         myQueue.enqueue(listener)
         mySelector.wakeup()
         return listener
@@ -179,13 +189,13 @@ internal class SelectThread(
             channel.configureBlocking(false)
             val key = channel.register(mySelector, SelectionKey.OP_READ)
             key.attach(TCPConnection(handlerFactory, framerFactory,
-                    channel, key, this, myMgr, isSecure, trace, clock, traceFactory, idGenerator))
+                    channel, key, this, connectionCountMonitor, runner, loadMonitor, isSecure, trace, clock, tcpConnectionCommGorgel, idGenerator))
         } catch (e: ClosedChannelException) {
-            myMgr.connectionCount(-1)
+            connectionCountMonitor.connectionCountChange(-1)
             handlerFactory.provideMessageHandler(null)
             traceFactory.comm.errorm("channel closed before it could be used", e)
         } catch (e: IOException) {
-            myMgr.connectionCount(-1)
+            connectionCountMonitor.connectionCountChange(-1)
             handlerFactory.provideMessageHandler(null)
             traceFactory.comm.errorm("trouble opening TCPConnection for channel", e)
             try {
