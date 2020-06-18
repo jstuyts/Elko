@@ -3,7 +3,7 @@ package org.elkoserver.foundation.json
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.Trace
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.security.InvalidAlgorithmParameterException
@@ -26,7 +26,7 @@ import javax.crypto.spec.SecretKeySpec
  *
  * @param keyStr Base64-encoded symmetric key.
  */
-class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
+class Cryptor(keyStr: String, private val trace: Trace, private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     private var myCipher: Cipher? = null
     private val myKey: SecretKey
 
@@ -59,10 +59,10 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
             String(myCipher!!.doFinal(base64Decoder.decode(cypherText)),
                     StandardCharsets.UTF_8)
         } catch (e: InvalidAlgorithmParameterException) {
-            traceFactory.startup.errorm("fatal Cryptor.decrypt failure: ", e)
+            trace.errorm("fatal Cryptor.decrypt failure: ", e)
             throw IllegalStateException(e)
         } catch (e: InvalidKeyException) {
-            traceFactory.startup.errorm("fatal Cryptor.decrypt failure: ", e)
+            trace.errorm("fatal Cryptor.decrypt failure: ", e)
             throw IllegalStateException(e)
         } catch (e: BadPaddingException) {
             throw IOException("bad padding in cryptoblob $e")
@@ -126,7 +126,7 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
             e
         }
         /* None of these should ever actually happen.  Die if they do. */
-        traceFactory.startup.errorm("Cryptor.encrypt failure: ", failure)
+        trace.errorm("Cryptor.encrypt failure: ", failure)
         throw IllegalStateException(failure)
     }
 
@@ -145,13 +145,13 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
          * @return the generated key, as a string containing a base64-encoding of
          * the key bits.
          */
-        fun generateKey(traceFactory: TraceFactory): String {
+        fun generateKey(trace: Trace): String {
             return try {
                 val key = KeyGenerator.getInstance(KEY_ALGORITHM).generateKey()
                 base64Encoder.encodeToString(key.encoded)
             } catch (e: NoSuchAlgorithmException) {
                 /* This should never actually happen. */
-                traceFactory.startup.errorm("Cryptor.generateKey failure: unknown algorithm", e)
+                trace.errorm("Cryptor.generateKey failure: unknown algorithm", e)
                 throw IllegalStateException(e)
             }
         }
@@ -168,10 +168,10 @@ class Cryptor(keyStr: String, private val traceFactory: TraceFactory, private va
            missing, in which case the whole system is already hosed, so if
            either of these happens we're dead. */
         } catch (e: NoSuchAlgorithmException) {
-            traceFactory.startup.errorm("Cryptor init failure: doesn't like algorithm 'AES'", e)
+            trace.errorm("Cryptor init failure: doesn't like algorithm 'AES'", e)
             throw IllegalStateException(e)
         } catch (e: NoSuchPaddingException) {
-            traceFactory.startup.errorm("Cryptor init failure: doesn't like padding mode 'PKCS5Padding'", e)
+            trace.errorm("Cryptor init failure: doesn't like padding mode 'PKCS5Padding'", e)
             throw IllegalStateException(e)
         }
     }

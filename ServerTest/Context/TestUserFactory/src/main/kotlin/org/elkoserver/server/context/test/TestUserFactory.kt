@@ -103,7 +103,7 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                         MarkerFactory.getIMarkerFactory()),
                 traceFactory,
                 listOf(ClockInjector(clock), TraceFactoryInjector(traceFactory)))
-        myCryptor = Cryptor(key, traceFactory, jsonToObjectDeserializer)
+        myCryptor = Cryptor(key, traceFactory.trace("cryptor"), jsonToObjectDeserializer)
     }
 
     /**
