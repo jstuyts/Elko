@@ -173,21 +173,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
     }
 
     /**
-     * Output a log message describing a comm message.
-     *
-     * @param conn  The connection over which the message was sent or received.
-     * @param inbound  True if the message was received, false if it was sent
-     * @param msg  The message itself that is to be logged
-     */
-    fun msgi(conn: Any, inbound: Boolean, msg: Any) {
-        if (event) {
-            val traceMessage: TraceMessage = TraceMessageComm(mySubsystem, Level.MESSAGE, conn.toString(),
-                    inbound, msg.toString(), clock)
-            myAcceptor.accept(traceMessage)
-        }
-    }
-
-    /**
      * Output a log message at <tt>DEBUG</tt> level.
      *
      * @param message  The message to write to the log.

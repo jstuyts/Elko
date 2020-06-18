@@ -131,7 +131,7 @@ class WebSocketByteIOFramerFactory(
             return if (msg is String) {
                 val msgString = msg
                 if (trMsg.event) {
-                    trMsg.msgi(myLabel, false, msgString)
+                    trMsg.eventi("$myLabel <- $msgString")
                 }
                 val msgBytes = msgString.toByteArray(StandardCharsets.UTF_8)
                 val frame = ByteArray(msgBytes.size + 2)

@@ -45,7 +45,7 @@ class JSONByteIOFramer(
             if (line.isEmpty()) {
                 val msgString = myMsgBuffer.toString()
                 if (trMsg.event) {
-                    trMsg.msgi(myLabel, true, msgString)
+                    trMsg.eventi("$myLabel -> $msgString")
                 }
                 // FIXME: Do not end because of no more characters at end of string. Instead fail gracefully.
                 val msgReader = StringReader(msgString)
@@ -100,7 +100,7 @@ class JSONByteIOFramer(
             throw IOException("invalid message object class for write")
         }
         if (trMsg.event) {
-            trMsg.msgi(myLabel, false, messageString)
+            trMsg.eventi("$myLabel <- $message")
         }
         messageString += "\n\n"
         return messageString.toByteArray(StandardCharsets.UTF_8)

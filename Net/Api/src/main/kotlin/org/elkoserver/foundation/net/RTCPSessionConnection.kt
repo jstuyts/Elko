@@ -207,7 +207,7 @@ class RTCPSessionConnection internal constructor(
             var message = request.nextMessage()
             while (message != null) {
                 if (trMsg.event) {
-                    trMsg.msgi(this, true, message)
+                    trMsg.eventi("$this -> $message")
                 }
                 enqueueReceivedMessage(message)
                 message = request.nextMessage()
@@ -262,7 +262,7 @@ class RTCPSessionConnection internal constructor(
                 trMsg.debugm("$myLiveConnection <| $myServerSendSeqNum $clientSendSeqNum")
             }
             if (trMsg.event) {
-                trMsg.msgi(this, false, message)
+                trMsg.eventi("$this <- $message")
             }
         } else if (message is String) {
             messageString = message

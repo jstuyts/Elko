@@ -234,7 +234,7 @@ class HTTPSessionConnection internal constructor(
         } else {
             noteClientActivity()
             if (trMsg.event) {
-                trMsg.msgi("$this:$connection", true, message)
+                trMsg.eventi("$this:$connection -> $message")
             }
             val reply: String
             reply = if (uri.sequenceNumber != myXmitSequenceNumber) {
@@ -282,8 +282,7 @@ class HTTPSessionConnection internal constructor(
                 val message = myQueue.nextElement()
                 end = !myQueue.hasMoreElements()
                 if (trMsg.event) {
-                    trMsg.msgi("$this:$downstreamConnection", false,
-                            message)
+                    trMsg.eventi("$this:$downstreamConnection <- $message")
                 }
                 reply.append(packMessage(message, start, end))
                 start = false
@@ -316,8 +315,7 @@ class HTTPSessionConnection internal constructor(
             /* If there *is* a pending select request, use it to send the
                message immediately. */
             if (trMsg.event) {
-                trMsg.msgi("$this:$currentDownstreamConnection", false,
-                        message)
+                trMsg.eventi("$this:$currentDownstreamConnection <- $message")
             }
             currentDownstreamConnection.sendMsg(packMessage(message, true, true))
             if (myDownstreamIsNonPersistent) {
