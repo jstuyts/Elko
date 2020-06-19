@@ -1,7 +1,0 @@
-#!/bin/bash
-MODULE=$1
-JAR=${MODULE}.jar
-
-rm -f localmodules/$JAR
-
-../common/refreshModuleProperties

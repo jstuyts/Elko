@@ -6,7 +6,6 @@ import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import scalablessl.SSLSelector
 import java.io.IOException
 import java.net.InetSocketAddress
 import java.nio.channels.ClosedChannelException
@@ -227,8 +226,9 @@ internal class SelectThread(
 
     init {
         try {
-            mySelector = if (sslContext != null) {
-                SSLSelector.open(sslContext)
+            mySelector = if (false && sslContext != null) {
+//                SSLSelector.open(sslContext)
+                throw IllegalStateException()
             } else {
                 Selector.open()
             }

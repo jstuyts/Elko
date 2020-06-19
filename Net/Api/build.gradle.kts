@@ -27,7 +27,6 @@ dependencies {
     implementation(project(":ByteIoFramer:Rtcp"))
     implementation(project(":ByteIoFramer:WebSocket"))
     implementation(project(":Communication"))
-    implementation(project(":ScalableSsl"))
     implementation(kotlin("stdlib-jdk8"))
 }
 

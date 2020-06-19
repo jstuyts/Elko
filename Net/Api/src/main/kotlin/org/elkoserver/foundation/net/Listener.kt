@@ -1,7 +1,6 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.util.trace.Trace
-import scalablessl.SSLServerSocketChannel
 import java.io.IOException
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -93,11 +92,11 @@ internal class Listener(
         val netAddr = NetAddr(myLocalAddress)
         myOptIP = netAddr.inetAddress!!
         val localPort = netAddr.port
-        val asSSL: SSLServerSocketChannel
-        if (amSecure) {
-            asSSL = SSLServerSocketChannel.open(myMgr.sslContext)
-            myChannel = asSSL
-            asSSL.socket().needClientAuth = false
+        if (false && amSecure) {
+//            val asSSL = SSLServerSocketChannel.open(myMgr.sslContext)
+//            myChannel = asSSL
+//            asSSL.socket().needClientAuth = false
+            throw IllegalStateException()
         } else {
             myChannel = ServerSocketChannel.open()
         }
