@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.FileInputStream
 import java.io.FileNotFoundException
 import java.io.IOException
@@ -16,7 +16,7 @@ import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 
 object SslSetup {
-    fun setupSsl(properties: ElkoProperties, propertyNamePrefix: String, trace: Trace): SSLContext {
+    fun setupSsl(properties: ElkoProperties, propertyNamePrefix: String, gorgel: Gorgel): SSLContext {
         val result: SSLContext
         result = try {
             tryToSetupSsl(properties, propertyNamePrefix)
@@ -27,13 +27,13 @@ object SslSetup {
            informative message and let higher powers try again later after
            they've fixed it. */
         } catch (e: GeneralSecurityException) {
-            trace.errorm("problem initializing SSL", e)
+            gorgel.error("problem initializing SSL", e)
             throw IllegalStateException(e)
         } catch (e: FileNotFoundException) {
-            trace.errorm("SSL key file not found", e)
+            gorgel.error("SSL key file not found", e)
             throw IllegalStateException(e)
         } catch (e: IOException) {
-            trace.errorm("problem reading SSL key file", e)
+            gorgel.error("problem reading SSL key file", e)
             throw IllegalStateException(e)
         }
         return result

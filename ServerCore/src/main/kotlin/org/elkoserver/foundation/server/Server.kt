@@ -67,6 +67,7 @@ class Server(
         clock: Clock,
         private val traceFactory: TraceFactory,
         private val inputGorgel: Gorgel,
+        sslSetupGorgel: Gorgel,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         private val myTagGenerator: IdGenerator,
@@ -130,6 +131,7 @@ class Server(
             connectionBaseCommGorgel,
             traceFactory,
             inputGorgel,
+            sslSetupGorgel,
             sessionIdGenerator,
             connectionIdGenerator,
             mustSendDebugReplies)

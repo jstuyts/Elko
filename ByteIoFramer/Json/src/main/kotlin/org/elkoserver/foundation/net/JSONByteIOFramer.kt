@@ -63,9 +63,7 @@ class JSONByteIOFramer(
                         if (mustSendDebugReplies) {
                             myReceiver.receiveMsg(e)
                         }
-                        if (trMsg.warning) {
-                            trMsg.warningm("syntax error in JSON message: ${e.message}")
-                        }
+                        trMsg.warningm("syntax error in JSON message: ${e.message}")
                     }
                 }
                 myMsgBuffer.setLength(0)

@@ -149,8 +149,8 @@ class HTTPMessageHandlerFactory internal constructor(
      * @return true if an HTTP reply was sent.
      */
     private fun doError(connection: Connection, uri: String): Boolean {
-        if (traceFactory.comm.usage) {
-            traceFactory.comm.usagem("$connection received invalid URI in HTTP request $uri")
+        if (traceFactory.comm.event) {
+            traceFactory.comm.eventm("$connection received invalid URI in HTTP request $uri")
         }
         connection.sendMsg(HTTPError(404, "Not Found",
                 httpFramer.makeBadURLReply(uri)))
@@ -310,8 +310,8 @@ class HTTPMessageHandlerFactory internal constructor(
         if (session != null) {
             return session
         }
-        if (traceFactory.comm.usage) {
-            traceFactory.comm.usagem("$connection received invalid session ID ${uri.sessionID}")
+        if (traceFactory.comm.event) {
+            traceFactory.comm.eventm("$connection received invalid session ID ${uri.sessionID}")
         }
         return null
     }

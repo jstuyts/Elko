@@ -34,13 +34,13 @@ class NetworkManager(
         private val connectionBaseCommGorgel: Gorgel,
         private val traceFactory: TraceFactory,
         private val inputGorgel: Gorgel,
+        private val sslSetupGorgel: Gorgel,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator,
         private val mustSendDebugReplies: Boolean) {
 
     /** Initialized SSL context, if supporting SSL, else null.  */
-    internal var sslContext: SSLContext? = null
-        private set
+    private var sslContext: SSLContext?
 
     /** Select thread for non-blocking I/O.  */
     private lateinit var mySelectThread: SelectThread
@@ -267,9 +267,7 @@ class NetworkManager(
      * Do all the various key and certificate management stuff needed to set
      * up to support SSL connections.
      */
-    private fun setupSSL() {
-        sslContext = SslSetup.setupSsl(props, "conf.ssl.", traceFactory.startup)
-    }
+    private fun setupSSL() = SslSetup.setupSsl(props, "conf.ssl.", sslSetupGorgel)
 
     fun shutDown() {
         if (this::mySelectThread.isInitialized) {
@@ -278,8 +276,6 @@ class NetworkManager(
     }
 
     init {
-        if (props.testProperty("conf.ssl.enable")) {
-            setupSSL()
-        }
+        sslContext = (if (props.testProperty("conf.ssl.enable")) setupSSL() else null)
     }
 }

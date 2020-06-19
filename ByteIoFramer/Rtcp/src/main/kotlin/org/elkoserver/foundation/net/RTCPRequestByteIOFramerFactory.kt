@@ -106,9 +106,7 @@ class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val input
                                     if (mustSendDebugReplies) {
                                         myRequest.noteProblem(e)
                                     }
-                                    if (trMsg.warning) {
-                                        trMsg.warningm("syntax error in JSON message: ${e.message}")
-                                    }
+                                    trMsg.warningm("syntax error in JSON message: ${e.message}")
                                 }
                             }
                             myMsgBuffer.setLength(0)
@@ -142,8 +140,8 @@ class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val input
             val reply: String
             if (message is String) {
                 reply = message
-                if (trMsg.verbose) {
-                    trMsg.verbosem("to=$myLabel writeMessage=${reply.length}")
+                if (trMsg.debug) {
+                    trMsg.debugm("to=$myLabel writeMessage=${reply.length}")
                 }
             } else {
                 throw IOException("unwritable message type: ${message.javaClass}")

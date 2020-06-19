@@ -154,10 +154,7 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
                     }
                 }
             } catch (t: Throwable) {
-                if (tr.error) {
-                    tr.errorReportException(t,
-                            "Exception made it all the way out of the run loop.  Restarting it.")
-                }
+                tr.errorReportException(t, "Exception made it all the way out of the run loop.  Restarting it.")
             }
         }
     }

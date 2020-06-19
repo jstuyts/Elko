@@ -125,9 +125,9 @@ internal class RTCPMessageHandlerFactory(
      * @param errorTag  The error tag string from the request
      */
     fun doError(connection: Connection, errorTag: String) {
-        if (msgTrace.usage) {
+        if (msgTrace.event) {
             val aux = ""
-            msgTrace.usagem("$connection received error request $errorTag$aux")
+            msgTrace.eventm("$connection received error request $errorTag$aux")
         }
     }
 

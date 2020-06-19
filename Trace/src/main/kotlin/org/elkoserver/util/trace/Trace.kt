@@ -18,26 +18,6 @@ import java.time.Clock
 class Trace internal constructor(internal val mySubsystem: String, internal var myThreshold: Level, private val myAcceptor: TraceMessageAcceptor, private val factory: TraceFactory, private val clock: Clock) {
 
     /**
-     * Flag to control tracing of error messages.  Error messages report on
-     * some internal error.  They don't necessarily lead to the system
-     * stopping, but they might.  Error messages are always logged.
-     */
-    var error = false
-
-    /**
-     * Flag to control tracing of warning messages.  Warning messages are not
-     * as serious as errors, but they're signs of something odd.
-     */
-    var warning = false
-
-    /**
-     * Flag to control tracing of usage messages.  Usage messages are used to
-     * answer the question "who did what up to the point the bug appeared?"
-     * They are also used to collect higher-level usability information.
-     */
-    var usage = false
-
-    /**
      * Flag to control tracing of event messages.  Event messages describe the
      * major actions the system takes in response to user actions.  The
      * distinction between this category and debug is fuzzy, especially since
@@ -53,13 +33,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      * figure out a bug.
      */
     var debug = false
-
-    /**
-     * Flag to control tracing of verbose messages.  Verbose messages provide
-     * even more detail than debug.  They're probably mainly used when first
-     * getting code to work.
-     */
-    var verbose = false
 
     /** Flag that the threshold is defaulted.  */
     internal var myThresholdIsDefaulted = true
@@ -93,48 +66,16 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      * various control booleans based on the new threshold value.
      */
     private fun updateThresholdFlags() {
-        verbose = false
         debug = false
         event = false
-        usage = false
-        warning = false
-        error = false
         when (myThreshold) {
-            Level.VERBOSE -> {
-                verbose = true
-                debug = true
-                event = true
-                usage = true
-                warning = true
-                error = true
-            }
             Level.DEBUG -> {
                 debug = true
                 event = true
-                usage = true
-                warning = true
-                error = true
             }
             Level.EVENT -> {
                 event = true
-                usage = true
-                warning = true
-                error = true
             }
-            Level.USAGE -> {
-                usage = true
-                warning = true
-                error = true
-            }
-            Level.WORLD -> {
-                warning = true
-                error = true
-            }
-            Level.WARNING -> {
-                warning = true
-                error = true
-            }
-            Level.ERROR -> error = true
             else -> assert(false) {
                 "bad case in updateThresholdFlags: $myThreshold"
             }
@@ -165,10 +106,9 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      * log.
      *
      * @param message  The message string
-     * @param level  Trace level at which it is being output
      */
-    private fun recordInfoMessage(message: String, level: Level) {
-        val traceMessage: TraceMessage = TraceMessageInfo(mySubsystem, level, message, clock)
+    private fun recordEventInfoMessage(message: String) {
+        val traceMessage: TraceMessage = TraceMessageInfo(mySubsystem, Level.EVENT, message, clock)
         myAcceptor.accept(traceMessage)
     }
 
@@ -197,7 +137,7 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      * @param message  The message to write to the log.
      */
     fun errorm(message: String) {
-        if (error) recordDebugMessage(message, Level.ERROR, null)
+        recordDebugMessage(message, Level.ERROR, null)
     }
 
     /**
@@ -207,7 +147,7 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      * @param obj  Object to report with <tt>message</tt>.
      */
     fun errorm(message: String, obj: Any) {
-        if (error) recordDebugMessage(message, Level.ERROR, obj)
+        recordDebugMessage(message, Level.ERROR, obj)
     }
 
     /**
@@ -217,7 +157,7 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      * @param message  An explanatory message to accompany the log entry.
      */
     fun errorReportException(th: Throwable?, message: String) {
-        if (error) recordDebugMessage(message, Level.ERROR, th)
+        recordDebugMessage(message, Level.ERROR, th)
     }
 
     /**
@@ -226,7 +166,7 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      * @param message  The message to write to the log.
      */
     fun eventi(message: String) {
-        if (event) recordInfoMessage(message, Level.EVENT)
+        if (event) recordEventInfoMessage(message)
     }
 
     /**
@@ -239,39 +179,12 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
     }
 
     /**
-     * Output an informational log message at <tt>USAGE</tt> level.
-     *
-     * @param message  The message to write to the log.
-     */
-    fun usagei(message: String) {
-        if (usage) recordInfoMessage(message, Level.USAGE)
-    }
-
-    /**
-     * Output a log message at <tt>USAGE</tt> level.
-     *
-     * @param message  The message to write to the log.
-     */
-    fun usagem(message: String) {
-        if (usage) recordDebugMessage(message, Level.USAGE, null)
-    }
-
-    /**
-     * Output a log message at <tt>VERBOSE</tt> level.
-     *
-     * @param message  The message to write to the log.
-     */
-    fun verbosem(message: String) {
-        if (verbose) recordDebugMessage(message, Level.VERBOSE, null)
-    }
-
-    /**
      * Output a log message at <tt>WARNING</tt> level.
      *
      * @param message  The message to write to the log.
      */
     fun warningm(message: String) {
-        if (warning) recordDebugMessage(message, Level.WARNING, null)
+        recordDebugMessage(message, Level.WARNING, null)
     }
 
     init {

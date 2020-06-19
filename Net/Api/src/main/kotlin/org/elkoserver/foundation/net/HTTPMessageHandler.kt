@@ -76,8 +76,8 @@ internal class HTTPMessageHandler(
         myStartupTimeout = null
 
         val actualMessage = message as HTTPRequest
-        if (traceFactory.comm.verbose) {
-            traceFactory.comm.verbosem("$connection $actualMessage")
+        if (traceFactory.comm.debug) {
+            traceFactory.comm.debugm("$connection $actualMessage")
         } else if (traceFactory.comm.debug) {
             traceFactory.comm.debugm("$connection |> ${actualMessage.uri}")
         }
@@ -86,8 +86,8 @@ internal class HTTPMessageHandler(
             "POST" -> myFactory.handlePOST(connection, actualMessage.uri!!, actualMessage.isNonPersistent, actualMessage.content)
             "OPTIONS" -> myFactory.handleOPTIONS(connection, actualMessage)
             else -> {
-                if (traceFactory.comm.usage) {
-                    traceFactory.comm.usagem("Received invalid HTTP method ${actualMessage.method} from $connection")
+                if (traceFactory.comm.event) {
+                    traceFactory.comm.eventm("Received invalid HTTP method ${actualMessage.method} from $connection")
                 }
                 connection.close()
             }

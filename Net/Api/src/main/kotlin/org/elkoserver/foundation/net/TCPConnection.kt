@@ -162,7 +162,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
             if (t is EOFException) {
                 myTrace.eventi("$this remote disconnect")
             } else if (t is IOException) {
-                myTrace.usagei("$this IOException: ${t.message}")
+                myTrace.errorm("$this IOException: ${t.message}")
             } else {
                 myTrace.errorm("$this Error", t)
             }
@@ -212,7 +212,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
                 myChannel.write(theEmptyBuffer)
             }
         } catch (e: IOException) {
-            myTrace.usagem("$this IOException: ${e.message}")
+            myTrace.eventm("$this IOException: ${e.message}")
             closeException = e
         }
         if (closeException != null) {
@@ -234,8 +234,8 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
      * String, but this is not required.
      */
     private fun enqueueSentMessage(message: Any) {
-        if (myTrace.verbose) {
-            myTrace.verbosem("enqueue $message")
+        if (myTrace.debug) {
+            myTrace.debugm("enqueue $message")
         }
 
         /* If the connection is going away, the message can be discarded. */if (amOpen) {

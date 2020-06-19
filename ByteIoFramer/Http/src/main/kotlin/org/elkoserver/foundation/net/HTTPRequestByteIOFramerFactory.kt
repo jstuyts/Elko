@@ -121,8 +121,8 @@ class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory, pri
             var reply: String
             if (message is String) {
                 reply = message
-                if (traceFactory.comm.verbose) {
-                    traceFactory.comm.verbosem("to=$myLabel writeMessage=${reply.length}")
+                if (traceFactory.comm.debug) {
+                    traceFactory.comm.debugm("to=$myLabel writeMessage=${reply.length}")
                 }
                 reply = """
                     HTTP/1.1 200 OK

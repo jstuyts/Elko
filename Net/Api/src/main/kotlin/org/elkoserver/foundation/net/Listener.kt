@@ -54,7 +54,7 @@ internal class Listener(
                 mySelectThread!!.newChannel(myHandlerFactory, myFramerFactory,
                         newChannel, amSecure, myTrace)
             } else {
-                myTrace.usagem("accept returned null socket, ignoring")
+                myTrace.eventm("accept returned null socket, ignoring")
             }
         } catch (e: IOException) {
             myTrace.warningm("accept on $myLocalAddress failed -- closing listener, IOException: ${e.message}")

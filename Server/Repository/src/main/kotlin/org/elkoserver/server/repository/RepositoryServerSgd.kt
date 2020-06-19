@@ -9,6 +9,7 @@ import org.elkoserver.foundation.net.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.HTTPSessionConnection
 import org.elkoserver.foundation.net.RTCPSessionConnection
+import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.RunnerRef
@@ -95,6 +96,8 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val inputGorgel by Once { req(provided.baseGorgel()).getChild(ChunkyByteArrayInputStream::class, Tag("category", "comm")) }
 
+    val sslSetupGorgel by Once { req(provided.baseGorgel()).getChild(SslSetup::class) }
+
     val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
 
     val server by Once {
@@ -118,6 +121,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.clock()),
                 req(provided.traceFactory()),
                 req(inputGorgel),
+                req(sslSetupGorgel),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),

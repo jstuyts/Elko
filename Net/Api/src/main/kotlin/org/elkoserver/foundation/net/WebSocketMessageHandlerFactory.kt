@@ -48,8 +48,8 @@ internal class WebSocketMessageHandlerFactory(
      * @param problem  The error that is being reported
      */
     private fun sendError(connection: Connection, problem: String) {
-        if (trMsg.usage) {
-            trMsg.usagem("$connection received invalid WebSocket connection startup: $problem")
+        if (trMsg.event) {
+            trMsg.eventm("$connection received invalid WebSocket connection startup: $problem")
         }
         connection.sendMsg(HTTPError(400, "Bad Request",
                 makeErrorReply(problem)))

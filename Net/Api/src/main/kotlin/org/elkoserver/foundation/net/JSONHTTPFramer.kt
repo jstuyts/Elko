@@ -129,9 +129,7 @@ class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory, pr
                 if (mustSendDebugReplies) {
                     return e
                 }
-                if (traceFactory.comm.warning) {
-                    traceFactory.comm.warningm("syntax error in JSON message: ${e.message}")
-                }
+                traceFactory.comm.warningm("syntax error in JSON message: ${e.message}")
                 null
             }
         }
