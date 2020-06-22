@@ -19,6 +19,8 @@ dependencies {
     api(project(":Trace"))
 
     implementation(project(":Actor"))
+    implementation(project(":ByteIoFramer:Json"))
+    implementation(project(":ByteIoFramer:WebSocket"))
     implementation(project(":Communication"))
     implementation(project(":JsonMessageHandling"))
     implementation(project(":ObjectDatabase:Local"))

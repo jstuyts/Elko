@@ -9,6 +9,7 @@ import org.elkoserver.foundation.json.TypeResolver
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.HashMap
 import java.util.LinkedList
 
@@ -33,7 +34,7 @@ import java.util.LinkedList
  * @param resolver  Type resolver for the type tags of JSON encoded
  *    object descriptors.
  */
-class RefTable(resolver: TypeResolver?, traceFactory: TraceFactory, jsonToObjectDeserializer: JsonToObjectDeserializer) : Iterable<DispatchTarget?> {
+class RefTable(resolver: TypeResolver?, methodInvokerCommGorgel: Gorgel, traceFactory: TraceFactory, jsonToObjectDeserializer: JsonToObjectDeserializer) : Iterable<DispatchTarget?> {
     /** Mapped Objects, indexed by reference.  */
     private val myObjects: MutableMap<String?, DispatchTarget> = HashMap()
 
@@ -44,7 +45,7 @@ class RefTable(resolver: TypeResolver?, traceFactory: TraceFactory, jsonToObject
 
     /** Mapping from message verbs to MethodInvoker objects (which contain
      * precomputed Java reflection objects).  */
-    private val myDispatcher = MessageDispatcher(resolver, traceFactory, jsonToObjectDeserializer)
+    private val myDispatcher = MessageDispatcher(resolver, methodInvokerCommGorgel, jsonToObjectDeserializer)
 
     /**
      * Internal error handler object that is the target of debug JSON messages.

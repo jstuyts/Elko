@@ -6,7 +6,7 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonObjectSerialization.sendableString
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
 
@@ -18,7 +18,7 @@ import java.nio.charset.StandardCharsets
  *
  * FIXME: nanomsg parser cannot parse multiple messages in 1 string
  */
-class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory, private val mustSendDebugReplies: Boolean) : HTTPFramer(appTrace) {
+class JSONHTTPFramer(appTrace: Trace, private val commGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : HTTPFramer(appTrace) {
 
     /**
      * Produce the HTTP for responding to an HTTP GET of the /select/ URL by
@@ -63,7 +63,7 @@ class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory, pr
      * @return an iterator that can be called upon to return the JSON
      * message(s) contained within 'body'.
      */
-    override fun postBodyUnpacker(postBody: String): Iterator<Any> = JSONBodyUnpacker(postBody, traceFactory, mustSendDebugReplies)
+    override fun postBodyUnpacker(postBody: String): Iterator<Any> = JSONBodyUnpacker(postBody, commGorgel, mustSendDebugReplies)
 
     /**
      * Post body unpacker for a bundle of JSON messages.  In this case, the
@@ -71,7 +71,7 @@ class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory, pr
      *
      * @param postBody  The HTTP message body was POSTed.
      */
-    private class JSONBodyUnpacker internal constructor(postBody: String, private val traceFactory: TraceFactory, private val mustSendDebugReplies: Boolean) : MutableIterator<Any> {
+    private class JSONBodyUnpacker internal constructor(postBody: String, private val commGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : MutableIterator<Any> {
         private var postBody: String
 
         /** Last JSON message parsed.  This will be the next JSON message to be
@@ -129,7 +129,7 @@ class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory, pr
                 if (mustSendDebugReplies) {
                     return e
                 }
-                traceFactory.comm.warningm("syntax error in JSON message: ${e.message}")
+                commGorgel.warn("syntax error in JSON message: ${e.message}")
                 null
             }
         }
@@ -139,7 +139,7 @@ class JSONHTTPFramer(appTrace: Trace, private val traceFactory: TraceFactory, pr
         }
 
         init {
-            traceFactory.comm.debugm("unpacker for: /$postBody/")
+            commGorgel.d?.run { debug("unpacker for: /$postBody/") }
             this.postBody = extractBodyFromSafariPostIfNeeded(postBody)
             myLastMessageParsed = parseNextMessage()
         }

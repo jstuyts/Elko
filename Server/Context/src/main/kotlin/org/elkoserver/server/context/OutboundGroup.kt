@@ -40,6 +40,8 @@ abstract class OutboundGroup(propRoot: String,
                              gorgel: Gorgel,
                              private val inputGorgel: Gorgel,
                              private val connectionRetrierWithoutLabelGorgel: Gorgel,
+                             private val jsonByteIOFramerGorgel: Gorgel,
+                             methodInvokerCommGorgel: Gorgel,
                              protected val timer: Timer,
                              protected val traceFactory: TraceFactory,
                              props: ElkoProperties,
@@ -74,7 +76,7 @@ abstract class OutboundGroup(propRoot: String,
     fun connectHosts() {
         for (host in myHosts) {
             ConnectionRetrier(host, label(), myNetworkManager,
-                    HostConnector(host), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, inputGorgel, mustSendDebugReplies)
+                    HostConnector(host), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), jsonByteIOFramerGorgel, tr, inputGorgel, mustSendDebugReplies)
         }
         if (amAutoRegister) {
             myServer.findService(service(), HostFoundHandler(), true)
@@ -94,7 +96,7 @@ abstract class OutboundGroup(propRoot: String,
                     .map { it.asHostDesc(myRetryInterval) }
                     .forEach {
                         ConnectionRetrier(it, label(), myNetworkManager,
-                                HostConnector(it), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), tr, inputGorgel, mustSendDebugReplies)
+                                HostConnector(it), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), jsonByteIOFramerGorgel, tr, inputGorgel, mustSendDebugReplies)
                     }
         }
     }
@@ -172,7 +174,7 @@ abstract class OutboundGroup(propRoot: String,
         })
         myNetworkManager = myServer.networkManager
         myHosts = hosts
-        myDispatcher = MessageDispatcher(null, traceFactory, jsonToObjectDeserializer)
+        myDispatcher = MessageDispatcher(null, methodInvokerCommGorgel, jsonToObjectDeserializer)
         @Suppress("LeakingThis")
         myDispatcher.addClass(actorClass())
         amAutoRegister = props.testProperty("$propRoot.auto")

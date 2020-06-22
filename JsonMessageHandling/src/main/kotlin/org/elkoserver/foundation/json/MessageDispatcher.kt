@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.json
 
 import org.elkoserver.json.JsonObject
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.Modifier
 
 /**
@@ -13,7 +13,7 @@ import java.lang.reflect.Modifier
  */
 class MessageDispatcher(
         private val myResolver: TypeResolver?,
-        private val traceFactory: TraceFactory,
+        private val methodInvokerCommGorgel: Gorgel,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Mapping of message verbs to MethodInvoker objects.  Each entry is
      * actually the head of a linked list of MethodInvoker objects, each of
@@ -77,7 +77,7 @@ class MessageDispatcher(
                     }
                     val name = method.name
                     val prev = myInvokers[name]
-                    myInvokers[name] = MethodInvoker(method, paramTypes, paramNames, prev, traceFactory, jsonToObjectDeserializer)
+                    myInvokers[name] = MethodInvoker(method, paramTypes, paramNames, prev, methodInvokerCommGorgel, jsonToObjectDeserializer)
                 }
             }
             myClasses.add(targetClass)

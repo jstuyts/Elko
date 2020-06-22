@@ -2,7 +2,6 @@ package org.elkoserver.foundation.net
 
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -28,7 +27,7 @@ import java.nio.charset.StandardCharsets
  * time this class gets its hands on it, so output framing consists of merely
  * ensuring that the proper character encoding is used.
  */
-class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val inputGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
+class RTCPRequestByteIOFramerFactory(private val gorgel: Gorgel, private val inputGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new RTCP connection.
@@ -76,9 +75,7 @@ class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val input
                             myIn.preserveBuffers()
                             return
                         } else if (line.isNotEmpty()) {
-                            if (trMsg.debug) {
-                                trMsg.debugm("$myLabel |> $line")
-                            }
+                            gorgel.d?.run { debug("$myLabel |> $line") }
                             myRequest.parseRequestLine(line)
                             if (!myRequest.isComplete) {
                                 myRTCPParseStage = Companion.RTCP_STAGE_MESSAGES
@@ -106,7 +103,7 @@ class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val input
                                     if (mustSendDebugReplies) {
                                         myRequest.noteProblem(e)
                                     }
-                                    trMsg.warningm("syntax error in JSON message: ${e.message}")
+                                    gorgel.warn("syntax error in JSON message: ${e.message}")
                                 }
                             }
                             myMsgBuffer.setLength(0)
@@ -140,15 +137,11 @@ class RTCPRequestByteIOFramerFactory(private val trMsg: Trace, private val input
             val reply: String
             if (message is String) {
                 reply = message
-                if (trMsg.debug) {
-                    trMsg.debugm("to=$myLabel writeMessage=${reply.length}")
-                }
+                gorgel.d?.run { debug("to=$myLabel writeMessage=${reply.length}") }
             } else {
                 throw IOException("unwritable message type: ${message.javaClass}")
             }
-            if (trMsg.debug) {
-                trMsg.debugm("RTCP sending:\n$reply")
-            }
+            gorgel.d?.run { debug("RTCP sending:\n$reply") }
             return reply.toByteArray(StandardCharsets.UTF_8)
         }
     }

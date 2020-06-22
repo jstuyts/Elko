@@ -38,12 +38,13 @@ class Workshop private constructor(
         private val myODB: ObjDB,
         private val myServer: Server,
         private val gorgel: Gorgel,
+        methodInvokerCommGorgel: Gorgel,
         private val startupWorkerListGorgel: Gorgel,
         @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace,
         traceFactory: TraceFactory,
         jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(myODB, traceFactory, jsonToObjectDeserializer)
+    internal val refTable = RefTable(myODB, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown: Boolean
@@ -56,11 +57,12 @@ class Workshop private constructor(
      */
     internal constructor(server: Server,
                          gorgel: Gorgel,
+                         methodInvokerCommGorgel: Gorgel,
                          startupWorkerListGorgel: Gorgel,
                          appTrace: Trace,
                          traceFactory: TraceFactory,
                          jsonToObjectDeserializer: JsonToObjectDeserializer) :
-            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, gorgel, startupWorkerListGorgel, appTrace, traceFactory, jsonToObjectDeserializer)
+            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, gorgel, methodInvokerCommGorgel, startupWorkerListGorgel, appTrace, traceFactory, jsonToObjectDeserializer)
 
     /**
      * Add a worker to the object table.

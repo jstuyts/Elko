@@ -3,16 +3,21 @@
 package org.elkoserver.server.presence
 
 import org.elkoserver.foundation.json.ClockInjector
+import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.json.RandomInjector
 import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.HTTPSessionConnection
+import org.elkoserver.foundation.net.JSONByteIOFramer
+import org.elkoserver.foundation.net.JSONHTTPFramer
 import org.elkoserver.foundation.net.Listener
 import org.elkoserver.foundation.net.RTCPSessionConnection
 import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
+import org.elkoserver.foundation.net.WebSocketByteIOFramerFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.RunnerRef
 import org.elkoserver.foundation.server.BaseConnectionSetup
@@ -73,6 +78,13 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val graphDescGorgel by Once { req(provided.baseGorgel()).getChild(GraphDesc::class) }
 
+    val jsonHttpFramerCommGorgel by Once { req(provided.baseGorgel()).getChild(JSONHTTPFramer::class).withAdditionalStaticTags(Tag("category", "comm")) }
+    val tcpConnectionGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class) }
+    val jsonByteIoFramerWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(JSONByteIOFramer::class) }
+    val websocketFramerGorgel by Once { req(provided.baseGorgel()).getChild(WebSocketByteIOFramerFactory.WebSocketFramer::class) }
+    val methodInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(MethodInvoker::class).withAdditionalStaticTags(Tag("category", "comm")) }
+    val constructorInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(ConstructorInvoker::class).withAdditionalStaticTags(Tag("category", "comm")) }
+
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
     val listenerGorgel by Once { req(provided.baseGorgel()).getChild(Listener::class) }
@@ -122,9 +134,13 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serviceActorCommGorgel),
                 req(baseConnectionSetupGorgel),
                 req(listenerGorgel),
+                req(jsonHttpFramerCommGorgel),
+                req(tcpConnectionGorgel),
                 req(objDbLocalGorgel),
                 req(provided.baseGorgel()),
                 req(connectionRetrierWithoutLabelGorgel),
+                req(jsonByteIoFramerWithoutLabelGorgel),
+                req(websocketFramerGorgel),
                 req(brokerActorGorgel),
                 req(httpSessionConnectionCommGorgel),
                 req(rtcpSessionConnectionCommGorgel),
@@ -136,6 +152,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.traceFactory()),
                 req(inputGorgel),
                 req(sslSetupGorgel),
+                req(methodInvokerCommGorgel),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
@@ -182,7 +199,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     val jsonToObjectDeserializer by Once {
         JsonToObjectDeserializer(
                 req(jsonToObjectDeserializerGorgel),
-                req(provided.traceFactory()),
+                req(constructorInvokerCommGorgel),
                 req(injectors))
     }
 
@@ -217,7 +234,9 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
         ObjDBRemoteFactory(
                 req(provided.props()),
                 req(objDbRemoteGorgel),
+                req(methodInvokerCommGorgel),
                 req(connectionRetrierWithoutLabelGorgel),
+                req(jsonByteIoFramerWithoutLabelGorgel),
                 req(odbActorGorgel),
                 req(provided.traceFactory()),
                 req(inputGorgel),
@@ -250,6 +269,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(presenceServerGorgel),
                 req(graphDescGorgel),
                 req(socialGraphGorgel),
+                req(methodInvokerCommGorgel),
                 req(provided.traceFactory()),
                 req(jsonToObjectDeserializer),
                 req(domainRegistry))

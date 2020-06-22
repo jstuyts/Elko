@@ -1,6 +1,7 @@
 package org.elkoserver.foundation.json.test
 
 import org.elkoserver.foundation.json.ClockInjector
+import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.Cryptor
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.TraceFactoryInjector
@@ -11,6 +12,7 @@ import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.util.trace.TraceController
 import org.elkoserver.util.trace.acceptor.file.TraceLog
 import org.elkoserver.util.trace.slf4j.GorgelImpl
+import org.elkoserver.util.trace.slf4j.Tag
 import org.slf4j.LoggerFactory
 import org.slf4j.MarkerFactory
 import java.io.IOException
@@ -83,7 +85,9 @@ internal object CryptoTest {
                 GorgelImpl(LoggerFactory.getLogger(JsonToObjectDeserializer::class.java),
                         LoggerFactory.getILoggerFactory(),
                         MarkerFactory.getIMarkerFactory()),
-                traceController.factory,
+                GorgelImpl(LoggerFactory.getLogger(ConstructorInvoker::class.java),
+                        LoggerFactory.getILoggerFactory(),
+                        MarkerFactory.getIMarkerFactory(), Tag("category", "comm")),
                 listOf(ClockInjector(clock), TraceFactoryInjector(traceController.factory)))
         val cryptor = Cryptor(keyStr, cryptorTrace, jsonToObjectDeserializer)
         if (cypherText != null) {

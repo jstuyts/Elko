@@ -20,6 +20,8 @@ internal class WebSocketConnectionSetup(
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
         listenerGorgel: Gorgel,
+        private val jsonByteIOFramerGorgel: Gorgel,
+        private val websocketFramerGorgel: Gorgel,
         traceFactory: TraceFactory)
     : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel, listenerGorgel, traceFactory) {
     private val socketURI: String = props.getProperty("$propRoot.sock", "")
@@ -32,6 +34,8 @@ internal class WebSocketConnectionSetup(
                 bind,
                 actorFactory,
                 listenerGorgel,
+                jsonByteIOFramerGorgel,
+                websocketFramerGorgel,
                 msgTrace, secure, socketURI)
     }
 

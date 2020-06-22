@@ -23,6 +23,8 @@ dependencies {
     api(Libraries.nanojson)
 
     implementation(kotlin("stdlib-jdk8"))
+    implementation(project(":ByteIoFramer:Json"))
+    implementation(project(":ByteIoFramer:WebSocket"))
     implementation(project(":Communication"))
     implementation(project(":ObjectDatabase:Local"))
     implementation(project(":ObjectDatabase:Remote"))

@@ -3,7 +3,7 @@ package org.elkoserver.foundation.json
 import org.elkoserver.foundation.json.OptionalParameter.Companion.missingValue
 import org.elkoserver.json.JsonArray
 import org.elkoserver.json.JsonObject
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Member
@@ -21,12 +21,12 @@ import java.lang.reflect.Member
  * @param myParamNames  JSON names for the parameters.
  * @param firstIndex  Index of first JSON parameter.
  */
-internal abstract class Invoker<in TTarget>(
+abstract class Invoker<in TTarget>(
         method: Member,
         private val myParamTypes: Array<Class<*>>,
         private val myParamNames: Array<out String>,
         firstIndex: Int,
-        protected val traceFactory: TraceFactory,
+        protected val commGorgel: Gorgel,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Mapping of JSON parameter names to Java parameter positions  */
     private val myParamMap: MutableMap<String, Int>
@@ -73,7 +73,7 @@ internal abstract class Invoker<in TTarget>(
                 if (paramName != "op" && paramName != "to" &&
                         paramName != "type" &&
                         paramName != "ref" && paramName != "_id") {
-                    traceFactory.comm.warningm("ignored unknown parameter '$paramName'")
+                    commGorgel.warn("ignored unknown parameter '$paramName'")
                 }
             } else {
                 val paramType = myParamTypes[paramNum]

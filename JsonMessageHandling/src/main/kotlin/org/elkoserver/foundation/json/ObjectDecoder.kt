@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.json
 
 import org.elkoserver.json.JsonObject
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * A producer of some class of Java objects from JSON-encoded object
@@ -35,7 +35,7 @@ import org.elkoserver.util.trace.TraceFactory
  */
 class ObjectDecoder internal constructor(
         decodeClass: Class<*>,
-        traceFactory: TraceFactory,
+        constructorInvokerCommGorgel: Gorgel,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         injectors: Collection<Injector>) {
     /** Reflection information for the Java constructor this decoder invokes. */
@@ -76,6 +76,6 @@ class ObjectDecoder internal constructor(
             false
         }
 
-        myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, jsonConstructor.parameterTypes, paramNames, traceFactory, jsonToObjectDeserializer, injectors)
+        myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, jsonConstructor.parameterTypes, paramNames, constructorInvokerCommGorgel, jsonToObjectDeserializer, injectors)
     }
 }

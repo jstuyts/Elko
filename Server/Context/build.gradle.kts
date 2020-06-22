@@ -26,6 +26,8 @@ dependencies {
     api(project(":Trace"))
     api(Libraries.nanojson)
 
+    implementation(project(":ByteIoFramer:Json"))
+    implementation(project(":ByteIoFramer:WebSocket"))
     implementation(project(":Communication"))
     implementation(project(":ObjectDatabase:Local"))
     implementation(project(":ObjectDatabase:Remote"))

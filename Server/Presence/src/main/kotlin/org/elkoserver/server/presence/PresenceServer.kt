@@ -20,6 +20,7 @@ internal class PresenceServer(
         private val gorgel: Gorgel,
         private val graphDescGorgel: Gorgel,
         private val socialGraphGorgel: Gorgel,
+        methodInvokerCommGorgel: Gorgel,
         traceFactory: TraceFactory,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val domainRegistry: DomainRegistry) {
@@ -27,7 +28,7 @@ internal class PresenceServer(
     internal val objDB: ObjDB
 
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, jsonToObjectDeserializer)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
 
     /**
      * Test if the server is in the midst of shutdown.

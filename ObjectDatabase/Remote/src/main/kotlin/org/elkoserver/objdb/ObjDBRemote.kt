@@ -65,7 +65,9 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                   props: ElkoProperties,
                   propRoot: String,
                   gorgel: Gorgel,
+                  methodInvokerCommGorgel: Gorgel,
                   private val connectionRetrierWithoutLabelGorgel: Gorgel,
+                  private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
                   private val odbActorGorgel: Gorgel,
                   private val traceFactory: TraceFactory,
                   private val inputGorgel: Gorgel,
@@ -96,7 +98,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     private var myRepHost: HostDesc? = null
 
     /** Message dispatcher for repository connections.  */
-    private val myDispatcher = MessageDispatcher(this, traceFactory, jsonToObjectDeserializer).apply {
+    private val myDispatcher = MessageDispatcher(this, methodInvokerCommGorgel, jsonToObjectDeserializer).apply {
         addClass(ODBActor::class.java)
     }
 
@@ -138,6 +140,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                         myMessageHandlerFactory,
                         timer,
                         connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "repository")),
+                        jsonByteIOFramerWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "repository")),
                         traceFactory.comm,
                         inputGorgel,
                         mustSendDebugReplies)

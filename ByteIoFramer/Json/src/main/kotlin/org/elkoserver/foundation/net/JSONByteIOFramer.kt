@@ -5,7 +5,6 @@ import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonObjectSerialization.sendableString
 import org.elkoserver.json.JsonParsing.jsonObjectFromReader
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.io.StringReader
@@ -15,7 +14,7 @@ import java.nio.charset.StandardCharsets
  * I/O framer implementation for JSON messages.
  */
 class JSONByteIOFramer(
-        private val trMsg: Trace,
+        private val gorgel: Gorgel,
         private val myReceiver: MessageReceiver,
         private val myLabel: String,
         private val myIn: ChunkyByteArrayInputStream,
@@ -27,8 +26,8 @@ class JSONByteIOFramer(
     /**
      * Constructor.
      */
-    constructor(msgTrace: Trace, receiver: MessageReceiver, label: String, inputGorgel: Gorgel, mustSendDebugReplies: Boolean)
-            : this(msgTrace, receiver, label, ChunkyByteArrayInputStream(inputGorgel), mustSendDebugReplies)
+    constructor(gorgel: Gorgel, receiver: MessageReceiver, label: String, inputGorgel: Gorgel, mustSendDebugReplies: Boolean)
+            : this(gorgel, receiver, label, ChunkyByteArrayInputStream(inputGorgel), mustSendDebugReplies)
 
     /**
      * Process bytes of data received.
@@ -44,9 +43,7 @@ class JSONByteIOFramer(
             val line = myIn.readUTF8Line() ?: break
             if (line.isEmpty()) {
                 val msgString = myMsgBuffer.toString()
-                if (trMsg.event) {
-                    trMsg.eventi("$myLabel -> $msgString")
-                }
+                gorgel.i?.run { info("$myLabel -> $msgString") }
                 // FIXME: Do not end because of no more characters at end of string. Instead fail gracefully.
                 val msgReader = StringReader(msgString)
                 var needsFurtherParsing = true
@@ -63,7 +60,7 @@ class JSONByteIOFramer(
                         if (mustSendDebugReplies) {
                             myReceiver.receiveMsg(e)
                         }
-                        trMsg.warningm("syntax error in JSON message: ${e.message}")
+                        gorgel.warn("syntax error in JSON message: ${e.message}")
                     }
                 }
                 myMsgBuffer.setLength(0)
@@ -97,9 +94,7 @@ class JSONByteIOFramer(
         } else {
             throw IOException("invalid message object class for write")
         }
-        if (trMsg.event) {
-            trMsg.eventi("$myLabel <- $message")
-        }
+        gorgel.i?.run { info("$myLabel <- $message") }
         messageString += "\n\n"
         return messageString.toByteArray(StandardCharsets.UTF_8)
     }

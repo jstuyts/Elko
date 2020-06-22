@@ -19,10 +19,11 @@ internal class RtcpConnectionSetup(
         actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
         listenerGorgel: Gorgel,
+        private val tcpConnectionGorgel: Gorgel,
         traceFactory: TraceFactory)
     : BaseTcpConnectionSetup(label, host, auth, secure, props, propRoot, myNetworkManager, actorFactory, gorgel, listenerGorgel, traceFactory) {
     override val protocol: String = "rtcp"
 
     @Throws(IOException::class)
-    override fun createListenAddress() = myNetworkManager.listenRTCP(bind, actorFactory, listenerGorgel, msgTrace, secure)
+    override fun createListenAddress() = myNetworkManager.listenRTCP(bind, actorFactory, listenerGorgel, msgTrace, tcpConnectionGorgel, secure)
 }

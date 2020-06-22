@@ -7,15 +7,16 @@ import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.objdb.store.ObjectStore
 import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Main state data structure in a Repository.
  *
  * @param myServer Server object.
  */
-internal class Repository(private val myServer: Server, traceFactory: TraceFactory, internal val myObjectStore: ObjectStore, jsonToObjectDeserializer: JsonToObjectDeserializer) {
+internal class Repository(private val myServer: Server, methodInvokerCommGorgel: Gorgel, traceFactory: TraceFactory, internal val myObjectStore: ObjectStore, jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val myRefTable = RefTable(AlwaysBaseTypeResolver, traceFactory, jsonToObjectDeserializer)
+    internal val myRefTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
 
     /** Number of repository clients currently connected.  */
     private var myRepClientCount = 0

@@ -29,13 +29,14 @@ import java.util.TreeMap
 internal class Director(
         private val myServer: Server,
         private val gorgel: Gorgel,
+        methodInvokerCommGorgel: Gorgel,
         traceFactory: TraceFactory,
         random: Random,
         private val myEstimatedLoadIncrement: Double,
         private val myProviderLimit: Int,
         jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, jsonToObjectDeserializer)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false

@@ -9,7 +9,6 @@ import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.function.Consumer
@@ -30,9 +29,10 @@ internal class DirectorActorFactory(
         private val gorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
         private val directorActorGorgel: Gorgel,
+        methodInvokerCommGorgel: Gorgel,
+        private val jsonByteIOFramerGorgel: Gorgel,
         private val tr: Trace,
         private val timer: Timer,
-        traceFactory: TraceFactory,
         private val inputGorgel: Gorgel,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
@@ -41,7 +41,7 @@ internal class DirectorActorFactory(
 
     /** The active director connection, if there is one.  */
     private var myDirector: DirectorActor? = null
-    private val myDispatcher = MessageDispatcher(null, traceFactory, jsonToObjectDeserializer)
+    private val myDispatcher = MessageDispatcher(null, methodInvokerCommGorgel, jsonToObjectDeserializer)
 
     /** Object currently attempting to establish a director connection.  */
     private var myConnectionRetrier: ConnectionRetrier? = null
@@ -64,6 +64,7 @@ internal class DirectorActorFactory(
                     this,
                     timer,
                     connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "director")),
+                    jsonByteIOFramerGorgel,
                     tr,
                     inputGorgel,
                     mustSendDebugReplies)

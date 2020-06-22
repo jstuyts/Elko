@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.json
 
 import org.elkoserver.json.JsonObject
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
 
@@ -15,13 +15,13 @@ import java.lang.reflect.Method
  * @param paramNames  JSON names for the parameters.
  * @param next  Next JSON method in a growing chain.
  */
-internal class MethodInvoker(
+class MethodInvoker(
         private val myMethod: Method,
         paramTypes: Array<Class<*>>,
         paramNames: Array<out String>,
         internal val next: MethodInvoker?,
-        traceFactory: TraceFactory,
-        jsonToObjectDeserializer: JsonToObjectDeserializer) : Invoker<Any>(myMethod, paramTypes, paramNames, 1, traceFactory, jsonToObjectDeserializer) {
+        commGorgel: Gorgel,
+        jsonToObjectDeserializer: JsonToObjectDeserializer) : Invoker<Any>(myMethod, paramTypes, paramNames, 1, commGorgel, jsonToObjectDeserializer) {
 
     /** The Java class that defined the method.  */
     @Suppress("UNCHECKED_CAST")

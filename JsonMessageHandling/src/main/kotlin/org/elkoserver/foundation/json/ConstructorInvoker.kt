@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.json
 
 import org.elkoserver.json.JsonObject
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
 
@@ -16,14 +16,14 @@ import java.lang.reflect.InvocationTargetException
  * @param paramTypes  The types of the various parameters.
  * @param paramNames  JSON names for the parameters.
  */
-internal class ConstructorInvoker(
+class ConstructorInvoker(
         private val myConstructor: Constructor<*>,
         private val amIncludingRawObject: Boolean,
         paramTypes: Array<Class<*>>,
         paramNames: Array<out String>,
-        traceFactory: TraceFactory,
+        commGorgel: Gorgel,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
-        private val injectors: Collection<Injector>) : Invoker<Any?>(myConstructor, paramTypes, paramNames, if (amIncludingRawObject) 1 else 0, traceFactory, jsonToObjectDeserializer) {
+        private val injectors: Collection<Injector>) : Invoker<Any?>(myConstructor, paramTypes, paramNames, if (amIncludingRawObject) 1 else 0, commGorgel, jsonToObjectDeserializer) {
 
     /**
      * Invoke the constructor on a JSON object descriptor.
@@ -38,15 +38,14 @@ internal class ConstructorInvoker(
         return try {
             tryToConstruct(obj, resolver)
         } catch (e: JSONInvocationException) {
-            traceFactory.comm.errorm("error calling JSON constructor: ${e.message}")
+            commGorgel.error("error calling JSON constructor: ${e.message}")
             null
         } catch (e: MessageHandlerException) {
             var report = e.cause
             if (report == null) {
                 report = e
             }
-            traceFactory.comm.errorReportException(report,
-                    "calling JSON constructor")
+            commGorgel.error("calling JSON constructor", report)
             null
         }
     }

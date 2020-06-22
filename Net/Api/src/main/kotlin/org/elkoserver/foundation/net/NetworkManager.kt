@@ -179,9 +179,10 @@ class NetworkManager(
                    innerHandlerFactory: MessageHandlerFactory,
                    listenerGorgel: Gorgel,
                    tcpConnectionTrace: Trace,
+                   tcpConnectionGorgel: Gorgel,
                    secure: Boolean): NetAddr {
         val outerHandlerFactory: MessageHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, rtcpSessionConnectionCommGorgel, tcpConnectionTrace, runner, loadMonitor, props, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
-        val framerFactory: ByteIOFramerFactory = RTCPRequestByteIOFramerFactory(tcpConnectionTrace, inputGorgel, mustSendDebugReplies)
+        val framerFactory: ByteIOFramerFactory = RTCPRequestByteIOFramerFactory(tcpConnectionGorgel, inputGorgel, mustSendDebugReplies)
         return listenTCP(listenAddress, outerHandlerFactory, listenerGorgel, tcpConnectionTrace, secure, framerFactory)
     }
 
@@ -202,6 +203,8 @@ class NetworkManager(
     fun listenWebSocket(listenAddress: String,
                         innerHandlerFactory: MessageHandlerFactory,
                         listenerGorgel: Gorgel,
+                        jsonByteIOFramerGorgel: Gorgel,
+                        websocketFramerGorgel: Gorgel,
                         tcpConnectionTrace: Trace, secure: Boolean, socketURI: String): NetAddr {
         var actualSocketURI = socketURI
         if (!actualSocketURI.startsWith("/")) {
@@ -209,7 +212,7 @@ class NetworkManager(
         }
         val outerHandlerFactory: MessageHandlerFactory = WebSocketMessageHandlerFactory(innerHandlerFactory, actualSocketURI,
                 tcpConnectionTrace)
-        val framerFactory: ByteIOFramerFactory = WebSocketByteIOFramerFactory(tcpConnectionTrace, listenAddress, actualSocketURI, inputGorgel, mustSendDebugReplies)
+        val framerFactory: ByteIOFramerFactory = WebSocketByteIOFramerFactory(jsonByteIOFramerGorgel, websocketFramerGorgel, listenAddress, actualSocketURI, inputGorgel, mustSendDebugReplies)
         return listenTCP(listenAddress, outerHandlerFactory, listenerGorgel, tcpConnectionTrace, secure, framerFactory)
     }
 

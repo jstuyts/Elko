@@ -27,6 +27,8 @@ class Gatekeeper internal constructor(
         directorActorFactoryGorgel: Gorgel,
         connectionRetrierWithoutLabelGorgel: Gorgel,
         directorActorGorgel: Gorgel,
+        methodInvokerCommGorgel: Gorgel,
+        jsonByteIOFramerGorgel: Gorgel,
         tr: Trace,
         timer: Timer,
         traceFactory: TraceFactory,
@@ -36,7 +38,7 @@ class Gatekeeper internal constructor(
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         mustSendDebugReplies: Boolean) {
     /** Table for mapping object references in messages.  */
-    internal val refTable: RefTable = RefTable(null, traceFactory, jsonToObjectDeserializer)
+    internal val refTable: RefTable = RefTable(null, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
 
     /** Host description for the director.  */
     internal var directorHost: HostDesc? = null
@@ -139,9 +141,10 @@ class Gatekeeper internal constructor(
                 directorActorFactoryGorgel,
                 connectionRetrierWithoutLabelGorgel,
                 directorActorGorgel,
+                methodInvokerCommGorgel,
+                jsonByteIOFramerGorgel,
                 tr,
                 timer,
-                traceFactory,
                 inputGorgel,
                 jsonToObjectDeserializer,
                 mustSendDebugReplies)

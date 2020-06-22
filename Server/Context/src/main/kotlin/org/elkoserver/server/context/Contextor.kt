@@ -61,9 +61,11 @@ class Contextor internal constructor(
         private val presencerActorGorgel: Gorgel,
         private val reservationGorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
+        private val jsonByteIoFramerGorgel: Gorgel,
         private val directorActorGorgel: Gorgel,
         private val inputGorgel: Gorgel,
         sessionGorgel: Gorgel,
+        private val methodInvokerCommGorgel: Gorgel,
         private val timer: Timer,
         private val traceFactory: TraceFactory,
         internal val entryTimeout: Int,
@@ -77,7 +79,7 @@ class Contextor internal constructor(
         private val jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val mustSendDebugReplies: Boolean) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(odb, traceFactory, jsonToObjectDeserializer)
+    internal val refTable = RefTable(odb, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
 
     /** The generic 'session' object for talking to this server.  */
     internal val session: Session = Session(this, sessionPassword, sessionGorgel, traceFactory)
@@ -983,10 +985,12 @@ class Contextor internal constructor(
                 listeners,
                 tr,
                 directorGroupGorgel,
-                reservationGorgel,
-                connectionRetrierWithoutLabelGorgel,
-                directorActorGorgel,
                 inputGorgel,
+                connectionRetrierWithoutLabelGorgel,
+                jsonByteIoFramerGorgel,
+                methodInvokerCommGorgel,
+                reservationGorgel,
+                directorActorGorgel,
                 timer,
                 traceFactory,
                 reservationTimeout,
@@ -1013,6 +1017,8 @@ class Contextor internal constructor(
                 presencerGroupGorgel,
                 inputGorgel,
                 connectionRetrierWithoutLabelGorgel,
+                jsonByteIoFramerGorgel,
+                methodInvokerCommGorgel,
                 timer,
                 traceFactory,
                 props,

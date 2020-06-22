@@ -1,6 +1,5 @@
 package org.elkoserver.foundation.net
 
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -14,10 +13,8 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * then parsed for JSON messages that are fed to the receiver.
  *
  * On output, each message being sent is framed according to this rule.
- *
- * @param trMsg  Trace object for logging message traffic.
  */
-class JSONByteIOFramerFactory(private val trMsg: Trace, private val inputGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
+class JSONByteIOFramerFactory(private val gorgel: Gorgel, private val inputGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new connection.
@@ -26,5 +23,5 @@ class JSONByteIOFramerFactory(private val trMsg: Trace, private val inputGorgel:
      * @param label  A printable label identifying the associated connection.
      */
     override fun provideFramer(receiver: MessageReceiver, label: String) =
-            JSONByteIOFramer(trMsg, receiver, label, inputGorgel, mustSendDebugReplies)
+            JSONByteIOFramer(gorgel, receiver, label, inputGorgel, mustSendDebugReplies)
 }

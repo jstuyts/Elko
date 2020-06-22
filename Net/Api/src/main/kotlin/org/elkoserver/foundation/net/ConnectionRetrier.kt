@@ -25,12 +25,13 @@ class ConnectionRetrier(
         actualFactory: MessageHandlerFactory,
         timer: Timer,
         private val gorgel: Gorgel,
+        jsonByteIOFramerGorgel: Gorgel,
         appTrace: Trace,
         inputGorgel: Gorgel,
         mustSendDebugReplies: Boolean) {
 
     /** Low-level I/O framer factory for the new connection.  */
-    private val myFramerFactory: JSONByteIOFramerFactory
+    private val myFramerFactory: JSONByteIOFramerFactory = JSONByteIOFramerFactory(jsonByteIOFramerGorgel, inputGorgel, mustSendDebugReplies)
 
     /** Flag to stop retries.  */
     private var myKeepTryingFlag = true
@@ -65,7 +66,6 @@ class ConnectionRetrier(
     }
 
     init {
-        myFramerFactory = JSONByteIOFramerFactory(myTrace, inputGorgel, mustSendDebugReplies)
         myNetworkManager = networkManager
         myActualFactory = actualFactory
         gorgel.i?.run { info("connecting to $myLabel at ${myHost.hostPort}") }

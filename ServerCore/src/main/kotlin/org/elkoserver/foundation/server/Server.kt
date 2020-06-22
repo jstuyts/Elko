@@ -56,9 +56,13 @@ class Server(
         private val serviceActorCommGorgel: Gorgel,
         private val baseConnectionSetupGorgel: Gorgel,
         private val listenerGorgel: Gorgel,
+        private val jsonHttpFramerCommGorgel: Gorgel,
+        private val tcpConnectionGorgel: Gorgel,
         private val objDbLocalGorgel: Gorgel,
         private val baseGorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
+        private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
+        private val websocketFramerGorgel: Gorgel,
         private val brokerActorGorgel: Gorgel,
         httpSessionConnectionCommGorgel: Gorgel,
         rtcpSessionConnectionCommGorgel: Gorgel,
@@ -70,6 +74,7 @@ class Server(
         private val traceFactory: TraceFactory,
         private val inputGorgel: Gorgel,
         sslSetupGorgel: Gorgel,
+        methodInvokerCommGorgel: Gorgel,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         private val myTagGenerator: IdGenerator,
@@ -101,7 +106,7 @@ class Server(
     private val myBrokerHost: HostDesc? = hostDescFromPropertiesFactory.fromProperties("conf.broker")
 
     /** Message dispatcher for broker connections.  */
-    private val myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, traceFactory, jsonToObjectDeserializer)
+    private val myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, methodInvokerCommGorgel, jsonToObjectDeserializer)
 
     /** Table of 'find' requests that have been issued to the broker, for which
      * responses are still pending.  Indexed by the service name queried.  */
@@ -185,7 +190,17 @@ class Server(
      */
     private fun connectToBroker() {
         if (!amShuttingDown) {
-            ConnectionRetrier(myBrokerHost!!, "broker", networkManager, BrokerMessageHandlerFactory(), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "broker")), tr, inputGorgel, mustSendDebugReplies)
+            ConnectionRetrier(
+                    myBrokerHost!!,
+                    "broker",
+                    networkManager,
+                    BrokerMessageHandlerFactory(),
+                    timer,
+                    connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "broker")),
+                    jsonByteIOFramerWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "broker")),
+                    tr,
+                    inputGorgel,
+                    mustSendDebugReplies)
         }
     }
 
@@ -338,8 +353,17 @@ class Server(
             }
             val actor = myServiceActorsByProviderID[desc.providerID]
             actor?.let(::connectLinkToActor)
-                    ?: ConnectionRetrier(desc.asHostDesc(-1), myLabel,
-                            networkManager, this, timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", myLabel)), tr, inputGorgel, mustSendDebugReplies)
+                    ?: ConnectionRetrier(
+                            desc.asHostDesc(-1),
+                            myLabel,
+                            networkManager,
+                            this,
+                            timer,
+                            connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", myLabel)),
+                            jsonByteIOFramerWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", myLabel)),
+                            tr,
+                            inputGorgel,
+                            mustSendDebugReplies)
         }
 
         /**
@@ -583,10 +607,10 @@ class Server(
         val mgrClass = myProps.getProperty("$propRoot.class")
         val connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory) }
                 ?: when (protocol) {
-                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory, inputGorgel, mustSendDebugReplies)
-                    "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory)
-                    "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory, mustSendDebugReplies)
-                    "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory)
+                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory, inputGorgel, jsonByteIOFramerWithoutLabelGorgel, mustSendDebugReplies)
+                    "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, tcpConnectionGorgel, traceFactory)
+                    "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, jsonHttpFramerCommGorgel, traceFactory, mustSendDebugReplies)
+                    "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, jsonByteIOFramerWithoutLabelGorgel, websocketFramerGorgel, traceFactory)
                     else -> {
                         gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
                         throw IllegalStateException()

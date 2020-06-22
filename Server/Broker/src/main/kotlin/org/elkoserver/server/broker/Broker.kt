@@ -25,13 +25,14 @@ import java.util.function.Consumer
 internal class Broker(
         private val myServer: Server,
         gorgel: Gorgel,
+        methodInvokerCommGorgel: Gorgel,
         launcherTableGorgel: Gorgel,
         private val timer: Timer,
         traceFactory: TraceFactory,
         startMode: Int,
         jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, traceFactory, jsonToObjectDeserializer)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
 
     /** Database for configuration data.  */
     private val myODB: ObjDB?

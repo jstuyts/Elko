@@ -2,7 +2,6 @@ package org.elkoserver.foundation.net
 
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -11,11 +10,10 @@ import java.util.Base64
 /**
  * Byte I/O framer factory for WebSocket connections, a perverse hybrid of HTTP
  * and TCP.
- *
- * @param trMsg  Trace object for logging message traffic.
  */
 class WebSocketByteIOFramerFactory(
-        private val trMsg: Trace,
+        private val jsonByteIOFramerGorgel: Gorgel,
+        private val websocketFramerGorgel: Gorgel,
         private val myHostAddress: String,
         private val mySocketURI: String,
         private val inputGorgel: Gorgel,
@@ -35,7 +33,7 @@ class WebSocketByteIOFramerFactory(
     /**
      * I/O framer implementation for HTTP requests.
      */
-    private inner class WebSocketFramer internal constructor(
+    inner class WebSocketFramer internal constructor(
             private val myReceiver: MessageReceiver,
             private val myLabel: String) : ByteIOFramer {
 
@@ -96,7 +94,7 @@ class WebSocketByteIOFramerFactory(
                         myReceiver.receiveMsg(myRequest)
                         myWSParseStage = Companion.WS_STAGE_MESSAGES
                         myIn.enableWebSocketFraming()
-                        myMessageFramer = JSONByteIOFramer(trMsg, myReceiver, myLabel, myIn, mustSendDebugReplies)
+                        myMessageFramer = JSONByteIOFramer(jsonByteIOFramerGorgel, myReceiver, myLabel, myIn, mustSendDebugReplies)
                         return
                     }
                     Companion.WS_STAGE_MESSAGES -> {
@@ -130,17 +128,13 @@ class WebSocketByteIOFramerFactory(
             }
             return if (msg is String) {
                 val msgString = msg
-                if (trMsg.event) {
-                    trMsg.eventi("$myLabel <- $msgString")
-                }
+                websocketFramerGorgel.i?.run { info("$myLabel <- $msgString") }
                 val msgBytes = msgString.toByteArray(StandardCharsets.UTF_8)
                 val frame = ByteArray(msgBytes.size + 2)
                 frame[0] = 0x00
                 System.arraycopy(msgBytes, 0, frame, 1, msgBytes.size)
                 frame[frame.size - 1] = 0xFF.toByte()
-                if (trMsg.debug) {
-                    trMsg.debugm("WS sending msg: $msg")
-                }
+                websocketFramerGorgel.d?.run { debug("WS sending msg: $msg") }
                 frame
             } else if (msg is WebSocketHandshake) {
                 val handshake = msg
@@ -162,9 +156,7 @@ class WebSocketByteIOFramerFactory(
                             headerBytes.size)
                     System.arraycopy(handshakeBytes, 0, reply,
                             headerBytes.size, handshakeBytes.size)
-                    if (trMsg.debug) {
-                        trMsg.debugm("WS sending handshake:\n$header${byteArrayToASCII(handshakeBytes, 0, handshakeBytes.size)}")
-                    }
+                    websocketFramerGorgel.d?.run { debug("WS sending handshake:\n$header${byteArrayToASCII(handshakeBytes, 0, handshakeBytes.size)}") }
                     reply
                 } else if (handshake.version == 6) {
                     val header = """
@@ -176,9 +168,7 @@ class WebSocketByteIOFramerFactory(
                     
                     """.trimIndent()
                     val headerBytes = header.toByteArray(StandardCharsets.US_ASCII)
-                    if (trMsg.debug) {
-                        trMsg.debugm("WS sending handshake:\n$header")
-                    }
+                    websocketFramerGorgel.d?.run { debug("WS sending handshake:\n$header") }
                     headerBytes
                 } else {
                     throw Error("unsupported WebSocket version")
@@ -191,9 +181,7 @@ Access-Control-Allow-Origin: *
 Content-Length: ${reply.length}
 
 $reply"""
-                if (trMsg.debug) {
-                    trMsg.debugm("WS sending error:\n$reply")
-                }
+                websocketFramerGorgel.d?.run { debug("WS sending error:\n$reply") }
                 reply.toByteArray(StandardCharsets.US_ASCII)
             } else {
                 throw IOException("unwritable message type: ${msg.javaClass}")

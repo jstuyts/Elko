@@ -19,6 +19,7 @@ import java.time.Clock
 class ZeroMQConnectionManager : ConnectionManager {
     private lateinit var myZeroMQThread: ZeroMQThread
     private lateinit var myMsgTrace: Trace
+    private lateinit var jsonByteIoFramerGorgel: Gorgel
     private lateinit var inputGorgel: Gorgel
     private var mustSendDebugReplies = false
 
@@ -46,7 +47,7 @@ class ZeroMQConnectionManager : ConnectionManager {
      * separated by a colon.  For example, "bithlo.example.com:8002".
      */
     override fun connect(propRoot: String, handlerFactory: MessageHandlerFactory, hostPort: String) {
-        val framerFactory = JSONByteIOFramerFactory(myMsgTrace, inputGorgel, mustSendDebugReplies)
+        val framerFactory = JSONByteIOFramerFactory(jsonByteIoFramerGorgel, inputGorgel, mustSendDebugReplies)
         myZeroMQThread.connect(handlerFactory, framerFactory, hostPort)
     }
 
@@ -66,7 +67,7 @@ class ZeroMQConnectionManager : ConnectionManager {
      * @throws IOException if there was a problem establishing the listener
      */
     override fun listen(propRoot: String, listenAddress: String, handlerFactory: MessageHandlerFactory, secure: Boolean): NetAddr {
-        val framerFactory = JSONByteIOFramerFactory(myMsgTrace, inputGorgel, mustSendDebugReplies)
+        val framerFactory = JSONByteIOFramerFactory(jsonByteIoFramerGorgel, inputGorgel, mustSendDebugReplies)
         return myZeroMQThread.listen(listenAddress, handlerFactory, framerFactory, secure)
     }
 }

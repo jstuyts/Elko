@@ -3,12 +3,11 @@ package org.elkoserver.foundation.json
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 class JsonToObjectDeserializer(
         private val gorgel: Gorgel,
-        private val traceFactory: TraceFactory,
+        private val constructorInvokerCommGorgel: Gorgel,
         private val injectors: Collection<Injector> = emptyList()) {
     /** Mapping from Java class to the specific decoder for that class.  This
      * is a cache of decoders, to avoid recomputing reflection information.  */
@@ -26,7 +25,7 @@ class JsonToObjectDeserializer(
         var decoder = theDecoders[decodeClass]
         if (decoder == null) {
             try {
-                decoder = ObjectDecoder(decodeClass, traceFactory, this, injectors)
+                decoder = ObjectDecoder(decodeClass, constructorInvokerCommGorgel, this, injectors)
                 theDecoders[decodeClass] = decoder
             } catch (e: JSONSetupError) {
                 gorgel.error(e.message ?: e.toString())
