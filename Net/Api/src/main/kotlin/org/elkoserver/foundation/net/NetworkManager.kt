@@ -143,7 +143,7 @@ class NetworkManager(
      * @param innerHandlerFactory  Message handler factory to provide message
      * handlers for messages passed inside HTTP requests on connections made
      * to this port.
-     * @param trace  Trace object to use for activity on this connection.
+     * @param tcpConnectionTrace  Trace object to use for activity on this connection.
      *
      * @param secure  If true, use SSL.
      * @param rootURI  The root URI that GETs and POSTs must reference.
@@ -154,11 +154,12 @@ class NetworkManager(
     @Throws(IOException::class)
     fun listenHTTP(listenAddress: String,
                    innerHandlerFactory: MessageHandlerFactory,
-                   trace: Trace, secure: Boolean, rootURI: String, httpFramer: HTTPFramer): NetAddr {
+                   listenerGorgel: Gorgel,
+                   tcpConnectionTrace: Trace, secure: Boolean, rootURI: String, httpFramer: HTTPFramer): NetAddr {
         val outerHandlerFactory: MessageHandlerFactory = HTTPMessageHandlerFactory(
                 innerHandlerFactory, rootURI, httpFramer, runner, loadMonitor, props, timer, clock, httpSessionConnectionCommGorgel, traceFactory, sessionIdGenerator, connectionIdGenerator)
         val framerFactory: ByteIOFramerFactory = HTTPRequestByteIOFramerFactory(traceFactory, inputGorgel)
-        return listenTCP(listenAddress, outerHandlerFactory, trace, secure, framerFactory)
+        return listenTCP(listenAddress, outerHandlerFactory, listenerGorgel, tcpConnectionTrace, secure, framerFactory)
     }
 
     /**
@@ -168,7 +169,7 @@ class NetworkManager(
      * @param innerHandlerFactory  Message handler factory to provide message
      * handlers for messages passed inside RTCP requests on connections made
      * to this port.
-     * @param msgTrace   Trace object for logging message traffic
+     * @param tcpConnectionTrace   Trace object for logging message traffic
      * @param secure  If true, use SSL.
      *
      * @return the address that ended up being listened upon
@@ -176,11 +177,12 @@ class NetworkManager(
     @Throws(IOException::class)
     fun listenRTCP(listenAddress: String,
                    innerHandlerFactory: MessageHandlerFactory,
-                   msgTrace: Trace,
+                   listenerGorgel: Gorgel,
+                   tcpConnectionTrace: Trace,
                    secure: Boolean): NetAddr {
-        val outerHandlerFactory: MessageHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, rtcpSessionConnectionCommGorgel, msgTrace, runner, loadMonitor, props, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
-        val framerFactory: ByteIOFramerFactory = RTCPRequestByteIOFramerFactory(msgTrace, inputGorgel, mustSendDebugReplies)
-        return listenTCP(listenAddress, outerHandlerFactory, msgTrace, secure, framerFactory)
+        val outerHandlerFactory: MessageHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, rtcpSessionConnectionCommGorgel, tcpConnectionTrace, runner, loadMonitor, props, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
+        val framerFactory: ByteIOFramerFactory = RTCPRequestByteIOFramerFactory(tcpConnectionTrace, inputGorgel, mustSendDebugReplies)
+        return listenTCP(listenAddress, outerHandlerFactory, listenerGorgel, tcpConnectionTrace, secure, framerFactory)
     }
 
     /**
@@ -190,7 +192,7 @@ class NetworkManager(
      * @param innerHandlerFactory  Message handler factory to provide message
      * handlers for messages passed inside WebSocket frames on connections
      * made to this port.
-     * @param msgTrace   Trace object for logging message traffic
+     * @param tcpConnectionTrace   Trace object for logging message traffic
      * @param secure  If true, use SSL.
      *
      * @param socketURI  The WebSocket URI that browsers connect to
@@ -199,15 +201,16 @@ class NetworkManager(
     @Throws(IOException::class)
     fun listenWebSocket(listenAddress: String,
                         innerHandlerFactory: MessageHandlerFactory,
-                        msgTrace: Trace, secure: Boolean, socketURI: String): NetAddr {
+                        listenerGorgel: Gorgel,
+                        tcpConnectionTrace: Trace, secure: Boolean, socketURI: String): NetAddr {
         var actualSocketURI = socketURI
         if (!actualSocketURI.startsWith("/")) {
             actualSocketURI = "/$actualSocketURI"
         }
         val outerHandlerFactory: MessageHandlerFactory = WebSocketMessageHandlerFactory(innerHandlerFactory, actualSocketURI,
-                msgTrace)
-        val framerFactory: ByteIOFramerFactory = WebSocketByteIOFramerFactory(msgTrace, listenAddress, actualSocketURI, inputGorgel, mustSendDebugReplies)
-        return listenTCP(listenAddress, outerHandlerFactory, msgTrace, secure, framerFactory)
+                tcpConnectionTrace)
+        val framerFactory: ByteIOFramerFactory = WebSocketByteIOFramerFactory(tcpConnectionTrace, listenAddress, actualSocketURI, inputGorgel, mustSendDebugReplies)
+        return listenTCP(listenAddress, outerHandlerFactory, listenerGorgel, tcpConnectionTrace, secure, framerFactory)
     }
 
     /**
@@ -216,7 +219,7 @@ class NetworkManager(
      * @param listenAddress  Host name and port to listen for connections on.
      * @param handlerFactory  Message handler factory to provide message
      * handlers for connections made to this port.
-     * @param portTrace  Trace object for logging activity associated with this
+     * @param listenerGorgel  Trace object for logging activity associated with this
      * port &amp; its connections
      *
      * @param secure  If true, use SSL.
@@ -226,10 +229,10 @@ class NetworkManager(
     @Throws(IOException::class)
     fun listenTCP(listenAddress: String,
                   handlerFactory: MessageHandlerFactory,
-                  portTrace: Trace, secure: Boolean, framerFactory: ByteIOFramerFactory): NetAddr {
+                  listenerGorgel: Gorgel, tcpConnectionTrace: Trace, secure: Boolean, framerFactory: ByteIOFramerFactory): NetAddr {
         ensureSelectThread()
         val listener = mySelectThread.listen(listenAddress, handlerFactory,
-                framerFactory, secure, portTrace)
+                framerFactory, secure, listenerGorgel, tcpConnectionTrace)
         return listener.listenAddress()
     }
 

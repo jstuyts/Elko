@@ -15,6 +15,7 @@ abstract class BaseConnectionSetup(
         props: ElkoProperties,
         val propRoot: String,
         private val gorgel: Gorgel,
+        protected val listenerGorgel: Gorgel,
         protected var traceFactory: TraceFactory) : ConnectionSetup {
     val bind: String = props.getProperty("$propRoot.bind", host)
 

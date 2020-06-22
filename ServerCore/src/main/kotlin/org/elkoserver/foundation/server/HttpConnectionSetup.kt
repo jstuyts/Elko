@@ -19,8 +19,9 @@ internal class HttpConnectionSetup(
         private val myNetworkManager: NetworkManager,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
+        listenerGorgel: Gorgel,
         traceFactory: TraceFactory,
-        private val mustSendDebugReplies: Boolean) : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel, traceFactory) {
+        private val mustSendDebugReplies: Boolean) : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel, listenerGorgel, traceFactory) {
     private val domain: String?
     private val rootURI: String
     override val serverAddress: String
@@ -29,7 +30,7 @@ internal class HttpConnectionSetup(
 
     @Throws(IOException::class)
     override fun tryToStartListener() =
-            myNetworkManager.listenHTTP(bind, actorFactory, msgTrace, secure, rootURI, JSONHTTPFramer(msgTrace, traceFactory, mustSendDebugReplies))
+            myNetworkManager.listenHTTP(bind, actorFactory, listenerGorgel, msgTrace, secure, rootURI, JSONHTTPFramer(msgTrace, traceFactory, mustSendDebugReplies))
 
     override val listenAddressDescription: String
         get() = "$host/$rootURI/ in domain $domain"

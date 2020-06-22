@@ -20,8 +20,9 @@ internal class ManagerClassConnectionSetup(
         private val myNetworkManager: NetworkManager,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
+        listenerGorgel: Gorgel,
         traceFactory: TraceFactory)
-    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, traceFactory) {
+    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, listenerGorgel, traceFactory) {
     override val protocol: String
         get() = "manager class: $mgrClass"
 

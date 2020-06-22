@@ -8,6 +8,7 @@ import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.HTTPSessionConnection
+import org.elkoserver.foundation.net.Listener
 import org.elkoserver.foundation.net.RTCPSessionConnection
 import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
@@ -82,6 +83,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val internalActorCommGorgel by Once { req(internalActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
 
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
+
+    val listenerGorgel by Once { req(provided.baseGorgel()).getChild(Listener::class) }
 
     val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
 
@@ -166,6 +169,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
                 req(baseConnectionSetupGorgel),
+                req(listenerGorgel),
                 req(objDbLocalGorgel),
                 req(provided.baseGorgel()),
                 req(connectionRetrierWithoutLabelGorgel),

@@ -19,8 +19,9 @@ internal class WebSocketConnectionSetup(
         private val myNetworkManager: NetworkManager,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
+        listenerGorgel: Gorgel,
         traceFactory: TraceFactory)
-    : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel, traceFactory) {
+    : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel, listenerGorgel, traceFactory) {
     private val socketURI: String = props.getProperty("$propRoot.sock", "")
     override val serverAddress: String
     override val protocol: String = "ws"
@@ -30,6 +31,7 @@ internal class WebSocketConnectionSetup(
         return myNetworkManager.listenWebSocket(
                 bind,
                 actorFactory,
+                listenerGorgel,
                 msgTrace, secure, socketURI)
     }
 

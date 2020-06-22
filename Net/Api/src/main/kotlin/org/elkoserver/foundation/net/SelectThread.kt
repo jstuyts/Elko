@@ -25,7 +25,7 @@ import javax.net.ssl.SSLContext
  * @param myMgr  Network manager for this server.
  * @param sslContext  SSL context to use, if supporting SSL, else null
  */
-internal class SelectThread(
+class SelectThread(
         private val myMgr: NetworkManager,
         private val connectionCountMonitor: ConnectionCountMonitor,
         private val runner: Runner,
@@ -124,11 +124,11 @@ internal class SelectThread(
      * received on the new connection.
      * @param framerFactory  Byte I/O framer factory for the new connection.
      * @param remoteAddr  Host name and port number to connect to.
-     * @param trace  Trace object to use for activity on the new connectoin.
+     * @param tcpConnectionTrace  Trace object to use for activity on the new connectoin.
      */
     fun connect(handlerFactory: MessageHandlerFactory,
                 framerFactory: ByteIOFramerFactory,
-                remoteAddr: String, trace: Trace) {
+                remoteAddr: String, tcpConnectionTrace: Trace) {
         myQueue.enqueue(Callable<Any?> {
             try {
                 val remoteNetAddr = NetAddr(remoteAddr)
@@ -137,7 +137,7 @@ internal class SelectThread(
                 traceFactory.comm.eventi("connecting to $remoteNetAddr")
                 val channel = SocketChannel.open(socketAddress)
                 newChannel(handlerFactory, framerFactory, channel, false,
-                        trace)
+                        tcpConnectionTrace)
             } catch (e: IOException) {
                 connectionCountMonitor.connectionCountChange(-1)
                 traceFactory.comm.errorm("unable to connect to $remoteAddr: $e")
@@ -156,14 +156,15 @@ internal class SelectThread(
      * for connections made to this port.
      * @param framerFactory  Byte I/O framer factory for new connections.
      * @param secure  If true, use SSL.
-     * @param portTrace  Trace object for logging activity associated with this
+     * @param listenerGorgel  Trace object for logging activity associated with this
      * port & its connections
      */
     @Throws(IOException::class)
     fun listen(localAddress: String, handlerFactory: MessageHandlerFactory,
                framerFactory: ByteIOFramerFactory, secure: Boolean,
-               portTrace: Trace): Listener {
-        val listener = Listener(localAddress, handlerFactory, framerFactory, myMgr, connectionCountMonitor, secure, portTrace)
+               listenerGorgel: Gorgel,
+               tcpConnectionTrace: Trace): Listener {
+        val listener = Listener(localAddress, handlerFactory, framerFactory, myMgr, connectionCountMonitor, secure, listenerGorgel, tcpConnectionTrace)
         myQueue.enqueue(listener)
         mySelector.wakeup()
         return listener
@@ -179,16 +180,16 @@ internal class SelectThread(
      * @param framerFactory  Byte I/O framer factory for the new connection.
      * @param channel  The new channel for the new connection.
      * @param isSecure  If true, this will be an SSL connnection.
-     * @param trace  Trace object to use with this new connection.
+     * @param tcpConnectionTrace  Trace object to use with this new connection.
      */
     fun newChannel(handlerFactory: MessageHandlerFactory,
                    framerFactory: ByteIOFramerFactory,
-                   channel: SocketChannel, isSecure: Boolean, trace: Trace) {
+                   channel: SocketChannel, isSecure: Boolean, tcpConnectionTrace: Trace) {
         try {
             channel.configureBlocking(false)
             val key = channel.register(mySelector, SelectionKey.OP_READ)
             key.attach(TCPConnection(handlerFactory, framerFactory,
-                    channel, key, this, connectionCountMonitor, runner, loadMonitor, isSecure, trace, clock, tcpConnectionCommGorgel, idGenerator))
+                    channel, key, this, connectionCountMonitor, runner, loadMonitor, isSecure, tcpConnectionTrace, clock, tcpConnectionCommGorgel, idGenerator))
         } catch (e: ClosedChannelException) {
             connectionCountMonitor.connectionCountChange(-1)
             handlerFactory.provideMessageHandler(null)

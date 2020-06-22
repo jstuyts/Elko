@@ -55,6 +55,7 @@ class Server(
         private val serviceActorGorgel: Gorgel,
         private val serviceActorCommGorgel: Gorgel,
         private val baseConnectionSetupGorgel: Gorgel,
+        private val listenerGorgel: Gorgel,
         private val objDbLocalGorgel: Gorgel,
         private val baseGorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
@@ -580,12 +581,12 @@ class Server(
         val label = myProps.getProperty("$propRoot.label")
         val secure = myProps.testProperty("$propRoot.secure")
         val mgrClass = myProps.getProperty("$propRoot.class")
-        val connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory) }
+        val connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory) }
                 ?: when (protocol) {
-                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory, inputGorgel, mustSendDebugReplies)
-                    "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
-                    "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory, mustSendDebugReplies)
-                    "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, traceFactory)
+                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory, inputGorgel, mustSendDebugReplies)
+                    "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory)
+                    "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory, mustSendDebugReplies)
+                    "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory)
                     else -> {
                         gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
                         throw IllegalStateException()

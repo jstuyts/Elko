@@ -9,6 +9,7 @@ import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.HTTPSessionConnection
+import org.elkoserver.foundation.net.Listener
 import org.elkoserver.foundation.net.RTCPSessionConnection
 import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
@@ -74,6 +75,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
+    val listenerGorgel by Once { req(provided.baseGorgel()).getChild(Listener::class) }
+
     val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
 
     val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBRemote::class) }
@@ -118,6 +121,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
                 req(baseConnectionSetupGorgel),
+                req(listenerGorgel),
                 req(objDbLocalGorgel),
                 req(provided.baseGorgel()),
                 req(connectionRetrierWithoutLabelGorgel),

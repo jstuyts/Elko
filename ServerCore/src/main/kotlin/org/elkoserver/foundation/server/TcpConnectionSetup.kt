@@ -19,13 +19,14 @@ internal class TcpConnectionSetup(
         myNetworkManager: NetworkManager,
         actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
+        listenerGorgel: Gorgel,
         traceFactory: TraceFactory,
         private val inputGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean)
-    : BaseTcpConnectionSetup(label, host, auth, secure, props, propRoot, myNetworkManager, actorFactory, gorgel, traceFactory) {
+    : BaseTcpConnectionSetup(label, host, auth, secure, props, propRoot, myNetworkManager, actorFactory, gorgel, listenerGorgel, traceFactory) {
     override val protocol = "tcp"
 
     @Throws(IOException::class)
     override fun createListenAddress() =
-            myNetworkManager.listenTCP(bind, actorFactory, msgTrace, secure, JSONByteIOFramerFactory(msgTrace, inputGorgel, mustSendDebugReplies))
+            myNetworkManager.listenTCP(bind, actorFactory, listenerGorgel, msgTrace, secure, JSONByteIOFramerFactory(msgTrace, inputGorgel, mustSendDebugReplies))
 }

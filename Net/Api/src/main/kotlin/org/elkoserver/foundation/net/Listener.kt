@@ -1,6 +1,7 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.net.InetAddress
 import java.net.InetSocketAddress
@@ -20,17 +21,17 @@ import java.nio.channels.ServerSocketChannel
  * @param myFramerFactory  Byte I/O framer factory for new connections.
  * @param myMgr  Network manager for this server.
  * @param amSecure  If true, use SSL.
- * @param myTrace  Trace object for logging activity associated with this
  * port & its connections
  */
-internal class Listener(
+class Listener(
         private val myLocalAddress: String,
         private val myHandlerFactory: MessageHandlerFactory,
         private val myFramerFactory: ByteIOFramerFactory,
         private val myMgr: NetworkManager,
         private val connectionCountMonitor: ConnectionCountMonitor,
         private val amSecure: Boolean,
-        private val myTrace: Trace) {
+        private val myGorgel: Gorgel,
+        private val tcpConnectionTrace: Trace) {
     /** The address to listen on, or null for the default address.  */
     private val myOptIP: InetAddress
 
@@ -51,13 +52,12 @@ internal class Listener(
             val newChannel = myChannel.accept()
             if (newChannel != null) {
                 connectionCountMonitor.connectionCountChange(1)
-                mySelectThread!!.newChannel(myHandlerFactory, myFramerFactory,
-                        newChannel, amSecure, myTrace)
+                mySelectThread!!.newChannel(myHandlerFactory, myFramerFactory, newChannel, amSecure, tcpConnectionTrace)
             } else {
-                myTrace.eventm("accept returned null socket, ignoring")
+                myGorgel.i?.run { info("accept returned null socket, ignoring") }
             }
         } catch (e: IOException) {
-            myTrace.warningm("accept on $myLocalAddress failed -- closing listener, IOException: ${e.message}")
+            myGorgel.warn("accept on $myLocalAddress failed -- closing listener, IOException: ${e.message}")
             try {
                 myChannel.close()
             } catch (e2: IOException) {

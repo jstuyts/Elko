@@ -19,8 +19,9 @@ internal abstract class BaseTcpConnectionSetup(
         val myNetworkManager: NetworkManager,
         val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
+        listenerGorgel: Gorgel,
         traceFactory: TraceFactory)
-    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, traceFactory) {
+    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, listenerGorgel, traceFactory) {
 
     @Throws(IOException::class)
     override fun tryToStartListener(): NetAddr {
