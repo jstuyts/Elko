@@ -4,7 +4,6 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -18,7 +17,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 internal class BrokerServiceFactory(
         private val broker: Broker,
         private val brokerActorGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
+        private val brokerActorCommGorgel: Gorgel,
         private val clientOrdinalGenerator: LongOrdinalGenerator,
         private val mustSendDebugReplies: Boolean) : ServiceFactory {
     override fun provideFactory(label: String,
@@ -44,6 +43,6 @@ internal class BrokerServiceFactory(
         if (allowClient) {
             serviceNames.add("broker-client")
         }
-        return BrokerActorFactory(broker, auth, allowAdmin, allowClient, brokerActorGorgel, traceFactory, clientOrdinalGenerator, mustSendDebugReplies)
+        return BrokerActorFactory(broker, auth, allowAdmin, allowClient, brokerActorGorgel, brokerActorCommGorgel, clientOrdinalGenerator, mustSendDebugReplies)
     }
 }

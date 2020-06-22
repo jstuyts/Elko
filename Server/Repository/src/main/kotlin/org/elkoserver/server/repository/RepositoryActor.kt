@@ -6,7 +6,6 @@ import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -21,8 +20,8 @@ internal class RepositoryActor(
         connection: Connection,
         private val myFactory: RepositoryActorFactory,
                                private val gorgel: Gorgel,
-        traceFactory: TraceFactory,
-        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), traceFactory, mustSendDebugReplies), BasicProtocolActor {
+        commGorgel: Gorgel,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), commGorgel, mustSendDebugReplies), BasicProtocolActor {
     private val myRepository = myFactory.myRepository
 
     /** True if actor has been disconnected.  */

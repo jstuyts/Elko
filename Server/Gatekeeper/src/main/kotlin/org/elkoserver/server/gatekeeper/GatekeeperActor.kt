@@ -9,7 +9,6 @@ import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -26,8 +25,8 @@ internal class GatekeeperActor(
                                actionTime: Int,
         private val gorgel: Gorgel,
         timer: Timer,
-        traceFactory: TraceFactory,
-        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), traceFactory, mustSendDebugReplies), BasicProtocolActor {
+        commGorgel: Gorgel,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), commGorgel, mustSendDebugReplies), BasicProtocolActor {
 
     /** True if actor has been disconnected.  */
     private var amLoggedOut = false

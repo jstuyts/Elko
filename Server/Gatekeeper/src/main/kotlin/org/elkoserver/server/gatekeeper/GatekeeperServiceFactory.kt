@@ -4,7 +4,6 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -20,7 +19,7 @@ internal class GatekeeperServiceFactory(
         private val actionTimeout: Int,
         private val gatekeeperActorGorgel: Gorgel,
         private val timer: Timer,
-        private val traceFactory: TraceFactory,
+        private val gatekeeperActorCommGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
@@ -46,6 +45,6 @@ internal class GatekeeperServiceFactory(
             serviceNames.add("gatekeeper-user")
         }
         return GatekeeperActorFactory(gatekeeper, auth, allowAdmin,
-                allowUser, actionTimeout, gatekeeperActorGorgel, timer, traceFactory, mustSendDebugReplies)
+                allowUser, actionTimeout, gatekeeperActorGorgel, timer, gatekeeperActorCommGorgel, mustSendDebugReplies)
     }
 }

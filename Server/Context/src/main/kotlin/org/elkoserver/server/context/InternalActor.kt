@@ -6,7 +6,6 @@ import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -22,8 +21,8 @@ class InternalActor internal constructor(
         connection: Connection,
         private val myFactory: InternalActorFactory,
                                          private val gorgel: Gorgel,
-        traceFactory: TraceFactory,
-        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.contextor.refTable, traceFactory, mustSendDebugReplies), BasicProtocolActor {
+        commGorgel: Gorgel,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.contextor.refTable, commGorgel, mustSendDebugReplies), BasicProtocolActor {
 
     /** Flag that connection has been authorized.  */
     private var amAuthorized = false

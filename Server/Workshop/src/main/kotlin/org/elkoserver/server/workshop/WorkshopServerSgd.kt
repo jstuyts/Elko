@@ -83,6 +83,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
 
+    val serviceActorCommGorgel by Once { req(serviceActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
+
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
     val startupWorkerListGorgel by Once { req(provided.baseGorgel()).getChild(StartupWorkerList::class) }
@@ -90,6 +92,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
     val workshopGorgel by Once { req(provided.baseGorgel()).getChild(Workshop::class) }
 
     val workshopActorGorgel by Once { req(provided.baseGorgel()).getChild(WorkshopActor::class) }
+
+    val workshopActorCommGorgel by Once { req(workshopActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
 
     val httpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPSessionConnection::class, Tag("category", "comm")) }
     val rtcpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPSessionConnection::class, Tag("category", "comm")) }
@@ -109,6 +113,7 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
+                req(serviceActorCommGorgel),
                 req(baseConnectionSetupGorgel),
                 req(objDbLocalGorgel),
                 req(provided.baseGorgel()),
@@ -221,5 +226,5 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val workshop: D<Workshop> by Once { Workshop(req(server), req(workshopGorgel), req(startupWorkerListGorgel), req(workTrace), req(provided.traceFactory()), req(jsonToObjectDeserializer)) }
 
-    val workshopServiceFactory by Once { WorkshopServiceFactory(req(workshop), req(workshopActorGorgel), req(provided.traceFactory()), req(mustSendDebugReplies)) }
+    val workshopServiceFactory by Once { WorkshopServiceFactory(req(workshop), req(workshopActorGorgel), req(workshopActorCommGorgel), req(mustSendDebugReplies)) }
 }

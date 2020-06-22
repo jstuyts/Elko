@@ -69,6 +69,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val brokerActorGorgel by Once { req(provided.baseGorgel()).getChild(BrokerActor::class) }
 
+    val brokerActorCommGorgel by Once { req(brokerActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
+
     val connectionRetrierWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(ConnectionRetrier::class) }
 
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
@@ -86,6 +88,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
 
     val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
+
+    val serviceActorCommGorgel by Once { req(serviceActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
 
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
@@ -105,6 +109,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
+                req(serviceActorCommGorgel),
                 req(baseConnectionSetupGorgel),
                 req(objDbLocalGorgel),
                 req(provided.baseGorgel()),
@@ -246,7 +251,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
         BrokerServiceFactory(
                 req(broker),
                 req(brokerActorGorgel),
-                req(provided.traceFactory()),
+                req(brokerActorCommGorgel),
                 req(clientOrdinalGenerator),
                 req(mustSendDebugReplies))
     }

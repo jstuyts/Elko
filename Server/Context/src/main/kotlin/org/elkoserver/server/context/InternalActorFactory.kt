@@ -3,7 +3,6 @@ package org.elkoserver.server.context
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -17,7 +16,7 @@ internal class InternalActorFactory(
         internal val contextor: Contextor,
         private val myAuth: AuthDesc,
         private val internalActorGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
+        private val internalActorCommGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
@@ -26,7 +25,7 @@ internal class InternalActorFactory(
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            InternalActor(connection!!, this, internalActorGorgel, traceFactory, mustSendDebugReplies)
+            InternalActor(connection!!, this, internalActorGorgel, internalActorCommGorgel, mustSendDebugReplies)
 
     /**
      * Check the actor's authorization.

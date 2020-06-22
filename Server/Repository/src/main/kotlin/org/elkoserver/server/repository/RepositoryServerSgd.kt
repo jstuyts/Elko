@@ -81,11 +81,15 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val repositoryActorGorgel by Once { req(provided.baseGorgel()).getChild(RepositoryActor::class) }
 
+    val repositoryActorCommGorgel by Once { req(repositoryActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
+
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
 
     val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
+
+    val serviceActorCommGorgel by Once { req(serviceActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
 
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
@@ -107,6 +111,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
+                req(serviceActorCommGorgel),
                 req(baseConnectionSetupGorgel),
                 req(objDbLocalGorgel),
                 req(provided.baseGorgel()),
@@ -222,7 +227,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
         RepositoryServiceFactory(
                 req(repository),
                 req(repositoryActorGorgel),
-                req(provided.traceFactory()),
+                req(repositoryActorCommGorgel),
                 req(mustSendDebugReplies))
     }
 }

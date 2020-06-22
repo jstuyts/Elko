@@ -14,7 +14,6 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Msg.msgExit
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList
@@ -38,9 +37,9 @@ class UserActor(
         private val userActorGorgel: Gorgel,
         private val userGorgelWithoutRef: Gorgel,
         private val timer: Timer,
-        traceFactory: TraceFactory,
+        commGorgel: Gorgel,
         private val myIdGenerator: IdGenerator,
-        mustSendDebugReplies: Boolean) : RoutingActor(myConnection, myContextor.refTable, traceFactory, mustSendDebugReplies), SourceRetargeter, BasicProtocolActor {
+        mustSendDebugReplies: Boolean) : RoutingActor(myConnection, myContextor.refTable, commGorgel, mustSendDebugReplies), SourceRetargeter, BasicProtocolActor {
     /** The users this actor is the actor for, by context.  */
     private val myUsers: MutableMap<Context, User> = HashMap()
 

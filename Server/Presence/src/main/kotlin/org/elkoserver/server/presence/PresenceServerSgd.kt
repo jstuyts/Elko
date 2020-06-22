@@ -82,6 +82,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val presenceActorGorgel by Once { req(provided.baseGorgel()).getChild(PresenceActor::class) }
 
+    val presenceActorCommGorgel by Once { req(presenceActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
+
     val presenceServerGorgel by Once { req(provided.baseGorgel()).getChild(PresenceServer::class) }
 
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
@@ -89,6 +91,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
 
     val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
+
+    val serviceActorCommGorgel by Once { req(serviceActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
 
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
@@ -112,6 +116,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
+                req(serviceActorCommGorgel),
                 req(baseConnectionSetupGorgel),
                 req(objDbLocalGorgel),
                 req(provided.baseGorgel()),
@@ -250,7 +255,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
         PresenceServiceFactory(
                 req(presenceServer),
                 req(presenceActorGorgel),
-                req(provided.traceFactory()),
+                req(presenceActorCommGorgel),
                 req(mustSendDebugReplies))
     }
 }

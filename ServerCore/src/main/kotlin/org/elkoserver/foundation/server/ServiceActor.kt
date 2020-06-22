@@ -4,7 +4,6 @@ import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.ServiceDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 
@@ -22,8 +21,8 @@ class ServiceActor internal constructor(
         desc: ServiceDesc,
         private val myServer: Server,
         private val gorgel: Gorgel,
-        traceFactory: TraceFactory,
-        mustSendDebugReplies: Boolean) : RoutingActor(connection, refTable, traceFactory, mustSendDebugReplies) {
+        commGorgel: Gorgel,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, refTable, commGorgel, mustSendDebugReplies) {
     /** Optional convenience label for logging and such.  */
     private val label: String
 

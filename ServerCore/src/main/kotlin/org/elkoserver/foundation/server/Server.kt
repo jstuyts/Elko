@@ -53,6 +53,7 @@ class Server(
         private val gorgel: Gorgel,
         private val serviceLinkGorgel: Gorgel,
         private val serviceActorGorgel: Gorgel,
+        private val serviceActorCommGorgel: Gorgel,
         private val baseConnectionSetupGorgel: Gorgel,
         private val objDbLocalGorgel: Gorgel,
         private val baseGorgel: Gorgel,
@@ -347,7 +348,7 @@ class Server(
          */
         override fun provideMessageHandler(connection: Connection?): MessageHandler {
             val actor = ServiceActor(connection!!, myServiceRefTable!!, myDesc!!,
-                    this@Server, serviceActorGorgel, traceFactory, mustSendDebugReplies)
+                    this@Server, serviceActorGorgel, serviceActorCommGorgel, mustSendDebugReplies)
             myServiceActorsByProviderID[myDesc!!.providerID] = actor
             connectLinkToActor(actor)
             return actor

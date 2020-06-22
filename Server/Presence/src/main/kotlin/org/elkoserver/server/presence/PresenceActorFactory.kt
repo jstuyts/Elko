@@ -3,7 +3,6 @@ package org.elkoserver.server.presence
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -21,7 +20,7 @@ internal class PresenceActorFactory(
         internal val amAllowAdmin: Boolean,
         private val amAllowClient: Boolean,
         private val presenceActorGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
+        private val presenceActorCommGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
@@ -37,7 +36,7 @@ internal class PresenceActorFactory(
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            PresenceActor(connection!!, this, presenceActorGorgel, traceFactory, mustSendDebugReplies)
+            PresenceActor(connection!!, this, presenceActorGorgel, presenceActorCommGorgel, mustSendDebugReplies)
 
     /**
      * Get this factory's ref table.

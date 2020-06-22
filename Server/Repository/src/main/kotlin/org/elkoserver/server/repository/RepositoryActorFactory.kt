@@ -3,7 +3,6 @@ package org.elkoserver.server.repository
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -21,7 +20,7 @@ internal class RepositoryActorFactory(
         internal val amAllowAdmin: Boolean,
         private val amAllowRep: Boolean,
         private val repositoryActorGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
+        private val repositoryActorCommGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
@@ -37,7 +36,7 @@ internal class RepositoryActorFactory(
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            RepositoryActor(connection!!, this, repositoryActorGorgel, traceFactory, mustSendDebugReplies)
+            RepositoryActor(connection!!, this, repositoryActorGorgel, repositoryActorCommGorgel, mustSendDebugReplies)
 
     /**
      * Return the object ref table for this factor.

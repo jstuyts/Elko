@@ -3,7 +3,6 @@ package org.elkoserver.server.workshop
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -17,7 +16,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 internal class WorkshopServiceFactory(
         private val workshop: Workshop,
         private val workshopActorGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
+        private val workshopActorCommGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
@@ -42,6 +41,6 @@ internal class WorkshopServiceFactory(
         if (allowClient) {
             serviceNames.add("workshop-service")
         }
-        return WorkshopActorFactory(workshop, auth, allowAdmin, allowClient, workshopActorGorgel, traceFactory, mustSendDebugReplies)
+        return WorkshopActorFactory(workshop, auth, allowAdmin, allowClient, workshopActorGorgel, workshopActorCommGorgel, mustSendDebugReplies)
     }
 }

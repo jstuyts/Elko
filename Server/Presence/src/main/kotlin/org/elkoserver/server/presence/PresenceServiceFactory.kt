@@ -3,7 +3,6 @@ package org.elkoserver.server.presence
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -17,7 +16,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 internal class PresenceServiceFactory(
         private val presenceServer: PresenceServer,
         private val presenceActorGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
+        private val presenceActorCommGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
@@ -42,6 +41,6 @@ internal class PresenceServiceFactory(
         if (allowClient) {
             serviceNames.add("presence-client")
         }
-        return PresenceActorFactory(presenceServer, auth, allowAdmin, allowClient, presenceActorGorgel, traceFactory, mustSendDebugReplies)
+        return PresenceActorFactory(presenceServer, auth, allowAdmin, allowClient, presenceActorGorgel, presenceActorCommGorgel, mustSendDebugReplies)
     }
 }

@@ -3,7 +3,6 @@ package org.elkoserver.server.workshop
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -22,7 +21,7 @@ internal class WorkshopActorFactory(
         internal val allowAdmin: Boolean,
         private val amAllowClient: Boolean,
         private val workshopActorGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
+        private val workshopActorCommGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
@@ -38,7 +37,7 @@ internal class WorkshopActorFactory(
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            WorkshopActor(connection!!, this, workshopActorGorgel, traceFactory, mustSendDebugReplies)
+            WorkshopActor(connection!!, this, workshopActorGorgel, workshopActorCommGorgel, mustSendDebugReplies)
 
     /**
      * Check an actor's authorization.

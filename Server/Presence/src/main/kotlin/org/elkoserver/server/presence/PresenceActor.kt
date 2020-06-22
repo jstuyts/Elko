@@ -6,7 +6,6 @@ import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -22,8 +21,8 @@ internal class PresenceActor(
         connection: Connection,
         private val myFactory: PresenceActorFactory,
                              private val gorgel: Gorgel,
-        traceFactory: TraceFactory,
-        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), traceFactory, mustSendDebugReplies), BasicProtocolActor {
+        commGorgel: Gorgel,
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), commGorgel, mustSendDebugReplies), BasicProtocolActor {
     /** The presence server itself. */
     private val myPresenceServer: PresenceServer = myFactory.myPresenceServer
 

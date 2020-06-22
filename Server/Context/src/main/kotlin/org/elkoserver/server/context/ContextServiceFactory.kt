@@ -5,16 +5,16 @@ import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 class ContextServiceFactory(
         private val myContextor: Contextor,
         private val gorgel: Gorgel,
         private val internalActorGorgel: Gorgel,
+        private val internalActorCommGorgel: Gorgel,
         private val userActorGorgel: Gorgel,
+        private val userActorCommGorgel: Gorgel,
         private val userGorgelWithoutRef: Gorgel,
-        private val traceFactory: TraceFactory,
         private val timer: Timer,
         private val idGenerator: IdGenerator,
         private val mustSendDebugReplies: Boolean) : ServiceFactory {
@@ -35,7 +35,7 @@ class ContextServiceFactory(
     override fun provideFactory(label: String, auth: AuthDesc, allow: Set<String>, serviceNames: MutableList<String>, protocol: String): MessageHandlerFactory {
         return if (allow.contains("internal")) {
             serviceNames.add("context-internal")
-            InternalActorFactory(myContextor, auth, internalActorGorgel, traceFactory, mustSendDebugReplies)
+            InternalActorFactory(myContextor, auth, internalActorGorgel, internalActorCommGorgel, mustSendDebugReplies)
         } else {
             val reservationRequired: Boolean = when {
                 auth.mode == "open" -> false
@@ -46,7 +46,7 @@ class ContextServiceFactory(
                 }
             }
             serviceNames.add("context-user")
-            UserActorFactory(myContextor, reservationRequired, protocol, userActorGorgel, userGorgelWithoutRef, timer, traceFactory, idGenerator, mustSendDebugReplies)
+            UserActorFactory(myContextor, reservationRequired, protocol, userActorGorgel, userGorgelWithoutRef, timer, userActorCommGorgel, idGenerator, mustSendDebugReplies)
         }
     }
 }

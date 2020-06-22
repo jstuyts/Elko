@@ -82,6 +82,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val gatekeeperActorGorgel by Once { req(provided.baseGorgel()).getChild(GatekeeperActor::class) }
 
+    val gatekeeperActorCommGorgel by Once { req(gatekeeperActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
+
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
     val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
@@ -95,6 +97,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
 
     val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
+
+    val serviceActorCommGorgel by Once { req(serviceActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
 
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
@@ -116,6 +120,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
+                req(serviceActorCommGorgel),
                 req(baseConnectionSetupGorgel),
                 req(objDbLocalGorgel),
                 req(provided.baseGorgel()),
@@ -261,7 +266,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val actionTimeout by Once { 1000 * req(provided.props()).intProperty("conf.gatekeeper.actiontimeout", GatekeeperBoot.DEFAULT_ACTION_TIMEOUT) }
 
-    val gatekeeperServiceFactory by Once { GatekeeperServiceFactory(req(gatekeeper), req(actionTimeout), req(gatekeeperActorGorgel), req(provided.timer()), req(provided.traceFactory()), req(mustSendDebugReplies)) }
+    val gatekeeperServiceFactory by Once { GatekeeperServiceFactory(req(gatekeeper), req(actionTimeout), req(gatekeeperActorGorgel), req(provided.timer()), req(gatekeeperActorCommGorgel), req(mustSendDebugReplies)) }
 
     val authorizerOgdClassName by Once {
         req(provided.props()).getProperty("conf.gatekeeper.authorizer",

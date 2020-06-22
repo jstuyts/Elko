@@ -79,6 +79,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val internalActorGorgel by Once { req(provided.baseGorgel()).getChild(InternalActor::class) }
 
+    val internalActorCommGorgel by Once { req(internalActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
+
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
     val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
@@ -99,6 +101,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
 
+    val serviceActorCommGorgel by Once { req(serviceActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
+
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
     val sessionClientGorgel by Once { req(provided.baseGorgel()).getChild(Session::class, Tag("category", "client")) }
@@ -106,6 +110,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val staticObjectReceiverGorgel by Once { req(provided.baseGorgel()).getChild(StaticObjectList::class) }
 
     val userActorGorgel by Once { req(provided.baseGorgel()).getChild(UserActor::class) }
+
+    val userActorCommGorgel by Once { req(userActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
 
     val contextGorgelWithoutRef by Once { req(provided.baseGorgel()).getChild(Context::class) }
 
@@ -123,9 +129,10 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(contextor),
                 req(contextServiceFactoryGorgel),
                 req(internalActorGorgel),
+                req(internalActorCommGorgel),
                 req(userActorGorgel),
+                req(userActorCommGorgel),
                 req(userGorgelWithoutRef),
-                req(provided.traceFactory()),
                 req(provided.timer()),
                 req(idGenerator),
                 req(mustSendDebugReplies))
@@ -157,6 +164,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
+                req(serviceActorCommGorgel),
                 req(baseConnectionSetupGorgel),
                 req(objDbLocalGorgel),
                 req(provided.baseGorgel()),

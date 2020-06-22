@@ -4,7 +4,6 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -22,7 +21,7 @@ internal class BrokerActorFactory(
         internal val allowAdmin: Boolean,
         internal val allowClient: Boolean,
         private val brokerActorGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
+        private val brokerActorCommGorgel: Gorgel,
         private val clientOrdinalGenerator: LongOrdinalGenerator,
         private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
@@ -32,7 +31,7 @@ internal class BrokerActorFactory(
      * @param connection The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            BrokerActor(connection!!, this, brokerActorGorgel, traceFactory, clientOrdinalGenerator, mustSendDebugReplies)
+            BrokerActor(connection!!, this, brokerActorGorgel, brokerActorCommGorgel, clientOrdinalGenerator, mustSendDebugReplies)
 
     /**
      * Get this factory's ref table.

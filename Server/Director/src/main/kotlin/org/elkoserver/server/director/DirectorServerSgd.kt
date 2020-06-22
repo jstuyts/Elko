@@ -75,6 +75,8 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val directorActorGorgel by Once { req(provided.baseGorgel()).getChild(DirectorActor::class, Tag("category", "comm")) }
 
+    val directorActorCommGorgel by Once { req(directorActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
+
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
     val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
@@ -90,6 +92,8 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
 
     val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
+
+    val serviceActorCommGorgel by Once { req(serviceActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
 
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
@@ -111,6 +115,7 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
+                req(serviceActorCommGorgel),
                 req(baseConnectionSetupGorgel),
                 req(objDbLocalGorgel),
                 req(provided.baseGorgel()),
@@ -239,8 +244,8 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
         DirectorServiceFactory(
                 req(director),
                 req(directorActorGorgel),
+                req(directorActorCommGorgel),
                 req(providerGorgel),
-                req(provided.traceFactory()),
                 req(ordinalGenerator),
                 req(mustSendDebugReplies))
     }

@@ -7,7 +7,6 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.ordinalgeneration.OrdinalGenerator
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -24,9 +23,9 @@ internal class DirectorActor(
         private val myFactory: DirectorActorFactory,
         private val gorgel: Gorgel,
         private val providerGorgel: Gorgel,
-        traceFactory: TraceFactory,
+        commGorgel: Gorgel,
         private val ordinalGenerator: OrdinalGenerator,
-        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), traceFactory, mustSendDebugReplies), BasicProtocolActor {
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), commGorgel, mustSendDebugReplies), BasicProtocolActor {
     private val myDirector = myFactory.director
 
     /** True if actor has been disconnected.  */

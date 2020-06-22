@@ -4,7 +4,6 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -23,7 +22,7 @@ internal class GatekeeperActorFactory(
         private val myActionTimeout: Int,
         private val gatekeeperActorGorgel: Gorgel,
         private val timer: Timer,
-        private val traceFactory: TraceFactory,
+        private val gatekeeperActorCommGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
@@ -32,7 +31,7 @@ internal class GatekeeperActorFactory(
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            GatekeeperActor(connection!!, this, myActionTimeout, gatekeeperActorGorgel, timer, traceFactory, mustSendDebugReplies)
+            GatekeeperActor(connection!!, this, myActionTimeout, gatekeeperActorGorgel, timer, gatekeeperActorCommGorgel, mustSendDebugReplies)
 
     /**
      * Get this factory's ref table.

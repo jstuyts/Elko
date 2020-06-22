@@ -7,7 +7,6 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -22,9 +21,9 @@ internal class BrokerActor(
         connection: Connection,
         private val myFactory: BrokerActorFactory,
                            private val gorgel: Gorgel,
-        traceFactory: TraceFactory,
+        commGorgel: Gorgel,
         private val clientOrdinalGenerator: LongOrdinalGenerator,
-        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), traceFactory, mustSendDebugReplies), BasicProtocolActor {
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), commGorgel, mustSendDebugReplies), BasicProtocolActor {
 
     /** The broker itself.  */
     private val myBroker: Broker = myFactory.broker
