@@ -5,13 +5,12 @@ import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.ConnectionCountMonitor
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.RunnerRef
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.SlowServiceRunner
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -28,7 +27,6 @@ import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
-import java.time.Clock
 import java.util.HashMap
 import java.util.HashSet
 import java.util.LinkedList
@@ -64,28 +62,21 @@ class Server(
         private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
         private val websocketFramerGorgel: Gorgel,
         private val brokerActorGorgel: Gorgel,
-        httpSessionConnectionCommGorgel: Gorgel,
-        rtcpSessionConnectionCommGorgel: Gorgel,
-        tcpConnectionCommGorgel: Gorgel,
-        connectionBaseCommGorgel: Gorgel,
         private val tr: Trace,
         private val timer: Timer,
-        clock: Clock,
         private val traceFactory: TraceFactory,
         private val inputGorgel: Gorgel,
-        sslSetupGorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         private val myTagGenerator: IdGenerator,
         private val myLoadMonitor: ServerLoadMonitor,
-        sessionIdGenerator: IdGenerator,
-        connectionIdGenerator: IdGenerator,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer,
-        private val runnerRef: RunnerRef,
+        private val runner: Runner,
         private val objDBRemoteFactory: ObjDBRemoteFactory,
-        private val mustSendDebugReplies: Boolean)
-    : ConnectionCountMonitor, ServiceFinder {
+        private val mustSendDebugReplies: Boolean,
+        val networkManager: NetworkManager)
+    : ServiceFinder {
 
     /** The name of this server (for logging).  */
     val serverName: String = myProps.getProperty("conf.$serverType.name", "<anonymous>")
@@ -112,39 +103,14 @@ class Server(
      * responses are still pending.  Indexed by the service name queried.  */
     private val myPendingFinds: HashMapMulti<String, ServiceQuery> = HashMapMulti()
 
-    /** Number of active connections.  */
-    private var myConnectionCount = 0
-
     /** Objects to be notified when the server is shutting down.  */
     private val myShutdownWatchers: MutableList<ShutdownWatcher> = LinkedList()
 
     /** Objects to be notified when the server is reinitialized.  */
     private val myReinitWatchers: MutableList<ReinitWatcher> = LinkedList()
 
-    /** Run queue that the server services its clients in.  */
-    private val myMainRunner = runnerRef.get()
-
-    /** Network manager, for setting up network communications.  */
-    val networkManager = NetworkManager(
-            this,
-            myProps,
-            myLoadMonitor,
-            myMainRunner,
-            timer,
-            clock,
-            httpSessionConnectionCommGorgel,
-            rtcpSessionConnectionCommGorgel,
-            tcpConnectionCommGorgel,
-            connectionBaseCommGorgel,
-            traceFactory,
-            inputGorgel,
-            sslSetupGorgel,
-            sessionIdGenerator,
-            connectionIdGenerator,
-            mustSendDebugReplies)
-
     /** Thread pool isolation for external blocking tasks.  */
-    private val mySlowRunner = SlowServiceRunner(myMainRunner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))
+    private val mySlowRunner = SlowServiceRunner(runner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))
 
     /** Flag that server is in the midst of trying to shut down.  */
     private var amShuttingDown = false
@@ -209,28 +175,12 @@ class Server(
     }
 
     /**
-     * Track the number of connections, so server can exit gracefully.
-     *
-     * @param delta  An upward or downward adjustment to the connection count.
-     */
-    @Synchronized
-    override fun connectionCountChange(delta: Int) {
-        myConnectionCount += delta
-        if (myConnectionCount < 0) {
-            gorgel.error("negative connection count: $myConnectionCount")
-        }
-        if (amShuttingDown && myConnectionCount <= 0) {
-            serverExit()
-        }
-    }
-
-    /**
      * Drop a runnable onto the main run queue.
      *
      * @param runnable  The thing to run.
      */
     fun enqueue(runnable: Runnable?) {
-        myMainRunner.enqueue(runnable)
+        runner.enqueue(runnable)
     }
 
     /**
@@ -426,7 +376,7 @@ class Server(
      */
     fun openObjectDatabase(propRoot: String): ObjDB? {
         return if (myProps.getProperty("$propRoot.odb") != null) {
-            ObjDBLocal(myProps, propRoot, objDbLocalGorgel, baseGorgel, traceFactory, jsonToObjectDeserializer, runnerRef)
+            ObjDBLocal(myProps, propRoot, objDbLocalGorgel, baseGorgel, traceFactory, jsonToObjectDeserializer, runner)
         } else {
             if (myProps.getProperty("$propRoot.repository.host") != null ||
                     myProps.getProperty("$propRoot.repository.service") != null) {
@@ -518,14 +468,6 @@ class Server(
         }
     }
 
-    /**
-     * Really shut down the server.
-     */
-    private fun serverExit() {
-        gorgel.i?.run { info("Good bye") }
-        myMainRunner.orderlyShutdown()
-    }
-
     fun serviceActorDied(deadActor: ServiceActor) {
         myServiceActorsByProviderID.remove(deadActor.providerID)
         for (link in deadActor.serviceLinks) {
@@ -559,7 +501,6 @@ class Server(
         if (!amShuttingDown) {
             amShuttingDown = true
             gorgel.i?.run { info("Shutting down $serverName") }
-            networkManager.shutDown()
             myBrokerActor?.close()
             for (watcher in myShutdownWatchers) {
                 watcher.noteShutdown()
@@ -569,9 +510,6 @@ class Server(
             }
             for (service in myOldServiceActors) {
                 service.close()
-            }
-            if (myConnectionCount <= 0) {
-                serverExit()
             }
         }
     }

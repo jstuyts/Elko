@@ -1,7 +1,6 @@
 package org.elkoserver.foundation.net.zmq
 
 import org.elkoserver.foundation.net.ByteIOFramerFactory
-import org.elkoserver.foundation.net.ConnectionCountMonitor
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
@@ -15,13 +14,9 @@ import org.zeromq.ZMQ
 import java.io.IOException
 import java.time.Clock
 
-/**
- * @param myNetworkManager  Network manager for this server.
- */
 internal class ZeroMQThread(
         private val runner: Runner,
         private val loadMonitor: LoadMonitor,
-        private val connectionCountMonitor: ConnectionCountMonitor,
         private val connectionCommGorgel: Gorgel,
         private val traceFactory: TraceFactory,
         private val idGenerator: IdGenerator,
@@ -184,7 +179,7 @@ internal class ZeroMQThread(
                 }
                 val connection = ZeroMQConnection(handlerFactory, framerFactory,
                         socket, true, this@ZeroMQThread,
-                        connectionCountMonitor, runner, loadMonitor, finalAddr, clock, connectionCommGorgel, idGenerator)
+                        runner, loadMonitor, finalAddr, clock, connectionCommGorgel, idGenerator)
                 myConnections[socket] = connection
             }
         })
@@ -258,7 +253,7 @@ internal class ZeroMQThread(
                 traceFactory.comm.eventm("ZMQ socket initialized")
                 val connection = ZeroMQConnection(handlerFactory, framerFactory,
                         socket, false, this@ZeroMQThread,
-                        connectionCountMonitor, runner, loadMonitor, "*", clock, connectionCommGorgel, idGenerator)
+                        runner, loadMonitor, "*", clock, connectionCommGorgel, idGenerator)
                 myConnections[socket] = connection
                 traceFactory.comm.eventm("watching ZMQ socket")
                 watchSocket(socket, ZMQ.Poller.POLLIN)

@@ -11,39 +11,32 @@ import java.io.IOException
 import java.lang.reflect.InvocationTargetException
 import java.time.Clock
 import java.util.HashMap
-import javax.net.ssl.SSLContext
 
 /**
  * Manage network connections between this server and other entities.
  *
- * @param myConnectionCountMonitor  Monitor for tracking session count.
  * @param props  Boot properties for this server.
  * @param loadMonitor  Load monitor for tracking system load.
  * @param runner  The Runner managing this server's run queue.
  */
 class NetworkManager(
-        val myConnectionCountMonitor: ConnectionCountMonitor,
-        internal val props: ElkoProperties,
+        private val props: ElkoProperties,
         val loadMonitor: LoadMonitor,
         val runner: Runner,
         private val timer: Timer,
         private val clock: Clock,
         private val httpSessionConnectionCommGorgel: Gorgel,
         private val rtcpSessionConnectionCommGorgel: Gorgel,
-        private val tcpConnectionCommGorgel: Gorgel,
         private val connectionBaseCommGorgel: Gorgel,
         private val traceFactory: TraceFactory,
         private val inputGorgel: Gorgel,
-        private val sslSetupGorgel: Gorgel,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator,
-        private val mustSendDebugReplies: Boolean) {
+        private val mustSendDebugReplies: Boolean,
+        private val mySelectThread: SelectThread) {
 
     /** Initialized SSL context, if supporting SSL, else null.  */
-    private var sslContext: SSLContext?
 
-    /** Select thread for non-blocking I/O.  */
-    private lateinit var mySelectThread: SelectThread
 
     /** Connection managers, indexed by class name.  */
     private val myConnectionManagers: MutableMap<String, ConnectionManager?> = HashMap()
@@ -94,8 +87,6 @@ class NetworkManager(
     fun connectTCP(hostPort: String,
                    handlerFactory: MessageHandlerFactory,
                    framerFactory: ByteIOFramerFactory, trace: Trace) {
-        myConnectionCountMonitor.connectionCountChange(1)
-        ensureSelectThread()
         mySelectThread.connect(handlerFactory, framerFactory, hostPort, trace)
     }
 
@@ -122,17 +113,7 @@ class NetworkManager(
         if (connMgr == null) {
             handlerFactory.provideMessageHandler(null)
         } else {
-            myConnectionCountMonitor.connectionCountChange(1)
             connMgr.connect(propRoot, handlerFactory, hostPort)
-        }
-    }
-
-    /**
-     * Start the select thread if it's not already running.
-     */
-    private fun ensureSelectThread() {
-        if (!this::mySelectThread.isInitialized) {
-            mySelectThread = SelectThread(this, myConnectionCountMonitor, runner, loadMonitor, sslContext, clock, tcpConnectionCommGorgel, traceFactory, connectionIdGenerator)
         }
     }
 
@@ -233,7 +214,6 @@ class NetworkManager(
     fun listenTCP(listenAddress: String,
                   handlerFactory: MessageHandlerFactory,
                   listenerGorgel: Gorgel, tcpConnectionTrace: Trace, secure: Boolean, framerFactory: ByteIOFramerFactory): NetAddr {
-        ensureSelectThread()
         val listener = mySelectThread.listen(listenAddress, handlerFactory,
                 framerFactory, secure, listenerGorgel, tcpConnectionTrace)
         return listener.listenAddress()
@@ -267,21 +247,5 @@ class NetworkManager(
         val connMgr = connectionManager(connectionManagerClassName, msgTrace)
                 ?: throw IOException("no connection manager $connectionManagerClassName")
         return connMgr.listen(propRoot, listenAddress, handlerFactory, secure)
-    }
-
-    /**
-     * Do all the various key and certificate management stuff needed to set
-     * up to support SSL connections.
-     */
-    private fun setupSSL() = SslSetup.setupSsl(props, "conf.ssl.", sslSetupGorgel)
-
-    fun shutDown() {
-        if (this::mySelectThread.isInitialized) {
-            mySelectThread.shutDown()
-        }
-    }
-
-    init {
-        sslContext = (if (props.testProperty("conf.ssl.enable")) setupSSL() else null)
     }
 }

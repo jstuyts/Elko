@@ -4,7 +4,6 @@ import org.elkoserver.foundation.net.ByteIOFramer
 import org.elkoserver.foundation.net.ByteIOFramerFactory
 import org.elkoserver.foundation.net.ConnectionBase
 import org.elkoserver.foundation.net.ConnectionCloseException
-import org.elkoserver.foundation.net.ConnectionCountMonitor
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.MessageReceiver
@@ -25,7 +24,6 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
                                             private val mySocket: ZMQ.Socket,
                                             private val amSendMode: Boolean,
                                             private val myThread: ZeroMQThread,
-                                            private val myConnectionCountMonitor: ConnectionCountMonitor,
                                             runner: Runner,
                                             loadMonitor: LoadMonitor,
                                             remoteAddr: String,
@@ -71,7 +69,6 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
      */
     private fun closeIsDone(reason: Throwable) {
         mySocket.close()
-        myConnectionCountMonitor.connectionCountChange(-1)
         commGorgel.i?.run { info("${this@ZeroMQConnection} died: $reason") }
         connectionDied(reason)
     }

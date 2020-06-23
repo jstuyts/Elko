@@ -52,7 +52,7 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
      * Makes a Runner, and starts the thread that services its queue.
      * The name of the thread will be "Elko RunQueue".
      */
-    internal constructor(traceFactory: TraceFactory) : this("Elko RunQueue", traceFactory)
+    constructor(traceFactory: TraceFactory) : this("Elko RunQueue", traceFactory)
 
     /**
      * Queues something for this Runnable's thread to do.  May be called

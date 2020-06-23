@@ -30,7 +30,7 @@ class ZeroMQConnectionManager : ConnectionManager {
      * be managing connections for.
      */
     override fun init(networkManager: NetworkManager, msgTrace: Trace, clock: Clock, baseCommGorgel: Gorgel, inputGorgel: Gorgel, traceFactory: TraceFactory, idGenerator: IdGenerator, mustSendDebugReplies: Boolean) {
-        myZeroMQThread = ZeroMQThread(networkManager.runner, networkManager.loadMonitor, networkManager.myConnectionCountMonitor, baseCommGorgel.getChild(ZeroMQConnection::class), traceFactory, idGenerator, clock)
+        myZeroMQThread = ZeroMQThread(networkManager.runner, networkManager.loadMonitor, baseCommGorgel.getChild(ZeroMQConnection::class), traceFactory, idGenerator, clock)
         myMsgTrace = msgTrace
         this.mustSendDebugReplies = mustSendDebugReplies
     }

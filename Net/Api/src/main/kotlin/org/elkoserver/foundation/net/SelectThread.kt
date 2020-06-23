@@ -4,7 +4,6 @@ import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -22,18 +21,15 @@ import javax.net.ssl.SSLContext
  * and send messages on connections are all fed to this thread via a queue.
  * This thread in turn feeds received input events to the run queue.
  *
- * @param myMgr  Network manager for this server.
  * @param sslContext  SSL context to use, if supporting SSL, else null
  */
 class SelectThread(
-        private val myMgr: NetworkManager,
-        private val connectionCountMonitor: ConnectionCountMonitor,
         private val runner: Runner,
         private val loadMonitor: LoadMonitor,
         sslContext: SSLContext?,
         private val clock: Clock,
+        private val commGorgel: Gorgel,
         private val tcpConnectionCommGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
         private val idGenerator: IdGenerator)
     : Thread("Elko Select") {
     /** Selector to await available I/O opportunities.  */
@@ -50,28 +46,21 @@ class SelectThread(
      * sockets.
      */
     override fun run() {
-        if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("select thread running")
-        }
+        commGorgel.d?.run { debug("select thread running") }
         while (!mustStop) {
             try {
                 val selectedCount = mySelector.select()
-                if (traceFactory.comm.debug) {
-                    traceFactory.comm.debugm("select() returned with count=$selectedCount")
-                }
+                commGorgel.d?.run { debug("select() returned with count=$selectedCount") }
                 var workToDo = myQueue.optDequeue()
                 while (workToDo != null) {
                     if (workToDo is Listener) {
                         val listener = workToDo
                         listener.register(this, mySelector)
-                        if (traceFactory.comm.debug) {
-                            traceFactory.comm.debugm(
-                                    "select thread registers listener $listener")
-                        }
+                        commGorgel.d?.run { debug("select thread registers listener $listener") }
                     } else if (workToDo is Callable<*>) {
                         workToDo.call()
                     } else {
-                        traceFactory.comm.errorm("mystery object on select queue: $workToDo")
+                        commGorgel.error("mystery object on select queue: $workToDo")
                     }
                     workToDo = myQueue.optDequeue()
                 }
@@ -84,35 +73,27 @@ class SelectThread(
                         iter.remove()
                         if (key.isValid && key.isAcceptable) {
                             val listener = key.attachment() as Listener
-                            if (traceFactory.comm.debug) {
-                                traceFactory.comm.debugm("select has accept for $listener")
-                            }
+                            commGorgel.d?.run { debug("select has accept for $listener") }
                             listener.doAccept()
                         }
                         if (key.isValid && key.isReadable) {
                             val connection = key.attachment() as TCPConnection
-                            if (traceFactory.comm.debug) {
-                                traceFactory.comm.debugm("select has read for $connection")
-                            }
+                            commGorgel.d?.run { debug("select has read for $connection") }
                             connection.doRead()
                         }
                         if (key.isValid && key.isWritable) {
                             val connection = key.attachment() as TCPConnection
                             connection.wakeupSelectForWrite()
-                            if (traceFactory.comm.debug) {
-                                traceFactory.comm.debugm("select has write for $connection")
-                            }
+                            commGorgel.d?.run { debug("select has write for $connection") }
                             connection.doWrite()
                         }
                     }
-                    if (traceFactory.comm.debug) {
-                        if (actualCount > 0) {
-                            traceFactory.comm.debugm("select thread selected $actualCount/$selectedCount I/O sources")
-                        }
+                    if (actualCount > 0) {
+                        commGorgel.d?.run { debug("select thread selected $actualCount/$selectedCount I/O sources") }
                     }
                 }
             } catch (e: Throwable) {
-                traceFactory.comm.errorm("select failed", e)
+                commGorgel.error("select failed", e)
             }
         }
     }
@@ -134,13 +115,12 @@ class SelectThread(
                 val remoteNetAddr = NetAddr(remoteAddr)
                 val socketAddress = InetSocketAddress(remoteNetAddr.inetAddress,
                         remoteNetAddr.port)
-                traceFactory.comm.eventi("connecting to $remoteNetAddr")
+                commGorgel.i?.run { info("connecting to $remoteNetAddr") }
                 val channel = SocketChannel.open(socketAddress)
                 newChannel(handlerFactory, framerFactory, channel, false,
                         tcpConnectionTrace)
             } catch (e: IOException) {
-                connectionCountMonitor.connectionCountChange(-1)
-                traceFactory.comm.errorm("unable to connect to $remoteAddr: $e")
+                commGorgel.error("unable to connect to $remoteAddr: $e")
                 handlerFactory.provideMessageHandler(null)
             }
             null
@@ -164,7 +144,7 @@ class SelectThread(
                framerFactory: ByteIOFramerFactory, secure: Boolean,
                listenerGorgel: Gorgel,
                tcpConnectionTrace: Trace): Listener {
-        val listener = Listener(localAddress, handlerFactory, framerFactory, myMgr, connectionCountMonitor, secure, listenerGorgel, tcpConnectionTrace)
+        val listener = Listener(localAddress, handlerFactory, framerFactory, secure, listenerGorgel, tcpConnectionTrace)
         myQueue.enqueue(listener)
         mySelector.wakeup()
         return listener
@@ -189,15 +169,13 @@ class SelectThread(
             channel.configureBlocking(false)
             val key = channel.register(mySelector, SelectionKey.OP_READ)
             key.attach(TCPConnection(handlerFactory, framerFactory,
-                    channel, key, this, connectionCountMonitor, runner, loadMonitor, isSecure, tcpConnectionTrace, clock, tcpConnectionCommGorgel, idGenerator))
+                    channel, key, this, runner, loadMonitor, isSecure, tcpConnectionTrace, clock, tcpConnectionCommGorgel, idGenerator))
         } catch (e: ClosedChannelException) {
-            connectionCountMonitor.connectionCountChange(-1)
             handlerFactory.provideMessageHandler(null)
-            traceFactory.comm.errorm("channel closed before it could be used", e)
+            commGorgel.error("channel closed before it could be used", e)
         } catch (e: IOException) {
-            connectionCountMonitor.connectionCountChange(-1)
             handlerFactory.provideMessageHandler(null)
-            traceFactory.comm.errorm("trouble opening TCPConnection for channel", e)
+            commGorgel.error("trouble opening TCPConnection for channel", e)
             try {
                 channel.close()
             } catch (e2: IOException) {
@@ -213,9 +191,7 @@ class SelectThread(
      * @param connection  The connection that has messages ready to send.
      */
     fun readyToSend(connection: TCPConnection) {
-        if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("$connection ready to send")
-        }
+        commGorgel.d?.run { debug("$connection ready to send") }
         myQueue.enqueue(connection)
         mySelector.wakeup()
     }
@@ -235,7 +211,7 @@ class SelectThread(
             }
             start()
         } catch (e: IOException) {
-            traceFactory.comm.errorm("failed to start SelectThread", e)
+            commGorgel.error("failed to start SelectThread", e)
             throw IllegalStateException(e)
         }
     }

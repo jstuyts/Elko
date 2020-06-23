@@ -19,7 +19,6 @@ import java.nio.channels.ServerSocketChannel
  * @param myHandlerFactory  Message handler factory to provide the handlers
  * for connections made to this port.
  * @param myFramerFactory  Byte I/O framer factory for new connections.
- * @param myMgr  Network manager for this server.
  * @param amSecure  If true, use SSL.
  * port & its connections
  */
@@ -27,8 +26,6 @@ class Listener(
         private val myLocalAddress: String,
         private val myHandlerFactory: MessageHandlerFactory,
         private val myFramerFactory: ByteIOFramerFactory,
-        private val myMgr: NetworkManager,
-        private val connectionCountMonitor: ConnectionCountMonitor,
         private val amSecure: Boolean,
         private val myGorgel: Gorgel,
         private val tcpConnectionTrace: Trace) {
@@ -51,7 +48,6 @@ class Listener(
         try {
             val newChannel = myChannel.accept()
             if (newChannel != null) {
-                connectionCountMonitor.connectionCountChange(1)
                 mySelectThread!!.newChannel(myHandlerFactory, myFramerFactory, newChannel, amSecure, tcpConnectionTrace)
             } else {
                 myGorgel.i?.run { info("accept returned null socket, ignoring") }

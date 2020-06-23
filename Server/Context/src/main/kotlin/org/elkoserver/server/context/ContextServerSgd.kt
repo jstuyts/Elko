@@ -13,12 +13,14 @@ import org.elkoserver.foundation.net.HTTPSessionConnection
 import org.elkoserver.foundation.net.JSONByteIOFramer
 import org.elkoserver.foundation.net.JSONHTTPFramer
 import org.elkoserver.foundation.net.Listener
+import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.net.RTCPSessionConnection
+import org.elkoserver.foundation.net.SelectThread
 import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
 import org.elkoserver.foundation.net.WebSocketByteIOFramerFactory
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.RunnerRef
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.LoadWatcher
@@ -172,6 +174,45 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
 
+    val selectThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(SelectThread::class, Tag("category", "comm")) }
+
+    val sslContext by Once {
+        if (req(provided.props()).testProperty("conf.ssl.enable"))
+            SslSetup.setupSsl(req(provided.props()), "conf.ssl.", req(sslSetupGorgel))
+        else
+            null
+    }
+
+    val selectThread by Once {
+        SelectThread(
+                req(runner),
+                req(serverLoadMonitor),
+                opt(sslContext),
+                req(provided.clock()),
+                req(selectThreadCommGorgel),
+                req(tcpConnectionCommGorgel),
+                req(connectionIdGenerator))
+    }
+            .dispose { it.shutDown() }
+
+    val networkManager by Once {
+        NetworkManager(
+                req(provided.props()),
+                req(serverLoadMonitor),
+                req(runner),
+                req(provided.timer()),
+                req(provided.clock()),
+                req(httpSessionConnectionCommGorgel),
+                req(rtcpSessionConnectionCommGorgel),
+                req(connectionBaseCommGorgel),
+                req(provided.traceFactory()),
+                req(inputGorgel),
+                req(sessionIdGenerator),
+                req(connectionIdGenerator),
+                req(mustSendDebugReplies),
+                req(selectThread))
+    }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -190,27 +231,20 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(jsonByteIoFramerWithoutLabelGorgel),
                 req(websocketFramerGorgel),
                 req(brokerActorGorgel),
-                req(httpSessionConnectionCommGorgel),
-                req(rtcpSessionConnectionCommGorgel),
-                req(tcpConnectionCommGorgel),
-                req(connectionBaseCommGorgel),
                 req(contTrace),
                 req(provided.timer()),
-                req(provided.clock()),
                 req(provided.traceFactory()),
                 req(inputGorgel),
-                req(sslSetupGorgel),
                 req(methodInvokerCommGorgel),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
-                req(sessionIdGenerator),
-                req(connectionIdGenerator),
                 req(jsonToObjectDeserializer),
-                req(runnerRef),
+                req(runner),
                 req(objDBRemoteFactory),
-                req(mustSendDebugReplies))
+                req(mustSendDebugReplies),
+                req(networkManager))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -252,8 +286,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val injectors by Once { listOf(req(clockInjector), req(traceFactoryInjector)) }
 
-    val runnerRef by Once { RunnerRef(req(provided.traceFactory())) }
-            .dispose { it.shutDown() }
+    val runner by Once { Runner(req(provided.traceFactory())) }
+            .dispose { it.orderlyShutdown() }
 
     val serverTagGenerator by Once { LongIdGenerator() }
 

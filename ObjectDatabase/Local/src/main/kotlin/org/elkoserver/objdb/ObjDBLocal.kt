@@ -4,7 +4,6 @@ import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
-import org.elkoserver.foundation.run.RunnerRef
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl.ForRepositoryEncodeControl
 import org.elkoserver.json.JSONLiteral
@@ -45,15 +44,13 @@ import java.util.function.Consumer
  * @param propRoot  Prefix string for selecting relevant configuration
  *    properties.
  */
-class ObjDBLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGorgel: Gorgel, traceFactory: TraceFactory, jsonToObjectDeserializer: JsonToObjectDeserializer, runnerRef: RunnerRef) : ObjDBBase(gorgel, jsonToObjectDeserializer) {
+class ObjDBLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGorgel: Gorgel, traceFactory: TraceFactory, jsonToObjectDeserializer: JsonToObjectDeserializer,
+                 private val myReturnRunner: Runner) : ObjDBBase(gorgel, jsonToObjectDeserializer) {
     /** Local object storage module.  */
     private val myObjectStore: ObjectStore = createAndInitializeObjectStore(props, propRoot, baseGorgel)
 
     /** Async run queue for giving tasks to the ODB thread.  */
     private val myRunner: Runner = Runner("Elko RunQueue LocalObjDB", traceFactory)
-
-    /** Async run queue for giving results back to the main thread.  */
-    private val myReturnRunner = runnerRef.get()
 
     /**
      * Fetch an object from the store.

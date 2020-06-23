@@ -32,7 +32,6 @@ import java.util.concurrent.Callable
 class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
                                          framerFactory: ByteIOFramerFactory, private val myChannel: SocketChannel,
                                          private val myKey: SelectionKey, private val mySelectThread: SelectThread,
-                                         private val connectionCountMonitor: ConnectionCountMonitor,
                                          runner: Runner,
                                          loadMonitor: LoadMonitor,
                                          private val amSecure: Boolean,
@@ -113,7 +112,6 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
             myTrace.debugm("$this ignoring IOException on close")
         }
         myKey.attach(null)
-        connectionCountMonitor.connectionCountChange(-1)
         if (myTrace.event) {
             myTrace.eventi("$this died: $reason")
         }
