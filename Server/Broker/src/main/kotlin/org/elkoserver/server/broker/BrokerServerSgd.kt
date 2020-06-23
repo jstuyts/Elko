@@ -102,6 +102,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ODBActor::class, Tag("category", "comm")) }
 
+    val runnerGorgel by Once { req(provided.baseGorgel()).getChild(Runner::class) }
+
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
@@ -164,8 +166,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
         ObjDBLocalFactory(
                 req(provided.props()),
                 req(objDbLocalGorgel),
+                req(runnerGorgel),
                 req(provided.baseGorgel()),
-                req(provided.traceFactory()),
                 req(jsonToObjectDeserializer),
                 req(runner))
     }
@@ -251,7 +253,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val injectors by Once { listOf(req(clockInjector), req(traceFactoryInjector)) }
 
-    val runner by Once { Runner(req(provided.traceFactory())) }
+    val runner by Once { Runner(req(runnerGorgel)) }
             .dispose { it.orderlyShutdown() }
 
     val serverTagGenerator by Once { LongIdGenerator() }

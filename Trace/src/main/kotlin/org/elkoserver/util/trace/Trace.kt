@@ -151,16 +151,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
     }
 
     /**
-     * Log an exception event at <tt>ERROR</tt> level.
-     *
-     * @param th  The exception to log
-     * @param message  An explanatory message to accompany the log entry.
-     */
-    fun errorReportException(th: Throwable?, message: String) {
-        recordDebugMessage(message, Level.ERROR, th)
-    }
-
-    /**
      * Output an informational log message at <tt>EVENT</tt> level.
      *
      * @param message  The message to write to the log.

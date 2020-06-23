@@ -20,7 +20,6 @@ import org.elkoserver.objdb.store.RequestResultHandler
 import org.elkoserver.objdb.store.ResultDesc
 import org.elkoserver.objdb.store.UpdateDesc
 import org.elkoserver.objdb.store.UpdateResultDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -44,13 +43,10 @@ import java.util.function.Consumer
  * @param propRoot  Prefix string for selecting relevant configuration
  *    properties.
  */
-class ObjDBLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGorgel: Gorgel, traceFactory: TraceFactory, jsonToObjectDeserializer: JsonToObjectDeserializer,
-                 private val myReturnRunner: Runner) : ObjDBBase(gorgel, jsonToObjectDeserializer) {
+class ObjDBLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGorgel: Gorgel, jsonToObjectDeserializer: JsonToObjectDeserializer,
+                 private val myRunner: Runner, private val myReturnRunner: Runner) : ObjDBBase(gorgel, jsonToObjectDeserializer) {
     /** Local object storage module.  */
     private val myObjectStore: ObjectStore = createAndInitializeObjectStore(props, propRoot, baseGorgel)
-
-    /** Async run queue for giving tasks to the ODB thread.  */
-    private val myRunner: Runner = Runner("Elko RunQueue LocalObjDB", traceFactory)
 
     /**
      * Fetch an object from the store.

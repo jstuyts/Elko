@@ -105,6 +105,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val presenceServerGorgel by Once { req(provided.baseGorgel()).getChild(PresenceServer::class) }
 
+    val runnerGorgel by Once { req(provided.baseGorgel()).getChild(Runner::class) }
+
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
@@ -171,8 +173,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
         ObjDBLocalFactory(
                 req(provided.props()),
                 req(objDbLocalGorgel),
+                req(runnerGorgel),
                 req(provided.baseGorgel()),
-                req(provided.traceFactory()),
                 req(jsonToObjectDeserializer),
                 req(runner))
     }
@@ -270,7 +272,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val domainRegistry by Once { DomainRegistryImpl() }
 
-    val runner by Once { Runner(req(provided.traceFactory())) }
+    val runner by Once { Runner(req(runnerGorgel)) }
             .dispose { it.orderlyShutdown() }
 
     val serverTagGenerator by Once { LongIdGenerator() }

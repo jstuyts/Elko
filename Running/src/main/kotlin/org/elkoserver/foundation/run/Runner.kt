@@ -1,7 +1,6 @@
 package org.elkoserver.foundation.run
 
-import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.concurrent.Callable
 
 /**
@@ -10,8 +9,7 @@ import java.util.concurrent.Callable
  *
  * @param name is the name to give to the thread created.
  */
-class Runner(name: String, traceFactory: TraceFactory) : Runnable {
-    private val tr: Trace = traceFactory.trace("runner")
+class Runner(name: String, private val gorgel: Gorgel) : Runnable {
 
     /**
      * Note that Queue is a thread-safe data structure with its own lock.
@@ -52,7 +50,7 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
      * Makes a Runner, and starts the thread that services its queue.
      * The name of the thread will be "Elko RunQueue".
      */
-    constructor(traceFactory: TraceFactory) : this("Elko RunQueue", traceFactory)
+    constructor(gorgel: Gorgel) : this("Elko RunQueue", gorgel)
 
     /**
      * Queues something for this Runnable's thread to do.  May be called
@@ -138,9 +136,7 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
                         /* More elements could have arrived in the meantime, so
                                    check again after grabbing myNotifyLock. */
                         if (!myQ.hasMoreElements()) {
-                            if (tr.debug) {
-                                tr.debugm("RunQ empty after $msgCount messages.  sleeping now.")
-                            }
+                            gorgel.d?.run { debug("RunQ empty after $msgCount messages.  sleeping now.") }
                             msgCount = 0
                             myNeedsNotify = true
                             try {
@@ -154,7 +150,7 @@ class Runner(name: String, traceFactory: TraceFactory) : Runnable {
                     }
                 }
             } catch (t: Throwable) {
-                tr.errorReportException(t, "Exception made it all the way out of the run loop.  Restarting it.")
+                gorgel.error("Exception made it all the way out of the run loop.  Restarting it.", t)
             }
         }
     }

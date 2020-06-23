@@ -113,6 +113,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val reservationGorgel by Once { req(provided.baseGorgel()).getChild(Reservation::class) }
 
+    val runnerGorgel by Once { req(provided.baseGorgel()).getChild(Runner::class) }
+
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
@@ -218,8 +220,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
         ObjDBLocalFactory(
                 req(provided.props()),
                 req(objDbLocalGorgel),
+                req(runnerGorgel),
                 req(provided.baseGorgel()),
-                req(provided.traceFactory()),
                 req(jsonToObjectDeserializer),
                 req(runner))
     }
@@ -296,7 +298,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val injectors by Once { listOf(req(clockInjector), req(traceFactoryInjector)) }
 
-    val runner by Once { Runner(req(provided.traceFactory())) }
+    val runner by Once { Runner(req(runnerGorgel)) }
             .dispose { it.orderlyShutdown() }
 
     val serverTagGenerator by Once { LongIdGenerator() }
