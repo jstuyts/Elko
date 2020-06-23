@@ -20,7 +20,7 @@ import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.objdb.ObjDB
-import org.elkoserver.objdb.ObjDBLocal
+import org.elkoserver.objdb.ObjDBLocalFactory
 import org.elkoserver.objdb.ObjDBRemoteFactory
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
@@ -56,8 +56,6 @@ class Server(
         private val listenerGorgel: Gorgel,
         private val jsonHttpFramerCommGorgel: Gorgel,
         private val tcpConnectionGorgel: Gorgel,
-        private val objDbLocalGorgel: Gorgel,
-        private val baseGorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
         private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
         private val websocketFramerGorgel: Gorgel,
@@ -71,11 +69,12 @@ class Server(
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         private val myTagGenerator: IdGenerator,
         private val myLoadMonitor: ServerLoadMonitor,
-        private val jsonToObjectDeserializer: JsonToObjectDeserializer,
+        jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val runner: Runner,
         private val objDBRemoteFactory: ObjDBRemoteFactory,
         private val mustSendDebugReplies: Boolean,
-        val networkManager: NetworkManager)
+        val networkManager: NetworkManager,
+        private val objDBLocalFactory: ObjDBLocalFactory)
     : ServiceFinder {
 
     /** The name of this server (for logging).  */
@@ -376,7 +375,7 @@ class Server(
      */
     fun openObjectDatabase(propRoot: String): ObjDB? {
         return if (myProps.getProperty("$propRoot.odb") != null) {
-            ObjDBLocal(myProps, propRoot, objDbLocalGorgel, baseGorgel, traceFactory, jsonToObjectDeserializer, runner)
+            objDBLocalFactory.create(propRoot)
         } else {
             if (myProps.getProperty("$propRoot.repository.host") != null ||
                     myProps.getProperty("$propRoot.repository.service") != null) {

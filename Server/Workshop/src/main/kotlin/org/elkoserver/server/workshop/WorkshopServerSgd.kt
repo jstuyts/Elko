@@ -37,6 +37,7 @@ import org.elkoserver.idgeneration.RandomIdGenerator
 import org.elkoserver.objdb.GetRequestFactory
 import org.elkoserver.objdb.ODBActor
 import org.elkoserver.objdb.ObjDBLocal
+import org.elkoserver.objdb.ObjDBLocalFactory
 import org.elkoserver.objdb.ObjDBRemote
 import org.elkoserver.objdb.ObjDBRemoteFactory
 import org.elkoserver.objdb.PutRequestFactory
@@ -163,6 +164,16 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(selectThread))
     }
 
+    val objDBLocalFactory by Once {
+        ObjDBLocalFactory(
+                req(provided.props()),
+                req(objDbLocalGorgel),
+                req(provided.baseGorgel()),
+                req(provided.traceFactory()),
+                req(jsonToObjectDeserializer),
+                req(runner))
+    }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -175,8 +186,6 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(listenerGorgel),
                 req(jsonHttpFramerCommGorgel),
                 req(tcpConnectionGorgel),
-                req(objDbLocalGorgel),
-                req(provided.baseGorgel()),
                 req(connectionRetrierWithoutLabelGorgel),
                 req(jsonByteIoFramerWithoutLabelGorgel),
                 req(websocketFramerGorgel),
@@ -194,7 +203,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(runner),
                 req(objDBRemoteFactory),
                 req(mustSendDebugReplies),
-                req(networkManager))
+                req(networkManager),
+                req(objDBLocalFactory))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
