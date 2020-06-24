@@ -24,10 +24,8 @@ import org.elkoserver.objdb.ObjDBLocalFactory
 import org.elkoserver.objdb.ObjDBRemoteFactory
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
-import java.time.Clock
 import java.util.HashMap
 import java.util.HashSet
 import java.util.LinkedList
@@ -53,18 +51,11 @@ class Server(
         private val serviceLinkGorgel: Gorgel,
         private val serviceActorGorgel: Gorgel,
         private val serviceActorCommGorgel: Gorgel,
-        private val baseConnectionSetupGorgel: Gorgel,
-        private val listenerGorgel: Gorgel,
-        private val jsonHttpFramerCommGorgel: Gorgel,
-        private val tcpConnectionGorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
         private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
-        private val websocketFramerGorgel: Gorgel,
         private val brokerActorGorgel: Gorgel,
-        private val connectionBaseCommGorgel: Gorgel,
         private val tr: Trace,
         private val timer: Timer,
-        private val traceFactory: TraceFactory,
         private val inputGorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
@@ -77,8 +68,11 @@ class Server(
         private val mustSendDebugReplies: Boolean,
         val networkManager: NetworkManager,
         private val objDBLocalFactory: ObjDBLocalFactory,
-        private val connectionIdGenerator: IdGenerator,
-        private val clock: Clock)
+        private val httpConnectionSetupFactory: HttpConnectionSetupFactory,
+        private val rtcpConnectionSetupFactory: RtcpConnectionSetupFactory,
+        private val tcpConnectionSetupFactory: TcpConnectionSetupFactory,
+        private val webSocketConnectionSetupFactory: WebSocketConnectionSetupFactory,
+        private val zeromqConnectionSetupFactory: ZeromqConnectionSetupFactory)
     : ServiceFinder {
 
     /** The name of this server (for logging).  */
@@ -546,11 +540,11 @@ class Server(
         val label = myProps.getProperty("$propRoot.label")
         val secure = myProps.testProperty("$propRoot.secure")
         val connectionSetup = when (protocol) {
-            "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory, inputGorgel, jsonByteIOFramerWithoutLabelGorgel, mustSendDebugReplies)
-            "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, tcpConnectionGorgel, traceFactory)
-            "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, jsonHttpFramerCommGorgel, traceFactory, mustSendDebugReplies)
-            "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, jsonByteIOFramerWithoutLabelGorgel, websocketFramerGorgel, traceFactory)
-            "xmq" -> ZeromqConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, connectionBaseCommGorgel, inputGorgel, jsonByteIOFramerWithoutLabelGorgel, traceFactory, connectionIdGenerator, clock, mustSendDebugReplies)
+            "tcp" -> tcpConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
+            "rtcp" -> rtcpConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
+            "http" -> httpConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
+            "ws" -> webSocketConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
+            "zmq" -> zeromqConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
             else -> {
                 gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
                 throw IllegalStateException()

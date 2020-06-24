@@ -9,7 +9,7 @@ import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
-internal class TcpConnectionSetup(
+class TcpConnectionSetup(
         label: String?,
         host: String,
         auth: AuthDesc,

@@ -9,7 +9,7 @@ import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
-internal abstract class BaseTcpConnectionSetup(
+abstract class BaseTcpConnectionSetup(
         label: String?,
         override var serverAddress: String,
         auth: AuthDesc,

@@ -8,7 +8,7 @@ import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
-internal class RtcpConnectionSetup(
+class RtcpConnectionSetup(
         label: String?,
         host: String,
         auth: AuthDesc,

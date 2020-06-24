@@ -9,7 +9,7 @@ import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
-internal class WebSocketConnectionSetup(
+class WebSocketConnectionSetup(
         label: String?,
         host: String,
         auth: AuthDesc,

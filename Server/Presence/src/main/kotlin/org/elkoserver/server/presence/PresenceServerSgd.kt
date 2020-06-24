@@ -24,12 +24,17 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.BaseConnectionSetup
 import org.elkoserver.foundation.server.BrokerActor
+import org.elkoserver.foundation.server.HttpConnectionSetupFactory
 import org.elkoserver.foundation.server.LoadWatcher
+import org.elkoserver.foundation.server.RtcpConnectionSetupFactory
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.ShutdownWatcher
+import org.elkoserver.foundation.server.TcpConnectionSetupFactory
+import org.elkoserver.foundation.server.WebSocketConnectionSetupFactory
+import org.elkoserver.foundation.server.ZeromqConnectionSetupFactory
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
@@ -178,6 +183,65 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(runner))
     }
 
+    val httpConnectionSetupFactory by Once {
+        HttpConnectionSetupFactory(
+                req(provided.props()),
+                req(networkManager),
+                req(baseConnectionSetupGorgel),
+                req(listenerGorgel),
+                req(jsonHttpFramerCommGorgel),
+                req(provided.traceFactory()),
+                req(mustSendDebugReplies))
+    }
+
+    val rtcpConnectionSetupFactory by Once {
+        RtcpConnectionSetupFactory(
+                req(provided.props()),
+                req(networkManager),
+                req(baseConnectionSetupGorgel),
+                req(listenerGorgel),
+                req(tcpConnectionGorgel),
+                req(provided.traceFactory()))
+    }
+
+    val tcpConnectionSetupFactory by Once {
+        TcpConnectionSetupFactory(
+                req(provided.props()),
+                req(networkManager),
+                req(baseConnectionSetupGorgel),
+                req(listenerGorgel),
+                req(provided.traceFactory()),
+                req(inputGorgel),
+                req(jsonByteIoFramerWithoutLabelGorgel),
+                req(mustSendDebugReplies))
+    }
+
+    val webSocketConnectionSetupFactory by Once {
+        WebSocketConnectionSetupFactory(
+                req(provided.props()),
+                req(networkManager),
+                req(baseConnectionSetupGorgel),
+                req(listenerGorgel),
+                req(jsonByteIoFramerWithoutLabelGorgel),
+                req(websocketFramerGorgel),
+                req(provided.traceFactory()))
+    }
+
+    val zeromqConnectionSetupFactory by Once {
+        ZeromqConnectionSetupFactory(
+                req(provided.props()),
+                req(networkManager),
+                req(baseConnectionSetupGorgel),
+                req(listenerGorgel),
+                req(connectionBaseCommGorgel),
+                req(inputGorgel),
+                req(jsonByteIoFramerWithoutLabelGorgel),
+                req(provided.traceFactory()),
+                req(connectionIdGenerator),
+                req(provided.clock()),
+                req(mustSendDebugReplies))
+    }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -186,18 +250,11 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
-                req(baseConnectionSetupGorgel),
-                req(listenerGorgel),
-                req(jsonHttpFramerCommGorgel),
-                req(tcpConnectionGorgel),
                 req(connectionRetrierWithoutLabelGorgel),
                 req(jsonByteIoFramerWithoutLabelGorgel),
-                req(websocketFramerGorgel),
                 req(brokerActorGorgel),
-                req(connectionBaseCommGorgel),
                 req(presTrace),
                 req(provided.timer()),
-                req(provided.traceFactory()),
                 req(inputGorgel),
                 req(methodInvokerCommGorgel),
                 req(provided.authDescFromPropertiesFactory()),
@@ -210,8 +267,11 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(mustSendDebugReplies),
                 req(networkManager),
                 req(objDBLocalFactory),
-                req(sessionIdGenerator),
-                req(provided.clock()))
+                req(httpConnectionSetupFactory),
+                req(rtcpConnectionSetupFactory),
+                req(tcpConnectionSetupFactory),
+                req(webSocketConnectionSetupFactory),
+                req(zeromqConnectionSetupFactory))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
