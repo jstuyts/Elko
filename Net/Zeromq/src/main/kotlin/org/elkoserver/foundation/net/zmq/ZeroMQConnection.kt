@@ -31,7 +31,7 @@ class ZeroMQConnection internal constructor(handlerFactory: MessageHandlerFactor
                                             commGorgel: Gorgel,
                                             idGenerator: IdGenerator,
                                             private var amOpen: Boolean = true)
-    : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator), MessageReceiver, Thunk {
+    : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator), MessageReceiver, Runnable {
     /** Queue of unencoded outbound messages.  */
     private val myOutputQueue = Queue<Any>()
 

@@ -55,10 +55,10 @@ internal class ZeroMQThread(
                 val selectedCount = myPoller.poll().toLong()
                 var workToDo = myQueue.optDequeue()
                 while (workToDo != null) {
-                    if (workToDo is Thunk) {
+                    if (workToDo is Runnable) {
                         workToDo.run()
                     } else {
-                        traceFactory.comm.errorm("non-Thunk on ZMQ queue: $workToDo")
+                        traceFactory.comm.errorm("non-Runnable on ZMQ queue: $workToDo")
                     }
                     workToDo = myQueue.optDequeue()
                 }
@@ -166,7 +166,7 @@ internal class ZeroMQThread(
             push = true
             finalAddr = "tcp://$remoteAddr"
         }
-        myQueue.enqueue(object : Thunk {
+        myQueue.enqueue(object : Runnable {
             override fun run() {
                 traceFactory.comm.eventm("connecting ZMQ to $finalAddr")
                 val socket: ZMQ.Socket
@@ -192,7 +192,7 @@ internal class ZeroMQThread(
      * @param connection  The connection whose closure is desired.
      */
     fun close(connection: ZeroMQConnection) {
-        myQueue.enqueue(object : Thunk {
+        myQueue.enqueue(object : Runnable {
             override fun run() {
                 traceFactory.comm.eventm("closing ZMQ connection $connection")
                 val socket = connection.socket()
@@ -237,7 +237,7 @@ internal class ZeroMQThread(
         } else {
             "tcp://*:${result.port}"
         }
-        myQueue.enqueue(object : Thunk {
+        myQueue.enqueue(object : Runnable {
             override fun run() {
                 val socket: ZMQ.Socket
                 if (subscribe) {
