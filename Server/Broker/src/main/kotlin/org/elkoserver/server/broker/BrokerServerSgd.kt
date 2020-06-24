@@ -153,7 +153,6 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(provided.clock()),
                 req(httpSessionConnectionCommGorgel),
                 req(rtcpSessionConnectionCommGorgel),
-                req(connectionBaseCommGorgel),
                 req(provided.traceFactory()),
                 req(inputGorgel),
                 req(sessionIdGenerator),
@@ -188,6 +187,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(jsonByteIoFramerWithoutLabelGorgel),
                 req(websocketFramerGorgel),
                 req(brokerActorGorgel),
+                req(connectionBaseCommGorgel),
                 req(brokTrace),
                 req(provided.timer()),
                 req(provided.traceFactory()),
@@ -202,7 +202,9 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(objDBRemoteFactory),
                 req(mustSendDebugReplies),
                 req(networkManager),
-                req(objDBLocalFactory))
+                req(objDBLocalFactory),
+                req(sessionIdGenerator),
+                req(provided.clock()))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))

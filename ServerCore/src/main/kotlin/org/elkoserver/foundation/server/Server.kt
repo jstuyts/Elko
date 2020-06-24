@@ -27,6 +27,7 @@ import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
+import java.time.Clock
 import java.util.HashMap
 import java.util.HashSet
 import java.util.LinkedList
@@ -60,6 +61,7 @@ class Server(
         private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
         private val websocketFramerGorgel: Gorgel,
         private val brokerActorGorgel: Gorgel,
+        private val connectionBaseCommGorgel: Gorgel,
         private val tr: Trace,
         private val timer: Timer,
         private val traceFactory: TraceFactory,
@@ -74,7 +76,9 @@ class Server(
         private val objDBRemoteFactory: ObjDBRemoteFactory,
         private val mustSendDebugReplies: Boolean,
         val networkManager: NetworkManager,
-        private val objDBLocalFactory: ObjDBLocalFactory)
+        private val objDBLocalFactory: ObjDBLocalFactory,
+        private val connectionIdGenerator: IdGenerator,
+        private val clock: Clock)
     : ServiceFinder {
 
     /** The name of this server (for logging).  */
@@ -541,18 +545,17 @@ class Server(
         val actorFactory = metaFactory.provideFactory(propRoot, auth, allow, serviceNames, protocol)
         val label = myProps.getProperty("$propRoot.label")
         val secure = myProps.testProperty("$propRoot.secure")
-        val mgrClass = myProps.getProperty("$propRoot.class")
-        val connectionSetup = mgrClass?.let { ManagerClassConnectionSetup(label, it, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory) }
-                ?: when (protocol) {
-                    "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory, inputGorgel, jsonByteIOFramerWithoutLabelGorgel, mustSendDebugReplies)
-                    "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, tcpConnectionGorgel, traceFactory)
-                    "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, jsonHttpFramerCommGorgel, traceFactory, mustSendDebugReplies)
-                    "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, jsonByteIOFramerWithoutLabelGorgel, websocketFramerGorgel, traceFactory)
-                    else -> {
-                        gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
-                        throw IllegalStateException()
-                    }
-                }
+        val connectionSetup = when (protocol) {
+            "tcp" -> TcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory, inputGorgel, jsonByteIOFramerWithoutLabelGorgel, mustSendDebugReplies)
+            "rtcp" -> RtcpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, tcpConnectionGorgel, traceFactory)
+            "http" -> HttpConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, jsonHttpFramerCommGorgel, traceFactory, mustSendDebugReplies)
+            "ws" -> WebSocketConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, jsonByteIOFramerWithoutLabelGorgel, websocketFramerGorgel, traceFactory)
+            "xmq" -> ZeromqConnectionSetup(label, host, auth, secure, myProps, propRoot, networkManager, actorFactory, baseConnectionSetupGorgel, listenerGorgel, connectionBaseCommGorgel, inputGorgel, jsonByteIOFramerWithoutLabelGorgel, traceFactory, connectionIdGenerator, clock, mustSendDebugReplies)
+            else -> {
+                gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
+                throw IllegalStateException()
+            }
+        }
         connectionSetup.startListener()
         serviceNames
                 .map { "$it$myServiceName" }

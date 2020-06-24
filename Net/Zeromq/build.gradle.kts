@@ -14,13 +14,9 @@ repositories {
 }
 
 dependencies {
-    api(project(":JsonMessageHandling"))
     api(project(":Net:Api"))
     api(project(":Server:Context"))
 
-    implementation(project(":ByteIoFramer:Json"))
-    implementation(project(":ServerCore"))
-    implementation(project(":Trace"))
     implementation(kotlin("stdlib-jdk8"))
     implementation(Libraries.jeromq)
 }

@@ -8,9 +8,7 @@ import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
-import java.lang.reflect.InvocationTargetException
 import java.time.Clock
-import java.util.HashMap
 
 /**
  * Manage network connections between this server and other entities.
@@ -27,52 +25,12 @@ class NetworkManager(
         private val clock: Clock,
         private val httpSessionConnectionCommGorgel: Gorgel,
         private val rtcpSessionConnectionCommGorgel: Gorgel,
-        private val connectionBaseCommGorgel: Gorgel,
         private val traceFactory: TraceFactory,
         private val inputGorgel: Gorgel,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator,
         private val mustSendDebugReplies: Boolean,
         private val mySelectThread: SelectThread) {
-
-    /** Initialized SSL context, if supporting SSL, else null.  */
-
-
-    /** Connection managers, indexed by class name.  */
-    private val myConnectionManagers: MutableMap<String, ConnectionManager?> = HashMap()
-
-    /**
-     * Obtain the connection manager associated with a particular connection
-     * manager class, either by retrieving it or creating it as needed.
-     *
-     * @param className  Fully qualified class name of the
-     * connection manager class desired.
-     * @param msgTrace  Trace object for logging message traffic.
-     *
-     * @return the connection manager with the given class name, or null if no
-     * such connection manager is available.
-     */
-    private fun connectionManager(className: String, msgTrace: Trace): ConnectionManager? {
-        var result = myConnectionManagers[className]
-        if (result == null) {
-            try {
-                result = Class.forName(className).getConstructor().newInstance() as ConnectionManager
-                result.init(this, msgTrace, clock, connectionBaseCommGorgel, inputGorgel, traceFactory, connectionIdGenerator, mustSendDebugReplies)
-                myConnectionManagers[className] = result
-            } catch (e: ClassNotFoundException) {
-                traceFactory.comm.errorm("ConnectionManager class $className not found: $e")
-            } catch (e: InstantiationException) {
-                traceFactory.comm.errorm("ConnectionManager class $className not instantiable: $e")
-            } catch (e: IllegalAccessException) {
-                traceFactory.comm.errorm("ConnectionManager class $className constructor not accessible: $e")
-            } catch (e: NoSuchMethodException) {
-                traceFactory.comm.errorm("ConnectionManager class $className does not have a public no-arg constructor: $e")
-            } catch (e: InvocationTargetException) {
-                traceFactory.comm.errorm("Error occurred during creation of connectionManager class $className: ${e.cause}")
-            }
-        }
-        return result
-    }
 
     /**
      * Make a TCP connection to another host given a host:port address.
@@ -88,33 +46,6 @@ class NetworkManager(
                    handlerFactory: MessageHandlerFactory,
                    framerFactory: ByteIOFramerFactory, trace: Trace) {
         mySelectThread.connect(handlerFactory, framerFactory, hostPort, trace)
-    }
-
-    /**
-     * Make a connection to another host given a host:port address using a
-     * named connection manager class.
-     *
-     * @param connectionManagerClassName  Fully qualified class name of the
-     * connection manager class to use to make this connection.
-     * @param propRoot  Prefix string for all the properties describing the
-     * connection that is to be made.
-     * @param hostPort  The host name (or IP address) and port to connect to,
-     * separated by a colon.  For example, "bithlo.example.com:8002".
-     * @param handlerFactory  Message handler factory to provide the handler
-     * for the connection that results from this operation.
-     * @param msgTrace  Trace object for logging message traffic.
-     */
-    fun connectVia(connectionManagerClassName: String,
-                   propRoot: String,
-                   hostPort: String,
-                   handlerFactory: MessageHandlerFactory,
-                   msgTrace: Trace) {
-        val connMgr = connectionManager(connectionManagerClassName, msgTrace)
-        if (connMgr == null) {
-            handlerFactory.provideMessageHandler(null)
-        } else {
-            connMgr.connect(propRoot, handlerFactory, hostPort)
-        }
     }
 
     /**
@@ -217,35 +148,5 @@ class NetworkManager(
         val listener = mySelectThread.listen(listenAddress, handlerFactory,
                 framerFactory, secure, listenerGorgel, tcpConnectionTrace)
         return listener.listenAddress()
-    }
-
-    /**
-     * Begin listening for incoming connections on some port using a named
-     * connection manager class.
-     *
-     * @param connectionManagerClassName  Fully qualified class name of the
-     * connection manager class to use to make this connection.
-     * @param propRoot  Prefix string for all the properties describing the
-     * listener that is to be started.
-     * @param listenAddress  Host name and port to listen for connections on.
-     * @param handlerFactory  Message handler factory to provide message
-     * handlers for connections made to this port.
-     * @param msgTrace  Trace object for logging message traffic.
-     * @param secure  If true, use a secure connection pathway (e.g., SSL).
-     *
-     * @return the address that ended up being listened upon
-     *
-     * @throws IOException if the requested connection manager was unavailable.
-     */
-    @Throws(IOException::class)
-    fun listenVia(connectionManagerClassName: String,
-                  propRoot: String,
-                  listenAddress: String,
-                  handlerFactory: MessageHandlerFactory,
-                  msgTrace: Trace,
-                  secure: Boolean): NetAddr {
-        val connMgr = connectionManager(connectionManagerClassName, msgTrace)
-                ?: throw IOException("no connection manager $connectionManagerClassName")
-        return connMgr.listen(propRoot, listenAddress, handlerFactory, secure)
     }
 }

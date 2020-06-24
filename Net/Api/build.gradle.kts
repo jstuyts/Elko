@@ -28,6 +28,7 @@ dependencies {
     implementation(project(":ByteIoFramer:WebSocket"))
     implementation(project(":Communication"))
     implementation(kotlin("stdlib-jdk8"))
+    implementation(Libraries.jeromq)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

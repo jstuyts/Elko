@@ -207,7 +207,6 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(provided.clock()),
                 req(httpSessionConnectionCommGorgel),
                 req(rtcpSessionConnectionCommGorgel),
-                req(connectionBaseCommGorgel),
                 req(provided.traceFactory()),
                 req(inputGorgel),
                 req(sessionIdGenerator),
@@ -242,6 +241,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(jsonByteIoFramerWithoutLabelGorgel),
                 req(websocketFramerGorgel),
                 req(brokerActorGorgel),
+                req(connectionBaseCommGorgel),
                 req(contTrace),
                 req(provided.timer()),
                 req(provided.traceFactory()),
@@ -256,7 +256,9 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(objDBRemoteFactory),
                 req(mustSendDebugReplies),
                 req(networkManager),
-                req(objDBLocalFactory))
+                req(objDBLocalFactory),
+                req(sessionIdGenerator),
+                req(provided.clock()))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))

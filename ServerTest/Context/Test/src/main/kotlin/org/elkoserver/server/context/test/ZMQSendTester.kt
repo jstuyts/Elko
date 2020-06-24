@@ -2,9 +2,6 @@ package org.elkoserver.server.context.test
 
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.MessageHandler
-import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.NullMessageHandler
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.server.context.ContextMod
@@ -69,21 +66,24 @@ class ZMQSendTester @JSONMethod("address") constructor(private val myAddress: St
         context().registerContextShutdownWatcher(this)
         val contextor = `object`().contextor()
         tr = contextor.tr.subTrace("zmq")
-        contextor.server.networkManager.connectVia(
-                "org.elkoserver.foundation.net.zmq.ZeroMQConnectionManager",
-                "",  // XXX propRoot, needs to come from somewhere
-                myAddress,
-                object : MessageHandlerFactory {
-                    override fun provideMessageHandler(connection: Connection?): MessageHandler? {
-                        if (amDead) {
-                            connection!!.close()
-                        } else {
-                            myOutbound = connection
-                        }
-                        return NullMessageHandler(tr)
-                    }
-                },
-                tr)
+        if (true) {
+            throw IllegalStateException()
+        }
+//        contextor.server.networkManager.connectVia(
+//                "org.elkoserver.foundation.net.zmq.ZeroMQConnectionManager",
+//                "",  // XXX propRoot, needs to come from somewhere
+//                myAddress,
+//                object : MessageHandlerFactory {
+//                    override fun provideMessageHandler(connection: Connection?): MessageHandler? {
+//                        if (amDead) {
+//                            connection!!.close()
+//                        } else {
+//                            myOutbound = connection
+//                        }
+//                        return NullMessageHandler(tr)
+//                    }
+//                },
+//                tr)
     }
 
     override fun noteContextShutdown() {

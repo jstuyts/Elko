@@ -14,7 +14,7 @@ import org.zeromq.ZMQ
 import java.io.IOException
 import java.time.Clock
 
-internal class ZeroMQThread(
+class ZeroMQThread(
         private val runner: Runner,
         private val loadMonitor: LoadMonitor,
         private val connectionCommGorgel: Gorgel,
