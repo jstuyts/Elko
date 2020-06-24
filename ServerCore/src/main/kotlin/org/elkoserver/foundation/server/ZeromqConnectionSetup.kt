@@ -3,9 +3,9 @@ package org.elkoserver.foundation.server
 import org.elkoserver.foundation.net.JSONByteIOFramerFactory
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
-import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.net.zmq.ZeroMQThread
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.TraceFactory
@@ -19,7 +19,8 @@ class ZeromqConnectionSetup(
         secure: Boolean,
         props: ElkoProperties,
         propRoot: String,
-        private val networkManager: NetworkManager,
+        private val runner: Runner,
+        private val loadMonitor: ServerLoadMonitor,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
         listenerGorgel: Gorgel,
@@ -45,7 +46,7 @@ class ZeromqConnectionSetup(
 
     override fun tryToStartListener(): NetAddr {
         val framerFactory = JSONByteIOFramerFactory(jsonByteIoFramerGorgel, inputGorgel, mustSendDebugReplies)
-        val thread = ZeroMQThread(networkManager.runner, networkManager.loadMonitor, connectionBaseCommGorgel, traceFactory, idGenerator, clock)
+        val thread = ZeroMQThread(runner, loadMonitor, connectionBaseCommGorgel, traceFactory, idGenerator, clock)
         return thread.listen(host, actorFactory, framerFactory, secure)
     }
 

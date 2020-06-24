@@ -223,7 +223,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
     val zeromqConnectionSetupFactory by Once {
         ZeromqConnectionSetupFactory(
                 req(provided.props()),
-                req(networkManager),
+                req(runner),
+                req(serverLoadMonitor),
                 req(baseConnectionSetupGorgel),
                 req(listenerGorgel),
                 req(connectionBaseCommGorgel),

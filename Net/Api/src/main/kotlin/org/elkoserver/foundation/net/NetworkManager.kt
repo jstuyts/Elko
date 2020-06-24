@@ -19,7 +19,7 @@ import java.time.Clock
  */
 class NetworkManager(
         private val props: ElkoProperties,
-        val loadMonitor: LoadMonitor,
+        private val loadMonitor: LoadMonitor,
         val runner: Runner,
         private val timer: Timer,
         private val clock: Clock,

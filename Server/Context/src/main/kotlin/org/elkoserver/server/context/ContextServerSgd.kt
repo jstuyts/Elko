@@ -277,7 +277,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val zeromqConnectionSetupFactory by Once {
         ZeromqConnectionSetupFactory(
                 req(provided.props()),
-                req(networkManager),
+                req(runner),
+                req(serverLoadMonitor),
                 req(baseConnectionSetupGorgel),
                 req(listenerGorgel),
                 req(connectionBaseCommGorgel),
