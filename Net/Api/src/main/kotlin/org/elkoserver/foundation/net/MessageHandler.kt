@@ -5,8 +5,7 @@ package org.elkoserver.foundation.net
  *
  * An implementor of this interface is associated with each [Connection]
  * object, to handle both incoming messages and disconnection events.
- * Normally, a [Connection]'s MessageHandler is produced by a [ ] when the connection is established.  The factory is
- * held by the [NetworkManager] for this purpose.
+ * Normally, a [Connection]'s MessageHandler is produced by a [ ] when the connection is established.
  */
 interface MessageHandler {
     /**

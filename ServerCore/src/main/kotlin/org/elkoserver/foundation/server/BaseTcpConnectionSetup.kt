@@ -2,7 +2,6 @@ package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
-import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.util.trace.TraceFactory
@@ -16,7 +15,6 @@ abstract class BaseTcpConnectionSetup(
         secure: Boolean,
         props: ElkoProperties,
         propRoot: String,
-        val myNetworkManager: NetworkManager,
         val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
         listenerGorgel: Gorgel,

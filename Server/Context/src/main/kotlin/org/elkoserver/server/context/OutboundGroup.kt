@@ -7,7 +7,7 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.NetworkManager
+import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.ReinitWatcher
 import org.elkoserver.foundation.server.Server
@@ -15,7 +15,6 @@ import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.function.Consumer
@@ -34,6 +33,7 @@ import java.util.function.Consumer
  */
 abstract class OutboundGroup(propRoot: String,
                              private val myServer: Server,
+                             private val tcpClientFactory: TcpClientFactory,
                              internal val contextor: Contextor,
                              hosts: MutableList<HostDesc>,
                              private val tr: Trace,
@@ -43,7 +43,6 @@ abstract class OutboundGroup(propRoot: String,
                              private val jsonByteIOFramerGorgel: Gorgel,
                              methodInvokerCommGorgel: Gorgel,
                              protected val timer: Timer,
-                             protected val traceFactory: TraceFactory,
                              props: ElkoProperties,
                              jsonToObjectDeserializer: JsonToObjectDeserializer,
                              private val mustSendDebugReplies: Boolean) : LiveGroup() {
@@ -52,9 +51,6 @@ abstract class OutboundGroup(propRoot: String,
 
     /** Flag that the external servers should be located via the broker.  */
     private val amAutoRegister: Boolean
-
-    /** Network manager for making new outbound connections.  */
-    private val myNetworkManager: NetworkManager
 
     /** Message dispatcher for incoming messages on these connections.  */
     private val myDispatcher: MessageDispatcher
@@ -75,7 +71,7 @@ abstract class OutboundGroup(propRoot: String,
      */
     fun connectHosts() {
         for (host in myHosts) {
-            ConnectionRetrier(host, label(), myNetworkManager,
+            ConnectionRetrier(host, label(), tcpClientFactory,
                     HostConnector(host), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), jsonByteIOFramerGorgel, tr, inputGorgel, mustSendDebugReplies)
         }
         if (amAutoRegister) {
@@ -95,7 +91,7 @@ abstract class OutboundGroup(propRoot: String,
                     .filter { it.failure == null }
                     .map { it.asHostDesc(myRetryInterval) }
                     .forEach {
-                        ConnectionRetrier(it, label(), myNetworkManager,
+                        ConnectionRetrier(it, label(), tcpClientFactory,
                                 HostConnector(it), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), jsonByteIOFramerGorgel, tr, inputGorgel, mustSendDebugReplies)
                     }
         }
@@ -172,7 +168,6 @@ abstract class OutboundGroup(propRoot: String,
                 connectHosts()
             }
         })
-        myNetworkManager = myServer.networkManager
         myHosts = hosts
         myDispatcher = MessageDispatcher(null, methodInvokerCommGorgel, jsonToObjectDeserializer)
         @Suppress("LeakingThis")

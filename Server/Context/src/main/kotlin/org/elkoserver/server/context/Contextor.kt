@@ -5,6 +5,7 @@ import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServiceLink
@@ -51,6 +52,7 @@ import kotlin.math.abs
 class Contextor internal constructor(
         val odb: ObjDB,
         val server: Server,
+        private val tcpClientFactory: TcpClientFactory,
         @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace,
         private val contextorGorgel: Gorgel,
         private val contextGorgelWithoutRef: Gorgel,
@@ -67,7 +69,7 @@ class Contextor internal constructor(
         sessionGorgel: Gorgel,
         private val methodInvokerCommGorgel: Gorgel,
         private val timer: Timer,
-        private val traceFactory: TraceFactory,
+        traceFactory: TraceFactory,
         internal val entryTimeout: Int,
         internal val limit: Int,
         private val myRandom: Random,
@@ -980,6 +982,7 @@ class Contextor internal constructor(
     fun registerWithDirectors(directors: MutableList<HostDesc>, listeners: List<HostDesc>) {
         val group = DirectorGroup(
                 server,
+                tcpClientFactory,
                 this,
                 directors,
                 listeners,
@@ -992,7 +995,6 @@ class Contextor internal constructor(
                 reservationGorgel,
                 directorActorGorgel,
                 timer,
-                traceFactory,
                 reservationTimeout,
                 props,
                 jsonToObjectDeserializer,
@@ -1011,6 +1013,7 @@ class Contextor internal constructor(
     fun registerWithPresencers(presencers: MutableList<HostDesc>) {
         val group = PresencerGroup(
                 server,
+                tcpClientFactory,
                 this,
                 presencers,
                 tr,
@@ -1020,7 +1023,6 @@ class Contextor internal constructor(
                 jsonByteIoFramerGorgel,
                 methodInvokerCommGorgel,
                 timer,
-                traceFactory,
                 props,
                 jsonToObjectDeserializer,
                 presencerActorGorgel,

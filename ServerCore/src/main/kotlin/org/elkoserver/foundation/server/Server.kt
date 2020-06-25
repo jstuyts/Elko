@@ -8,7 +8,7 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.NetworkManager
+import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.SlowServiceRunner
@@ -66,7 +66,7 @@ class Server(
         private val runner: Runner,
         private val objDBRemoteFactory: ObjDBRemoteFactory,
         private val mustSendDebugReplies: Boolean,
-        val networkManager: NetworkManager,
+        private val tcpClientFactory: TcpClientFactory,
         private val objDBLocalFactory: ObjDBLocalFactory,
         private val httpConnectionSetupFactory: HttpConnectionSetupFactory,
         private val rtcpConnectionSetupFactory: RtcpConnectionSetupFactory,
@@ -156,7 +156,7 @@ class Server(
             ConnectionRetrier(
                     myBrokerHost!!,
                     "broker",
-                    networkManager,
+                    tcpClientFactory,
                     BrokerMessageHandlerFactory(),
                     timer,
                     connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "broker")),
@@ -303,7 +303,7 @@ class Server(
                     ?: ConnectionRetrier(
                             desc.asHostDesc(-1),
                             myLabel,
-                            networkManager,
+                            tcpClientFactory,
                             this,
                             timer,
                             connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", myLabel)),
@@ -377,7 +377,7 @@ class Server(
         } else {
             if (myProps.getProperty("$propRoot.repository.host") != null ||
                     myProps.getProperty("$propRoot.repository.service") != null) {
-                objDBRemoteFactory.create(this, networkManager, serverName, propRoot)
+                objDBRemoteFactory.create(this, serverName, propRoot)
             } else {
                 null
             }

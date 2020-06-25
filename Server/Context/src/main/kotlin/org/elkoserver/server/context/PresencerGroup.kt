@@ -4,6 +4,7 @@ import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -11,7 +12,6 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -25,6 +25,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  */
 internal class PresencerGroup(
         server: Server,
+        tcpClientFactory: TcpClientFactory,
         contextor: Contextor,
         presencers: MutableList<HostDesc>,
         tr: Trace,
@@ -34,7 +35,6 @@ internal class PresencerGroup(
         jsonByteIoFramerGorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
         timer: Timer,
-        traceFactory: TraceFactory,
         props: ElkoProperties,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val presencerActorGorgel: Gorgel,
@@ -42,6 +42,7 @@ internal class PresencerGroup(
     : OutboundGroup(
         "conf.presence",
         server,
+        tcpClientFactory,
         contextor,
         presencers,
         tr,
@@ -51,7 +52,6 @@ internal class PresencerGroup(
         jsonByteIoFramerGorgel,
         methodInvokerCommGorgel,
         timer,
-        traceFactory,
         props,
         jsonToObjectDeserializer,
         mustSendDebugReplies) {

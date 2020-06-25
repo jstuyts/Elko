@@ -2,7 +2,7 @@ package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.net.JSONHTTPFramer
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.NetworkManager
+import org.elkoserver.foundation.net.http.server.HttpServerFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.util.trace.TraceFactory
@@ -16,7 +16,7 @@ class HttpConnectionSetup(
         secure: Boolean,
         props: ElkoProperties,
         propRoot: String,
-        private val myNetworkManager: NetworkManager,
+        private val httpServerFactory: HttpServerFactory,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
         listenerGorgel: Gorgel,
@@ -31,7 +31,7 @@ class HttpConnectionSetup(
 
     @Throws(IOException::class)
     override fun tryToStartListener() =
-            myNetworkManager.listenHTTP(bind, actorFactory, listenerGorgel, msgTrace, secure, rootURI, JSONHTTPFramer(msgTrace, jsonHttpFramerCommGorgel, mustSendDebugReplies))
+            httpServerFactory.listenHTTP(bind, actorFactory, msgTrace, secure, rootURI, JSONHTTPFramer(msgTrace, jsonHttpFramerCommGorgel, mustSendDebugReplies))
 
     override val listenAddressDescription: String
         get() = "$host/$rootURI/ in domain $domain"

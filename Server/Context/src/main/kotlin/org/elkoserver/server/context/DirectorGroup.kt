@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.Server
@@ -13,7 +14,6 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.ConcurrentModificationException
 
@@ -29,6 +29,7 @@ import java.util.ConcurrentModificationException
  * @param tr  Trace object for diagnostics.
  */
 class DirectorGroup(server: Server,
+                    tcpClientFactory: TcpClientFactory,
                     contextor: Contextor,
                     directors: MutableList<HostDesc>,
                     internal val listeners: List<HostDesc>,
@@ -41,13 +42,13 @@ class DirectorGroup(server: Server,
                     private val reservationGorgel: Gorgel,
                     private val directorActorGorgel: Gorgel,
                     timer: Timer,
-                    traceFactory: TraceFactory,
                     internal val reservationTimeout: Int,
                     props: ElkoProperties,
                     jsonToObjectDeserializer: JsonToObjectDeserializer,
                     private val mustSendDebugReplies: Boolean) : OutboundGroup(
         "conf.register",
         server,
+        tcpClientFactory,
         contextor,
         directors,
         tr,
@@ -57,7 +58,6 @@ class DirectorGroup(server: Server,
         jsonByteIoFramerGorgel,
         methodInvokerCommGorgel,
         timer,
-        traceFactory,
         props,
         jsonToObjectDeserializer,
         mustSendDebugReplies) {

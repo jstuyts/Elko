@@ -2,7 +2,7 @@ package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.net.JSONByteIOFramerFactory
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.NetworkManager
+import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.util.trace.TraceFactory
@@ -16,7 +16,7 @@ class TcpConnectionSetup(
         secure: Boolean,
         props: ElkoProperties,
         propRoot: String,
-        myNetworkManager: NetworkManager,
+        private val tcpServerFactory: TcpServerFactory,
         actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
         listenerGorgel: Gorgel,
@@ -24,10 +24,10 @@ class TcpConnectionSetup(
         private val inputGorgel: Gorgel,
         private val jsonByteIOFramerGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean)
-    : BaseTcpConnectionSetup(label, host, auth, secure, props, propRoot, myNetworkManager, actorFactory, gorgel, listenerGorgel, traceFactory) {
+    : BaseTcpConnectionSetup(label, host, auth, secure, props, propRoot, actorFactory, gorgel, listenerGorgel, traceFactory) {
     override val protocol = "tcp"
 
     @Throws(IOException::class)
     override fun createListenAddress() =
-            myNetworkManager.listenTCP(bind, actorFactory, listenerGorgel, msgTrace, secure, JSONByteIOFramerFactory(jsonByteIOFramerGorgel, inputGorgel, mustSendDebugReplies))
+            tcpServerFactory.listenTCP(bind, actorFactory, secure, JSONByteIOFramerFactory(jsonByteIOFramerGorgel, inputGorgel, mustSendDebugReplies), msgTrace)
 }

@@ -5,7 +5,7 @@ import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.NetworkManager
+import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
@@ -18,13 +18,11 @@ import java.util.function.Consumer
  * is a most one director connection.  However, what director is connected
  * can change over time.
  *
- * @param myNetworkManager  A network manager for making the outbound
- *    connections required.
  * @param gatekeeper  The gatekeeper.
  * @param tr  Trace object for diagnostics.
  */
 internal class DirectorActorFactory(
-        private val myNetworkManager: NetworkManager,
+        private val tcpClientFactory: TcpClientFactory,
         internal val gatekeeper: Gatekeeper,
         private val gorgel: Gorgel,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
@@ -60,7 +58,7 @@ internal class DirectorActorFactory(
             myConnectionRetrier = ConnectionRetrier(
                     director,
                     "director",
-                    myNetworkManager,
+                    tcpClientFactory,
                     this,
                     timer,
                     connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "director")),

@@ -5,7 +5,7 @@ import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionRetrier
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.NetworkManager
+import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
@@ -53,14 +53,13 @@ import java.util.function.Consumer
  * (comma-separated) list of references to class description objects to
  * read from the repository at startup time.
  *  @param serviceFinder  Access to broker, to locate repository server.
- * @param myNetworkManager  Network manager, for making outbound connections.
  * @param localName  Name of this server.
  * @param props  Properties that the hosting server was configured with
  * @param propRoot  Prefix string for generating relevant configuration
  *    property names.
  */
 class ObjDBRemote(serviceFinder: ServiceFinder,
-                  private val myNetworkManager: NetworkManager,
+                  private val tcpClientFactory: TcpClientFactory,
                   localName: String,
                   props: ElkoProperties,
                   propRoot: String,
@@ -136,7 +135,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
             if (currentRepHost != null) {
                 ConnectionRetrier(currentRepHost,
                         "repository",
-                        myNetworkManager,
+                        tcpClientFactory,
                         myMessageHandlerFactory,
                         timer,
                         connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "repository")),

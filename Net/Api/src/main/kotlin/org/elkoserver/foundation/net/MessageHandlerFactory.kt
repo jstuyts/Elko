@@ -4,8 +4,7 @@ package org.elkoserver.foundation.net
  * Interface to handle the application-specific portion of [Connection]
  * creation.
  *
- *
- * An object that implements this interface is given to the [ ] when it is asked to start a listener ([ ][NetworkManager.listenHTTP] or [ listenTCP()][NetworkManager.listenTCP]) or to create an outbound connection ([ ][NetworkManager.connectTCP]).  When a connection is made, the
+ * An object that implements this interface is given to the [ ] when it is asked to start a listener or to create an outbound connection.  When a connection is made, the
  * MessageHandlerFactory will be asked to provide a [MessageHandler] to
  * handle events on the new connection.
  */

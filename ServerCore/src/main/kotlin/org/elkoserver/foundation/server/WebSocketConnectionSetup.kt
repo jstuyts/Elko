@@ -1,8 +1,7 @@
 package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.NetAddr
-import org.elkoserver.foundation.net.NetworkManager
+import org.elkoserver.foundation.net.ws.server.WebSocketServerFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.util.trace.TraceFactory
@@ -16,12 +15,10 @@ class WebSocketConnectionSetup(
         secure: Boolean,
         props: ElkoProperties,
         propRoot: String,
-        private val myNetworkManager: NetworkManager,
+        private val webSocketServerFactory: WebSocketServerFactory,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
         listenerGorgel: Gorgel,
-        private val jsonByteIOFramerGorgel: Gorgel,
-        private val websocketFramerGorgel: Gorgel,
         traceFactory: TraceFactory)
     : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel, listenerGorgel, traceFactory) {
     private val socketURI: String = props.getProperty("$propRoot.sock", "")
@@ -29,15 +26,8 @@ class WebSocketConnectionSetup(
     override val protocol: String = "ws"
 
     @Throws(IOException::class)
-    override fun tryToStartListener(): NetAddr {
-        return myNetworkManager.listenWebSocket(
-                bind,
-                actorFactory,
-                listenerGorgel,
-                jsonByteIOFramerGorgel,
-                websocketFramerGorgel,
-                msgTrace, secure, socketURI)
-    }
+    override fun tryToStartListener() =
+            webSocketServerFactory.listenWebSocket(bind, actorFactory, secure, socketURI, msgTrace)
 
     init {
         val socketURI = props.getProperty("$propRoot.sock", "")

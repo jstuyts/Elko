@@ -14,12 +14,16 @@ import org.elkoserver.foundation.net.HTTPSessionConnection
 import org.elkoserver.foundation.net.JSONByteIOFramer
 import org.elkoserver.foundation.net.JSONHTTPFramer
 import org.elkoserver.foundation.net.Listener
-import org.elkoserver.foundation.net.NetworkManager
 import org.elkoserver.foundation.net.RTCPSessionConnection
 import org.elkoserver.foundation.net.SelectThread
 import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
 import org.elkoserver.foundation.net.WebSocketByteIOFramerFactory
+import org.elkoserver.foundation.net.http.server.HttpServerFactory
+import org.elkoserver.foundation.net.rtcp.server.RtcpServerFactory
+import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
+import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
+import org.elkoserver.foundation.net.ws.server.WebSocketServerFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.BaseConnectionSetup
@@ -156,23 +160,6 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     }
             .dispose { it.shutDown() }
 
-    val networkManager by Once {
-        NetworkManager(
-                req(provided.props()),
-                req(serverLoadMonitor),
-                req(runner),
-                req(provided.timer()),
-                req(provided.clock()),
-                req(httpSessionConnectionCommGorgel),
-                req(rtcpSessionConnectionCommGorgel),
-                req(provided.traceFactory()),
-                req(inputGorgel),
-                req(sessionIdGenerator),
-                req(connectionIdGenerator),
-                req(mustSendDebugReplies),
-                req(selectThread))
-    }
-
     val objDBLocalFactory by Once {
         ObjDBLocalFactory(
                 req(provided.props()),
@@ -183,10 +170,25 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(runner))
     }
 
+    val httpServerFactory by Once {
+        HttpServerFactory(
+                req(provided.props()),
+                req(serverLoadMonitor),
+                req(runner),
+                req(provided.timer()),
+                req(provided.clock()),
+                req(httpSessionConnectionCommGorgel),
+                req(provided.traceFactory()),
+                req(inputGorgel),
+                req(sessionIdGenerator),
+                req(connectionIdGenerator),
+                req(tcpServerFactory))
+    }
+
     val httpConnectionSetupFactory by Once {
         HttpConnectionSetupFactory(
                 req(provided.props()),
-                req(networkManager),
+                req(httpServerFactory),
                 req(baseConnectionSetupGorgel),
                 req(listenerGorgel),
                 req(jsonHttpFramerCommGorgel),
@@ -194,20 +196,40 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(mustSendDebugReplies))
     }
 
+    val rtcpServerFactory by Once {
+        RtcpServerFactory(
+                req(provided.props()),
+                req(serverLoadMonitor),
+                req(runner),
+                req(provided.timer()),
+                req(provided.clock()),
+                req(rtcpSessionConnectionCommGorgel),
+                req(provided.traceFactory()),
+                req(inputGorgel),
+                req(tcpConnectionGorgel),
+                req(sessionIdGenerator),
+                req(connectionIdGenerator),
+                req(mustSendDebugReplies),
+                req(tcpServerFactory))
+    }
+
     val rtcpConnectionSetupFactory by Once {
         RtcpConnectionSetupFactory(
                 req(provided.props()),
-                req(networkManager),
+                req(rtcpServerFactory),
                 req(baseConnectionSetupGorgel),
                 req(listenerGorgel),
-                req(tcpConnectionGorgel),
                 req(provided.traceFactory()))
+    }
+
+    val tcpServerFactory by Once {
+        TcpServerFactory(req(listenerGorgel), req(selectThread))
     }
 
     val tcpConnectionSetupFactory by Once {
         TcpConnectionSetupFactory(
                 req(provided.props()),
-                req(networkManager),
+                req(tcpServerFactory),
                 req(baseConnectionSetupGorgel),
                 req(listenerGorgel),
                 req(provided.traceFactory()),
@@ -216,14 +238,21 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(mustSendDebugReplies))
     }
 
+    val webSocketServerFactory by Once {
+        WebSocketServerFactory(
+                req(inputGorgel),
+                req(jsonByteIoFramerWithoutLabelGorgel),
+                req(websocketFramerGorgel),
+                req(mustSendDebugReplies),
+                req(tcpServerFactory))
+    }
+
     val webSocketConnectionSetupFactory by Once {
         WebSocketConnectionSetupFactory(
                 req(provided.props()),
-                req(networkManager),
+                req(webSocketServerFactory),
                 req(baseConnectionSetupGorgel),
                 req(listenerGorgel),
-                req(jsonByteIoFramerWithoutLabelGorgel),
-                req(websocketFramerGorgel),
                 req(provided.traceFactory()))
     }
 
@@ -241,6 +270,10 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(connectionIdGenerator),
                 req(provided.clock()),
                 req(mustSendDebugReplies))
+    }
+
+    val tcpClientFactory by Once {
+        TcpClientFactory(req(provided.props()), req(serverLoadMonitor), req(runner), req(selectThread))
     }
 
     val server by Once {
@@ -266,7 +299,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(runner),
                 req(objDBRemoteFactory),
                 req(mustSendDebugReplies),
-                req(networkManager),
+                req(tcpClientFactory),
                 req(objDBLocalFactory),
                 req(httpConnectionSetupFactory),
                 req(rtcpConnectionSetupFactory),
@@ -358,7 +391,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(updateRequestFactory),
                 req(queryRequestFactory),
                 req(removeRequestFactory),
-                req(mustSendDebugReplies))
+                req(mustSendDebugReplies),
+                req(tcpClientFactory))
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }

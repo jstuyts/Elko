@@ -1,7 +1,7 @@
 package org.elkoserver.objdb
 
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
-import org.elkoserver.foundation.net.NetworkManager
+import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceFinder
@@ -26,11 +26,12 @@ class ObjDBRemoteFactory(
         private val updateRequestFactory: UpdateRequestFactory,
         private val queryRequestFactory: QueryRequestFactory,
         private val removeRequestFactory: RemoveRequestFactory,
-        private val mustSendDebugReplies: Boolean) {
-    fun create(serviceFinder: ServiceFinder, networkManager: NetworkManager, serverName: String, propRoot: String) =
+        private val mustSendDebugReplies: Boolean,
+        private val tcpClientFactory: TcpClientFactory) {
+    fun create(serviceFinder: ServiceFinder, serverName: String, propRoot: String) =
             ObjDBRemote(
                     serviceFinder,
-                    networkManager,
+                    tcpClientFactory,
                     serverName,
                     myProps,
                     propRoot,

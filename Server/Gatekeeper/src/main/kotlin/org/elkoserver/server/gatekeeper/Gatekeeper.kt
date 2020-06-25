@@ -4,6 +4,7 @@ import org.elkoserver.foundation.actor.BasicProtocolActor
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageHandlerException
+import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
@@ -23,6 +24,7 @@ import java.util.function.Consumer
  */
 class Gatekeeper internal constructor(
         private val myServer: Server,
+        tcpClientFactory: TcpClientFactory,
         private val gorgel: Gorgel,
         directorActorFactoryGorgel: Gorgel,
         connectionRetrierWithoutLabelGorgel: Gorgel,
@@ -136,7 +138,7 @@ class Gatekeeper internal constructor(
     init {
         refTable.addRef(AdminHandler(this, traceFactory))
         myDirectorActorFactory = DirectorActorFactory(
-                myServer.networkManager,
+                tcpClientFactory,
                 this,
                 directorActorFactoryGorgel,
                 connectionRetrierWithoutLabelGorgel,
