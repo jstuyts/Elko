@@ -16,6 +16,7 @@ import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
 import org.elkoserver.foundation.net.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
+import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.net.http.server.HTTPSessionConnection
 import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
 import org.elkoserver.foundation.net.http.server.HttpServerFactory
@@ -273,6 +274,17 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
         TcpClientFactory(req(provided.props()), req(serverLoadMonitor), req(runner), req(selectThread))
     }
 
+    val connectionRetrierFactory by Once {
+        ConnectionRetrierFactory(
+                req(tcpClientFactory),
+                req(provided.timer()),
+                req(connectionRetrierWithoutLabelGorgel),
+                req(jsonByteIoFramerWithoutLabelGorgel),
+                req(workTrace),
+                req(inputGorgel),
+                req(mustSendDebugReplies))
+    }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -281,12 +293,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
-                req(connectionRetrierWithoutLabelGorgel),
-                req(jsonByteIoFramerWithoutLabelGorgel),
                 req(brokerActorGorgel),
                 req(workTrace),
-                req(provided.timer()),
-                req(inputGorgel),
                 req(methodInvokerCommGorgel),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
@@ -296,13 +304,13 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(runner),
                 req(objDBRemoteFactory),
                 req(mustSendDebugReplies),
-                req(tcpClientFactory),
                 req(objDBLocalFactory),
                 req(httpConnectionSetupFactory),
                 req(rtcpConnectionSetupFactory),
                 req(tcpConnectionSetupFactory),
                 req(websocketConnectionSetupFactory),
-                req(zeromqConnectionSetupFactory))
+                req(zeromqConnectionSetupFactory),
+                req(connectionRetrierFactory))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -360,12 +368,7 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.props()),
                 req(objDbRemoteGorgel),
                 req(methodInvokerCommGorgel),
-                req(connectionRetrierWithoutLabelGorgel),
-                req(jsonByteIoFramerWithoutLabelGorgel),
                 req(odbActorGorgel),
-                req(provided.traceFactory()),
-                req(inputGorgel),
-                req(provided.timer()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(jsonToObjectDeserializer),
                 req(getRequestFactory),
@@ -374,7 +377,7 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(queryRequestFactory),
                 req(removeRequestFactory),
                 req(mustSendDebugReplies),
-                req(tcpClientFactory))
+                req(connectionRetrierFactory))
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }

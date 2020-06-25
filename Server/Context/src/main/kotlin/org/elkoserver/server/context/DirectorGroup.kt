@@ -5,7 +5,7 @@ import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
+import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.Server
@@ -29,15 +29,11 @@ import java.util.ConcurrentModificationException
  * @param tr  Trace object for diagnostics.
  */
 class DirectorGroup(server: Server,
-                    tcpClientFactory: TcpClientFactory,
                     contextor: Contextor,
                     directors: MutableList<HostDesc>,
                     internal val listeners: List<HostDesc>,
                     tr: Trace,
                     gorgel: Gorgel,
-                    inputGorgel: Gorgel,
-                    connectionRetrierWithoutLabelGorgel: Gorgel,
-                    jsonByteIoFramerGorgel: Gorgel,
                     methodInvokerCommGorgel: Gorgel,
                     private val reservationGorgel: Gorgel,
                     private val directorActorGorgel: Gorgel,
@@ -45,22 +41,19 @@ class DirectorGroup(server: Server,
                     internal val reservationTimeout: Int,
                     props: ElkoProperties,
                     jsonToObjectDeserializer: JsonToObjectDeserializer,
-                    private val mustSendDebugReplies: Boolean) : OutboundGroup(
+                    private val mustSendDebugReplies: Boolean,
+                    connectionRetrierFactory: ConnectionRetrierFactory) : OutboundGroup(
         "conf.register",
         server,
-        tcpClientFactory,
         contextor,
         directors,
         tr,
         gorgel,
-        inputGorgel,
-        connectionRetrierWithoutLabelGorgel,
-        jsonByteIoFramerGorgel,
         methodInvokerCommGorgel,
         timer,
         props,
         jsonToObjectDeserializer,
-        mustSendDebugReplies) {
+        connectionRetrierFactory) {
 
     /** Iterator for cycling through arbitrary relays.  */
     private var myDirectorPicker: Iterator<Deliverer>? = null

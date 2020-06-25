@@ -17,6 +17,7 @@ import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
 import org.elkoserver.foundation.net.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
+import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.net.http.server.HTTPSessionConnection
 import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
 import org.elkoserver.foundation.net.http.server.HttpServerFactory
@@ -280,6 +281,17 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
         TcpClientFactory(req(provided.props()), req(serverLoadMonitor), req(runner), req(selectThread))
     }
 
+    val connectionRetrierFactory by Once {
+        ConnectionRetrierFactory(
+                req(tcpClientFactory),
+                req(provided.timer()),
+                req(connectionRetrierWithoutLabelGorgel),
+                req(jsonByteIoFramerWithoutLabelGorgel),
+                req(gateTrace),
+                req(inputGorgel),
+                req(mustSendDebugReplies))
+    }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -288,12 +300,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(serviceLinkGorgel),
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
-                req(connectionRetrierWithoutLabelGorgel),
-                req(jsonByteIoFramerWithoutLabelGorgel),
                 req(brokerActorGorgel),
                 req(gateTrace),
-                req(provided.timer()),
-                req(inputGorgel),
                 req(methodInvokerCommGorgel),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
@@ -303,13 +311,13 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(runner),
                 req(objDBRemoteFactory),
                 req(mustSendDebugReplies),
-                req(tcpClientFactory),
                 req(objDBLocalFactory),
                 req(httpConnectionSetupFactory),
                 req(rtcpConnectionSetupFactory),
                 req(tcpConnectionSetupFactory),
                 req(websocketConnectionSetupFactory),
-                req(zeromqConnectionSetupFactory))
+                req(zeromqConnectionSetupFactory),
+                req(connectionRetrierFactory))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -385,12 +393,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.props()),
                 req(objDbRemoteGorgel),
                 req(methodInvokerCommGorgel),
-                req(connectionRetrierWithoutLabelGorgel),
-                req(jsonByteIoFramerWithoutLabelGorgel),
                 req(odbActorGorgel),
-                req(provided.traceFactory()),
-                req(inputGorgel),
-                req(provided.timer()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(jsonToObjectDeserializer),
                 req(getRequestFactory),
@@ -399,7 +402,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(queryRequestFactory),
                 req(removeRequestFactory),
                 req(mustSendDebugReplies),
-                req(tcpClientFactory))
+                req(connectionRetrierFactory))
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
@@ -417,21 +420,17 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
     val gatekeeper: D<Gatekeeper> by Once {
         Gatekeeper(
                 req(server),
-                req(tcpClientFactory),
                 req(gatekeeperGorgel),
                 req(directorActorFactoryGorgel),
-                req(connectionRetrierWithoutLabelGorgel),
                 req(directorActorGorgel),
                 req(methodInvokerCommGorgel),
-                req(jsonByteIoFramerWithoutLabelGorgel),
                 req(gateTrace),
-                req(provided.timer()),
                 req(provided.traceFactory()),
-                req(inputGorgel),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(provided.props()),
                 req(jsonToObjectDeserializer),
-                req(mustSendDebugReplies))
+                req(mustSendDebugReplies),
+                req(connectionRetrierFactory))
     }
 
     val actionTimeout by Once { 1000 * req(provided.props()).intProperty("conf.gatekeeper.actiontimeout", GatekeeperBoot.DEFAULT_ACTION_TIMEOUT) }

@@ -7,10 +7,9 @@ import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
+import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
 import org.elkoserver.foundation.net.rtcp.server.RtcpConnectionSetupFactory
-import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.net.tcp.server.TcpConnectionSetupFactory
 import org.elkoserver.foundation.net.ws.server.WebsocketConnectionSetupFactory
 import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
@@ -22,7 +21,6 @@ import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.server.metadata.ServiceFinder
-import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.objdb.ObjDBLocalFactory
@@ -30,7 +28,6 @@ import org.elkoserver.objdb.ObjDBRemoteFactory
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
-import org.elkoserver.util.trace.slf4j.Tag
 import java.util.HashMap
 import java.util.HashSet
 import java.util.LinkedList
@@ -56,12 +53,8 @@ class Server(
         private val serviceLinkGorgel: Gorgel,
         private val serviceActorGorgel: Gorgel,
         private val serviceActorCommGorgel: Gorgel,
-        private val connectionRetrierWithoutLabelGorgel: Gorgel,
-        private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
         private val brokerActorGorgel: Gorgel,
         private val tr: Trace,
-        private val timer: Timer,
-        private val inputGorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
@@ -71,13 +64,13 @@ class Server(
         private val runner: Runner,
         private val objDBRemoteFactory: ObjDBRemoteFactory,
         private val mustSendDebugReplies: Boolean,
-        private val tcpClientFactory: TcpClientFactory,
         private val objDBLocalFactory: ObjDBLocalFactory,
         private val httpConnectionSetupFactory: HttpConnectionSetupFactory,
         private val rtcpConnectionSetupFactory: RtcpConnectionSetupFactory,
         private val tcpConnectionSetupFactory: TcpConnectionSetupFactory,
         private val websocketConnectionSetupFactory: WebsocketConnectionSetupFactory,
-        private val zeromqConnectionSetupFactory: ZeromqConnectionSetupFactory)
+        private val zeromqConnectionSetupFactory: ZeromqConnectionSetupFactory,
+        private val connectionRetrierFactory: ConnectionRetrierFactory)
     : ServiceFinder {
 
     /** The name of this server (for logging).  */
@@ -158,17 +151,7 @@ class Server(
      */
     private fun connectToBroker() {
         if (!amShuttingDown) {
-            ConnectionRetrier(
-                    myBrokerHost!!,
-                    "broker",
-                    tcpClientFactory,
-                    BrokerMessageHandlerFactory(),
-                    timer,
-                    connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "broker")),
-                    jsonByteIOFramerWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "broker")),
-                    tr,
-                    inputGorgel,
-                    mustSendDebugReplies)
+            connectionRetrierFactory.create(myBrokerHost!!, "broker", BrokerMessageHandlerFactory())
         }
     }
 
@@ -305,17 +288,7 @@ class Server(
             }
             val actor = myServiceActorsByProviderID[desc.providerID]
             actor?.let(::connectLinkToActor)
-                    ?: ConnectionRetrier(
-                            desc.asHostDesc(-1),
-                            myLabel,
-                            tcpClientFactory,
-                            this,
-                            timer,
-                            connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", myLabel)),
-                            jsonByteIOFramerWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", myLabel)),
-                            tr,
-                            inputGorgel,
-                            mustSendDebugReplies)
+                    ?: connectionRetrierFactory.create(desc.asHostDesc(-1), myLabel, this)
         }
 
         /**

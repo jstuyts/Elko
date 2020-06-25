@@ -4,14 +4,13 @@ import org.elkoserver.foundation.actor.BasicProtocolActor
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageHandlerException
-import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
+import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
-import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -24,21 +23,17 @@ import java.util.function.Consumer
  */
 class Gatekeeper internal constructor(
         private val myServer: Server,
-        tcpClientFactory: TcpClientFactory,
         private val gorgel: Gorgel,
         directorActorFactoryGorgel: Gorgel,
-        connectionRetrierWithoutLabelGorgel: Gorgel,
         directorActorGorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
-        jsonByteIOFramerGorgel: Gorgel,
         tr: Trace,
-        timer: Timer,
         traceFactory: TraceFactory,
-        inputGorgel: Gorgel,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         props: ElkoProperties,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
-        mustSendDebugReplies: Boolean) {
+        mustSendDebugReplies: Boolean,
+        connectionRetrierFactory: ConnectionRetrierFactory) {
     /** Table for mapping object references in messages.  */
     internal val refTable: RefTable = RefTable(null, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
 
@@ -138,18 +133,14 @@ class Gatekeeper internal constructor(
     init {
         refTable.addRef(AdminHandler(this, traceFactory))
         myDirectorActorFactory = DirectorActorFactory(
-                tcpClientFactory,
                 this,
                 directorActorFactoryGorgel,
-                connectionRetrierWithoutLabelGorgel,
                 directorActorGorgel,
                 methodInvokerCommGorgel,
-                jsonByteIOFramerGorgel,
                 tr,
-                timer,
-                inputGorgel,
                 jsonToObjectDeserializer,
-                mustSendDebugReplies)
+                mustSendDebugReplies,
+                connectionRetrierFactory)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
         if (props.testProperty("conf.gatekeeper.director.auto")) {
             myServer.findService("director-user", DirectorFoundRunnable(), false)

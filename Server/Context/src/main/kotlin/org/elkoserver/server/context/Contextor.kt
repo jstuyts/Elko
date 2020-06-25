@@ -5,7 +5,7 @@ import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
+import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServiceLink
@@ -52,7 +52,6 @@ import kotlin.math.abs
 class Contextor internal constructor(
         val odb: ObjDB,
         val server: Server,
-        private val tcpClientFactory: TcpClientFactory,
         @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace,
         private val contextorGorgel: Gorgel,
         private val contextGorgelWithoutRef: Gorgel,
@@ -62,10 +61,7 @@ class Contextor internal constructor(
         private val presencerGroupGorgel: Gorgel,
         private val presencerActorGorgel: Gorgel,
         private val reservationGorgel: Gorgel,
-        private val connectionRetrierWithoutLabelGorgel: Gorgel,
-        private val jsonByteIoFramerGorgel: Gorgel,
         private val directorActorGorgel: Gorgel,
-        private val inputGorgel: Gorgel,
         sessionGorgel: Gorgel,
         private val methodInvokerCommGorgel: Gorgel,
         private val timer: Timer,
@@ -79,7 +75,8 @@ class Contextor internal constructor(
         sessionPassword: String?,
         private val props: ElkoProperties,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer,
-        private val mustSendDebugReplies: Boolean) {
+        private val mustSendDebugReplies: Boolean,
+        private val connectionRetrierFactory: ConnectionRetrierFactory) {
     /** Table for mapping object references in messages.  */
     internal val refTable = RefTable(odb, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
 
@@ -982,15 +979,11 @@ class Contextor internal constructor(
     fun registerWithDirectors(directors: MutableList<HostDesc>, listeners: List<HostDesc>) {
         val group = DirectorGroup(
                 server,
-                tcpClientFactory,
                 this,
                 directors,
                 listeners,
                 tr,
                 directorGroupGorgel,
-                inputGorgel,
-                connectionRetrierWithoutLabelGorgel,
-                jsonByteIoFramerGorgel,
                 methodInvokerCommGorgel,
                 reservationGorgel,
                 directorActorGorgel,
@@ -998,7 +991,8 @@ class Contextor internal constructor(
                 reservationTimeout,
                 props,
                 jsonToObjectDeserializer,
-                mustSendDebugReplies)
+                mustSendDebugReplies,
+                connectionRetrierFactory)
         if (group.isLive) {
             myDirectorGroup = group
         }
@@ -1013,20 +1007,17 @@ class Contextor internal constructor(
     fun registerWithPresencers(presencers: MutableList<HostDesc>) {
         val group = PresencerGroup(
                 server,
-                tcpClientFactory,
                 this,
                 presencers,
                 tr,
                 presencerGroupGorgel,
-                inputGorgel,
-                connectionRetrierWithoutLabelGorgel,
-                jsonByteIoFramerGorgel,
                 methodInvokerCommGorgel,
                 timer,
                 props,
                 jsonToObjectDeserializer,
                 presencerActorGorgel,
-                mustSendDebugReplies)
+                mustSendDebugReplies,
+                connectionRetrierFactory)
         if (group.isLive) {
             myPresencerGroup = group
         }

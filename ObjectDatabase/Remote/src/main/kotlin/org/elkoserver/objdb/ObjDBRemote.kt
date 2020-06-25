@@ -4,21 +4,17 @@ import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
-import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
+import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.server.metadata.ServiceFinder
-import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.store.ObjectDesc
 import org.elkoserver.objdb.store.ResultDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import org.elkoserver.util.trace.slf4j.Tag
 import java.util.HashMap
 import java.util.LinkedList
 import java.util.function.Consumer
@@ -59,18 +55,12 @@ import java.util.function.Consumer
  *    property names.
  */
 class ObjDBRemote(serviceFinder: ServiceFinder,
-                  private val tcpClientFactory: TcpClientFactory,
                   localName: String,
                   props: ElkoProperties,
                   propRoot: String,
                   gorgel: Gorgel,
                   methodInvokerCommGorgel: Gorgel,
-                  private val connectionRetrierWithoutLabelGorgel: Gorgel,
-                  private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
                   private val odbActorGorgel: Gorgel,
-                  private val traceFactory: TraceFactory,
-                  private val inputGorgel: Gorgel,
-                  private val timer: Timer,
                   hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
                   jsonToObjectDeserializer: JsonToObjectDeserializer,
                   private val getRequestFactory: GetRequestFactory,
@@ -78,7 +68,8 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                   private val updateRequestFactory: UpdateRequestFactory,
                   private val queryRequestFactory: QueryRequestFactory,
                   private val removeRequestFactory: RemoveRequestFactory,
-                  private val mustSendDebugReplies: Boolean) : ObjDBBase(gorgel, jsonToObjectDeserializer) {
+                  private val mustSendDebugReplies: Boolean,
+                  private val connectionRetrierFactory: ConnectionRetrierFactory) : ObjDBBase(gorgel, jsonToObjectDeserializer) {
     /** Connection to the repository, if there is one.  */
     private var myODBActor: ODBActor? = null
 
@@ -133,16 +124,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
         if (!amClosing) {
             val currentRepHost = myRepHost
             if (currentRepHost != null) {
-                ConnectionRetrier(currentRepHost,
-                        "repository",
-                        tcpClientFactory,
-                        myMessageHandlerFactory,
-                        timer,
-                        connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "repository")),
-                        jsonByteIOFramerWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", "repository")),
-                        traceFactory.comm,
-                        inputGorgel,
-                        mustSendDebugReplies)
+                connectionRetrierFactory.create(currentRepHost, "repository", myMessageHandlerFactory)
             }
         }
     }

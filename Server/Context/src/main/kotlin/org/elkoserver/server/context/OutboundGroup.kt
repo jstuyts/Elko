@@ -6,8 +6,7 @@ import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
-import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
+import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.ReinitWatcher
 import org.elkoserver.foundation.server.Server
@@ -16,7 +15,6 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
-import org.elkoserver.util.trace.slf4j.Tag
 import java.util.function.Consumer
 
 /**
@@ -33,19 +31,15 @@ import java.util.function.Consumer
  */
 abstract class OutboundGroup(propRoot: String,
                              private val myServer: Server,
-                             private val tcpClientFactory: TcpClientFactory,
                              internal val contextor: Contextor,
                              hosts: MutableList<HostDesc>,
                              private val tr: Trace,
                              gorgel: Gorgel,
-                             private val inputGorgel: Gorgel,
-                             private val connectionRetrierWithoutLabelGorgel: Gorgel,
-                             private val jsonByteIOFramerGorgel: Gorgel,
                              methodInvokerCommGorgel: Gorgel,
                              protected val timer: Timer,
                              props: ElkoProperties,
                              jsonToObjectDeserializer: JsonToObjectDeserializer,
-                             private val mustSendDebugReplies: Boolean) : LiveGroup() {
+                             private val connectionRetrierFactory: ConnectionRetrierFactory) : LiveGroup() {
     /** The statically configured external servers in this group.  */
     private val myHosts: List<HostDesc>
 
@@ -71,8 +65,7 @@ abstract class OutboundGroup(propRoot: String,
      */
     fun connectHosts() {
         for (host in myHosts) {
-            ConnectionRetrier(host, label(), tcpClientFactory,
-                    HostConnector(host), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), jsonByteIOFramerGorgel, tr, inputGorgel, mustSendDebugReplies)
+            connectionRetrierFactory.create(host, label(), HostConnector(host))
         }
         if (amAutoRegister) {
             myServer.findService(service(), HostFoundHandler(), true)
@@ -91,8 +84,7 @@ abstract class OutboundGroup(propRoot: String,
                     .filter { it.failure == null }
                     .map { it.asHostDesc(myRetryInterval) }
                     .forEach {
-                        ConnectionRetrier(it, label(), tcpClientFactory,
-                                HostConnector(it), timer, connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label())), jsonByteIOFramerGorgel, tr, inputGorgel, mustSendDebugReplies)
+                        connectionRetrierFactory.create(it, label(), HostConnector(it))
                     }
         }
     }

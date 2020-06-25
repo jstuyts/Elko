@@ -4,7 +4,7 @@ import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
+import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -25,36 +25,29 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  */
 internal class PresencerGroup(
         server: Server,
-        tcpClientFactory: TcpClientFactory,
         contextor: Contextor,
         presencers: MutableList<HostDesc>,
         tr: Trace,
         gorgel: Gorgel,
-        inputGorgel: Gorgel,
-        connectionRetrierWithoutLabelGorgel: Gorgel,
-        jsonByteIoFramerGorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
         timer: Timer,
         props: ElkoProperties,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val presencerActorGorgel: Gorgel,
-        private val mustSendDebugReplies: Boolean)
+        private val mustSendDebugReplies: Boolean,
+        connectionRetrierFactory: ConnectionRetrierFactory)
     : OutboundGroup(
         "conf.presence",
         server,
-        tcpClientFactory,
         contextor,
         presencers,
         tr,
         gorgel,
-        inputGorgel,
-        connectionRetrierWithoutLabelGorgel,
-        jsonByteIoFramerGorgel,
         methodInvokerCommGorgel,
         timer,
         props,
         jsonToObjectDeserializer,
-        mustSendDebugReplies) {
+        connectionRetrierFactory) {
     /* ----- required OutboundGroup methods ----- */
     /**
      * Obtain the class of actors in this group (in this case, PresenceActor).
