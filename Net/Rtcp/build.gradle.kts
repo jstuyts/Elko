@@ -8,9 +8,17 @@ plugins {
 repositories {
     jcenter()
     mavenCentral()
+    maven {
+        url = uri("https://dl.bintray.com/squins/Squins")
+    }
 }
 
 dependencies {
+    api(project(":ByteIoFramer:Rtcp"))
+    api(project(":Net:Tcp"))
+    api(project(":Timer"))
+    api(project(":Trace"))
+
     implementation(kotlin("stdlib-jdk8"))
 }
 

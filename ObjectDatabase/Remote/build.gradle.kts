@@ -15,6 +15,8 @@ repositories {
 
 dependencies {
     api(project(":Net:Api"))
+    api(project(":Net:ConnectionRetrier"))
+    api(project(":Net:Tcp"))
     api(project(":ObjectDatabase:Api"))
     api(project(":Properties"))
     api(project(":ServerMetadata"))

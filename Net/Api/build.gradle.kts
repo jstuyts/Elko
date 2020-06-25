@@ -19,16 +19,9 @@ dependencies {
     api(project(":Properties"))
     api(project(":Running"))
     api(project(":ServerMetadata"))
-    api(project(":Timer"))
     api(project(":Trace"))
 
-    implementation(project(":ByteIoFramer:Json"))
-    implementation(project(":ByteIoFramer:Http"))
-    implementation(project(":ByteIoFramer:Rtcp"))
-    implementation(project(":ByteIoFramer:WebSocket"))
-    implementation(project(":Communication"))
     implementation(kotlin("stdlib-jdk8"))
-    implementation(Libraries.jeromq)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {
