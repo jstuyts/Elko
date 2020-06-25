@@ -4,8 +4,8 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.HTTPError
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.WebSocketHandshake
-import org.elkoserver.foundation.net.WebSocketRequest
+import org.elkoserver.foundation.net.WebsocketHandshake
+import org.elkoserver.foundation.net.WebsocketRequest
 import org.elkoserver.util.trace.Trace
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
@@ -27,7 +27,7 @@ import java.util.stream.Collectors
  * @param mySocketURI  The URI of the WebSocket connection point.
  * @param trMsg  Trace object for message logging
  */
-internal class WebSocketMessageHandlerFactory(
+internal class WebsocketMessageHandlerFactory(
         private val myInnerFactory: MessageHandlerFactory,
         private val mySocketURI: String,
         private val trMsg: Trace) : MessageHandlerFactory {
@@ -61,7 +61,7 @@ internal class WebSocketMessageHandlerFactory(
                 makeErrorReply(problem)))
     }
 
-    private fun doConnectionHandshake(connection: Connection, request: WebSocketRequest) {
+    private fun doConnectionHandshake(connection: Connection, request: WebsocketRequest) {
         val key = request.header("sec-websocket-key")
         val key1 = request.header("sec-websocket-key1")
         val key2 = request.header("sec-websocket-key2")
@@ -85,7 +85,7 @@ internal class WebSocketMessageHandlerFactory(
         }
     }
 
-    private fun getConnectionValues(request: WebSocketRequest): Set<String> = Arrays.stream(request.header("connection")!!.split(",").toTypedArray()).map { obj: String -> obj.trim { it <= ' ' } }.collect(Collectors.toSet())
+    private fun getConnectionValues(request: WebsocketRequest): Set<String> = Arrays.stream(request.header("connection")!!.split(",").toTypedArray()).map { obj: String -> obj.trim { it <= ' ' } }.collect(Collectors.toSet())
 
     private fun insaneKeyDecode(key: String): Long {
         var spaceCount = 0
@@ -104,7 +104,7 @@ internal class WebSocketMessageHandlerFactory(
 
     private fun generateRidiculousHandshake0(key1: String,
                                              key2: String,
-                                             crazyKey: ByteArray?): WebSocketHandshake {
+                                             crazyKey: ByteArray?): WebsocketHandshake {
         return try {
             val md5 = MessageDigest.getInstance("MD5")
             val numBytes = ByteArray(4)
@@ -121,18 +121,18 @@ internal class WebSocketMessageHandlerFactory(
             numBytes[3] = keyNum.toByte()
             md5.update(numBytes)
             trMsg.debugm("Crazy key = ${String.format("%02x %02x %02x %02x %02x %02x %02x %02x", crazyKey!![0], crazyKey[1], crazyKey[2], crazyKey[3], crazyKey[4], crazyKey[5], crazyKey[6], crazyKey[7])}")
-            WebSocketHandshake(0, md5.digest(crazyKey))
+            WebsocketHandshake(0, md5.digest(crazyKey))
         } catch (e: NoSuchAlgorithmException) {
             throw UnsupportedOperationException("MD5 not available", e)
         }
     }
 
-    private fun generateRidiculousHandshake6(key: String): WebSocketHandshake {
+    private fun generateRidiculousHandshake6(key: String): WebsocketHandshake {
         return try {
             val sha1 = MessageDigest.getInstance("SHA-1")
             val inString = key + MAGIC_WS_HANDSHAKE_GUID
             sha1.update(inString.toByteArray(StandardCharsets.ISO_8859_1))
-            WebSocketHandshake(6, sha1.digest())
+            WebsocketHandshake(6, sha1.digest())
         } catch (e: NoSuchAlgorithmException) {
             throw UnsupportedOperationException("SHA1 not available", e)
         }
@@ -143,9 +143,9 @@ internal class WebSocketMessageHandlerFactory(
      *
      * @param connection  The TCP connection object that was just created.
      */
-    override fun provideMessageHandler(connection: Connection?): MessageHandler = WebSocketMessageHandler(connection!!, myInnerFactory.provideMessageHandler(connection)!!)
+    override fun provideMessageHandler(connection: Connection?): MessageHandler = WebsocketMessageHandler(connection!!, myInnerFactory.provideMessageHandler(connection)!!)
 
-    private inner class WebSocketMessageHandler internal constructor(var myConnection: Connection,
+    private inner class WebsocketMessageHandler internal constructor(var myConnection: Connection,
                                                                      var myInnerHandler: MessageHandler) : MessageHandler {
 
         /**
@@ -165,7 +165,7 @@ internal class WebSocketMessageHandlerFactory(
          * @param message  The incoming message.
          */
         override fun processMessage(connection: Connection, message: Any) {
-            if (message is WebSocketRequest) {
+            if (message is WebsocketRequest) {
                 doConnectionHandshake(connection, message)
             } else {
                 myInnerHandler.processMessage(connection, message)

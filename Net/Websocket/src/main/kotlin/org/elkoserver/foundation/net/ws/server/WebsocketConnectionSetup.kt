@@ -8,14 +8,14 @@ import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
-class WebSocketConnectionSetup(
+class WebsocketConnectionSetup(
         label: String?,
         host: String,
         auth: AuthDesc,
         secure: Boolean,
         props: ElkoProperties,
         propRoot: String,
-        private val webSocketServerFactory: WebSocketServerFactory,
+        private val websocketServerFactory: WebsocketServerFactory,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
         listenerGorgel: Gorgel,
@@ -27,7 +27,7 @@ class WebSocketConnectionSetup(
 
     @Throws(IOException::class)
     override fun tryToStartListener() =
-            webSocketServerFactory.listenWebSocket(bind, actorFactory, secure, socketURI, msgTrace)
+            websocketServerFactory.listenWebsocket(bind, actorFactory, secure, socketURI, msgTrace)
 
     init {
         val socketURI = props.getProperty("$propRoot.sock", "")

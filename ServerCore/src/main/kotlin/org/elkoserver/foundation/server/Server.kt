@@ -12,7 +12,7 @@ import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
 import org.elkoserver.foundation.net.rtcp.server.RtcpConnectionSetupFactory
 import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.net.tcp.server.TcpConnectionSetupFactory
-import org.elkoserver.foundation.net.ws.server.WebSocketConnectionSetupFactory
+import org.elkoserver.foundation.net.ws.server.WebsocketConnectionSetupFactory
 import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
@@ -76,7 +76,7 @@ class Server(
         private val httpConnectionSetupFactory: HttpConnectionSetupFactory,
         private val rtcpConnectionSetupFactory: RtcpConnectionSetupFactory,
         private val tcpConnectionSetupFactory: TcpConnectionSetupFactory,
-        private val webSocketConnectionSetupFactory: WebSocketConnectionSetupFactory,
+        private val websocketConnectionSetupFactory: WebsocketConnectionSetupFactory,
         private val zeromqConnectionSetupFactory: ZeromqConnectionSetupFactory)
     : ServiceFinder {
 
@@ -548,7 +548,7 @@ class Server(
             "tcp" -> tcpConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
             "rtcp" -> rtcpConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
             "http" -> httpConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
-            "ws" -> webSocketConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
+            "ws" -> websocketConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
             "zmq" -> zeromqConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
             else -> {
                 gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")

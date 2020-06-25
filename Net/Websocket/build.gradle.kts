@@ -15,7 +15,7 @@ repositories {
 
 dependencies {
     api(project(":ByteIoFramer:Http"))
-    api(project(":ByteIoFramer:WebSocket"))
+    api(project(":ByteIoFramer:Websocket"))
     api(project(":Net:Tcp"))
     api(project(":Trace"))
 

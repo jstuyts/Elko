@@ -2,13 +2,13 @@ package org.elkoserver.foundation.net.ws.server
 
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
-import org.elkoserver.foundation.net.WebSocketByteIOFramerFactory
+import org.elkoserver.foundation.net.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
-class WebSocketServerFactory(
+class WebsocketServerFactory(
         private val inputGorgel: Gorgel,
         private val jsonByteIOFramerGorgel: Gorgel,
         private val websocketFramerGorgel: Gorgel,
@@ -28,15 +28,15 @@ class WebSocketServerFactory(
      * @return the address that ended up being listened upon
      */
     @Throws(IOException::class)
-    fun listenWebSocket(listenAddress: String,
+    fun listenWebsocket(listenAddress: String,
                         innerHandlerFactory: MessageHandlerFactory,
                         secure: Boolean, socketURI: String, trace: Trace): NetAddr {
         var actualSocketURI = socketURI
         if (!actualSocketURI.startsWith("/")) {
             actualSocketURI = "/$actualSocketURI"
         }
-        val outerHandlerFactory = WebSocketMessageHandlerFactory(innerHandlerFactory, actualSocketURI, trace)
-        val framerFactory = WebSocketByteIOFramerFactory(jsonByteIOFramerGorgel, websocketFramerGorgel, listenAddress, actualSocketURI, inputGorgel, mustSendDebugReplies)
+        val outerHandlerFactory = WebsocketMessageHandlerFactory(innerHandlerFactory, actualSocketURI, trace)
+        val framerFactory = WebsocketByteIOFramerFactory(jsonByteIOFramerGorgel, websocketFramerGorgel, listenAddress, actualSocketURI, inputGorgel, mustSendDebugReplies)
         return tcpServerFactory.listenTCP(listenAddress, outerHandlerFactory, secure, framerFactory, trace)
     }
 }

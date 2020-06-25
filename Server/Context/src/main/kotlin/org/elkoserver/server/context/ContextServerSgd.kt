@@ -14,7 +14,7 @@ import org.elkoserver.foundation.net.Listener
 import org.elkoserver.foundation.net.SelectThread
 import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
-import org.elkoserver.foundation.net.WebSocketByteIOFramerFactory
+import org.elkoserver.foundation.net.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
 import org.elkoserver.foundation.net.http.server.HTTPSessionConnection
 import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
@@ -26,8 +26,8 @@ import org.elkoserver.foundation.net.rtcp.server.RtcpServerFactory
 import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.net.tcp.server.TcpConnectionSetupFactory
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
-import org.elkoserver.foundation.net.ws.server.WebSocketConnectionSetupFactory
-import org.elkoserver.foundation.net.ws.server.WebSocketServerFactory
+import org.elkoserver.foundation.net.ws.server.WebsocketConnectionSetupFactory
+import org.elkoserver.foundation.net.ws.server.WebsocketServerFactory
 import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
@@ -102,7 +102,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val jsonHttpFramerCommGorgel by Once { req(provided.baseGorgel()).getChild(JSONHTTPFramer::class).withAdditionalStaticTags(Tag("category", "comm")) }
     val tcpConnectionGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class) }
     val jsonByteIoFramerWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(JSONByteIOFramer::class) }
-    val websocketFramerGorgel by Once { req(provided.baseGorgel()).getChild(WebSocketByteIOFramerFactory.WebSocketFramer::class) }
+    val websocketFramerGorgel by Once { req(provided.baseGorgel()).getChild(WebsocketByteIOFramerFactory.WebsocketFramer::class) }
     val methodInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(MethodInvoker::class).withAdditionalStaticTags(Tag("category", "comm")) }
     val constructorInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(ConstructorInvoker::class).withAdditionalStaticTags(Tag("category", "comm")) }
 
@@ -285,8 +285,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(mustSendDebugReplies))
     }
 
-    val webSocketServerFactory by Once {
-        WebSocketServerFactory(
+    val websocketServerFactory by Once {
+        WebsocketServerFactory(
                 req(inputGorgel),
                 req(jsonByteIoFramerWithoutLabelGorgel),
                 req(websocketFramerGorgel),
@@ -294,10 +294,10 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(tcpServerFactory))
     }
 
-    val webSocketConnectionSetupFactory by Once {
-        WebSocketConnectionSetupFactory(
+    val websocketConnectionSetupFactory by Once {
+        WebsocketConnectionSetupFactory(
                 req(provided.props()),
-                req(webSocketServerFactory),
+                req(websocketServerFactory),
                 req(baseConnectionSetupGorgel),
                 req(listenerGorgel),
                 req(provided.traceFactory()))
@@ -351,7 +351,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(httpConnectionSetupFactory),
                 req(rtcpConnectionSetupFactory),
                 req(tcpConnectionSetupFactory),
-                req(webSocketConnectionSetupFactory),
+                req(websocketConnectionSetupFactory),
                 req(zeromqConnectionSetupFactory))
     }
             .wire {

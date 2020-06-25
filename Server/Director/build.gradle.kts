@@ -20,7 +20,7 @@ dependencies {
 
     implementation(project(":Actor"))
     implementation(project(":ByteIoFramer:Json"))
-    implementation(project(":ByteIoFramer:WebSocket"))
+    implementation(project(":ByteIoFramer:Websocket"))
     implementation(project(":Communication"))
     implementation(project(":JsonMessageHandling"))
     implementation(project(":ObjectDatabase:Local"))

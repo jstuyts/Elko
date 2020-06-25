@@ -96,7 +96,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
     private var amAtEOF: Boolean
 
     /** Flag indicating that WebSocket framing is enabled.  */
-    private var amWebSocketFraming: Boolean
+    private var amWebsocketFraming: Boolean
 
     /**
      * Be given a buffer full of input bytes.
@@ -126,7 +126,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
             myClientBuffer = buf
             myClientBufferLength = length
             (0 until length)
-                    .filter { buf[it] == '\n'.toByte() || amWebSocketFraming && buf[it] == (-1).toByte() }
+                    .filter { buf[it] == '\n'.toByte() || amWebsocketFraming && buf[it] == (-1).toByte() }
                     .forEach { myUsefulByteCount = myTotalByteCount + it + 1 }
             myTotalByteCount += length
         }
@@ -258,10 +258,10 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
         if (byteA == -1) {
             /* EOF */
             return -1
-        } else if (amWebSocketFraming && byteA == 0x00) {
+        } else if (amWebsocketFraming && byteA == 0x00) {
             /* WebSocket start-of-frame: return a nul; it will be ignored */
             return 0
-        } else if (amWebSocketFraming && byteA == 0xFF) {
+        } else if (amWebsocketFraming && byteA == 0xFF) {
             /* WebSocket end-of-frame: pretend it's a newline */
             return '\n'.toInt()
         } else if (byteA and 0x80 == 0) {
@@ -374,8 +374,8 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
      * availability of received data in the input buffers).
      *
      */
-    fun enableWebSocketFraming() {
-        amWebSocketFraming = true
+    fun enableWebsocketFraming() {
+        amWebsocketFraming = true
     }
 
     /**
@@ -412,6 +412,6 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
         myTotalByteCount = 0
         myUsefulByteCount = 0
         amAtEOF = false
-        amWebSocketFraming = false
+        amWebsocketFraming = false
     }
 }

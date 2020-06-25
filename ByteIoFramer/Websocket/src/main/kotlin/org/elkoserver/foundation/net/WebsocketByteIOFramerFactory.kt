@@ -11,7 +11,7 @@ import java.util.Base64
  * Byte I/O framer factory for WebSocket connections, a perverse hybrid of HTTP
  * and TCP.
  */
-class WebSocketByteIOFramerFactory(
+class WebsocketByteIOFramerFactory(
         private val jsonByteIOFramerGorgel: Gorgel,
         private val websocketFramerGorgel: Gorgel,
         private val myHostAddress: String,
@@ -28,12 +28,12 @@ class WebSocketByteIOFramerFactory(
      * @param receiver  Object to deliver received messages to.
      * @param label  A printable label identifying the associated connection.
      */
-    override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer = WebSocketFramer(receiver, label)
+    override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer = WebsocketFramer(receiver, label)
 
     /**
      * I/O framer implementation for HTTP requests.
      */
-    inner class WebSocketFramer internal constructor(
+    inner class WebsocketFramer internal constructor(
             private val myReceiver: MessageReceiver,
             private val myLabel: String) : ByteIOFramer {
 
@@ -47,7 +47,7 @@ class WebSocketByteIOFramerFactory(
         private var myWSParseStage: Int
 
         /** HTTP request object under construction, for start handshake.  */
-        private val myRequest: WebSocketRequest
+        private val myRequest: WebsocketRequest
 
         /**
          * Process bytes of data received.
@@ -93,7 +93,7 @@ class WebSocketByteIOFramerFactory(
                         }
                         myReceiver.receiveMsg(myRequest)
                         myWSParseStage = Companion.WS_STAGE_MESSAGES
-                        myIn.enableWebSocketFraming()
+                        myIn.enableWebsocketFraming()
                         myMessageFramer = JSONByteIOFramer(jsonByteIOFramerGorgel, myReceiver, myLabel, myIn, mustSendDebugReplies)
                         return
                     }
@@ -107,10 +107,10 @@ class WebSocketByteIOFramerFactory(
 
         /**
          * Generate the bytes for writing a message to a connection.  In this
-         * case, a message must be a string, a WebSocketHandshake object, or an
+         * case, a message must be a string, a WebsocketHandshake object, or an
          * HTTPError object.  A string is considered to be a serialized JSON
          * message; it should be transmitted inside a WebSocket message
-         * frame. A WebSocketHandshake object contains the information for a
+         * frame. A WebsocketHandshake object contains the information for a
          * connection setup handshake; it should be transmitted as the
          * appropriate HTTP header plus junk. An HTTPError object is just what
          * it seems to be; it should be transmitted as a regular HTTP error
@@ -136,7 +136,7 @@ class WebSocketByteIOFramerFactory(
                 frame[frame.size - 1] = 0xFF.toByte()
                 websocketFramerGorgel.d?.run { debug("WS sending msg: $msg") }
                 frame
-            } else if (msg is WebSocketHandshake) {
+            } else if (msg is WebsocketHandshake) {
                 val handshake = msg
                 if (handshake.version == 0) {
                     val handshakeBytes = handshake.bytes
@@ -193,7 +193,7 @@ $reply"""
          */
         init {
             myWSParseStage = Companion.WS_STAGE_START
-            myRequest = WebSocketRequest()
+            myRequest = WebsocketRequest()
         }
     }
 

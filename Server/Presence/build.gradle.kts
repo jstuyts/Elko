@@ -24,7 +24,7 @@ dependencies {
 
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":ByteIoFramer:Json"))
-    implementation(project(":ByteIoFramer:WebSocket"))
+    implementation(project(":ByteIoFramer:Websocket"))
     implementation(project(":Communication"))
     implementation(project(":ObjectDatabase:Local"))
     implementation(project(":ObjectDatabase:Remote"))
