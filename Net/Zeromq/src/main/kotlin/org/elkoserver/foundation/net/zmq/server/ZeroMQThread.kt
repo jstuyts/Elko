@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net.zmq.server
 
-import org.elkoserver.foundation.net.ByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr

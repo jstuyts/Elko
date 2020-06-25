@@ -1,11 +1,11 @@
 package org.elkoserver.foundation.net.ws.server
 
+import org.elkoserver.foundation.byteioframer.http.HTTPError
+import org.elkoserver.foundation.byteioframer.websocket.WebsocketHandshake
+import org.elkoserver.foundation.byteioframer.websocket.WebsocketRequest
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.HTTPError
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.WebsocketHandshake
-import org.elkoserver.foundation.net.WebsocketRequest
 import org.elkoserver.util.trace.Trace
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest

@@ -1,6 +1,10 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer.json
 
 import com.grack.nanojson.JsonParserException
+import org.elkoserver.foundation.byteioframer.ByteIOFramer
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.MessageReceiver
+import org.elkoserver.foundation.net.Communication
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonObjectSerialization.sendableString

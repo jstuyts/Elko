@@ -1,8 +1,8 @@
 package org.elkoserver.foundation.net.ws.server
 
+import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
-import org.elkoserver.foundation.net.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel

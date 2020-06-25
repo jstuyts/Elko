@@ -1,5 +1,7 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer.json
 
+import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**

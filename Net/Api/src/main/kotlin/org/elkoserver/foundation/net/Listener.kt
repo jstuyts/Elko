@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.net
 
+import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
 import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException

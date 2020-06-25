@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.net
 
+import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
 import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator

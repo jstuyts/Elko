@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer
 
 /**
  * Interface supporting protocol-specific message framing on a connection,

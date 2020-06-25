@@ -1,5 +1,11 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer.websocket
 
+import org.elkoserver.foundation.byteioframer.ByteIOFramer
+import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.MessageReceiver
+import org.elkoserver.foundation.byteioframer.http.HTTPError
+import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramer
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -61,28 +67,28 @@ class WebsocketByteIOFramerFactory(
             myIn.addBuffer(data, length)
             while (true) {
                 when (myWSParseStage) {
-                    Companion.WS_STAGE_START -> {
+                    WS_STAGE_START -> {
                         val line = myIn.readASCIILine()
                         if (line == null) {
                             myIn.preserveBuffers()
                             return
                         } else if (line.isNotEmpty()) {
                             myRequest.parseStartLine(line)
-                            myWSParseStage = Companion.WS_STAGE_HEADER
+                            myWSParseStage = WS_STAGE_HEADER
                         }
                     }
-                    Companion.WS_STAGE_HEADER -> {
+                    WS_STAGE_HEADER -> {
                         val line = myIn.readASCIILine()
                         if (line == null) {
                             myIn.preserveBuffers()
                             return
                         } else if (line.isEmpty()) {
-                            myWSParseStage = Companion.WS_STAGE_HANDSHAKE
+                            myWSParseStage = WS_STAGE_HANDSHAKE
                         } else {
                             myRequest.parseHeaderLine(line)
                         }
                     }
-                    Companion.WS_STAGE_HANDSHAKE -> {
+                    WS_STAGE_HANDSHAKE -> {
                         if (myRequest.header("sec-websocket-key1") != null) {
                             val crazyKey = myIn.readBytes(8)
                             if (crazyKey == null) {
@@ -92,12 +98,12 @@ class WebsocketByteIOFramerFactory(
                             myRequest.crazyKey = crazyKey
                         }
                         myReceiver.receiveMsg(myRequest)
-                        myWSParseStage = Companion.WS_STAGE_MESSAGES
+                        myWSParseStage = WS_STAGE_MESSAGES
                         myIn.enableWebsocketFraming()
                         myMessageFramer = JSONByteIOFramer(jsonByteIOFramerGorgel, myReceiver, myLabel, myIn, mustSendDebugReplies)
                         return
                     }
-                    Companion.WS_STAGE_MESSAGES -> {
+                    WS_STAGE_MESSAGES -> {
                         myMessageFramer!!.receiveBytes(ByteArray(0), 0)
                         return
                     }
@@ -192,7 +198,7 @@ $reply"""
          * Constructor.
          */
         init {
-            myWSParseStage = Companion.WS_STAGE_START
+            myWSParseStage = WS_STAGE_START
             myRequest = WebsocketRequest()
         }
     }

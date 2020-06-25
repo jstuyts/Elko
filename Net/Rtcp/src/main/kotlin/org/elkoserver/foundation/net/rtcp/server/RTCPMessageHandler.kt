@@ -1,8 +1,8 @@
 package org.elkoserver.foundation.net.rtcp.server
 
+import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequest
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandler
-import org.elkoserver.foundation.net.RTCPRequest
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer

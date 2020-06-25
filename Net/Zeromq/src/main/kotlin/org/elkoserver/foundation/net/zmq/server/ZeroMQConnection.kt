@@ -1,12 +1,12 @@
 package org.elkoserver.foundation.net.zmq.server
 
-import org.elkoserver.foundation.net.ByteIOFramer
-import org.elkoserver.foundation.net.ByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.ByteIOFramer
+import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.foundation.net.ConnectionBase
 import org.elkoserver.foundation.net.ConnectionCloseException
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.net.MessageReceiver
 import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator

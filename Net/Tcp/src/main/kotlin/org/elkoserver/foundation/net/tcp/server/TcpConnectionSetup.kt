@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.net.tcp.server
 
+import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactory
 import org.elkoserver.foundation.net.BaseConnectionSetup
-import org.elkoserver.foundation.net.JSONByteIOFramerFactory
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.properties.ElkoProperties

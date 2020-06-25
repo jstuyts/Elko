@@ -1,6 +1,11 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer.rtcp
 
 import com.grack.nanojson.JsonParserException
+import org.elkoserver.foundation.byteioframer.ByteIOFramer
+import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.MessageReceiver
+import org.elkoserver.foundation.net.Communication
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
@@ -52,7 +57,7 @@ class RTCPRequestByteIOFramerFactory(private val gorgel: Gorgel, private val inp
         private val myMsgBuffer: StringBuilder = StringBuilder(1000)
 
         /** Stage of RTCP request reading.  */
-        private var myRTCPParseStage = Companion.RTCP_STAGE_REQUEST
+        private var myRTCPParseStage = RTCP_STAGE_REQUEST
 
         /** RTCP request object under construction.  */
         private var myRequest = RTCPRequest()
@@ -69,7 +74,7 @@ class RTCPRequestByteIOFramerFactory(private val gorgel: Gorgel, private val inp
             myIn.addBuffer(data, length)
             while (true) {
                 when (myRTCPParseStage) {
-                    Companion.RTCP_STAGE_REQUEST -> {
+                    RTCP_STAGE_REQUEST -> {
                         val line = myIn.readASCIILine()
                         if (line == null) {
                             myIn.preserveBuffers()
@@ -78,11 +83,11 @@ class RTCPRequestByteIOFramerFactory(private val gorgel: Gorgel, private val inp
                             gorgel.d?.run { debug("$myLabel |> $line") }
                             myRequest.parseRequestLine(line)
                             if (!myRequest.isComplete) {
-                                myRTCPParseStage = Companion.RTCP_STAGE_MESSAGES
+                                myRTCPParseStage = RTCP_STAGE_MESSAGES
                             }
                         }
                     }
-                    Companion.RTCP_STAGE_MESSAGES -> {
+                    RTCP_STAGE_MESSAGES -> {
                         val line = myIn.readUTF8Line()
                         if (line == null) {
                             myIn.preserveBuffers()
@@ -119,7 +124,7 @@ class RTCPRequestByteIOFramerFactory(private val gorgel: Gorgel, private val inp
                 if (myRequest.isComplete) {
                     myReceiver.receiveMsg(myRequest)
                     myRequest = RTCPRequest()
-                    myRTCPParseStage = Companion.RTCP_STAGE_REQUEST
+                    myRTCPParseStage = RTCP_STAGE_REQUEST
                 }
             }
         }

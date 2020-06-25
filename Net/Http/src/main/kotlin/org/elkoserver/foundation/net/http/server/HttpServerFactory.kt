@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net.http.server
 
-import org.elkoserver.foundation.net.HTTPRequestByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactory
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr

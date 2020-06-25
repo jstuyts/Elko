@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer
 
 /**
  * Interface for the object that a `Connection` uses to accept incoming

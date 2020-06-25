@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer.http
 
 /**
  * Holder for the request headers requested to be allowed by an HTTP OPTIONS

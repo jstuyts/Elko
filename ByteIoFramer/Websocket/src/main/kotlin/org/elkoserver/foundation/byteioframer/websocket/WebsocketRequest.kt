@@ -1,4 +1,6 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer.websocket
+
+import org.elkoserver.foundation.byteioframer.http.HTTPRequest
 
 /**
  * An HTTP request descriptor, augmented for setting up a WebSocket connection.

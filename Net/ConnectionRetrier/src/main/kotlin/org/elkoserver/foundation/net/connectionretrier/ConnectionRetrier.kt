@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.net.connectionretrier
 
+import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactory
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.JSONByteIOFramerFactory
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.tcp.client.TcpClientFactory

@@ -1,5 +1,10 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer.http
 
+import org.elkoserver.foundation.byteioframer.ByteIOFramer
+import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.MessageReceiver
+import org.elkoserver.foundation.net.Communication
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException

@@ -1,9 +1,9 @@
 package org.elkoserver.foundation.net.http.server
 
+import org.elkoserver.foundation.byteioframer.http.HTTPError
+import org.elkoserver.foundation.byteioframer.http.HTTPOptionsReply
+import org.elkoserver.foundation.byteioframer.http.HTTPRequest
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.HTTPError
-import org.elkoserver.foundation.net.HTTPOptionsReply
-import org.elkoserver.foundation.net.HTTPRequest
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory

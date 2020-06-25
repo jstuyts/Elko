@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer.rtcp
 
 import org.elkoserver.json.JsonObject
 import java.util.LinkedList

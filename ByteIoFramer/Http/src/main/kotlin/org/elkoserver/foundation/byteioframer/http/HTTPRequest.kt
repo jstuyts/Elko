@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer.http
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets

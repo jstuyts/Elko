@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer
 
 import org.elkoserver.util.ByteArrayToAscii
 import org.elkoserver.util.trace.slf4j.Gorgel

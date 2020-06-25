@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.net
+package org.elkoserver.foundation.byteioframer.http
 
 /**
  * Class encapsulating an HTTP error that is being output as the reply to

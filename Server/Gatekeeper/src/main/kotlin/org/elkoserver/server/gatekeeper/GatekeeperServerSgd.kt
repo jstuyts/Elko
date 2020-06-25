@@ -2,6 +2,9 @@
 
 package org.elkoserver.server.gatekeeper
 
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramer
+import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
@@ -9,13 +12,10 @@ import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.json.RandomInjector
 import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.BaseConnectionSetup
-import org.elkoserver.foundation.net.ChunkyByteArrayInputStream
-import org.elkoserver.foundation.net.JSONByteIOFramer
 import org.elkoserver.foundation.net.Listener
 import org.elkoserver.foundation.net.SelectThread
 import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
-import org.elkoserver.foundation.net.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.net.http.server.HTTPSessionConnection
