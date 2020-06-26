@@ -5,11 +5,9 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.net.SelectThread
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
 class TcpServerFactory(
-        private val listenerGorgel: Gorgel,
         private val mySelectThread: SelectThread) {
 
     /**
@@ -26,8 +24,7 @@ class TcpServerFactory(
     fun listenTCP(listenAddress: String,
                   handlerFactory: MessageHandlerFactory,
                   secure: Boolean, framerFactory: ByteIOFramerFactory, trace: Trace): NetAddr {
-        val listener = mySelectThread.listen(listenAddress, handlerFactory,
-                framerFactory, secure, listenerGorgel, trace)
+        val listener = mySelectThread.listen(listenAddress, handlerFactory, framerFactory, secure, trace)
         return listener.listenAddress()
     }
 }

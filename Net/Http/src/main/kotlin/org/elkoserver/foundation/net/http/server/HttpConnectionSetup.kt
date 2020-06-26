@@ -18,10 +18,9 @@ class HttpConnectionSetup(
         private val httpServerFactory: HttpServerFactory,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
-        listenerGorgel: Gorgel,
         private val jsonHttpFramerCommGorgel: Gorgel,
         traceFactory: TraceFactory,
-        private val mustSendDebugReplies: Boolean) : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel, listenerGorgel, traceFactory) {
+        private val mustSendDebugReplies: Boolean) : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel, traceFactory) {
     private val domain: String?
     private val rootURI: String
     override val serverAddress: String

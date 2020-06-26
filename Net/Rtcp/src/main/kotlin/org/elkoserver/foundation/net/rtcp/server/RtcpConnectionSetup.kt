@@ -19,9 +19,8 @@ class RtcpConnectionSetup(
         private val rtcpServerFactory: RtcpServerFactory,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
-        listenerGorgel: Gorgel,
         traceFactory: TraceFactory)
-    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, listenerGorgel, traceFactory) {
+    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, traceFactory) {
     override val protocol: String = "rtcp"
 
     @Throws(IOException::class)

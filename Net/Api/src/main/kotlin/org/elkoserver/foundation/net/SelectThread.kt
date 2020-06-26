@@ -31,7 +31,8 @@ class SelectThread(
         private val clock: Clock,
         private val commGorgel: Gorgel,
         private val tcpConnectionCommGorgel: Gorgel,
-        private val idGenerator: IdGenerator)
+        private val idGenerator: IdGenerator,
+        private val listenerFactory: ListenerFactory)
     : Thread("Elko Select") {
     /** Selector to await available I/O opportunities.  */
     private val mySelector: Selector
@@ -143,9 +144,8 @@ class SelectThread(
     @Throws(IOException::class)
     fun listen(localAddress: String, handlerFactory: MessageHandlerFactory,
                framerFactory: ByteIOFramerFactory, secure: Boolean,
-               listenerGorgel: Gorgel,
                tcpConnectionTrace: Trace): Listener {
-        val listener = Listener(localAddress, handlerFactory, framerFactory, secure, listenerGorgel, tcpConnectionTrace)
+        val listener = listenerFactory.create(localAddress, handlerFactory, framerFactory, secure, tcpConnectionTrace)
         myQueue.enqueue(listener)
         mySelector.wakeup()
         return listener

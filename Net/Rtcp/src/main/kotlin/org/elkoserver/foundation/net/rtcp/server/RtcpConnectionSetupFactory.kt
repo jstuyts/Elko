@@ -11,8 +11,7 @@ class RtcpConnectionSetupFactory(
         private val props: ElkoProperties,
         private val rtcpServerFactory: RtcpServerFactory,
         private val baseConnectionSetupGorgel: Gorgel,
-        private val listenerGorgel: Gorgel,
         private val traceFactory: TraceFactory) : ConnectionSetupFactory {
     override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory) =
-            RtcpConnectionSetup(label, host, auth, secure, props, propRoot, rtcpServerFactory, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory)
+            RtcpConnectionSetup(label, host, auth, secure, props, propRoot, rtcpServerFactory, actorFactory, baseConnectionSetupGorgel, traceFactory)
 }

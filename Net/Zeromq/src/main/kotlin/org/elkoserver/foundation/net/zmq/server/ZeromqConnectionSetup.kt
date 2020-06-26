@@ -24,7 +24,6 @@ class ZeromqConnectionSetup(
         private val loadMonitor: LoadMonitor,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
-        listenerGorgel: Gorgel,
         private val connectionBaseCommGorgel: Gorgel,
         private val inputGorgel: Gorgel,
         private val jsonByteIoFramerGorgel: Gorgel,
@@ -40,7 +39,6 @@ class ZeromqConnectionSetup(
         props,
         propRoot,
         gorgel,
-        listenerGorgel,
         traceFactory) {
 
     override val protocol = "zeromq"

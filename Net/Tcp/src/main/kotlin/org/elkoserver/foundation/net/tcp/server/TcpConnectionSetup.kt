@@ -20,12 +20,11 @@ class TcpConnectionSetup(
         private val tcpServerFactory: TcpServerFactory,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
-        listenerGorgel: Gorgel,
         traceFactory: TraceFactory,
         private val inputGorgel: Gorgel,
         private val jsonByteIOFramerGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean)
-    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, listenerGorgel, traceFactory) {
+    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, traceFactory) {
     override val protocol = "tcp"
 
     @Throws(IOException::class)

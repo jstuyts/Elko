@@ -11,8 +11,7 @@ class WebsocketConnectionSetupFactory(
         private val props: ElkoProperties,
         private val websocketServerFactory: WebsocketServerFactory,
         private val baseConnectionSetupGorgel: Gorgel,
-        private val listenerGorgel: Gorgel,
         private val traceFactory: TraceFactory) : ConnectionSetupFactory {
     override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory) =
-            WebsocketConnectionSetup(label, host, auth, secure, props, propRoot, websocketServerFactory, actorFactory, baseConnectionSetupGorgel, listenerGorgel, traceFactory)
+            WebsocketConnectionSetup(label, host, auth, secure, props, propRoot, websocketServerFactory, actorFactory, baseConnectionSetupGorgel, traceFactory)
 }

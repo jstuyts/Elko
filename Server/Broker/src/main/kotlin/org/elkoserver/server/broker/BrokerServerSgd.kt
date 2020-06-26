@@ -12,6 +12,7 @@ import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.Listener
+import org.elkoserver.foundation.net.ListenerFactory
 import org.elkoserver.foundation.net.SelectThread
 import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
@@ -142,6 +143,10 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             null
     }
 
+    val listenerFactory by Once {
+        ListenerFactory(req(listenerGorgel))
+    }
+
     val selectThread by Once {
         SelectThread(
                 req(runner),
@@ -150,7 +155,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(provided.clock()),
                 req(selectThreadCommGorgel),
                 req(tcpConnectionCommGorgel),
-                req(connectionIdGenerator))
+                req(connectionIdGenerator),
+                req(listenerFactory))
     }
             .dispose { it.shutDown() }
 
@@ -184,7 +190,6 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(provided.props()),
                 req(httpServerFactory),
                 req(baseConnectionSetupGorgel),
-                req(listenerGorgel),
                 req(jsonHttpFramerCommGorgel),
                 req(provided.traceFactory()),
                 req(mustSendDebugReplies))
@@ -212,12 +217,11 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(provided.props()),
                 req(rtcpServerFactory),
                 req(baseConnectionSetupGorgel),
-                req(listenerGorgel),
                 req(provided.traceFactory()))
     }
 
     val tcpServerFactory by Once {
-        TcpServerFactory(req(listenerGorgel), req(selectThread))
+        TcpServerFactory(req(selectThread))
     }
 
     val tcpConnectionSetupFactory by Once {
@@ -225,7 +229,6 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(provided.props()),
                 req(tcpServerFactory),
                 req(baseConnectionSetupGorgel),
-                req(listenerGorgel),
                 req(provided.traceFactory()),
                 req(inputGorgel),
                 req(jsonByteIoFramerWithoutLabelGorgel),
@@ -246,7 +249,6 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(provided.props()),
                 req(websocketServerFactory),
                 req(baseConnectionSetupGorgel),
-                req(listenerGorgel),
                 req(provided.traceFactory()))
     }
 
@@ -256,7 +258,6 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(runner),
                 req(serverLoadMonitor),
                 req(baseConnectionSetupGorgel),
-                req(listenerGorgel),
                 req(connectionBaseCommGorgel),
                 req(inputGorgel),
                 req(jsonByteIoFramerWithoutLabelGorgel),

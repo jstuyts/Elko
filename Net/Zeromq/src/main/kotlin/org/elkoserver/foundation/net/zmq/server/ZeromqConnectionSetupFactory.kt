@@ -16,7 +16,6 @@ class ZeromqConnectionSetupFactory(
         private val runner: Runner,
         private val loadMonitor: LoadMonitor,
         private val baseConnectionSetupGorgel: Gorgel,
-        private val listenerGorgel: Gorgel,
         private val connectionBaseCommGorgel: Gorgel,
         private val inputGorgel: Gorgel,
         private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
@@ -25,5 +24,5 @@ class ZeromqConnectionSetupFactory(
         private val clock: Clock,
         private val mustSendDebugReplies: Boolean) : ConnectionSetupFactory {
     override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory) =
-            ZeromqConnectionSetup(label, host, auth, secure, props, propRoot, runner, loadMonitor, actorFactory, baseConnectionSetupGorgel, listenerGorgel, connectionBaseCommGorgel, inputGorgel, jsonByteIOFramerWithoutLabelGorgel, traceFactory, connectionIdGenerator, clock, mustSendDebugReplies)
+            ZeromqConnectionSetup(label, host, auth, secure, props, propRoot, runner, loadMonitor, actorFactory, baseConnectionSetupGorgel, connectionBaseCommGorgel, inputGorgel, jsonByteIOFramerWithoutLabelGorgel, traceFactory, connectionIdGenerator, clock, mustSendDebugReplies)
 }
