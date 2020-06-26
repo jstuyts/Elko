@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net.http.server
 
-import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
@@ -23,10 +23,10 @@ class HttpServerFactory(
         private val clock: Clock,
         private val httpSessionConnectionCommGorgel: Gorgel,
         private val traceFactory: TraceFactory,
-        private val inputGorgel: Gorgel,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator,
-        private val tcpServerFactory: TcpServerFactory) {
+        private val tcpServerFactory: TcpServerFactory,
+        private val httpRequestByteIOFramerFactoryFactory: HTTPRequestByteIOFramerFactoryFactory) {
 
     /**
      * Begin listening for incoming HTTP connections on some port.
@@ -49,7 +49,7 @@ class HttpServerFactory(
                    secure: Boolean, rootURI: String, httpFramer: HTTPFramer): NetAddr {
         val outerHandlerFactory = HTTPMessageHandlerFactory(
                 innerHandlerFactory, rootURI, httpFramer, runner, loadMonitor, props, timer, clock, httpSessionConnectionCommGorgel, traceFactory, sessionIdGenerator, connectionIdGenerator)
-        val framerFactory = HTTPRequestByteIOFramerFactory(traceFactory, inputGorgel)
+        val framerFactory = httpRequestByteIOFramerFactoryFactory.create()
         return tcpServerFactory.listenTCP(listenAddress, outerHandlerFactory, secure, framerFactory, trace)
     }
 }

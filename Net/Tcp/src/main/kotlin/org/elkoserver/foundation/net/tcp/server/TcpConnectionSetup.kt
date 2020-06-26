@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net.tcp.server
 
-import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactory
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
@@ -21,9 +21,7 @@ class TcpConnectionSetup(
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
         traceFactory: TraceFactory,
-        private val inputGorgel: Gorgel,
-        private val jsonByteIOFramerGorgel: Gorgel,
-        private val mustSendDebugReplies: Boolean)
+        private val jsonByteIOFramerFactoryFactory: JSONByteIOFramerFactoryFactory)
     : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, traceFactory) {
     override val protocol = "tcp"
 
@@ -44,5 +42,5 @@ class TcpConnectionSetup(
 
     @Throws(IOException::class)
     private fun createListenAddress() =
-            tcpServerFactory.listenTCP(bind, actorFactory, secure, JSONByteIOFramerFactory(jsonByteIOFramerGorgel, inputGorgel, mustSendDebugReplies), msgTrace)
+            tcpServerFactory.listenTCP(bind, actorFactory, secure, jsonByteIOFramerFactoryFactory.create(), msgTrace)
 }

@@ -1,19 +1,15 @@
 package org.elkoserver.foundation.net.ws.server
 
-import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
 class WebsocketServerFactory(
-        private val inputGorgel: Gorgel,
-        private val jsonByteIOFramerGorgel: Gorgel,
-        private val websocketFramerGorgel: Gorgel,
-        private val mustSendDebugReplies: Boolean,
-        private val tcpServerFactory: TcpServerFactory) {
+        private val tcpServerFactory: TcpServerFactory,
+        private val websocketByteIOFramerFactoryFactory: WebsocketByteIOFramerFactoryFactory) {
 
     /**
      * Begin listening for incoming WebSocket connections on some port.
@@ -36,7 +32,7 @@ class WebsocketServerFactory(
             actualSocketURI = "/$actualSocketURI"
         }
         val outerHandlerFactory = WebsocketMessageHandlerFactory(innerHandlerFactory, actualSocketURI, trace)
-        val framerFactory = WebsocketByteIOFramerFactory(jsonByteIOFramerGorgel, websocketFramerGorgel, listenAddress, actualSocketURI, inputGorgel, mustSendDebugReplies)
+        val framerFactory = websocketByteIOFramerFactoryFactory.create(listenAddress, actualSocketURI)
         return tcpServerFactory.listenTCP(listenAddress, outerHandlerFactory, secure, framerFactory, trace)
     }
 }

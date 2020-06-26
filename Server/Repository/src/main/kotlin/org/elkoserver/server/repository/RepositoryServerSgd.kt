@@ -3,8 +3,12 @@
 package org.elkoserver.server.repository
 
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramer
+import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactory
+import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
@@ -172,6 +176,22 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(runner))
     }
 
+    val httpRequestByteIOFramerFactoryFactory by Once {
+        HTTPRequestByteIOFramerFactoryFactory(req(provided.traceFactory()), req(inputGorgel))
+    }
+
+    val jsonByteIOFramerFactoryFactory by Once {
+        JSONByteIOFramerFactoryFactory(req(jsonByteIoFramerWithoutLabelGorgel), req(inputGorgel), req(mustSendDebugReplies))
+    }
+
+    val rtcpByteIOFramerFactoryFactory by Once {
+        RTCPRequestByteIOFramerFactoryFactory(req(tcpConnectionGorgel), req(inputGorgel), req(mustSendDebugReplies))
+    }
+
+    val websocketByteIOFramerFactoryFactory by Once {
+        WebsocketByteIOFramerFactoryFactory(req(jsonByteIoFramerWithoutLabelGorgel), req(websocketFramerGorgel), req(inputGorgel), req(mustSendDebugReplies))
+    }
+
     val httpServerFactory by Once {
         HttpServerFactory(
                 req(provided.props()),
@@ -181,10 +201,10 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.clock()),
                 req(httpSessionConnectionCommGorgel),
                 req(provided.traceFactory()),
-                req(inputGorgel),
                 req(sessionIdGenerator),
                 req(connectionIdGenerator),
-                req(tcpServerFactory))
+                req(tcpServerFactory),
+                req(httpRequestByteIOFramerFactoryFactory))
     }
 
     val httpConnectionSetupFactory by Once {
@@ -206,12 +226,10 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.clock()),
                 req(rtcpSessionConnectionCommGorgel),
                 req(provided.traceFactory()),
-                req(inputGorgel),
-                req(tcpConnectionGorgel),
                 req(sessionIdGenerator),
                 req(connectionIdGenerator),
-                req(mustSendDebugReplies),
-                req(tcpServerFactory))
+                req(tcpServerFactory),
+                req(rtcpByteIOFramerFactoryFactory))
     }
 
     val rtcpConnectionSetupFactory by Once {
@@ -232,18 +250,13 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(tcpServerFactory),
                 req(baseConnectionSetupGorgel),
                 req(provided.traceFactory()),
-                req(inputGorgel),
-                req(jsonByteIoFramerWithoutLabelGorgel),
-                req(mustSendDebugReplies))
+                req(jsonByteIOFramerFactoryFactory))
     }
 
     val websocketServerFactory by Once {
         WebsocketServerFactory(
-                req(inputGorgel),
-                req(jsonByteIoFramerWithoutLabelGorgel),
-                req(websocketFramerGorgel),
-                req(mustSendDebugReplies),
-                req(tcpServerFactory))
+                req(tcpServerFactory),
+                req(websocketByteIOFramerFactoryFactory))
     }
 
     val websocketConnectionSetupFactory by Once {
@@ -261,12 +274,10 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(serverLoadMonitor),
                 req(baseConnectionSetupGorgel),
                 req(connectionBaseCommGorgel),
-                req(inputGorgel),
-                req(jsonByteIoFramerWithoutLabelGorgel),
                 req(provided.traceFactory()),
                 req(connectionIdGenerator),
                 req(provided.clock()),
-                req(mustSendDebugReplies))
+                req(jsonByteIOFramerFactoryFactory))
     }
 
     val tcpClientFactory by Once {
@@ -278,10 +289,8 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(tcpClientFactory),
                 req(provided.timer()),
                 req(connectionRetrierWithoutLabelGorgel),
-                req(jsonByteIoFramerWithoutLabelGorgel),
                 req(repoTrace),
-                req(inputGorgel),
-                req(mustSendDebugReplies))
+                req(jsonByteIOFramerFactoryFactory))
     }
 
     val server by Once {

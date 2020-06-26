@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.net.zmq.server
 
+import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactory
 import org.elkoserver.foundation.net.ConnectionSetupFactory
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
@@ -17,12 +18,10 @@ class ZeromqConnectionSetupFactory(
         private val loadMonitor: LoadMonitor,
         private val baseConnectionSetupGorgel: Gorgel,
         private val connectionBaseCommGorgel: Gorgel,
-        private val inputGorgel: Gorgel,
-        private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
         private val traceFactory: TraceFactory,
         private val connectionIdGenerator: IdGenerator,
         private val clock: Clock,
-        private val mustSendDebugReplies: Boolean) : ConnectionSetupFactory {
+        private val jsonByteIOFramerFactoryFactory: JSONByteIOFramerFactoryFactory) : ConnectionSetupFactory {
     override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory) =
-            ZeromqConnectionSetup(label, host, auth, secure, props, propRoot, runner, loadMonitor, actorFactory, baseConnectionSetupGorgel, connectionBaseCommGorgel, inputGorgel, jsonByteIOFramerWithoutLabelGorgel, traceFactory, connectionIdGenerator, clock, mustSendDebugReplies)
+            ZeromqConnectionSetup(label, host, auth, secure, props, propRoot, runner, loadMonitor, actorFactory, baseConnectionSetupGorgel, connectionBaseCommGorgel, traceFactory, connectionIdGenerator, clock, jsonByteIOFramerFactoryFactory)
 }

@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.net.connectionretrier
 
+import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactory
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -12,10 +13,8 @@ class ConnectionRetrierFactory(
         private val tcpClientFactory: TcpClientFactory,
         private val timer: Timer,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
-        private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
         private val trace: Trace,
-        private val inputGorgel: Gorgel,
-        private val mustSendDebugReplies: Boolean) {
+        private val jsonByteIOFramerFactoryFactory: JSONByteIOFramerFactoryFactory) {
     fun create(host: HostDesc, label: String, messageHandlerFactory: MessageHandlerFactory) =
             ConnectionRetrier(
                     host,
@@ -24,8 +23,6 @@ class ConnectionRetrierFactory(
                     messageHandlerFactory,
                     timer,
                     connectionRetrierWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label)),
-                    jsonByteIOFramerWithoutLabelGorgel.withAdditionalStaticTags(Tag("label", label)),
                     trace,
-                    inputGorgel,
-                    mustSendDebugReplies)
+                    jsonByteIOFramerFactoryFactory)
 }

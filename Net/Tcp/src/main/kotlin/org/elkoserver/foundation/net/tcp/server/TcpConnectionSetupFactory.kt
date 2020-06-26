@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.net.tcp.server
 
+import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactory
 import org.elkoserver.foundation.net.ConnectionSetupFactory
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -12,9 +13,7 @@ class TcpConnectionSetupFactory(
         private val tcpServerFactory: TcpServerFactory,
         private val baseConnectionSetupGorgel: Gorgel,
         private val traceFactory: TraceFactory,
-        private val inputGorgel: Gorgel,
-        private val jsonByteIOFramerWithoutLabelGorgel: Gorgel,
-        private val mustSendDebugReplies: Boolean) : ConnectionSetupFactory {
+        private val jsonByteIOFramerFactoryFactory: JSONByteIOFramerFactoryFactory) : ConnectionSetupFactory {
     override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory) =
-            TcpConnectionSetup(label, host, auth, secure, props, propRoot, tcpServerFactory, actorFactory, baseConnectionSetupGorgel, traceFactory, inputGorgel, jsonByteIOFramerWithoutLabelGorgel, mustSendDebugReplies)
+            TcpConnectionSetup(label, host, auth, secure, props, propRoot, tcpServerFactory, actorFactory, baseConnectionSetupGorgel, traceFactory, jsonByteIOFramerFactoryFactory)
 }

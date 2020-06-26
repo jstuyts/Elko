@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net.rtcp.server
 
-import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
@@ -23,12 +23,10 @@ class RtcpServerFactory(
         private val clock: Clock,
         private val rtcpSessionConnectionCommGorgel: Gorgel,
         private val traceFactory: TraceFactory,
-        private val inputGorgel: Gorgel,
-        private val tcpConnectionGorgel: Gorgel,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator,
-        private val mustSendDebugReplies: Boolean,
-        private val tcpServerFactory: TcpServerFactory) {
+        private val tcpServerFactory: TcpServerFactory,
+        private val rtcpRequestByteIOFramerFactoryFactory: RTCPRequestByteIOFramerFactoryFactory) {
 
     /**
      * Begin listening for incoming RTCP connections on some port.
@@ -47,7 +45,7 @@ class RtcpServerFactory(
                    secure: Boolean,
                    trace: Trace): NetAddr {
         val outerHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, rtcpSessionConnectionCommGorgel, trace, runner, loadMonitor, props, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
-        val framerFactory = RTCPRequestByteIOFramerFactory(tcpConnectionGorgel, inputGorgel, mustSendDebugReplies)
+        val framerFactory = rtcpRequestByteIOFramerFactoryFactory.create()
         return tcpServerFactory.listenTCP(listenAddress, outerHandlerFactory, secure, framerFactory, trace)
     }
 }
