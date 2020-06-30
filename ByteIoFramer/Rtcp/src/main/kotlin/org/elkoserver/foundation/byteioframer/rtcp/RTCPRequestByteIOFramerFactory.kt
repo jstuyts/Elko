@@ -4,6 +4,7 @@ import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.byteioframer.ByteIOFramer
 import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.foundation.net.Communication
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
@@ -32,7 +33,7 @@ import java.nio.charset.StandardCharsets
  * time this class gets its hands on it, so output framing consists of merely
  * ensuring that the proper character encoding is used.
  */
-class RTCPRequestByteIOFramerFactory(private val gorgel: Gorgel, private val inputGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
+class RTCPRequestByteIOFramerFactory(private val gorgel: Gorgel, private val chunkyByteArrayInputStreamFactory: ChunkyByteArrayInputStreamFactory, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new RTCP connection.
@@ -41,17 +42,15 @@ class RTCPRequestByteIOFramerFactory(private val gorgel: Gorgel, private val inp
      * @param label  A printable label identifying the associated connection.
      */
     override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer =
-            RTCPRequestFramer(receiver, label)
+            RTCPRequestFramer(receiver, label, chunkyByteArrayInputStreamFactory.create())
 
     /**
      * I/O framer implementation for RTCP requests.
      */
     private inner class RTCPRequestFramer internal constructor(
             private val myReceiver: MessageReceiver,
-            private val myLabel: String) : ByteIOFramer {
-
-        /** Input data source.  */
-        private val myIn: ChunkyByteArrayInputStream = ChunkyByteArrayInputStream(inputGorgel)
+            private val myLabel: String,
+            private val myIn: ChunkyByteArrayInputStream) : ByteIOFramer {
 
         /** JSON message input currently in progress.  */
         private val myMsgBuffer: StringBuilder = StringBuilder(1000)

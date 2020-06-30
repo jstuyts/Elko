@@ -3,10 +3,10 @@ package org.elkoserver.foundation.byteioframer.http
 import org.elkoserver.foundation.byteioframer.ByteIOFramer
 import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.foundation.net.Communication
 import org.elkoserver.util.trace.TraceFactory
-import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets
  * responses as described by "RFC 2616: Hypertext Transfer Protocol --
  * HTTP/1.1", except that chunked transfer coding is not supported.
  */
-class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory, private val inputGorgel: Gorgel) : ByteIOFramerFactory {
+class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory, private val chunkyByteArrayInputStreamFactory: ChunkyByteArrayInputStreamFactory) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new HTTP connection.
@@ -26,15 +26,12 @@ class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory, pri
      * @param label  A printable label identifying the associated connection.
      */
     override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer =
-            HTTPRequestFramer(receiver, label, traceFactory, inputGorgel)
+            HTTPRequestFramer(receiver, label, traceFactory, chunkyByteArrayInputStreamFactory.create())
 
     /**
      * I/O framer implementation for HTTP requests.
      */
-    private class HTTPRequestFramer internal constructor(private val myReceiver: MessageReceiver, private val myLabel: String, private val traceFactory: TraceFactory, inputGorgel: Gorgel) : ByteIOFramer {
-
-        /** Input data source.  */
-        private val myIn = ChunkyByteArrayInputStream(inputGorgel)
+    private class HTTPRequestFramer internal constructor(private val myReceiver: MessageReceiver, private val myLabel: String, private val traceFactory: TraceFactory, private val myIn: ChunkyByteArrayInputStream) : ByteIOFramer {
 
         /** Stage of HTTP request reading.  */
         private var myHTTPParseStage = HTTP_STAGE_START

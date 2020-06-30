@@ -1,6 +1,8 @@
 package org.elkoserver.foundation.byteioframer.json
 
 import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -16,7 +18,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *
  * On output, each message being sent is framed according to this rule.
  */
-class JSONByteIOFramerFactory(private val gorgel: Gorgel, private val inputGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
+class JSONByteIOFramerFactory(private val gorgel: Gorgel, private val chunkyByteArrayInputStreamFactory: ChunkyByteArrayInputStreamFactory, private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new connection.
@@ -25,5 +27,8 @@ class JSONByteIOFramerFactory(private val gorgel: Gorgel, private val inputGorge
      * @param label  A printable label identifying the associated connection.
      */
     override fun provideFramer(receiver: MessageReceiver, label: String) =
-            JSONByteIOFramer(gorgel, receiver, label, inputGorgel, mustSendDebugReplies)
+            JSONByteIOFramer(gorgel, receiver, label, chunkyByteArrayInputStreamFactory.create(), mustSendDebugReplies)
+
+    fun provideFramer(receiver: MessageReceiver, label: String, input: ChunkyByteArrayInputStream) =
+            JSONByteIOFramer(gorgel, receiver, label, input, mustSendDebugReplies)
 }

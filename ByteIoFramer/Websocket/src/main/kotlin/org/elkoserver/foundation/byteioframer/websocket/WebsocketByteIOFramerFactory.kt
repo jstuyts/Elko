@@ -3,9 +3,11 @@ package org.elkoserver.foundation.byteioframer.websocket
 import org.elkoserver.foundation.byteioframer.ByteIOFramer
 import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.foundation.byteioframer.http.HTTPError
 import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramer
+import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactory
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -18,12 +20,11 @@ import java.util.Base64
  * and TCP.
  */
 class WebsocketByteIOFramerFactory(
-        private val jsonByteIOFramerGorgel: Gorgel,
         private val websocketFramerGorgel: Gorgel,
         private val myHostAddress: String,
         private val mySocketURI: String,
-        private val inputGorgel: Gorgel,
-        private val mustSendDebugReplies: Boolean) : ByteIOFramerFactory {
+        private val chunkyByteArrayInputStreamFactory: ChunkyByteArrayInputStreamFactory,
+        private val jsonByteIOFramerFactory: JSONByteIOFramerFactory) : ByteIOFramerFactory {
 
     /** The host address, stripped of port number.  */
     private var myHostName: String? = null
@@ -34,17 +35,16 @@ class WebsocketByteIOFramerFactory(
      * @param receiver  Object to deliver received messages to.
      * @param label  A printable label identifying the associated connection.
      */
-    override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer = WebsocketFramer(receiver, label)
+    override fun provideFramer(receiver: MessageReceiver, label: String) =
+            WebsocketFramer(receiver, label, chunkyByteArrayInputStreamFactory.create())
 
     /**
      * I/O framer implementation for HTTP requests.
      */
     inner class WebsocketFramer internal constructor(
             private val myReceiver: MessageReceiver,
-            private val myLabel: String) : ByteIOFramer {
-
-        /** Input data source.  */
-        private val myIn: ChunkyByteArrayInputStream = ChunkyByteArrayInputStream(inputGorgel)
+            private val myLabel: String,
+            private val myIn: ChunkyByteArrayInputStream) : ByteIOFramer {
 
         /** Lower-level framer once we start actually reading messages.  */
         private var myMessageFramer: JSONByteIOFramer? = null
@@ -100,7 +100,7 @@ class WebsocketByteIOFramerFactory(
                         myReceiver.receiveMsg(myRequest)
                         myWSParseStage = WS_STAGE_MESSAGES
                         myIn.enableWebsocketFraming()
-                        myMessageFramer = JSONByteIOFramer(jsonByteIOFramerGorgel, myReceiver, myLabel, myIn, mustSendDebugReplies)
+                        myMessageFramer = jsonByteIOFramerFactory.provideFramer(myReceiver, myLabel, myIn)
                         return
                     }
                     WS_STAGE_MESSAGES -> {

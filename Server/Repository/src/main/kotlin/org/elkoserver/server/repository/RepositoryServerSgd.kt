@@ -3,6 +3,7 @@
 package org.elkoserver.server.repository
 
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramer
 import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactory
@@ -176,20 +177,24 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(runner))
     }
 
+    val chunkyByteArrayInputStreamFactory by Once {
+        ChunkyByteArrayInputStreamFactory(req(inputGorgel))
+    }
+
     val httpRequestByteIOFramerFactoryFactory by Once {
-        HTTPRequestByteIOFramerFactoryFactory(req(provided.traceFactory()), req(inputGorgel))
+        HTTPRequestByteIOFramerFactoryFactory(req(provided.traceFactory()), req(chunkyByteArrayInputStreamFactory))
     }
 
     val jsonByteIOFramerFactoryFactory by Once {
-        JSONByteIOFramerFactoryFactory(req(jsonByteIoFramerWithoutLabelGorgel), req(inputGorgel), req(mustSendDebugReplies))
+        JSONByteIOFramerFactoryFactory(req(jsonByteIoFramerWithoutLabelGorgel), req(chunkyByteArrayInputStreamFactory), req(mustSendDebugReplies))
     }
 
     val rtcpByteIOFramerFactoryFactory by Once {
-        RTCPRequestByteIOFramerFactoryFactory(req(tcpConnectionGorgel), req(inputGorgel), req(mustSendDebugReplies))
+        RTCPRequestByteIOFramerFactoryFactory(req(tcpConnectionGorgel), req(chunkyByteArrayInputStreamFactory), req(mustSendDebugReplies))
     }
 
     val websocketByteIOFramerFactoryFactory by Once {
-        WebsocketByteIOFramerFactoryFactory(req(jsonByteIoFramerWithoutLabelGorgel), req(websocketFramerGorgel), req(inputGorgel), req(mustSendDebugReplies))
+        WebsocketByteIOFramerFactoryFactory(req(websocketFramerGorgel), req(chunkyByteArrayInputStreamFactory), req(jsonByteIOFramerFactoryFactory).create())
     }
 
     val httpServerFactory by Once {

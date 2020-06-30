@@ -28,12 +28,6 @@ class JSONByteIOFramer(
     private val myMsgBuffer = StringBuilder(1000)
 
     /**
-     * Constructor.
-     */
-    constructor(gorgel: Gorgel, receiver: MessageReceiver, label: String, inputGorgel: Gorgel, mustSendDebugReplies: Boolean)
-            : this(gorgel, receiver, label, ChunkyByteArrayInputStream(inputGorgel), mustSendDebugReplies)
-
-    /**
      * Process bytes of data received.
      *
      * @param data   The bytes received.
