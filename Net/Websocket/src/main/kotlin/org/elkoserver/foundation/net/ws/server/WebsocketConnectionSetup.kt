@@ -4,7 +4,6 @@ import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
@@ -17,16 +16,15 @@ class WebsocketConnectionSetup(
         propRoot: String,
         private val websocketServerFactory: WebsocketServerFactory,
         private val actorFactory: MessageHandlerFactory,
-        gorgel: Gorgel,
-        traceFactory: TraceFactory)
-    : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel, traceFactory) {
+        gorgel: Gorgel)
+    : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel) {
     private val socketURI: String = props.getProperty("$propRoot.sock", "")
     override val serverAddress: String
     override val protocol: String = "ws"
 
     @Throws(IOException::class)
     override fun tryToStartListener() =
-            websocketServerFactory.listenWebsocket(bind, actorFactory, secure, socketURI, msgTrace)
+            websocketServerFactory.listenWebsocket(bind, actorFactory, secure, socketURI, actualGorgel)
 
     init {
         val socketURI = props.getProperty("$propRoot.sock", "")

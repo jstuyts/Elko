@@ -6,7 +6,7 @@ import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.Locale
 
 /**
@@ -17,10 +17,12 @@ import java.util.Locale
  * @param startupTimeoutInterval  How long to give new connection to do
  * something before kicking them off.
  */
-internal class HTTPMessageHandler(
+class HTTPMessageHandler(
         private val myConnection: Connection,
         private val myFactory: HTTPMessageHandlerFactory,
-        startupTimeoutInterval: Int, timer: Timer, private val traceFactory: TraceFactory) : MessageHandler {
+        startupTimeoutInterval: Int,
+        timer: Timer,
+        private val commGorgel: Gorgel) : MessageHandler {
 
     /** Timeout for kicking off users who connect and then don't do anything  */
     private var myStartupTimeout: Timeout?
@@ -79,19 +81,16 @@ internal class HTTPMessageHandler(
         myStartupTimeout = null
 
         val actualMessage = message as HTTPRequest
-        if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("$connection $actualMessage")
-        } else if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("$connection |> ${actualMessage.uri}")
+        commGorgel.d?.run {
+            debug("$connection $actualMessage")
+            debug("$connection |> ${actualMessage.uri}")
         }
         when (actualMessage.method!!.toUpperCase(Locale.ENGLISH)) {
             "GET" -> myFactory.handleGET(connection, actualMessage.uri!!, actualMessage.isNonPersistent)
             "POST" -> myFactory.handlePOST(connection, actualMessage.uri!!, actualMessage.isNonPersistent, actualMessage.content)
             "OPTIONS" -> myFactory.handleOPTIONS(connection, actualMessage)
             else -> {
-                if (traceFactory.comm.event) {
-                    traceFactory.comm.eventm("Received invalid HTTP method ${actualMessage.method} from $connection")
-                }
+                commGorgel.i?.run { info("Received invalid HTTP method ${actualMessage.method} from $connection") }
                 connection.close()
             }
         }

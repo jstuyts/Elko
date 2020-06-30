@@ -24,10 +24,14 @@ import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TCPConnection
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
+import org.elkoserver.foundation.net.http.server.HTTPMessageHandler
+import org.elkoserver.foundation.net.http.server.HTTPMessageHandlerFactory
 import org.elkoserver.foundation.net.http.server.HTTPSessionConnection
 import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
 import org.elkoserver.foundation.net.http.server.HttpServerFactory
 import org.elkoserver.foundation.net.http.server.JSONHTTPFramer
+import org.elkoserver.foundation.net.rtcp.server.RTCPMessageHandler
+import org.elkoserver.foundation.net.rtcp.server.RTCPMessageHandlerFactory
 import org.elkoserver.foundation.net.rtcp.server.RTCPSessionConnection
 import org.elkoserver.foundation.net.rtcp.server.RtcpConnectionSetupFactory
 import org.elkoserver.foundation.net.rtcp.server.RtcpServerFactory
@@ -136,9 +140,15 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     val socialGraphGorgel by Once { req(provided.baseGorgel()).getChild(SocialGraph::class) }
 
     val httpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPSessionConnection::class, Tag("category", "comm")) }
+    val rtcpSessionConnectionGorgel by Once { req(provided.baseGorgel()).getChild(RTCPSessionConnection::class) }
     val rtcpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPSessionConnection::class, Tag("category", "comm")) }
+    val rtcpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandler::class, Tag("category", "comm")) }
+    val rtcpMessageHandlerFactoryGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandlerFactory::class) }
     val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class, Tag("category", "comm")) }
     val connectionBaseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(Tag("category", "comm")) }
+
+    val httpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandler::class, Tag("category", "comm")) }
+    val httpMessageHandlerFactoryCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandlerFactory::class, Tag("category", "comm")) }
 
     val inputGorgel by Once { req(provided.baseGorgel()).getChild(ChunkyByteArrayInputStream::class, Tag("category", "comm")) }
 
@@ -166,6 +176,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 opt(sslContext),
                 req(provided.clock()),
                 req(selectThreadCommGorgel),
+                req(tcpConnectionGorgel),
                 req(tcpConnectionCommGorgel),
                 req(connectionIdGenerator),
                 req(listenerFactory))
@@ -210,7 +221,9 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.timer()),
                 req(provided.clock()),
                 req(httpSessionConnectionCommGorgel),
-                req(provided.traceFactory()),
+                req(connectionBaseCommGorgel),
+                req(httpMessageHandlerCommGorgel),
+                req(httpMessageHandlerFactoryCommGorgel),
                 req(sessionIdGenerator),
                 req(connectionIdGenerator),
                 req(tcpServerFactory),
@@ -223,7 +236,6 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(httpServerFactory),
                 req(baseConnectionSetupGorgel),
                 req(jsonHttpFramerCommGorgel),
-                req(provided.traceFactory()),
                 req(mustSendDebugReplies))
     }
 
@@ -234,8 +246,9 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(runner),
                 req(provided.timer()),
                 req(provided.clock()),
+                req(rtcpSessionConnectionGorgel),
                 req(rtcpSessionConnectionCommGorgel),
-                req(provided.traceFactory()),
+                req(rtcpMessageHandlerCommGorgel),
                 req(sessionIdGenerator),
                 req(connectionIdGenerator),
                 req(tcpServerFactory),
@@ -247,7 +260,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.props()),
                 req(rtcpServerFactory),
                 req(baseConnectionSetupGorgel),
-                req(provided.traceFactory()))
+                req(rtcpMessageHandlerFactoryGorgel))
     }
 
     val tcpServerFactory by Once {
@@ -259,7 +272,6 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.props()),
                 req(tcpServerFactory),
                 req(baseConnectionSetupGorgel),
-                req(provided.traceFactory()),
                 req(jsonByteIOFramerFactoryFactory))
     }
 
@@ -273,8 +285,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
         WebsocketConnectionSetupFactory(
                 req(provided.props()),
                 req(websocketServerFactory),
-                req(baseConnectionSetupGorgel),
-                req(provided.traceFactory()))
+                req(baseConnectionSetupGorgel))
     }
 
     val zeromqConnectionSetupFactory by Once {
@@ -299,7 +310,6 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(tcpClientFactory),
                 req(provided.timer()),
                 req(connectionRetrierWithoutLabelGorgel),
-                req(presTrace),
                 req(jsonByteIOFramerFactoryFactory))
     }
 

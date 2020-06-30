@@ -6,7 +6,7 @@ import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Message handler for RTCP requests wrapping a message stream.
@@ -16,10 +16,12 @@ import org.elkoserver.util.trace.TraceFactory
  * @param startupTimeoutInterval  How long a new connection is given to do
  * something before kicking them off.
  */
-internal class RTCPMessageHandler(
+class RTCPMessageHandler(
         private val myConnection: Connection,
         private val myFactory: RTCPMessageHandlerFactory,
-        startupTimeoutInterval: Int, timer: Timer, private val traceFactory: TraceFactory) : MessageHandler {
+        startupTimeoutInterval: Int,
+        timer: Timer,
+        private val rtcpMessageHandlerCommGorgel: Gorgel) : MessageHandler {
 
     /** Timeout for kicking off users who connect and then don't do anything  */
     private var myStartupTimeout: Timeout?
@@ -63,9 +65,7 @@ internal class RTCPMessageHandler(
         myStartupTimeout = null
 
         val actualMessage = message as RTCPRequest
-        if (traceFactory.comm.debug) {
-            traceFactory.comm.debugm("$connection $actualMessage")
-        }
+        rtcpMessageHandlerCommGorgel.d?.run { debug("$connection $actualMessage") }
         when (actualMessage.verb) {
             RTCPRequest.VERB_START -> myFactory.doStart(connection)
             RTCPRequest.VERB_RESUME -> myFactory.doResume(connection, actualMessage.sessionID!!,

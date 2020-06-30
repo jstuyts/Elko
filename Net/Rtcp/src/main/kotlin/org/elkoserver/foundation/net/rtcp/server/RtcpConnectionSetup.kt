@@ -5,7 +5,6 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
@@ -19,8 +18,8 @@ class RtcpConnectionSetup(
         private val rtcpServerFactory: RtcpServerFactory,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
-        traceFactory: TraceFactory)
-    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, traceFactory) {
+        private val rtcpMessageHandlerFactoryGorgel: Gorgel)
+    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel) {
     override val protocol: String = "rtcp"
 
     @Throws(IOException::class)
@@ -39,5 +38,6 @@ class RtcpConnectionSetup(
         get() = serverAddress
 
     @Throws(IOException::class)
-    private fun createListenAddress() = rtcpServerFactory.listenRTCP(bind, actorFactory, secure, msgTrace)
+    private fun createListenAddress() =
+            rtcpServerFactory.listenRTCP(bind, actorFactory, secure, rtcpMessageHandlerFactoryGorgel)
 }

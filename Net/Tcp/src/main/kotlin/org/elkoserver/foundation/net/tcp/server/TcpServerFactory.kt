@@ -4,7 +4,6 @@ import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.net.SelectThread
-import org.elkoserver.util.trace.Trace
 import java.io.IOException
 
 class TcpServerFactory(
@@ -23,8 +22,8 @@ class TcpServerFactory(
     @Throws(IOException::class)
     fun listenTCP(listenAddress: String,
                   handlerFactory: MessageHandlerFactory,
-                  secure: Boolean, framerFactory: ByteIOFramerFactory, trace: Trace): NetAddr {
-        val listener = mySelectThread.listen(listenAddress, handlerFactory, framerFactory, secure, trace)
+                  secure: Boolean, framerFactory: ByteIOFramerFactory): NetAddr {
+        val listener = mySelectThread.listen(listenAddress, handlerFactory, framerFactory, secure)
         return listener.listenAddress()
     }
 }

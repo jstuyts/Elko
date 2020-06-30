@@ -1,7 +1,5 @@
 package org.elkoserver.foundation.net.http.server
 
-import org.elkoserver.util.trace.Trace
-
 /**
  * An HTTPFramer is responsible for extracting messages from HTTP POSTs
  * arriving on an HTTP connection and doing something meaningful with them.  It
@@ -12,12 +10,7 @@ import org.elkoserver.util.trace.Trace
  * The base HTTPFramer treats the content of each HTTP POST (to the /xmit/
  * URL) as a simple string being delivered to the server.
  */
-abstract class HTTPFramer
-/**
- * Constructor.
- *
- * @param msgTrace  Trace object for logging message traffic.
- */ protected constructor(internal val msgTrace: Trace) {
+abstract class HTTPFramer protected constructor() {
 
     /**
      * Produce the HTTP reply body for responding to an unrecognized URL (that

@@ -4,7 +4,6 @@ import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
 import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -30,6 +29,7 @@ class SelectThread(
         sslContext: SSLContext?,
         private val clock: Clock,
         private val commGorgel: Gorgel,
+        private val tcpConnectionGorgel: Gorgel,
         private val tcpConnectionCommGorgel: Gorgel,
         private val idGenerator: IdGenerator,
         private val listenerFactory: ListenerFactory)
@@ -107,11 +107,10 @@ class SelectThread(
      * received on the new connection.
      * @param framerFactory  Byte I/O framer factory for the new connection.
      * @param remoteAddr  Host name and port number to connect to.
-     * @param tcpConnectionTrace  Trace object to use for activity on the new connectoin.
      */
     fun connect(handlerFactory: MessageHandlerFactory,
                 framerFactory: ByteIOFramerFactory,
-                remoteAddr: String, tcpConnectionTrace: Trace) {
+                remoteAddr: String) {
         myQueue.enqueue(Callable<Any?> {
             try {
                 val remoteNetAddr = NetAddr(remoteAddr)
@@ -119,8 +118,7 @@ class SelectThread(
                         remoteNetAddr.port)
                 commGorgel.i?.run { info("connecting to $remoteNetAddr") }
                 val channel = SocketChannel.open(socketAddress)
-                newChannel(handlerFactory, framerFactory, channel, false,
-                        tcpConnectionTrace)
+                newChannel(handlerFactory, framerFactory, channel, false)
             } catch (e: IOException) {
                 commGorgel.error("unable to connect to $remoteAddr: $e")
                 handlerFactory.provideMessageHandler(null)
@@ -138,14 +136,11 @@ class SelectThread(
      * for connections made to this port.
      * @param framerFactory  Byte I/O framer factory for new connections.
      * @param secure  If true, use SSL.
-     * @param listenerGorgel  Trace object for logging activity associated with this
-     * port & its connections
      */
     @Throws(IOException::class)
     fun listen(localAddress: String, handlerFactory: MessageHandlerFactory,
-               framerFactory: ByteIOFramerFactory, secure: Boolean,
-               tcpConnectionTrace: Trace): Listener {
-        val listener = listenerFactory.create(localAddress, handlerFactory, framerFactory, secure, tcpConnectionTrace)
+               framerFactory: ByteIOFramerFactory, secure: Boolean): Listener {
+        val listener = listenerFactory.create(localAddress, handlerFactory, framerFactory, secure)
         myQueue.enqueue(listener)
         mySelector.wakeup()
         return listener
@@ -161,16 +156,15 @@ class SelectThread(
      * @param framerFactory  Byte I/O framer factory for the new connection.
      * @param channel  The new channel for the new connection.
      * @param isSecure  If true, this will be an SSL connnection.
-     * @param tcpConnectionTrace  Trace object to use with this new connection.
      */
     fun newChannel(handlerFactory: MessageHandlerFactory,
                    framerFactory: ByteIOFramerFactory,
-                   channel: SocketChannel, isSecure: Boolean, tcpConnectionTrace: Trace) {
+                   channel: SocketChannel, isSecure: Boolean) {
         try {
             channel.configureBlocking(false)
             val key = channel.register(mySelector, SelectionKey.OP_READ)
             key.attach(TCPConnection(handlerFactory, framerFactory,
-                    channel, key, this, runner, loadMonitor, isSecure, tcpConnectionTrace, clock, tcpConnectionCommGorgel, idGenerator))
+                    channel, key, this, runner, loadMonitor, isSecure, tcpConnectionGorgel, clock, tcpConnectionCommGorgel, idGenerator))
         } catch (e: ClosedChannelException) {
             handlerFactory.provideMessageHandler(null)
             commGorgel.error("channel closed before it could be used", e)

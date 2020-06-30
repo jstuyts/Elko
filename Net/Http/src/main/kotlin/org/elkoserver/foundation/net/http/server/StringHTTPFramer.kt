@@ -1,11 +1,6 @@
 package org.elkoserver.foundation.net.http.server
 
-import org.elkoserver.util.trace.Trace
-
-/**
- * @param msgTrace Trace object for logging message traffic.
- */
-class StringHTTPFramer private constructor(msgTrace: Trace) : HTTPFramer(msgTrace) {
+class StringHTTPFramer private constructor() : HTTPFramer() {
     /**
      * Return an iterator that will return the application-level message or
      * messages (if any) in the body of a received HTTP POST.

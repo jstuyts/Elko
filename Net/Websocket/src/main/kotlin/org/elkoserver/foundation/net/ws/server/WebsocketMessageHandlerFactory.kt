@@ -6,7 +6,7 @@ import org.elkoserver.foundation.byteioframer.websocket.WebsocketRequest
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -25,12 +25,11 @@ import java.util.stream.Collectors
  * @param myInnerFactory  The application-level message handler factor that
  * is to be wrapped by this.
  * @param mySocketURI  The URI of the WebSocket connection point.
- * @param trMsg  Trace object for message logging
  */
 internal class WebsocketMessageHandlerFactory(
         private val myInnerFactory: MessageHandlerFactory,
         private val mySocketURI: String,
-        private val trMsg: Trace) : MessageHandlerFactory {
+        private val gorgel: Gorgel) : MessageHandlerFactory {
 
     private fun makeErrorReply(problem: String): String {
         return """
@@ -54,9 +53,7 @@ internal class WebsocketMessageHandlerFactory(
      * @param problem  The error that is being reported
      */
     private fun sendError(connection: Connection, problem: String) {
-        if (trMsg.event) {
-            trMsg.eventm("$connection received invalid WebSocket connection startup: $problem")
-        }
+        gorgel.i?.run { info("$connection received invalid WebSocket connection startup: $problem") }
         connection.sendMsg(HTTPError(400, "Bad Request",
                 makeErrorReply(problem)))
     }
@@ -120,7 +117,7 @@ internal class WebsocketMessageHandlerFactory(
             numBytes[2] = (keyNum shr 8).toByte()
             numBytes[3] = keyNum.toByte()
             md5.update(numBytes)
-            trMsg.debugm("Crazy key = ${String.format("%02x %02x %02x %02x %02x %02x %02x %02x", crazyKey!![0], crazyKey[1], crazyKey[2], crazyKey[3], crazyKey[4], crazyKey[5], crazyKey[6], crazyKey[7])}")
+            gorgel.d?.run { debug("Crazy key = ${String.format("%02x %02x %02x %02x %02x %02x %02x %02x", crazyKey!![0], crazyKey[1], crazyKey[2], crazyKey[3], crazyKey[4], crazyKey[5], crazyKey[6], crazyKey[7])}") }
             WebsocketHandshake(0, md5.digest(crazyKey))
         } catch (e: NoSuchAlgorithmException) {
             throw UnsupportedOperationException("MD5 not available", e)
@@ -143,10 +140,9 @@ internal class WebsocketMessageHandlerFactory(
      *
      * @param connection  The TCP connection object that was just created.
      */
-    override fun provideMessageHandler(connection: Connection?): MessageHandler = WebsocketMessageHandler(connection!!, myInnerFactory.provideMessageHandler(connection)!!)
+    override fun provideMessageHandler(connection: Connection?): MessageHandler = WebsocketMessageHandler(myInnerFactory.provideMessageHandler(connection)!!)
 
-    private inner class WebsocketMessageHandler internal constructor(var myConnection: Connection,
-                                                                     var myInnerHandler: MessageHandler) : MessageHandler {
+    private inner class WebsocketMessageHandler internal constructor(var myInnerHandler: MessageHandler) : MessageHandler {
 
         /**
          * Cope with connection death.

@@ -4,7 +4,7 @@ import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFac
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
 class WebsocketServerFactory(
@@ -24,15 +24,18 @@ class WebsocketServerFactory(
      * @return the address that ended up being listened upon
      */
     @Throws(IOException::class)
-    fun listenWebsocket(listenAddress: String,
-                        innerHandlerFactory: MessageHandlerFactory,
-                        secure: Boolean, socketURI: String, trace: Trace): NetAddr {
+    fun listenWebsocket(
+            listenAddress: String,
+            innerHandlerFactory: MessageHandlerFactory,
+            secure: Boolean,
+            socketURI: String,
+            gorgel: Gorgel): NetAddr {
         var actualSocketURI = socketURI
         if (!actualSocketURI.startsWith("/")) {
             actualSocketURI = "/$actualSocketURI"
         }
-        val outerHandlerFactory = WebsocketMessageHandlerFactory(innerHandlerFactory, actualSocketURI, trace)
+        val outerHandlerFactory = WebsocketMessageHandlerFactory(innerHandlerFactory, actualSocketURI, gorgel)
         val framerFactory = websocketByteIOFramerFactoryFactory.create(listenAddress, actualSocketURI)
-        return tcpServerFactory.listenTCP(listenAddress, outerHandlerFactory, secure, framerFactory, trace)
+        return tcpServerFactory.listenTCP(listenAddress, outerHandlerFactory, secure, framerFactory)
     }
 }

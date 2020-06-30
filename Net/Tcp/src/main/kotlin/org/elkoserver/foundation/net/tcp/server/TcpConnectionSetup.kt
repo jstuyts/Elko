@@ -6,7 +6,6 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
@@ -20,9 +19,8 @@ class TcpConnectionSetup(
         private val tcpServerFactory: TcpServerFactory,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,
-        traceFactory: TraceFactory,
         private val jsonByteIOFramerFactoryFactory: JSONByteIOFramerFactoryFactory)
-    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel, traceFactory) {
+    : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel) {
     override val protocol = "tcp"
 
     @Throws(IOException::class)
@@ -42,5 +40,5 @@ class TcpConnectionSetup(
 
     @Throws(IOException::class)
     private fun createListenAddress() =
-            tcpServerFactory.listenTCP(bind, actorFactory, secure, jsonByteIOFramerFactoryFactory.create(), msgTrace)
+            tcpServerFactory.listenTCP(bind, actorFactory, secure, jsonByteIOFramerFactoryFactory.create())
 }

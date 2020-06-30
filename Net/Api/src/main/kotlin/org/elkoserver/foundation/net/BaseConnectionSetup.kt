@@ -2,8 +2,8 @@ package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
+import org.elkoserver.util.trace.slf4j.Tag
 import java.io.IOException
 
 abstract class BaseConnectionSetup(
@@ -13,23 +13,18 @@ abstract class BaseConnectionSetup(
         val secure: Boolean,
         props: ElkoProperties,
         val propRoot: String,
-        private val gorgel: Gorgel,
-        protected var traceFactory: TraceFactory) : ConnectionSetup {
+        gorgel: Gorgel) : ConnectionSetup {
     val bind: String = props.getProperty("$propRoot.bind", host)
 
-    var msgTrace = if (label != null) {
-        traceFactory.comm.subTrace(label)
-    } else {
-        traceFactory.comm.subTrace("cli")
-    }
+    val actualGorgel = if (label != null) gorgel.withAdditionalStaticTags(Tag("label", label)) else gorgel
 
     override fun startListener(): NetAddr {
         val result: NetAddr
         try {
             result = tryToStartListener()
-            gorgel.i?.run { info("listening for $protocol connections$connectionsSuffixForNotice on $listenAddressDescription${(if (bind != valueToCompareWithBind) " ($bind)" else "")} (${auth.mode})${if (secure) " (secure mode)" else ""}") }
+            actualGorgel.i?.run { info("listening for $protocol connections$connectionsSuffixForNotice on $listenAddressDescription${(if (bind != valueToCompareWithBind) " ($bind)" else "")} (${auth.mode})${if (secure) " (secure mode)" else ""}") }
         } catch (e: IOException) {
-            gorgel.error("unable to open $protocol$protocolSuffixForErrorMessage listener $propRoot on requested host: $e")
+            actualGorgel.error("unable to open $protocol$protocolSuffixForErrorMessage listener $propRoot on requested host: $e")
             throw IllegalStateException()
         }
         return result

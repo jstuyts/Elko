@@ -7,7 +7,6 @@ import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.Runner.Companion.throwIfMandatory
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.EOFException
 import java.io.IOException
@@ -30,7 +29,6 @@ import java.util.concurrent.Callable
  * @param myKey  Selection key for reads and writes over 'channel'.
  * @param mySelectThread  Select thread that is managing this connection.
  * @param amSecure  If true, this is an SSL connection.
- * @param myTrace  Trace object to use for this connection.
  */
 class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
                                          framerFactory: ByteIOFramerFactory, private val myChannel: SocketChannel,
@@ -38,7 +36,10 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
                                          runner: Runner,
                                          loadMonitor: LoadMonitor,
                                          private val amSecure: Boolean,
-                                         private val myTrace: Trace, clock: Clock, commGorgel: Gorgel, idGenerator: IdGenerator)
+                                         private val gorgel: Gorgel,
+                                         clock: Clock,
+                                         commGorgel: Gorgel,
+                                         idGenerator: IdGenerator)
     : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator), MessageReceiver, Callable<Any?> {
     /** Queue of unencoded outbound messages.  */
     private val myOutputQueue = Queue<Any>()
@@ -71,13 +72,9 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
     override fun call(): Any? {
         if (myOutputQueue.hasMoreElements() && myKey.isValid) {
             myKey.interestOps(myKey.interestOps() or SelectionKey.OP_WRITE)
-            if (myTrace.debug) {
-                myTrace.debugm("$this set selectkey Read/Write")
-            }
+            gorgel.d?.run { debug("${this@TCPConnection} set selectkey Read/Write") }
         }
-        if (myTrace.debug) {
-            myTrace.debugm("select thread interested in writes on $this")
-        }
+        gorgel.d?.run { debug("select thread interested in writes on ${this@TCPConnection}") }
         return null
     }
 
@@ -85,9 +82,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
      * Shut down the connection.  Any queued messages will be sent.
      */
     override fun close() {
-        if (myTrace.debug) {
-            myTrace.debugm("$this close")
-        }
+        gorgel.d?.run { debug("${this@TCPConnection} close") }
 
         /* Enqueue a special object to mark the end of the outgoing message
          * stream.  Output queue handler will call closeIsDone() when it pulls
@@ -112,12 +107,10 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
             /* Throwing an IOException on connection close has got to be one of
                the stupidest things -- what're you gonna do about it? Close the
                connection? */
-            myTrace.debugm("$this ignoring IOException on close")
+            gorgel.d?.run { debug("${this@TCPConnection} ignoring IOException on close") }
         }
         myKey.attach(null)
-        if (myTrace.event) {
-            myTrace.eventi("$this died: $reason")
-        }
+        gorgel.i?.run { info("${this@TCPConnection} died: $reason") }
         var message = myOutputQueue.optDequeue()
         while (message != null) {
             if (message is Releasable) {
@@ -150,22 +143,18 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
                             myInputBuffer.position())
                     myInputBuffer.clear()
                 } else {
-                    if (myTrace.event) {
-                        myTrace.debugm("$this zero length read")
-                    }
+                    gorgel.i?.run { info("${this@TCPConnection} zero length read") }
                 }
             } while (count > 0 && amSecure)
         } catch (t: Throwable) {
             /* If anything bad happens during read, the connection is dead. */
-            if (myTrace.debug) {
-                myTrace.debugm("$this caught exception", t)
-            }
+            gorgel.d?.run { debug("${this@TCPConnection} caught exception", t) }
             if (t is EOFException) {
-                myTrace.eventi("$this remote disconnect")
+                gorgel.i?.run { info("${this@TCPConnection} remote disconnect") }
             } else if (t is IOException) {
-                myTrace.errorm("$this IOException: ${t.message}")
+                gorgel.error("$this IOException: ${t.message}")
             } else {
-                myTrace.errorm("$this Error", t)
+                gorgel.error("$this Error", t)
             }
             close()
             /* Close it immediately: if the connection is dead, the write queue
@@ -198,22 +187,18 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
             if (myOutputBuffer != null) {
                 val before = myOutputBuffer!!.remaining()
                 val wrote = myChannel.write(myOutputBuffer)
-                if (myTrace.event) {
-                    myTrace.debugm("$this wrote $wrote bytes of $before")
-                }
+                gorgel.i?.run { info("${this@TCPConnection} wrote $wrote bytes of $before") }
                 if (myOutputBuffer!!.remaining() == 0) {
                     myOutputBuffer = null
                 }
             } else if (amSecure) {
                 /* ScalableSSL sometimes requires us to do empty writes to pump
                    SSL protocol handshaking. */
-                if (myTrace.event) {
-                    myTrace.debugm("$this SSL empty write")
-                }
+                gorgel.i?.run { info("${this@TCPConnection} SSL empty write") }
                 myChannel.write(theEmptyBuffer)
             }
         } catch (e: IOException) {
-            myTrace.eventm("$this IOException: ${e.message}")
+            gorgel.i?.run { info("${this@TCPConnection} IOException: ${e.message}") }
             closeException = e
         }
         if (closeException != null) {
@@ -221,9 +206,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
         } else if (myOutputBuffer == null) {
             if (!myOutputQueue.hasMoreElements()) {
                 myKey.interestOps(myKey.interestOps() and SelectionKey.OP_WRITE.inv())
-                if (myTrace.debug) {
-                    myTrace.debugm("$this set selectkey ReadOnly")
-                }
+                gorgel.d?.run { debug("${this@TCPConnection} set selectkey ReadOnly") }
             }
         }
     }
@@ -235,9 +218,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
      * String, but this is not required.
      */
     private fun enqueueSentMessage(message: Any) {
-        if (myTrace.debug) {
-            myTrace.debugm("enqueue $message")
-        }
+        gorgel.d?.run { debug("enqueue $message") }
 
         /* If the connection is going away, the message can be discarded. */if (amOpen) {
             myOutputQueue.enqueue(message)
@@ -327,9 +308,7 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
      * @param message  The message to be sent.
      */
     override fun sendMsg(message: Any) {
-        if (myTrace.debug) {
-            myTrace.debugm("$this enqueueing message: $message")
-        }
+        gorgel.d?.run { debug("${this@TCPConnection} enqueueing message: $message") }
         enqueueSentMessage(message)
     }
 
@@ -366,8 +345,6 @@ class TCPConnection internal constructor(handlerFactory: MessageHandlerFactory,
         myInputBuffer = ByteBuffer.wrap(ByteArray(INPUT_BUFFER_SIZE))
         myFramer = framerFactory.provideFramer(this, label())
         enqueueHandlerFactory(handlerFactory)
-        if (myTrace.event) {
-            myTrace.eventi("$this new connection from $myRemoteAddr")
-        }
+        gorgel.i?.run { info("${this@TCPConnection} new connection from $myRemoteAddr") }
     }
 }

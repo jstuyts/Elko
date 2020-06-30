@@ -9,8 +9,6 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.HashMap
@@ -30,18 +28,18 @@ import java.util.HashMap
  *
  * @param innerFactory  The application-level message handler factory that
  * is to be wrapped by this.
- * @param msgTrace   Trace object for logging message traffic
  */
-internal class RTCPMessageHandlerFactory(
+class RTCPMessageHandlerFactory(
         internal val innerFactory: MessageHandlerFactory,
+        private val rtcpSessionConnectionGorgel: Gorgel,
         private val connectionCommGorgel: Gorgel,
-        internal val msgTrace: Trace,
+        private val gorgel: Gorgel,
         private val myRunner: Runner,
         private val myLoadMonitor: LoadMonitor,
         props: ElkoProperties,
         private val timer: Timer,
         private val clock: Clock,
-        private val traceFactory: TraceFactory,
+        private val rtcpMessageHandlerCommGorgel: Gorgel,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator) : MessageHandlerFactory {
 
@@ -118,7 +116,7 @@ internal class RTCPMessageHandlerFactory(
         if (session != null) {
             session.close()
         } else {
-            msgTrace.errorm("got RTCP end request on connection with no associated session $connection")
+            gorgel.error("got RTCP end request on connection with no associated session $connection")
         }
     }
 
@@ -130,10 +128,7 @@ internal class RTCPMessageHandlerFactory(
      * @param errorTag  The error tag string from the request
      */
     fun doError(connection: Connection, errorTag: String) {
-        if (msgTrace.event) {
-            val aux = ""
-            msgTrace.eventm("$connection received error request $errorTag$aux")
-        }
+        gorgel.i?.run { info("$connection received error request $errorTag") }
     }
 
     /**
@@ -174,9 +169,7 @@ internal class RTCPMessageHandlerFactory(
             session = getSession(sessionID)
             if (session != null) {
                 acquireTCPConnection(session, connection)
-                if (msgTrace.event) {
-                    msgTrace.eventm("$session resume ${session.sessionID}")
-                }
+                gorgel.i?.run { info("$session resume ${session.sessionID}") }
                 sendWithLog(connection,
                         makeResumeReply(session.sessionID,
                                 session.clientSendSeqNum))
@@ -200,11 +193,9 @@ internal class RTCPMessageHandlerFactory(
         if (session != null) {
             reply = makeErrorReply("sessionInProgress")
         } else {
-            session = RTCPSessionConnection(this, myRunner, myLoadMonitor, sessionIdGenerator.generate(), timer, clock, connectionCommGorgel, connectionIdGenerator)
+            session = RTCPSessionConnection(this, myRunner, myLoadMonitor, sessionIdGenerator.generate(), timer, clock, rtcpSessionConnectionGorgel, connectionCommGorgel, connectionIdGenerator)
             acquireTCPConnection(session, connection)
-            if (msgTrace.event) {
-                msgTrace.eventm("$session start ${session.sessionID}")
-            }
+            gorgel.i?.run { info("$session start ${session.sessionID}") }
             reply = makeStartReply(session.sessionID)
         }
         sendWithLog(connection, reply)
@@ -286,7 +277,7 @@ internal class RTCPMessageHandlerFactory(
      */
     override fun provideMessageHandler(connection: Connection?): MessageHandler {
         return RTCPMessageHandler(connection!!, this,
-                sessionInactivityTimeout(false), timer, traceFactory)
+                sessionInactivityTimeout(false), timer, rtcpMessageHandlerCommGorgel)
     }
 
     /**
@@ -305,9 +296,7 @@ internal class RTCPMessageHandlerFactory(
      * @param msg  The message to send.
      */
     private fun sendWithLog(connection: Connection, msg: String) {
-        if (msgTrace.debug) {
-            msgTrace.debugm("$connection <| ${msg.trim { it <= ' ' }}")
-        }
+        gorgel.d?.run { debug("$connection <| ${msg.trim { it <= ' ' }}") }
         connection.sendMsg(msg)
     }
 
@@ -356,13 +345,9 @@ internal class RTCPMessageHandlerFactory(
         val session = mySessionsByConnection.remove(connection)
         if (session != null) {
             session.loseTCPConnection(connection)
-            if (msgTrace.event) {
-                msgTrace.eventm("$connection lost under $session-${session.sessionID}: $reason")
-            }
+            gorgel.i?.run { info("$connection lost under $session-${session.sessionID}: $reason") }
         } else {
-            if (msgTrace.event) {
-                msgTrace.eventm("$connection lost under no known RTCP session: $reason")
-            }
+            gorgel.i?.run { info("$connection lost under no known RTCP session: $reason") }
         }
     }
 

@@ -5,7 +5,6 @@ import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonObjectSerialization.sendableString
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
@@ -18,7 +17,7 @@ import java.nio.charset.StandardCharsets
  *
  * FIXME: nanomsg parser cannot parse multiple messages in 1 string
  */
-class JSONHTTPFramer(appTrace: Trace, private val commGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : HTTPFramer(appTrace) {
+class JSONHTTPFramer(private val commGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : HTTPFramer() {
 
     /**
      * Produce the HTTP for responding to an HTTP GET of the /select/ URL by

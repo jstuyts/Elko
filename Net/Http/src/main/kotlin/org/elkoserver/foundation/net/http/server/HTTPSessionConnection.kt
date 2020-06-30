@@ -10,7 +10,6 @@ import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.HashSet
@@ -27,12 +26,11 @@ import java.util.HashSet
  */
 class HTTPSessionConnection internal constructor(
         private val sessionFactory: HTTPMessageHandlerFactory,
+        private val gorgel: Gorgel,
         runner: Runner,
         loadMonitor: LoadMonitor,
         internal val sessionID: Long, timer: Timer, clock: Clock, commGorgel: Gorgel, idGenerator: IdGenerator)
     : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator) {
-    /** Trace object for logging message traffic.  */
-    private val trMsg: Trace = sessionFactory.httpFramer.msgTrace
 
     /** Server to client message sequence number.  */
     private var mySelectSequenceNumber: Int
@@ -87,9 +85,7 @@ class HTTPSessionConnection internal constructor(
      */
     fun associateTCPConnection(connection: Connection) {
         myConnections.add(connection)
-        if (trMsg.debug) {
-            trMsg.debugm("associate $connection with $this, count=${myConnections.size}")
-        }
+        gorgel.d?.run { debug("associate $connection with ${this@HTTPSessionConnection}, count=${myConnections.size}") }
     }
 
     /**
@@ -188,14 +184,10 @@ class HTTPSessionConnection internal constructor(
         if (mySelectWaitStartTime == 0L &&
                 clock.millis() - myLastActivityTime >
                 mySessionTimeoutInterval) {
-            if (trMsg.event) {
-                trMsg.eventm("$this tick: HTTP session timeout")
-            }
+            gorgel.i?.run { info("${this@HTTPSessionConnection} tick: HTTP session timeout") }
             close()
         } else {
-            if (trMsg.debug) {
-                trMsg.debugm("$this tick: HTTP session waiting")
-            }
+            gorgel.d?.run { debug("${this@HTTPSessionConnection} tick: HTTP session waiting") }
         }
     }
 
@@ -238,12 +230,10 @@ class HTTPSessionConnection internal constructor(
             connection.close()
         } else {
             noteClientActivity()
-            if (trMsg.event) {
-                trMsg.eventi("$this:$connection -> $message")
-            }
+            gorgel.i?.run { info("${this@HTTPSessionConnection}:$connection -> $message") }
             val reply: String
             reply = if (uri.sequenceNumber != myXmitSequenceNumber) {
-                trMsg.errorm("$this expected xmit seq # $myXmitSequenceNumber, got ${uri.sequenceNumber}")
+                gorgel.error("$this expected xmit seq # $myXmitSequenceNumber, got ${uri.sequenceNumber}")
                 myHTTPFramer.makeSequenceErrorReply("sequenceError")
             } else {
                 val unpacker = myHTTPFramer.postBodyUnpacker(message)
@@ -274,7 +264,7 @@ class HTTPSessionConnection internal constructor(
         noteClientActivity()
         return if (uri.sequenceNumber != mySelectSequenceNumber) {
             /* Client did a bad, bad thing. */
-            trMsg.errorm("$this expected select seq # $mySelectSequenceNumber, got ${uri.sequenceNumber}")
+            gorgel.error("$this expected select seq # $mySelectSequenceNumber, got ${uri.sequenceNumber}")
             downstreamConnection.sendMsg(
                     myHTTPFramer.makeSequenceErrorReply("sequenceError"))
             true
@@ -286,9 +276,7 @@ class HTTPSessionConnection internal constructor(
             do {
                 val message = myQueue.nextElement()
                 end = !myQueue.hasMoreElements()
-                if (trMsg.event) {
-                    trMsg.eventi("$this:$downstreamConnection <- $message")
-                }
+                gorgel.i?.run { info("${this@HTTPSessionConnection}:$downstreamConnection <- $message") }
                 reply.append(packMessage(message, start, end))
                 start = false
             } while (!end)
@@ -319,9 +307,7 @@ class HTTPSessionConnection internal constructor(
         if (currentDownstreamConnection != null) {
             /* If there *is* a pending select request, use it to send the
                message immediately. */
-            if (trMsg.event) {
-                trMsg.eventi("$this:$currentDownstreamConnection <- $message")
-            }
+            gorgel.i?.run { info("${this@HTTPSessionConnection}:$currentDownstreamConnection <- $message") }
             currentDownstreamConnection.sendMsg(packMessage(message, true, true))
             if (myDownstreamIsNonPersistent) {
                 val toClose: Connection = currentDownstreamConnection
@@ -361,9 +347,7 @@ class HTTPSessionConnection internal constructor(
         if (myDownstreamConnection === connection) {
             clearDownstreamConnection()
             noteClientActivity()
-            if (trMsg.event) {
-                trMsg.eventm("$this lost $connection with pending select")
-            }
+            gorgel.i?.run { info("${this@HTTPSessionConnection} lost $connection with pending select") }
         }
     }
 
@@ -386,9 +370,7 @@ class HTTPSessionConnection internal constructor(
         sessionFactory.addSession(this)
         myConnections = HashSet()
         myLastActivityTime = clock.millis()
-        if (trMsg.event) {
-            trMsg.eventi("$this new connection")
-        }
+        gorgel.i?.run { info("${this@HTTPSessionConnection} new connection") }
         mySelectSequenceNumber = 1
         myXmitSequenceNumber = 1
         clearDownstreamConnection()

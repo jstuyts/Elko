@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net
 
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * "Message handler" for connections that are send only.  No messages will ever
@@ -9,7 +9,7 @@ import org.elkoserver.util.trace.Trace
  * this placeholder class.  Note that if a message actually *is* received, it
  * is an error, so this class provides an option for logging it.
  */
-class NullMessageHandler(private val tr: Trace) : MessageHandler {
+class NullMessageHandler(private val gorgel: Gorgel) : MessageHandler {
 
     /**
      * Cope with connection death.  The connection might have been shut down
@@ -21,7 +21,7 @@ class NullMessageHandler(private val tr: Trace) : MessageHandler {
      * @param reason  A possible indication why the connection went away.
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
-        tr.eventm("send-only connection $connection died: $reason")
+        gorgel.i?.run { info("send-only connection $connection died: $reason") }
     }
 
     /**
@@ -32,7 +32,7 @@ class NullMessageHandler(private val tr: Trace) : MessageHandler {
      * @param message  The incoming message.
      */
     override fun processMessage(connection: Connection, message: Any) {
-        tr.errorm("message received on allegedly send-only connection $connection: $message")
+        gorgel.error("message received on allegedly send-only connection $connection: $message")
     }
 
 }

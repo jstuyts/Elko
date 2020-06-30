@@ -12,7 +12,6 @@ import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.json.JSONLiteral
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.LinkedList
@@ -28,10 +27,13 @@ class RTCPSessionConnection internal constructor(
         private val mySessionFactory: RTCPMessageHandlerFactory,
         runner: Runner,
         loadMonitor: LoadMonitor,
-        sessionIDAsLong: Long, private val timer: Timer, clock: Clock, commGorgel: Gorgel, idGenerator: IdGenerator)
+        sessionIDAsLong: Long,
+        private val timer: Timer,
+        clock: Clock,
+        private val gorgel: Gorgel,
+        commGorgel: Gorgel,
+        idGenerator: IdGenerator)
     : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator) {
-    /** Trace object for logging message traffic.  */
-    private val trMsg: Trace = mySessionFactory.msgTrace
 
     /** Sequence number of last client->server message received here.  */
     internal var clientSendSeqNum: Int = 0
@@ -211,9 +213,7 @@ class RTCPSessionConnection internal constructor(
             discardAcknowledgedMessages(request.clientRecvSeqNum)
             var message = request.nextMessage()
             while (message != null) {
-                if (trMsg.event) {
-                    trMsg.eventi("$this -> $message")
-                }
+                gorgel.i?.run { info("${this@RTCPSessionConnection} -> $message") }
                 enqueueReceivedMessage(message)
                 message = request.nextMessage()
             }
@@ -263,18 +263,12 @@ class RTCPSessionConnection internal constructor(
             messageString = mySessionFactory.makeMessage(myServerSendSeqNum,
                     clientSendSeqNum,
                     message.sendableString())
-            if (trMsg.debug) {
-                trMsg.debugm("$myLiveConnection <| $myServerSendSeqNum $clientSendSeqNum")
-            }
-            if (trMsg.event) {
-                trMsg.eventi("$this <- $message")
-            }
+            gorgel.d?.run { debug("$myLiveConnection <| $myServerSendSeqNum $clientSendSeqNum") }
+            gorgel.i?.run { info("${this@RTCPSessionConnection} <- $message") }
         } else if (message is String) {
             messageString = message
             if (myLiveConnection != null) {
-                if (trMsg.debug) {
-                    trMsg.debugm("$myLiveConnection <| ${messageString.trim { it <= ' ' }}")
-                }
+                gorgel.d?.run { debug("$myLiveConnection <| ${messageString.trim { it <= ' ' }}") }
             }
         } else {
             throw IllegalArgumentException("Invalid message type: ${message.javaClass.name}")

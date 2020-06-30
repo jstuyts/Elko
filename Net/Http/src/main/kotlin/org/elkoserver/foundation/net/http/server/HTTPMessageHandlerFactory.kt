@@ -12,7 +12,6 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.HashMap
@@ -49,8 +48,10 @@ class HTTPMessageHandlerFactory internal constructor(
         props: ElkoProperties,
         private val timer: Timer,
         private val clock: Clock,
+        private val httpSessionConnectionGorgel: Gorgel,
         private val connectionCommGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
+        private val handlerCommGorgel: Gorgel,
+        private val handlerFactoryCommGorgel: Gorgel,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator) : MessageHandlerFactory {
 
@@ -109,11 +110,9 @@ class HTTPMessageHandlerFactory internal constructor(
      * @return true if an HTTP reply was sent.
      */
     private fun doConnect(connection: Connection): Boolean {
-        val session = HTTPSessionConnection(this, myRunner, myLoadMonitor, sessionIdGenerator.generate(), timer, clock, connectionCommGorgel, connectionIdGenerator)
+        val session = HTTPSessionConnection(this, httpSessionConnectionGorgel, myRunner, myLoadMonitor, sessionIdGenerator.generate(), timer, clock, connectionCommGorgel, connectionIdGenerator)
         associateTCPConnection(session, connection)
-        if (traceFactory.comm.event) {
-            traceFactory.comm.eventm("$session connect over $connection")
-        }
+        handlerFactoryCommGorgel.i?.run { info("$session connect over $connection") }
         val reply = httpFramer.makeConnectReply(session.sessionID)
         connection.sendMsg(reply)
         return true
@@ -137,7 +136,7 @@ class HTTPMessageHandlerFactory internal constructor(
         }
         val reply: String
         reply = if (session == null) {
-            traceFactory.comm.errorm("got disconnect with invalid session ${uri.sessionID}")
+            handlerFactoryCommGorgel.error("got disconnect with invalid session ${uri.sessionID}")
             httpFramer.makeSequenceErrorReply("sessionIDError")
         } else {
             httpFramer.makeDisconnectReply()
@@ -157,9 +156,7 @@ class HTTPMessageHandlerFactory internal constructor(
      * @return true if an HTTP reply was sent.
      */
     private fun doError(connection: Connection, uri: String): Boolean {
-        if (traceFactory.comm.event) {
-            traceFactory.comm.eventm("$connection received invalid URI in HTTP request $uri")
-        }
+        handlerFactoryCommGorgel.i?.run { info("$connection received invalid URI in HTTP request $uri") }
         connection.sendMsg(HTTPError(404, "Not Found",
                 httpFramer.makeBadURLReply(uri)))
         return true
@@ -183,7 +180,7 @@ class HTTPMessageHandlerFactory internal constructor(
             associateTCPConnection(session, connection)
             session.selectMessages(connection, uri, nonPersistent)
         } else {
-            traceFactory.comm.errorm("got select with invalid session ${uri.sessionID}")
+            handlerFactoryCommGorgel.error("got select with invalid session ${uri.sessionID}")
             connection.sendMsg(
                     httpFramer.makeSequenceErrorReply("sessionIDError"))
             true
@@ -208,7 +205,7 @@ class HTTPMessageHandlerFactory internal constructor(
             associateTCPConnection(session, connection)
             session.receiveMessage(connection, uri, message)
         } else {
-            traceFactory.comm.errorm("got xmit with invalid session ${uri.sessionID}")
+            handlerFactoryCommGorgel.error("got xmit with invalid session ${uri.sessionID}")
             connection.sendMsg(
                     httpFramer.makeSequenceErrorReply("sessionIDError"))
         }
@@ -266,9 +263,7 @@ class HTTPMessageHandlerFactory internal constructor(
      * header information.
      */
     fun handleOPTIONS(connection: Connection, request: HTTPRequest) {
-        if (traceFactory.comm.event) {
-            traceFactory.comm.eventm("OPTIONS request over $connection")
-        }
+        handlerFactoryCommGorgel.i?.run { info("OPTIONS request over $connection") }
         val reply = HTTPOptionsReply(request)
         connection.sendMsg(reply)
     }
@@ -318,9 +313,7 @@ class HTTPMessageHandlerFactory internal constructor(
         if (session != null) {
             return session
         }
-        if (traceFactory.comm.event) {
-            traceFactory.comm.eventm("$connection received invalid session ID ${uri.sessionID}")
-        }
+        handlerFactoryCommGorgel.i?.run { info("$connection received invalid session ID ${uri.sessionID}") }
         return null
     }
 
@@ -329,7 +322,7 @@ class HTTPMessageHandlerFactory internal constructor(
      *
      * @param connection  The TCP connection object that was just created.
      */
-    override fun provideMessageHandler(connection: Connection?): MessageHandler = HTTPMessageHandler(connection!!, this, sessionTimeout(false), timer, traceFactory)
+    override fun provideMessageHandler(connection: Connection?): MessageHandler = HTTPMessageHandler(connection!!, this, sessionTimeout(false), timer, handlerCommGorgel)
 
     /**
      * Remove a session from the session table.
@@ -385,13 +378,9 @@ class HTTPMessageHandlerFactory internal constructor(
         val session = mySessionsByConnection.remove(connection)
         if (session != null) {
             session.dissociateTCPConnection(connection)
-            if (traceFactory.comm.event) {
-                traceFactory.comm.eventm("$connection lost under $session: $reason")
-            }
+            handlerFactoryCommGorgel.i?.run { info("$connection lost under $session: $reason") }
         } else {
-            if (traceFactory.comm.event) {
-                traceFactory.comm.eventm("$connection lost under no known HTTP session: $reason")
-            }
+            handlerFactoryCommGorgel.i?.run { info("$connection lost under no known HTTP session: $reason") }
         }
     }
 

@@ -1,7 +1,6 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.net.InetAddress
@@ -28,8 +27,7 @@ class Listener(
         private val myHandlerFactory: MessageHandlerFactory,
         private val myFramerFactory: ByteIOFramerFactory,
         private val amSecure: Boolean,
-        private val myGorgel: Gorgel,
-        private val tcpConnectionTrace: Trace) {
+        private val myGorgel: Gorgel) {
     /** The address to listen on, or null for the default address.  */
     private val myOptIP: InetAddress
 
@@ -49,7 +47,7 @@ class Listener(
         try {
             val newChannel = myChannel.accept()
             if (newChannel != null) {
-                mySelectThread!!.newChannel(myHandlerFactory, myFramerFactory, newChannel, amSecure, tcpConnectionTrace)
+                mySelectThread!!.newChannel(myHandlerFactory, myFramerFactory, newChannel, amSecure)
             } else {
                 myGorgel.i?.run { info("accept returned null socket, ignoring") }
             }

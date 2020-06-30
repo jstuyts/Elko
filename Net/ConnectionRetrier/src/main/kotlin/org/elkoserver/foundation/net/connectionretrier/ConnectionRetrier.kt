@@ -9,7 +9,6 @@ import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -21,7 +20,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * diagnostic output
  * @param myActualFactory  Application-provided message handler factory for
  * use once connection is established.
- * @param appTrace  Application trace object for logging.
  */
 class ConnectionRetrier(
         private val myHost: HostDesc,
@@ -30,7 +28,6 @@ class ConnectionRetrier(
         private val myActualFactory: MessageHandlerFactory,
         timer: Timer,
         private val gorgel: Gorgel,
-        appTrace: Trace,
         jsonByteIOFramerFactoryFactory: JSONByteIOFramerFactoryFactory) {
 
     /** Low-level I/O framer factory for the new connection.  */
@@ -45,14 +42,11 @@ class ConnectionRetrier(
     /** Timeout handler to retry failed connection attempts after a while.  */
     private val myRetryTimeout: TimeoutNoticer
 
-    /** Trace object for logging activity associated with the new connection  */
-    private val myTrace = appTrace.subTrace(myLabel)
-
     /**
      * Attempt to make the connection.
      */
     private fun doConnect(outerHandlerFactory: MessageHandlerFactory) {
-        tcpClientFactory.connectTCP(myHost.hostPort!!, outerHandlerFactory, myFramerFactory, myTrace)
+        tcpClientFactory.connectTCP(myHost.hostPort!!, outerHandlerFactory, myFramerFactory)
     }
 
     /**

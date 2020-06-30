@@ -122,16 +122,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
     }
 
     /**
-     * Output a log message at <tt>DEBUG</tt> level, with attached object.
-     *
-     * @param message  The message to write to the log.
-     * @param obj  Object to report with <tt>message</tt>.
-     */
-    fun debugm(message: String, obj: Any?) {
-        if (debug) recordDebugMessage(message, Level.DEBUG, obj)
-    }
-
-    /**
      * Output a log message at <tt>ERROR</tt> level.
      *
      * @param message  The message to write to the log.

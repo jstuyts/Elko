@@ -9,8 +9,6 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.time.Clock
@@ -21,8 +19,9 @@ class RtcpServerFactory(
         private val runner: Runner,
         private val timer: Timer,
         private val clock: Clock,
+        private val rtcpSessionConnectionGorgel: Gorgel,
         private val rtcpSessionConnectionCommGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
+        private val rtcpMessageHandlerCommGorgel: Gorgel,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator,
         private val tcpServerFactory: TcpServerFactory,
@@ -43,9 +42,9 @@ class RtcpServerFactory(
     fun listenRTCP(listenAddress: String,
                    innerHandlerFactory: MessageHandlerFactory,
                    secure: Boolean,
-                   trace: Trace): NetAddr {
-        val outerHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, rtcpSessionConnectionCommGorgel, trace, runner, loadMonitor, props, timer, clock, traceFactory, sessionIdGenerator, connectionIdGenerator)
+                   rtcpMessageHandlerFactoryGorgel: Gorgel): NetAddr {
+        val outerHandlerFactory = RTCPMessageHandlerFactory(innerHandlerFactory, rtcpSessionConnectionGorgel, rtcpSessionConnectionCommGorgel, rtcpMessageHandlerFactoryGorgel, runner, loadMonitor, props, timer, clock, rtcpMessageHandlerCommGorgel, sessionIdGenerator, connectionIdGenerator)
         val framerFactory = rtcpRequestByteIOFramerFactoryFactory.create()
-        return tcpServerFactory.listenTCP(listenAddress, outerHandlerFactory, secure, framerFactory, trace)
+        return tcpServerFactory.listenTCP(listenAddress, outerHandlerFactory, secure, framerFactory)
     }
 }
