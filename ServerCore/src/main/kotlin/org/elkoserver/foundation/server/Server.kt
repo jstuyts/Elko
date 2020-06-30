@@ -5,14 +5,10 @@ import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.net.ConnectionSetupFactory
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
-import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
-import org.elkoserver.foundation.net.rtcp.server.RtcpConnectionSetupFactory
-import org.elkoserver.foundation.net.tcp.server.TcpConnectionSetupFactory
-import org.elkoserver.foundation.net.ws.server.WebsocketConnectionSetupFactory
-import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.SlowServiceRunner
@@ -65,11 +61,7 @@ class Server(
         private val objDBRemoteFactory: ObjDBRemoteFactory,
         private val mustSendDebugReplies: Boolean,
         private val objDBLocalFactory: ObjDBLocalFactory,
-        private val httpConnectionSetupFactory: HttpConnectionSetupFactory,
-        private val rtcpConnectionSetupFactory: RtcpConnectionSetupFactory,
-        private val tcpConnectionSetupFactory: TcpConnectionSetupFactory,
-        private val websocketConnectionSetupFactory: WebsocketConnectionSetupFactory,
-        private val zeromqConnectionSetupFactory: ZeromqConnectionSetupFactory,
+        private val connectionSetupFactoriesByCode: Map<String, ConnectionSetupFactory>,
         private val connectionRetrierFactory: ConnectionRetrierFactory)
     : ServiceFinder {
 
@@ -517,16 +509,10 @@ class Server(
         val actorFactory = metaFactory.provideFactory(propRoot, auth, allow, serviceNames, protocol)
         val label = myProps.getProperty("$propRoot.label")
         val secure = myProps.testProperty("$propRoot.secure")
-        val connectionSetup = when (protocol) {
-            "tcp" -> tcpConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
-            "rtcp" -> rtcpConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
-            "http" -> httpConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
-            "ws" -> websocketConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
-            "zmq" -> zeromqConnectionSetupFactory.create(label, host, auth, secure, propRoot, actorFactory)
-            else -> {
-                gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
-                throw IllegalStateException()
-            }
+        val connectionSetup = connectionSetupFactoriesByCode[protocol]?.create(label, host, auth, secure, propRoot, actorFactory)
+        if (connectionSetup == null) {
+            gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
+            throw IllegalStateException()
         }
         connectionSetup.startListener()
         serviceNames

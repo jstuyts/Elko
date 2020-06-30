@@ -293,6 +293,14 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(jsonByteIOFramerFactoryFactory))
     }
 
+    val connectionSetupFactoriesByCode by Once {
+        mapOf("http" to req(httpConnectionSetupFactory),
+                "rtcp" to req(rtcpConnectionSetupFactory),
+                "tcp" to req(tcpConnectionSetupFactory),
+                "ws" to req(websocketConnectionSetupFactory),
+                "zmq" to req(zeromqConnectionSetupFactory))
+    }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -313,11 +321,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(objDBRemoteFactory),
                 req(mustSendDebugReplies),
                 req(objDBLocalFactory),
-                req(httpConnectionSetupFactory),
-                req(rtcpConnectionSetupFactory),
-                req(tcpConnectionSetupFactory),
-                req(websocketConnectionSetupFactory),
-                req(zeromqConnectionSetupFactory),
+                req(connectionSetupFactoriesByCode),
                 req(connectionRetrierFactory))
     }
             .wire {
