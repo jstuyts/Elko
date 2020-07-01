@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.presence
 
+import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactoryFactory
@@ -10,6 +11,7 @@ import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactor
 import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.BaseCommGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
@@ -441,15 +443,16 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val requestTagGenerator by Once { LongIdGenerator(1L) }
 
+    val refTable by Once { RefTable(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer)) }
+
     val presenceServer: D<PresenceServer> by Once {
         PresenceServer(
                 req(server),
+                req(refTable),
                 req(presenceServerGorgel),
                 req(graphDescGorgel),
                 req(socialGraphGorgel),
-                req(methodInvokerCommGorgel),
                 req(baseCommGorgel),
-                req(jsonToObjectDeserializer),
                 req(domainRegistry))
     }
 

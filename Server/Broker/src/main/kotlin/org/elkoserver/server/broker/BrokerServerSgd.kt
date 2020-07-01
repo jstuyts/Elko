@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.broker
 
+import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactoryFactory
@@ -10,6 +11,7 @@ import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactor
 import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.BaseCommGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
@@ -437,16 +439,17 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
         }
     }
 
+    val refTable by Once { RefTable(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer))  }
+
     val broker: D<Broker> by Once {
         Broker(
                 req(server),
+                req(refTable),
                 req(brokerGorgel),
-                req(methodInvokerCommGorgel),
                 req(launcherTableGorgel),
                 req(provided.timer()),
                 req(baseCommGorgel),
-                req(startMode),
-                req(jsonToObjectDeserializer))
+                req(startMode))
     }
 
     val brokerServiceFactory by Once {

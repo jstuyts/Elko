@@ -1,8 +1,6 @@
 package org.elkoserver.server.broker
 
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.LoadDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
@@ -23,15 +21,12 @@ import java.util.function.Consumer
  */
 internal class Broker(
         private val myServer: Server,
+        internal val refTable: RefTable,
         gorgel: Gorgel,
-        methodInvokerCommGorgel: Gorgel,
         launcherTableGorgel: Gorgel,
         private val timer: Timer,
         baseCommGorgel: Gorgel,
-        startMode: Int,
-        jsonToObjectDeserializer: JsonToObjectDeserializer) {
-    /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
+        startMode: Int) {
 
     /** Database for configuration data.  */
     private val myODB: ObjDB?

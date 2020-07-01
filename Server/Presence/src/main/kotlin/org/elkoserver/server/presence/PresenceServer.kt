@@ -1,8 +1,6 @@
 package org.elkoserver.server.presence
 
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonObject
@@ -16,24 +14,15 @@ import java.util.function.Consumer
  */
 internal class PresenceServer(
         private val myServer: Server,
+        internal val refTable: RefTable,
         private val gorgel: Gorgel,
         private val graphDescGorgel: Gorgel,
         private val socialGraphGorgel: Gorgel,
-        methodInvokerCommGorgel: Gorgel,
         baseCommGorgel: Gorgel,
-        jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val domainRegistry: DomainRegistry) {
     /** Database that this server stores stuff in.  */
     internal val objDB: ObjDB
 
-    /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
-
-    /**
-     * Test if the server is in the midst of shutdown.
-     *
-     * @return true if the server is trying to shutdown.
-     */
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false
 

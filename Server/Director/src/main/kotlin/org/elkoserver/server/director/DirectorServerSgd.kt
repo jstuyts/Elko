@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.director
 
+import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactoryFactory
@@ -10,6 +11,7 @@ import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactor
 import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.BaseCommGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
@@ -428,16 +430,17 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val estimatedLoadIncrement by Once { req(provided.props()).doubleProperty("conf.director.estloadbump", DEFAULT_ESTIMATED_LOAD_INCREMENT) }
 
+    val refTable by Once { RefTable(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer)) }
+
     val director: D<Director> by Once {
         Director(
                 req(server),
+                req(refTable),
                 req(directorGorgel),
-                req(methodInvokerCommGorgel),
                 req(baseCommGorgel),
                 req(random),
                 req(estimatedLoadIncrement),
-                req(providerLimit),
-                req(jsonToObjectDeserializer))
+                req(providerLimit))
     }
 
     val random by Once { SecureRandom() }

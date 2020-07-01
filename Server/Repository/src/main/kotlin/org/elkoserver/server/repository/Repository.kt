@@ -1,8 +1,6 @@
 package org.elkoserver.server.repository
 
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.objdb.store.ObjectStore
@@ -13,9 +11,11 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *
  * @param myServer Server object.
  */
-internal class Repository(private val myServer: Server, methodInvokerCommGorgel: Gorgel, baseCommGorgel: Gorgel, internal val myObjectStore: ObjectStore, jsonToObjectDeserializer: JsonToObjectDeserializer) {
-    /** Table for mapping object references in messages.  */
-    internal val myRefTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
+internal class Repository(
+        private val myServer: Server,
+        internal val myRefTable: RefTable,
+        baseCommGorgel: Gorgel,
+        internal val myObjectStore: ObjectStore) {
 
     /** Number of repository clients currently connected.  */
     private var myRepClientCount = 0

@@ -1,7 +1,6 @@
 package org.elkoserver.server.workshop
 
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.AuthDesc
@@ -10,7 +9,6 @@ import org.elkoserver.json.Encodable
 import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.StringTokenizer
@@ -34,37 +32,17 @@ import java.util.function.Consumer
  * @param myODB  Database for persistent object storage.
  * @param myServer  Server object.
  */
-class Workshop private constructor(
+class Workshop internal constructor(
         private val myODB: ObjDB,
         private val myServer: Server,
+        internal val refTable: RefTable,
         private val gorgel: Gorgel,
-        methodInvokerCommGorgel: Gorgel,
         private val startupWorkerListGorgel: Gorgel,
         @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace,
-        baseCommGorgel: Gorgel,
-        private val traceFactory: TraceFactory,
-        jsonToObjectDeserializer: JsonToObjectDeserializer) {
-    /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(myODB, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
+        baseCommGorgel: Gorgel) {
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown: Boolean
-
-    /**
-     * Constructor.
-     *
-     * @param server  Server object.
-     * @param appTrace  Trace object for diagnostics.
-     */
-    internal constructor(server: Server,
-                         gorgel: Gorgel,
-                         methodInvokerCommGorgel: Gorgel,
-                         startupWorkerListGorgel: Gorgel,
-                         appTrace: Trace,
-                         baseCommGorgel: Gorgel,
-                         traceFactory: TraceFactory,
-                         jsonToObjectDeserializer: JsonToObjectDeserializer) :
-            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, gorgel, methodInvokerCommGorgel, startupWorkerListGorgel, appTrace, baseCommGorgel, traceFactory, jsonToObjectDeserializer)
 
     /**
      * Add a worker to the object table.

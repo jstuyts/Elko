@@ -22,6 +22,7 @@ import java.util.function.Consumer
  */
 class Gatekeeper internal constructor(
         private val myServer: Server,
+        internal val refTable: RefTable,
         private val gorgel: Gorgel,
         directorActorFactoryGorgel: Gorgel,
         directorActorGorgel: Gorgel,
@@ -33,8 +34,6 @@ class Gatekeeper internal constructor(
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         mustSendDebugReplies: Boolean,
         connectionRetrierFactory: ConnectionRetrierFactory) {
-    /** Table for mapping object references in messages.  */
-    internal val refTable: RefTable = RefTable(null, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
 
     /** Host description for the director.  */
     internal var directorHost: HostDesc? = null

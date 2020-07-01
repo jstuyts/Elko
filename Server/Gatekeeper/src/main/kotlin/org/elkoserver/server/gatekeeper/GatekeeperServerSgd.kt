@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.gatekeeper
 
+import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactoryFactory
@@ -449,9 +450,12 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val requestTagGenerator by Once { LongIdGenerator(1L) }
 
+    val refTable by Once { RefTable(null, req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer))  }
+
     val gatekeeper: D<Gatekeeper> by Once {
         Gatekeeper(
                 req(server),
+                req(refTable),
                 req(gatekeeperGorgel),
                 req(directorActorFactoryGorgel),
                 req(directorActorGorgel),

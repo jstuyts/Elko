@@ -1,8 +1,6 @@
 package org.elkoserver.server.director
 
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.Server
@@ -27,15 +25,12 @@ import java.util.TreeMap
  */
 internal class Director(
         private val myServer: Server,
+        internal val refTable: RefTable,
         private val gorgel: Gorgel,
-        methodInvokerCommGorgel: Gorgel,
         baseCommGorgel: Gorgel,
         random: Random,
         private val myEstimatedLoadIncrement: Double,
-        private val myProviderLimit: Int,
-        jsonToObjectDeserializer: JsonToObjectDeserializer) {
-    /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
+        private val myProviderLimit: Int) {
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false

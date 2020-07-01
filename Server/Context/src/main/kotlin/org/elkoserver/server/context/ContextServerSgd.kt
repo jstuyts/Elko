@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.context
 
+import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactoryFactory
@@ -486,10 +487,13 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
         req(provided.props()).intProperty("conf.context.userlimit", 0)
     }
 
+    val refTable by Once { RefTable(req(objectDatabase), req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer))  }
+
     val contextor by Once {
         Contextor(
                 req(objectDatabase),
                 req(server),
+                req(refTable),
                 req(contTrace),
                 req(contextorGorgel),
                 req(contextGorgelWithoutRef),

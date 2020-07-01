@@ -2,6 +2,7 @@
 
 package org.elkoserver.server.workshop
 
+import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactoryFactory
@@ -425,7 +426,11 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
-    val workshop: D<Workshop> by Once { Workshop(req(server), req(workshopGorgel), req(methodInvokerCommGorgel), req(startupWorkerListGorgel), req(workTrace), req(baseCommGorgel), req(provided.traceFactory()), req(jsonToObjectDeserializer)) }
+    val objectDatabase by Once { req(server).openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified") }
+
+    val refTable by Once { RefTable(req(objectDatabase), req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer)) }
+
+    val workshop: D<Workshop> by Once { Workshop(req(objectDatabase), req(server), req(refTable), req(workshopGorgel), req(startupWorkerListGorgel), req(workTrace), req(baseCommGorgel)) }
 
     val workshopServiceFactory by Once { WorkshopServiceFactory(req(workshop), req(workshopActorGorgel), req(workshopActorCommGorgel), req(mustSendDebugReplies)) }
 }

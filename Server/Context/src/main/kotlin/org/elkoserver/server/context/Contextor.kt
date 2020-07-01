@@ -51,6 +51,7 @@ import kotlin.math.abs
 class Contextor internal constructor(
         val odb: ObjDB,
         val server: Server,
+        internal val refTable: RefTable,
         @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace,
         private val contextorGorgel: Gorgel,
         private val contextGorgelWithoutRef: Gorgel,
@@ -76,8 +77,6 @@ class Contextor internal constructor(
         private val jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val mustSendDebugReplies: Boolean,
         private val connectionRetrierFactory: ConnectionRetrierFactory) {
-    /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(odb, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
 
     /** The generic 'session' object for talking to this server.  */
     internal val session: Session = Session(this, sessionPassword, sessionGorgel, baseCommGorgel.getChild(Session::class))
