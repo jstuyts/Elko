@@ -16,7 +16,6 @@ import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.json.RandomInjector
-import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.Listener
 import org.elkoserver.foundation.net.ListenerFactory
@@ -393,8 +392,6 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val clockInjector by Once { ClockInjector(req(provided.clock())) }
 
-    val traceFactoryInjector by Once { TraceFactoryInjector(req(provided.traceFactory())) }
-
     val baseCommGorgelInjector by Once { BaseCommGorgelInjector(req(baseCommGorgel)) }
 
     val deserializedObjectRandom by Once { SecureRandom() }
@@ -416,7 +413,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val deserializedObjectMessageDigestInjector by Once { MessageDigestInjector(req(deserializedObjectMessageDigest)) }
 
-    val injectors by Once { listOf(req(clockInjector), req(traceFactoryInjector), req(deserializedObjectRandomInjector), req(deserializedObjectMessageDigestInjector), req(baseCommGorgelInjector)) }
+    val injectors by Once { listOf(req(clockInjector), req(deserializedObjectRandomInjector), req(deserializedObjectMessageDigestInjector), req(baseCommGorgelInjector)) }
 
     val runner by Once { Runner(req(runnerGorgel)) }
             .dispose { it.orderlyShutdown() }

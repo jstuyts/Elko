@@ -16,7 +16,6 @@ import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.json.RandomInjector
-import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.Listener
 import org.elkoserver.foundation.net.ListenerFactory
@@ -388,8 +387,6 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val clockInjector by Once { ClockInjector(req(provided.clock())) }
 
-    val traceFactoryInjector by Once { TraceFactoryInjector(req(provided.traceFactory())) }
-
     val baseCommGorgelInjector by Once { BaseCommGorgelInjector(req(baseCommGorgel)) }
 
     val random by Once { SecureRandom() }
@@ -403,7 +400,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     val graphInjectorsInjector by Once { InjectorsInjector(req(graphInjectors)) }
 
     val injectors by Once {
-        listOf(req(clockInjector), req(traceFactoryInjector), req(domainRegistryInjector), req(graphInjectorsInjector), req(baseCommGorgelInjector))
+        listOf(req(clockInjector), req(domainRegistryInjector), req(graphInjectorsInjector), req(baseCommGorgelInjector))
     }
 
     val domainRegistryInjector by Once { DomainRegistryInjector(req(domainRegistry)) }

@@ -4,6 +4,7 @@ import com.grack.nanojson.JsonParserException
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
 import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.nio.charset.StandardCharsets
 import java.security.InvalidAlgorithmParameterException
@@ -26,7 +27,7 @@ import javax.crypto.spec.SecretKeySpec
  *
  * @param keyStr Base64-encoded symmetric key.
  */
-class Cryptor(keyStr: String, private val trace: Trace, private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
+class Cryptor(keyStr: String, private val gorgel: Gorgel, private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     private var myCipher: Cipher? = null
     private val myKey: SecretKey
 
@@ -59,10 +60,10 @@ class Cryptor(keyStr: String, private val trace: Trace, private val jsonToObject
             String(myCipher!!.doFinal(base64Decoder.decode(cypherText)),
                     StandardCharsets.UTF_8)
         } catch (e: InvalidAlgorithmParameterException) {
-            trace.errorm("fatal Cryptor.decrypt failure: ", e)
+            gorgel.error("fatal Cryptor.decrypt failure: ", e)
             throw IllegalStateException(e)
         } catch (e: InvalidKeyException) {
-            trace.errorm("fatal Cryptor.decrypt failure: ", e)
+            gorgel.error("fatal Cryptor.decrypt failure: ", e)
             throw IllegalStateException(e)
         } catch (e: BadPaddingException) {
             throw IOException("bad padding in cryptoblob $e")
@@ -126,7 +127,7 @@ class Cryptor(keyStr: String, private val trace: Trace, private val jsonToObject
             e
         }
         /* None of these should ever actually happen.  Die if they do. */
-        trace.errorm("Cryptor.encrypt failure: ", failure)
+        gorgel.error("Cryptor.encrypt failure: ", failure)
         throw IllegalStateException(failure)
     }
 
@@ -168,10 +169,10 @@ class Cryptor(keyStr: String, private val trace: Trace, private val jsonToObject
            missing, in which case the whole system is already hosed, so if
            either of these happens we're dead. */
         } catch (e: NoSuchAlgorithmException) {
-            trace.errorm("Cryptor init failure: doesn't like algorithm 'AES'", e)
+            gorgel.error("Cryptor init failure: doesn't like algorithm 'AES'", e)
             throw IllegalStateException(e)
         } catch (e: NoSuchPaddingException) {
-            trace.errorm("Cryptor init failure: doesn't like padding mode 'PKCS5Padding'", e)
+            gorgel.error("Cryptor init failure: doesn't like padding mode 'PKCS5Padding'", e)
             throw IllegalStateException(e)
         }
     }

@@ -5,7 +5,6 @@ import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.Cryptor
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
-import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 import org.elkoserver.json.JSONLiteral
@@ -92,9 +91,10 @@ internal object CryptoTest {
                         MarkerFactory.getIMarkerFactory(), Tag("category", "comm")),
                 listOf(
                         ClockInjector(clock),
-                        TraceFactoryInjector(traceController.factory),
                         BaseCommGorgelInjector(GorgelImpl(LoggerFactory.getLogger(ROOT_LOGGER_NAME), LoggerFactory.getILoggerFactory(), MarkerFactory.getIMarkerFactory(), Tag("category", "comm")))))
-        val cryptor = Cryptor(keyStr, cryptorTrace, jsonToObjectDeserializer)
+        val cryptor = Cryptor(keyStr, GorgelImpl(LoggerFactory.getLogger(Cryptor::class.java),
+                LoggerFactory.getILoggerFactory(),
+                MarkerFactory.getIMarkerFactory()), jsonToObjectDeserializer)
         if (cypherText != null) {
             try {
                 plainText = cryptor.decrypt(cypherText)

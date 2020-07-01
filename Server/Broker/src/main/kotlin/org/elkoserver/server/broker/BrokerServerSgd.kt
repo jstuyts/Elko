@@ -15,7 +15,6 @@ import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MethodInvoker
-import org.elkoserver.foundation.json.TraceFactoryInjector
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.Listener
 import org.elkoserver.foundation.net.ListenerFactory
@@ -385,11 +384,9 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val clockInjector by Once { ClockInjector(req(provided.clock())) }
 
-    val traceFactoryInjector by Once { TraceFactoryInjector(req(provided.traceFactory())) }
-
     val baseCommGorgelInjector by Once { BaseCommGorgelInjector(req(baseCommGorgel)) }
 
-    val injectors by Once { listOf(req(clockInjector), req(traceFactoryInjector), req(baseCommGorgelInjector)) }
+    val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector)) }
 
     val runner by Once { Runner(req(runnerGorgel)) }
             .dispose { it.orderlyShutdown() }

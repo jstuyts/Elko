@@ -9,15 +9,12 @@ import org.elkoserver.foundation.json.Cryptor
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.PostInjectionInitializingObject
-import org.elkoserver.foundation.json.TraceFactoryInjector
-import org.elkoserver.foundation.json.TraceFactoryUsingObject
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JSONDecodingException
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Contextor
 import org.elkoserver.server.context.EphemeralUserFactory
 import org.elkoserver.server.context.User
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.GorgelImpl
 import org.elkoserver.util.trace.slf4j.Tag
 import org.slf4j.Logger
@@ -62,7 +59,7 @@ import java.util.TreeSet
  * enough for a large number of them to accumulate in this factory's history of
  * nonces seen).
  */
-internal class TestUserFactory @JSONMethod("key") constructor(private val key: String) : EphemeralUserFactory, ClockUsingObject, TraceFactoryUsingObject, PostInjectionInitializingObject {
+internal class TestUserFactory @JSONMethod("key") constructor(private val key: String) : EphemeralUserFactory, ClockUsingObject, PostInjectionInitializingObject {
     /** Cryptor incorporating the key used to decrypt blobs.  */
     private var myCryptor: Cryptor? = null
 
@@ -71,7 +68,6 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
 
     /** Timestamp (seconds) we last removed expired nonces from myNonces  */
     private var myLastPurgeTime: Long = 0
-    private lateinit var traceFactory: TraceFactory
     private lateinit var clock: Clock
     private lateinit var jsonToObjectDeserializer: JsonToObjectDeserializer
 
@@ -96,10 +92,6 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
         myLastPurgeTime = clock.millis() / 1000
     }
 
-    override fun setTraceFactory(traceFactory: TraceFactory) {
-        this.traceFactory = traceFactory
-    }
-
     override fun initialize() {
         jsonToObjectDeserializer = JsonToObjectDeserializer(
                 GorgelImpl(LoggerFactory.getLogger(JsonToObjectDeserializer::class.java),
@@ -110,9 +102,10 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                         MarkerFactory.getIMarkerFactory(), Tag("category", "comm")),
                 listOf(
                         ClockInjector(clock),
-                        TraceFactoryInjector(traceFactory),
                         BaseCommGorgelInjector(GorgelImpl(LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME), LoggerFactory.getILoggerFactory(), MarkerFactory.getIMarkerFactory(), Tag("category", "comm")))))
-        myCryptor = Cryptor(key, traceFactory.trace("cryptor"), jsonToObjectDeserializer)
+        myCryptor = Cryptor(key, GorgelImpl(LoggerFactory.getLogger(Cryptor::class.java),
+                LoggerFactory.getILoggerFactory(),
+                MarkerFactory.getIMarkerFactory()), jsonToObjectDeserializer)
     }
 
     /**
