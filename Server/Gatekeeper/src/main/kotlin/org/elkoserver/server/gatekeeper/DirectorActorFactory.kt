@@ -1,5 +1,6 @@
 package org.elkoserver.server.gatekeeper
 
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
@@ -33,7 +34,8 @@ internal class DirectorActorFactory(
 
     /** The active director connection, if there is one.  */
     private var myDirector: DirectorActor? = null
-    private val myDispatcher = MessageDispatcher(null, methodInvokerCommGorgel, jsonToObjectDeserializer)
+    // The type resolver used to be "null". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
+    private val myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, methodInvokerCommGorgel, jsonToObjectDeserializer)
 
     /** Object currently attempting to establish a director connection.  */
     private var myConnectionRetrier: ConnectionRetrier? = null

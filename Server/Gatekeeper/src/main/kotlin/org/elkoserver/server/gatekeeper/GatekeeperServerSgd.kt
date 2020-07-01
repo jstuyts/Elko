@@ -11,6 +11,7 @@ import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactor
 import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.BaseCommGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
@@ -450,7 +451,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val requestTagGenerator by Once { LongIdGenerator(1L) }
 
-    val refTable by Once { RefTable(null, req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer))  }
+    // The type resolver used to be "null". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
+    val refTable by Once { RefTable(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer))  }
 
     val gatekeeper: D<Gatekeeper> by Once {
         Gatekeeper(

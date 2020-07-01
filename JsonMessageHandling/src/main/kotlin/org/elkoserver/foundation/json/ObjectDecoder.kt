@@ -51,7 +51,7 @@ class ObjectDecoder internal constructor(
      * @return the Java object described by 'obj', or null if 'obj' could not
      * be interpreted.
      */
-    internal fun decode(obj: JsonObject, resolver: TypeResolver?): Any? = myConstructor.construct(obj, resolver)
+    internal fun decode(obj: JsonObject, resolver: TypeResolver): Any? = myConstructor.construct(obj, resolver)
 
     init {
         val jsonConstructors = decodeClass.declaredConstructors.filter { it.getAnnotation(JSONMethod::class.java) != null }

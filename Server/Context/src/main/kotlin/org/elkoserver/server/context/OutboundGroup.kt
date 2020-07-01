@@ -1,6 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.Actor
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
@@ -161,7 +162,8 @@ abstract class OutboundGroup(propRoot: String,
             }
         })
         myHosts = hosts
-        myDispatcher = MessageDispatcher(null, methodInvokerCommGorgel, jsonToObjectDeserializer)
+        // The type resolver used to be "null". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
+        myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, methodInvokerCommGorgel, jsonToObjectDeserializer)
         @Suppress("LeakingThis")
         myDispatcher.addClass(actorClass())
         amAutoRegister = props.testProperty("$propRoot.auto")

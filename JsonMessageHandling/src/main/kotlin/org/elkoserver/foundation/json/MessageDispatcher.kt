@@ -12,7 +12,7 @@ import java.lang.reflect.Modifier
  *    parameter objects.
  */
 class MessageDispatcher(
-        private val myResolver: TypeResolver?,
+        private val myResolver: TypeResolver,
         private val methodInvokerCommGorgel: Gorgel,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Mapping of message verbs to MethodInvoker objects.  Each entry is

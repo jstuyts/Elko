@@ -49,12 +49,12 @@ class JsonToObjectDeserializer(
      * described by 'obj', or null if the object could not be decoded for
      * some reason.
      */
-    fun decode(baseType: Class<*>, obj: JsonObject, resolver: TypeResolver?): Any? {
+    fun decode(baseType: Class<*>, obj: JsonObject, resolver: TypeResolver): Any? {
         var result: Any? = null
         val typeName = obj.getString<String?>("type", null)
         val targetClass: Class<*>?
         if (typeName != null) {
-            targetClass = resolver!!.resolveType(baseType, typeName)
+            targetClass = resolver.resolveType(baseType, typeName)
             if (targetClass == null) {
                 gorgel.error("no Java class associated with JSON type tag '$typeName'")
             }

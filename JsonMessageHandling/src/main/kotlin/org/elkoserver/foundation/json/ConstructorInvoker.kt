@@ -34,7 +34,7 @@ class ConstructorInvoker(
      * @return the result of calling the constructor, or null if the
      * constructor failed.
      */
-    fun construct(obj: JsonObject, resolver: TypeResolver?): Any? {
+    fun construct(obj: JsonObject, resolver: TypeResolver): Any? {
         return try {
             tryToConstruct(obj, resolver)
         } catch (e: JSONInvocationException) {
@@ -50,7 +50,7 @@ class ConstructorInvoker(
         }
     }
 
-    private fun tryToConstruct(obj: JsonObject, resolver: TypeResolver?): Any? {
+    private fun tryToConstruct(obj: JsonObject, resolver: TypeResolver): Any? {
         val result = apply(null, if (amIncludingRawObject) obj else null, obj.entrySet(), resolver)
 
         injectors.forEach { it.inject(result) }

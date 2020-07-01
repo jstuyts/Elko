@@ -64,7 +64,7 @@ abstract class Invoker<in TTarget>(
      * @throws MessageHandlerException if there was a problem in the execution
      * of the invoked method.
      */
-    fun apply(target: TTarget, firstParam: Any?, parameters: Set<Map.Entry<String, Any?>>, resolver: TypeResolver?): Any? {
+    fun apply(target: TTarget, firstParam: Any?, parameters: Set<Map.Entry<String, Any?>>, resolver: TypeResolver): Any? {
         val firstIndex = if (firstParam == null) 0 else 1
         val params = arrayOfNulls<Any>(myParamTypes.size)
         for ((paramName, value) in parameters) {
@@ -134,7 +134,7 @@ abstract class Invoker<in TTarget>(
      * @return the object to pass to the method for 'value', or null if the
      * value is of the wrong type.
      */
-    private fun packParam(paramType: Class<*>, value: Any, resolver: TypeResolver?): Any? {
+    private fun packParam(paramType: Class<*>, value: Any, resolver: TypeResolver): Any? {
         val valueType: Class<*> = value.javaClass
         return if (valueType == String::class.java) {
             if (paramType == String::class.java) {

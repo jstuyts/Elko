@@ -58,7 +58,7 @@ class MethodInvoker(
      * @param message  The message that was received.
      * @param resolver  Type resolver for parameters.
      */
-    fun handle(target: DispatchTarget, from: Deliverer?, message: JsonObject, resolver: TypeResolver?) {
+    fun handle(target: DispatchTarget, from: Deliverer?, message: JsonObject, resolver: TypeResolver) {
         try {
             apply(target, from, message.entrySet(), resolver)
         } catch (e: JSONInvocationException) {

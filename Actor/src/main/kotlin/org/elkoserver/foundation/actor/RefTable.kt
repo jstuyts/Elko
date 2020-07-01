@@ -33,7 +33,7 @@ import java.util.LinkedList
  * @param resolver  Type resolver for the type tags of JSON encoded
  *    object descriptors.
  */
-class RefTable(resolver: TypeResolver?, methodInvokerCommGorgel: Gorgel, baseCommGorgel: Gorgel, jsonToObjectDeserializer: JsonToObjectDeserializer) : Iterable<DispatchTarget?> {
+class RefTable(resolver: TypeResolver, methodInvokerCommGorgel: Gorgel, baseCommGorgel: Gorgel, jsonToObjectDeserializer: JsonToObjectDeserializer) : Iterable<DispatchTarget?> {
     /** Mapped Objects, indexed by reference.  */
     private val myObjects: MutableMap<String?, DispatchTarget> = HashMap()
 
