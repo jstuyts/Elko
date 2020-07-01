@@ -8,11 +8,8 @@ import org.elkoserver.foundation.actor.BasicProtocolHandler
  * connections to the server.
  */
 abstract class AdminObject : BasicProtocolHandler(), InternalObject {
-    /** The contextor for this server.  */
-    private var myContextor: Contextor? = null
-
     /** The name by which this object will be addressed in messages.  */
-    private var myRef: String? = null
+    private lateinit var myRef: String
 
     /**
      * Make this object live inside the context server.
@@ -23,15 +20,7 @@ abstract class AdminObject : BasicProtocolHandler(), InternalObject {
      */
     override fun activate(ref: String, contextor: Contextor) {
         myRef = ref
-        myContextor = contextor
     }
-
-    /**
-     * Obtain the contextor for this server.
-     *
-     * @return the Contextor object for this server.
-     */
-    override fun contextor() = myContextor
 
     /* ----- Referenceable interface --------------------------------------- */
     /**
@@ -40,5 +29,5 @@ abstract class AdminObject : BasicProtocolHandler(), InternalObject {
      * @return a string that can be used to refer to this object in JSON
      * messages, either as the message target or as a parameter value.
      */
-    override fun ref() = myRef ?: throw IllegalStateException()
+    override fun ref() = myRef
 }

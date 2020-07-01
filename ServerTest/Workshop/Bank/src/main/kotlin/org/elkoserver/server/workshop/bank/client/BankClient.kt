@@ -1,5 +1,6 @@
 package org.elkoserver.server.workshop.bank.client
 
+import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptInteger
@@ -11,13 +12,13 @@ import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.server.context.AdminObject
 import org.elkoserver.server.context.Contextor
 import org.elkoserver.server.workshop.bank.Currency
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
 /**
  * Internal object that acts as a client for the external 'bank' service.
  */
-class BankClient @JSONMethod("servicename") constructor(private val myServiceName: String) : AdminObject(), Consumer<ServiceLink?> {
+class BankClient @JSONMethod("servicename") constructor(private val myServiceName: String) : AdminObject(), Consumer<ServiceLink?>, ClassspecificGorgelUsingObject {
     /** Connection to the workshop running the bank service.  */
     private var myServiceLink: ServiceLink? = null
 
@@ -31,7 +32,11 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
     /** Counter for generating transaction IDs  */
     private var myXidCounter = 0
 
-    private lateinit var tr: Trace
+    private lateinit var myGorgel: Gorgel
+
+    override fun setGorgel(gorgel: Gorgel) {
+        myGorgel = gorgel
+    }
 
     /**
      * Make this object live inside the context server.  In this case we
@@ -44,7 +49,6 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
     override fun activate(ref: String, contextor: Contextor) {
         super.activate(ref, contextor)
         status = "connecting"
-        tr = contextor.tr
         contextor.findServiceLink(myServiceName, this)
     }
 
@@ -74,7 +78,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
      * @param desc  Error description
      */
     private fun innerFail(replyHandler: BankReplyHandler, op: String, fail: String, desc: String) {
-        tr.errorm("bank $op failure $fail: $desc")
+        myGorgel.error("bank $op failure $fail: $desc")
         replyHandler.fail(fail, desc)
     }
 
@@ -147,7 +151,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
                                 optFail: OptString, optDesc: OptString): BankReplyHandler? {
         val handler = myResultHandlers[xid]
         if (handler == null) {
-            tr.errorm("no reply handler for bank xid $xid")
+            myGorgel.error("no reply handler for bank xid $xid")
         }
         val fail = optFail.value<String?>(null)
         return if (fail != null) {
@@ -155,7 +159,7 @@ class BankClient @JSONMethod("servicename") constructor(private val myServiceNam
             if (handler != null) {
                 innerFail(handler, op, fail, desc)
             } else {
-                tr.errorm("bank $op failure $fail: $desc")
+                myGorgel.error("bank $op failure $fail: $desc")
             }
             null
         } else {

@@ -5,12 +5,9 @@ import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.Cryptor
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
-import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
-import org.elkoserver.util.trace.TraceController
-import org.elkoserver.util.trace.acceptor.file.TraceLog
 import org.elkoserver.util.trace.slf4j.GorgelImpl
 import org.elkoserver.util.trace.slf4j.Tag
 import org.slf4j.Logger.ROOT_LOGGER_NAME
@@ -53,9 +50,6 @@ internal object CryptoTest {
     @JvmStatic
     fun main(args: Array<String>) {
         val clock = Clock.systemDefaultZone()
-        val bootProperties = ElkoProperties()
-        val traceController = TraceController(TraceLog(clock), clock)
-        traceController.start(bootProperties)
         var keyStr: String? = null
         var plainText = "The crow flies at midnight"
         var cypherText: String? = null

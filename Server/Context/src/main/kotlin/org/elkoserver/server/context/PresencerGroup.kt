@@ -11,7 +11,6 @@ import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -27,7 +26,6 @@ internal class PresencerGroup(
         server: Server,
         contextor: Contextor,
         presencers: MutableList<HostDesc>,
-        tr: Trace,
         gorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
         timer: Timer,
@@ -41,7 +39,6 @@ internal class PresencerGroup(
         server,
         contextor,
         presencers,
-        tr,
         gorgel,
         methodInvokerCommGorgel,
         timer,

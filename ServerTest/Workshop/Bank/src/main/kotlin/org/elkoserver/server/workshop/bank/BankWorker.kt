@@ -1,5 +1,6 @@
 package org.elkoserver.server.workshop.bank
 
+import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.ClockUsingObject
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.OptBoolean
@@ -9,6 +10,7 @@ import org.elkoserver.json.JSONLiteralArray
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.server.workshop.WorkerObject
 import org.elkoserver.server.workshop.WorkshopActor
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.text.ParseException
 import java.time.Clock
 import java.util.function.Consumer
@@ -22,12 +24,14 @@ import java.util.function.Consumer
  * this worker object provides the interface to.
  */
 class BankWorker
-@JSONMethod("service", "bank") constructor(serviceName: OptString,
-                                           private val myBankRef: String) : WorkerObject(serviceName.value("bank")), ClockUsingObject {
+@JSONMethod("service", "bank") constructor(serviceName: OptString, private val myBankRef: String)
+    : WorkerObject(serviceName.value("bank")), ClockUsingObject, ClassspecificGorgelUsingObject {
     /** The bank this worker is the interface to.  */
     private var myBank: Bank? = null
 
     private lateinit var clock: Clock
+
+    private lateinit var gorgel: Gorgel
 
     /**
      * Common state for a request to the banking service.
@@ -288,6 +292,10 @@ class BankWorker
         this.clock = clock
     }
 
+    override fun setGorgel(gorgel: Gorgel) {
+        this.gorgel = gorgel
+    }
+
     /**
      * Activate the bank service.
      */
@@ -297,7 +305,7 @@ class BankWorker
                 myBank = obj
                 obj.activate(workshop())
             } else {
-                workshop().tr.errorm("alleged bank object $myBankRef is not a bank")
+                gorgel.error("alleged bank object $myBankRef is not a bank")
             }
         })
     }

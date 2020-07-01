@@ -8,7 +8,6 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDB
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.StringTokenizer
@@ -38,7 +37,6 @@ class Workshop internal constructor(
         internal val refTable: RefTable,
         private val gorgel: Gorgel,
         private val startupWorkerListGorgel: Gorgel,
-        @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace,
         baseCommGorgel: Gorgel) {
 
     /** Flag that is set once server shutdown begins.  */

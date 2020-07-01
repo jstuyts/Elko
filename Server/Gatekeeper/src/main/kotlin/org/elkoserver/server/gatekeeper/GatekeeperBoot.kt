@@ -3,7 +3,6 @@ package org.elkoserver.server.gatekeeper
 import org.elkoserver.foundation.boot.Bootable
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.ShutdownWatcher
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import org.ooverkommelig.ConstantDefinition
@@ -19,7 +18,7 @@ import java.time.Clock
  */
 @Suppress("unused")
 class GatekeeperBoot : Bootable {
-    override fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
+    override fun boot(props: ElkoProperties, gorgel: Gorgel, clock: Clock) {
         val myGorgel = gorgel.getChild(GatekeeperBoot::class)
         lateinit var gatekeeperServerGraph: GatekeeperServerOgd.Graph
         val graphClosingShutdownWatcher = object : ShutdownWatcher {
@@ -31,7 +30,6 @@ class GatekeeperBoot : Bootable {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
             override fun baseCommGorgel() = ConstantDefinition(gorgel.withAdditionalStaticTags(Tag("category", "comm")))
-            override fun traceFactory() = ConstantDefinition(traceFactory)
             override fun props() = ConstantDefinition(props)
             override fun externalShutdownWatcher() = ConstantDefinition(graphClosingShutdownWatcher)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {

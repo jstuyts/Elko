@@ -2,6 +2,7 @@ package org.elkoserver.server.context.test
 
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.json.BaseCommGorgelInjector
+import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ClockUsingObject
 import org.elkoserver.foundation.json.ConstructorInvoker
@@ -15,6 +16,7 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Contextor
 import org.elkoserver.server.context.EphemeralUserFactory
 import org.elkoserver.server.context.User
+import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.GorgelImpl
 import org.elkoserver.util.trace.slf4j.Tag
 import org.slf4j.Logger
@@ -59,7 +61,7 @@ import java.util.TreeSet
  * enough for a large number of them to accumulate in this factory's history of
  * nonces seen).
  */
-internal class TestUserFactory @JSONMethod("key") constructor(private val key: String) : EphemeralUserFactory, ClockUsingObject, PostInjectionInitializingObject {
+internal class TestUserFactory @JSONMethod("key") constructor(private val key: String) : EphemeralUserFactory, ClockUsingObject, ClassspecificGorgelUsingObject, PostInjectionInitializingObject {
     /** Cryptor incorporating the key used to decrypt blobs.  */
     private var myCryptor: Cryptor? = null
 
@@ -69,7 +71,12 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
     /** Timestamp (seconds) we last removed expired nonces from myNonces  */
     private var myLastPurgeTime: Long = 0
     private lateinit var clock: Clock
+    private lateinit var myGorgel: Gorgel
     private lateinit var jsonToObjectDeserializer: JsonToObjectDeserializer
+
+    override fun setGorgel(gorgel: Gorgel) {
+        myGorgel = gorgel
+    }
 
     /**
      * Nonce.  Our nonces consist of an unguessable random string and an
@@ -143,29 +150,29 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                         val reqContextRef = params.getString<String?>("context", null)
                         if (reqContextRef != null &&
                                 reqContextRef != contextRef) {
-                            contextor.tr.errorm("context ref mismatch")
+                            myGorgel.error("context ref mismatch")
                             throw IllegalStateException()
                         }
                         val reqContextTemplate = params.getString<String?>("ctmpl", null)
                         if (reqContextTemplate != null &&
                                 reqContextTemplate != contextTemplate) {
-                            contextor.tr.errorm(
+                            myGorgel.error(
                                     "context template ref mismatch")
                             throw IllegalStateException()
                         }
                         val result = jsonToObjectDeserializer.decode(User::class.java, userDesc, contextor.odb)
                         return result as User
                     }
-                    contextor.tr.errorm("reused nonce")
+                    myGorgel.error("reused nonce")
                 } else {
-                    contextor.tr.errorm("expired nonce")
+                    myGorgel.error("expired nonce")
                 }
             } catch (e: IOException) {
-                contextor.tr.errorm("malformed cryptoblob")
+                myGorgel.error("malformed cryptoblob")
             } catch (e: JsonParserException) {
-                contextor.tr.errorm("bad JSON string in cryptoblob")
+                myGorgel.error("bad JSON string in cryptoblob")
             } catch (e: JSONDecodingException) {
-                contextor.tr.errorm("missing or improperly typed property in cryptoblob")
+                myGorgel.error("missing or improperly typed property in cryptoblob")
             }
         }
         throw IllegalStateException()

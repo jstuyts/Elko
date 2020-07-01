@@ -14,7 +14,6 @@ import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -28,13 +27,11 @@ import java.util.function.Consumer
  * @param contextor  The server contextor.
  * @param hosts  List of HostDesc objects describing external
  *    servers with whom to register.
- * @param tr  Trace object for diagnostics.
  */
 abstract class OutboundGroup(propRoot: String,
                              private val myServer: Server,
                              internal val contextor: Contextor,
                              hosts: MutableList<HostDesc>,
-                             private val tr: Trace,
                              gorgel: Gorgel,
                              methodInvokerCommGorgel: Gorgel,
                              protected val timer: Timer,

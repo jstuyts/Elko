@@ -3,7 +3,6 @@ package org.elkoserver.server.presence
 import org.elkoserver.foundation.boot.Bootable
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.ShutdownWatcher
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.ConstantDefinition
 import org.ooverkommelig.ObjectGraphConfiguration
@@ -18,7 +17,7 @@ import java.time.Clock
  */
 @Suppress("unused")
 class PresenceServerBoot : Bootable {
-    override fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
+    override fun boot(props: ElkoProperties, gorgel: Gorgel, clock: Clock) {
         val myGorgel = gorgel.getChild(PresenceServerBoot::class)
         lateinit var presenceServerGraph: PresenceServerOgd.Graph
         val graphClosingShutdownWatcher = object : ShutdownWatcher {
@@ -29,7 +28,6 @@ class PresenceServerBoot : Bootable {
         presenceServerGraph = PresenceServerOgd(object : PresenceServerOgd.Provided, ProvidedAdministration() {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
-            override fun traceFactory() = ConstantDefinition(traceFactory)
             override fun props() = ConstantDefinition(props)
             override fun externalShutdownWatcher() = ConstantDefinition(graphClosingShutdownWatcher)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {

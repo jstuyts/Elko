@@ -1,5 +1,6 @@
 package org.elkoserver.server.workshop.bank
 
+import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.ClockUsingObject
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.OptString
@@ -10,7 +11,7 @@ import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonArray
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.workshop.Workshop
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.security.SecureRandom
 import java.time.Clock
 import java.util.function.Consumer
@@ -59,7 +60,13 @@ import kotlin.math.abs
  * @param accountCollection  Optional collection name for account storage.
  */
 internal class Bank @JSONMethod("ref", "rootkey", "keys", "currencies", "collection")
-constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, currencies: Array<Currency>, accountCollection: OptString) : Encodable, ClockUsingObject, PostInjectionInitializingObject {
+constructor(
+        private val myRef: String,
+        rootKeyRef: OptString,
+        keys: Array<Key>,
+        currencies: Array<Currency>,
+        accountCollection: OptString)
+    : Encodable, ClockUsingObject, ClassspecificGorgelUsingObject, PostInjectionInitializingObject {
     /** Currently defined currencies, by name.  */
     private val myCurrencies: MutableMap<String, Currency> = HashMap()
 
@@ -73,16 +80,21 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
     private var myRootKeyRef: String?
 
     /** The workshop in which this bank is running.  */
-    private var myWorkshop: Workshop? = null
-
-    /** Trace object, for logging.  */
-    private var myTrace: Trace? = null
+    private lateinit var myWorkshop: Workshop
 
     /** MongoDB collection into which account data will be stored.  */
     private val myAccountCollection: String?
+
     private lateinit var clock: Clock
+
+    private lateinit var gorgel: Gorgel
+
     override fun setClock(clock: Clock) {
         this.clock = clock
+    }
+
+    override fun setGorgel(gorgel: Gorgel) {
+        this.gorgel = gorgel
     }
 
     override fun initialize() {
@@ -141,7 +153,6 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
      */
     fun activate(workshop: Workshop) {
         myWorkshop = workshop
-        myTrace = workshop.tr
         if (myVirginRootKey != null) {
             checkpoint()
         }
@@ -151,7 +162,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
      * Write this bank's state to persistent storage.
      */
     private fun checkpoint() {
-        myWorkshop!!.putObject(myRef, this)
+        myWorkshop.putObject(myRef, this)
     }
 
     /**
@@ -194,25 +205,25 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
         if (allegedAccount is Account) {
             allegedAccount.releaseExpiredEncumbrances()
             if (updater.modify(allegedAccount)) {
-                allegedAccount.checkpoint(myWorkshop!!, myAccountCollection, Consumer<Any?> { resultObj: Any? ->
+                allegedAccount.checkpoint(myWorkshop, myAccountCollection, Consumer<Any?> { resultObj: Any? ->
                     val failure = resultObj as String?
                     when {
                         failure == null -> updater.complete(null)
                         failure[0] == '@' -> {
                             /* Retryable error */
-                            myTrace!!.debugm("${allegedAccount.ref} transaction retry: $failure")
+                            gorgel.d?.run { debug("${allegedAccount.ref} transaction retry: $failure") }
                             withAccount(allegedAccount.ref, updater)
                         }
                         else -> {
                             /* Un-retryable error */
-                            myTrace!!.errorm("${allegedAccount.ref} transaction aborted: $failure")
+                            gorgel.error("${allegedAccount.ref} transaction aborted: $failure")
                             updater.complete(failure)
                         }
                     }
                 })
             }
         } else {
-            myTrace!!.errorm("alleged account object obtained via $refRef is not an account")
+            gorgel.error("alleged account object obtained via $refRef is not an account")
             updater.modify(null)
         }
     }
@@ -259,39 +270,39 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
             account1.releaseExpiredEncumbrances()
             account2.releaseExpiredEncumbrances()
             if (updater.modify(account1, account2)) {
-                account1.checkpoint(myWorkshop!!, myAccountCollection, Consumer<Any?> { resultObj: Any? ->
+                account1.checkpoint(myWorkshop, myAccountCollection, Consumer<Any?> { resultObj: Any? ->
                     val failure = resultObj as String?
                     when {
                         failure == null ->
-                            account2.checkpoint(myWorkshop!!, myAccountCollection, Consumer<Any?> { resultObj2: Any? ->
+                            account2.checkpoint(myWorkshop, myAccountCollection, Consumer<Any?> { resultObj2: Any? ->
                                 val failure2 = resultObj2 as String?
                                 when {
                                     failure2 == null -> updater.complete(null)
                                     failure2[0] == '@' -> {
                                         /* Not-really-retryable error */
-                                        myTrace!!.errorm("Egregious failure: ${account2.ref} atomic update failure: $failure2 AFTER phase 1 update success!")
+                                        gorgel.error("Egregious failure: ${account2.ref} atomic update failure: $failure2 AFTER phase 1 update success!")
                                     }
                                     else -> {
                                         /* Really-unretryable error */
-                                        myTrace!!.errorm("Egregious failure: ${account2.ref} write failure: $failure2 AFTER phase 1 update success!")
+                                        gorgel.error("Egregious failure: ${account2.ref} write failure: $failure2 AFTER phase 1 update success!")
                                     }
                                 }
                             })
                         failure[0] == '@' -> {
                             /* Retryable error */
-                            myTrace!!.debugm("${account1.ref} transaction retry: $failure")
+                            gorgel.d?.run { debug("${account1.ref} transaction retry: $failure") }
                             withTwoAccounts(account1.ref, account2.ref, updater)
                         }
                         else -> {
                             /* Un-retryable error */
-                            myTrace!!.errorm("${account1.ref} transaction aborted: $failure")
+                            gorgel.error("${account1.ref} transaction aborted: $failure")
                             updater.complete(failure)
                         }
                     }
                 })
             }
         } else {
-            myTrace!!.errorm("at least one alleged account object obtained via $refRef1+$refRef2 is not an account")
+            gorgel.error("at least one alleged account object obtained via $refRef1+$refRef2 is not an account")
             updater.modify(null, null)
         }
     }
@@ -361,7 +372,7 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
     fun makeAccount(currency: String, owner: String?, memo: String?) =
             if (getCurrency(currency) != null) {
                 val account = Account(generateRef("acct"), 0, currency, owner, memo)
-                account.checkpoint(myWorkshop!!, myAccountCollection, null)
+                account.checkpoint(myWorkshop, myAccountCollection, null)
                 account
             } else {
                 throw Error("invalid currency $currency")
@@ -494,10 +505,10 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
      * manipulation.
      */
     fun withAccount(accountRef: String, updater: AccountUpdater) {
-        myWorkshop!!.getObject(accountRef, myAccountCollection,
+        myWorkshop.getObject(accountRef, myAccountCollection,
                 Consumer { obj: Any? ->
                     if (obj == null) {
-                        myTrace!!.errorm("account object $accountRef not found")
+                        gorgel.error("account object $accountRef not found")
                         updater.modify(null)
                     } else {
                         doAccountUpdate(accountRef, obj, updater)
@@ -515,20 +526,20 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
      * manipulation.
      */
     fun withEncumberedAccount(encRef: String, updater: AccountUpdater) {
-        myWorkshop!!.queryObjects(queryEnc(encRef), myAccountCollection, 1,
+        myWorkshop.queryObjects(queryEnc(encRef), myAccountCollection, 1,
                 Consumer { queryResult: Any? ->
                     if (queryResult == null) {
-                        myTrace!!.errorm("encumbrance object $encRef not found")
+                        gorgel.error("encumbrance object $encRef not found")
                         updater.modify(null)
                     } else if (queryResult is Array<*>) {
                         if (queryResult.size == 1) {
                             doAccountUpdate(encRef, queryResult[0] as Any, updater)
                         } else {
-                            myTrace!!.errorm("wrong number of query results for $encRef")
+                            gorgel.error("wrong number of query results for $encRef")
                             updater.modify(null)
                         }
                     } else {
-                        myTrace!!.errorm("query results for $encRef are malformed")
+                        gorgel.error("query results for $encRef are malformed")
                         updater.modify(null)
                     }
                 })
@@ -546,21 +557,21 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
      * manipulations.
      */
     fun withEncumbranceAndAccount(encRef: String, accountRef: String, updater: DualAccountUpdater) {
-        myWorkshop!!.queryObjects(queryEncAndAccount(encRef, accountRef),
+        myWorkshop.queryObjects(queryEncAndAccount(encRef, accountRef),
                 myAccountCollection, 2, Consumer { queryResult: Any? ->
             if (queryResult == null) {
-                myTrace!!.errorm("accounts via $encRef+$accountRef not found")
+                gorgel.error("accounts via $encRef+$accountRef not found")
                 updater.modify(null, null)
             } else if (queryResult is Array<*>) {
                 if (queryResult.size == 2) {
                     doDualAccountUpdate(encRef, queryResult[0] as Any,
                             accountRef, queryResult[1] as Any, updater)
                 } else {
-                    myTrace!!.errorm("wrong number of query results for $encRef+$accountRef")
+                    gorgel.error("wrong number of query results for $encRef+$accountRef")
                     updater.modify(null, null)
                 }
             } else {
-                myTrace!!.errorm("query results for $encRef+$accountRef are malformed")
+                gorgel.error("query results for $encRef+$accountRef are malformed")
                 updater.modify(null, null)
             }
         })
@@ -577,21 +588,21 @@ constructor(private val myRef: String, rootKeyRef: OptString, keys: Array<Key>, 
      */
     fun withTwoAccounts(account1Ref: String, account2Ref: String,
                         updater: DualAccountUpdater) {
-        myWorkshop!!.queryObjects(queryTwoAccounts(account1Ref, account2Ref),
+        myWorkshop.queryObjects(queryTwoAccounts(account1Ref, account2Ref),
                 myAccountCollection, 2, Consumer { queryResult: Any? ->
             if (queryResult == null) {
-                myTrace!!.errorm("accounts $account1Ref+$account2Ref not found")
+                gorgel.error("accounts $account1Ref+$account2Ref not found")
                 updater.modify(null, null)
             } else if (queryResult is Array<*>) {
                 if (queryResult.size == 2) {
                     doDualAccountUpdate(account1Ref, queryResult[0] as Any,
                             account2Ref, queryResult[1] as Any, updater)
                 } else {
-                    myTrace!!.errorm("wrong number of query results for $account1Ref+$account2Ref")
+                    gorgel.error("wrong number of query results for $account1Ref+$account2Ref")
                     updater.modify(null, null)
                 }
             } else {
-                myTrace!!.errorm("query results for $account1Ref+$account2Ref are malformed")
+                gorgel.error("query results for $account1Ref+$account2Ref are malformed")
                 updater.modify(null, null)
             }
         })

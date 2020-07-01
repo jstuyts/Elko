@@ -3,7 +3,6 @@ package org.elkoserver.server.broker
 import org.elkoserver.foundation.boot.Bootable
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.ShutdownWatcher
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.ConstantDefinition
 import org.ooverkommelig.ObjectGraphConfiguration
@@ -21,7 +20,7 @@ import java.time.Clock
  */
 @Suppress("unused")
 class BrokerBoot : Bootable {
-    override fun boot(props: ElkoProperties, gorgel: Gorgel, traceFactory: TraceFactory, clock: Clock) {
+    override fun boot(props: ElkoProperties, gorgel: Gorgel, clock: Clock) {
         val myGorgel = gorgel.getChild(BrokerBoot::class)
         lateinit var brokerServerGraph: BrokerServerOgd.Graph
         val graphClosingShutdownWatcher = object : ShutdownWatcher {
@@ -32,7 +31,6 @@ class BrokerBoot : Bootable {
         brokerServerGraph = BrokerServerOgd(object : BrokerServerOgd.Provided, ProvidedAdministration() {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
-            override fun traceFactory() = ConstantDefinition(traceFactory)
             override fun props() = ConstantDefinition(props)
             override fun externalShutdownWatcher() = ConstantDefinition(graphClosingShutdownWatcher)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {

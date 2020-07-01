@@ -22,7 +22,6 @@ import org.elkoserver.objdb.ObjDB
 import org.elkoserver.objdb.ObjDBLocalFactory
 import org.elkoserver.objdb.ObjDBRemoteFactory
 import org.elkoserver.util.HashMapMulti
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.HashMap
 import java.util.HashSet
@@ -39,7 +38,6 @@ import java.util.function.Consumer
  *
  * @param myProps  The properties, as determined by the boot process.
  * @param serverType  Server type tag (for generating property names).
- * @param tr  Trace object for event logging.
  * @param myTagGenerator Counter to generate tags for 'find' requests to the broker.
  */
 class Server(
@@ -50,7 +48,6 @@ class Server(
         private val serviceActorGorgel: Gorgel,
         private val serviceActorCommGorgel: Gorgel,
         private val brokerActorGorgel: Gorgel,
-        private val tr: Trace,
         methodInvokerCommGorgel: Gorgel,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,

@@ -13,7 +13,6 @@ import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.ConcurrentModificationException
 
@@ -32,7 +31,6 @@ class DirectorGroup(server: Server,
                     contextor: Contextor,
                     directors: MutableList<HostDesc>,
                     internal val listeners: List<HostDesc>,
-                    tr: Trace,
                     gorgel: Gorgel,
                     methodInvokerCommGorgel: Gorgel,
                     private val reservationGorgel: Gorgel,
@@ -47,7 +45,6 @@ class DirectorGroup(server: Server,
         server,
         contextor,
         directors,
-        tr,
         gorgel,
         methodInvokerCommGorgel,
         timer,

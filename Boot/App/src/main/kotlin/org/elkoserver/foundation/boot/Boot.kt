@@ -1,9 +1,6 @@
 package org.elkoserver.foundation.boot
 
 import ch.qos.logback.classic.util.ContextInitializer
-import org.elkoserver.util.trace.TraceController
-import org.elkoserver.util.trace.TraceFactory
-import org.elkoserver.util.trace.acceptor.file.TraceLog
 import org.elkoserver.util.trace.exceptionreporting.ExceptionReporter
 import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.gorgel.GorgelExceptionNoticer
 import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.processexitononcaught.ProcessExitOnUncaughtExceptionNoticer
@@ -40,7 +37,7 @@ import java.time.Clock
  * @param myExceptionReporter The exception manager
  * @param bootArguments Command line arguments per Java language spec
  */
-private class Boot private constructor(private val myExceptionReporter: ExceptionReporter, private val bootArguments: BootArguments, private val gorgel: Gorgel, private val traceFactory: TraceFactory) : Runnable {
+private class Boot private constructor(private val myExceptionReporter: ExceptionReporter, private val bootArguments: BootArguments, private val gorgel: Gorgel) : Runnable {
 
     /**
      * The run method mandated by the [Thread] class.  This method is
@@ -89,7 +86,7 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
         } catch (e: InvocationTargetException) {
             throw IllegalStateException("Error occurred during construction of class", e.cause)
         }
-        starter.boot(bootArguments.bootProperties, gorgel, traceFactory, Clock.systemDefaultZone())
+        starter.boot(bootArguments.bootProperties, gorgel, Clock.systemDefaultZone())
     }
 
     companion object {
@@ -112,10 +109,9 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
             val bootArguments = BootArguments(*arguments)
             val clock = Clock.systemDefaultZone()
             val gorgel = initializeGorgel(bootArguments)
-            val traceFactory = createTraceFactory(bootArguments, clock)
             val exceptionReporter = ExceptionReporter(ProcessExitOnUncaughtExceptionNoticer(GorgelExceptionNoticer(gorgel.getChild(bootArguments.mainClassName, Tag("category", "exception")))))
             val threadGroup = EMThreadGroup("Elko Thread Group", exceptionReporter)
-            val boot = Boot(exceptionReporter, bootArguments, gorgel, traceFactory)
+            val boot = Boot(exceptionReporter, bootArguments, gorgel)
             Thread(threadGroup, boot, "Elko Server Boot").start()
         }
 
@@ -144,12 +140,6 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
             // FIXME: Add cluster identifier
             // FIXME: Add host identifier (or is this covered by serverIdentifier?)
             return GorgelImpl(loggerFactory.getLogger(ROOT_LOGGER_NAME), loggerFactory, MarkerFactory.getIMarkerFactory(), Tag("serverType", serverType), Tag("serverId", serverIdentifier))
-        }
-
-        private fun createTraceFactory(bootArguments: BootArguments, clock: Clock): TraceFactory {
-            val traceController = TraceController(TraceLog(clock), clock)
-            traceController.start(bootArguments.bootProperties)
-            return traceController.factory
         }
     }
 }

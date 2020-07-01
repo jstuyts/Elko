@@ -1,5 +1,6 @@
 package org.elkoserver.feature.deviceuser
 
+import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JSONDecodingException
@@ -8,7 +9,7 @@ import org.elkoserver.server.context.Contextor
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.User
 import org.elkoserver.server.context.UserFactory
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.concurrent.Callable
 import java.util.function.Consumer
 
@@ -18,7 +19,13 @@ import java.util.function.Consumer
  *
  * @param myDevice  The name of the device (IOS, etc).
  */
-open class DevicePersistentUserFactory @JSONMethod("device") internal constructor(private val myDevice: String) : UserFactory {
+open class DevicePersistentUserFactory @JSONMethod("device") internal constructor(private val myDevice: String) : UserFactory, ClassspecificGorgelUsingObject {
+    protected lateinit var myGorgel: Gorgel
+
+    override fun setGorgel(gorgel: Gorgel) {
+        myGorgel = gorgel
+    }
+
     /**
      * Produce a user object.
      *
@@ -35,32 +42,36 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
      * be the user object that was produced, or null if none could be.
      */
     override fun provideUser(contextor: Contextor, connection: Connection?, param: JsonObject?, handler: Consumer<in User?>) {
-        val creds = extractCredentials(contextor.tr, param)
+        val creds = extractCredentials(param)
         if (creds == null) {
             handler.accept(null)
         } else {
             contextor.server.enqueueSlowTask(Callable {
                 contextor.queryObjects(deviceQuery(creds.uuid), null, 0,
-                        DeviceQueryResultHandler(contextor, creds, handler))
+                        DeviceQueryResultHandler(contextor, myGorgel, creds, handler))
                 null
             }, null)
         }
     }
 
-    private class DeviceQueryResultHandler internal constructor(private val myContextor: Contextor, private val myCreds: DeviceCredentials,
-                                                                private val myHandler: Consumer<in User?>) : Consumer<Any?> {
+    private class DeviceQueryResultHandler internal constructor(
+            private val myContextor: Contextor,
+            private val gorgel: Gorgel,
+            private val myCreds: DeviceCredentials,
+            private val myHandler: Consumer<in User?>)
+        : Consumer<Any?> {
         override fun accept(queryResult: Any?) {
             val user: User
             @Suppress("UNCHECKED_CAST") val result = queryResult as Array<Any>?
             if (result != null && result.isNotEmpty()) {
                 if (result.size > 1) {
-                    myContextor.tr.warningm("uuid query loaded ${result.size} users, choosing first")
+                    gorgel.warn("uuid query loaded ${result.size} users, choosing first")
                 }
                 user = result[0] as User
             } else {
                 val name = myCreds.name ?: "AnonUser"
                 val uuid = myCreds.uuid
-                myContextor.tr.eventi("synthesizing user record for $uuid")
+                gorgel.i?.run { info("synthesizing user record for $uuid") }
                 val mod = DeviceUserMod(uuid)
                 user = User(name, arrayOf<Mod>(mod), null, myContextor.uniqueID("u"))
                 user.markAsChanged()
@@ -89,13 +100,12 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
     /**
      * Extract the user login credentials from a user factory parameter object.
      *
-     * @param appTrace  Trace object for error logging
      * @param param  User factory parameters
      *
      * @return a credentials object as described by the parameter object given,
      * or null if parameters were missing or invalid somehow.
      */
-    fun extractCredentials(appTrace: Trace, param: JsonObject?): DeviceCredentials? {
+    fun extractCredentials(param: JsonObject?): DeviceCredentials? {
         checkNotNull(param)
 
         try {
@@ -106,7 +116,7 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
             }
             return DeviceCredentials(uuid, name)
         } catch (e: JSONDecodingException) {
-            appTrace.errorm("bad parameter: $e")
+            myGorgel.error("bad parameter: $e")
         }
         return null
     }

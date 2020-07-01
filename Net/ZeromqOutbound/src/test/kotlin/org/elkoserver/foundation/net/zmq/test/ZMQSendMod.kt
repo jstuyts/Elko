@@ -1,5 +1,6 @@
 package org.elkoserver.foundation.net.zmq.test
 
+import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.zmq.ZMQOutbound
@@ -9,18 +10,21 @@ import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.ObjectCompletionWatcher
 import org.elkoserver.server.context.User
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Context mod to test ZMQ outbound connections
  */
-class ZMQSendMod @JSONMethod("outbound") constructor(private val myOutboundName: String) : Mod(), ContextMod, ObjectCompletionWatcher {
+class ZMQSendMod @JSONMethod("outbound") constructor(private val myOutboundName: String) : Mod(), ContextMod, ObjectCompletionWatcher, ClassspecificGorgelUsingObject {
 
     /** The connection to send outbound messages on  */
     private var myConnection: Connection? = null
 
-    /** Trace object for logging  */
-    private var tr: Trace? = null
+    private lateinit var myGorgel: Gorgel
+
+    override fun setGorgel(gorgel: Gorgel) {
+        myGorgel = gorgel
+    }
 
     /**
      * Encode this mod for transmission or persistence.
@@ -56,13 +60,12 @@ class ZMQSendMod @JSONMethod("outbound") constructor(private val myOutboundName:
             }
             currentConnection.sendMsg(msg)
         } else {
-            tr!!.errorm("uninitialized outbound connection")
+            myGorgel.error("uninitialized outbound connection")
         }
     }
 
     override fun objectIsComplete() {
         val contextor = `object`().contextor()
-        tr = contextor.tr
         val outbound = contextor.getStaticObject(myOutboundName) as ZMQOutbound
         myConnection = outbound.connection
     }

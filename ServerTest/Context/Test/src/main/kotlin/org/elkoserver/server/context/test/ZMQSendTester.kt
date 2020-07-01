@@ -1,5 +1,6 @@
 package org.elkoserver.server.context.test
 
+import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.EncodeControl
@@ -9,21 +10,24 @@ import org.elkoserver.server.context.ContextShutdownWatcher
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.ObjectCompletionWatcher
 import org.elkoserver.server.context.User
-import org.elkoserver.util.trace.Trace
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Context mod to test ZMQ outbound connections
  */
-class ZMQSendTester @JSONMethod("address") constructor(private val myAddress: String) : Mod(), ContextMod, ObjectCompletionWatcher, ContextShutdownWatcher {
-
+class ZMQSendTester @JSONMethod("address") constructor(private val myAddress: String) : Mod(), ContextMod, ObjectCompletionWatcher, ContextShutdownWatcher, ClassspecificGorgelUsingObject {
+    
     /** Outbound ZMQ connection to myAddress, or null if not yet open  */
     private var myOutbound: Connection? = null
 
     /** Flag to interlock connection close and context shutdown  */
     private var amDead = false
 
-    /** Trace object for logging  */
-    private lateinit var tr: Trace
+    private lateinit var myGorgel: Gorgel
+
+    override fun setGorgel(gorgel: Gorgel) {
+        myGorgel = gorgel
+    }
 
     /**
      * Encode this mod for transmission or persistence.
@@ -58,14 +62,12 @@ class ZMQSendTester @JSONMethod("address") constructor(private val myAddress: St
             }
             myOutbound!!.sendMsg(msg)
         } else {
-            tr.errorm("received 'log' request before outbound connection ready")
+            myGorgel.error("received 'log' request before outbound connection ready")
         }
     }
 
     override fun objectIsComplete() {
         context().registerContextShutdownWatcher(this)
-        val contextor = `object`().contextor()
-        tr = contextor.tr.subTrace("zmq")
         if (true) {
             throw IllegalStateException()
         }

@@ -11,7 +11,6 @@ import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -27,7 +26,6 @@ class Gatekeeper internal constructor(
         directorActorFactoryGorgel: Gorgel,
         directorActorGorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
-        tr: Trace,
         baseCommGorgel: Gorgel,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         props: ElkoProperties,
@@ -135,7 +133,6 @@ class Gatekeeper internal constructor(
                 directorActorFactoryGorgel,
                 directorActorGorgel,
                 methodInvokerCommGorgel,
-                tr,
                 jsonToObjectDeserializer,
                 mustSendDebugReplies,
                 connectionRetrierFactory)

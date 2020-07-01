@@ -12,6 +12,7 @@ import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactor
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
 import org.elkoserver.foundation.json.BaseCommGorgelInjector
+import org.elkoserver.foundation.json.ClassspecificGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
@@ -66,7 +67,6 @@ import org.elkoserver.objdb.PutRequestFactory
 import org.elkoserver.objdb.QueryRequestFactory
 import org.elkoserver.objdb.RemoveRequestFactory
 import org.elkoserver.objdb.UpdateRequestFactory
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import org.ooverkommelig.D
@@ -81,7 +81,6 @@ import java.time.Clock
 
 internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
     interface Provided : ProvidedBase {
-        fun traceFactory(): D<TraceFactory>
         fun props(): D<ElkoProperties>
         fun timer(): D<Timer>
         fun clock(): D<Clock>
@@ -90,8 +89,6 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
     }
-
-    val workTrace by Once { req(provided.traceFactory()).trace("work") }
 
     val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class) }
 
@@ -330,7 +327,6 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
                 req(brokerActorGorgel),
-                req(workTrace),
                 req(methodInvokerCommGorgel),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
@@ -388,9 +384,11 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val clockInjector by Once { ClockInjector(req(provided.clock())) }
 
+    val classspecificGorgelInjector by Once { ClassspecificGorgelInjector(req(provided.baseGorgel())) }
+
     val baseCommGorgelInjector by Once { BaseCommGorgelInjector(req(baseCommGorgel)) }
 
-    val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector)) }
+    val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector)) }
 
     val runner by Once { Runner(req(runnerGorgel)) }
             .dispose { it.orderlyShutdown() }
@@ -430,7 +428,7 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val refTable by Once { RefTable(req(objectDatabase), req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer)) }
 
-    val workshop: D<Workshop> by Once { Workshop(req(objectDatabase), req(server), req(refTable), req(workshopGorgel), req(startupWorkerListGorgel), req(workTrace), req(baseCommGorgel)) }
+    val workshop: D<Workshop> by Once { Workshop(req(objectDatabase), req(server), req(refTable), req(workshopGorgel), req(startupWorkerListGorgel), req(baseCommGorgel)) }
 
     val workshopServiceFactory by Once { WorkshopServiceFactory(req(workshop), req(workshopActorGorgel), req(workshopActorCommGorgel), req(mustSendDebugReplies)) }
 }

@@ -19,7 +19,6 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.HashMapMulti
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList
@@ -45,14 +44,12 @@ import kotlin.math.abs
  *
  * @param odb  Database for persistent object storage.
  * @param server  Server object.
- * @param tr  Trace object for diagnostics.
  * @param myRandom Random number generator, for creating unique IDs and sub-IDs.
  */
 class Contextor internal constructor(
         val odb: ObjDB,
         val server: Server,
         internal val refTable: RefTable,
-        @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace,
         private val contextorGorgel: Gorgel,
         private val contextGorgelWithoutRef: Gorgel,
         private val itemGorgelWithoutRef: Gorgel,
@@ -980,7 +977,6 @@ class Contextor internal constructor(
                 this,
                 directors,
                 listeners,
-                tr,
                 directorGroupGorgel,
                 methodInvokerCommGorgel,
                 reservationGorgel,
@@ -1007,7 +1003,6 @@ class Contextor internal constructor(
                 server,
                 this,
                 presencers,
-                tr,
                 presencerGroupGorgel,
                 methodInvokerCommGorgel,
                 timer,

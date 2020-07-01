@@ -13,6 +13,7 @@ import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFac
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.BaseCommGorgelInjector
+import org.elkoserver.foundation.json.ClassspecificGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
@@ -67,7 +68,6 @@ import org.elkoserver.objdb.QueryRequestFactory
 import org.elkoserver.objdb.RemoveRequestFactory
 import org.elkoserver.objdb.UpdateRequestFactory
 import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import org.ooverkommelig.D
@@ -82,7 +82,6 @@ import java.time.Clock
 
 internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
     interface Provided : ProvidedBase {
-        fun traceFactory(): D<TraceFactory>
         fun timer(): D<Timer>
         fun props(): D<ElkoProperties>
         fun clock(): D<Clock>
@@ -91,8 +90,6 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
     }
-
-    val brokTrace by Once { req(provided.traceFactory()).trace("brok") }
 
     val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class) }
 
@@ -327,7 +324,6 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
                 req(brokerActorGorgel),
-                req(brokTrace),
                 req(methodInvokerCommGorgel),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
@@ -386,9 +382,11 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val clockInjector by Once { ClockInjector(req(provided.clock())) }
 
+    val classspecificGorgelInjector by Once { ClassspecificGorgelInjector(req(provided.baseGorgel())) }
+
     val baseCommGorgelInjector by Once { BaseCommGorgelInjector(req(baseCommGorgel)) }
 
-    val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector)) }
+    val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector)) }
 
     val runner by Once { Runner(req(runnerGorgel)) }
             .dispose { it.orderlyShutdown() }

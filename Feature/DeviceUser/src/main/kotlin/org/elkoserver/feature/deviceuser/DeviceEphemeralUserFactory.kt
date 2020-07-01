@@ -27,7 +27,7 @@ class DeviceEphemeralUserFactory @JSONMethod("device") constructor(device: Strin
      * with null if the user object could not be produced.
      */
     override fun provideUser(contextor: Contextor, connection: Connection?, param: JsonObject?, handler: Consumer<in User?>) {
-        val user = (extractCredentials(contextor.tr, param)?.let { creds ->
+        val user = (extractCredentials(param)?.let { creds ->
             User(creds.name, null, null, null).apply {
                 markAsEphemeral()
                 objectIsComplete()

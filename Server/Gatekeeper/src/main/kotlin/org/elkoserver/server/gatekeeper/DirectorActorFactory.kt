@@ -8,7 +8,6 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.server.metadata.HostDesc
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -18,14 +17,12 @@ import java.util.function.Consumer
  * can change over time.
  *
  * @param gatekeeper  The gatekeeper.
- * @param tr  Trace object for diagnostics.
  */
 internal class DirectorActorFactory(
         internal val gatekeeper: Gatekeeper,
         private val gorgel: Gorgel,
         private val directorActorGorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
-        private val tr: Trace,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val mustSendDebugReplies: Boolean,
         private val connectionRetrierFactory: ConnectionRetrierFactory) : MessageHandlerFactory {

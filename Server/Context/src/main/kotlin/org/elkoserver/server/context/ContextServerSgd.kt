@@ -12,6 +12,7 @@ import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactor
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
 import org.elkoserver.foundation.json.BaseCommGorgelInjector
+import org.elkoserver.foundation.json.ClassspecificGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
@@ -67,7 +68,6 @@ import org.elkoserver.objdb.QueryRequestFactory
 import org.elkoserver.objdb.RemoveRequestFactory
 import org.elkoserver.objdb.UpdateRequestFactory
 import org.elkoserver.server.context.DirectorGroup.Companion.DEFAULT_RESERVATION_EXPIRATION_TIMEOUT
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import org.ooverkommelig.D
@@ -85,14 +85,11 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
         fun clock(): D<Clock>
         fun props(): D<ElkoProperties>
         fun timer(): D<Timer>
-        fun traceFactory(): D<TraceFactory>
         fun baseGorgel(): D<Gorgel>
         fun authDescFromPropertiesFactory(): D<AuthDescFromPropertiesFactory>
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
     }
-
-    val contTrace by Once { req(provided.traceFactory()).trace("cont") }
 
     val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class) }
 
@@ -380,7 +377,6 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
                 req(brokerActorGorgel),
-                req(contTrace),
                 req(methodInvokerCommGorgel),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
@@ -430,9 +426,11 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val clockInjector by Once { ClockInjector(req(provided.clock())) }
 
+    val classspecificGorgelInjector by Once { ClassspecificGorgelInjector(req(provided.baseGorgel())) }
+
     val baseCommGorgelInjector by Once { BaseCommGorgelInjector(req(baseCommGorgel)) }
 
-    val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector)) }
+    val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector)) }
 
     val runner by Once { Runner(req(runnerGorgel)) }
             .dispose { it.orderlyShutdown() }
@@ -494,7 +492,6 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(objectDatabase),
                 req(server),
                 req(refTable),
-                req(contTrace),
                 req(contextorGorgel),
                 req(contextGorgelWithoutRef),
                 req(itemGorgelWithoutRef),
