@@ -15,7 +15,12 @@ import java.time.Clock
  * call and string manipulation in cases where no output would be generated
  * anyway).
  */
-class Trace internal constructor(internal val mySubsystem: String, internal var myThreshold: Level, private val myAcceptor: TraceMessageAcceptor, private val factory: TraceFactory, private val clock: Clock) {
+class Trace internal constructor(
+        internal val mySubsystem: String,
+        internal var myThreshold: Level,
+        private val myAcceptor: TraceMessageAcceptor,
+        private val factory: TraceFactory,
+        private val clock: Clock) {
 
     /**
      * Flag to control tracing of event messages.  Event messages describe the
@@ -25,14 +30,14 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
      * be used to log specific user actions for usability testing, and to log
      * information for testers.
      */
-    var event = false
+    private var event = false
 
     /**
      * Flag to control tracing of debug messages.  Debug messages provide more
      * detail for people who want to delve into what's going on, probably to
      * figure out a bug.
      */
-    var debug = false
+    private var debug = false
 
     /** Flag that the threshold is defaulted.  */
     internal var myThresholdIsDefaulted = true
