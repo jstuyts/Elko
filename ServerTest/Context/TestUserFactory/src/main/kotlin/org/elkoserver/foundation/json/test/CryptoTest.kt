@@ -78,9 +78,11 @@ internal object CryptoTest {
             }
             ++i
         }
-        val cryptorTrace = traceController.factory.trace("cryptor")
+        val cryptorGorgel = GorgelImpl(LoggerFactory.getLogger(Cryptor::class.java),
+                LoggerFactory.getILoggerFactory(),
+                MarkerFactory.getIMarkerFactory())
         if (keyStr == null) {
-            keyStr = Cryptor.generateKey(cryptorTrace)
+            keyStr = Cryptor.generateKey(cryptorGorgel)
         }
         val jsonToObjectDeserializer = JsonToObjectDeserializer(
                 GorgelImpl(LoggerFactory.getLogger(JsonToObjectDeserializer::class.java),
@@ -92,9 +94,7 @@ internal object CryptoTest {
                 listOf(
                         ClockInjector(clock),
                         BaseCommGorgelInjector(GorgelImpl(LoggerFactory.getLogger(ROOT_LOGGER_NAME), LoggerFactory.getILoggerFactory(), MarkerFactory.getIMarkerFactory(), Tag("category", "comm")))))
-        val cryptor = Cryptor(keyStr, GorgelImpl(LoggerFactory.getLogger(Cryptor::class.java),
-                LoggerFactory.getILoggerFactory(),
-                MarkerFactory.getIMarkerFactory()), jsonToObjectDeserializer)
+        val cryptor = Cryptor(keyStr, cryptorGorgel, jsonToObjectDeserializer)
         if (cypherText != null) {
             try {
                 plainText = cryptor.decrypt(cypherText)

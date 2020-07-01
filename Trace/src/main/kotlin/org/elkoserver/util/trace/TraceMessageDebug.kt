@@ -1,12 +1,9 @@
 package org.elkoserver.util.trace
 
-import java.io.PrintWriter
-import java.io.StringWriter
 import java.time.Clock
 
 internal class TraceMessageDebug(subsystem: String, level: Level, frameData: StackTraceElement?,
-                                 private val myText: String,
-                                 private val myObject: Any?, clock: Clock) : TraceMessage(subsystem, level, clock) {
+                                 private val myText: String, clock: Clock) : TraceMessage(subsystem, level, clock) {
     private val myFileName: String
 
     private val myMethodName: String
@@ -23,20 +20,6 @@ internal class TraceMessageDebug(subsystem: String, level: Level, frameData: Sta
         buffer.append(myLine)
         buffer.append(") ")
         buffer.append(myText)
-        if (myObject != null) {
-            if (myObject is Throwable) {
-                buffer.append('\n')
-                StringWriter().use { stringWriter ->
-                    PrintWriter(stringWriter).use { printWriter ->
-                        printStackTrace(myObject, printWriter)
-                    }
-                    buffer.append(stringWriter.toString())
-                }
-            } else {
-                buffer.append(" : ")
-                buffer.append(myObject)
-            }
-        }
     }
 
     init {

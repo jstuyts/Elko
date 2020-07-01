@@ -3,7 +3,6 @@ package org.elkoserver.foundation.json
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
-import org.elkoserver.util.trace.Trace
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -146,13 +145,13 @@ class Cryptor(keyStr: String, private val gorgel: Gorgel, private val jsonToObje
          * @return the generated key, as a string containing a base64-encoding of
          * the key bits.
          */
-        fun generateKey(trace: Trace): String {
+        fun generateKey(gorgel: Gorgel): String {
             return try {
                 val key = KeyGenerator.getInstance(KEY_ALGORITHM).generateKey()
                 base64Encoder.encodeToString(key.encoded)
             } catch (e: NoSuchAlgorithmException) {
                 /* This should never actually happen. */
-                trace.errorm("Cryptor.generateKey failure: unknown algorithm", e)
+                gorgel.error("Cryptor.generateKey failure: unknown algorithm", e)
                 throw IllegalStateException(e)
             }
         }

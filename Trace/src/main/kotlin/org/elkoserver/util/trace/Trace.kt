@@ -93,16 +93,14 @@ class Trace internal constructor(
      *
      * @param message  The message string
      * @param level  Trace level at which it is being output
-     * @param obj  Arbitrary annotation object to go with the message (usually
-     * but not necessarily an exception).
      */
-    private fun recordDebugMessage(message: String, level: Level, obj: Any?) {
+    private fun recordDebugMessage(message: String, level: Level) {
         val frame = try {
             Exception().stackTrace[2]
         } catch (e: Throwable) {
             null
         }
-        val traceMessage: TraceMessage = TraceMessageDebug(mySubsystem, level, frame, message, obj, clock)
+        val traceMessage: TraceMessage = TraceMessageDebug(mySubsystem, level, frame, message, clock)
         myAcceptor.accept(traceMessage)
     }
 
@@ -123,7 +121,7 @@ class Trace internal constructor(
      * @param message  The message to write to the log.
      */
     fun debugm(message: String) {
-        if (debug) recordDebugMessage(message, Level.DEBUG, null)
+        if (debug) recordDebugMessage(message, Level.DEBUG)
     }
 
     /**
@@ -132,17 +130,7 @@ class Trace internal constructor(
      * @param message  The message to write to the log.
      */
     fun errorm(message: String) {
-        recordDebugMessage(message, Level.ERROR, null)
-    }
-
-    /**
-     * Output a log message at <tt>ERROR</tt> level, with attached object.
-     *
-     * @param message  The message to write to the log.
-     * @param obj  Object to report with <tt>message</tt>.
-     */
-    fun errorm(message: String, obj: Any) {
-        recordDebugMessage(message, Level.ERROR, obj)
+        recordDebugMessage(message, Level.ERROR)
     }
 
     /**
@@ -160,7 +148,7 @@ class Trace internal constructor(
      * @param message  The message to write to the log.
      */
     fun warningm(message: String) {
-        recordDebugMessage(message, Level.WARNING, null)
+        recordDebugMessage(message, Level.WARNING)
     }
 
     init {
