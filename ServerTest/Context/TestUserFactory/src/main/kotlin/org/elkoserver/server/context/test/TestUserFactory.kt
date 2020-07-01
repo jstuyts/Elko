@@ -142,13 +142,13 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                     if (!myNonces.contains(nonce)) {
                         purgeExpiredNonces(now)
                         myNonces.add(nonce)
-                        val reqContextRef = params.getString("context")
+                        val reqContextRef = params.getString<String?>("context", null)
                         if (reqContextRef != null &&
                                 reqContextRef != contextRef) {
                             contextor.tr.errorm("context ref mismatch")
                             throw IllegalStateException()
                         }
-                        val reqContextTemplate = params.getString("ctmpl")
+                        val reqContextTemplate = params.getString<String?>("ctmpl", null)
                         if (reqContextTemplate != null &&
                                 reqContextTemplate != contextTemplate) {
                             contextor.tr.errorm(

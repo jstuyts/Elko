@@ -100,11 +100,7 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
 
         try {
             val uuid = param.getString("uuid")
-            if (uuid == null) {
-                appTrace.errorm("bad parameter: missing uuid")
-                return null
-            }
-            var name = param.getString("name")
+            var name = param.getString<String?>("name", null)
             if (name == null) {
                 name = param.getString("nickname")
             }
