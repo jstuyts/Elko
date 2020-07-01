@@ -40,6 +40,7 @@ import org.elkoserver.foundation.net.tcp.server.TcpConnectionSetupFactory
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
 import org.elkoserver.foundation.net.ws.server.WebsocketConnectionSetupFactory
 import org.elkoserver.foundation.net.ws.server.WebsocketServerFactory
+import org.elkoserver.foundation.net.zmq.server.ZeroMQThread
 import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
@@ -146,6 +147,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     val rtcpMessageHandlerFactoryGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandlerFactory::class) }
     val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class, Tag("category", "comm")) }
     val connectionBaseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(Tag("category", "comm")) }
+    val zeromqThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(ZeroMQThread::class, Tag("category", "comm")) }
 
     val httpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandler::class, Tag("category", "comm")) }
     val httpMessageHandlerFactoryCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandlerFactory::class, Tag("category", "comm")) }
@@ -295,7 +297,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serverLoadMonitor),
                 req(baseConnectionSetupGorgel),
                 req(connectionBaseCommGorgel),
-                req(provided.traceFactory()),
+                req(zeromqThreadCommGorgel),
                 req(connectionIdGenerator),
                 req(provided.clock()),
                 req(jsonByteIOFramerFactoryFactory))

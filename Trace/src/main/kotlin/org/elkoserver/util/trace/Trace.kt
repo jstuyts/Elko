@@ -150,15 +150,6 @@ class Trace internal constructor(internal val mySubsystem: String, internal var 
     }
 
     /**
-     * Output a log message at <tt>EVENT</tt> level.
-     *
-     * @param message  The message to write to the log.
-     */
-    fun eventm(message: String) {
-        if (event) recordDebugMessage(message, Level.EVENT, null)
-    }
-
-    /**
      * Output a log message at <tt>WARNING</tt> level.
      *
      * @param message  The message to write to the log.
