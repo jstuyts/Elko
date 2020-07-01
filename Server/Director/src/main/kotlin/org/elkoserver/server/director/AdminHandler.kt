@@ -11,7 +11,7 @@ import org.elkoserver.json.JSONLiteralArray
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 
 /**
@@ -60,7 +60,7 @@ import java.util.LinkedList
  *
  * @param myDirector  The Director object for this handler.
  */
-internal class AdminHandler(private val myDirector: Director, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Do the actual work of a 'find' or 'watch' verb.

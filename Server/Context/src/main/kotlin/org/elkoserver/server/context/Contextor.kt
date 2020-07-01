@@ -20,7 +20,6 @@ import org.elkoserver.json.JsonParsing
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList
@@ -65,7 +64,7 @@ class Contextor internal constructor(
         sessionGorgel: Gorgel,
         private val methodInvokerCommGorgel: Gorgel,
         private val timer: Timer,
-        traceFactory: TraceFactory,
+        baseCommGorgel: Gorgel,
         internal val entryTimeout: Int,
         internal val limit: Int,
         private val myRandom: Random,
@@ -78,10 +77,10 @@ class Contextor internal constructor(
         private val mustSendDebugReplies: Boolean,
         private val connectionRetrierFactory: ConnectionRetrierFactory) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(odb, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
+    internal val refTable = RefTable(odb, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
 
     /** The generic 'session' object for talking to this server.  */
-    internal val session: Session = Session(this, sessionPassword, sessionGorgel, traceFactory)
+    internal val session: Session = Session(this, sessionPassword, sessionGorgel, baseCommGorgel.getChild(Session::class))
 
     /** Sets of entities awaiting objects from the object database, by object
      * reference string.  */

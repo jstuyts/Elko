@@ -10,6 +10,7 @@ import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactor
 import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
+import org.elkoserver.foundation.json.BaseCommGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
@@ -166,7 +167,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val rtcpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandler::class, Tag("category", "comm")) }
     val rtcpMessageHandlerFactoryGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandlerFactory::class) }
     val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class, Tag("category", "comm")) }
-    val connectionBaseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(Tag("category", "comm")) }
+    val baseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(Tag("category", "comm")) }
     val zeromqThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(ZeroMQThread::class, Tag("category", "comm")) }
 
     val httpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandler::class, Tag("category", "comm")) }
@@ -247,7 +248,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     }
 
     val httpRequestByteIOFramerFactoryFactory by Once {
-        HTTPRequestByteIOFramerFactoryFactory(req(provided.traceFactory()), req(chunkyByteArrayInputStreamFactory))
+        HTTPRequestByteIOFramerFactoryFactory(req(baseCommGorgel), req(chunkyByteArrayInputStreamFactory))
     }
 
     val jsonByteIOFramerFactoryFactory by Once {
@@ -270,7 +271,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(provided.timer()),
                 req(provided.clock()),
                 req(httpSessionConnectionCommGorgel),
-                req(connectionBaseCommGorgel),
+                req(baseCommGorgel),
                 req(httpMessageHandlerCommGorgel),
                 req(httpMessageHandlerFactoryCommGorgel),
                 req(sessionIdGenerator),
@@ -343,7 +344,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(runner),
                 req(serverLoadMonitor),
                 req(baseConnectionSetupGorgel),
-                req(connectionBaseCommGorgel),
+                req(baseCommGorgel),
                 req(zeromqThreadCommGorgel),
                 req(connectionIdGenerator),
                 req(provided.clock()),
@@ -431,7 +432,9 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val traceFactoryInjector by Once { TraceFactoryInjector(req(provided.traceFactory())) }
 
-    val injectors by Once { listOf(req(clockInjector), req(traceFactoryInjector)) }
+    val baseCommGorgelInjector by Once { BaseCommGorgelInjector(req(baseCommGorgel)) }
+
+    val injectors by Once { listOf(req(clockInjector), req(traceFactoryInjector), req(baseCommGorgelInjector)) }
 
     val runner by Once { Runner(req(runnerGorgel)) }
             .dispose { it.orderlyShutdown() }
@@ -503,7 +506,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(sessionClientGorgel),
                 req(methodInvokerCommGorgel),
                 req(provided.timer()),
-                req(provided.traceFactory()),
+                req(baseCommGorgel),
                 req(contextorEntryTimeout),
                 req(contextorLimit),
                 req(contextorRandom),

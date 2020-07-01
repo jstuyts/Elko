@@ -5,7 +5,7 @@ import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Singleton handler for the gatekeeper 'user' protocol.
@@ -17,7 +17,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * 'setpassword' - Requests that the user's stored password be changed.
  */
-internal class UserHandler(private val myAuthorizer: Authorizer, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always

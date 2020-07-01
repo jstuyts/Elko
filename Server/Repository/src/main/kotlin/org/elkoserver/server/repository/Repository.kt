@@ -6,7 +6,6 @@ import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.objdb.store.ObjectStore
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -14,9 +13,9 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *
  * @param myServer Server object.
  */
-internal class Repository(private val myServer: Server, methodInvokerCommGorgel: Gorgel, traceFactory: TraceFactory, internal val myObjectStore: ObjectStore, jsonToObjectDeserializer: JsonToObjectDeserializer) {
+internal class Repository(private val myServer: Server, methodInvokerCommGorgel: Gorgel, baseCommGorgel: Gorgel, internal val myObjectStore: ObjectStore, jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val myRefTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
+    internal val myRefTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
 
     /** Number of repository clients currently connected.  */
     private var myRepClientCount = 0
@@ -58,8 +57,8 @@ internal class Repository(private val myServer: Server, methodInvokerCommGorgel:
     }
 
     init {
-        myRefTable.addRef(RepHandler(this, traceFactory))
-        myRefTable.addRef(AdminHandler(this, traceFactory))
+        myRefTable.addRef(RepHandler(this, baseCommGorgel.getChild(RepHandler::class)))
+        myRefTable.addRef(AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class)))
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 isShuttingDown = true

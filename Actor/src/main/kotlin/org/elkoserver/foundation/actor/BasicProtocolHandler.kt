@@ -1,13 +1,13 @@
 package org.elkoserver.foundation.actor
 
+import org.elkoserver.foundation.json.BaseCommGorgelUsingObject
 import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.foundation.json.TraceFactoryUsingObject
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.json.JSONLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Utility message handler implementation base class that supports a basic JSON
@@ -17,17 +17,19 @@ import org.elkoserver.util.trace.TraceFactory
  * implementations for these messages that should be satisfactory in nearly all
  * circumstances.
  */
-abstract class BasicProtocolHandler : Referenceable, DispatchTarget, TraceFactoryUsingObject {
-    private lateinit var traceFactory: TraceFactory
+abstract class BasicProtocolHandler protected constructor(): Referenceable, DispatchTarget, BaseCommGorgelUsingObject {
+    private lateinit var commGorgel: Gorgel
+//
+//    protected constructor(traceFactory: TraceFactory) {
+//        this.traceFactory = traceFactory
+//    }
 
-    protected constructor()
-
-    protected constructor(traceFactory: TraceFactory) {
-        this.traceFactory = traceFactory
+    constructor(commGorgel: Gorgel) : this() {
+        this.commGorgel = commGorgel
     }
 
-    override fun setTraceFactory(traceFactory: TraceFactory) {
-        this.traceFactory = traceFactory
+    override fun setBaseCommGorgel(baseCommGorgel: Gorgel) {
+        baseCommGorgel.getChild(this::class)
     }
 
     /**
@@ -73,7 +75,7 @@ abstract class BasicProtocolHandler : Referenceable, DispatchTarget, TraceFactor
      */
     @JSONMethod("msg")
     fun debug(from: BasicProtocolActor, msg: String) {
-        traceFactory.comm.eventi("Debug msg: $msg")
+        commGorgel.i?.run { info("Debug msg: $msg") }
     }
 
     /**

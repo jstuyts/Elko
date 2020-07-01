@@ -8,7 +8,6 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.TypeResolver
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.HashMap
 import java.util.LinkedList
@@ -34,7 +33,7 @@ import java.util.LinkedList
  * @param resolver  Type resolver for the type tags of JSON encoded
  *    object descriptors.
  */
-class RefTable(resolver: TypeResolver?, methodInvokerCommGorgel: Gorgel, traceFactory: TraceFactory, jsonToObjectDeserializer: JsonToObjectDeserializer) : Iterable<DispatchTarget?> {
+class RefTable(resolver: TypeResolver?, methodInvokerCommGorgel: Gorgel, baseCommGorgel: Gorgel, jsonToObjectDeserializer: JsonToObjectDeserializer) : Iterable<DispatchTarget?> {
     /** Mapped Objects, indexed by reference.  */
     private val myObjects: MutableMap<String?, DispatchTarget> = HashMap()
 
@@ -53,7 +52,7 @@ class RefTable(resolver: TypeResolver?, methodInvokerCommGorgel: Gorgel, traceFa
      * it is created, so that received error and debug messages have someplace
      * to go.
      */
-    private class ErrorHandler internal constructor(traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+    private class ErrorHandler internal constructor(commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
         /**
          * This object is always called 'error' (there should only ever be one
          * instance).
@@ -237,6 +236,6 @@ class RefTable(resolver: TypeResolver?, methodInvokerCommGorgel: Gorgel, traceFa
     }
 
     init {
-        addRef(ErrorHandler(traceFactory))
+        addRef(ErrorHandler(baseCommGorgel.getChild(ErrorHandler::class)))
     }
 }

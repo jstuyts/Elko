@@ -10,6 +10,7 @@ import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactor
 import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
+import org.elkoserver.foundation.json.BaseCommGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
@@ -146,7 +147,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     val rtcpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandler::class, Tag("category", "comm")) }
     val rtcpMessageHandlerFactoryGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandlerFactory::class) }
     val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class, Tag("category", "comm")) }
-    val connectionBaseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(Tag("category", "comm")) }
+    val baseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(Tag("category", "comm")) }
     val zeromqThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(ZeroMQThread::class, Tag("category", "comm")) }
 
     val httpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandler::class, Tag("category", "comm")) }
@@ -200,7 +201,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     }
 
     val httpRequestByteIOFramerFactoryFactory by Once {
-        HTTPRequestByteIOFramerFactoryFactory(req(provided.traceFactory()), req(chunkyByteArrayInputStreamFactory))
+        HTTPRequestByteIOFramerFactoryFactory(req(baseCommGorgel), req(chunkyByteArrayInputStreamFactory))
     }
 
     val jsonByteIOFramerFactoryFactory by Once {
@@ -223,7 +224,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(provided.timer()),
                 req(provided.clock()),
                 req(httpSessionConnectionCommGorgel),
-                req(connectionBaseCommGorgel),
+                req(baseCommGorgel),
                 req(httpMessageHandlerCommGorgel),
                 req(httpMessageHandlerFactoryCommGorgel),
                 req(sessionIdGenerator),
@@ -296,7 +297,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(runner),
                 req(serverLoadMonitor),
                 req(baseConnectionSetupGorgel),
-                req(connectionBaseCommGorgel),
+                req(baseCommGorgel),
                 req(zeromqThreadCommGorgel),
                 req(connectionIdGenerator),
                 req(provided.clock()),
@@ -389,6 +390,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val traceFactoryInjector by Once { TraceFactoryInjector(req(provided.traceFactory())) }
 
+    val baseCommGorgelInjector by Once { BaseCommGorgelInjector(req(baseCommGorgel)) }
+
     val random by Once { SecureRandom() }
 
     val randomInjector by Once { RandomInjector(req(random)) }
@@ -400,7 +403,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     val graphInjectorsInjector by Once { InjectorsInjector(req(graphInjectors)) }
 
     val injectors by Once {
-        listOf(req(clockInjector), req(traceFactoryInjector), req(domainRegistryInjector), req(graphInjectorsInjector))
+        listOf(req(clockInjector), req(traceFactoryInjector), req(domainRegistryInjector), req(graphInjectorsInjector), req(baseCommGorgelInjector))
     }
 
     val domainRegistryInjector by Once { DomainRegistryInjector(req(domainRegistry)) }
@@ -448,7 +451,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(graphDescGorgel),
                 req(socialGraphGorgel),
                 req(methodInvokerCommGorgel),
-                req(provided.traceFactory()),
+                req(baseCommGorgel),
                 req(jsonToObjectDeserializer),
                 req(domainRegistry))
     }

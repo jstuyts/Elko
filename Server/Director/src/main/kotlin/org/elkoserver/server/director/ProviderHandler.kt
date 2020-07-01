@@ -5,7 +5,7 @@ import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JsonObject
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.Random
 
 /**
@@ -36,7 +36,7 @@ import java.util.Random
  *
  * @param director  The Director object for this handler.
  */
-internal class ProviderHandler(director: Director, traceFactory: TraceFactory, random: Random) : UserHandler(director, traceFactory, random) {
+internal class ProviderHandler(director: Director, commGorgel: Gorgel, random: Random) : UserHandler(director, commGorgel, random) {
     /**
      * Get this object's reference string.  This singleton object is always
      * known as 'provider'.

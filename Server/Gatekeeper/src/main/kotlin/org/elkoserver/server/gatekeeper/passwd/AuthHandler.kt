@@ -8,7 +8,7 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.gatekeeper.Gatekeeper
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.security.MessageDigest
 import java.util.Random
 import java.util.function.Consumer
@@ -19,7 +19,7 @@ import java.util.function.Consumer
  * @param myAuthorizer  The password authorizer being administered.
  * @param myGatekeeper  The gatekeeper this handler is working for.
  */
-internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private val myGatekeeper: Gatekeeper, traceFactory: TraceFactory, private val actorRandom: Random, private val actorMessageDigest: MessageDigest) : BasicProtocolHandler(traceFactory) {
+internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private val myGatekeeper: Gatekeeper, commGorgel: Gorgel, private val actorRandom: Random, private val actorMessageDigest: MessageDigest) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always

@@ -5,7 +5,7 @@ import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.Random
 import kotlin.math.abs
 
@@ -20,7 +20,7 @@ import kotlin.math.abs
  * @param director  The director object for this handler.
  * @param myRandom Random number generator, for reservations.
  */
-internal open class UserHandler(protected val director: Director, traceFactory: TraceFactory, private val myRandom: Random) : BasicProtocolHandler(traceFactory) {
+internal open class UserHandler(protected val director: Director, commGorgel: Gorgel, private val myRandom: Random) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always

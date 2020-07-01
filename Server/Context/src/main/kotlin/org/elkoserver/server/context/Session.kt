@@ -11,7 +11,6 @@ import org.elkoserver.json.JSONLiteralArray
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Msg.msgExit
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -27,7 +26,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *
  * @param myContextor  The contextor for this session.
  */
-class Session(private val myContextor: Contextor, private val password: String?, private val myGorgel: Gorgel, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+class Session(private val myContextor: Contextor, private val password: String?, private val myGorgel: Gorgel, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always

@@ -13,7 +13,7 @@ import org.elkoserver.objdb.store.RequestDesc
 import org.elkoserver.objdb.store.RequestResultHandler
 import org.elkoserver.objdb.store.ResultDesc
 import org.elkoserver.objdb.store.UpdateDesc
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Singleton handler for the repository 'rep' protocol.
@@ -27,7 +27,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * 'remove' - Requests the deletion of an object from the object store.
  */
-internal class RepHandler(repository: Repository, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
     private val myObjectStore = repository.myObjectStore
 
     /**

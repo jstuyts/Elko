@@ -12,7 +12,6 @@ import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.util.trace.Trace
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -28,14 +27,14 @@ class Gatekeeper internal constructor(
         directorActorGorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
         tr: Trace,
-        traceFactory: TraceFactory,
+        baseCommGorgel: Gorgel,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         props: ElkoProperties,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         mustSendDebugReplies: Boolean,
         connectionRetrierFactory: ConnectionRetrierFactory) {
     /** Table for mapping object references in messages.  */
-    internal val refTable: RefTable = RefTable(null, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
+    internal val refTable: RefTable = RefTable(null, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
 
     /** Host description for the director.  */
     internal var directorHost: HostDesc? = null
@@ -131,7 +130,7 @@ class Gatekeeper internal constructor(
     }
 
     init {
-        refTable.addRef(AdminHandler(this, traceFactory))
+        refTable.addRef(AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class)))
         myDirectorActorFactory = DirectorActorFactory(
                 this,
                 directorActorFactoryGorgel,

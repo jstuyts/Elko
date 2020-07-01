@@ -1,6 +1,7 @@
 package org.elkoserver.server.context.test
 
 import com.grack.nanojson.JsonParserException
+import org.elkoserver.foundation.json.BaseCommGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ClockUsingObject
 import org.elkoserver.foundation.json.ConstructorInvoker
@@ -19,6 +20,7 @@ import org.elkoserver.server.context.User
 import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.GorgelImpl
 import org.elkoserver.util.trace.slf4j.Tag
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MarkerFactory
 import java.io.IOException
@@ -106,7 +108,10 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                 GorgelImpl(LoggerFactory.getLogger(ConstructorInvoker::class.java),
                         LoggerFactory.getILoggerFactory(),
                         MarkerFactory.getIMarkerFactory(), Tag("category", "comm")),
-                listOf(ClockInjector(clock), TraceFactoryInjector(traceFactory)))
+                listOf(
+                        ClockInjector(clock),
+                        TraceFactoryInjector(traceFactory),
+                        BaseCommGorgelInjector(GorgelImpl(LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME), LoggerFactory.getILoggerFactory(), MarkerFactory.getIMarkerFactory(), Tag("category", "comm")))))
         myCryptor = Cryptor(key, traceFactory.trace("cryptor"), jsonToObjectDeserializer)
     }
 

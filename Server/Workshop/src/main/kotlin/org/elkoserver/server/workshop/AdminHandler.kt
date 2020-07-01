@@ -2,7 +2,7 @@ package org.elkoserver.server.workshop
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JSONMethod
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Singleton handler for the workshop 'admin' protocol.
@@ -16,7 +16,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param myWorkshop The workshop for this handler.
  */
-internal class AdminHandler(private val myWorkshop: Workshop, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal class AdminHandler(private val myWorkshop: Workshop, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always

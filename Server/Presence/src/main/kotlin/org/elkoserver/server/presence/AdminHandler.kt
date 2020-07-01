@@ -8,7 +8,7 @@ import org.elkoserver.json.JSONLiteralArray
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Singleton handler for the presence server 'admin' protocol.
@@ -24,7 +24,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param myPresenceServer  The presence server administered by this handler
  */
-internal class AdminHandler(private val myPresenceServer: PresenceServer, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal class AdminHandler(private val myPresenceServer: PresenceServer, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always

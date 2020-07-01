@@ -41,10 +41,11 @@ class Workshop private constructor(
         methodInvokerCommGorgel: Gorgel,
         private val startupWorkerListGorgel: Gorgel,
         @Deprecated(message = "An injected Gorgel must be used.") val tr: Trace,
-        traceFactory: TraceFactory,
+        baseCommGorgel: Gorgel,
+        private val traceFactory: TraceFactory,
         jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(myODB, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
+    internal val refTable = RefTable(myODB, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown: Boolean
@@ -60,9 +61,10 @@ class Workshop private constructor(
                          methodInvokerCommGorgel: Gorgel,
                          startupWorkerListGorgel: Gorgel,
                          appTrace: Trace,
+                         baseCommGorgel: Gorgel,
                          traceFactory: TraceFactory,
                          jsonToObjectDeserializer: JsonToObjectDeserializer) :
-            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, gorgel, methodInvokerCommGorgel, startupWorkerListGorgel, appTrace, traceFactory, jsonToObjectDeserializer)
+            this(server.openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified"), server, gorgel, methodInvokerCommGorgel, startupWorkerListGorgel, appTrace, baseCommGorgel, traceFactory, jsonToObjectDeserializer)
 
     /**
      * Add a worker to the object table.
@@ -247,8 +249,8 @@ class Workshop private constructor(
 
     init {
         myODB.addClass("auth", AuthDesc::class.java)
-        refTable.addRef(ClientHandler(this, traceFactory))
-        refTable.addRef(AdminHandler(this, traceFactory))
+        refTable.addRef(ClientHandler(this, baseCommGorgel.getChild(ClientHandler::class)))
+        refTable.addRef(AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class)))
         isShuttingDown = false
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {

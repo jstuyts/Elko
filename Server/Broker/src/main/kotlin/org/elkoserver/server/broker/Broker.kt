@@ -11,7 +11,6 @@ import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.objdb.ObjDB
 import org.elkoserver.util.HashMapMulti
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList
@@ -28,11 +27,11 @@ internal class Broker(
         methodInvokerCommGorgel: Gorgel,
         launcherTableGorgel: Gorgel,
         private val timer: Timer,
-        traceFactory: TraceFactory,
+        baseCommGorgel: Gorgel,
         startMode: Int,
         jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
 
     /** Database for configuration data.  */
     private val myODB: ObjDB?
@@ -55,10 +54,10 @@ internal class Broker(
     private val myLoadWatchers: MutableSet<BrokerActor> = HashSet()
 
     /** The admin object.  */
-    private val myAdminHandler: AdminHandler
+    private val myAdminHandler = AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class))
 
     /** The client object.  */
-    internal val clientHandler: ClientHandler = ClientHandler(this, traceFactory)
+    internal val clientHandler = ClientHandler(this, baseCommGorgel.getChild(ClientHandler::class))
 
     /** Table of servers that this broker can launch.  */
     internal var launcherTable: LauncherTable? = null
@@ -314,7 +313,6 @@ internal class Broker(
 
     init {
         refTable.addRef(clientHandler)
-        myAdminHandler = AdminHandler(this, traceFactory)
         refTable.addRef(myAdminHandler)
         myODB = myServer.openObjectDatabase("conf.broker")
         if (myODB != null) {

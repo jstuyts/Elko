@@ -6,7 +6,7 @@ import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.foundation.net.Communication
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.io.InputStreamReader
 import java.nio.charset.StandardCharsets
@@ -17,7 +17,7 @@ import java.nio.charset.StandardCharsets
  * responses as described by "RFC 2616: Hypertext Transfer Protocol --
  * HTTP/1.1", except that chunked transfer coding is not supported.
  */
-class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory, private val chunkyByteArrayInputStreamFactory: ChunkyByteArrayInputStreamFactory) : ByteIOFramerFactory {
+class HTTPRequestByteIOFramerFactory(private val baseCommGorgel: Gorgel, private val chunkyByteArrayInputStreamFactory: ChunkyByteArrayInputStreamFactory) : ByteIOFramerFactory {
 
     /**
      * Provide an I/O framer for a new HTTP connection.
@@ -26,12 +26,12 @@ class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory, pri
      * @param label  A printable label identifying the associated connection.
      */
     override fun provideFramer(receiver: MessageReceiver, label: String): ByteIOFramer =
-            HTTPRequestFramer(receiver, label, traceFactory, chunkyByteArrayInputStreamFactory.create())
+            HTTPRequestFramer(receiver, label, baseCommGorgel.getChild(HTTPRequestFramer::class), chunkyByteArrayInputStreamFactory.create())
 
     /**
      * I/O framer implementation for HTTP requests.
      */
-    private class HTTPRequestFramer internal constructor(private val myReceiver: MessageReceiver, private val myLabel: String, private val traceFactory: TraceFactory, private val myIn: ChunkyByteArrayInputStream) : ByteIOFramer {
+    private class HTTPRequestFramer internal constructor(private val myReceiver: MessageReceiver, private val myLabel: String, private val commGorgel: Gorgel, private val myIn: ChunkyByteArrayInputStream) : ByteIOFramer {
 
         /** Stage of HTTP request reading.  */
         private var myHTTPParseStage = HTTP_STAGE_START
@@ -123,9 +123,7 @@ class HTTPRequestByteIOFramerFactory(private val traceFactory: TraceFactory, pri
             var reply: String
             if (message is String) {
                 reply = message
-                if (traceFactory.comm.debug) {
-                    traceFactory.comm.debugm("to=$myLabel writeMessage=${reply.length}")
-                }
+                commGorgel.d?.run { debug("to=$myLabel writeMessage=${reply.length}") }
                 reply = """
                     HTTP/1.1 200 OK
                     Cache-Control: no-cache
@@ -156,9 +154,7 @@ $reply"""
             } else {
                 throw IOException("unwritable message type: ${message.javaClass}")
             }
-            if (traceFactory.comm.debug) {
-                traceFactory.comm.debugm("HTTP sending:\n$reply")
-            }
+            commGorgel.d?.run { debug("HTTP sending:\n$reply") }
             return reply.toByteArray(StandardCharsets.UTF_8)
         }
 

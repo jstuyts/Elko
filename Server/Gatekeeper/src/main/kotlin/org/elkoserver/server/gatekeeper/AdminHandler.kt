@@ -7,7 +7,7 @@ import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Singleton handler for the gatekeeper 'admin' protocol.
@@ -24,7 +24,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param myGatekeeper  The Gatekeeper object for this handler.
  */
-internal class AdminHandler(private val myGatekeeper: Gatekeeper, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal class AdminHandler(private val myGatekeeper: Gatekeeper, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always

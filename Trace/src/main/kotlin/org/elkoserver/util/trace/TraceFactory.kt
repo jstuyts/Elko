@@ -11,11 +11,6 @@ class TraceFactory internal constructor(private val controller: TraceController,
      */
     private val theTraces: ConcurrentMap<String, Trace> = ConcurrentHashMap()
 
-    /** Trace object for the 'comm' (communications) subsystem.  In particular,
-     * message traffic is logged when the trace level of this object is set to
-     * <tt>EVENT</tt> or above.  */
-    val comm = trace("comm")
-
     /**
      * Obtain the Trace object for a given subsystem.  The Trace object will
      * be manufactured if it does not already exist.

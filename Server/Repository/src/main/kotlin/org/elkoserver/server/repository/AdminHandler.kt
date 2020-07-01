@@ -2,7 +2,7 @@ package org.elkoserver.server.repository
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JSONMethod
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Singleton handler for the repository 'admin' protocol.
@@ -14,7 +14,7 @@ import org.elkoserver.util.trace.TraceFactory
  * 'shutdown' - Requests the repository to shut down, with an option to force
  * abrupt termination.
  */
-internal class AdminHandler(private val myRepository: Repository, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal class AdminHandler(private val myRepository: Repository, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always

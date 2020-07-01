@@ -7,7 +7,6 @@ import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDB
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.function.Consumer
@@ -21,14 +20,14 @@ internal class PresenceServer(
         private val graphDescGorgel: Gorgel,
         private val socialGraphGorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
-        traceFactory: TraceFactory,
+        baseCommGorgel: Gorgel,
         jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val domainRegistry: DomainRegistry) {
     /** Database that this server stores stuff in.  */
     internal val objDB: ObjDB
 
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
 
     /**
      * Test if the server is in the midst of shutdown.
@@ -52,7 +51,7 @@ internal class PresenceServer(
     private val myContextMetadata: MutableMap<String, JsonObject>
 
     /** The client object.  */
-    private val clientHandler = ClientHandler(this, traceFactory)
+    private val clientHandler = ClientHandler(this, baseCommGorgel.getChild(ClientHandler::class))
 
     /** The social graphs themselves.  */
     private val mySocialGraphs = HashMap<String, SocialGraph>()
@@ -239,7 +238,7 @@ internal class PresenceServer(
 
     init {
         refTable.addRef(clientHandler)
-        val myAdminHandler = AdminHandler(this, traceFactory)
+        val myAdminHandler = AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class))
         refTable.addRef(myAdminHandler)
         myActors = HashSet()
         myUsers = HashMap()

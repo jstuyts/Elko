@@ -13,7 +13,6 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.HashSetMulti
-import org.elkoserver.util.trace.TraceFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.Random
@@ -30,13 +29,13 @@ internal class Director(
         private val myServer: Server,
         private val gorgel: Gorgel,
         methodInvokerCommGorgel: Gorgel,
-        traceFactory: TraceFactory,
+        baseCommGorgel: Gorgel,
         random: Random,
         private val myEstimatedLoadIncrement: Double,
         private val myProviderLimit: Int,
         jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Table for mapping object references in messages.  */
-    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, traceFactory, jsonToObjectDeserializer)
+    internal val refTable = RefTable(AlwaysBaseTypeResolver, methodInvokerCommGorgel, baseCommGorgel.getChild(RefTable::class), jsonToObjectDeserializer)
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false
@@ -62,7 +61,7 @@ internal class Director(
     private val myAdminHandler: AdminHandler
 
     /** The provider object.  */
-    internal val providerHandler = ProviderHandler(this, traceFactory, random)
+    internal val providerHandler = ProviderHandler(this, baseCommGorgel.getChild(ProviderHandler::class), random)
 
     /** Map of context names to sets of watching admin actors.  */
     private val myWatchedContexts = HashMapMulti<String, DirectorActor>()
@@ -459,8 +458,8 @@ internal class Director(
     init {
         refTable.addRef(providerHandler)
         refTable.addRef("session", providerHandler)
-        refTable.addRef(UserHandler(this, traceFactory, random))
-        myAdminHandler = AdminHandler(this, traceFactory)
+        refTable.addRef(UserHandler(this, baseCommGorgel.getChild(UserHandler::class), random))
+        myAdminHandler = AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class))
         refTable.addRef(myAdminHandler)
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {

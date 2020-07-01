@@ -9,7 +9,7 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.json.JSONLiteralArray
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.Referenceable
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Singleton handler for the broker client protocol.
@@ -31,7 +31,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param myBroker  The broker object for this handler.
  */
-internal class ClientHandler(private val myBroker: Broker, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal class ClientHandler(private val myBroker: Broker, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Notify a waiting client that a service it was waiting for has not been

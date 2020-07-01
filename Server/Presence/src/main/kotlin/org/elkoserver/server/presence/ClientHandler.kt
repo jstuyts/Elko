@@ -4,7 +4,7 @@ import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.json.JsonObject
-import org.elkoserver.util.trace.TraceFactory
+import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Singleton handler for the presence server 'client' protocol.
@@ -16,7 +16,7 @@ import org.elkoserver.util.trace.TraceFactory
  *
  * @param myPresenceServer  The presence server object for this handler.
  */
-internal class ClientHandler(private val myPresenceServer: PresenceServer, traceFactory: TraceFactory) : BasicProtocolHandler(traceFactory) {
+internal class ClientHandler(private val myPresenceServer: PresenceServer, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always
