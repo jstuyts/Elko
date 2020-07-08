@@ -2,7 +2,7 @@ package org.elkoserver.server.context
 
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
@@ -58,9 +58,9 @@ class Contextor internal constructor(
         private val presencerGroupGorgel: Gorgel,
         private val presencerActorGorgel: Gorgel,
         private val reservationGorgel: Gorgel,
-        private val directorActorGorgel: Gorgel,
+        private val directorActorFactory: DirectorActorFactory,
         sessionGorgel: Gorgel,
-        private val methodInvokerCommGorgel: Gorgel,
+        private val messageDispatcher: MessageDispatcher,
         private val timer: Timer,
         baseCommGorgel: Gorgel,
         internal val entryTimeout: Int,
@@ -71,7 +71,6 @@ class Contextor internal constructor(
         private val families: String?,
         sessionPassword: String?,
         private val props: ElkoProperties,
-        private val jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val mustSendDebugReplies: Boolean,
         private val connectionRetrierFactory: ConnectionRetrierFactory) {
 
@@ -978,14 +977,12 @@ class Contextor internal constructor(
                 directors,
                 listeners,
                 directorGroupGorgel,
-                methodInvokerCommGorgel,
+                messageDispatcher,
                 reservationGorgel,
-                directorActorGorgel,
+                directorActorFactory,
                 timer,
                 reservationTimeout,
                 props,
-                jsonToObjectDeserializer,
-                mustSendDebugReplies,
                 connectionRetrierFactory)
         if (group.isLive) {
             myDirectorGroup = group
@@ -1004,10 +1001,9 @@ class Contextor internal constructor(
                 this,
                 presencers,
                 presencerGroupGorgel,
-                methodInvokerCommGorgel,
+                messageDispatcher,
                 timer,
                 props,
-                jsonToObjectDeserializer,
                 presencerActorGorgel,
                 mustSendDebugReplies,
                 connectionRetrierFactory)

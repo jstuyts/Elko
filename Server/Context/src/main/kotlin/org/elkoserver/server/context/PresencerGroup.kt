@@ -1,7 +1,6 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.Actor
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
@@ -27,10 +26,9 @@ internal class PresencerGroup(
         contextor: Contextor,
         presencers: MutableList<HostDesc>,
         gorgel: Gorgel,
-        methodInvokerCommGorgel: Gorgel,
+        messageDispatcher: MessageDispatcher,
         timer: Timer,
         props: ElkoProperties,
-        jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val presencerActorGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean,
         connectionRetrierFactory: ConnectionRetrierFactory)
@@ -40,10 +38,9 @@ internal class PresencerGroup(
         contextor,
         presencers,
         gorgel,
-        methodInvokerCommGorgel,
+        messageDispatcher,
         timer,
         props,
-        jsonToObjectDeserializer,
         connectionRetrierFactory) {
     /* ----- required OutboundGroup methods ----- */
     /**

@@ -61,6 +61,7 @@ import org.elkoserver.objdb.GetRequestFactory
 import org.elkoserver.objdb.ODBActor
 import org.elkoserver.objdb.ObjDBLocal
 import org.elkoserver.objdb.ObjDBLocalFactory
+import org.elkoserver.objdb.ObjDBLocalRunnerFactory
 import org.elkoserver.objdb.ObjDBRemote
 import org.elkoserver.objdb.ObjDBRemoteFactory
 import org.elkoserver.objdb.PutRequestFactory
@@ -177,11 +178,13 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
     }
             .dispose { it.shutDown() }
 
+    val objDBLocalRunnerFactory by Once { ObjDBLocalRunnerFactory(req(runnerGorgel)) }
+
     val objDBLocalFactory by Once {
         ObjDBLocalFactory(
                 req(provided.props()),
                 req(objDbLocalGorgel),
-                req(runnerGorgel),
+                req(objDBLocalRunnerFactory),
                 req(provided.baseGorgel()),
                 req(jsonToObjectDeserializer),
                 req(runner))

@@ -1,8 +1,6 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.Actor
-import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandler
@@ -33,19 +31,15 @@ abstract class OutboundGroup(propRoot: String,
                              internal val contextor: Contextor,
                              hosts: MutableList<HostDesc>,
                              gorgel: Gorgel,
-                             methodInvokerCommGorgel: Gorgel,
+                             private val myDispatcher: MessageDispatcher,
                              protected val timer: Timer,
                              props: ElkoProperties,
-                             jsonToObjectDeserializer: JsonToObjectDeserializer,
                              private val connectionRetrierFactory: ConnectionRetrierFactory) : LiveGroup() {
     /** The statically configured external servers in this group.  */
     private val myHosts: List<HostDesc>
 
     /** Flag that the external servers should be located via the broker.  */
     private val amAutoRegister: Boolean
-
-    /** Message dispatcher for incoming messages on these connections.  */
-    private val myDispatcher: MessageDispatcher
 
     /** How often to retry connections, in seconds, or -1 for the default.  */
     private val myRetryInterval: Int
@@ -158,21 +152,14 @@ abstract class OutboundGroup(propRoot: String,
                 connectHosts()
             }
         })
-        myHosts = hosts
-        // The type resolver used to be "null". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
-        myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, methodInvokerCommGorgel, jsonToObjectDeserializer)
+
+        hosts.filter { it.protocol != "tcp" }.forEach { gorgel.error("unknown $propRoot server access protocol '${it.protocol}' for access to ${it.hostPort} (configuration ignored)") }
+        myHosts = hosts.filter { it.protocol == "tcp" }
+
         @Suppress("LeakingThis")
         myDispatcher.addClass(actorClass())
+
         amAutoRegister = props.testProperty("$propRoot.auto")
         myRetryInterval = props.intProperty("$propRoot.retry", -1)
-        val iter = hosts.iterator()
-        while (iter.hasNext()) {
-            val host = iter.next()
-            if (host.protocol != "tcp") {
-                // FIXME: Do not modify constructor parameters. Pass the correct value instead. Validate if needed
-                iter.remove()
-                gorgel.error("unknown $propRoot server access protocol '${host.protocol}' for access to ${host.hostPort} (configuration ignored)")
-            }
-        }
     }
 }

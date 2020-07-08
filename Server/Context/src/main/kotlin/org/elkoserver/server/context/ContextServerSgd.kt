@@ -11,11 +11,13 @@ import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactor
 import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.BaseCommGorgelInjector
 import org.elkoserver.foundation.json.ClassspecificGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.Listener
@@ -61,6 +63,7 @@ import org.elkoserver.objdb.GetRequestFactory
 import org.elkoserver.objdb.ODBActor
 import org.elkoserver.objdb.ObjDBLocal
 import org.elkoserver.objdb.ObjDBLocalFactory
+import org.elkoserver.objdb.ObjDBLocalRunnerFactory
 import org.elkoserver.objdb.ObjDBRemote
 import org.elkoserver.objdb.ObjDBRemoteFactory
 import org.elkoserver.objdb.PutRequestFactory
@@ -230,11 +233,13 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     }
             .dispose { it.shutDown() }
 
+    val objDBLocalRunnerFactory by Once { ObjDBLocalRunnerFactory(req(runnerGorgel)) }
+
     val objDBLocalFactory by Once {
         ObjDBLocalFactory(
                 req(provided.props()),
                 req(objDbLocalGorgel),
-                req(runnerGorgel),
+                req(objDBLocalRunnerFactory),
                 req(provided.baseGorgel()),
                 req(jsonToObjectDeserializer),
                 req(runner))
@@ -487,6 +492,13 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val refTable by Once { RefTable(req(objectDatabase), req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer))  }
 
+    val messageDispatcher by Once {
+        // The type resolver used to be "null". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
+        MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
+    }
+
+    val directorActorFactory by Once { DirectorActorFactory(req(reservationGorgel), req(directorActorGorgel), req(provided.timer()), req(mustSendDebugReplies)) }
+
     val contextor by Once {
         Contextor(
                 req(objectDatabase),
@@ -500,9 +512,9 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(presencerGroupGorgel),
                 req(presencerActorGorgel),
                 req(reservationGorgel),
-                req(directorActorGorgel),
+                req(directorActorFactory),
                 req(sessionClientGorgel),
-                req(methodInvokerCommGorgel),
+                req(messageDispatcher),
                 req(provided.timer()),
                 req(baseCommGorgel),
                 req(contextorEntryTimeout),
@@ -513,7 +525,6 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 opt(families),
                 opt(sessionPassword),
                 req(provided.props()),
-                req(jsonToObjectDeserializer),
                 req(mustSendDebugReplies),
                 req(connectionRetrierFactory))
     }

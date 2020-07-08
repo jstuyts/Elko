@@ -2,7 +2,6 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
@@ -25,31 +24,27 @@ import java.util.ConcurrentModificationException
  *    whom to register.
  * @param listeners  List of HostDesc objects describing active
  *    listeners to register with the indicated directors.
- * @param tr  Trace object for diagnostics.
  */
 class DirectorGroup(server: Server,
                     contextor: Contextor,
                     directors: MutableList<HostDesc>,
                     internal val listeners: List<HostDesc>,
                     gorgel: Gorgel,
-                    methodInvokerCommGorgel: Gorgel,
+                    messageDispatcher: MessageDispatcher,
                     private val reservationGorgel: Gorgel,
-                    private val directorActorGorgel: Gorgel,
+                    private val directorActorFactory: DirectorActorFactory,
                     timer: Timer,
                     internal val reservationTimeout: Int,
                     props: ElkoProperties,
-                    jsonToObjectDeserializer: JsonToObjectDeserializer,
-                    private val mustSendDebugReplies: Boolean,
                     connectionRetrierFactory: ConnectionRetrierFactory) : OutboundGroup(
         "conf.register",
         server,
         contextor,
         directors,
         gorgel,
-        methodInvokerCommGorgel,
+        messageDispatcher,
         timer,
         props,
-        jsonToObjectDeserializer,
         connectionRetrierFactory) {
 
     /** Iterator for cycling through arbitrary relays.  */
@@ -87,7 +82,7 @@ class DirectorGroup(server: Server,
      * @return a new Actor object for use on this new connection
      */
     override fun provideActor(connection: Connection, dispatcher: MessageDispatcher, host: HostDesc): Actor {
-        val director = DirectorActor(connection, dispatcher, this, host, timer, reservationGorgel, directorActorGorgel, mustSendDebugReplies)
+        val director = directorActorFactory.create(connection, dispatcher, this, host)
         updateDirector(director)
         return director
     }
