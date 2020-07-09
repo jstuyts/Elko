@@ -3,7 +3,6 @@ package org.elkoserver.server.director
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.ServiceFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.ordinalgeneration.OrdinalGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -18,9 +17,9 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 internal class DirectorServiceFactory(
         private val director: Director,
         private val directorActorGorgel: Gorgel,
-        private val directorActorCommGorgel: Gorgel,
         private val providerGorgel: Gorgel,
-        private val ordinalGenerator: OrdinalGenerator,
+        private val adminFactory: AdminFactory,
+        private val providerFactory: ProviderFactory,
         private val mustSendDebugReplies: Boolean) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
@@ -53,6 +52,6 @@ internal class DirectorServiceFactory(
         if (allowUser) {
             serviceNames.add("director-user")
         }
-        return DirectorActorFactory(director, auth, allowAdmin, allowProvider, allowUser, directorActorGorgel, providerGorgel, directorActorCommGorgel, ordinalGenerator, mustSendDebugReplies)
+        return DirectorActorFactory(director, auth, allowAdmin, allowProvider, allowUser, directorActorGorgel, providerGorgel, adminFactory, providerFactory, mustSendDebugReplies)
     }
 }

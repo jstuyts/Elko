@@ -6,7 +6,6 @@ import org.elkoserver.foundation.actor.RoutingActor
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.ordinalgeneration.OrdinalGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -22,9 +21,9 @@ internal class DirectorActor(
         connection: Connection,
         private val myFactory: DirectorActorFactory,
         private val gorgel: Gorgel,
-        private val providerGorgel: Gorgel,
         commGorgel: Gorgel,
-        private val ordinalGenerator: OrdinalGenerator,
+        private val adminFactory: AdminFactory,
+        private val providerFactory: ProviderFactory,
         mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), commGorgel, mustSendDebugReplies), BasicProtocolActor {
     private val myDirector = myFactory.director
 
@@ -66,7 +65,7 @@ internal class DirectorActor(
         if (myFactory.verifyAuthorization(auth)) {
             if (handler is AdminHandler) {
                 if (admin == null && myFactory.allowAdmin) {
-                    admin = Admin(myDirector, this)
+                    admin = adminFactory.create(this)
                     success = true
                 } else {
                     gorgel.warn("auth failed: admin access not allowed")
@@ -74,7 +73,7 @@ internal class DirectorActor(
             } else if (handler is ProviderHandler) {
                 if (provider == null && myFactory.allowProvider() &&
                         !myDirector.isFull) {
-                    provider = Provider(myDirector, this, providerGorgel, ordinalGenerator)
+                    provider = providerFactory.create(this)
                     success = true
                 } else {
                     gorgel.warn("auth failed: provider access not allowed")

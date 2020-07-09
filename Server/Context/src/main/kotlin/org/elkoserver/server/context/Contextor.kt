@@ -57,7 +57,7 @@ class Contextor internal constructor(
         private val directorGroupGorgel: Gorgel,
         private val presencerGroupGorgel: Gorgel,
         private val presencerActorGorgel: Gorgel,
-        private val reservationGorgel: Gorgel,
+        private val reservationFactory: ReservationFactory,
         private val directorActorFactory: DirectorActorFactory,
         sessionGorgel: Gorgel,
         private val messageDispatcher: MessageDispatcher,
@@ -67,7 +67,6 @@ class Contextor internal constructor(
         internal val limit: Int,
         private val myRandom: Random,
         staticsToLoad: String?,
-        private val reservationTimeout: Int,
         private val families: String?,
         sessionPassword: String?,
         private val props: ElkoProperties,
@@ -978,10 +977,9 @@ class Contextor internal constructor(
                 listeners,
                 directorGroupGorgel,
                 messageDispatcher,
-                reservationGorgel,
+                reservationFactory,
                 directorActorFactory,
                 timer,
-                reservationTimeout,
                 props,
                 connectionRetrierFactory)
         if (group.isLive) {

@@ -31,10 +31,9 @@ class DirectorGroup(server: Server,
                     internal val listeners: List<HostDesc>,
                     gorgel: Gorgel,
                     messageDispatcher: MessageDispatcher,
-                    private val reservationGorgel: Gorgel,
+                    private val reservationFactory: ReservationFactory,
                     private val directorActorFactory: DirectorActorFactory,
                     timer: Timer,
-                    internal val reservationTimeout: Int,
                     props: ElkoProperties,
                     connectionRetrierFactory: ConnectionRetrierFactory) : OutboundGroup(
         "conf.register",
@@ -123,7 +122,7 @@ class DirectorGroup(server: Server,
      * @return the requested reservation if there is one, or null if not.
      */
     fun lookupReservation(who: String?, where: String, authCode: String): Reservation? {
-        val key = Reservation(who, where, authCode, reservationGorgel)
+        val key = reservationFactory.create(who, where, authCode)
         return myReservations[key]
     }
 

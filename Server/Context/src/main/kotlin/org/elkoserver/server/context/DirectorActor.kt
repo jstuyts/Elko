@@ -32,8 +32,8 @@ class DirectorActor(
         dispatcher: MessageDispatcher,
         private val myGroup: DirectorGroup,
         host: HostDesc,
+        private val reservationFactory: ReservationFactory,
         private val timer: Timer,
-        private val reservationGorgel: Gorgel,
         gorgel: Gorgel,
         mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
@@ -221,8 +221,8 @@ class DirectorActor(
      */
     @JSONMethod("context", "user", "reservation")
     fun doreserve(from: DirectorActor, context: String, user: OptString, reservation: String) {
-        myGroup.addReservation(Reservation(user.value<String?>(null), context,
-                reservation, myGroup.reservationTimeout, from, timer, reservationGorgel))
+        myGroup.addReservation(reservationFactory.create(user.value<String?>(null), context,
+                reservation, from))
     }
 
     /**

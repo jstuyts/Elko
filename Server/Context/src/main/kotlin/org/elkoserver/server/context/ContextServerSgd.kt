@@ -497,7 +497,11 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
         MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
     }
 
-    val directorActorFactory by Once { DirectorActorFactory(req(reservationGorgel), req(directorActorGorgel), req(provided.timer()), req(mustSendDebugReplies)) }
+    val reservationFactory by Once {
+        ReservationFactory(req(reservationGorgel), req(reservationTimeout), req(provided.timer()))
+    }
+
+    val directorActorFactory by Once { DirectorActorFactory(req(directorActorGorgel), req(reservationFactory), req(provided.timer()), req(mustSendDebugReplies)) }
 
     val contextor by Once {
         Contextor(
@@ -511,7 +515,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(directorGroupGorgel),
                 req(presencerGroupGorgel),
                 req(presencerActorGorgel),
-                req(reservationGorgel),
+                req(reservationFactory),
                 req(directorActorFactory),
                 req(sessionClientGorgel),
                 req(messageDispatcher),
@@ -521,7 +525,6 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(contextorLimit),
                 req(contextorRandom),
                 opt(staticsToLoad),
-                req(reservationTimeout),
                 opt(families),
                 opt(sessionPassword),
                 req(provided.props()),

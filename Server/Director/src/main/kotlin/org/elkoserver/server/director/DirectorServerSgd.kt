@@ -446,13 +446,17 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val random by Once { SecureRandom() }
 
+    val adminFactory by Once { AdminFactory(req(director)) }
+
+    val providerFactory by Once { ProviderFactory(req(director), req(providerGorgel), req(ordinalGenerator)) }
+
     val directorServiceFactory by Once {
         DirectorServiceFactory(
                 req(director),
                 req(directorActorGorgel),
                 req(directorActorCommGorgel),
-                req(providerGorgel),
-                req(ordinalGenerator),
+                req(adminFactory),
+                req(providerFactory),
                 req(mustSendDebugReplies))
     }
 

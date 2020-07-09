@@ -3,7 +3,6 @@ package org.elkoserver.server.director
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.ordinalgeneration.OrdinalGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -24,8 +23,8 @@ internal class DirectorActorFactory(
         internal val allowUser: Boolean,
         private val directorActorGorgel: Gorgel,
         private val providerGorgel: Gorgel,
-        private val directorActorCommGorgel: Gorgel,
-        private val ordinalGenerator: OrdinalGenerator,
+        private val adminFactory: AdminFactory,
+        private val providerFactory: ProviderFactory,
         private val mustSendDebugReplies: Boolean) : MessageHandlerFactory {
 
     /**
@@ -41,7 +40,7 @@ internal class DirectorActorFactory(
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            DirectorActor(connection!!, this, directorActorGorgel, providerGorgel, directorActorCommGorgel, ordinalGenerator, mustSendDebugReplies)
+            DirectorActor(connection!!, this, directorActorGorgel, providerGorgel, adminFactory, providerFactory, mustSendDebugReplies)
 
     /**
      * Get this factory's ref table.

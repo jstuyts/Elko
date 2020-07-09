@@ -17,6 +17,7 @@ import org.elkoserver.foundation.json.ClassspecificGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.json.RandomInjector
 import org.elkoserver.foundation.net.BaseConnectionSetup
@@ -455,6 +456,10 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
     // The type resolver used to be "null". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
     val refTable by Once { RefTable(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer))  }
 
+    val messageDispatcher by Once {
+        // The type resolver used to be "null". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
+        MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
+    }
     val gatekeeper: D<Gatekeeper> by Once {
         Gatekeeper(
                 req(server),
@@ -462,11 +467,10 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(gatekeeperGorgel),
                 req(directorActorFactoryGorgel),
                 req(directorActorGorgel),
-                req(methodInvokerCommGorgel),
                 req(baseCommGorgel),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(provided.props()),
-                req(jsonToObjectDeserializer),
+                req(messageDispatcher),
                 req(mustSendDebugReplies),
                 req(connectionRetrierFactory))
     }

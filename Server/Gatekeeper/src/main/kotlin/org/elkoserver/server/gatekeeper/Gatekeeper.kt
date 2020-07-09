@@ -2,7 +2,7 @@ package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.actor.BasicProtocolActor
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -25,11 +25,10 @@ class Gatekeeper internal constructor(
         private val gorgel: Gorgel,
         directorActorFactoryGorgel: Gorgel,
         directorActorGorgel: Gorgel,
-        methodInvokerCommGorgel: Gorgel,
         baseCommGorgel: Gorgel,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         props: ElkoProperties,
-        jsonToObjectDeserializer: JsonToObjectDeserializer,
+        messageDispatcher: MessageDispatcher,
         mustSendDebugReplies: Boolean,
         connectionRetrierFactory: ConnectionRetrierFactory) {
 
@@ -132,8 +131,7 @@ class Gatekeeper internal constructor(
                 this,
                 directorActorFactoryGorgel,
                 directorActorGorgel,
-                methodInvokerCommGorgel,
-                jsonToObjectDeserializer,
+                messageDispatcher,
                 mustSendDebugReplies,
                 connectionRetrierFactory)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
