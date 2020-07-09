@@ -1,10 +1,10 @@
 package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.boot.Bootable
+import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.util.trace.slf4j.Gorgel
-import org.elkoserver.util.trace.slf4j.Tag
 import org.ooverkommelig.ConstantDefinition
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.ObjectGraphLogger
@@ -29,7 +29,7 @@ class GatekeeperBoot : Bootable {
         gatekeeperServerGraph = GatekeeperServerOgd(object : GatekeeperServerOgd.Provided, ProvidedAdministration() {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
-            override fun baseCommGorgel() = ConstantDefinition(gorgel.withAdditionalStaticTags(Tag("category", "comm")))
+            override fun baseCommGorgel() = ConstantDefinition(gorgel.withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG))
             override fun props() = ConstantDefinition(props)
             override fun externalShutdownWatcher() = ConstantDefinition(graphClosingShutdownWatcher)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {

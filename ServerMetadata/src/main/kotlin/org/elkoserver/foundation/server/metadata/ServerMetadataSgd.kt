@@ -2,9 +2,9 @@
 
 package org.elkoserver.foundation.server.metadata
 
+import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.util.trace.slf4j.Gorgel
-import org.elkoserver.util.trace.slf4j.Tag
 import org.ooverkommelig.D
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.Once
@@ -18,7 +18,7 @@ class ServerMetadataSgd(provided: Provided, configuration: ObjectGraphConfigurat
         fun baseGorgel(): D<Gorgel>
     }
 
-    val authDescFromPropertiesFactoryGorgel by Once { req(provided.baseGorgel()).getChild(AuthDescFromPropertiesFactory::class, Tag("category", "comm")) }
+    val authDescFromPropertiesFactoryGorgel by Once { req(provided.baseGorgel()).getChild(AuthDescFromPropertiesFactory::class, COMMUNICATION_CATEGORY_TAG) }
 
     val authDescFromPropertiesFactory by Once { AuthDescFromPropertiesFactory(req(provided.props()), req(authDescFromPropertiesFactoryGorgel)) }
 

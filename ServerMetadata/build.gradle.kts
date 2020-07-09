@@ -20,6 +20,7 @@ dependencies {
     api(Libraries.nanojson)
     api(Libraries.ooverkommelig)
 
+    implementation(project(":Communication"))
     implementation(kotlin("stdlib-jdk8"))
 }
 

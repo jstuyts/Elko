@@ -21,6 +21,7 @@ import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageDispatcherFactory
 import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.net.BaseConnectionSetup
+import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.foundation.net.Listener
 import org.elkoserver.foundation.net.ListenerFactory
 import org.elkoserver.foundation.net.SelectThread
@@ -97,7 +98,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class) }
 
-    val brokerActorGorgel by Once { req(provided.baseGorgel()).getChild(BrokerActor::class, Tag("category", "comm")) }
+    val brokerActorGorgel by Once { req(provided.baseGorgel()).getChild(BrokerActor::class, COMMUNICATION_CATEGORY_TAG) }
 
     val connectionRetrierWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(ConnectionRetrier::class) }
 
@@ -107,18 +108,18 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val directorGroupGorgel by Once { req(provided.baseGorgel()).getChild(DirectorGroup::class) }
 
-    val directorActorGorgel by Once { req(provided.baseGorgel()).getChild(DirectorActor::class, Tag("category", "comm")) }
+    val directorActorGorgel by Once { req(provided.baseGorgel()).getChild(DirectorActor::class, COMMUNICATION_CATEGORY_TAG) }
 
     val internalActorGorgel by Once { req(provided.baseGorgel()).getChild(InternalActor::class) }
 
-    val internalActorCommGorgel by Once { req(internalActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
+    val internalActorCommGorgel by Once { req(internalActorGorgel).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
 
-    val jsonHttpFramerCommGorgel by Once { req(provided.baseGorgel()).getChild(JSONHTTPFramer::class).withAdditionalStaticTags(Tag("category", "comm")) }
+    val jsonHttpFramerCommGorgel by Once { req(provided.baseGorgel()).getChild(JSONHTTPFramer::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
     val tcpConnectionGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class) }
     val jsonByteIoFramerWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(JSONByteIOFramer::class) }
     val websocketFramerGorgel by Once { req(provided.baseGorgel()).getChild(WebsocketByteIOFramerFactory.WebsocketFramer::class) }
-    val methodInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(MethodInvoker::class).withAdditionalStaticTags(Tag("category", "comm")) }
-    val constructorInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(ConstructorInvoker::class).withAdditionalStaticTags(Tag("category", "comm")) }
+    val methodInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(MethodInvoker::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
+    val constructorInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(ConstructorInvoker::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
 
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
@@ -128,9 +129,9 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBRemote::class) }
 
-    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ODBActor::class, Tag("category", "comm")) }
+    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ODBActor::class, COMMUNICATION_CATEGORY_TAG) }
 
-    val presencerActorGorgel by Once { req(provided.baseGorgel()).getChild(PresencerActor::class, Tag("category", "comm")) }
+    val presencerActorGorgel by Once { req(provided.baseGorgel()).getChild(PresencerActor::class, COMMUNICATION_CATEGORY_TAG) }
 
     val presencerGroupGorgel by Once { req(provided.baseGorgel()).getChild(PresencerGroup::class) }
 
@@ -144,7 +145,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
 
-    val serviceActorCommGorgel by Once { req(serviceActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
+    val serviceActorCommGorgel by Once { req(serviceActorGorgel).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
 
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
@@ -154,7 +155,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val userActorGorgel by Once { req(provided.baseGorgel()).getChild(UserActor::class) }
 
-    val userActorCommGorgel by Once { req(userActorGorgel).withAdditionalStaticTags(Tag("category", "comm")) }
+    val userActorCommGorgel by Once { req(userActorGorgel).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
 
     val contextGorgelWithoutRef by Once { req(provided.baseGorgel()).getChild(Context::class) }
 
@@ -162,17 +163,17 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val userGorgelWithoutRef by Once { req(provided.baseGorgel()).getChild(User::class) }
 
-    val httpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPSessionConnection::class, Tag("category", "comm")) }
+    val httpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
     val rtcpSessionConnectionGorgel by Once { req(provided.baseGorgel()).getChild(RTCPSessionConnection::class) }
-    val rtcpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPSessionConnection::class, Tag("category", "comm")) }
-    val rtcpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandler::class, Tag("category", "comm")) }
+    val rtcpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
+    val rtcpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandler::class, COMMUNICATION_CATEGORY_TAG) }
     val rtcpMessageHandlerFactoryGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandlerFactory::class) }
-    val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class, Tag("category", "comm")) }
-    val baseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(Tag("category", "comm")) }
-    val zeromqThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(ZeroMQThread::class, Tag("category", "comm")) }
+    val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class, COMMUNICATION_CATEGORY_TAG) }
+    val baseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
+    val zeromqThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(ZeroMQThread::class, COMMUNICATION_CATEGORY_TAG) }
 
-    val httpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandler::class, Tag("category", "comm")) }
-    val httpMessageHandlerFactoryCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandlerFactory::class, Tag("category", "comm")) }
+    val httpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandler::class, COMMUNICATION_CATEGORY_TAG) }
+    val httpMessageHandlerFactoryCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandlerFactory::class, COMMUNICATION_CATEGORY_TAG) }
 
     val contextServiceFactory by Once {
         ContextServiceFactory(
@@ -200,13 +201,13 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val idGenerator by Once { LongIdGenerator(1L) }
 
-    val inputGorgel by Once { req(provided.baseGorgel()).getChild(ChunkyByteArrayInputStream::class, Tag("category", "comm")) }
+    val inputGorgel by Once { req(provided.baseGorgel()).getChild(ChunkyByteArrayInputStream::class, COMMUNICATION_CATEGORY_TAG) }
 
     val sslSetupGorgel by Once { req(provided.baseGorgel()).getChild(SslSetup::class) }
 
     val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
 
-    val selectThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(SelectThread::class, Tag("category", "comm")) }
+    val selectThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(SelectThread::class, COMMUNICATION_CATEGORY_TAG) }
 
     val sslContext by Once {
         if (req(provided.props()).testProperty("conf.ssl.enable"))

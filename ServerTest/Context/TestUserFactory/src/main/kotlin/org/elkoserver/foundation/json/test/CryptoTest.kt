@@ -5,11 +5,11 @@ import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.Cryptor
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.util.trace.slf4j.GorgelImpl
-import org.elkoserver.util.trace.slf4j.Tag
 import org.slf4j.Logger.ROOT_LOGGER_NAME
 import org.slf4j.LoggerFactory
 import org.slf4j.MarkerFactory
@@ -84,10 +84,10 @@ internal object CryptoTest {
                         MarkerFactory.getIMarkerFactory()),
                 GorgelImpl(LoggerFactory.getLogger(ConstructorInvoker::class.java),
                         LoggerFactory.getILoggerFactory(),
-                        MarkerFactory.getIMarkerFactory(), Tag("category", "comm")),
+                        MarkerFactory.getIMarkerFactory(), COMMUNICATION_CATEGORY_TAG),
                 listOf(
                         ClockInjector(clock),
-                        BaseCommGorgelInjector(GorgelImpl(LoggerFactory.getLogger(ROOT_LOGGER_NAME), LoggerFactory.getILoggerFactory(), MarkerFactory.getIMarkerFactory(), Tag("category", "comm")))))
+                        BaseCommGorgelInjector(GorgelImpl(LoggerFactory.getLogger(ROOT_LOGGER_NAME), LoggerFactory.getILoggerFactory(), MarkerFactory.getIMarkerFactory(), COMMUNICATION_CATEGORY_TAG))))
         val cryptor = Cryptor(keyStr, cryptorGorgel, jsonToObjectDeserializer)
         if (cypherText != null) {
             try {

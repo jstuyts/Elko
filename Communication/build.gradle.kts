@@ -11,6 +11,8 @@ repositories {
 }
 
 dependencies {
+    api(project(":Trace"))
+
     implementation(kotlin("stdlib-jdk8"))
 }
 

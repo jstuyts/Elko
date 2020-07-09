@@ -1,10 +1,10 @@
 package org.elkoserver.server.context
 
+import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.slf4j.Gorgel
-import org.elkoserver.util.trace.slf4j.Tag
 
 /**
  * Object that tracks reservations issued by directors but not yet redeemed by
@@ -19,7 +19,7 @@ class Reservation(
         private val myAuthCode: String?,
         myGorgel: Gorgel) : TimeoutNoticer {
 
-    private val communicationsGorgel = myGorgel.withAdditionalStaticTags(Tag("category", "comm"))
+    private val communicationsGorgel = myGorgel.withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG)
 
     /** The director that issued this reservation.  */
     internal var issuer: DirectorActor? = null

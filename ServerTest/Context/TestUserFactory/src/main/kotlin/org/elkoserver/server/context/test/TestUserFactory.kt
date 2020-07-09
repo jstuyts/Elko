@@ -10,6 +10,7 @@ import org.elkoserver.foundation.json.Cryptor
 import org.elkoserver.foundation.json.JSONMethod
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.PostInjectionInitializingObject
+import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JSONDecodingException
 import org.elkoserver.json.JsonObject
@@ -18,7 +19,6 @@ import org.elkoserver.server.context.EphemeralUserFactory
 import org.elkoserver.server.context.User
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.GorgelImpl
-import org.elkoserver.util.trace.slf4j.Tag
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.slf4j.MarkerFactory
@@ -106,10 +106,10 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                         MarkerFactory.getIMarkerFactory()),
                 GorgelImpl(LoggerFactory.getLogger(ConstructorInvoker::class.java),
                         LoggerFactory.getILoggerFactory(),
-                        MarkerFactory.getIMarkerFactory(), Tag("category", "comm")),
+                        MarkerFactory.getIMarkerFactory(), COMMUNICATION_CATEGORY_TAG),
                 listOf(
                         ClockInjector(clock),
-                        BaseCommGorgelInjector(GorgelImpl(LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME), LoggerFactory.getILoggerFactory(), MarkerFactory.getIMarkerFactory(), Tag("category", "comm")))))
+                        BaseCommGorgelInjector(GorgelImpl(LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME), LoggerFactory.getILoggerFactory(), MarkerFactory.getIMarkerFactory(), COMMUNICATION_CATEGORY_TAG))))
         myCryptor = Cryptor(key, GorgelImpl(LoggerFactory.getLogger(Cryptor::class.java),
                 LoggerFactory.getILoggerFactory(),
                 MarkerFactory.getIMarkerFactory()), jsonToObjectDeserializer)
