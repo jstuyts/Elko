@@ -17,6 +17,8 @@ import org.elkoserver.foundation.json.ClassspecificGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.MessageDispatcher
+import org.elkoserver.foundation.json.MessageDispatcherFactory
 import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.Listener
@@ -320,6 +322,10 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 "zmq" to req(zeromqConnectionSetupFactory))
     }
 
+    val messageDispatcher by Once {
+        MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
+    }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -329,12 +335,11 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
                 req(brokerActorGorgel),
-                req(methodInvokerCommGorgel),
+                req(messageDispatcher),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
-                req(jsonToObjectDeserializer),
                 req(runner),
                 req(objDBRemoteFactory),
                 req(mustSendDebugReplies),
@@ -394,12 +399,14 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
+    val messageDispatcherFactory by Once { MessageDispatcherFactory(req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
+
     val objDBRemoteFactory by Once {
         ObjDBRemoteFactory(
                 req(provided.props()),
                 req(objDbRemoteGorgel),
-                req(methodInvokerCommGorgel),
                 req(odbActorGorgel),
+                req(messageDispatcherFactory),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(jsonToObjectDeserializer),
                 req(getRequestFactory),
@@ -423,7 +430,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val requestTagGenerator by Once { LongIdGenerator(1L) }
 
-    val refTable by Once { RefTable(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer))  }
+    val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class))  }
 
     val repository: D<Repository> by Once { Repository(req(server), req(refTable), req(baseCommGorgel), req(objectStore)) }
 

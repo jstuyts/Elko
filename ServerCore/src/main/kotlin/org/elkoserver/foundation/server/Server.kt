@@ -1,8 +1,6 @@
 package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionSetupFactory
@@ -48,12 +46,11 @@ class Server(
         private val serviceActorGorgel: Gorgel,
         private val serviceActorCommGorgel: Gorgel,
         private val brokerActorGorgel: Gorgel,
-        methodInvokerCommGorgel: Gorgel,
+        private val myDispatcher: MessageDispatcher,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         private val myTagGenerator: IdGenerator,
         private val myLoadMonitor: ServerLoadMonitor,
-        jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val runner: Runner,
         private val objDBRemoteFactory: ObjDBRemoteFactory,
         private val mustSendDebugReplies: Boolean,
@@ -79,9 +76,6 @@ class Server(
 
     /** Host description for connection to broker, if there is one.  */
     private val myBrokerHost: HostDesc? = hostDescFromPropertiesFactory.fromProperties("conf.broker")
-
-    /** Message dispatcher for broker connections.  */
-    private val myDispatcher = MessageDispatcher(AlwaysBaseTypeResolver, methodInvokerCommGorgel, jsonToObjectDeserializer)
 
     /** Table of 'find' requests that have been issued to the broker, for which
      * responses are still pending.  Indexed by the service name queried.  */

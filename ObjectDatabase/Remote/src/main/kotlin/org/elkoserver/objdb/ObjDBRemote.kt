@@ -1,7 +1,7 @@
 package org.elkoserver.objdb
 
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
-import org.elkoserver.foundation.json.MessageDispatcher
+import org.elkoserver.foundation.json.MessageDispatcherFactory
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
@@ -59,8 +59,8 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
                   props: ElkoProperties,
                   propRoot: String,
                   gorgel: Gorgel,
-                  methodInvokerCommGorgel: Gorgel,
                   private val odbActorGorgel: Gorgel,
+                  messageDispatcherFactory: MessageDispatcherFactory,
                   hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
                   jsonToObjectDeserializer: JsonToObjectDeserializer,
                   private val getRequestFactory: GetRequestFactory,
@@ -88,7 +88,7 @@ class ObjDBRemote(serviceFinder: ServiceFinder,
     private var myRepHost: HostDesc? = null
 
     /** Message dispatcher for repository connections.  */
-    private val myDispatcher = MessageDispatcher(this, methodInvokerCommGorgel, jsonToObjectDeserializer).apply {
+    private val myDispatcher = messageDispatcherFactory.create(this).apply {
         addClass(ODBActor::class.java)
     }
 

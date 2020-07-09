@@ -18,6 +18,7 @@ import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
+import org.elkoserver.foundation.json.MessageDispatcherFactory
 import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.json.RandomInjector
 import org.elkoserver.foundation.net.BaseConnectionSetup
@@ -340,12 +341,11 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
                 req(brokerActorGorgel),
-                req(methodInvokerCommGorgel),
+                req(messageDispatcher),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
-                req(jsonToObjectDeserializer),
                 req(runner),
                 req(objDBRemoteFactory),
                 req(mustSendDebugReplies),
@@ -424,12 +424,14 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
+    val messageDispatcherFactory by Once { MessageDispatcherFactory(req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
+
     val objDBRemoteFactory by Once {
         ObjDBRemoteFactory(
                 req(provided.props()),
                 req(objDbRemoteGorgel),
-                req(methodInvokerCommGorgel),
                 req(odbActorGorgel),
+                req(messageDispatcherFactory),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(jsonToObjectDeserializer),
                 req(getRequestFactory),
@@ -453,13 +455,13 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val requestTagGenerator by Once { LongIdGenerator(1L) }
 
-    // The type resolver used to be "null". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
-    val refTable by Once { RefTable(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer))  }
+    val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class))  }
 
     val messageDispatcher by Once {
-        // The type resolver used to be "null". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
+        // The type resolver used to be "null" for "Gatekeeper" and "RefTable". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
         MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
     }
+
     val gatekeeper: D<Gatekeeper> by Once {
         Gatekeeper(
                 req(server),

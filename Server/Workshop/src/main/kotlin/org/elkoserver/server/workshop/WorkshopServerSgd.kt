@@ -11,11 +11,14 @@ import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactor
 import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.BaseCommGorgelInjector
 import org.elkoserver.foundation.json.ClassspecificGorgelInjector
 import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.MessageDispatcher
+import org.elkoserver.foundation.json.MessageDispatcherFactory
 import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.Listener
@@ -321,6 +324,10 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 "zmq" to req(zeromqConnectionSetupFactory))
     }
 
+    val messageDispatcher by Once {
+        MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
+    }
+
     val server by Once {
         Server(
                 req(provided.props()),
@@ -330,12 +337,11 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
                 req(brokerActorGorgel),
-                req(methodInvokerCommGorgel),
+                req(messageDispatcher),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
-                req(jsonToObjectDeserializer),
                 req(runner),
                 req(objDBRemoteFactory),
                 req(mustSendDebugReplies),
@@ -396,12 +402,14 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
     val runner by Once { Runner(req(runnerGorgel)) }
             .dispose { it.orderlyShutdown() }
 
+    val messageDispatcherFactory by Once { MessageDispatcherFactory(req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
+
     val objDBRemoteFactory by Once {
         ObjDBRemoteFactory(
                 req(provided.props()),
                 req(objDbRemoteGorgel),
-                req(methodInvokerCommGorgel),
                 req(odbActorGorgel),
+                req(messageDispatcherFactory),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(jsonToObjectDeserializer),
                 req(getRequestFactory),
@@ -429,7 +437,9 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val objectDatabase by Once { req(server).openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified") }
 
-    val refTable by Once { RefTable(req(objectDatabase), req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer)) }
+    val objectDatabaseDispatcher by Once { MessageDispatcher(req(objectDatabase), req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
+
+    val refTable by Once { RefTable(req(objectDatabaseDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
     val workshop: D<Workshop> by Once { Workshop(req(objectDatabase), req(server), req(refTable), req(workshopGorgel), req(startupWorkerListGorgel), req(baseCommGorgel)) }
 

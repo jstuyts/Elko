@@ -18,6 +18,7 @@ import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
+import org.elkoserver.foundation.json.MessageDispatcherFactory
 import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.Listener
@@ -188,7 +189,6 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     }
             .init {
                 if (req(server).startListeners("conf.listen", it) == 0) {
-                    // FIXME: Do not use "fatalError" as this exits the process hard.
                     throw IllegalStateException("no listeners specified")
                 }
                 // This must run after the listeners of the server have been started.
@@ -382,12 +382,11 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(serviceActorGorgel),
                 req(serviceActorCommGorgel),
                 req(brokerActorGorgel),
-                req(methodInvokerCommGorgel),
+                req(messageDispatcher),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
-                req(jsonToObjectDeserializer),
                 req(runner),
                 req(objDBRemoteFactory),
                 req(mustSendDebugReplies),
@@ -442,12 +441,14 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
+    val messageDispatcherFactory by Once { MessageDispatcherFactory(req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
+
     val objDBRemoteFactory by Once {
         ObjDBRemoteFactory(
                 req(provided.props()),
                 req(objDbRemoteGorgel),
-                req(methodInvokerCommGorgel),
                 req(odbActorGorgel),
+                req(messageDispatcherFactory),
                 req(provided.hostDescFromPropertiesFactory()),
                 req(jsonToObjectDeserializer),
                 req(getRequestFactory),
@@ -490,10 +491,12 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
         req(provided.props()).intProperty("conf.context.userlimit", 0)
     }
 
-    val refTable by Once { RefTable(req(objectDatabase), req(methodInvokerCommGorgel), req(baseCommGorgel).getChild(RefTable::class), req(jsonToObjectDeserializer))  }
+    val objectDatabaseDispatcher by Once { MessageDispatcher(req(objectDatabase), req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
+
+    val refTable by Once { RefTable(req(objectDatabaseDispatcher), req(baseCommGorgel).getChild(RefTable::class))  }
 
     val messageDispatcher by Once {
-        // The type resolver used to be "null". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
+        // The type resolver used to be "null" for "Contextor". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?
         MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
     }
 
