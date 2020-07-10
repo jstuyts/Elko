@@ -24,7 +24,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 internal class PresencerGroup(
         server: Server,
         contextor: Contextor,
-        presencers: MutableList<HostDesc>,
+        presencers: List<HostDesc>,
         gorgel: Gorgel,
         messageDispatcher: MessageDispatcher,
         timer: Timer,

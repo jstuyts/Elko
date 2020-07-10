@@ -27,7 +27,7 @@ import java.util.ConcurrentModificationException
  */
 class DirectorGroup(server: Server,
                     contextor: Contextor,
-                    directors: MutableList<HostDesc>,
+                    directors: List<HostDesc>,
                     internal val listeners: List<HostDesc>,
                     gorgel: Gorgel,
                     messageDispatcher: MessageDispatcher,

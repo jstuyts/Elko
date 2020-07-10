@@ -14,7 +14,7 @@ internal class HostListScanner(private val hostDescFromPropertiesFactory: HostDe
      * @return a list of host descriptors for the configured collection of host
      * information extracted from the properties.
      */
-    fun scan(propRoot: String): MutableList<HostDesc> {
+    fun scan(propRoot: String): List<HostDesc> {
         val result = mutableListOf<HostDesc>()
 
         var index = 0

@@ -153,6 +153,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val sessionClientGorgel by Once { req(provided.baseGorgel()).getChild(Session::class, Tag("category", "client")) }
 
+    val sessionCommGorgel by Once { req(provided.baseGorgel()).getChild(Session::class, COMMUNICATION_CATEGORY_TAG) }
+
     val staticObjectReceiverGorgel by Once { req(provided.baseGorgel()).getChild(StaticObjectList::class) }
 
     val userActorGorgel by Once { req(provided.baseGorgel()).getChild(UserActor::class) }
@@ -511,6 +513,38 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val directorActorFactory by Once { DirectorActorFactory(req(directorActorGorgel), req(reservationFactory), req(provided.timer()), req(mustSendDebugReplies)) }
 
+    val presencerGroupFactory by Once {
+        PresencerGroupFactory(
+                req(server),
+                req(presencerGroupGorgel),
+                req(presencerActorGorgel),
+                req(messageDispatcher),
+                req(provided.timer()),
+                req(provided.props()),
+                req(mustSendDebugReplies),
+                req(connectionRetrierFactory))
+    }
+
+    val directorGroupFactory by Once {
+        DirectorGroupFactory(
+                req(server),
+                req(directorGroupGorgel),
+                req(reservationFactory),
+                req(directorActorFactory),
+                req(messageDispatcher),
+                req(provided.timer()),
+                req(provided.props()),
+                req(connectionRetrierFactory))
+    }
+
+    val sessionFactory by Once {
+        SessionFactory(
+                req(server),
+                req(sessionClientGorgel),
+                req(sessionCommGorgel),
+                opt(sessionPassword))
+    }
+
     val contextor by Once {
         Contextor(
                 req(objectDatabase),
@@ -520,24 +554,15 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(contextGorgelWithoutRef),
                 req(itemGorgelWithoutRef),
                 req(staticObjectReceiverGorgel),
-                req(directorGroupGorgel),
-                req(presencerGroupGorgel),
-                req(presencerActorGorgel),
-                req(reservationFactory),
-                req(directorActorFactory),
-                req(sessionClientGorgel),
-                req(messageDispatcher),
+                req(presencerGroupFactory),
+                req(directorGroupFactory),
+                req(sessionFactory),
                 req(provided.timer()),
-                req(baseCommGorgel),
                 req(contextorEntryTimeout),
                 req(contextorLimit),
                 req(contextorRandom),
                 opt(staticsToLoad),
-                opt(families),
-                opt(sessionPassword),
-                req(provided.props()),
-                req(mustSendDebugReplies),
-                req(connectionRetrierFactory))
+                opt(families))
     }
 
     val sessionPassword by Once { req(provided.props()).getProperty<String?>("conf.context.shutdownpassword", null) }

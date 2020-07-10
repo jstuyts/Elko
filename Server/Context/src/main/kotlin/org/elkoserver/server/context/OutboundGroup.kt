@@ -29,7 +29,7 @@ import java.util.function.Consumer
 abstract class OutboundGroup(propRoot: String,
                              private val myServer: Server,
                              internal val contextor: Contextor,
-                             hosts: MutableList<HostDesc>,
+                             hosts: List<HostDesc>,
                              gorgel: Gorgel,
                              private val myDispatcher: MessageDispatcher,
                              protected val timer: Timer,

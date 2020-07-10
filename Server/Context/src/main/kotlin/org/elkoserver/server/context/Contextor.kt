@@ -2,11 +2,8 @@ package org.elkoserver.server.context
 
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
-import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.ShutdownWatcher
@@ -54,27 +51,18 @@ class Contextor internal constructor(
         private val contextGorgelWithoutRef: Gorgel,
         private val itemGorgelWithoutRef: Gorgel,
         private val staticObjectReceiverGorgel: Gorgel,
-        private val directorGroupGorgel: Gorgel,
-        private val presencerGroupGorgel: Gorgel,
-        private val presencerActorGorgel: Gorgel,
-        private val reservationFactory: ReservationFactory,
-        private val directorActorFactory: DirectorActorFactory,
-        sessionGorgel: Gorgel,
-        private val messageDispatcher: MessageDispatcher,
+        private val presencerGroupFactory: PresencerGroupFactory,
+        private val directorGroupFactory: DirectorGroupFactory,
+        sessionFactory: SessionFactory,
         private val timer: Timer,
-        baseCommGorgel: Gorgel,
         internal val entryTimeout: Int,
         internal val limit: Int,
         private val myRandom: Random,
         staticsToLoad: String?,
-        private val families: String?,
-        sessionPassword: String?,
-        private val props: ElkoProperties,
-        private val mustSendDebugReplies: Boolean,
-        private val connectionRetrierFactory: ConnectionRetrierFactory) {
+        private val families: String?) {
 
     /** The generic 'session' object for talking to this server.  */
-    internal val session: Session = Session(this, sessionPassword, sessionGorgel, baseCommGorgel.getChild(Session::class))
+    internal val session: Session = sessionFactory.create(this)
 
     /** Sets of entities awaiting objects from the object database, by object
      * reference string.  */
@@ -183,7 +171,7 @@ class Contextor internal constructor(
      */
     private fun activateContentsItem(container: BasicObject, subID: String, item: Item) {
         val ref = item.ref() + subID
-        item.activate(ref, subID, container.isEphemeral, this, itemGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", ref)))
+        activateItem(item, ref, subID, container.isEphemeral)
         item.setContainerPrim(container)
         item.objectIsComplete()
     }
@@ -244,7 +232,7 @@ class Contextor internal constructor(
      */
     private fun initializeItem(item: Item, container: BasicObject?) {
         val ref = uniqueID("i")
-        item.activate(ref, "", false, this, itemGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", ref)))
+        activateItem(item, ref, "", false)
         item.markAsChanged()
         item.setContainer(container)
     }
@@ -603,7 +591,6 @@ class Contextor internal constructor(
                 resolvePendingGet(myContextTemplate, context)
             }
         }
-
     }
 
     fun resolvePendingInit(obj: BasicObject) {
@@ -639,7 +626,7 @@ class Contextor internal constructor(
         override fun accept(obj: Any?) {
             if (obj != null) {
                 val item = obj as Item
-                item.activate(myItemRef, "", false, this@Contextor, itemGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", myItemRef)))
+                activateItem(item, myItemRef, "", false)
                 item.objectIsComplete()
                 if (item.isReady) {
                     resolvePendingGet(myItemRef, item)
@@ -647,6 +634,10 @@ class Contextor internal constructor(
             }
         }
 
+    }
+
+    private fun activateItem(item: Item, ref: String, subID: String, isEphemeral: Boolean) {
+        item.activate(ref, subID, isEphemeral, this, itemGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", ref)))
     }
 
     /**
@@ -969,19 +960,8 @@ class Contextor internal constructor(
      * @param listeners  List of HostDesc objects describing active
      * listeners to register with the indicated directors.
      */
-    fun registerWithDirectors(directors: MutableList<HostDesc>, listeners: List<HostDesc>) {
-        val group = DirectorGroup(
-                server,
-                this,
-                directors,
-                listeners,
-                directorGroupGorgel,
-                messageDispatcher,
-                reservationFactory,
-                directorActorFactory,
-                timer,
-                props,
-                connectionRetrierFactory)
+    fun registerWithDirectors(directors: List<HostDesc>, listeners: List<HostDesc>) {
+        val group = directorGroupFactory.create(this, directors, listeners)
         if (group.isLive) {
             myDirectorGroup = group
         }
@@ -993,18 +973,8 @@ class Contextor internal constructor(
      * @param presencers  List of HostDesc objects describing presence servers
      * with whom to register.
      */
-    fun registerWithPresencers(presencers: MutableList<HostDesc>) {
-        val group = PresencerGroup(
-                server,
-                this,
-                presencers,
-                presencerGroupGorgel,
-                messageDispatcher,
-                timer,
-                props,
-                presencerActorGorgel,
-                mustSendDebugReplies,
-                connectionRetrierFactory)
+    fun registerWithPresencers(presencers: List<HostDesc>) {
+        val group = presencerGroupFactory.create(this, presencers)
         if (group.isLive) {
             myPresencerGroup = group
         }
