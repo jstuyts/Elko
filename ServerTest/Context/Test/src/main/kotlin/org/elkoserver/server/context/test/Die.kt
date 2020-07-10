@@ -2,18 +2,26 @@ package org.elkoserver.server.context.test
 
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
+import org.elkoserver.foundation.json.RandomUsingObject
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.User
+import java.util.Random
 import kotlin.math.abs
 
 /**
  * Mod to enable an item to function as a die.
  */
-class Die @JsonMethod("sides") constructor(private val mySides: Int) : Mod(), ItemMod {
+class Die @JsonMethod("sides") constructor(private val mySides: Int) : Mod(), ItemMod, RandomUsingObject {
+
+    private lateinit var myRandom: Random
+
+    override fun setRandom(random: Random) {
+        myRandom = random
+    }
 
     /**
      * Encode this mod for transmission or persistence.
@@ -48,7 +56,7 @@ class Die @JsonMethod("sides") constructor(private val mySides: Int) : Mod(), It
     @JsonMethod
     fun roll(from: User) {
         ensureSameContext(from)
-        val value = abs(context().contextor().randomLong().toInt()) % mySides + 1
+        val value = abs(myRandom.nextInt()) % mySides + 1
         val announce = JsonLiteralFactory.targetVerb(`object`(), "roll").apply {
             addParameter("value", value)
             addParameter("from", from.ref())

@@ -944,14 +944,6 @@ class Contextor internal constructor(
     }
 
     /**
-     * Generate a high-quality random number.
-     *
-     * @return a random long.
-     */
-    @Deprecated(message = "Used for 1 specific example, which should have the services it needs injected.")
-    fun randomLong(): Long = myRandom.nextLong()
-
-    /**
      * Register this server's list of listeners with its list of directors.
      *
      * @param directors  List of HostDesc objects describing directors with
