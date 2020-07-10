@@ -473,19 +473,24 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
         MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
     }
 
+    val directorActorFactoryFactory by Once {
+        DirectorActorFactoryFactory(
+                req(directorActorFactoryGorgel),
+                req(directorActorGorgel),
+                req(messageDispatcher),
+                req(mustSendDebugReplies),
+                req(connectionRetrierFactory))
+    }
+
     val gatekeeper: D<Gatekeeper> by Once {
         Gatekeeper(
                 req(server),
                 req(refTable),
                 req(gatekeeperGorgel),
-                req(directorActorFactoryGorgel),
-                req(directorActorGorgel),
                 req(baseCommGorgel),
+                req(directorActorFactoryFactory),
                 req(provided.hostDescFromPropertiesFactory()),
-                req(provided.props()),
-                req(messageDispatcher),
-                req(mustSendDebugReplies),
-                req(connectionRetrierFactory))
+                req(provided.props()))
     }
 
     val actionTimeout by Once { 1000 * req(provided.props()).intProperty("conf.gatekeeper.actiontimeout", GatekeeperBoot.DEFAULT_ACTION_TIMEOUT) }

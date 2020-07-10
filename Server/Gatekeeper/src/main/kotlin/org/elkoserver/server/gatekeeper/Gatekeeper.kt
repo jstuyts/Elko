@@ -2,9 +2,7 @@ package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.actor.BasicProtocolActor
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageHandlerException
-import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
@@ -23,14 +21,10 @@ class Gatekeeper internal constructor(
         private val myServer: Server,
         internal val refTable: RefTable,
         private val gorgel: Gorgel,
-        directorActorFactoryGorgel: Gorgel,
-        directorActorGorgel: Gorgel,
         baseCommGorgel: Gorgel,
+        directorActorFactoryFactory: DirectorActorFactoryFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
-        props: ElkoProperties,
-        messageDispatcher: MessageDispatcher,
-        mustSendDebugReplies: Boolean,
-        connectionRetrierFactory: ConnectionRetrierFactory) {
+        props: ElkoProperties) {
 
     /** Host description for the director.  */
     internal var directorHost: HostDesc? = null
@@ -127,13 +121,7 @@ class Gatekeeper internal constructor(
 
     init {
         refTable.addRef(AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class)))
-        myDirectorActorFactory = DirectorActorFactory(
-                this,
-                directorActorFactoryGorgel,
-                directorActorGorgel,
-                messageDispatcher,
-                mustSendDebugReplies,
-                connectionRetrierFactory)
+        myDirectorActorFactory = directorActorFactoryFactory.create(this)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
         if (props.testProperty("conf.gatekeeper.director.auto")) {
             myServer.findService("director-user", DirectorFoundRunnable(), false)
