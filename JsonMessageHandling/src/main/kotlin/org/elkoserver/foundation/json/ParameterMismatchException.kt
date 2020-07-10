@@ -31,8 +31,15 @@ internal class ParameterMismatchException : RuntimeException {
             val count = suppliedParams.size.coerceAtMost(expectedParams.size)
             val message = StringBuilder()
             (0 until count)
-                    .filterNot { expectedParams[it].isAssignableFrom(suppliedParams[it]!!.javaClass) }
-                    .forEach { message.append("Parameter mismatch: Method  requires ").append(expectedParams[it]).append("; found ").append(suppliedParams[it]!!.javaClass).append(" ") }
+                    .filterNot {
+                        val suppliedParam = suppliedParams[it]
+                        suppliedParam == null || expectedParams[it].isAssignableFrom(suppliedParam.javaClass)
+                    }
+                    .forEach { message.append("Parameter mismatch: Method requires ")
+                            .append(expectedParams[it])
+                            .append("; found ")
+                            .append(suppliedParams[it]?.javaClass ?: "null")
+                            .append(" ") }
             return message.toString()
         }
     }
