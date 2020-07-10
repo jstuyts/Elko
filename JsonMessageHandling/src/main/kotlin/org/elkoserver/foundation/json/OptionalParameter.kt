@@ -17,20 +17,14 @@ abstract class OptionalParameter internal constructor(val present: Boolean) {
          *
          * @return the canonical missing value object for 'type'.
          */
-        fun missingValue(type: Class<*>): Any? {
-            return if (!OptionalParameter::class.java.isAssignableFrom(type)) {
-                null
-            } else if (type == OptString::class.java) {
-                OptString.theMissingValue
-            } else if (type == OptBoolean::class.java) {
-                OptBoolean.theMissingValue
-            } else if (type == OptInteger::class.java) {
-                OptInteger.theMissingValue
-            } else if (type == OptDouble::class.java) {
-                OptDouble.theMissingValue
-            } else {
-                null
-            }
-        }
+        fun missingValue(type: Class<*>): Any? =
+                when {
+                    !OptionalParameter::class.java.isAssignableFrom(type) -> null
+                    type == OptString::class.java -> OptString.theMissingValue
+                    type == OptBoolean::class.java -> OptBoolean.theMissingValue
+                    type == OptInteger::class.java -> OptInteger.theMissingValue
+                    type == OptDouble::class.java -> OptDouble.theMissingValue
+                    else -> null
+                }
     }
 }
