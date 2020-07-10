@@ -460,7 +460,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val requestTagGenerator by Once { LongIdGenerator(1L) }
 
-    val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class))  }
+    val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
     val repository: D<Repository> by Once { Repository(req(server), req(refTable), req(baseCommGorgel), req(objectStore)) }
 

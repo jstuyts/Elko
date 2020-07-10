@@ -21,7 +21,7 @@ open class HttpRequest {
     private val myHeaders: MutableMap<String, String> = HashMap()
 
     /** Value of the Content-Length header.  */
-    var contentLength = 0
+    var contentLength: Int = 0
         private set
 
     /**
@@ -30,7 +30,7 @@ open class HttpRequest {
      * @return true if a header line said "Connection: close".
      */
     /** Flag whether Connection header says "close".  */
-    var isNonPersistent = false
+    var isNonPersistent: Boolean = false
         private set
 
     /** Flag whether Content-Type header says URL encoding is in use.  */
@@ -54,7 +54,7 @@ open class HttpRequest {
      * @return the value of the header named by 'name', or null if there is no
      * such header in the request.
      */
-    fun header(name: String) = myHeaders[name]
+    fun header(name: String): String? = myHeaders[name]
 
     /**
      * Parse a header line, adding the header it contains to the header table.

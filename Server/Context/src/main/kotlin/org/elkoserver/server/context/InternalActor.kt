@@ -15,12 +15,11 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *
  * @param connection  The connection for talking to this actor.
  * @param myFactory  Factory of the listener that accepted the connection.
- * @param tr  Trace object for diagnostics.
  */
 class InternalActor internal constructor(
         connection: Connection,
         private val myFactory: InternalActorFactory,
-                                         private val gorgel: Gorgel,
+        private val gorgel: Gorgel,
         commGorgel: Gorgel,
         mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.contextor.refTable, commGorgel, mustSendDebugReplies), BasicProtocolActor {
 
@@ -71,5 +70,5 @@ class InternalActor internal constructor(
     /**
      * @return a printable representation of this actor.
      */
-    override fun toString() = label ?: super.toString()
+    override fun toString(): String = label ?: super.toString()
 }

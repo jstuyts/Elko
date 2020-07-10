@@ -2,6 +2,7 @@ package org.elkoserver.foundation.net.ws.server
 
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.MessageHandlerFactory
+import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -23,7 +24,7 @@ class WebsocketConnectionSetup(
     override val protocol: String = "ws"
 
     @Throws(IOException::class)
-    override fun tryToStartListener() =
+    override fun tryToStartListener(): NetAddr =
             websocketServerFactory.listenWebsocket(bind, actorFactory, secure, socketUri, actualGorgel)
 
     init {

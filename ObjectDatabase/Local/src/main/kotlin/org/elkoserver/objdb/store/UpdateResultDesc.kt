@@ -3,6 +3,7 @@ package org.elkoserver.objdb.store
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory.type
 
 /**
@@ -37,7 +38,7 @@ class UpdateResultDesc(ref: String, failure: String?, val isAtomicFailure: Boole
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             type("ustati", control).apply {
                 addParameter("ref", ref)
                 addParameterOpt("failure", failure)

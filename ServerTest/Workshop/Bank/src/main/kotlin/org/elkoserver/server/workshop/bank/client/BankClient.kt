@@ -24,7 +24,6 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
 
     /** Tag string indicating the current state of the service connection.  */
     private var status = "startup"
-        private set
 
     /** Collection of handlers for pending requests to the service.  */
     private val myResultHandlers: MutableMap<String, BankReplyHandler> = HashMap()
@@ -729,14 +728,10 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
         if (handler != null) {
             val enc = optEnc.value<String?>(null)
             val srcbal = optSrcbal.value(-1)
-            if (enc == null) {
-                innerFail(handler, "encumber", "badreply",
-                        "required reply parameter enc missing")
-            } else if (srcbal < 0) {
-                innerFail(handler, "encumber", "badreply",
-                        "required reply parameter srcbal missing")
-            } else {
-                handler.result(enc, srcbal)
+            when {
+                enc == null -> innerFail(handler, "encumber", "badreply", "required reply parameter enc missing")
+                srcbal < 0 -> innerFail(handler, "encumber", "badreply", "required reply parameter srcbal missing")
+                else -> handler.result(enc, srcbal)
             }
         }
     }
@@ -834,14 +829,10 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
         if (handler != null) {
             val dst = optDst.value<String?>(null)
             val dstbal = optDstbal.value(-1)
-            if (dst == null) {
-                innerFail(handler, "mint", "badreply",
-                        "required reply parameter dst missing")
-            } else if (dstbal < 0) {
-                innerFail(handler, "mint", "badreply",
-                        "required reply parameter dstbal missing")
-            } else {
-                handler.result(dst, dstbal)
+            when {
+                dst == null -> innerFail(handler, "mint", "badreply", "required reply parameter dst missing")
+                dstbal < 0 -> innerFail(handler, "mint", "badreply", "required reply parameter dstbal missing")
+                else -> handler.result(dst, dstbal)
             }
         }
     }
@@ -887,23 +878,13 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
             val amount = optAmount.value(-1)
             val expires = optExpires.value<String?>(null)
             val memo = optMemo.value<String?>(null)
-            if (enc == null) {
-                innerFail(handler, "queryenc", "badreply",
-                        "required reply parameter enc missing")
-            } else if (curr == null) {
-                innerFail(handler, "queryenc", "badreply",
-                        "required reply parameter curr missing")
-            } else if (account == null) {
-                innerFail(handler, "queryenc", "badreply",
-                        "required reply parameter account missing")
-            } else if (expires == null) {
-                innerFail(handler, "queryenc", "badreply",
-                        "required reply parameter expires missing")
-            } else if (amount < 0) {
-                innerFail(handler, "queryenc", "badreply",
-                        "required reply parameter amount missing")
-            } else {
-                handler.result(enc, curr, account, amount, expires, memo)
+            when {
+                enc == null -> innerFail(handler, "queryenc", "badreply", "required reply parameter enc missing")
+                curr == null -> innerFail(handler, "queryenc", "badreply", "required reply parameter curr missing")
+                account == null -> innerFail(handler, "queryenc", "badreply", "required reply parameter account missing")
+                expires == null -> innerFail(handler, "queryenc", "badreply", "required reply parameter expires missing")
+                amount < 0 -> innerFail(handler, "queryenc", "badreply", "required reply parameter amount missing")
+                else -> handler.result(enc, curr, account, amount, expires, memo)
             }
         }
     }
@@ -920,14 +901,10 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
             val src = optSrc.value<String?>(null)
             val srcbal = optSrcbal.value(-1)
             val active = optActive.value(true)
-            if (src == null) {
-                innerFail(handler, "releaseenc", "badreply",
-                        "required reply parameter src missing")
-            } else if (srcbal < 0) {
-                innerFail(handler, "releaseenc", "badreply",
-                        "required reply parameter srcbal missing")
-            } else {
-                handler.result(src, srcbal, active)
+            when {
+                src == null -> innerFail(handler, "releaseenc", "badreply", "required reply parameter src missing")
+                srcbal < 0 -> innerFail(handler, "releaseenc", "badreply", "required reply parameter srcbal missing")
+                else -> handler.result(src, srcbal, active)
             }
         }
     }
@@ -960,14 +937,10 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
         if (handler != null) {
             val src = optSrc.value<String?>(null)
             val srcbal = optSrcbal.value(-1)
-            if (src == null) {
-                innerFail(handler, "unmint", "badreply",
-                        "required reply parameter src missing")
-            } else if (srcbal < 0) {
-                innerFail(handler, "unmint", "badreply",
-                        "required reply parameter srcbal missing")
-            } else {
-                handler.result(src, srcbal)
+            when {
+                src == null -> innerFail(handler, "unmint", "badreply", "required reply parameter src missing")
+                srcbal < 0 -> innerFail(handler, "unmint", "badreply", "required reply parameter srcbal missing")
+                else -> handler.result(src, srcbal)
             }
         }
     }
@@ -983,14 +956,10 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
         if (handler != null) {
             val src = optSrc.value<String?>(null)
             val srcbal = optSrcbal.value(-1)
-            if (src == null) {
-                innerFail(handler, "unmintenc", "badreply",
-                        "required reply parameter src missing")
-            } else if (srcbal < 0) {
-                innerFail(handler, "unmintenc", "badreply",
-                        "required reply parameter srcbal missing")
-            } else {
-                handler.result(src, srcbal)
+            when {
+                src == null -> innerFail(handler, "unmintenc", "badreply", "required reply parameter src missing")
+                srcbal < 0 -> innerFail(handler, "unmintenc", "badreply", "required reply parameter srcbal missing")
+                else -> handler.result(src, srcbal)
             }
         }
     }
@@ -1008,20 +977,12 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
             val srcbal = optSrcbal.value(-1)
             val dst = optDst.value<String?>(null)
             val dstbal = optDstbal.value(-1)
-            if (src == null) {
-                innerFail(handler, "xfer", "badreply",
-                        "required reply parameter src missing")
-            } else if (srcbal < 0) {
-                innerFail(handler, "xfer", "badreply",
-                        "required reply parameter srcbal missing")
-            } else if (dst == null) {
-                innerFail(handler, "xfer", "badreply",
-                        "required reply parameter dst missing")
-            } else if (dstbal < 0) {
-                innerFail(handler, "xfer", "badreply",
-                        "required reply parameter dstbal missing")
-            } else {
-                handler.result(src, srcbal, dst, dstbal)
+            when {
+                src == null -> innerFail(handler, "xfer", "badreply", "required reply parameter src missing")
+                srcbal < 0 -> innerFail(handler, "xfer", "badreply", "required reply parameter srcbal missing")
+                dst == null -> innerFail(handler, "xfer", "badreply", "required reply parameter dst missing")
+                dstbal < 0 -> innerFail(handler, "xfer", "badreply", "required reply parameter dstbal missing")
+                else -> handler.result(src, srcbal, dst, dstbal)
             }
         }
     }
@@ -1039,20 +1000,12 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
             val srcbal = optSrcbal.value(-1)
             val dst = optDst.value<String?>(null)
             val dstbal = optDstbal.value(-1)
-            if (src == null) {
-                innerFail(handler, "xferenc", "badreply",
-                        "required reply parameter src missing")
-            } else if (srcbal < 0) {
-                innerFail(handler, "xferenc", "badreply",
-                        "required reply parameter srcbal missing")
-            } else if (dst == null) {
-                innerFail(handler, "xferenc", "badreply",
-                        "required reply parameter dst missing")
-            } else if (dstbal < 0) {
-                innerFail(handler, "xferenc", "badreply",
-                        "required reply parameter dstbal missing")
-            } else {
-                handler.result(src, srcbal, dst, dstbal)
+            when {
+                src == null -> innerFail(handler, "xferenc", "badreply", "required reply parameter src missing")
+                srcbal < 0 -> innerFail(handler, "xferenc", "badreply", "required reply parameter srcbal missing")
+                dst == null -> innerFail(handler, "xferenc", "badreply", "required reply parameter dst missing")
+                dstbal < 0 -> innerFail(handler, "xferenc", "badreply", "required reply parameter dstbal missing")
+                else -> handler.result(src, srcbal, dst, dstbal)
             }
         }
     }

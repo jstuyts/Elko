@@ -95,7 +95,7 @@ class Gatekeeper internal constructor(
      *
      * @return the server's name.
      */
-    fun serverName() = myServer.serverName
+    fun serverName(): String = myServer.serverName
 
     /**
      * Change the director to which this gatekeeper is connected.  This

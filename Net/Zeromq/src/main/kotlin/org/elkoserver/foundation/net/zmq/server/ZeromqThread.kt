@@ -139,21 +139,25 @@ class ZeromqThread(
     fun connect(handlerFactory: MessageHandlerFactory, framerFactory: ByteIoFramerFactory, remoteAddr: String) {
         val push: Boolean
         val finalAddr: String
-        if (remoteAddr.startsWith("PUSH:")) {
-            push = true
-            finalAddr = "tcp://${remoteAddr.substring(5)}"
-        } else if (remoteAddr.startsWith("PUB:")) {
-            push = false
-            finalAddr = try {
-                val parsedAddr = NetAddr(remoteAddr.substring(4))
-                "tcp://*:${parsedAddr.port}"
-            } catch (e: IOException) {
-                commGorgel.error("error setting up ZMQ connection with $remoteAddr", e)
-                return
+        when {
+            remoteAddr.startsWith("PUSH:") -> {
+                push = true
+                finalAddr = "tcp://${remoteAddr.substring(5)}"
             }
-        } else {
-            push = true
-            finalAddr = "tcp://$remoteAddr"
+            remoteAddr.startsWith("PUB:") -> {
+                push = false
+                finalAddr = try {
+                    val parsedAddr = NetAddr(remoteAddr.substring(4))
+                    "tcp://*:${parsedAddr.port}"
+                } catch (e: IOException) {
+                    commGorgel.error("error setting up ZMQ connection with $remoteAddr", e)
+                    return
+                }
+            }
+            else -> {
+                push = true
+                finalAddr = "tcp://$remoteAddr"
+            }
         }
         myQueue.enqueue(object : Runnable {
             override fun run() {
@@ -210,14 +214,16 @@ class ZeromqThread(
             throw Error("secure ZeroMQ not yet available")
         }
         val subscribe: Boolean
-        if (actualListenAddress.startsWith("SUB:")) {
-            subscribe = true
-            actualListenAddress = actualListenAddress.substring(4)
-        } else if (actualListenAddress.startsWith("PULL:")) {
-            subscribe = false
-            actualListenAddress = actualListenAddress.substring(5)
-        } else {
-            subscribe = true
+        when {
+            actualListenAddress.startsWith("SUB:") -> {
+                subscribe = true
+                actualListenAddress = actualListenAddress.substring(4)
+            }
+            actualListenAddress.startsWith("PULL:") -> {
+                subscribe = false
+                actualListenAddress = actualListenAddress.substring(5)
+            }
+            else -> subscribe = true
         }
         val result = NetAddr(actualListenAddress)
         val finalAddress: String

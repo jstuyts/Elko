@@ -3,6 +3,7 @@ package org.elkoserver.foundation.server.metadata
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
 
@@ -19,7 +20,7 @@ class LoadDesc @JsonMethod("label", "load", "provider") constructor(private val 
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("loaddesc", control).apply {
                 addParameter("label", label)
                 addParameter("load", load)
@@ -30,7 +31,7 @@ class LoadDesc @JsonMethod("label", "load", "provider") constructor(private val 
     /**
      * Encode this descriptor as a single-element JSONLiteralArray.
      */
-    fun encodeAsArray() =
+    fun encodeAsArray(): JsonLiteralArray =
             JsonLiteralArray().apply {
                 addElement(this)
                 finish()

@@ -45,5 +45,5 @@ class Timer internal constructor(private val myThread: TimerThread) {
      *
      * @see TickNoticer
      */
-    fun every(resolution: Long, target: TickNoticer) = Clock(myThread, resolution, target)
+    fun every(resolution: Long, target: TickNoticer): Clock = Clock(myThread, resolution, target)
 }

@@ -39,35 +39,36 @@ class JsonByteIoFramer(
         myIn.addBuffer(data, length)
         while (true) {
             val line = myIn.readUTF8Line() ?: break
-            if (line.isEmpty()) {
-                val msgString = myMsgBuffer.toString()
-                gorgel.i?.run { info("$myLabel -> $msgString") }
-                // FIXME: Do not end because of no more characters at end of string. Instead fail gracefully.
-                val msgReader = StringReader(msgString)
-                var needsFurtherParsing = true
-                while (needsFurtherParsing) {
-                    try {
-                        val obj = jsonObjectFromReader(msgReader)
-                        if (obj == null) {
+            when {
+                line.isEmpty() -> {
+                    val msgString = myMsgBuffer.toString()
+                    gorgel.i?.run { info("$myLabel -> $msgString") }
+                    // FIXME: Do not end because of no more characters at end of string. Instead fail gracefully.
+                    val msgReader = StringReader(msgString)
+                    var needsFurtherParsing = true
+                    while (needsFurtherParsing) {
+                        try {
+                            val obj = jsonObjectFromReader(msgReader)
+                            if (obj == null) {
+                                needsFurtherParsing = false
+                            } else {
+                                myReceiver.receiveMsg(obj)
+                            }
+                        } catch (e: JsonParserException) {
                             needsFurtherParsing = false
-                        } else {
-                            myReceiver.receiveMsg(obj)
+                            if (mustSendDebugReplies) {
+                                myReceiver.receiveMsg(e)
+                            }
+                            gorgel.warn("syntax error in JSON message: ${e.message}")
                         }
-                    } catch (e: JsonParserException) {
-                        needsFurtherParsing = false
-                        if (mustSendDebugReplies) {
-                            myReceiver.receiveMsg(e)
-                        }
-                        gorgel.warn("syntax error in JSON message: ${e.message}")
                     }
+                    myMsgBuffer.setLength(0)
                 }
-                myMsgBuffer.setLength(0)
-            } else if (myMsgBuffer.length + line.length >
-                    Communication.MAX_MSG_LENGTH) {
-                throw IOException("input too large (limit ${Communication.MAX_MSG_LENGTH} bytes)")
-            } else {
-                myMsgBuffer.append(' ')
-                myMsgBuffer.append(line)
+                myMsgBuffer.length + line.length > Communication.MAX_MSG_LENGTH -> throw IOException("input too large (limit ${Communication.MAX_MSG_LENGTH} bytes)")
+                else -> {
+                    myMsgBuffer.append(' ')
+                    myMsgBuffer.append(line)
+                }
             }
         }
         myIn.preserveBuffers()
@@ -83,14 +84,11 @@ class JsonByteIoFramer(
      */
     @Throws(IOException::class)
     override fun produceBytes(message: Any): ByteArray {
-        var messageString = if (message is JsonLiteral) {
-            message.sendableString()
-        } else if (message is JsonObject) {
-            sendableString(message)
-        } else if (message is String) {
-            message
-        } else {
-            throw IOException("invalid message object class for write")
+        var messageString = when (message) {
+            is JsonLiteral -> message.sendableString()
+            is JsonObject -> sendableString(message)
+            is String -> message
+            else -> throw IOException("invalid message object class for write")
         }
         gorgel.i?.run { info("$myLabel <- $message") }
         messageString += "\n\n"

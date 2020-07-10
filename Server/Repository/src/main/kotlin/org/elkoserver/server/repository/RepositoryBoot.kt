@@ -34,6 +34,6 @@ class RepositoryBoot : Bootable {
                 myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)
             }
         })).Graph()
-         repositoryServerGraph.server()
+        repositoryServerGraph.server()
     }
 }

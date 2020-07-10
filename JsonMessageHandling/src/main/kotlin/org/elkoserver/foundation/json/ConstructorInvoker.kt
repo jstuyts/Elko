@@ -82,5 +82,5 @@ class ConstructorInvoker(
         }
     }
 
-    override fun toString() = "Constructor($myConstructor)"
+    override fun toString(): String = "Constructor($myConstructor)"
 }

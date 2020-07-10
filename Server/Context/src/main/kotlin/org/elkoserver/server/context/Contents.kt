@@ -30,7 +30,7 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
      *
      * @return a JSONLiteralArray object representing these contents.
      */
-    fun encode(control: EncodeControl) =
+    fun encode(control: EncodeControl): JsonLiteralArray =
             JsonLiteralArray(control).apply {
                 for (elem in myContents) {
                     if (control.toClient()) {
@@ -47,7 +47,7 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
      *
      * @return an iterator over the items contained by this contents object.
      */
-    override fun iterator() = myContents.iterator()
+    override fun iterator(): MutableIterator<Item> = myContents.iterator()
 
     /**
      * Remove an item from these contents.
@@ -76,7 +76,7 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
     companion object {
         /** Marker object representing the "contents" of objects that are not
          * allowed to be containers.  */
-        val theVoidContents = Contents()
+        val theVoidContents: Contents = Contents()
 
         /**
          * Transmit contents as a series of 'make' messages.
@@ -100,7 +100,7 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
          *
          * @return the contents (created if necessary), with 'item' in it.
          */
-        fun withContents(contents: Contents?, item: Item) =
+        fun withContents(contents: Contents?, item: Item): Contents =
                 (contents ?: Contents()).apply {
                     add(item)
                 }
@@ -115,7 +115,7 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
          *
          * @return the contents, without 'item' in it.
          */
-        fun withoutContents(contents: Contents?, item: Item) =
+        fun withoutContents(contents: Contents?, item: Item): Contents? =
                 if (contents == null) {
                     null
                 } else {

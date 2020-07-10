@@ -63,13 +63,13 @@ class HttpRequestByteIoFramerFactory(private val baseCommGorgel: Gorgel, private
                     }
                     HTTP_STAGE_HEADER -> {
                         val line = myIn.readASCIILine()
-                        if (line == null) {
-                            myIn.preserveBuffers()
-                            return
-                        } else if (line.isEmpty()) {
-                            myHTTPParseStage = HTTP_STAGE_BODY
-                        } else {
-                            myRequest.parseHeaderLine(line)
+                        when {
+                            line == null -> {
+                                myIn.preserveBuffers()
+                                return
+                            }
+                            line.isEmpty() -> myHTTPParseStage = HTTP_STAGE_BODY
+                            else -> myRequest.parseHeaderLine(line)
                         }
                     }
                     HTTP_STAGE_BODY -> {
@@ -121,27 +121,29 @@ class HttpRequestByteIoFramerFactory(private val baseCommGorgel: Gorgel, private
         @Throws(IOException::class)
         override fun produceBytes(message: Any): ByteArray {
             var reply: String
-            if (message is String) {
-                reply = message
-                commGorgel.d?.run { debug("to=$myLabel writeMessage=${reply.length}") }
-                reply = """
-                    HTTP/1.1 200 OK
-                    Cache-Control: no-cache
-                    Access-Control-Allow-Origin: *
-                    Content-Type: text/plain; charset=UTF-8
-                    Content-Length: ${utf8Length(reply)}
-                    
-                    $reply
-                    """.trimIndent()
-            } else if (message is HttpError) {
-                reply = message.messageString
-                reply = """HTTP/1.1 ${message.errorNumber} ${message.errorString}
-Access-Control-Allow-Origin: *
-Content-Length: ${utf8Length(reply)}
-
-$reply"""
-            } else if (message is HttpOptionsReply) {
-                reply = """
+            when (message) {
+                is String -> {
+                    reply = message
+                    commGorgel.d?.run { debug("to=$myLabel writeMessage=${reply.length}") }
+                    reply = """
+                        HTTP/1.1 200 OK
+                        Cache-Control: no-cache
+                        Access-Control-Allow-Origin: *
+                        Content-Type: text/plain; charset=UTF-8
+                        Content-Length: ${utf8Length(reply)}
+                        
+                        $reply
+                        """.trimIndent()
+                }
+                is HttpError -> {
+                    reply = message.messageString
+                    reply = """HTTP/1.1 ${message.errorNumber} ${message.errorString}
+    Access-Control-Allow-Origin: *
+    Content-Length: ${utf8Length(reply)}
+    
+    $reply"""
+                }
+                is HttpOptionsReply -> reply = """
                     HTTP/1.1 200 OK
                     Access-Control-Allow-Origin: *
                     Access-Control-Max-Age: 31536000
@@ -151,8 +153,7 @@ $reply"""
                     
                     
                     """.trimIndent()
-            } else {
-                throw IOException("unwritable message type: ${message.javaClass}")
+                else -> throw IOException("unwritable message type: ${message.javaClass}")
             }
             commGorgel.d?.run { debug("HTTP sending:\n$reply") }
             return reply.toByteArray(StandardCharsets.UTF_8)

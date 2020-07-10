@@ -235,7 +235,7 @@ class MongoObjectStore : ObjectStore {
 
     private fun jsonArrayToDBArray(arr: JsonArray): ArrayList<Any?> {
         val result = ArrayList<Any?>(arr.size())
-        arr.mapTo(result, this::valueToDBValue)
+        arr.mapTo(result, ::valueToDBValue)
         return result
     }
 
@@ -413,7 +413,7 @@ class MongoObjectStore : ObjectStore {
                 collection.find(query)
             }
             cursor
-                    .map(this::dbObjectToJSONObject)
+                    .map(::dbObjectToJSONObject)
                     .map(JsonObjectSerialization::sendableString)
                     .mapTo(results) { ObjectDesc("query", it, null) }
         } catch (e: Exception) {

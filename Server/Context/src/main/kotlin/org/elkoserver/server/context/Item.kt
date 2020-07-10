@@ -27,7 +27,7 @@ class Item : BasicObject {
      * @return  true if ordinary users can delete this item, false if not.
      */
     /** Flag that users may delete this item.  */
-    val isDeletable: Boolean
+    private val isDeletable: Boolean
 
     /**
      * Test if unprivileged users inside the context can move this item (by
@@ -36,7 +36,7 @@ class Item : BasicObject {
      * @return  true if ordinary users can move this item, false if not.
      */
     /** Flag that users may move this item around.  */
-    var isPortable = false
+    var isPortable: Boolean = false
         private set
 
     /**
@@ -139,7 +139,7 @@ class Item : BasicObject {
      *
      * @return the object this item is currently contained by.
      */
-    override fun container() = myContainer
+    override fun container(): BasicObject? = myContainer
 
     /**
      * Obtain the context in which this item is located, regardless of how
@@ -148,7 +148,7 @@ class Item : BasicObject {
      * @return the context in which this item is located, at whatever level of
      * container nesting, or null if it is not in any context.
      */
-    override fun context() = assertInContainer(BasicObject::context)
+    override fun context(): Context = assertInContainer(BasicObject::context)
 
     /**
      * Delete this item (and, by implication, its contents).  The caller is
@@ -236,7 +236,7 @@ class Item : BasicObject {
             isClosed = false
             markAsChanged()
             assertActivated {
-                it.loadItemContents(this, Consumer<Any?> { obj: Any? ->
+                it.loadItemContents(this, Consumer { obj: Any? ->
                     activatePassiveContents("")
                     it.notifyPendingObjectCompletionWatchers()
                     sendContentsDescription(context(), this@Item, myContents)
@@ -341,14 +341,14 @@ class Item : BasicObject {
      *
      * @return a printable representation of this item.
      */
-    override fun toString() = "Item '$myRef'"
+    override fun toString(): String = "Item '$myRef'"
 
     /**
      * Return the proper type tag for this object.
      *
      * @return a type tag string for this kind of object; in this case, "item".
      */
-    override fun type() = "item"
+    override fun type(): String = "item"
 
     /**
      * Obtain the user within which this item is contained, regardless of how

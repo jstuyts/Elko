@@ -3,6 +3,7 @@ package org.elkoserver.feature.basicexamples.census
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
@@ -21,7 +22,7 @@ class Census @JsonMethod constructor() : Mod(), GeneralMod {
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral? =
             if (control.toRepository()) {
                 JsonLiteralFactory.type("census", control).apply {
                     finish()

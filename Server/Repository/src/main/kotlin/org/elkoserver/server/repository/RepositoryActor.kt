@@ -19,7 +19,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 internal class RepositoryActor(
         connection: Connection,
         private val myFactory: RepositoryActorFactory,
-                               private val gorgel: Gorgel,
+        private val gorgel: Gorgel,
         commGorgel: Gorgel,
         mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), commGorgel, mustSendDebugReplies), BasicProtocolActor {
     private val myRepository = myFactory.myRepository

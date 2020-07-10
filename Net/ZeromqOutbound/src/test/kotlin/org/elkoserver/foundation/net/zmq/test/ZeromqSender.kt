@@ -15,19 +15,19 @@ internal object ZeromqSender {
         val `in` = BufferedReader(InputStreamReader(System.`in`, Charset.defaultCharset()))
         var host = args[0]
         var push = true
-        if (host.startsWith("PUSH:")) {
-            host = "tcp://${host.substring(5)}"
-        } else if (host.startsWith("PUB:")) {
-            push = false
-            host = try {
-                val parsedAddr = NetAddr(host.substring(4))
-                "tcp://*:${parsedAddr.port}"
-            } catch (e: IOException) {
-                println("problem setting up ZMQ connection with $host: $e")
-                return
+        when {
+            host.startsWith("PUSH:") -> host = "tcp://${host.substring(5)}"
+            host.startsWith("PUB:") -> {
+                push = false
+                host = try {
+                    val parsedAddr = NetAddr(host.substring(4))
+                    "tcp://*:${parsedAddr.port}"
+                } catch (e: IOException) {
+                    println("problem setting up ZMQ connection with $host: $e")
+                    return
+                }
             }
-        } else {
-            host = "tcp://$host"
+            else -> host = "tcp://$host"
         }
         val context = ZMQ.context(1)
         val socket: ZMQ.Socket

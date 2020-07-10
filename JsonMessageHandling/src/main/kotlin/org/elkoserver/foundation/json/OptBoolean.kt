@@ -29,7 +29,7 @@ class OptBoolean : OptionalParameter {
      *
      * @throws Error if the value is not present.
      */
-    fun value() =
+    fun value(): Boolean =
             if (present) {
                 myValue
             } else {
@@ -45,7 +45,7 @@ class OptBoolean : OptionalParameter {
      * @return the boolean value of this parameter if present, or the value of
      * 'defaultValue' if not present.
      */
-    fun value(defaultValue: Boolean) =
+    fun value(defaultValue: Boolean): Boolean =
             if (present) {
                 myValue
             } else {
@@ -54,6 +54,6 @@ class OptBoolean : OptionalParameter {
 
     companion object {
         /** Singleton instance of OptBoolean with the value not present.  */
-        val theMissingValue = OptBoolean()
+        val theMissingValue: OptBoolean = OptBoolean()
     }
 }

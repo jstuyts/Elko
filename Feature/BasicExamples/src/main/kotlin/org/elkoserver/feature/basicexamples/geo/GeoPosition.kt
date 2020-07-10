@@ -2,6 +2,7 @@ package org.elkoserver.feature.basicexamples.geo
 
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.BasicObject
 import org.elkoserver.server.context.ItemMod
@@ -25,14 +26,14 @@ class GeoPosition @JsonMethod("lat", "lon") constructor(private val lat: Double,
      *
      * @return a JSON literal representing this position.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("geopos", control).apply {
                 addParameter("lat", lat)
                 addParameter("lon", lon)
                 finish()
             }
 
-    override fun toString() = "(lat: $lat, lon: $lon)"
+    override fun toString(): String = "(lat: $lat, lon: $lon)"
 
     companion object {
         /**

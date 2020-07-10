@@ -192,15 +192,17 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
      */
     private fun readByteInternal(): Int {
         if (myWorkingBuffer == null) {
-            if (myPendingBuffers.size > 0) {
-                val nextBuffer = myPendingBuffers.removeFirst()
-                myWorkingBuffer = nextBuffer
-                myWorkingBufferLength = nextBuffer.size
-            } else if (myClientBuffer != null) {
-                myWorkingBuffer = myClientBuffer
-                myWorkingBufferLength = myClientBufferLength
-            } else {
-                return -1
+            when {
+                myPendingBuffers.size > 0 -> {
+                    val nextBuffer = myPendingBuffers.removeFirst()
+                    myWorkingBuffer = nextBuffer
+                    myWorkingBufferLength = nextBuffer.size
+                }
+                myClientBuffer != null -> {
+                    myWorkingBuffer = myClientBuffer
+                    myWorkingBufferLength = myClientBufferLength
+                }
+                else -> return -1
             }
             myWorkingBufferIdx = 0
         }

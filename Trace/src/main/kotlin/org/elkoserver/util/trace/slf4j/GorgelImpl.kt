@@ -16,42 +16,42 @@ class GorgelImpl(logger: Logger, private val loggerFactory: ILoggerFactory, priv
 
     constructor(logger: Logger, loggerFactory: ILoggerFactory, markerFactory: IMarkerFactory, vararg tags: Tag) : this(logger, loggerFactory, markerFactory, markerFactory.getDetachedMarker(*tags))
 
-    override fun tags(tag: Tag) = combineWithStaticTags(tag)
+    override fun tags(tag: Tag): Marker = combineWithStaticTags(tag)
 
-    override fun tags(firstTag: Tag, secondTag: Tag) = combineWithStaticTags(firstTag, secondTag)
+    override fun tags(firstTag: Tag, secondTag: Tag): Marker = combineWithStaticTags(firstTag, secondTag)
 
-    override fun tags(vararg tags: Tag) = combineWithStaticTags(*tags)
+    override fun tags(vararg tags: Tag): Marker = combineWithStaticTags(*tags)
 
-    override fun withAdditionalStaticTags(tag: Tag) =
+    override fun withAdditionalStaticTags(tag: Tag): GorgelImpl =
             GorgelImpl(logger, loggerFactory, markerFactory, combineWithStaticTags(tag))
 
-    override fun withAdditionalStaticTags(firstTag: Tag, secondTag: Tag) =
+    override fun withAdditionalStaticTags(firstTag: Tag, secondTag: Tag): GorgelImpl =
             GorgelImpl(logger, loggerFactory, markerFactory, combineWithStaticTags(firstTag))
 
-    override fun withAdditionalStaticTags(vararg tags: Tag) =
+    override fun withAdditionalStaticTags(vararg tags: Tag): GorgelImpl =
             GorgelImpl(logger, loggerFactory, markerFactory, combineWithStaticTags(*tags))
 
-    override fun getChild(childName: String) =
+    override fun getChild(childName: String): GorgelImpl =
             GorgelImpl(loggerFactory.getLogger(getFullyQualifiedChildName(childName)), loggerFactory, markerFactory, staticTags)
 
-    override fun getChild(theClass: KClass<*>) = getChild(requireNotNull(theClass.qualifiedName))
+    override fun getChild(theClass: KClass<*>): GorgelImpl = getChild(requireNotNull(theClass.qualifiedName))
 
-    override fun getChild(childName: String, tag: Tag) =
+    override fun getChild(childName: String, tag: Tag): GorgelImpl =
             GorgelImpl(loggerFactory.getLogger(getFullyQualifiedChildName(childName)), loggerFactory, markerFactory, combineWithStaticTags(tag))
 
-    override fun getChild(theClass: KClass<*>, tag: Tag) =
+    override fun getChild(theClass: KClass<*>, tag: Tag): GorgelImpl =
             getChild(requireNotNull(theClass.qualifiedName), tag)
 
-    override fun getChild(childName: String, firstTag: Tag, secondTag: Tag) =
+    override fun getChild(childName: String, firstTag: Tag, secondTag: Tag): GorgelImpl =
             GorgelImpl(loggerFactory.getLogger(getFullyQualifiedChildName(childName)), loggerFactory, markerFactory, combineWithStaticTags(firstTag, secondTag))
 
-    override fun getChild(theClass: KClass<*>, firstTag: Tag, secondTag: Tag) =
+    override fun getChild(theClass: KClass<*>, firstTag: Tag, secondTag: Tag): GorgelImpl =
             getChild(requireNotNull(theClass.qualifiedName), firstTag, secondTag)
 
-    override fun getChild(childName: String, vararg tags: Tag) =
+    override fun getChild(childName: String, vararg tags: Tag): GorgelImpl =
             GorgelImpl(loggerFactory.getLogger(getFullyQualifiedChildName(childName)), loggerFactory, markerFactory, combineWithStaticTags(*tags))
 
-    override fun getChild(theClass: KClass<*>, vararg tags: Tag) =
+    override fun getChild(theClass: KClass<*>, vararg tags: Tag): GorgelImpl =
             getChild(requireNotNull(theClass.qualifiedName), *tags)
 
     private fun getFullyQualifiedChildName(childName: String) =

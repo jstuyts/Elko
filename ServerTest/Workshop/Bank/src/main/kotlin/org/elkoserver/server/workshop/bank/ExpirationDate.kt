@@ -107,11 +107,10 @@ internal class ExpirationDate : Comparable<ExpirationDate>, Encodable, ClockUsin
      */
     override fun encode(control: EncodeControl): JsonLiteral {
         val encTime = if (myTime == Long.MAX_VALUE) 0 else myTime
-        val result = JsonLiteral(control).apply {
+        return JsonLiteral(control).apply {
             addParameter("when", encTime)
             finish()
         }
-        return result
     }
 
     /**

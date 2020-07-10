@@ -3,6 +3,7 @@ package org.elkoserver.server.context.test
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.Mod
@@ -22,7 +23,7 @@ class Die @JsonMethod("sides") constructor(private val mySides: Int) : Mod(), It
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("die", control).apply {
                 addParameter("sides", mySides)
                 finish()

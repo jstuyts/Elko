@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.zmq.ZeromqOutbound
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
@@ -34,7 +35,7 @@ class ZeromqSendMod @JsonMethod("outbound") constructor(private val myOutboundNa
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral? =
             if (!control.toClient()) {
                 JsonLiteralFactory.type("zmqsendmod", control).apply {
                     addParameter("outbound", myOutboundName)

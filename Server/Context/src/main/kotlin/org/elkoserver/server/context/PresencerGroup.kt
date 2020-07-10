@@ -19,7 +19,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param contextor  The server contextor.
  * @param presencers  List of HostDesc objects describing presence
  *    servers with whom to register.
- * @param tr  Trace object for diagnostics.
  */
 internal class PresencerGroup(
         server: Server,

@@ -33,7 +33,7 @@ class Session(private val myContextor: Contextor, private val password: String?,
      *
      * @return a string referencing this object.
      */
-    override fun ref() = "session"
+    override fun ref(): String = "session"
 
     /**
      * Handle the 'log' verb.

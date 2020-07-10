@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory.type
 
 /**
@@ -42,7 +43,7 @@ class RequestDesc(val ref: String, val collectionName: String?, private val cont
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             type("reqi", control).apply {
                 addParameter("ref", ref)
                 if (contents) {

@@ -11,6 +11,6 @@ class DirectorActorFactory(
         private val reservationFactory: ReservationFactory,
         private val timer: Timer,
         private val mustSendDebugReplies: Boolean) {
-    fun create(connection: Connection, dispatcher: MessageDispatcher, group: DirectorGroup, host: HostDesc) =
+    fun create(connection: Connection, dispatcher: MessageDispatcher, group: DirectorGroup, host: HostDesc): DirectorActor =
             DirectorActor(connection, dispatcher, group, host, reservationFactory, timer, directorActorGorgel, mustSendDebugReplies)
 }

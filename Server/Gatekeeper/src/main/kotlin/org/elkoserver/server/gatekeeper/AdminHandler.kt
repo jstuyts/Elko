@@ -75,7 +75,7 @@ internal class AdminHandler(private val myGatekeeper: Gatekeeper, commGorgel: Go
      *
      * @param from  The administrator sending the message.
      */
-    @JsonMethod()
+    @JsonMethod
     fun shutdown(from: GatekeeperActor) {
         from.ensureAuthorizedAdmin()
         myGatekeeper.shutdown()

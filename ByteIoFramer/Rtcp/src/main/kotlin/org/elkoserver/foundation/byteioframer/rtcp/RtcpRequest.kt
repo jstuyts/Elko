@@ -13,14 +13,14 @@ class RtcpRequest {
     private var myParseState = STATE_AWAITING_VERB
 
     /** RTCP request verb  */
-    var verb = 0
+    var verb: Int = 0
     /* The following elements will be present or not according to whether the
        message indicated by the verb is supposed to container them. */
     /** Highest seq number of message from us that client claims receipt of.  */
-    var clientRecvSeqNum = 0
+    var clientRecvSeqNum: Int = 0
 
     /** Seq number of message bundle from client to us (message delivery).  */
-    var clientSendSeqNum = 0
+    var clientSendSeqNum: Int = 0
 
     /** Session ID ("resume").  */
     var sessionID: String? = null
@@ -218,12 +218,12 @@ class RtcpRequest {
         private const val STATE_AWAITING_VERB = 0
         private const val STATE_AWAITING_MESSAGE = 1
         private const val STATE_COMPLETE = 2
-        const val VERB_START = 0
-        const val VERB_RESUME = 1
-        const val VERB_ACK = 2
-        const val VERB_MESSAGE = 3
-        const val VERB_END = 4
-        const val VERB_ERROR = 6
+        const val VERB_START: Int = 0
+        const val VERB_RESUME: Int = 1
+        const val VERB_ACK: Int = 2
+        const val VERB_MESSAGE: Int = 3
+        const val VERB_END: Int = 4
+        const val VERB_ERROR: Int = 6
 
         /** Regexp to match one or more spaces.  Compiled and cached here.  */
         private val theDelimiterPattern = Pattern.compile(" +")

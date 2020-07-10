@@ -205,7 +205,7 @@ constructor(
         if (allegedAccount is Account) {
             allegedAccount.releaseExpiredEncumbrances()
             if (updater.modify(allegedAccount)) {
-                allegedAccount.checkpoint(myWorkshop, myAccountCollection, Consumer<Any?> { resultObj: Any? ->
+                allegedAccount.checkpoint(myWorkshop, myAccountCollection, Consumer { resultObj: Any? ->
                     val failure = resultObj as String?
                     when {
                         failure == null -> updater.complete(null)
@@ -270,11 +270,11 @@ constructor(
             account1.releaseExpiredEncumbrances()
             account2.releaseExpiredEncumbrances()
             if (updater.modify(account1, account2)) {
-                account1.checkpoint(myWorkshop, myAccountCollection, Consumer<Any?> { resultObj: Any? ->
+                account1.checkpoint(myWorkshop, myAccountCollection, Consumer { resultObj: Any? ->
                     val failure = resultObj as String?
                     when {
                         failure == null ->
-                            account2.checkpoint(myWorkshop, myAccountCollection, Consumer<Any?> { resultObj2: Any? ->
+                            account2.checkpoint(myWorkshop, myAccountCollection, Consumer { resultObj2: Any? ->
                                 val failure2 = resultObj2 as String?
                                 when {
                                     failure2 == null -> updater.complete(null)

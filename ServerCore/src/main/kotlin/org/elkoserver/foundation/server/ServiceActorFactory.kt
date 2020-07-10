@@ -9,6 +9,6 @@ class ServiceActorFactory(
         private val gorgel: Gorgel,
         private val commGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) {
-    fun create(connection: Connection, refTable: RefTable, desc: ServiceDesc, server: Server) =
-            ServiceActor(connection, refTable, desc,server, gorgel, commGorgel, mustSendDebugReplies)
+    fun create(connection: Connection, refTable: RefTable, desc: ServiceDesc, server: Server): ServiceActor =
+            ServiceActor(connection, refTable, desc, server, gorgel, commGorgel, mustSendDebugReplies)
 }

@@ -35,7 +35,7 @@ class WebsocketByteIoFramerFactory(
      * @param receiver  Object to deliver received messages to.
      * @param label  A printable label identifying the associated connection.
      */
-    override fun provideFramer(receiver: MessageReceiver, label: String) =
+    override fun provideFramer(receiver: MessageReceiver, label: String): WebsocketFramer =
             WebsocketFramer(receiver, label, chunkyByteArrayInputStreamFactory.create())
 
     /**
@@ -79,13 +79,13 @@ class WebsocketByteIoFramerFactory(
                     }
                     WS_STAGE_HEADER -> {
                         val line = myIn.readASCIILine()
-                        if (line == null) {
-                            myIn.preserveBuffers()
-                            return
-                        } else if (line.isEmpty()) {
-                            myWSParseStage = WS_STAGE_HANDSHAKE
-                        } else {
-                            myRequest.parseHeaderLine(line)
+                        when {
+                            line == null -> {
+                                myIn.preserveBuffers()
+                                return
+                            }
+                            line.isEmpty() -> myWSParseStage = WS_STAGE_HANDSHAKE
+                            else -> myRequest.parseHeaderLine(line)
                         }
                     }
                     WS_STAGE_HANDSHAKE -> {
@@ -132,65 +132,70 @@ class WebsocketByteIoFramerFactory(
             if (msg is JsonLiteral) {
                 msg = msg.sendableString()
             }
-            return if (msg is String) {
-                val msgString = msg
-                websocketFramerGorgel.i?.run { info("$myLabel <- $msgString") }
-                val msgBytes = msgString.toByteArray(StandardCharsets.UTF_8)
-                val frame = ByteArray(msgBytes.size + 2)
-                frame[0] = 0x00
-                System.arraycopy(msgBytes, 0, frame, 1, msgBytes.size)
-                frame[frame.size - 1] = 0xFF.toByte()
-                websocketFramerGorgel.d?.run { debug("WS sending msg: $msg") }
-                frame
-            } else if (msg is WebsocketHandshake) {
-                val handshake = msg
-                if (handshake.version == 0) {
-                    val handshakeBytes = handshake.bytes
-                    val header = """
-                    HTTP/1.1 101 WebSocket Protocol Handshake
-                    Upgrade: WebSocket
-                    Connection: Upgrade
-                    Sec-WebSocket-Origin: http://$myHostName
-                    Sec-WebSocket-Location: ws://$myHostAddress$mySocketUri
-                    Sec-WebSocket-Protocol: *
-                    
-                    
-                    """.trimIndent()
-                    val headerBytes = header.toByteArray(StandardCharsets.US_ASCII)
-                    val reply = ByteArray(headerBytes.size + handshakeBytes.size)
-                    System.arraycopy(headerBytes, 0, reply, 0,
-                            headerBytes.size)
-                    System.arraycopy(handshakeBytes, 0, reply,
-                            headerBytes.size, handshakeBytes.size)
-                    websocketFramerGorgel.d?.run { debug("WS sending handshake:\n$header${byteArrayToASCII(handshakeBytes, 0, handshakeBytes.size)}") }
-                    reply
-                } else if (handshake.version == 6) {
-                    val header = """
-                    HTTP/1.1 101 Switching Protocols
-                    Upgrade: Websocket
-                    Connection: Upgrade
-                    Sec-WebSocket-Accept: ${base64Encoder.encodeToString(handshake.bytes)}
-                    
-                    
-                    """.trimIndent()
-                    val headerBytes = header.toByteArray(StandardCharsets.US_ASCII)
-                    websocketFramerGorgel.d?.run { debug("WS sending handshake:\n$header") }
-                    headerBytes
-                } else {
-                    throw Error("unsupported WebSocket version")
+            return when (msg) {
+                is String -> {
+                    val msgString = msg
+                    websocketFramerGorgel.i?.run { info("$myLabel <- $msgString") }
+                    val msgBytes = msgString.toByteArray(StandardCharsets.UTF_8)
+                    val frame = ByteArray(msgBytes.size + 2)
+                    frame[0] = 0x00
+                    System.arraycopy(msgBytes, 0, frame, 1, msgBytes.size)
+                    frame[frame.size - 1] = 0xFF.toByte()
+                    websocketFramerGorgel.d?.run { debug("WS sending msg: $msg") }
+                    frame
                 }
-            } else if (msg is HttpError) {
-                val error = msg
-                var reply = error.messageString
-                reply = """HTTP/1.1 ${error.errorNumber} ${error.errorString}
-Access-Control-Allow-Origin: *
-Content-Length: ${reply.length}
-
-$reply"""
-                websocketFramerGorgel.d?.run { debug("WS sending error:\n$reply") }
-                reply.toByteArray(StandardCharsets.US_ASCII)
-            } else {
-                throw IOException("unwritable message type: ${msg.javaClass}")
+                is WebsocketHandshake -> {
+                    val handshake = msg
+                    when (handshake.version) {
+                        0 -> {
+                            val handshakeBytes = handshake.bytes
+                            val header = """
+                                HTTP/1.1 101 WebSocket Protocol Handshake
+                                Upgrade: WebSocket
+                                Connection: Upgrade
+                                Sec-WebSocket-Origin: http://$myHostName
+                                Sec-WebSocket-Location: ws://$myHostAddress$mySocketUri
+                                Sec-WebSocket-Protocol: *
+                                
+                                
+                                """.trimIndent()
+                            val headerBytes = header.toByteArray(StandardCharsets.US_ASCII)
+                            val reply = ByteArray(headerBytes.size + handshakeBytes.size)
+                            System.arraycopy(headerBytes, 0, reply, 0,
+                                    headerBytes.size)
+                            System.arraycopy(handshakeBytes, 0, reply,
+                                    headerBytes.size, handshakeBytes.size)
+                            websocketFramerGorgel.d?.run { debug("WS sending handshake:\n$header${byteArrayToASCII(handshakeBytes, 0, handshakeBytes.size)}") }
+                            reply
+                        }
+                        6 -> {
+                            val header = """
+                                HTTP/1.1 101 Switching Protocols
+                                Upgrade: Websocket
+                                Connection: Upgrade
+                                Sec-WebSocket-Accept: ${base64Encoder.encodeToString(handshake.bytes)}
+                                
+                                
+                                """.trimIndent()
+                            val headerBytes = header.toByteArray(StandardCharsets.US_ASCII)
+                            websocketFramerGorgel.d?.run { debug("WS sending handshake:\n$header") }
+                            headerBytes
+                        }
+                        else -> throw Error("unsupported WebSocket version")
+                    }
+                }
+                is HttpError -> {
+                    val error = msg
+                    var reply = error.messageString
+                    reply = """HTTP/1.1 ${error.errorNumber} ${error.errorString}
+    Access-Control-Allow-Origin: *
+    Content-Length: ${reply.length}
+    
+    $reply"""
+                    websocketFramerGorgel.d?.run { debug("WS sending error:\n$reply") }
+                    reply.toByteArray(StandardCharsets.US_ASCII)
+                }
+                else -> throw IOException("unwritable message type: ${msg.javaClass}")
             }
         }
 

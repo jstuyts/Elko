@@ -2,6 +2,7 @@ package org.elkoserver.feature.basicexamples.invisible
 
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.BasicObject
 import org.elkoserver.server.context.ItemMod
@@ -25,7 +26,7 @@ class Invisible @JsonMethod internal constructor() : Mod(), ObjectCompletionWatc
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral? =
             if (control.toRepository()) {
                 JsonLiteralFactory.type("invisible", control).apply {
                     finish()

@@ -209,9 +209,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(userActorFactoryFactory))
     }
             .init {
-                if (req(server).startListeners("conf.listen", it) == 0) {
-                    throw IllegalStateException("no listeners specified")
-                }
+                check(req(server).startListeners("conf.listen", it) != 0) { "no listeners specified" }
                 // This must run after the listeners of the server have been started.
                 val contextor = req(contextor)
                 contextor.registerWithDirectors(req(directors), req(serverListeners))
@@ -538,7 +536,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val objectDatabaseDispatcher by Once { MessageDispatcher(req(objectDatabase), req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
 
-    val refTable by Once { RefTable(req(objectDatabaseDispatcher), req(baseCommGorgel).getChild(RefTable::class))  }
+    val refTable by Once { RefTable(req(objectDatabaseDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
     val messageDispatcher by Once {
         // The type resolver used to be "null" for "Contextor". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?

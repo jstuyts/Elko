@@ -64,7 +64,7 @@ class BrokerActor(
      *
      * @return a string referencing this object.
      */
-    override fun ref() = "broker"
+    override fun ref(): String = "broker"
 
     /**
      * Register an individual service with this broker.

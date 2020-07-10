@@ -39,12 +39,10 @@ class MethodInvoker(
      * null if no appropriate object could be found.
      */
     fun findActualTarget(target: DispatchTarget): DispatchTarget? {
-        return if (target is MessageRetargeter) {
-            (target as MessageRetargeter).findActualTarget(myMethodClass)
-        } else if (myMethodClass.isInstance(target)) {
-            target
-        } else {
-            null
+        return when {
+            target is MessageRetargeter -> (target as MessageRetargeter).findActualTarget(myMethodClass)
+            myMethodClass.isInstance(target) -> target
+            else -> null
         }
     }
 
@@ -86,5 +84,5 @@ class MethodInvoker(
         }
     }
 
-    override fun toString() = "Method($myMethod)"
+    override fun toString(): String = "Method($myMethod)"
 }

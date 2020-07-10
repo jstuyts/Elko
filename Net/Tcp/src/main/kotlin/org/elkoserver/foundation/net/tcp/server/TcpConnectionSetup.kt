@@ -21,7 +21,7 @@ class TcpConnectionSetup(
         gorgel: Gorgel,
         private val jsonByteIoFramerFactoryFactory: JsonByteIoFramerFactoryFactory)
     : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel) {
-    override val protocol = "tcp"
+    override val protocol: String = "tcp"
 
     @Throws(IOException::class)
     override fun tryToStartListener(): NetAddr {

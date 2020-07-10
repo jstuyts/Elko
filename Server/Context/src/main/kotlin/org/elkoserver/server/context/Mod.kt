@@ -26,7 +26,7 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      */
     /** Flag indicating that this mod disappears when leaving the context or
      * when the object to which it is attached is persisted.  */
-    var isEphemeral = false
+    var isEphemeral: Boolean = false
         private set
 
     /**
@@ -55,7 +55,7 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
     /**
      * Clone this object.
      */
-    public override fun clone() = super.clone()
+    public override fun clone(): Any = super.clone()
 
     /**
      * Guard function to guarantee that an operation being attempted by a user
@@ -157,7 +157,7 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      * is located, at whatever level of container nesting, or null if it is
      * not held by anything.
      */
-    protected fun holder() = assertAttached(BasicObject::holder)
+    protected fun holder(): BasicObject? = assertAttached(BasicObject::holder)
 
     /**
      * Mark the object to which this mod is attached as having been changed and
@@ -179,7 +179,7 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      *
      * @return the object to which this mod is attached.
      */
-    fun `object`() = assertAttached { it }
+    fun `object`(): BasicObject = assertAttached { it }
 
     /**
      * Obtain the context in which the object this mod is attached to is
@@ -189,7 +189,7 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
      * @return the context in which this mod is located, or null if it is not
      * in any context.
      */
-    fun context() = assertAttached(BasicObject::context)
+    fun context(): Context = assertAttached(BasicObject::context)
 
     private fun <TResult> assertAttached(myObjectConsumer: (BasicObject) -> TResult) =
             myObject?.let(myObjectConsumer) ?: throw IllegalStateException("Not attached")

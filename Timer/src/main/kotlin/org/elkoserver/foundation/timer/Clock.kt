@@ -24,8 +24,7 @@ class Clock internal constructor(private val myThread: TimerThread, private val 
      * @return the current tick count.
      */
     /** Current tick number  */
-    var ticks = 0
-        private set
+    private var ticks = 0
 
     /**
      * Called by the timer thread at clock tick time.

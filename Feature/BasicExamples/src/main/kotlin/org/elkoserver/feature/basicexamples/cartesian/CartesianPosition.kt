@@ -2,6 +2,7 @@ package org.elkoserver.feature.basicexamples.cartesian
 
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.Mod
@@ -23,7 +24,7 @@ class CartesianPosition @JsonMethod("x", "y") constructor(var x: Int, var y: Int
      *
      * @return a JSON literal representing this position.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("cartpos", control).apply {
                 addParameter("x", x)
                 addParameter("y", y)

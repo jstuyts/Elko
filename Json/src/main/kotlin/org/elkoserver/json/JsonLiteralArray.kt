@@ -29,7 +29,7 @@ class JsonLiteralArray internal constructor(internal val stringBuilder: StringBu
     private var myState = JsonLiteralArrayState.INITIAL
 
     /** Number of elements successfully added.  */
-    var size = 0
+    var size: Int = 0
         private set
 
     /**
@@ -175,7 +175,7 @@ class JsonLiteralArray internal constructor(internal val stringBuilder: StringBu
          *
          * @return a JSONLiteralArray containing the encoded 'elem'.
          */
-        fun singleElementArray(elem: JsonLiteral) =
+        fun singleElementArray(elem: JsonLiteral): JsonLiteralArray =
                 JsonLiteralArray().apply {
                     addElement(elem)
                     finish()

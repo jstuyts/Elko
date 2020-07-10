@@ -4,6 +4,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory.type
 
 /**
@@ -35,7 +36,7 @@ class ObjectDesc(internal val ref: String, val obj: String?, val failure: String
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             type("obji", control).apply {
                 addParameter("ref", ref)
                 addParameterOpt("obj", obj)

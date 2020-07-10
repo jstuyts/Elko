@@ -3,6 +3,7 @@ package org.elkoserver.feature.basicexamples.image
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
@@ -28,7 +29,7 @@ class Image @JsonMethod("width", "height", "img") constructor(private val myWidt
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("image", control).apply {
                 if (myWidth.present) {
                     addParameter("width", myWidth.value())

@@ -25,7 +25,7 @@ object JsonArraySerialization {
      * @param control  Encode control determining what flavor of encoding
      * is being done.
      */
-    fun literal(array: JsonArray, control: EncodeControl) =
+    fun literal(array: JsonArray, control: EncodeControl): JsonLiteralArray =
             JsonLiteralArray(control).apply {
                 for (element in array) {
                     addElement(element)
@@ -39,5 +39,5 @@ object JsonArraySerialization {
      *
      * @return a sendable string representation of this array.
      */
-    fun sendableString(array: JsonArray) = literal(array, ForClientEncodeControl).sendableString()
+    fun sendableString(array: JsonArray): String = literal(array, ForClientEncodeControl).sendableString()
 }

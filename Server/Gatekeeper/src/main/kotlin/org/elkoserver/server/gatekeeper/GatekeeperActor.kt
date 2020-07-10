@@ -22,7 +22,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 internal class GatekeeperActor(
         connection: Connection,
         private val myFactory: GatekeeperActorFactory,
-                               actionTime: Int,
+        actionTime: Int,
         private val gorgel: Gorgel,
         timer: Timer,
         commGorgel: Gorgel,
@@ -41,8 +41,7 @@ internal class GatekeeperActor(
      *
      * @see .doAuth
      */
-    var isAdmin = false
-        private set
+    private var isAdmin = false
 
     /** Timeout for kicking off users who connect and don't either request a
      * reservation or authenticate as an administrator.  */

@@ -8,6 +8,6 @@ class ListenerFactory(private val gorgel: Gorgel) {
             localAddress: String,
             handlerFactory: MessageHandlerFactory,
             framerFactory: ByteIoFramerFactory,
-            amSecure: Boolean) =
+            amSecure: Boolean): Listener =
             Listener(localAddress, handlerFactory, framerFactory, amSecure, gorgel)
 }

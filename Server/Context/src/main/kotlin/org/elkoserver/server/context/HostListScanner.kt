@@ -30,6 +30,6 @@ internal class HostListScanner(private val hostDescFromPropertiesFactory: HostDe
             }
         }
 
-        return  result;
+        return result
     }
 }

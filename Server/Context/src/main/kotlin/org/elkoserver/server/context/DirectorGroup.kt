@@ -58,7 +58,7 @@ class DirectorGroup(server: Server,
      *
      * @return this group's actor class.
      */
-    override fun actorClass() = DirectorActor::class.java
+    override fun actorClass(): Class<DirectorActor> = DirectorActor::class.java
 
     /**
      * Obtain a printable string suitable for tagging this group in log
@@ -66,7 +66,7 @@ class DirectorGroup(server: Server,
      *
      * @return this group's label string.
      */
-    override fun label() = "director"
+    override fun label(): String = "director"
 
     /**
      * Get an actor object suitable to act on message traffic on a new
@@ -110,7 +110,7 @@ class DirectorGroup(server: Server,
      *
      * @return the capacity of this server.
      */
-    fun capacity() = contextor.limit
+    fun capacity(): Int = contextor.limit
 
     /**
      * Lookup a reservation.

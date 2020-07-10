@@ -9,6 +9,6 @@ class BrokerActorFactory(
         private val dispatcher: MessageDispatcher,
         private val gorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) {
-    fun create(connection: Connection, server: Server, brokerHost: HostDesc) =
+    fun create(connection: Connection, server: Server, brokerHost: HostDesc): BrokerActor =
             BrokerActor(connection, dispatcher, server, brokerHost, gorgel, mustSendDebugReplies)
 }

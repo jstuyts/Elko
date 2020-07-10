@@ -47,14 +47,14 @@ class SelectThread(
                 commGorgel.d?.run { debug("select() returned with count=$selectedCount") }
                 var workToDo = myQueue.optDequeue()
                 while (workToDo != null) {
-                    if (workToDo is Listener) {
-                        val listener = workToDo
-                        listener.register(this, mySelector)
-                        commGorgel.d?.run { debug("select thread registers listener $listener") }
-                    } else if (workToDo is Callable<*>) {
-                        workToDo.call()
-                    } else {
-                        commGorgel.error("mystery object on select queue: $workToDo")
+                    when (workToDo) {
+                        is Listener -> {
+                            val listener = workToDo
+                            listener.register(this, mySelector)
+                            commGorgel.d?.run { debug("select thread registers listener $listener") }
+                        }
+                        is Callable<*> -> workToDo.call()
+                        else -> commGorgel.error("mystery object on select queue: $workToDo")
                     }
                     workToDo = myQueue.optDequeue()
                 }

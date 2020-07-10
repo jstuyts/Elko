@@ -11,6 +11,6 @@ class RtcpConnectionSetupFactory(
         private val rtcpServerFactory: RtcpServerFactory,
         private val baseConnectionSetupGorgel: Gorgel,
         private val rtcpMessageHandlerFactoryGorgel: Gorgel) : ConnectionSetupFactory {
-    override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory) =
+    override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory): RtcpConnectionSetup =
             RtcpConnectionSetup(label, host, auth, secure, props, propRoot, rtcpServerFactory, actorFactory, baseConnectionSetupGorgel, rtcpMessageHandlerFactoryGorgel)
 }

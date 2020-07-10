@@ -47,5 +47,8 @@ internal class PasswdAuthorizerSgd(provided: AuthorizerProvided, configuration: 
 
     val anonymousOk by Once { !req(provided.props()).testProperty("conf.gatekeeper.anonymous", "false") }
 
-    val objDb by Once { req(provided.server()).openObjectDatabase("conf.gatekeeper") ?: throw IllegalStateException("no database specified") }
+    val objDb by Once {
+        req(provided.server()).openObjectDatabase("conf.gatekeeper")
+                ?: throw IllegalStateException("no database specified")
+    }
 }

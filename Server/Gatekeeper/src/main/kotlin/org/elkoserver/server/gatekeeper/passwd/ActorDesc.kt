@@ -6,6 +6,7 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.json.RandomUsingObject
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory.type
 import org.elkoserver.server.gatekeeper.MessageDigestUsingObject
 import java.security.MessageDigest
@@ -106,7 +107,7 @@ class ActorDesc : Encodable, RandomUsingObject, MessageDigestUsingObject {
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             type("actor", control).apply {
                 addParameter("id", id)
                 addParameterOpt("iid", myInternalID)
@@ -145,7 +146,7 @@ class ActorDesc : Encodable, RandomUsingObject, MessageDigestUsingObject {
      *
      * @return this actor's internal ID.
      */
-    fun internalID() = myInternalID ?: id
+    fun internalID(): String = myInternalID ?: id
 
     /**
      * Set this actor's internal identifier.

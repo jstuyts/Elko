@@ -12,7 +12,7 @@ class ObjDbLocalFactory(
         private val baseGorgel: Gorgel,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer,
         private val returnRunner: Runner) {
-    fun create(propRoot: String) =
+    fun create(propRoot: String): ObjDbLocal =
             ObjDbLocal(
                     props,
                     propRoot,

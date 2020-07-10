@@ -149,12 +149,10 @@ class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
         } catch (t: Throwable) {
             /* If anything bad happens during read, the connection is dead. */
             gorgel.d?.run { debug("${this@TcpConnection} caught exception", t) }
-            if (t is EOFException) {
-                gorgel.i?.run { info("${this@TcpConnection} remote disconnect") }
-            } else if (t is IOException) {
-                gorgel.error("$this IOException: ${t.message}")
-            } else {
-                gorgel.error("$this Error", t)
+            when (t) {
+                is EOFException -> gorgel.i?.run { info("${this@TcpConnection} remote disconnect") }
+                is IOException -> gorgel.error("$this IOException: ${t.message}")
+                else -> gorgel.error("$this Error", t)
             }
             close()
             /* Close it immediately: if the connection is dead, the write queue

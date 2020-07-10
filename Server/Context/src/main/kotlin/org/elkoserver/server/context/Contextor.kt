@@ -207,7 +207,7 @@ class Contextor internal constructor(
         myStaticObjects[key] = obj
         if (obj is InternalObject) {
             obj.activate(key, this)
-            (obj as? AdminObject)?.let { refTable.addRef(it) }
+            (obj as? AdminObject)?.let(refTable::addRef)
         }
     }
 
@@ -269,7 +269,7 @@ class Contextor internal constructor(
      * @param isDeletable  Flag that is true if the new item may be deleted by
      * users.
      */
-    fun createItem(name: String, isPossibleContainer: Boolean, isDeletable: Boolean) =
+    fun createItem(name: String, isPossibleContainer: Boolean, isDeletable: Boolean): Item =
             createItem(name, null, isPossibleContainer, isDeletable)
 
     /**
@@ -351,7 +351,7 @@ class Contextor internal constructor(
         if (isValidContextRef(contextRef)) {
             var result = findContextClone(contextRef)
             if (result == null) {
-                result = refTable.get(contextRef) as Context?
+                result = refTable[contextRef] as Context?
             }
             if (result == null) {
                 if (actualContextTemplate == null) {
@@ -608,7 +608,7 @@ class Contextor internal constructor(
      */
     fun getOrLoadItem(itemRef: String, itemHandler: Consumer<Any?>) {
         if (itemRef.startsWith("item-") || itemRef.startsWith("i-")) {
-            val result = refTable.get(itemRef) as Item?
+            val result = refTable[itemRef] as Item?
             if (result == null) {
                 if (addPendingGet(itemRef, itemHandler)) {
                     objDb.getObject(itemRef, null,
@@ -648,7 +648,7 @@ class Contextor internal constructor(
      * @return the object named 'ref' from the static object table, or null if
      * there is no such object.
      */
-    fun getStaticObject(ref: String) = myStaticObjects[ref]
+    fun getStaticObject(ref: String): Any? = myStaticObjects[ref]
 
     /**
      * Load the contents of a previously closed container.
@@ -792,7 +792,7 @@ class Contextor internal constructor(
      *
      * @return the requested reservation if there is one, or null if not.
      */
-    fun lookupReservation(who: String?, where: String, authCode: String) =
+    fun lookupReservation(who: String?, where: String, authCode: String): Reservation? =
             myDirectorGroup!!.lookupReservation(who, where, authCode)
 
     /**
@@ -878,7 +878,7 @@ class Contextor internal constructor(
                 // No action needed. Do not add a context name.
             }
         }
-        val subscriber = refTable.get(contextRef) as Context?
+        val subscriber = refTable[contextRef] as Context?
         if (subscriber != null) {
             subscriber.observePresenceChange(observerRef, domain, whoRef,
                     whereRef, on)
@@ -896,7 +896,7 @@ class Contextor internal constructor(
      * @return the name for the given context, or null if none has ever been
      * reported.
      */
-    fun getMetadataContextName(contextRef: String) = myContextNames[contextRef]
+    fun getMetadataContextName(contextRef: String): String? = myContextNames[contextRef]
 
     /**
      * Obtain the name metadata for a user, as most recently reported by the
@@ -907,7 +907,7 @@ class Contextor internal constructor(
      * @return the name for the given user, or null if none has ever been
      * reported.
      */
-    fun getMetadataUserName(userRef: String) = myUserNames[userRef]
+    fun getMetadataUserName(userRef: String): String? = myUserNames[userRef]
 
     /**
      * Push a user to a different context: obtain a reservation for the new
@@ -950,7 +950,7 @@ class Contextor internal constructor(
      * @return a random long.
      */
     @Deprecated(message = "Used for 1 specific example, which should have the services it needs injected.")
-    fun randomLong() = myRandom.nextLong()
+    fun randomLong(): Long = myRandom.nextLong()
 
     /**
      * Register this server's list of listeners with its list of directors.
@@ -998,12 +998,10 @@ class Contextor internal constructor(
             val baseRef = source.baseRef()
             var contextRef: String? = null
             var userRef: String? = null
-            if (source is Context) {
-                contextRef = baseRef
-            } else if (source is User) {
-                userRef = baseRef
-            } else {
-                throw Error("relay from inappropriate object")
+            when (source) {
+                is Context -> contextRef = baseRef
+                is User -> userRef = baseRef
+                else -> throw Error("relay from inappropriate object")
             }
             var msgObject: JsonObject? = null
             for (target in refTable.clones(baseRef)) {
@@ -1071,7 +1069,7 @@ class Contextor internal constructor(
      *
      * @return the server's name.
      */
-    fun serverName() = server.serverName
+    fun serverName(): String = server.serverName
 
     /**
      * Convert an array of Items into the contents of a container.  This
@@ -1115,19 +1113,21 @@ class Contextor internal constructor(
                        param: JsonObject?, contextRef: String,
                        contextTemplate: String?,
                        userHandler: Consumer<in User?>) {
-        val rawFactory = getStaticObject(factoryTag)
-        if (rawFactory == null) {
-            contextorGorgel.error("user factory '$factoryTag' not found")
-            userHandler.accept(null)
-        } else if (rawFactory is EphemeralUserFactory) {
-            val user = rawFactory.provideUser(this, connection, param, contextRef, contextTemplate)
-            user.markAsEphemeral()
-            userHandler.accept(user)
-        } else if (rawFactory is UserFactory) {
-            rawFactory.provideUser(this, connection, param, userHandler)
-        } else {
-            contextorGorgel.error("factory tag '$factoryTag' does not designate a user factory object")
-            userHandler.accept(null)
+        when (val rawFactory = getStaticObject(factoryTag)) {
+            null -> {
+                contextorGorgel.error("user factory '$factoryTag' not found")
+                userHandler.accept(null)
+            }
+            is EphemeralUserFactory -> {
+                val user = rawFactory.provideUser(this, connection, param, contextRef, contextTemplate)
+                user.markAsEphemeral()
+                userHandler.accept(user)
+            }
+            is UserFactory -> rawFactory.provideUser(this, connection, param, userHandler)
+            else -> {
+                contextorGorgel.error("factory tag '$factoryTag' does not designate a user factory object")
+                userHandler.accept(null)
+            }
         }
     }
 
@@ -1145,7 +1145,7 @@ class Contextor internal constructor(
      *
      * @return the number of users currently in all contexts.
      */
-    fun userCount() = myUsers.size
+    fun userCount(): Int = myUsers.size
 
     /**
      * Get a read-only view of the user set.

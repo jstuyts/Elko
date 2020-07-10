@@ -157,14 +157,14 @@ class RefTable(private val myDispatcher: MessageDispatcher, baseCommGorgel: Gorg
      * @return the object designated by 'ref', or null if there is no such
      * object.
      */
-    operator fun get(ref: String?) = myObjects[ref]
+    operator fun get(ref: String?): DispatchTarget? = myObjects[ref]
 
     /**
      * Support iteration over all objects in the table.
      *
      * @return an [Iterator] over all the objects.
      */
-    override fun iterator() = myObjects.values.iterator()
+    override fun iterator(): MutableIterator<DispatchTarget> = myObjects.values.iterator()
 
     /**
      * Remove an object from the table, explicitly specifying its reference

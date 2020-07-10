@@ -185,15 +185,17 @@ class RtcpSessionConnection internal constructor(
      */
     private fun noticeInactivityTick() {
         val timeInactive = clock.millis() - myLastActivityTime
-        if (timeInactive > myInactivityTimeoutInterval) {
-            commGorgel.i?.run { info("${this@RtcpSessionConnection} tick: RTCP session timeout") }
-            close()
-        } else if (timeInactive > myInactivityTimeoutInterval / 2) {
-            commGorgel.d?.run { debug("${this@RtcpSessionConnection} tick: RTCP session acking") }
-            val ack = mySessionFactory.makeAck(clientSendSeqNum)
-            sendMsg(ack)
-        } else {
-            commGorgel.d?.run { debug("${this@RtcpSessionConnection} tick: RTCP session waiting") }
+        when {
+            timeInactive > myInactivityTimeoutInterval -> {
+                commGorgel.i?.run { info("${this@RtcpSessionConnection} tick: RTCP session timeout") }
+                close()
+            }
+            timeInactive > myInactivityTimeoutInterval / 2 -> {
+                commGorgel.d?.run { debug("${this@RtcpSessionConnection} tick: RTCP session acking") }
+                val ack = mySessionFactory.makeAck(clientSendSeqNum)
+                sendMsg(ack)
+            }
+            else -> commGorgel.d?.run { debug("${this@RtcpSessionConnection} tick: RTCP session waiting") }
         }
     }
 

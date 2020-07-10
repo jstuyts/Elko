@@ -69,11 +69,11 @@ class SessionUri(uri: String, rootUri: String) {
         private const val DISCONNECT_REQ_URI = "disconnect/"
 
         /* Constants identifying verbs. */
-        const val VERB_CONNECT = 1
-        const val VERB_SELECT = 2
-        const val VERB_XMIT_GET = 3
-        const val VERB_XMIT_POST = 4
-        const val VERB_DISCONNECT = 5
+        const val VERB_CONNECT: Int = 1
+        const val VERB_SELECT: Int = 2
+        const val VERB_XMIT_GET: Int = 3
+        const val VERB_XMIT_POST: Int = 4
+        const val VERB_DISCONNECT: Int = 5
     }
 
     init {

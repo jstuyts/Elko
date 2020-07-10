@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.ItemMod
@@ -28,7 +29,7 @@ class Note @JsonMethod("text", "style") constructor(private var myText: String, 
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("note", control).apply {
                 addParameter("text", myText)
                 addParameterOpt("style", myStyle)

@@ -7,7 +7,7 @@ import org.elkoserver.util.trace.slf4j.Tag
  */
 object Communication {
     /** Maximum length message that a connection will be able to receive.  */
-    const val MAX_MSG_LENGTH = 1024 * 1024
+    const val MAX_MSG_LENGTH: Int = 1024 * 1024
 
-    val COMMUNICATION_CATEGORY_TAG = Tag("category", "comm")
+    val COMMUNICATION_CATEGORY_TAG: Tag = Tag("category", "comm")
 }

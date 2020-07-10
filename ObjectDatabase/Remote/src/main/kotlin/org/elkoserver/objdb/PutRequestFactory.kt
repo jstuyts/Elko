@@ -13,6 +13,7 @@ class PutRequestFactory(private val tagGenerator: IdGenerator) {
         val tag = tagGenerator.generate().toString()
         return PendingRequest(handler, ref, collectionName, tag, msgPut(ref, tag, obj, collectionName, requireNew))
     }
+
     /**
      * Fill in this request's message field with a 'put' request.
      *

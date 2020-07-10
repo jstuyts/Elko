@@ -9,6 +9,6 @@ class SessionFactory(
         private val sessionCommGorgel: Gorgel,
         private val sessionPassword: String?) {
 
-    fun create(contextor: Contextor) =
+    fun create(contextor: Contextor): Session =
             Session(contextor, sessionPassword, sessionGorgel, sessionCommGorgel)
 }

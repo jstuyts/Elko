@@ -485,7 +485,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val requestTagGenerator by Once { LongIdGenerator(1L) }
 
-    val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class))  }
+    val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
     val messageDispatcher by Once {
         // The type resolver used to be "null" for "Gatekeeper" and "RefTable". Does the change to "AlwaysBaseTypeResolver" affect the behavior negatively?

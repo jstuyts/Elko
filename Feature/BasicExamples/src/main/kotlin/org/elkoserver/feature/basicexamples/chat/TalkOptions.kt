@@ -4,6 +4,7 @@ import org.elkoserver.feature.basicexamples.styledtext.StyleDesc
 import org.elkoserver.feature.basicexamples.styledtext.StyleOptions
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
@@ -27,7 +28,7 @@ class TalkOptions @JsonMethod("styles") constructor(private val myStyles: StyleO
      *
      * @return true if 'style' is acceptable to this object, false if not.
      */
-    fun allowedStyle(style: StyleDesc) = myStyles.allowedStyle(style)
+    fun allowedStyle(style: StyleDesc): Boolean = myStyles.allowedStyle(style)
 
     /**
      * Encode this mod for transmission or persistence.
@@ -37,7 +38,7 @@ class TalkOptions @JsonMethod("styles") constructor(private val myStyles: StyleO
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("talkoptions", control).apply {
                 addParameter("styles", myStyles)
                 finish()

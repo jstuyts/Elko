@@ -39,14 +39,11 @@ class JsonHttpFramer(private val commGorgel: Gorgel, private val mustSendDebugRe
      * /select/ GET, delivering 'message' to the client.
      */
     override fun makeSelectReplySegment(message: Any?, seqNumber: Int, start: Boolean, end: Boolean): String {
-        val messageString = if (message is JsonLiteral) {
-            message.sendableString()
-        } else if (message is JsonObject) {
-            sendableString(message)
-        } else if (message is String) {
-            "\"$message\""
-        } else {
-            null
+        val messageString = when (message) {
+            is JsonLiteral -> message.sendableString()
+            is JsonObject -> sendableString(message)
+            is String -> "\"$message\""
+            else -> null
         }
         return super.makeSelectReplySegment(messageString, seqNumber,
                 start, end)

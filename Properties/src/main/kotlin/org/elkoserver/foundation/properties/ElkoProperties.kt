@@ -17,7 +17,7 @@ class ElkoProperties() {
         this.properties.putAll(properties)
     }
 
-    fun containsProperty(property: String) = properties.containsKey(property)
+    fun containsProperty(property: String): Boolean = properties.containsKey(property)
 
     fun getProperty(property: String): String? = properties.getProperty(property)
 
@@ -96,7 +96,7 @@ class ElkoProperties() {
      * @throws IllegalArgumentException if the property has a value that is
      * neither of the strings "true" nor "false".
      */
-    fun testProperty(property: String) = boolProperty(property)
+    fun testProperty(property: String): Boolean = boolProperty(property)
 
     /**
      * Test if the value of a property is a particular string.
@@ -107,7 +107,7 @@ class ElkoProperties() {
      * @return `true` if the property has a value equal to
      * `possibleValue`.
      */
-    fun testProperty(property: String, possibleValue: String?) =
+    fun testProperty(property: String, possibleValue: String?): Boolean =
             if (possibleValue != null) {
                 possibleValue == properties.getProperty(property)
             } else {
@@ -121,5 +121,5 @@ class ElkoProperties() {
         return properties == otherAsElkoProperties.properties
     }
 
-    override fun hashCode() = Objects.hash(properties)
+    override fun hashCode(): Int = Objects.hash(properties)
 }

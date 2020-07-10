@@ -89,5 +89,5 @@ class ServiceLink internal constructor(internal val service: String, private val
         }
     }
 
-    override fun toString() = "ServiceLink to $service"
+    override fun toString(): String = "ServiceLink to $service"
 }

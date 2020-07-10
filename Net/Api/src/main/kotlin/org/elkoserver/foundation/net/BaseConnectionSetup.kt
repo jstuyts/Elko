@@ -16,7 +16,7 @@ abstract class BaseConnectionSetup(
         gorgel: Gorgel) : ConnectionSetup {
     val bind: String = props.getProperty("$propRoot.bind", host)
 
-    val actualGorgel = if (label != null) gorgel.withAdditionalStaticTags(Tag("label", label)) else gorgel
+    val actualGorgel: Gorgel = if (label != null) gorgel.withAdditionalStaticTags(Tag("label", label)) else gorgel
 
     override fun startListener(): NetAddr {
         val result: NetAddr

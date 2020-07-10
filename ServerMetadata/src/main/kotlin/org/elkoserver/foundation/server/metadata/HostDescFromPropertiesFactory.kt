@@ -13,13 +13,12 @@ class HostDescFromPropertiesFactory(private val props: ElkoProperties, private v
      * `"*propRoot*.retry"`, an integer, if given, is the retry
      * interval, in seconds.
      *
-     * @param props  Properties to examine for a host description.
      * @param propRoot  Root property name.
      *
      * @return a new HostDesc object as specified by 'props', or null if no such
      * host was described.
      */
-    fun fromProperties(propRoot: String) =
+    fun fromProperties(propRoot: String): HostDesc? =
             props.getProperty("$propRoot.host")?.let { host ->
                 val protocol = props.getProperty("$propRoot.protocol", "tcp")
                 val auth = authDescFromPropertiesFactory.fromProperties(propRoot)

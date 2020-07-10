@@ -17,6 +17,6 @@ class RtcpSessionConnectionFactory(
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator) {
 
-    fun create(sessionFactory: RtcpMessageHandlerFactory) =
+    fun create(sessionFactory: RtcpMessageHandlerFactory): RtcpSessionConnection =
             RtcpSessionConnection(sessionFactory, myRunner, myLoadMonitor, sessionIdGenerator.generate(), timer, clock, rtcpSessionConnectionGorgel, connectionCommGorgel, connectionIdGenerator)
 }

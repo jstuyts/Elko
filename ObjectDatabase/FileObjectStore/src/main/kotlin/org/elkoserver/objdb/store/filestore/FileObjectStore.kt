@@ -51,11 +51,8 @@ class FileObjectStore : ObjectStore {
         val dirname = props.getProperty("$propRoot.odjdb")
                 ?: throw java.lang.IllegalStateException("no object database directory specified")
         myObjDbDirectory = File(dirname)
-        if (!myObjDbDirectory.exists()) {
-            throw IllegalStateException("object database directory '$dirname' does not exist")
-        } else if (!myObjDbDirectory.isDirectory) {
-            throw IllegalStateException("requested object database directory $dirname is not a directory")
-        }
+        check(myObjDbDirectory.exists()) { "object database directory '$dirname' does not exist" }
+        check(myObjDbDirectory.isDirectory) { "requested object database directory $dirname is not a directory" }
     }
 
     /**

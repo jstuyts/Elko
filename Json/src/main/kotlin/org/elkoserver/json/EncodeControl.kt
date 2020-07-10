@@ -31,16 +31,16 @@ sealed class EncodeControl {
     /** A global, encoding control representing the intention to encode for the
      * client.  */
     object ForClientEncodeControl : EncodeControl() {
-        override fun toClient() = true
+        override fun toClient(): Boolean = true
 
-        override fun toRepository() = false
+        override fun toRepository(): Boolean = false
     }
 
     /** A global, encoding control representing the intention to encode for the
      * repository.  */
     object ForRepositoryEncodeControl : EncodeControl() {
-        override fun toClient() = false
+        override fun toClient(): Boolean = false
 
-        override fun toRepository() = true
+        override fun toRepository(): Boolean = true
     }
 }

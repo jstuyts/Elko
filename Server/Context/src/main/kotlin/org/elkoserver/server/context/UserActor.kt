@@ -102,14 +102,14 @@ class UserActor(
      * allowed to proceed, false if it did not and the session should be
      * disconnected.
      */
-    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, newLabel: String) = false
+    override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, newLabel: String): Boolean = false
 
     /**
      * Obtain this user actors's connection ID.
      *
      * @return the ID number of the connection associated with this actor.
      */
-    fun connectionID() = myConnection.id()
+    fun connectionID(): Int = myConnection.id()
 
     /**
      * Disconnect this actor.
@@ -317,7 +317,7 @@ class UserActor(
      *
      * @return the User associated with this actor in the given context.
      */
-    fun user(context: Context) = myUsers[context]
+    fun user(context: Context): User? = myUsers[context]
 
     init {
         startEntryTimeout()

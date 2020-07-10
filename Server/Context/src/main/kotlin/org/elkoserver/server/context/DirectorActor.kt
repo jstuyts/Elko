@@ -163,7 +163,7 @@ class DirectorActor(
      *
      * @return a string referencing this object.
      */
-    override fun ref() = "provider"
+    override fun ref(): String = "provider"
 
     /**
      * Remove an expired or redeemed reservation from the reservation table.
@@ -279,18 +279,12 @@ class DirectorActor(
         val deny = optDeny.value<String?>(null)
         if (tag != null) {
             val who = myPendingReservationRequests.remove(tag)
-            if (who == null) {
-                gorgel.warn("received reservation for unknown tag $tag")
-            } else if (deny != null) {
-                who.exitContext(deny, "dirdeny", false)
-            } else if (hostPort == null) {
-                who.exitContext("no hostport for next context", "dirfail",
-                        false)
-            } else if (reservation == null) {
-                who.exitContext("no reservation for next context", "dirfail",
-                        false)
-            } else {
-                who.exitWithContextChange(context, hostPort, reservation)
+            when {
+                who == null -> gorgel.warn("received reservation for unknown tag $tag")
+                deny != null -> who.exitContext(deny, "dirdeny", false)
+                hostPort == null -> who.exitContext("no hostport for next context", "dirfail", false)
+                reservation == null -> who.exitContext("no reservation for next context", "dirfail", false)
+                else -> who.exitWithContextChange(context, hostPort, reservation)
             }
         } else {
             gorgel.warn("received reservation reply without tag")

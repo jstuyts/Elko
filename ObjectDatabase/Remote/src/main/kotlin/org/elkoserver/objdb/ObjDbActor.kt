@@ -46,7 +46,7 @@ class ObjDbActor(
      *
      * @return a string referencing this object.
      */
-    override fun ref() = "rep"
+    override fun ref(): String = "rep"
 
     /**
      * Handle the 'get' verb.

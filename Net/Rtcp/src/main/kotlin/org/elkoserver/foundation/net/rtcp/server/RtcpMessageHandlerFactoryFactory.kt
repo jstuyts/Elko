@@ -11,6 +11,6 @@ class RtcpMessageHandlerFactoryFactory(
         private val rtcpMessageHandlerCommGorgel: Gorgel,
         private val rtcpSessionConnectionFactory: RtcpSessionConnectionFactory) {
 
-    fun create(innerHandlerFactory: MessageHandlerFactory, rtcpMessageHandlerFactoryGorgel: Gorgel) =
+    fun create(innerHandlerFactory: MessageHandlerFactory, rtcpMessageHandlerFactoryGorgel: Gorgel): RtcpMessageHandlerFactory =
             RtcpMessageHandlerFactory(innerHandlerFactory, rtcpMessageHandlerFactoryGorgel, rtcpSessionConnectionFactory, props, timer, rtcpMessageHandlerCommGorgel)
 }

@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
@@ -26,7 +27,7 @@ class Movement @JsonMethod("minx", "miny", "maxx", "maxy") constructor(
     private val myMaxX: Int = maxX.value(100)
     private val myMaxY: Int = maxY.value(100)
 
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral? =
             if (control.toClient()) {
                 null
             } else {
@@ -53,7 +54,7 @@ class Movement @JsonMethod("minx", "miny", "maxx", "maxy") constructor(
     }
 
     companion object {
-        fun msgMove(who: Referenceable, x: Int, y: Int, into: Referenceable?) =
+        fun msgMove(who: Referenceable, x: Int, y: Int, into: Referenceable?): JsonLiteral =
                 targetVerb(who, "move").apply {
                     addParameter("x", x)
                     addParameter("y", y)

@@ -4,6 +4,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 
 /**
@@ -76,7 +77,7 @@ class StyleOptions @JsonMethod("colors", "backgroundColors", "borderColors", "te
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("styleoptions", control).apply {
                 if (colors != null && colors.isNotEmpty()) {
                     addParameter("colors", colors)

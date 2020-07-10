@@ -7,6 +7,7 @@ import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.gorgel.Gorg
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import org.ooverkommelig.D
+import org.ooverkommelig.Definition
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.Once
 import org.ooverkommelig.ProvidedBase
@@ -19,13 +20,13 @@ class TimerSgd(provided: Provided, configuration: ObjectGraphConfiguration = Obj
         fun baseGorgel(): D<Gorgel>
     }
 
-    val timer by Once { Timer(req(timerThread)) }
+    val timer: Definition<Timer> by Once { Timer(req(timerThread)) }
 
     internal val timerThread by Once { TimerThread(req(provided.clock()), req(exceptionReporter)) }
             .init(TimerThread::start)
             .dispose(TimerThread::shutdown)
 
-    val timerThreadExceptionGorgel by Once { req(provided.baseGorgel()).getChild(TimerThread::class, Tag("category", "exception")) }
+    val timerThreadExceptionGorgel: Definition<Gorgel> by Once { req(provided.baseGorgel()).getChild(TimerThread::class, Tag("category", "exception")) }
 
-    val exceptionReporter by Once { ExceptionReporter(GorgelExceptionNoticer(req(timerThreadExceptionGorgel))) }
+    val exceptionReporter: Definition<ExceptionReporter> by Once { ExceptionReporter(GorgelExceptionNoticer(req(timerThreadExceptionGorgel))) }
 }

@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
@@ -21,7 +22,7 @@ import org.elkoserver.server.context.UserWatcher
 class SimpleChat @JsonMethod("allowpush") constructor(allowPush: OptBoolean) : Mod(), ObjectCompletionWatcher, ContextMod {
     /** Whether users are permitted to push URLs to other users.  */
     private val amAllowingPush = allowPush.value(false)
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("schat", control).apply {
                 if (!control.toClient()) {
                     addParameter("allowpush", amAllowingPush)
@@ -67,7 +68,7 @@ class SimpleChat @JsonMethod("allowpush") constructor(allowPush: OptBoolean) : M
                     finish()
                 }
 
-        fun msgSay(target: Referenceable, from: Referenceable, speech: String?) =
+        fun msgSay(target: Referenceable, from: Referenceable, speech: String?): JsonLiteral =
                 targetVerb(target, "say").apply {
                     addParameter("from", from)
                     addParameter("speech", speech)

@@ -93,7 +93,7 @@ class Queue<TElement> : Enumeration<TElement> {
      *
      * @return is false if the queue is empty, otherwise true
      */
-    override fun hasMoreElements() = myCurSize != 0
+    override fun hasMoreElements(): Boolean = myCurSize != 0
 
     /**
      * Get the least-recently-added element off of the queue.  If the queue
@@ -101,7 +101,7 @@ class Queue<TElement> : Enumeration<TElement> {
      * allows a Queue to be used as an Enumeration.
      */
     @Throws(NoSuchElementException::class)
-    override fun nextElement() = optDequeue() ?: throw NoSuchElementException("queue is currently empty")
+    override fun nextElement(): TElement = optDequeue() ?: throw NoSuchElementException("queue is currently empty")
 
     /**
      * Get the least-recently-added element off of the queue, or null

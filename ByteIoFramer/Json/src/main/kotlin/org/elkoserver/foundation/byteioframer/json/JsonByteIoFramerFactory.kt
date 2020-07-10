@@ -26,9 +26,9 @@ class JsonByteIoFramerFactory(private val gorgel: Gorgel, private val chunkyByte
      * @param receiver  Object to deliver received messages to.
      * @param label  A printable label identifying the associated connection.
      */
-    override fun provideFramer(receiver: MessageReceiver, label: String) =
+    override fun provideFramer(receiver: MessageReceiver, label: String): JsonByteIoFramer =
             JsonByteIoFramer(gorgel, receiver, label, chunkyByteArrayInputStreamFactory.create(), mustSendDebugReplies)
 
-    fun provideFramer(receiver: MessageReceiver, label: String, input: ChunkyByteArrayInputStream) =
+    fun provideFramer(receiver: MessageReceiver, label: String, input: ChunkyByteArrayInputStream): JsonByteIoFramer =
             JsonByteIoFramer(gorgel, receiver, label, input, mustSendDebugReplies)
 }

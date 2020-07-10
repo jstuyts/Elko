@@ -8,6 +8,6 @@ class WebsocketByteIoFramerFactoryFactory(
         private val websocketFramerGorgel: Gorgel,
         private val chunkyByteArrayInputStreamFactory: ChunkyByteArrayInputStreamFactory,
         private val jsonByteIoFramerFactory: JsonByteIoFramerFactory) {
-    fun create(hostAddress: String, socketUri: String) =
+    fun create(hostAddress: String, socketUri: String): WebsocketByteIoFramerFactory =
             WebsocketByteIoFramerFactory(websocketFramerGorgel, hostAddress, socketUri, chunkyByteArrayInputStreamFactory, jsonByteIoFramerFactory)
 }

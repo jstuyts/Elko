@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory.type
 import org.elkoserver.json.JsonObject
 
@@ -42,7 +43,7 @@ class QueryDesc(val template: JsonObject, val collectionName: String?, val maxRe
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             type("queryi", control).apply {
                 addParameter("template", template)
                 addParameterOpt("coll", collectionName)

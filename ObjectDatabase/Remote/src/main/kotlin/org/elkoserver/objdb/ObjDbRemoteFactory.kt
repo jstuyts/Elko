@@ -22,7 +22,7 @@ class ObjDbRemoteFactory(
         private val removeRequestFactory: RemoveRequestFactory,
         private val mustSendDebugReplies: Boolean,
         private val connectionRetrierFactory: ConnectionRetrierFactory) {
-    fun create(serviceFinder: ServiceFinder, serverName: String, propRoot: String) =
+    fun create(serviceFinder: ServiceFinder, serverName: String, propRoot: String): ObjDbRemote =
             ObjDbRemote(
                     serviceFinder,
                     serverName,
@@ -39,5 +39,5 @@ class ObjDbRemoteFactory(
                     queryRequestFactory,
                     removeRequestFactory,
                     mustSendDebugReplies,
-            connectionRetrierFactory)
+                    connectionRetrierFactory)
 }

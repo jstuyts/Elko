@@ -22,7 +22,7 @@ class TcpConnectionFactory(
             channel: SocketChannel,
             isSecure: Boolean,
             key: SelectionKey,
-            selectThread: SelectThread) =
+            selectThread: SelectThread): TcpConnection =
             TcpConnection(handlerFactory, framerFactory,
                     channel, key, selectThread, runner, loadMonitor, isSecure, tcpConnectionGorgel, clock, tcpConnectionCommGorgel, idGenerator)
 }

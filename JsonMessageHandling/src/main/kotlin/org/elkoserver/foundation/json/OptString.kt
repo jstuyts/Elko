@@ -29,7 +29,7 @@ class OptString : OptionalParameter {
      *
      * @throws Error if the value is not present.
      */
-    fun value() =
+    fun value(): String =
             if (present) {
                 myValue
             } else {
@@ -54,6 +54,6 @@ class OptString : OptionalParameter {
 
     companion object {
         /** Singleton instance of OptString with the value not present.  */
-        val theMissingValue = OptString()
+        val theMissingValue: OptString = OptString()
     }
 }

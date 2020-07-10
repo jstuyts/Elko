@@ -9,7 +9,7 @@ object JsonObjectSerialization {
      * @param control  Encode control determining what flavor of encoding
      * is being done.
      */
-    fun literal(`object`: JsonObject, control: EncodeControl) =
+    fun literal(`object`: JsonObject, control: EncodeControl): JsonLiteral =
             JsonLiteral(control).apply {
                 /* What follows is a little bit of hackery to ensure that the canonical
                    message and object properties ("to:", "op:", and "type:") are
@@ -49,5 +49,5 @@ object JsonObjectSerialization {
      *
      * @return a sendable [String] representation of this object
      */
-    fun sendableString(jsonObject: JsonObject) = literal(jsonObject, ForClientEncodeControl).sendableString()
+    fun sendableString(jsonObject: JsonObject): String = literal(jsonObject, ForClientEncodeControl).sendableString()
 }

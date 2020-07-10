@@ -56,7 +56,7 @@ abstract class BasicObject internal constructor(
      * @return true if the object is ephemeral, false if not.
      */
     /** Flag that this object is ephemeral.  */
-    var isEphemeral = false
+    var isEphemeral: Boolean = false
         private set
 
     /** Other objects that should be checkpointed when this object is.  */
@@ -77,7 +77,7 @@ abstract class BasicObject internal constructor(
     var myModSet: ModSet
 
     /** The contextor for this server.  */ /* protected */
-    var myContextor: Contextor? = null
+    private var myContextor: Contextor? = null
 
     /** Optional handler for messages that don't have handlers.  */
     private var myDefaultDispatchTarget: DefaultDispatchTarget? = null
@@ -307,7 +307,7 @@ abstract class BasicObject internal constructor(
      *
      * @return the contextor associated with this object.
      */
-    fun contextor() = assertActivated { it }
+    fun contextor(): Contextor = assertActivated { it }
 
     /**
      * Create a [Item] directly (i.e., create it at runtime rather than
@@ -323,7 +323,7 @@ abstract class BasicObject internal constructor(
      *
      * @return a new [Item] object as described by the parameters.
      */
-    fun createItem(name: String, isPossibleContainer: Boolean, isDeletable: Boolean) =
+    fun createItem(name: String, isPossibleContainer: Boolean, isDeletable: Boolean): Item =
             assertActivated { it.createItem(name, this, isPossibleContainer, isDeletable) }
 
     /**
@@ -630,7 +630,7 @@ abstract class BasicObject internal constructor(
      * messages, either as the message target or as a parameter value.
      */
     // FIXME: Handle "null" values properly. Is there a nullability distinction between contexts, users, items, etc.?
-    override fun ref() = myRef!!
+    override fun ref(): String = myRef!!
 
     companion object {
         /** Visibility has not been set.  */
@@ -640,10 +640,10 @@ abstract class BasicObject internal constructor(
         private const val VIS_PUBLIC = 1
 
         /** Visible to user holding object but nobody else.  */
-        const val VIS_PERSONAL = 2
+        const val VIS_PERSONAL: Int = 2
 
         /** Not visible to anyone.  */
-        const val VIS_NONE = 3
+        const val VIS_NONE: Int = 3
 
         /** Visible according to the visibility of its container.  */
         private const val VIS_CONTAINER = 4
@@ -659,6 +659,6 @@ abstract class BasicObject internal constructor(
         myModSet = ModSet(mods)
     }
 
-    protected fun <TResult> assertActivated(myContextorConsumer: (Contextor) -> TResult) =
+    protected fun <TResult> assertActivated(myContextorConsumer: (Contextor) -> TResult): TResult =
             myContextor?.let(myContextorConsumer) ?: throw IllegalStateException("Not activated")
 }

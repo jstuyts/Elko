@@ -20,7 +20,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 internal class BrokerActor(
         connection: Connection,
         private val myFactory: BrokerActorFactory,
-                           private val gorgel: Gorgel,
+        private val gorgel: Gorgel,
         commGorgel: Gorgel,
         private val clientOrdinalGenerator: LongOrdinalGenerator,
         mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), commGorgel, mustSendDebugReplies), BasicProtocolActor {

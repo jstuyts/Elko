@@ -87,12 +87,10 @@ abstract class Invoker<in TTarget>(
         (firstIndex until myParamTypes.size)
                 .filter { params[it] == null }
                 .forEach {
-                    if (myParamOptFlags[it - firstIndex]) {
-                        params[it] = null
-                    } else if (isOptionalParamType(myParamTypes[it])) {
-                        params[it] = missingValue(myParamTypes[it])
-                    } else {
-                        throw JsonInvocationException("expected parameter '${myParamNames[it - firstIndex]}' missing")
+                    when {
+                        myParamOptFlags[it - firstIndex] -> params[it] = null
+                        isOptionalParamType(myParamTypes[it]) -> params[it] = missingValue(myParamTypes[it])
+                        else -> throw JsonInvocationException("expected parameter '${myParamNames[it - firstIndex]}' missing")
                     }
                 }
         if (firstParam != null) {
@@ -137,12 +135,10 @@ abstract class Invoker<in TTarget>(
     private fun packParam(paramType: Class<*>, value: Any, resolver: TypeResolver): Any? {
         val valueType: Class<*> = value.javaClass
         return if (valueType == String::class.java) {
-            if (paramType == String::class.java) {
-                value
-            } else if (paramType == OptString::class.java) {
-                OptString((value as String))
-            } else {
-                null
+            when (paramType) {
+                String::class.java -> value
+                OptString::class.java -> OptString((value as String))
+                else -> null
             }
         } else if (valueType == java.lang.Long::class.java) {
             if (paramType == java.lang.Long::class.java || paramType == Long::class.javaPrimitiveType || paramType == Long::class.java || paramType == Long::class) {
@@ -214,23 +210,23 @@ abstract class Invoker<in TTarget>(
             }
         } else if (valueType == JsonArray::class.java) {
             val arrayValue = value as JsonArray
-            if (paramType == JsonArray::class.java) {
-                value
-            } else if (paramType.isArray) {
-                val baseType = paramType.componentType
-                val valueArray = arrayValue.toArray()
-                val result = java.lang.reflect.Array.newInstance(baseType, valueArray.size)
-                for (i in valueArray.indices) {
-                    val elemValue = packParam(baseType, valueArray[i], resolver)
-                    if (elemValue != null) {
-                        java.lang.reflect.Array.set(result, i, elemValue)
-                    } else {
-                        return null
+            when {
+                paramType == JsonArray::class.java -> value
+                paramType.isArray -> {
+                    val baseType = paramType.componentType
+                    val valueArray = arrayValue.toArray()
+                    val result = java.lang.reflect.Array.newInstance(baseType, valueArray.size)
+                    for (i in valueArray.indices) {
+                        val elemValue = packParam(baseType, valueArray[i], resolver)
+                        if (elemValue != null) {
+                            java.lang.reflect.Array.set(result, i, elemValue)
+                        } else {
+                            return null
+                        }
                     }
+                    result
                 }
-                result
-            } else {
-                null
+                else -> null
             }
         } else if (valueType == JsonObject::class.java) {
             val actualValue = value as JsonObject

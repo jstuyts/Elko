@@ -12,6 +12,6 @@ class HttpConnectionSetupFactory(
         private val baseConnectionSetupGorgel: Gorgel,
         private val jsonHttpFramerCommGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : ConnectionSetupFactory {
-    override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory) =
+    override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory): HttpConnectionSetup =
             HttpConnectionSetup(label, host, auth, secure, props, propRoot, httpServerFactory, actorFactory, baseConnectionSetupGorgel, jsonHttpFramerCommGorgel, mustSendDebugReplies)
 }

@@ -139,7 +139,7 @@ internal class ClientHandler(private val myBroker: Broker, commGorgel: Gorgel) :
     fun willserve(from: BrokerActor, services: Array<ServiceDesc>) {
         from.ensureAuthorizedClient()
         services
-                .filter(this@ClientHandler::validServiceDescription)
+                .filter(::validServiceDescription)
                 .forEach(from.client!!::addService)
     }
 

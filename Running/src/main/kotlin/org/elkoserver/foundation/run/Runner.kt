@@ -96,7 +96,7 @@ class Runner(name: String, private val gorgel: Gorgel) : Runnable {
      * happen in the meantime.
      */
     fun orderlyShutdown() {
-        enqueue(Runnable { mustStop = true})
+        enqueue(Runnable { mustStop = true })
     }
 
     private var mustStop = false

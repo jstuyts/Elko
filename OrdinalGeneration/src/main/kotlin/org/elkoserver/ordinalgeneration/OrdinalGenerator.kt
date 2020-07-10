@@ -1,5 +1,5 @@
 package org.elkoserver.ordinalgeneration
 
 interface OrdinalGenerator {
-    fun generate() : Long
+    fun generate(): Long
 }

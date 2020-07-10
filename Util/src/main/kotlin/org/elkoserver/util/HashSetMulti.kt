@@ -56,7 +56,7 @@ class HashSetMulti<V> : Iterable<V> {
      *
      * @return an unmodifiable view onto this set.
      */
-    fun asUnmodifiable() = HashSetMulti(myMembers)
+    fun asUnmodifiable(): HashSetMulti<V> = HashSetMulti(myMembers)
 
     /**
      * Test if a given object is a member of the set (i.e., that it has been
@@ -66,7 +66,7 @@ class HashSetMulti<V> : Iterable<V> {
      *
      * @return true if 'obj' is a member of this set.
      */
-    operator fun contains(obj: V) = myMembers?.containsKey(obj) ?: false
+    operator fun contains(obj: V): Boolean = myMembers?.containsKey(obj) ?: false
 
     /**
      * Test if this set is empty.

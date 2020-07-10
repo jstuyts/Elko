@@ -20,7 +20,7 @@ import java.util.function.Consumer
  * @param myDevice  The name of the device (IOS, etc).
  */
 open class DevicePersistentUserFactory @JsonMethod("device") internal constructor(private val myDevice: String) : UserFactory, ClassspecificGorgelUsingObject {
-    protected lateinit var myGorgel: Gorgel
+    private lateinit var myGorgel: Gorgel
 
     override fun setGorgel(gorgel: Gorgel) {
         myGorgel = gorgel

@@ -17,7 +17,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * implementations for these messages that should be satisfactory in nearly all
  * circumstances.
  */
-abstract class BasicProtocolHandler protected constructor(): Referenceable, DispatchTarget, BaseCommGorgelUsingObject {
+abstract class BasicProtocolHandler protected constructor() : Referenceable, DispatchTarget, BaseCommGorgelUsingObject {
     private lateinit var commGorgel: Gorgel
 
     constructor(commGorgel: Gorgel) : this() {

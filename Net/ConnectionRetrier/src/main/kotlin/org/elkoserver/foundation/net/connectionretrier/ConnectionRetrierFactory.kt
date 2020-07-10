@@ -13,7 +13,7 @@ class ConnectionRetrierFactory(
         private val timer: Timer,
         private val connectionRetrierWithoutLabelGorgel: Gorgel,
         private val jsonByteIoFramerFactoryFactory: JsonByteIoFramerFactoryFactory) {
-    fun create(host: HostDesc, label: String, messageHandlerFactory: MessageHandlerFactory) =
+    fun create(host: HostDesc, label: String, messageHandlerFactory: MessageHandlerFactory): ConnectionRetrier =
             ConnectionRetrier(
                     host,
                     label,

@@ -140,7 +140,7 @@ class ModSet private constructor() {
          *
          * @return the set (created if necessary), with 'mod' in it.
          */
-        fun withMod(modSet: ModSet?, mod: Mod) =
+        fun withMod(modSet: ModSet?, mod: Mod): ModSet =
                 (modSet ?: ModSet()).apply {
                     addMod(mod)
                 }

@@ -4,6 +4,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory.type
 
 /**
@@ -33,7 +34,7 @@ open class ResultDesc(protected val ref: String, val failure: String?) : Encodab
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             type("stati", control).apply {
                 addParameter("ref", ref)
                 addParameterOpt("failure", failure)

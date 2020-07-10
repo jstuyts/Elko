@@ -29,7 +29,7 @@ class OptDouble : OptionalParameter {
      *
      * @throws Error if the value is not present.
      */
-    fun value() =
+    fun value(): Double =
             if (present) {
                 myValue
             } else {
@@ -45,7 +45,7 @@ class OptDouble : OptionalParameter {
      * @return the double value of this parameter if present, or the value of
      * 'defaultValue' if not present.
      */
-    fun value(defaultValue: Double) =
+    fun value(defaultValue: Double): Double =
             if (present) {
                 myValue
             } else {
@@ -54,6 +54,6 @@ class OptDouble : OptionalParameter {
 
     companion object {
         /** Singleton instance of OptDouble with the value not present.  */
-        val theMissingValue = OptDouble()
+        val theMissingValue: OptDouble = OptDouble()
     }
 }

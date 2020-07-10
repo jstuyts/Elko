@@ -29,7 +29,7 @@ class OptInteger : OptionalParameter {
      *
      * @throws Error if the value is not present.
      */
-    fun value() =
+    fun value(): Int =
             if (present) {
                 myValue
             } else {
@@ -45,7 +45,7 @@ class OptInteger : OptionalParameter {
      * @return the int value of this parameter if present, or the value of
      * 'defaultValue' if not present.
      */
-    fun value(defaultValue: Int) =
+    fun value(defaultValue: Int): Int =
             if (present) {
                 myValue
             } else {
@@ -54,6 +54,6 @@ class OptInteger : OptionalParameter {
 
     companion object {
         /** Singleton instance of OptInteger with the value not present.  */
-        val theMissingValue = OptInteger()
+        val theMissingValue: OptInteger = OptInteger()
     }
 }

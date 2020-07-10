@@ -21,6 +21,6 @@ class ZeromqConnectionSetupFactory(
         private val connectionIdGenerator: IdGenerator,
         private val clock: Clock,
         private val jsonByteIoFramerFactoryFactory: JsonByteIoFramerFactoryFactory) : ConnectionSetupFactory {
-    override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory) =
+    override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory): ZeromqConnectionSetup =
             ZeromqConnectionSetup(label, host, auth, secure, props, propRoot, runner, loadMonitor, actorFactory, baseConnectionSetupGorgel, connectionBaseCommGorgel, threadCommGorgel, connectionIdGenerator, clock, jsonByteIoFramerFactoryFactory)
 }

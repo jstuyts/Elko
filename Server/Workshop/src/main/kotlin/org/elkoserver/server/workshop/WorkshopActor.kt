@@ -27,7 +27,7 @@ class WorkshopActor internal constructor(
     private var amLoggedOut = false
 
     /** Optional convenience label for logging and such.  */
-    var label: String? = null
+    private var label: String? = null
 
     /** True if actor is authorized to perform admin operations.  */
     private var amAdmin = false
@@ -50,7 +50,7 @@ class WorkshopActor internal constructor(
      * Do the actual work of authorizing an actor.
      */
     override fun doAuth(handler: BasicProtocolHandler, auth: AuthDesc?, newLabel: String): Boolean {
-        this.label = newLabel
+        label = newLabel
         var success = false
         if (myFactory.verifyAuthorization(auth)) {
             if (handler is AdminHandler) {
@@ -109,5 +109,5 @@ class WorkshopActor internal constructor(
     /**
      * @return a printable representation of this actor.
      */
-    override fun toString() = label ?: super.toString()
+    override fun toString(): String = label ?: super.toString()
 }

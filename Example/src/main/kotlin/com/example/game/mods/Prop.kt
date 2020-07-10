@@ -5,6 +5,7 @@ import org.elkoserver.feature.basicexamples.cartesian.CartesianPosition
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.Item
 import org.elkoserver.server.context.ItemMod
@@ -13,7 +14,7 @@ import org.elkoserver.server.context.Msg
 import org.elkoserver.server.context.User
 
 class Prop @JsonMethod("kind") constructor(private val myKind: String) : Mod(), ItemMod {
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("prop", control).apply {
                 addParameter("kind", myKind)
                 finish()

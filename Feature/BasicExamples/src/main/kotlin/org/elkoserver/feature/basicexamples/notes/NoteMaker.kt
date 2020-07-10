@@ -7,6 +7,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
@@ -42,7 +43,7 @@ class NoteMaker @JsonMethod("styles") constructor(private val myStyleOptions: St
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("notemaker", control).apply {
                 addParameter("styles", myStyleOptions)
                 finish()

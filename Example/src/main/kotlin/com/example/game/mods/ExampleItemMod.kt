@@ -4,6 +4,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
@@ -20,7 +21,7 @@ class ExampleItemMod @JsonMethod("str1", "str2", "int1", "int2") constructor(
     private val myInt1: Int = int1
     private val myInt2: Int = optInt2.value(0)
 
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("exi", control).apply {
                 addParameter("str1", myString1)
                 addParameterOpt("str2", myString2)

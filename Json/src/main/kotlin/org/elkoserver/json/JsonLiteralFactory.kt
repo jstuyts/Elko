@@ -7,7 +7,7 @@ object JsonLiteralFactory {
      * @param target  The target to whom this message is addressed.
      * @param verb  The message verb.
      */
-    fun targetVerb(target: Referenceable, verb: String) =
+    fun targetVerb(target: Referenceable, verb: String): JsonLiteral =
             JsonLiteral().apply {
                 addParameter("to", target)
                 addParameter("op", verb)
@@ -20,7 +20,7 @@ object JsonLiteralFactory {
      * is addressed.
      * @param verb  The message verb.
      */
-    fun targetVerb(target: String, verb: String) =
+    fun targetVerb(target: String, verb: String): JsonLiteral =
             JsonLiteral().apply {
                 addParameter("to", target)
                 addParameter("op", verb)
@@ -33,7 +33,7 @@ object JsonLiteralFactory {
      * @param control  Encode control determining what flavor of encoding
      * is being done.
      */
-    fun type(type: String, control: EncodeControl) =
+    fun type(type: String, control: EncodeControl): JsonLiteral =
             JsonLiteral(control).apply {
                 addParameter("type", type)
             }

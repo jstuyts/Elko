@@ -45,7 +45,7 @@ abstract class WorkerObject protected constructor(private val myServiceName: Str
      *
      * @return the Workshop object for this server.
      */
-    protected fun workshop() = myWorkshop
+    protected fun workshop(): Workshop = myWorkshop
     /* ----- Encodable interface ------------------------------------------ */
     /**
      * Produce a [JsonLiteral] representing the encoded state of this

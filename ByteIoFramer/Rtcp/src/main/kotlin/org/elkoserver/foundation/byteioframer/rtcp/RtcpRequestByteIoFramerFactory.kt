@@ -90,31 +90,32 @@ class RtcpRequestByteIoFramerFactory(private val gorgel: Gorgel, private val chu
                             myIn.preserveBuffers()
                             return
                         }
-                        if (line.isEmpty()) {
-                            var needsFurtherParsing = true
-                            while (needsFurtherParsing) {
-                                try {
-                                    val obj = jsonObjectFromString(myMsgBuffer.toString())
-                                    if (obj == null) {
+                        when {
+                            line.isEmpty() -> {
+                                var needsFurtherParsing = true
+                                while (needsFurtherParsing) {
+                                    try {
+                                        val obj = jsonObjectFromString(myMsgBuffer.toString())
+                                        if (obj == null) {
+                                            needsFurtherParsing = false
+                                        } else {
+                                            myRequest.addMessage(obj)
+                                        }
+                                    } catch (e: JsonParserException) {
                                         needsFurtherParsing = false
-                                    } else {
-                                        myRequest.addMessage(obj)
+                                        if (mustSendDebugReplies) {
+                                            myRequest.noteProblem(e)
+                                        }
+                                        gorgel.warn("syntax error in JSON message: ${e.message}")
                                     }
-                                } catch (e: JsonParserException) {
-                                    needsFurtherParsing = false
-                                    if (mustSendDebugReplies) {
-                                        myRequest.noteProblem(e)
-                                    }
-                                    gorgel.warn("syntax error in JSON message: ${e.message}")
                                 }
+                                myMsgBuffer.setLength(0)
                             }
-                            myMsgBuffer.setLength(0)
-                        } else if (myMsgBuffer.length + line.length >
-                                Communication.MAX_MSG_LENGTH) {
-                            throw IOException("input too large (limit ${Communication.MAX_MSG_LENGTH} bytes)")
-                        } else {
-                            myMsgBuffer.append(' ')
-                            myMsgBuffer.append(line)
+                            myMsgBuffer.length + line.length > Communication.MAX_MSG_LENGTH -> throw IOException("input too large (limit ${Communication.MAX_MSG_LENGTH} bytes)")
+                            else -> {
+                                myMsgBuffer.append(' ')
+                                myMsgBuffer.append(line)
+                            }
                         }
                     }
                 }

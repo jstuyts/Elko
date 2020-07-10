@@ -37,7 +37,7 @@ class ZeromqConnectionSetup(
         propRoot,
         gorgel) {
 
-    override val protocol = "zeromq"
+    override val protocol: String = "zeromq"
 
     override fun tryToStartListener(): NetAddr {
         val framerFactory = jsonByteIoFramerFactoryFactory.create()

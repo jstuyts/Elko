@@ -12,6 +12,6 @@ class TcpConnectionSetupFactory(
         private val tcpServerFactory: TcpServerFactory,
         private val baseConnectionSetupGorgel: Gorgel,
         private val jsonByteIoFramerFactoryFactory: JsonByteIoFramerFactoryFactory) : ConnectionSetupFactory {
-    override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory) =
+    override fun create(label: String?, host: String, auth: AuthDesc, secure: Boolean, propRoot: String, actorFactory: MessageHandlerFactory): TcpConnectionSetup =
             TcpConnectionSetup(label, host, auth, secure, props, propRoot, tcpServerFactory, actorFactory, baseConnectionSetupGorgel, jsonByteIoFramerFactoryFactory)
 }

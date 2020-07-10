@@ -56,24 +56,24 @@ class ObjectDecoder internal constructor(
     init {
         val jsonConstructors = decodeClass.declaredConstructors.filter { it.getAnnotation(JsonMethod::class.java) != null }
 
-        when  {
+        when {
             jsonConstructors.isEmpty() -> throw JsonSetupError("no JSON constructor for class ${decodeClass.name}")
-            1 < jsonConstructors.size ->throw JsonSetupError("class ${decodeClass.name} has more than one JSON constructor")
+            1 < jsonConstructors.size -> throw JsonSetupError("class ${decodeClass.name} has more than one JSON constructor")
         }
 
         val jsonConstructor = jsonConstructors.first()
         val paramTypes = jsonConstructor.parameterTypes
         val note = jsonConstructor.getAnnotation(JsonMethod::class.java)
         val paramNames = note.value
-        val includeRawObject = if (paramNames.size + 1 == paramTypes.size) {
-            if (!JsonObject::class.java.isAssignableFrom(paramTypes[0])) {
-                throw JsonSetupError("class ${decodeClass.name} JSON constructor lacks a JsonObject first parameter")
+        val includeRawObject = when {
+            paramNames.size + 1 == paramTypes.size -> {
+                if (!JsonObject::class.java.isAssignableFrom(paramTypes[0])) {
+                    throw JsonSetupError("class ${decodeClass.name} JSON constructor lacks a JsonObject first parameter")
+                }
+                true
             }
-            true
-        } else if (paramNames.size != paramTypes.size) {
-            throw JsonSetupError("class ${decodeClass.name} JSON constructor has wrong number of parameters")
-        } else {
-            false
+            paramNames.size != paramTypes.size -> throw JsonSetupError("class ${decodeClass.name} JSON constructor has wrong number of parameters")
+            else -> false
         }
 
         myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, jsonConstructor.parameterTypes, paramNames, constructorInvokerCommGorgel, jsonToObjectDeserializer, injectors)

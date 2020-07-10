@@ -4,6 +4,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.BasicObject
@@ -42,7 +43,7 @@ class Cartesian @JsonMethod("width", "height", "left", "top") constructor(
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("cart", control).apply {
                 addParameter("width", myWidth)
                 addParameter("height", myHeight)

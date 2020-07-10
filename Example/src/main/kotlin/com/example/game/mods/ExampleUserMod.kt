@@ -3,6 +3,7 @@ package com.example.game.mods
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
@@ -14,7 +15,7 @@ import org.elkoserver.server.context.UserMod
  * An empty user mod, to get you started.
  */
 class ExampleUserMod @JsonMethod constructor() : Mod(), UserMod {
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("exu", control).apply {
                 finish()
             }

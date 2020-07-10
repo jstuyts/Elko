@@ -11,7 +11,7 @@ import org.elkoserver.json.JsonLiteral
  * some account.
  *
  * @param ref  Reference string for the encumbrance
- * @param myAccount  The account being encumbered
+ * @param theAccount  The account being encumbered
  * @param amount  The amount being encumbered
  * @param expires  When the encumbrance should vanish if not released or
  *    redeemed.

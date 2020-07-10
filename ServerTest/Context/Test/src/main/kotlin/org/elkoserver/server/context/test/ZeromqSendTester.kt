@@ -4,6 +4,7 @@ import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.ContextShutdownWatcher
@@ -37,7 +38,7 @@ class ZeromqSendTester @JsonMethod("address") constructor(private val myAddress:
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral? =
             if (!control.toClient()) {
                 JsonLiteralFactory.type("zmqsendtest", control).apply {
                     addParameter("address", myAddress)

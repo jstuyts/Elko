@@ -112,7 +112,7 @@ abstract class ConnectionBase protected constructor(
 
     companion object {
         /** Token to put on send queue to signal close of connection.  */
-        val theCloseMarker = Any()
+        val theCloseMarker: Any = Any()
     }
 
 }

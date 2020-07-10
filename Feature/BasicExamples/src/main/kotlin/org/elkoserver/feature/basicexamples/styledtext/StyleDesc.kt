@@ -4,6 +4,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 
 /**
@@ -50,7 +51,7 @@ class StyleDesc(
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("style", control).apply {
                 addParameterOpt("color", color)
                 addParameterOpt("backgroundColor", backgroundColor)
@@ -70,7 +71,7 @@ class StyleDesc(
      * specifies them, and the settings of this object where 'partial' does
      * not specify them.
      */
-    fun mergeStyle(partial: StyleDesc) =
+    fun mergeStyle(partial: StyleDesc): StyleDesc =
             StyleDesc(overlay(partial.color, color),
                     overlay(partial.backgroundColor, backgroundColor),
                     overlay(partial.borderColor, borderColor),

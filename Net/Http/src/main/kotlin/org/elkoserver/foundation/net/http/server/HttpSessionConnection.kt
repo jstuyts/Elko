@@ -262,38 +262,43 @@ class HttpSessionConnection internal constructor(
     fun selectMessages(downstreamConnection: Connection, uri: SessionUri,
                        nonPersistent: Boolean): Boolean {
         noteClientActivity()
-        return if (uri.sequenceNumber != mySelectSequenceNumber) {
-            /* Client did a bad, bad thing. */
-            gorgel.error("$this expected select seq # $mySelectSequenceNumber, got ${uri.sequenceNumber}")
-            downstreamConnection.sendMsg(
-                    myHttpFramer.makeSequenceErrorReply("sequenceError"))
-            true
-        } else if (myQueue.hasMoreElements()) {
-            /* There are messages waiting, so send them. */
-            val reply = StringBuilder()
-            var start = true
-            var end: Boolean
-            do {
-                val message = myQueue.nextElement()
-                end = !myQueue.hasMoreElements()
-                gorgel.i?.run { info("${this@HttpSessionConnection}:$downstreamConnection <- $message") }
-                reply.append(packMessage(message, start, end))
-                start = false
-            } while (!end)
-            downstreamConnection.sendMsg(reply.toString())
-            clearDownstreamConnection()
-            true
-        } else if (amClosing) {
-            /* Session connection is in the midst of closing, so drop the TCP
+        return when {
+            uri.sequenceNumber != mySelectSequenceNumber -> {
+                /* Client did a bad, bad thing. */
+                gorgel.error("$this expected select seq # $mySelectSequenceNumber, got ${uri.sequenceNumber}")
+                downstreamConnection.sendMsg(
+                        myHttpFramer.makeSequenceErrorReply("sequenceError"))
+                true
+            }
+            myQueue.hasMoreElements() -> {
+                /* There are messages waiting, so send them. */
+                val reply = StringBuilder()
+                var start = true
+                var end: Boolean
+                do {
+                    val message = myQueue.nextElement()
+                    end = !myQueue.hasMoreElements()
+                    gorgel.i?.run { info("${this@HttpSessionConnection}:$downstreamConnection <- $message") }
+                    reply.append(packMessage(message, start, end))
+                    start = false
+                } while (!end)
+                downstreamConnection.sendMsg(reply.toString())
+                clearDownstreamConnection()
+                true
+            }
+            amClosing -> {
+                /* Session connection is in the midst of closing, so drop the TCP
                connection. */
-            downstreamConnection.close()
-            false
-        } else {
-            /* Nothing to do yet, so block awaiting outbound traffic. */
-            myDownstreamConnection = downstreamConnection
-            myDownstreamIsNonPersistent = nonPersistent
-            mySelectWaitStartTime = clock.millis()
-            false
+                downstreamConnection.close()
+                false
+            }
+            else -> {
+                /* Nothing to do yet, so block awaiting outbound traffic. */
+                myDownstreamConnection = downstreamConnection
+                myDownstreamIsNonPersistent = nonPersistent
+                mySelectWaitStartTime = clock.millis()
+                false
+            }
         }
     }
 

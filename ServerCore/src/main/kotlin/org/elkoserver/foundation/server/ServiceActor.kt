@@ -60,7 +60,7 @@ class ServiceActor internal constructor(
     /**
      * @return a printable representation of this actor.
      */
-    override fun toString() = label
+    override fun toString(): String = label
 
     init {
         send(msgAuth("workshop", desc.auth, myServer.serverName))

@@ -2,6 +2,7 @@ package org.elkoserver.foundation.net.http.server
 
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.MessageHandlerFactory
+import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -23,10 +24,10 @@ class HttpConnectionSetup(
     private val rootUri: String
     override val serverAddress: String
 
-    override val protocol = "http"
+    override val protocol: String = "http"
 
     @Throws(IOException::class)
-    override fun tryToStartListener() =
+    override fun tryToStartListener(): NetAddr =
             httpServerFactory.listenHTTP(bind, actorFactory, secure, rootUri, JsonHttpFramer(jsonHttpFramerCommGorgel, mustSendDebugReplies))
 
     override val listenAddressDescription: String

@@ -44,7 +44,7 @@ internal class SimpleSocialGraph : SocialGraph {
      * @param user  The user whose social graph should be fetched.
      */
     override fun loadUserGraph(user: ActiveUser) {
-        myObjDb.getObject("$myPrefix-${user.ref}", null, Consumer<Any?> { obj ->
+        myObjDb.getObject("$myPrefix-${user.ref}", null, Consumer { obj ->
             if (obj != null) {
                 val desc = obj as UserGraphDesc
                 val friends = Iterable { ArrayIterator(desc.friends) }

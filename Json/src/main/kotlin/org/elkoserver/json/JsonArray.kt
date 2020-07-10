@@ -18,7 +18,7 @@ class JsonArray : Iterable<Any?> {
 
     override fun iterator(): Iterator<Any?> = JsonArrayIterator(impl.iterator())
 
-    override fun toString() = JsonArraySerialization.literal(this, ForRepositoryEncodeControl).sendableString()
+    override fun toString(): String = JsonArraySerialization.literal(this, ForRepositoryEncodeControl).sendableString()
 
     fun toArray(): Array<Any> {
         val result = impl.toTypedArray()
@@ -28,7 +28,7 @@ class JsonArray : Iterable<Any?> {
         return result
     }
 
-    fun size() = impl.size
+    fun size(): Int = impl.size
 
     fun add(elem: Any?) {
         impl.add(JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(elem))

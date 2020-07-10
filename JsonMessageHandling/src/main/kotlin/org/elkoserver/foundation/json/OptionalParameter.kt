@@ -4,7 +4,7 @@ package org.elkoserver.foundation.json
  * Base class for various classes representing types for optional JSON message
  * parameters.
  *
- * @param isPresent  true=>value is present, false=>it's not
+ * @param present  true=>value is present, false=>it's not
  */
 abstract class OptionalParameter internal constructor(val present: Boolean) {
 

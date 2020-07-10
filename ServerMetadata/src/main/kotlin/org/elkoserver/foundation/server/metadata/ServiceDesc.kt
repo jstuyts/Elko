@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
 
@@ -25,7 +26,6 @@ class ServiceDesc(val service: String, val hostport: String?, val protocol: Stri
                   theProviderID: Int) : Encodable {
 
     private var label: String? = theLabel
-        private set
 
     var providerID: Int = theProviderID
         set(value) {
@@ -74,7 +74,7 @@ class ServiceDesc(val service: String, val hostport: String?, val protocol: Stri
      *
      * @return a HostDesc for this service's host.
      */
-    fun asHostDesc(retryInterval: Int) = HostDesc(protocol, false, hostport, auth, retryInterval)
+    fun asHostDesc(retryInterval: Int): HostDesc = HostDesc(protocol, false, hostport, auth, retryInterval)
 
     /**
      * Set this service's a label string.
@@ -106,7 +106,7 @@ class ServiceDesc(val service: String, val hostport: String?, val protocol: Stri
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("servicedesc", control).apply {
                 addParameter("service", service)
                 addParameterOpt("hostport", hostport)
@@ -123,7 +123,7 @@ class ServiceDesc(val service: String, val hostport: String?, val protocol: Stri
     /**
      * Encode this descriptor as a single-element JSONLiteralArray.
      */
-    fun encodeAsArray() =
+    fun encodeAsArray(): JsonLiteralArray =
             JsonLiteralArray().apply {
                 addElement(this)
                 finish()
@@ -134,7 +134,7 @@ class ServiceDesc(val service: String, val hostport: String?, val protocol: Stri
          * Generate a JSONLiteralArray of ServiceDesc objects from a sequence of
          * them.
          */
-        fun encodeArray(services: Iterable<ServiceDesc?>?) =
+        fun encodeArray(services: Iterable<ServiceDesc?>?): JsonLiteralArray =
                 JsonLiteralArray().apply {
                     if (services != null) {
                         for (service in services) {

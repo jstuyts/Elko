@@ -32,7 +32,7 @@ class HashMapMulti<K, V> {
      *
      * @return true if this map has one or more values for key, false if not.
      */
-    fun containsKey(key: K) = myMap.containsKey(key)
+    fun containsKey(key: K): Boolean = myMap.containsKey(key)
 
     /**
      * Return the set of values for some key.  Note that a set will always be
@@ -43,14 +43,14 @@ class HashMapMulti<K, V> {
      *
      * @return a set of the values for 'key'.
      */
-    fun getMulti(key: K) = myMap[key] ?: HashSetMulti.emptySet()
+    fun getMulti(key: K): HashSetMulti<V> = myMap[key] ?: HashSetMulti.emptySet()
 
     /**
      * Get the set of keys for this map.
      *
      * @return the keys for this map.
      */
-    fun keys() = myMap.keys
+    fun keys(): MutableSet<K> = myMap.keys
 
     /**
      * Remove a value from a key's value set.

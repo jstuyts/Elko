@@ -6,6 +6,7 @@ import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
+import org.ooverkommelig.Definition
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.Once
 import org.ooverkommelig.ProvidedBase
@@ -18,9 +19,9 @@ class ServerMetadataSgd(provided: Provided, configuration: ObjectGraphConfigurat
         fun baseGorgel(): D<Gorgel>
     }
 
-    val authDescFromPropertiesFactoryGorgel by Once { req(provided.baseGorgel()).getChild(AuthDescFromPropertiesFactory::class, COMMUNICATION_CATEGORY_TAG) }
+    val authDescFromPropertiesFactoryGorgel: Definition<Gorgel> by Once { req(provided.baseGorgel()).getChild(AuthDescFromPropertiesFactory::class, COMMUNICATION_CATEGORY_TAG) }
 
-    val authDescFromPropertiesFactory by Once { AuthDescFromPropertiesFactory(req(provided.props()), req(authDescFromPropertiesFactoryGorgel)) }
+    val authDescFromPropertiesFactory: Definition<AuthDescFromPropertiesFactory> by Once { AuthDescFromPropertiesFactory(req(provided.props()), req(authDescFromPropertiesFactoryGorgel)) }
 
-    val hostDescFromPropertiesFactory by Once { HostDescFromPropertiesFactory(req(provided.props()), req(authDescFromPropertiesFactory))}
+    val hostDescFromPropertiesFactory: Definition<HostDescFromPropertiesFactory> by Once { HostDescFromPropertiesFactory(req(provided.props()), req(authDescFromPropertiesFactory)) }
 }

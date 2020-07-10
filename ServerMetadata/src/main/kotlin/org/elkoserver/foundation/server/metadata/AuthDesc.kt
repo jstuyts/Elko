@@ -4,6 +4,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 
 /**
@@ -59,7 +60,7 @@ class AuthDesc(val mode: String, private val code: String?, private val id: Stri
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral? =
             if (control.toClient() && mode == "open") {
                 null
             } else {
@@ -75,6 +76,6 @@ class AuthDesc(val mode: String, private val code: String?, private val id: Stri
         /** Singleton open authorization descriptor. This may be used in all
          * circumstances where open mode authorization is required or
          * presented.  */
-        val theOpenAuth = AuthDesc("open", null, null)
+        val theOpenAuth: AuthDesc = AuthDesc("open", null, null)
     }
 }

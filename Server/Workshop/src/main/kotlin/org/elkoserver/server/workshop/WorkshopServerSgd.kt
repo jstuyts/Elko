@@ -465,7 +465,9 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
-    val objectDatabase by Once { req(server).openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified") }
+    val objectDatabase by Once {
+        req(server).openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified")
+    }
 
     val objectDatabaseDispatcher by Once { MessageDispatcher(req(objectDatabase), req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
 

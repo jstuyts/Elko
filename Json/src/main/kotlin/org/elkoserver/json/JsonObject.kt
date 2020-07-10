@@ -18,7 +18,7 @@ class JsonObject {
         impl = com.grack.nanojson.JsonObject(elkoMap)
     }
 
-    override fun toString() =
+    override fun toString(): String =
             JsonObjectSerialization.literal(this, ForRepositoryEncodeControl).sendableString()
 
     @Throws(JsonDecodingException::class)
@@ -29,24 +29,24 @@ class JsonObject {
         return impl.getString(key)
     }
 
-    fun entrySet() = impl.entries
+    fun entrySet(): MutableSet<MutableMap.MutableEntry<String, Any>> = impl.entries
 
     fun put(key: String, value: Any?) {
         impl[key] = JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(value)
     }
 
-    fun getObject(key: String?, defaultValue: JsonObject?) =
+    fun getObject(key: String?, defaultValue: JsonObject?): JsonObject =
             JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(impl.getObject(key, defaultValue?.impl)) as JsonObject
 
     fun <TDefault : String?> getString(key: String, defaultValue: TDefault): TDefault = impl.getString(key, defaultValue) as TDefault
 
-    fun getDouble(key: String?, defaultValue: Double) = impl.getDouble(key, defaultValue)
+    fun getDouble(key: String?, defaultValue: Double): Double = impl.getDouble(key, defaultValue)
 
-    fun getInt(key: String?, defaultValue: Int) = impl.getInt(key, defaultValue)
+    fun getInt(key: String?, defaultValue: Int): Int = impl.getInt(key, defaultValue)
 
-    fun getBoolean(key: String?, defaultValue: Boolean) = impl.getBoolean(key, defaultValue)
+    fun getBoolean(key: String?, defaultValue: Boolean): Boolean = impl.getBoolean(key, defaultValue)
 
-    fun getLong(key: String?, defaultValue: Long) = impl.getLong(key, defaultValue)
+    fun getLong(key: String?, defaultValue: Long): Long = impl.getLong(key, defaultValue)
 
     @Throws(JsonDecodingException::class)
     fun getObject(key: String): JsonObject {
@@ -64,6 +64,6 @@ class JsonObject {
         return impl.getInt(key)
     }
 
-    fun getArray(key: String?, defaultValue: JsonArray?) =
+    fun getArray(key: String?, defaultValue: JsonArray?): JsonArray =
             JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(impl.getArray(key, defaultValue?.impl)) as JsonArray
 }

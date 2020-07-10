@@ -100,7 +100,7 @@ internal constructor(name: String,
 
     /* Fields below here only apply to active contexts. */
     /** Number of users currently in the context.  */
-    var userCount = 0
+    var userCount: Int = 0
         private set
 
     /** Users here by base ref, or null if this context is multientry.  */
@@ -111,7 +111,6 @@ internal constructor(name: String,
 
     /** Ref of context descriptor from which this context was loaded.  */
     private lateinit var loadedFromRef: String
-        private set
 
     /** Director who originally requested this context to be opened, if any.  */
     internal var opener: DirectorActor? = null
@@ -270,7 +269,7 @@ internal constructor(name: String,
                 }
                 currentUsers[who.baseRef()] = who
             }
-            sendContextDescription(who, assertActivated({ it.session }))
+            sendContextDescription(who, assertActivated(Contextor::session))
             noteUserArrival(who)
             myGorgel.info("$who enters")
             null
@@ -328,7 +327,7 @@ internal constructor(name: String,
      *
      * @return true iff this context's gate is closed.
      */
-    fun gateIsClosed() = gateClosedReason != null
+    fun gateIsClosed(): Boolean = gateClosedReason != null
 
     /**
      * Look up an object in this context's namespace.  Note that the context's
@@ -600,7 +599,7 @@ internal constructor(name: String,
      *
      * @return a printable representation of this context.
      */
-    override fun toString() = "Context '${ref()}'"
+    override fun toString(): String = "Context '${ref()}'"
 
     private inner class UserIterator internal constructor() : MutableIterator<User> {
         private val myInnerIterator = group.members().iterator()
@@ -661,7 +660,7 @@ internal constructor(name: String,
      *
      * @return the context itself.
      */
-    override fun context() = this
+    override fun context(): Context = this
 
     /**
      * Test if this object is a container.  (Note: in this case, it is.)
@@ -677,7 +676,7 @@ internal constructor(name: String,
      * @return a type tag string for this kind of object; in this case,
      * "context".
      */
-    override fun type() = "context"
+    override fun type(): String = "context"
 
     /**
      * Obtain the user this object is currently contained by.
@@ -704,7 +703,7 @@ internal constructor(name: String,
      *
      * @return a JSON literal representing this context.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("context", control).apply {
                 if (control.toClient()) {
                     addParameter("ref", myRef)

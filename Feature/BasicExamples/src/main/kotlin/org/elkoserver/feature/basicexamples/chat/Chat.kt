@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
@@ -52,7 +53,7 @@ class Chat @JsonMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral? =
             if (control.toRepository()) {
                 JsonLiteralFactory.type("chat", control).apply {
                     if (!amAllowChat) {

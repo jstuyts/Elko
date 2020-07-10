@@ -101,6 +101,6 @@ class ServerLoadMonitor constructor(private val timer: Timer, private val clock:
 
     companion object {
         /** Default value for interval between load samples, in seconds.  */
-        const val DEFAULT_LOAD_SAMPLE_TIMEOUT = 30
+        const val DEFAULT_LOAD_SAMPLE_TIMEOUT: Int = 30
     }
 }

@@ -21,7 +21,7 @@ import java.util.function.Consumer
  */
 class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String?) : BasicObject(name, mods, true, contents), Deliverer {
     /** True once user has actually been placed in its initial context.  */
-    var isArrived = false
+    var isArrived: Boolean = false
         private set
 
     /** Flag indicating that user has completed context entry.  */
@@ -49,7 +49,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
     private var myPresenceWatcher: PresenceWatcher? = null
 
     /** Flag that user is an anonymous, ephemeral user.  */
-    var isAnonymous = false
+    var isAnonymous: Boolean = false
         private set
 
     /** Flag that user contents are opaque to other users.  */
@@ -122,14 +122,14 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return the ID number of the connection associated with this user.
      */
-    fun connectionID() = myActor.connectionID()
+    fun connectionID(): Int = myActor.connectionID()
 
     /**
      * Obtain the context this user is currently contained by.
      *
      * @return the context the user is in.
      */
-    override fun context() = assertInContext { it }
+    override fun context(): Context = assertInContext { it }
 
     /**
      * Do the actual work of exiting a user from their context and
@@ -158,7 +158,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return a JSON literal representing this user.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("user", control).apply {
                 if (control.toClient()) {
                     addParameter("ref", myRef)
@@ -209,7 +209,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @return true if this user has the key to enter the specified context,
      * false if not.
      */
-    fun entryEnabled(contextRef: String) = testForEntryKey(this, contextRef)
+    fun entryEnabled(contextRef: String): Boolean = testForEntryKey(this, contextRef)
 
     /**
      * Remove this user from their context.
@@ -249,7 +249,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param reservation  Reservation to get them in.
      */
     fun exitWithContextChange(contextRef: String, hostPort: String?, reservation: String?) {
-        checkpoint(Consumer<Any?> { ignored: Any? ->
+        checkpoint(Consumer { ignored: Any? ->
             assertActivated { send(msgPushContext(it.session, contextRef, hostPort, reservation)) }
         })
     }
@@ -266,7 +266,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return true -- all users are containers.
      */
-    override val isContainer = true
+    override val isContainer: Boolean = true
 
     /**
      * Obtain a message deliverer for sending messages to the other users
@@ -295,7 +295,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return the protocol string for this user's connection
      */
-    fun protocol() = myActor.protocol
+    fun protocol(): String = myActor.protocol
 
     /**
      * Begin the sequence of events that will push this user to a different
@@ -370,21 +370,21 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @return a printable representation of this user.
      */
-    override fun toString() = "User '${ref()}'"
+    override fun toString(): String = "User '${ref()}'"
 
     /**
      * Return the proper type tag for this object.
      *
      * @return a type tag string for this kind of object; in this case, "user".
      */
-    override fun type() = "user"
+    override fun type(): String = "user"
 
     /**
      * Obtain the user this object is currently associated with.
      *
      * @return the user itself.
      */
-    override fun user() = this
+    override fun user(): User = this
 
     companion object {
         /**

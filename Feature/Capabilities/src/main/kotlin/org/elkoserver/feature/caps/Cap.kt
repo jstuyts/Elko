@@ -246,12 +246,10 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
             throw MessageHandlerException("can't specify both duration and expiration")
         }
         val expireOK: Boolean
-        expireOK = if (myExpiration == 0L) {
-            true
-        } else if (myExpiration == -1L) {
-            newExpiration == -1L
-        } else {
-            newExpiration <= myExpiration
+        expireOK = when (myExpiration) {
+            0L -> true
+            -1L -> newExpiration == -1L
+            else -> newExpiration <= myExpiration
         }
         if (!expireOK) {
             throw MessageHandlerException("illegal rights amplification")

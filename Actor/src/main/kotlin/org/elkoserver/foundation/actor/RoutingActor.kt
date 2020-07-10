@@ -45,15 +45,15 @@ abstract class RoutingActor protected constructor(
      * was provided in this actor's constructor.
      *
      * @param connection  Connection over which the message was received.
-     * @param receivedMessage  The message received.  Normally this should be a
+     * @param message  The message received.  Normally this should be a
      * [JsonObject], but it could be a [Throwable] indicating a
      * problem receiving or parsing the message.
      */
-    override fun processMessage(connection: Connection, receivedMessage: Any) {
+    override fun processMessage(connection: Connection, message: Any) {
         var problem: Throwable? = null
-        if (receivedMessage is JsonObject) {
+        if (message is JsonObject) {
             try {
-                myRefTable.dispatchMessage(this, receivedMessage)
+                myRefTable.dispatchMessage(this, message)
             } catch (result: MessageHandlerException) {
                 problem = result.cause
                 if (problem == null) {
@@ -62,8 +62,8 @@ abstract class RoutingActor protected constructor(
                     commGorgel.error("exception in message handler", problem)
                 }
             }
-        } else if (receivedMessage is Throwable) {
-            problem = receivedMessage
+        } else if (message is Throwable) {
+            problem = message
         }
         if (problem != null) {
             val warning = "error handling message: $problem"

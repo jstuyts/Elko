@@ -22,7 +22,7 @@ class Currency @JsonMethod("name", "memo") internal constructor(internal val nam
      *
      * @return a JSON literal representing this currency.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteral(control).apply {
                 addParameter("name", name)
                 addParameter("memo", memo)

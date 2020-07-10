@@ -14,5 +14,5 @@ class HttpOptionsReply(request: HttpRequest) {
      * Generate the Access-Control-Allow-Headers header of the reply to the
      * OPTIONS request, allowing the requestor whatever access they asked for.
      */
-    fun headersHeader() = if (myHeader != null) "Access-Control-Allow-Headers: $myHeader\r\n" else ""
+    fun headersHeader(): String = if (myHeader != null) "Access-Control-Allow-Headers: $myHeader\r\n" else ""
 }

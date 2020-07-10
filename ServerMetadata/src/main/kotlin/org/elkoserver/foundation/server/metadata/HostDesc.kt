@@ -18,7 +18,7 @@ class HostDesc(theProtocol: String?, isSecure: Boolean,
         private set
 
     /** Retry interval for reconnect attempts, in seconds (-1 for default).  */
-    var retryInterval = 0
+    var retryInterval: Int = 0
         private set
 
     companion object {

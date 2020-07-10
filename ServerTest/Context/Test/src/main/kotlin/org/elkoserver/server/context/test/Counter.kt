@@ -3,6 +3,7 @@ package org.elkoserver.server.context.test
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
@@ -22,7 +23,7 @@ class Counter @JsonMethod("count") constructor(private var myCount: Int) : Mod()
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl) =
+    override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("counter", control).apply {
                 addParameter("count", myCount)
                 finish()
