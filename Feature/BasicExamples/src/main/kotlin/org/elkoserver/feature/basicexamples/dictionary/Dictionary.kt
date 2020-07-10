@@ -6,7 +6,6 @@ import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.User
@@ -129,40 +128,6 @@ class Dictionary @JsonMethod("names", "values", "persist") constructor(names: Ar
             markAsChanged()
         }
         context().send(msgSetvar(`object`(), from, names, values))
-    }
-
-    companion object {
-        /**
-         * Create a 'delvar' message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param from  Object the message is to be alleged to be from, or null if
-         * not relevant.
-         * @param names  Names of the variables to delete.
-         */
-        private fun msgDelvar(target: Referenceable, from: Referenceable, names: Array<String>) =
-                JsonLiteralFactory.targetVerb(target, "delvar").apply {
-                    addParameterOpt("from", from)
-                    addParameter("names", names)
-                    finish()
-                }
-
-        /**
-         * Create a 'setvar' message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param from  Object the message is to be alleged to be from, or null if
-         * not relevant.
-         * @param names  Names of variables to change.
-         * @param values  The values to change them to.
-         */
-        private fun msgSetvar(target: Referenceable, from: Referenceable, names: Array<String>, values: Array<String>) =
-                JsonLiteralFactory.targetVerb(target, "setvar").apply {
-                    addParameterOpt("from", from)
-                    addParameter("names", names)
-                    addParameter("values", values)
-                    finish()
-                }
     }
 
     init {

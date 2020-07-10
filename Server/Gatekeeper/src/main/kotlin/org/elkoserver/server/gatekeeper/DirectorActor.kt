@@ -1,13 +1,12 @@
 package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.actor.NonRoutingActor
+import org.elkoserver.foundation.actor.msgAuth
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
-import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -118,25 +117,6 @@ internal class DirectorActor(
             deny == null -> handler.accept(ReservationResult(context, actor!!, hostport, auth))
             else -> handler.accept(ReservationResult(context, actor!!, deny))
         }
-    }
-
-    companion object {
-        /**
-         * Create a 'reserve' message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param protocol  Desired protocol.
-         * @param context  Context to enter.
-         * @param actor Who wants to enter.
-         */
-        private fun msgReserve(target: Referenceable, protocol: String,
-                               context: String, actor: String?) =
-                JsonLiteralFactory.targetVerb(target, "reserve").apply {
-                    addParameter("protocol", protocol)
-                    addParameter("context", context)
-                    addParameterOpt("user", actor)
-                    finish()
-                }
     }
 
     init {

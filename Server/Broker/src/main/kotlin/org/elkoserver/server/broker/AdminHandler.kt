@@ -7,8 +7,6 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.metadata.LoadDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.json.JsonLiteralArray
-import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 
@@ -254,60 +252,5 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
                 myBroker.unwatchLoad(from)
             }
         }
-    }
-
-    companion object {
-        /**
-         * Generate a 'launch' message.
-         */
-        private fun msgLaunch(target: Referenceable, status: String) =
-                JsonLiteralFactory.targetVerb(target, "launch").apply {
-                    addParameter("status", status)
-                    finish()
-                }
-
-        /**
-         * Generate a 'launcherdesc' message.
-         */
-        private fun msgLauncherDesc(target: Referenceable, launchers: JsonLiteralArray) =
-                JsonLiteralFactory.targetVerb(target, "launcherdesc").apply {
-                    addParameter("launchers", launchers)
-                    finish()
-                }
-
-        /**
-         * Generate a 'loaddesc' message.
-         */
-        fun msgLoadDesc(target: Referenceable, desc: JsonLiteralArray?) =
-                JsonLiteralFactory.targetVerb(target, "loaddesc").apply {
-                    addParameter("desc", desc)
-                    finish()
-                }
-
-        /**
-         * Generate a 'reinit' message.
-         */
-        private fun msgReinit(target: Referenceable) =
-                JsonLiteralFactory.targetVerb(target, "reinit").apply {
-                    finish()
-                }
-
-        /**
-         * Generate a 'servicedesc' message.
-         */
-        fun msgServiceDesc(target: Referenceable, desc: JsonLiteralArray?, on: Boolean) =
-                JsonLiteralFactory.targetVerb(target, "servicedesc").apply {
-                    addParameter("desc", desc)
-                    addParameter("on", on)
-                    finish()
-                }
-
-        /**
-         * Generate a 'shutdown' message.
-         */
-        private fun msgShutdown(target: Referenceable) =
-                JsonLiteralFactory.targetVerb(target, "shutdown").apply {
-                    finish()
-                }
     }
 }

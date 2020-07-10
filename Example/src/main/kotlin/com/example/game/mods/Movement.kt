@@ -7,12 +7,10 @@ import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.JsonLiteralFactory.targetVerb
-import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.Msg
 import org.elkoserver.server.context.User
+import org.elkoserver.server.context.msgError
 
 /**
  * A simple context mod to enable users in a context to move around.
@@ -44,22 +42,12 @@ class Movement @JsonMethod("minx", "miny", "maxx", "maxy") constructor(
     fun move(from: User, x: Int, y: Int) {
         ensureSameContext(from)
         if (x < myMinX || myMaxX < x || y < myMinY || myMaxY < y) {
-            from.send(Msg.msgError(`object`(), "move", "movement out of bounds"))
+            from.send(msgError(`object`(), "move", "movement out of bounds"))
         } else {
             val pos = from.getMod(CartesianPosition::class.java)
                     ?: throw MessageHandlerException("user $from attempted move on $this but Cartesian position mod not present")
             pos[x] = y
             context().send(msgMove(from, x, y, null))
         }
-    }
-
-    companion object {
-        fun msgMove(who: Referenceable, x: Int, y: Int, into: Referenceable?): JsonLiteral =
-                targetVerb(who, "move").apply {
-                    addParameter("x", x)
-                    addParameter("y", y)
-                    addParameterOpt("into", into)
-                    finish()
-                }
     }
 }

@@ -5,7 +5,6 @@ import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -126,20 +125,5 @@ abstract class BasicProtocolHandler protected constructor() : Referenceable, Dis
     @JsonMethod("tag")
     fun pong(from: BasicProtocolActor?, tag: OptString?) {
         /* Nothing to do here. */
-    }
-
-    companion object {
-        /**
-         * Generate a 'pong' message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param tag  Tag string (nominally from the 'ping' message that
-         * triggered this) or null.
-         */
-        private fun msgPong(target: Referenceable, tag: String?) =
-                targetVerb(target, "pong").apply {
-                    addParameterOpt("tag", tag)
-                    finish()
-                }
     }
 }

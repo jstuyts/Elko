@@ -3,10 +3,7 @@ package org.elkoserver.foundation.actor
 import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandler
-import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.json.JsonLiteralFactory.targetVerb
-import org.elkoserver.json.Referenceable
 
 /**
  * An object representing some entity interacting with this server (whatever
@@ -35,30 +32,5 @@ abstract class Actor internal constructor(private val myConnection: Connection, 
      */
     override fun send(message: JsonLiteral) {
         myConnection.sendMsg(message)
-    }
-
-    companion object {
-        /**
-         * Create an 'auth' message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param auth  Authentication information to use.
-         * @param label  Label to identify the entity seeking authorization.
-         */
-        fun msgAuth(target: Referenceable, auth: AuthDesc?, label: String?): JsonLiteral = msgAuth(target.ref(), auth, label)
-
-        /**
-         * Create an 'auth' message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param auth  Authentication information to use.
-         * @param label  Label to identify the entity seeking authorization.
-         */
-        fun msgAuth(target: String, auth: AuthDesc?, label: String?): JsonLiteral =
-                targetVerb(target, "auth").apply {
-                    addParameterOpt("auth", auth)
-                    addParameterOpt("label", label)
-                    finish()
-                }
     }
 }

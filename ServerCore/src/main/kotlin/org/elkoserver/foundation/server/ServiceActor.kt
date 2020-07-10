@@ -2,6 +2,7 @@ package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.actor.RoutingActor
+import org.elkoserver.foundation.actor.msgAuth
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.util.trace.slf4j.Gorgel

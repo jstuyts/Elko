@@ -6,9 +6,7 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
-import org.elkoserver.json.Referenceable
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.HashSetMulti
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -437,17 +435,6 @@ internal class Director(
             dash = userName.indexOf('-', dash + 1)
             return userName.take(dash)
         }
-
-        /**
-         * Generate a 'relay' message.
-         */
-        private fun msgRelay(target: Referenceable, contextName: String?, userName: String?, relay: JsonObject) =
-                JsonLiteralFactory.targetVerb(target, "relay").apply {
-                    addParameterOpt("context", contextName)
-                    addParameterOpt("user", userName)
-                    addParameter("msg", relay)
-                    finish()
-                }
     }
 
     init {

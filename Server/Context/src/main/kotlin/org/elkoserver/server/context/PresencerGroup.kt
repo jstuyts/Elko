@@ -9,7 +9,6 @@ import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -158,52 +157,6 @@ internal class PresencerGroup(
                 addParameter("name", user.name)
                 finish()
             }
-
-    companion object {
-        /**
-         * Create a "subscribe" message.
-         *
-         * @param context  The context that is subscribing
-         * @param domains  The presence domains being subscribed to
-         * @param visible  Flag indicating if presence in the given context is
-         * visible outside the context
-         */
-        private fun msgSubscribe(context: String, domains: Array<String>, visible: Boolean) =
-                JsonLiteralFactory.targetVerb("presence", "subscribe").apply {
-                    addParameter("context", context)
-                    addParameter("domains", domains)
-                    addParameter("visible", visible)
-                    finish()
-                }
-
-        /**
-         * Create an "unsubscribe" message.
-         *
-         * @param context  The context that is ceasing to subscribe
-         */
-        private fun msgUnsubscribe(context: String) =
-                JsonLiteralFactory.targetVerb("presence", "unsubscribe").apply {
-                    addParameter("context", context)
-                    finish()
-                }
-
-        /**
-         * Create a "user" message.
-         *
-         * @param context  The context entered or exited.
-         * @param user  Who entered or exited.
-         * @param on  Flag indicating online or offline.
-         */
-        private fun msgUser(context: String, user: String, on: Boolean, userMeta: JsonLiteral, contextMeta: JsonLiteral) =
-                JsonLiteralFactory.targetVerb("presence", "user").apply {
-                    addParameter("context", context)
-                    addParameter("user", user)
-                    addParameter("on", on)
-                    addParameterOpt("umeta", userMeta)
-                    addParameterOpt("cmeta", contextMeta)
-                    finish()
-                }
-    }
 
     init {
         connectHosts()

@@ -1,6 +1,5 @@
 package com.example.game.mods
 
-import com.example.game.mods.Movement.Companion.msgMove
 import org.elkoserver.feature.basicexamples.cartesian.CartesianPosition
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
@@ -10,8 +9,8 @@ import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.Item
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.Msg
 import org.elkoserver.server.context.User
+import org.elkoserver.server.context.msgDelete
 
 class Prop @JsonMethod("kind") constructor(private val myKind: String) : Mod(), ItemMod {
     override fun encode(control: EncodeControl): JsonLiteral =
@@ -32,7 +31,7 @@ class Prop @JsonMethod("kind") constructor(private val myKind: String) : Mod(), 
         assertWithinGrabDistance(dx, dy, item)
         item.setContainer(from)
         itemPos.detach()
-        context().sendToNeighbors(from, Msg.msgDelete(item))
+        context().sendToNeighbors(from, msgDelete(item))
         from.send(msgMove(item, 0, 0, from))
     }
 

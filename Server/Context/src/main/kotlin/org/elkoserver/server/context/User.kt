@@ -9,9 +9,6 @@ import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Contents.Companion.sendContentsDescription
-import org.elkoserver.server.context.Msg.msgExit
-import org.elkoserver.server.context.Msg.msgMake
-import org.elkoserver.server.context.Msg.msgReady
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -385,24 +382,6 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @return the user itself.
      */
     override fun user(): User = this
-
-    companion object {
-        /**
-         * Create a 'pushcontext' message.
-         *
-         * @param target  Object the message is being sent to
-         * @param contextRef  Ref of the context to which the user is being sent
-         * @param hostPort  Host:port of the context server they should use
-         * @param reservation  Reservation code to tender to gain entry
-         */
-        private fun msgPushContext(target: Referenceable, contextRef: String, hostPort: String?, reservation: String?) =
-                JsonLiteralFactory.targetVerb(target, "pushcontext").apply {
-                    addParameter("context", contextRef)
-                    addParameterOpt("hostport", hostPort)
-                    addParameterOpt("reservation", reservation)
-                    finish()
-                }
-    }
 
     init {
         myRef = ref

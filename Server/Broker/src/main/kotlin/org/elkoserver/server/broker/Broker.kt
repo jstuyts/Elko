@@ -116,7 +116,7 @@ internal class Broker(
         for (waiter in deadWaiters) {
             myWaiters.remove(waiter.service, waiter)
         }
-        val msg = AdminHandler.msgServiceDesc(myAdminHandler, service.encodeAsArray(), true)
+        val msg = msgServiceDesc(myAdminHandler, service.encodeAsArray(), true)
         for (watcher in myServiceWatchers) {
             watcher.send(msg)
         }
@@ -131,7 +131,7 @@ internal class Broker(
     fun noteLoadDesc(server: BrokerActor) {
         val client = server.client!!
         val desc = LoadDesc(server.label!!, client.loadFactor, client.providerID)
-        val msg = AdminHandler.msgLoadDesc(myAdminHandler, desc.encodeAsArray())
+        val msg = msgLoadDesc(myAdminHandler, desc.encodeAsArray())
         for (watcher in myLoadWatchers) {
             watcher.send(msg)
         }
@@ -144,7 +144,7 @@ internal class Broker(
      * @param service  Description of the service that went away.
      */
     private fun noteServiceDeparture(service: ServiceDesc) {
-        val msg = AdminHandler.msgServiceDesc(myAdminHandler, service.encodeAsArray(), false)
+        val msg = msgServiceDesc(myAdminHandler, service.encodeAsArray(), false)
         for (watcher in myServiceWatchers) {
             watcher.send(msg)
         }

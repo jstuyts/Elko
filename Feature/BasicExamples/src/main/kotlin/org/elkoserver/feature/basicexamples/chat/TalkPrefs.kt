@@ -7,7 +7,6 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.ObjectCompletionWatcher
 import org.elkoserver.server.context.User
@@ -104,27 +103,5 @@ class TalkPrefs @JsonMethod("style") constructor(private var myStyle: StyleDesc)
             context().send(msgStyle(`object`(), newColor, newBackgroundColor,
                     newIcon, newTextStyle))
         }
-    }
-
-    companion object {
-        /**
-         * Create a 'style' message.
-         *
-         * @param target          Object the message is being sent to.
-         * @param color           New text color value, or null if not being changed.
-         * @param backgroundColor New background color value, or null if not
-         * being changed
-         * @param icon            New icon URL string, or null if not being changed.
-         * @param textStyle       New typeface/style info, or null if not being changed.
-         */
-        private fun msgStyle(target: Referenceable, color: String?,
-                             backgroundColor: String?, icon: String?, textStyle: String?) =
-                JsonLiteralFactory.targetVerb(target, "style").apply {
-                    addParameterOpt("color", color)
-                    addParameterOpt("backgroundColor", backgroundColor)
-                    addParameterOpt("icon", icon)
-                    addParameterOpt("textStyle", textStyle)
-                    finish()
-                }
     }
 }

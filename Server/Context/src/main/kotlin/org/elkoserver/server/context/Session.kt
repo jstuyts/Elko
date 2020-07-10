@@ -10,7 +10,6 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
-import org.elkoserver.server.context.Msg.msgExit
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**

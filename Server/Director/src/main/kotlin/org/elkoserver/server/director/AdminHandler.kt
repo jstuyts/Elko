@@ -7,10 +7,8 @@ import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
-import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 
@@ -196,7 +194,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
                 providerList))
     }
 
-    private class ProviderDump internal constructor(depth: Int, private val myProvider: Provider, contextName: String?) : Encodable {
+    internal class ProviderDump internal constructor(depth: Int, private val myProvider: Provider, contextName: String?) : Encodable {
         internal var numContexts = 0
             private set
         internal var numUsers = 0
@@ -271,8 +269,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
     @JsonMethod
     fun listcontexts(from: DirectorActor) {
         from.ensureAuthorizedAdmin()
-        from.send(
-                msgListcontexts(this, encodeContexts(myDirector.contexts())))
+        from.send(msgListcontexts(this, encodeContexts(myDirector.contexts())))
     }
 
     /**
@@ -285,8 +282,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
     @JsonMethod
     fun listproviders(from: DirectorActor) {
         from.ensureAuthorizedAdmin()
-        from.send(
-                msgListproviders(this, encodeProviders(myDirector.providers())))
+        from.send(msgListproviders(this, encodeProviders(myDirector.providers())))
     }
 
     /**
@@ -360,8 +356,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
         from.ensureAuthorizedAdmin()
         val contextName = context.value<String?>(null)
         val userName = user.value<String?>(null)
-        val msg = msgSay(myDirector.providerHandler, contextName,
-                userName, text)
+        val msg = msgSay(myDirector.providerHandler, contextName, userName, text)
         myDirector.targetedBroadCast(null, contextName, userName, msg)
     }
 
@@ -433,157 +428,5 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
     fun watch(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
         doFind(true, from, context, user)
-    }
-
-    companion object {
-        /**
-         * Generate a JSONLiteralArray of context names from a sequence of
-         * OpenContext objects.
-         */
-        private fun encodeContexts(contexts: Iterable<OpenContext>) =
-                JsonLiteralArray().apply {
-                    for (context in contexts) {
-                        addElement(context.name)
-                    }
-                    finish()
-                }
-
-        /**
-         * Generate a JSONLiteralArray from a linked list of Encodable objects.
-         */
-        private fun encodeEncodableList(list: List<Encodable>) =
-                JsonLiteralArray().apply {
-                    for (elem in list) {
-                        addElement(elem)
-                    }
-                    finish()
-                }
-
-        /**
-         * Generate a JSONLiteralArray of provider labels from a set of provider
-         * DirectorActor objects.
-         */
-        private fun encodeProviders(providers: Set<Provider>) =
-                JsonLiteralArray().apply {
-                    for (subj in providers) {
-                        addElement(subj.actor.label)
-                    }
-                    finish()
-                }
-
-        /**
-         * Generate a JSONLiteralArray of strings from a collection of strings.
-         */
-        private fun encodeStrings(strings: Collection<String>) =
-                JsonLiteralArray().apply {
-                    for (str in strings) {
-                        addElement(str)
-                    }
-                    finish()
-                }
-
-        /**
-         * Generate a 'close' message.
-         */
-        fun msgClose(target: Referenceable, contextName: String?, userName: String?, isDup: Boolean) =
-                JsonLiteralFactory.targetVerb(target, "close").apply {
-                    addParameterOpt("context", contextName)
-                    addParameterOpt("user", userName)
-                    if (isDup) {
-                        addParameter("dup", true)
-                    }
-                    finish()
-                }
-
-        /**
-         * Generate a 'context' message.
-         */
-        private fun msgContext(target: Referenceable, contextName: String?, open: Boolean, provider: String?, clones: JsonLiteralArray?) =
-                JsonLiteralFactory.targetVerb(target, "context").apply {
-                    addParameter("context", contextName)
-                    addParameter("open", open)
-                    addParameterOpt("provider", provider)
-                    addParameterOpt("clones", clones)
-                    finish()
-                }
-
-        /**
-         * Generate a 'dump' message.
-         */
-        private fun msgDump(target: Referenceable, numProviders: Int, numContexts: Int, numUsers: Int, providerList: List<ProviderDump>) =
-                JsonLiteralFactory.targetVerb(target, "dump").apply {
-                    addParameter("numproviders", numProviders)
-                    addParameter("numcontexts", numContexts)
-                    addParameter("numusers", numUsers)
-                    if (providerList.isNotEmpty()) {
-                        addParameter("providers", encodeEncodableList(providerList))
-                    }
-                    finish()
-                }
-
-        /**
-         * Generate a 'listcontexts' message.
-         */
-        private fun msgListcontexts(target: Referenceable, contexts: JsonLiteralArray) =
-                JsonLiteralFactory.targetVerb(target, "listcontexts").apply {
-                    addParameter("contexts", contexts)
-                    finish()
-                }
-
-        /**
-         * Generate a 'listproviders' message.
-         */
-        private fun msgListproviders(target: Referenceable, providers: JsonLiteralArray) =
-                JsonLiteralFactory.targetVerb(target, "listproviders").apply {
-                    addParameter("providers", providers)
-                    finish()
-                }
-
-        /**
-         * Generate a 'listusers' message.
-         */
-        private fun msgListusers(target: Referenceable, users: JsonLiteralArray) =
-                JsonLiteralFactory.targetVerb(target, "listusers").apply {
-                    addParameter("users", users)
-                    finish()
-                }
-
-        /**
-         * Generate a 'reinit' message.
-         */
-        private fun msgReinit(target: Referenceable) =
-                JsonLiteralFactory.targetVerb(target, "reinit").apply {
-                    finish()
-                }
-
-        /**
-         * Generate a 'say' message.
-         */
-        private fun msgSay(target: Referenceable, contextName: String?, userName: String?, text: String) =
-                JsonLiteralFactory.targetVerb(target, "say").apply {
-                    addParameterOpt("context", contextName)
-                    addParameterOpt("user", userName)
-                    addParameter("text", text)
-                    finish()
-                }
-
-        /**
-         * Generate a 'shutdown' message.
-         */
-        private fun msgShutdown(target: Referenceable) =
-                JsonLiteralFactory.targetVerb(target, "shutdown").apply {
-                    finish()
-                }
-
-        /**
-         * Generate a 'user' message.
-         */
-        private fun msgUser(target: Referenceable, userName: String, online: Boolean, contexts: JsonLiteralArray?) =
-                JsonLiteralFactory.targetVerb(target, "user").apply {
-                    addParameter("user", userName)
-                    addParameter("on", online)
-                    addParameterOpt("contexts", contexts)
-                    finish()
-                }
     }
 }

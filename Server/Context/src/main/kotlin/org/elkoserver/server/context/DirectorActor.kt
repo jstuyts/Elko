@@ -1,6 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.NonRoutingActor
+import org.elkoserver.foundation.actor.msgAuth
 import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
@@ -11,10 +12,7 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
-import org.elkoserver.json.Referenceable
-import org.elkoserver.server.context.Msg.msgSay
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.NoSuchElementException
@@ -331,59 +329,6 @@ class DirectorActor(
         private const val MODE_CONTEXT = 1
         private const val MODE_USER = 2
         private const val MODE_USER_IN_CONTEXT = 3
-
-        /**
-         * Create an 'address' message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param protocol  The protocol to reach this server.
-         * @param hostPort  This server's address, as far as the rest of world is
-         * concerned.
-         */
-        private fun msgAddress(target: Referenceable, protocol: String, hostPort: String) =
-                JsonLiteralFactory.targetVerb(target, "address").apply {
-                    addParameter("protocol", protocol)
-                    addParameter("hostport", hostPort)
-                    finish()
-                }
-
-        /**
-         * Create a 'reserve' message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param protocol  The desired protocol for the reservation
-         * @param contextRef  The context the reservation is sought for
-         * @param userRef  The user for whom the reservation is sought
-         * @param tag  Tag for matching responses with requests
-         */
-        private fun msgReserve(target: Referenceable, protocol: String, contextRef: String, userRef: String, tag: String) =
-                JsonLiteralFactory.targetVerb(target, "reserve").apply {
-                    addParameter("protocol", protocol)
-                    addParameter("context", contextRef)
-                    addParameterOpt("user", userRef)
-                    addParameterOpt("tag", tag)
-                    finish()
-                }
-
-        /**
-         * Create a 'willserve' message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param context  The context family that will be served.
-         * @param capacity  Maximum number of users that will be served.
-         * @param restricted  True if the context family is restricted
-         */
-        private fun msgWillserve(target: Referenceable, context: String, capacity: Int, restricted: Boolean) =
-                JsonLiteralFactory.targetVerb(target, "willserve").apply {
-                    addParameter("context", context)
-                    if (capacity > 0) {
-                        addParameter("capacity", capacity)
-                    }
-                    if (restricted) {
-                        addParameter("restricted", true)
-                    }
-                    finish()
-                }
     }
 
     init {

@@ -234,8 +234,7 @@ internal class Provider(
             val dupToClose = oldContext.pickDupToClose(newContext!!)
             if (dupToClose.isMine) {
                 dupToClose.provider.actor.send(
-                        AdminHandler.msgClose(myDirector.providerHandler,
-                                dupToClose.name, null, true))
+                        msgClose(myDirector.providerHandler, dupToClose.name, null, true))
             }
             if (dupToClose === newContext) {
                 newContext = null

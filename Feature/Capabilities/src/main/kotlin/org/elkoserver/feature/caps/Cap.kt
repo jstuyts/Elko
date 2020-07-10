@@ -12,9 +12,9 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.BasicObject
 import org.elkoserver.server.context.Item
 import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.Msg
 import org.elkoserver.server.context.ObjectCompletionWatcher
 import org.elkoserver.server.context.User
+import org.elkoserver.server.context.msgDelete
 import java.time.Clock
 
 /**
@@ -120,7 +120,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
             throw MessageHandlerException("attempt to delete non-deletable capability")
         }
         val cap = `object`() as Item
-        (holder() as Deliverer).send(Msg.msgDelete(cap))
+        (holder() as Deliverer).send(msgDelete(cap))
         cap.delete()
     }
 
@@ -169,7 +169,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
             throw MessageHandlerException("invalid transfer destination $destRef")
         }
         val cap = `object`() as Item
-        (holder() as Deliverer).send(Msg.msgDelete(cap))
+        (holder() as Deliverer).send(msgDelete(cap))
         cap.setContainer(newHolder)
         cap.sendObjectDescription(newHolder as Deliverer, newHolder)
     }

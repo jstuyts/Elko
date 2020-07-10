@@ -1,6 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.NonRoutingActor
+import org.elkoserver.foundation.actor.msgAuth
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection

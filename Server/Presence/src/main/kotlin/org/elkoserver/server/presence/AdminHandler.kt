@@ -5,9 +5,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralArray
-import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
-import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -114,20 +112,5 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, commGo
     fun update(from: PresenceActor, domain: String, conf: JsonObject) {
         from.ensureAuthorizedAdmin()
         myPresenceServer.updateDomain(domain, conf, from)
-    }
-
-    companion object {
-        /**
-         * Generate a 'dump' message.
-         */
-        private fun msgDump(target: Referenceable, numUsers: Int, numPresences: Int, userDump: JsonLiteralArray?) =
-                JsonLiteralFactory.targetVerb(target, "dump").apply {
-                    addParameter("numusers", numUsers)
-                    addParameter("numpresences", numPresences)
-                    if (userDump != null) {
-                        addParameter("users", userDump)
-                    }
-                    finish()
-                }
     }
 }

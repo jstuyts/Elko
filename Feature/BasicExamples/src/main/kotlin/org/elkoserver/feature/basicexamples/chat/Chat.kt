@@ -9,10 +9,11 @@ import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.Msg
 import org.elkoserver.server.context.ObjectCompletionWatcher
 import org.elkoserver.server.context.User
 import org.elkoserver.server.context.UserWatcher
+import org.elkoserver.server.context.msgPush
+import org.elkoserver.server.context.msgSay
 
 /**
  * Mod to enable users in a context to chat with each other.  This mod must be
@@ -121,7 +122,7 @@ class Chat @JsonMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
     fun push(from: User, url: String, frame: OptString, features: OptString) {
         if (amAllowPush) {
             ensureSameContext(from)
-            val response = Msg.msgPush(context(), from, url, frame.value<String?>(null),
+            val response = msgPush(context(), from, url, frame.value<String?>(null),
                     features.value<String?>(null))
             if (context().isSemiPrivate) {
                 from.send(response)
@@ -154,7 +155,7 @@ class Chat @JsonMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
     fun say(from: User, text: String) {
         if (amAllowChat) {
             ensureSameContext(from)
-            val response = Msg.msgSay(context(), from, text)
+            val response = msgSay(context(), from, text)
             if (context().isSemiPrivate) {
                 from.send(response)
             } else {

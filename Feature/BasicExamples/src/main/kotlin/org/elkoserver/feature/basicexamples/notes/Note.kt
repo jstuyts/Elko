@@ -7,7 +7,6 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.User
@@ -78,21 +77,5 @@ class Note @JsonMethod("text", "style") constructor(private var myText: String, 
             markAsChanged()
             context().send(msgEdit(`object`(), newText, actualStyle))
         }
-    }
-
-    companion object {
-        /**
-         * Create a 'edit' message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param text  New text string value, or null if not being changed.
-         * @param style  New style information, or null if not being changed.
-         */
-        private fun msgEdit(target: Referenceable, text: String?, style: StyleDesc?) =
-                JsonLiteralFactory.targetVerb(target, "edit").apply {
-                    addParameterOpt("text", text)
-                    addParameterOpt("style", style)
-                    finish()
-                }
     }
 }

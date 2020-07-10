@@ -9,8 +9,6 @@ import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Contents.Companion.sendContentsDescription
-import org.elkoserver.server.context.Msg.msgDelete
-import org.elkoserver.server.context.Msg.msgMake
 import java.util.LinkedList
 import java.util.function.Consumer
 

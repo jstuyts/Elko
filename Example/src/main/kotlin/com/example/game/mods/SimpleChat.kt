@@ -7,8 +7,6 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.JsonLiteralFactory.targetVerb
-import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.ObjectCompletionWatcher
@@ -56,23 +54,5 @@ class SimpleChat @JsonMethod("allowpush") constructor(allowPush: OptBoolean) : M
     fun say(from: User, speech: String) {
         ensureSameContext(from)
         context().send(msgSay(context(), from, speech))
-    }
-
-    companion object {
-        private fun msgPush(target: Referenceable, from: Referenceable,
-                            url: String, frame: String?) =
-                targetVerb(target, "push").apply {
-                    addParameter("from", from)
-                    addParameter("url", url)
-                    addParameterOpt("frame", frame)
-                    finish()
-                }
-
-        fun msgSay(target: Referenceable, from: Referenceable, speech: String?): JsonLiteral =
-                targetVerb(target, "say").apply {
-                    addParameter("from", from)
-                    addParameter("speech", speech)
-                    finish()
-                }
     }
 }

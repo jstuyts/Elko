@@ -11,7 +11,6 @@ import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.ConcurrentModificationException
 
@@ -255,91 +254,10 @@ class DirectorGroup(server: Server,
         /** Default reservation expiration time, in seconds.  */
         internal const val DEFAULT_RESERVATION_EXPIRATION_TIMEOUT = 30
 
-        /**
-         * Create a "context" message.
-         *
-         * @param context  The context opened or closed.
-         * @param open  Flag indicating open or closed.
-         * @param yours  Flag indicating if recipient was controlling director.
-         * @param maxCapacity   Max # users in context, or -1 for no limit.
-         * @param baseCapacity   Max # users before cloning, or -1 for no limit.
-         * @param restricted  Flag indicated if context is restricted
-         */
-        private fun msgContext(context: String, open: Boolean, yours: Boolean, maxCapacity: Int, baseCapacity: Int, restricted: Boolean) =
-                JsonLiteralFactory.targetVerb("provider", "context").apply {
-                    addParameter("context", context)
-                    addParameter("open", open)
-                    addParameter("yours", yours)
-                    if (open) {
-                        if (maxCapacity != -1) {
-                            addParameter("maxcap", maxCapacity)
-                        }
-                        if (baseCapacity != -1) {
-                            addParameter("basecap", baseCapacity)
-                        }
-                        if (restricted) {
-                            addParameter("restricted", restricted)
-                        }
-                    }
-                    finish()
-                }
 
-        /**
-         * Create a "load" message.
-         *
-         * @param factor  Load factor to report.
-         */
-        private fun msgLoad(factor: Double) =
-                JsonLiteralFactory.targetVerb("provider", "load").apply {
-                    addParameter("factor", factor)
-                    finish()
-                }
 
-        /**
-         * Create a "relay" message.
-         *
-         * @param target  The message target.
-         * @param contextName  The base name of the context to relay to.
-         * @param userName  The base name of the user to relay to.
-         * @param relay  The message to relay.
-         */
-        private fun msgRelay(target: String, contextName: String?, userName: String?, relay: JsonLiteral) =
-                JsonLiteralFactory.targetVerb(target, "relay").apply {
-                    addParameterOpt("context", contextName)
-                    addParameterOpt("user", userName)
-                    addParameter("msg", relay)
-                    finish()
-                }
 
-        /**
-         * Create a "gate" message.
-         *
-         * @param context  The context whose gate is being indicated
-         * @param open  Flag indicating open or closed
-         * @param reason  Reason for closing the gate
-         */
-        private fun msgGate(context: String, open: Boolean, reason: String?) =
-                JsonLiteralFactory.targetVerb("provider", "gate").apply {
-                    addParameter("context", context)
-                    addParameter("open", open)
-                    addParameterOpt("reason", reason)
-                    finish()
-                }
 
-        /**
-         * Create a "user" message.
-         *
-         * @param context  The context entered or exited.
-         * @param user  Who entered or exited.
-         * @param on  Flag indicating online or offline.
-         */
-        private fun msgUser(context: String, user: String, on: Boolean) =
-                JsonLiteralFactory.targetVerb("provider", "user").apply {
-                    addParameter("context", context)
-                    addParameter("user", user)
-                    addParameter("on", on)
-                    finish()
-                }
     }
 
     init {

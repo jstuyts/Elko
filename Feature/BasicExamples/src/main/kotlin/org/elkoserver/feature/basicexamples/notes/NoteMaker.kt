@@ -11,8 +11,8 @@ import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.Msg
 import org.elkoserver.server.context.User
+import org.elkoserver.server.context.msgMake
 import org.elkoserver.server.context.validContainer
 import kotlin.contracts.ExperimentalContracts
 
@@ -103,7 +103,7 @@ class NoteMaker @JsonMethod("styles") constructor(private val myStyleOptions: St
             attachTo(item)
         }
         item.objectIsComplete()
-        context().send(Msg.msgMake(intoObj, item, from))
+        context().send(msgMake(intoObj, item, from))
     }
 
 }

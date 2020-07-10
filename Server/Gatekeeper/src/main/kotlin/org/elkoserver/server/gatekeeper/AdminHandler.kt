@@ -5,8 +5,6 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.HostDesc
-import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -79,16 +77,5 @@ internal class AdminHandler(private val myGatekeeper: Gatekeeper, commGorgel: Go
     fun shutdown(from: GatekeeperActor) {
         from.ensureAuthorizedAdmin()
         myGatekeeper.shutdown()
-    }
-
-    companion object {
-        /**
-         * Generate a 'director' message.
-         */
-        private fun msgDirector(target: Referenceable, hostport: String) =
-                JsonLiteralFactory.targetVerb(target, "director").apply {
-                    addParameter("hostport", hostport)
-                    finish()
-                }
     }
 }

@@ -7,8 +7,8 @@ import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.Msg.msgSay
 import org.elkoserver.server.context.User
+import org.elkoserver.server.context.msgSay
 
 /**
  * Mod to enable a context user to control the context's gate

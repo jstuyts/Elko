@@ -6,8 +6,6 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.JsonLiteralFactory.targetVerb
-import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.User
@@ -40,22 +38,5 @@ class ExampleItemMod @JsonMethod("str1", "str2", "int1", "int2") constructor(
     fun itemverb2(from: User, arg: String, otherArg: OptString) {
         ensureSameContext(from)
         context().send(msgItemVerb2(context(), arg, otherArg.value<String?>(null)))
-    }
-
-    companion object {
-        private fun msgItemVerb1(target: Referenceable, from: Referenceable, arg: String, otherArg: String?) =
-                targetVerb(target, "itemverb1").apply {
-                    addParameter("from", from)
-                    addParameter("arg", arg)
-                    addParameterOpt("otherarg", otherArg)
-                    finish()
-                }
-
-        private fun msgItemVerb2(target: Referenceable, arg: String, otherArg: String?) =
-                targetVerb(target, "itemverb2").apply {
-                    addParameter("arg", arg)
-                    addParameterOpt("otherarg", otherArg)
-                    finish()
-                }
     }
 }

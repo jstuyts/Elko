@@ -5,8 +5,6 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.JsonLiteralFactory.targetVerb
-import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.User
 import org.elkoserver.server.context.UserMod
@@ -24,14 +22,5 @@ class ExampleUserMod @JsonMethod constructor() : Mod(), UserMod {
     fun userverb(from: User, arg: String, otherArg: OptString) {
         ensureSameUser(from)
         from.send(msgUserVerb(from, arg, otherArg.value<String?>(null)))
-    }
-
-    companion object {
-        private fun msgUserVerb(target: Referenceable, arg: String, otherArg: String?) =
-                targetVerb(target, "userverb").apply {
-                    addParameter("arg", arg)
-                    addParameterOpt("otherarg", otherArg)
-                    finish()
-                }
     }
 }

@@ -3,8 +3,6 @@ package org.elkoserver.server.gatekeeper
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -79,42 +77,6 @@ internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gor
     }
 
     companion object {
-        /**
-         * Create a 'reserve' reply message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param id  The ID for which the reservation was requested, or null if
-         * none.
-         * @param context  Context the reservation is for.
-         * @param actor  Actor the reservation is for, or null for anonymous.
-         * @param hostPort  Host:port to connect to, or null in error case.
-         * @param auth  Authorization code for entry, or null in error case.
-         * @param deny  Error message in error case, or null in normal case.
-         */
-        private fun msgReserve(target: Referenceable, id: String?, context: String?, actor: String?, name: String?, hostPort: String?, auth: String?, deny: String?) =
-                JsonLiteralFactory.targetVerb(target, "reserve").apply {
-                    addParameterOpt("id", id)
-                    addParameter("context", context)
-                    addParameterOpt("actor", actor)
-                    addParameterOpt("name", name)
-                    addParameterOpt("hostport", hostPort)
-                    addParameterOpt("auth", auth)
-                    addParameterOpt("deny", deny)
-                    finish()
-                }
 
-        /**
-         * Create 'setpassword' reply message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param id  Actor whose password was requested to be changed.
-         * @param failure  Error message, or null if no error.
-         */
-        private fun msgSetPassword(target: Referenceable, id: String, failure: String?) =
-                JsonLiteralFactory.targetVerb(target, "setpassword").apply {
-                    addParameter("id", id)
-                    addParameterOpt("failure", failure)
-                    finish()
-                }
     }
 }

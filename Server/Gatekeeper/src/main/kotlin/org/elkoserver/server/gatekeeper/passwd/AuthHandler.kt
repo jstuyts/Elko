@@ -5,8 +5,6 @@ import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
 import org.elkoserver.server.gatekeeper.Gatekeeper
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.security.MessageDigest
@@ -261,49 +259,4 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
             }
         })
     }
-
-    companion object {
-        /**
-         * Generate a 'createactor' message.
-         */
-        private fun msgCreateActor(target: Referenceable, id: String, failure: String?) =
-                JsonLiteralFactory.targetVerb(target, "createactor").apply {
-                    addParameter("id", id)
-                    addParameterOpt("failure", failure)
-                    finish()
-                }
-
-        /**
-         * Generate a 'deleteactor' message.
-         */
-        private fun msgDeleteActor(target: Referenceable, id: String, failure: String?) =
-                JsonLiteralFactory.targetVerb(target, "deleteactor").apply {
-                    addParameter("id", id)
-                    addParameterOpt("failure", failure)
-                    finish()
-                }
-
-        /**
-         * Generate a 'lookupactor' message.
-         */
-        private fun msgLookupActor(target: Referenceable, id: String, iid: String?, name: String?, failure: String?) =
-                JsonLiteralFactory.targetVerb(target, "lookupactor").apply {
-                    addParameter("id", id)
-                    addParameterOpt("iid", iid)
-                    addParameterOpt("name", name)
-                    addParameterOpt("failure", failure)
-                    finish()
-                }
-
-        /**
-         * Generate a 'lookupplace' message.
-         */
-        private fun msgLookupPlace(target: Referenceable, name: String, context: String?) =
-                JsonLiteralFactory.targetVerb(target, "lookupplace").apply {
-                    addParameter("name", name)
-                    addParameterOpt("context", context)
-                    finish()
-                }
-    }
-
 }

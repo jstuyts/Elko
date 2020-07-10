@@ -13,10 +13,6 @@ import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Contents.Companion.sendContentsDescription
-import org.elkoserver.server.context.Msg.msgDelete
-import org.elkoserver.server.context.Msg.msgExit
-import org.elkoserver.server.context.Msg.msgMake
-import org.elkoserver.server.context.Msg.msgReady
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.NoSuchElementException

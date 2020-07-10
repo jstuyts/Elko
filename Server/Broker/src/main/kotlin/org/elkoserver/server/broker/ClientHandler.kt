@@ -6,9 +6,6 @@ import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.metadata.ServiceDesc
-import org.elkoserver.json.JsonLiteralArray
-import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -157,17 +154,5 @@ internal class ClientHandler(private val myBroker: Broker, commGorgel: Gorgel) :
         for (service in services) {
             from.client!!.removeService(service)
         }
-    }
-
-    companion object {
-        /**
-         * Generate a 'find' message.
-         */
-        private fun msgFind(target: Referenceable, desc: JsonLiteralArray, tag: String?) =
-                JsonLiteralFactory.targetVerb(target, "find").apply {
-                    addParameter("desc", desc)
-                    addParameterOpt("tag", tag)
-                    finish()
-                }
     }
 }

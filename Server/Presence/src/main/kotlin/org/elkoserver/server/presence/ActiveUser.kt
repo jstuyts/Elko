@@ -4,7 +4,6 @@ import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralArray
-import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
 import java.util.LinkedList
 
@@ -265,87 +264,11 @@ internal class ActiveUser(internal val ref: String, private val domainRegistry: 
     }
 
     /**
-     * Generate a notification message to a client, telling it about the
-     * status of a user's friends.
-     *
-     * @param user  The ref of the user whose friends are of interest
-     * @param context  The context in which the user presence is being notified
-     * @param friends  A list of the currently online members of the user's
-     * social graph.
-     */
-    private fun msgGroupToUser(user: String, context: String?, friends: Map<Domain, List<FriendInfo?>>) =
-            JsonLiteralFactory.targetVerb("presence", "gtou").apply {
-                addParameter("touser", user)
-                addParameter("ctx", context)
-                val group = JsonLiteralArray().apply {
-                    for ((key, value) in friends) {
-                        val domainInfo = JsonLiteral().apply {
-                            addParameter("domain", key.name)
-                            addParameter("friends", value)
-                            finish()
-                        }
-                        addElement(domainInfo)
-                    }
-                    finish()
-                }
-                addParameter("group", group)
-                finish()
-            }
-
-    /**
-     * Generate a notification message to a client, telling it to inform a
-     * group of users about the change in presence status of a user.
-     *
-     * @param user  The ref of the user whose presence changed
-     * @param userMeta  Optional user metadata.
-     * @param context  The context the user is or was in
-     * @param on  true if the user came online, false if they went offline
-     * @param friends  A collection of lists of the refs of the users who
-     * should be informed, by domain and context
-     * @param master  The presence server master instance.
-     */
-    private fun msgUserToGroup(user: String, userMeta: JsonObject?,
-                               context: String?, on: Boolean,
-                               friends: Map<Domain, Map<String, List<String?>>>,
-                               master: PresenceServer) =
-            JsonLiteralFactory.targetVerb("presence", "utog").apply {
-                addParameter("user", user)
-                addParameterOpt("umeta", userMeta)
-                addParameter("ctx", context)
-                addParameterOpt("cmeta", master.getContextMetadata(context!!))
-                addParameter("on", on)
-                val group = JsonLiteralArray().apply {
-                    for ((domain, who) in friends) {
-                        val obj = JsonLiteral().apply {
-                            addParameter("domain", domain.name)
-                            val whoArr = JsonLiteralArray().apply {
-                                for ((key, value) in who) {
-                                    val ctxInfo = JsonLiteral().apply {
-                                        addParameter("ctx", key)
-                                        addParameter("users", value)
-                                        finish()
-                                    }
-                                    addElement(ctxInfo)
-                                }
-                                finish()
-                            }
-                            addParameter("who", whoArr)
-                            finish()
-                        }
-                        addElement(obj)
-                    }
-                    finish()
-                }
-                addParameter("togroup", group)
-                finish()
-            }
-
-    /**
      * Simple encodable struct class holding the presence information
      * describing an online member of a user's social graph: a pair consisting
      * of the friend's user ref and the context ref of the context they are in.
      */
-    private class FriendInfo internal constructor(private val myUser: String, private val myUserMeta: JsonObject?, private val myContext: String,
+    internal class FriendInfo internal constructor(private val myUser: String, private val myUserMeta: JsonObject?, private val myContext: String,
                                                   private val myContextMeta: JsonObject?) : Encodable {
         override fun encode(control: EncodeControl) =
                 JsonLiteral(control).apply {

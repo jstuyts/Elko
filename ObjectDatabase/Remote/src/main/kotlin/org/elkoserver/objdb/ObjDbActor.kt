@@ -1,6 +1,7 @@
 package org.elkoserver.objdb
 
 import org.elkoserver.foundation.actor.NonRoutingActor
+import org.elkoserver.foundation.actor.msgAuth
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.OptString

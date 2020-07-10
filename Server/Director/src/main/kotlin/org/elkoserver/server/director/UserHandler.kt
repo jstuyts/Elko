@@ -3,8 +3,6 @@ package org.elkoserver.server.director
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.Random
 import kotlin.math.abs
@@ -97,27 +95,5 @@ internal open class UserHandler(protected val director: Director, commGorgel: Go
             /* Sorry dude, no can do. */
             from.send(msgReserve(this, actualContextName, userName, null, null, "requested protocol not available", tag))
         }
-    }
-
-    companion object {
-
-        private fun msgDoReserve(target: Referenceable, context: String?, user: String?, reservation: String) =
-                JsonLiteralFactory.targetVerb(target, "doreserve").apply {
-                    addParameter("context", context)
-                    addParameterOpt("user", user)
-                    addParameterOpt("reservation", reservation)
-                    finish()
-                }
-
-        private fun msgReserve(target: Referenceable, context: String?, user: String?, hostPort: String?, reservation: String?, deny: String?, tag: String?) =
-                JsonLiteralFactory.targetVerb(target, "reserve").apply {
-                    addParameter("context", context)
-                    addParameterOpt("user", user)
-                    addParameterOpt("hostport", hostPort)
-                    addParameterOpt("reservation", reservation)
-                    addParameterOpt("deny", deny)
-                    addParameterOpt("tag", tag)
-                    finish()
-                }
     }
 }

@@ -17,7 +17,7 @@ class PrivateChat @JsonMethod constructor() : Mod(), UserMod {
     fun say(from: User, speech: String) {
         ensureSameContext(from)
         val who = `object`() as User
-        val response = SimpleChat.msgSay(who, from, speech)
+        val response = msgSay(who, from, speech)
         who.send(response)
         if (from !== who) {
             from.send(response)

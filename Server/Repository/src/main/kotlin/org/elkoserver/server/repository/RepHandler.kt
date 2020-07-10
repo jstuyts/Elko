@@ -3,8 +3,6 @@ package org.elkoserver.server.repository
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
 import org.elkoserver.objdb.store.GetResultHandler
 import org.elkoserver.objdb.store.ObjectDesc
 import org.elkoserver.objdb.store.PutDesc
@@ -131,77 +129,5 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
                 from.send(msgRemove(this@RepHandler, tag.value<String?>(null), results))
             }
         })
-    }
-
-    companion object {
-        /**
-         * Create a 'get' reply message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param tag  Client tag for matching replies.
-         * @param results  Object results.
-         */
-        private fun msgGet(target: Referenceable, tag: String?, results: Array<ObjectDesc>?) =
-                JsonLiteralFactory.targetVerb(target, "get").apply {
-                    addParameterOpt("tag", tag)
-                    addParameter("results", results)
-                    finish()
-                }
-
-        /**
-         * Create a 'put' reply message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param tag  Client tag for matching replies.
-         * @param results  Status results.
-         */
-        private fun msgPut(target: Referenceable, tag: String?, results: Array<out ResultDesc>) =
-                JsonLiteralFactory.targetVerb(target, "put").apply {
-                    addParameterOpt("tag", tag)
-                    addParameter("results", results)
-                    finish()
-                }
-
-        /**
-         * Create an 'update' reply message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param tag  Client tag for matching replies.
-         * @param results  Status results.
-         */
-        private fun msgUpdate(target: Referenceable, tag: String?, results: Array<out ResultDesc>) =
-                JsonLiteralFactory.targetVerb(target, "update").apply {
-                    addParameterOpt("tag", tag)
-                    addParameter("results", results)
-                    finish()
-                }
-
-        /**
-         * Create a 'query' reply message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param tag  Client tag for matching replies.
-         * @param results  Object results.
-         */
-        private fun msgQuery(target: Referenceable, tag: String?, results: Array<ObjectDesc>?) =
-                JsonLiteralFactory.targetVerb(target, "query").apply {
-                    addParameterOpt("tag", tag)
-                    addParameter("results", results)
-                    finish()
-                }
-
-        /**
-         * Create a 'remove' reply message.
-         *
-         * @param target  Object the message is being sent to.
-         * @param tag  Client tag for matching replies.
-         * @param results  Status results.
-         */
-        private fun msgRemove(target: Referenceable, tag: String?, results: Array<out ResultDesc>) =
-                JsonLiteralFactory.targetVerb(target, "remove").apply {
-                    addParameterOpt("tag", tag)
-                    addParameter("results", results)
-                    finish()
-                }
     }
 }
