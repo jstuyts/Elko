@@ -6,7 +6,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 /**
  * Access to a persistent object data storage mechanism.
  *
- *
  * This interface is used by both the Repository (which provides object
  * storage remotely via a JSON protocol) and [ ] (which provides object storage locally via
  * direct access to an object database).  In either case, they are configured

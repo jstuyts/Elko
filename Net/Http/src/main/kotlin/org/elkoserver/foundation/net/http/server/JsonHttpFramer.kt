@@ -23,7 +23,6 @@ class JsonHttpFramer(private val commGorgel: Gorgel, private val mustSendDebugRe
      * Produce the HTTP for responding to an HTTP GET of the /select/ URL by
      * sending a message to the client.
      *
-     *
      * The actual HTTP reply body sent is constructed by concatenating the
      * results of one or more coordinated calls to this method, one call for
      * each message that is to be sent.  In the first of these calls, the

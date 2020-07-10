@@ -248,14 +248,12 @@ class Item : BasicObject {
     /**
      * Transmit a description of this item as a series of 'make' messages.
      *
-     *
      * This method will generate and send a series of 'make' messages that
      * direct a client or clients to construct a representation of this item
      * and its contents.  If this item is visible to the indicated receiver,
      * one 'make' message will be sent describing this object itself, and then
      * an additional message for each visible object in its descendent
      * containership hierarchy.
-     *
      *
      * Application code will not normally need to call this method, since it
      * is invoked automatically as part of the normal transmission of a context
@@ -363,7 +361,6 @@ class Item : BasicObject {
 
     /**
      * Message handler for the 'delete' message.
-     *
      *
      * If the item is deletable, the item is deleted and a 'delete' message
      * is broadcast to everyone in the context informing them of this.

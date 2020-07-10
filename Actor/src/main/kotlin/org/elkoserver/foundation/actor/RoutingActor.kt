@@ -10,7 +10,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 /**
  * An [Actor] that receives targeted JSON messages over its connection.
  *
- *
  * This class is abstract, in that its implementation of the [org.elkoserver.foundation.net.MessageHandler] interface is
  * incomplete: it implements the [org.elkoserver.foundation.net.MessageHandler.processMessage]
  * method, but subclasses must implement [org.elkoserver.foundation.net.MessageHandler.connectionDied]

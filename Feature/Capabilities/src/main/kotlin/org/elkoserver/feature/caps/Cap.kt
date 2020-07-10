@@ -105,11 +105,8 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * Handle a 'delete' message.  This is a request from a client to delete
      * the capability object.
      *
-     *
      * This request will be rejected if the capability is marked as
      * undeletable and is not expired.
-     *
-     *
      *
      * <u>recv</u>: ` { to:*REF*, op:"delete" } `<br></br>
      * <u>send</u>: ` { to:*REF*, op:"delete" } `
@@ -131,8 +128,6 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * Handle a 'setlabel' message.  This is a request from a client to change
      * the label of the capability object.
      *
-     *
-     *
      * <u>recv</u>: ` { to:*REF*, op:"setlabel",
      * label:*STR* } `<br></br>
      * <u>send</u>: no reply is sent.
@@ -150,12 +145,9 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * Handle a 'transfer' message.  This is a request from a client to pass
      * possession of the capability object to somebody else.
      *
-     *
      * This request will be rejected if the capability is marked as
      * untransferrable.  Yes, this is unenforceable due to the possibility of
      * proxying, but marketing solipsism must be served.
-     *
-     *
      *
      * <u>recv</u>: ` { to:*REF*, op:"transfer", dest:*DESTREF* } `<br></br>
      * <u>send</u>: ` { to:*REF*, op:"delete" } `<br></br>
@@ -186,19 +178,15 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * Handle a 'spawn' message.  This is a request from a client to create a
      * copy of the capability object, with possibly reduced scope of powers.
      *
-     *
      * This method will reject, as an illegal rights amplification, any
      * attempt to spawn a capability that is undeletable when the base
      * capability is deletable, transferrable when the base capability is
      * untransferrable, or which has a later expiration time than the base
      * capability.
      *
-     *
      * If 'dest' designates a different holder, the operation will also be
      * regarded as a transfer and subjected to all the same checks as a call to
      * [transfer()][.transfer].
-     *
-     *
      *
      * <u>recv</u>: ` { to:*REF*, op:"spawn", dest:*optDESTREF*,
      * transferrable:*optBOOL*,

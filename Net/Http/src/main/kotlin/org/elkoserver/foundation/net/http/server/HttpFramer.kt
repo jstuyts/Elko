@@ -6,7 +6,6 @@ package org.elkoserver.foundation.net.http.server
  * is also responsible for actually producing the HTTP replies that will be
  * transmitted in response to HTTP requests sent to the server.
  *
- *
  * The base HTTPFramer treats the content of each HTTP POST (to the /xmit/
  * URL) as a simple string being delivered to the server.
  */
@@ -62,7 +61,6 @@ endless others exist<p>
      * response to an HTTP GET or POST of the /select/ URL.  This JSON text
      * will either deliver a message (or messages) to the client or inform the
      * client that there are no messages at this time.
-     *
      *
      * This method is able to produce fragmentary output to support packing
      * multiple messages into a single reply body: the reply consists of a

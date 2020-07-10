@@ -32,9 +32,7 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
     /**
      * Attach this mod to an object.
      *
-     *
      * Only one mod of any given class may be attached to any given object.
-     *
      *
      * Application code will not normally need to call this method, since it
      * is called automatically when an object is loaded from persistent

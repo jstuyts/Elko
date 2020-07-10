@@ -100,7 +100,6 @@ class Cryptor(keyStr: String, private val gorgel: Gorgel, private val jsonToObje
     /**
      * Produce a (base-64 encoded) encrypted version of a string.
      *
-     *
      * The first 22 characters of the result string are the base64-encoded IV
      * (minus a terminal "==").  The remainder of the string is the
      * base64-encoded ciphertext.

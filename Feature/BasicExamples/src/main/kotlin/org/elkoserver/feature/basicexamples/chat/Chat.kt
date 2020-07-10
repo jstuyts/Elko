@@ -135,12 +135,9 @@ class Chat @JsonMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
     /**
      * Message handler for the 'say' message.
      *
-     *
      * This message broadcasts chat text to everyone in the context.  This
      * is done by echoing the 'say' message to the context, marked as being
      * from the user who sent it.
-     *
-     *
      *
      * <u>recv</u>: ` { to:*REF*, op:"say", text:*STR* } `<br></br>
      *

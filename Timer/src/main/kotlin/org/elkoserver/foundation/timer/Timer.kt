@@ -7,8 +7,6 @@ package org.elkoserver.foundation.timer
  * Recurring events (controlled by [Clock] objects) may be scheduled by
  * calling either of the [every()][.every] methods.
  *
- *
- *
  * Event notification is guaranteed to be prompt but not immediate: the event
  * handler will be invoked no sooner than scheduled and as soon thereafter as
  * possible, but no guarantees are offered that somewhat more time will not

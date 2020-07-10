@@ -19,10 +19,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  */
 abstract class BasicProtocolHandler protected constructor(): Referenceable, DispatchTarget, BaseCommGorgelUsingObject {
     private lateinit var commGorgel: Gorgel
-//
-//    protected constructor(traceFactory: TraceFactory) {
-//        this.traceFactory = traceFactory
-//    }
 
     constructor(commGorgel: Gorgel) : this() {
         this.commGorgel = commGorgel
@@ -38,8 +34,6 @@ abstract class BasicProtocolHandler protected constructor(): Referenceable, Disp
      * This message requests the server to authenticate the sender, according
      * to the type of user they want to become.  There is no reply, but if
      * authentication fails, the sender is disconnected.
-     *
-     *
      *
      * <u>recv</u>: ` { to:*REF*, op:"auth", auth:*AUTHDESC*,
      * label:*optSTR* } `<br></br>
@@ -63,8 +57,6 @@ abstract class BasicProtocolHandler protected constructor(): Referenceable, Disp
      * This message delivers textual debugging information from the other end
      * of the connection.  The received text is written to the server log.
      *
-     *
-     *
      * <u>recv</u>: ` { to:*ignored*, op:"debug",
      * msg:*STR* } `<br></br>
      *
@@ -84,8 +76,6 @@ abstract class BasicProtocolHandler protected constructor(): Referenceable, Disp
      * This message requests the server to close its connection to the
      * sender.
      *
-     *
-     *
      * <u>recv</u>: ` { to:*ignored*, op:"disconnect" } `<br></br>
      *
      * <u>send</u>: there is no reply, since the connection is closed
@@ -102,8 +92,6 @@ abstract class BasicProtocolHandler protected constructor(): Referenceable, Disp
      *
      * This message is a simple connectivity test.  Responds by sending a
      * 'pong' message back to the sender.
-     *
-     *
      *
      * <u>recv</u>: ` { to:*REF*, op:"ping",
      * tag:*optSTR* } `<br></br>
@@ -125,8 +113,6 @@ abstract class BasicProtocolHandler protected constructor(): Referenceable, Disp
      *
      * This message is the reply to an earlier 'ping' message.  It is simply
      * discarded.
-     *
-     *
      *
      * <u>recv</u>: ` { to:*ignored*, op:"pong",
      * tag:*optSTR* } `<br></br>

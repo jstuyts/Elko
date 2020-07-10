@@ -21,13 +21,11 @@ import java.nio.charset.StandardCharsets
  * one or more non-empty lines terminated by an empty line (i.e., by two
  * successive newlines).
  *
- *
  * On recognition of an RTCP request as a message delivery, each block
  * matching the JSON framing rule is regarded as a parseable unit; that is, it
  * is expected to contain one or more syntactically complete JSON messages.
  * The entire block is read into an internal buffer, then parsed for JSON
  * messages that are fed to the receiver.
- *
  *
  * On output, each thing being sent is always in the form of a string by the
  * time this class gets its hands on it, so output framing consists of merely

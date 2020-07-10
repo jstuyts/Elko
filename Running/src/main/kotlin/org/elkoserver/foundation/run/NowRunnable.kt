@@ -18,8 +18,6 @@ internal class NowRunnable(private var myOptTodo: Callable<Any>?) : Runnable {
     /**
      * If myOptTodo threw a problem, then this is the problem.
      *
-     *
-     *
      * Meaningful iff null == myOptTodo.  If null, then myResult is the
      * successful return value.
      */
@@ -33,8 +31,6 @@ internal class NowRunnable(private var myOptTodo: Callable<Any>?) : Runnable {
 
     /**
      * Called in the thread doing the now().
-     *
-     *
      *
      * Schedules the execution of myOptTodo as a turn of the RunnerThread.
      * Blocks until that thunk completes in the RunnerThread, at which point
@@ -75,9 +71,8 @@ internal class NowRunnable(private var myOptTodo: Callable<Any>?) : Runnable {
          * Wrap a [Throwable] in a [RuntimeException].
          *
          * Wraps `problem` if necessary so that the caller can do a
-         * <pre>
-         * throw ExceptionMgr.asSafe(problem);
-        </pre> *
+         *
+         *     throw ExceptionMgr.asSafe(problem);
          *
          * without having to declare any new "throws" cases.  The caller does the
          * throw rather than this method so that the Java compiler will have better

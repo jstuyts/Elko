@@ -101,7 +101,6 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
     /**
      * Be given a buffer full of input bytes.
      *
-     *
      * Note: this class assumes that it may continue to freely make direct
      * use of the contents of the byte buffer that is given to this method
      * (i.e., without copying it to internal storage) until [ ][.preserveBuffers] is called; after that, the buffer contents may be
@@ -294,7 +293,6 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
      * However, if a complete line is not available in the buffers, null is
      * returned.
      *
-     *
      * Takes ASCII characters from the buffers until a newline (optionally
      * preceded by a carriage return) is read, at which point the line is
      * returned as a String, not including the line terminator character(s).
@@ -345,7 +343,6 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
      * Read the next line of UTF-8 encoded characters from the input stream.
      * However, If a complete line is not available in the buffers, null is
      * returned.
-     *
      *
      * Takes UTF-8 characters from the buffers until a newline (optionally
      * preceded by a carriage return) is read, at which point the line is

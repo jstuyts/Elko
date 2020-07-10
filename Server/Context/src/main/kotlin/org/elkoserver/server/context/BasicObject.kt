@@ -21,7 +21,6 @@ import java.util.function.Consumer
  * Base class of the fundamental addressable objects in the Context Server:
  * context, user, and item.
  *
- *
  * All such objects share many characteristics in common, hence this base
  * class.  They are all [Encodable] since representations of them can be
  * sent to the client, [DispatchTarget]s since the client can address
@@ -458,7 +457,6 @@ abstract class BasicObject internal constructor(
      * Inform this object that its construction is now complete.  This will in
      * turn inform any [Mod]s that have expressed an interest in this
      * event so that they can do any post-creation cleanup or initialization.
-     *
      *
      * Application code should not normally need to call this method, since
      * it is called automatically when an object is loaded from persistent

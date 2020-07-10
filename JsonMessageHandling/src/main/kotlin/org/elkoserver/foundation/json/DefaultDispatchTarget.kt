@@ -6,7 +6,6 @@ import org.elkoserver.json.JsonObject
  * Interface for an object to handle JSON messages addressed to it for which it
  * does not otherwise have specific methods.
  *
- *
  * When the [MessageDispatcher] attempts to deliver a message to an
  * object, it first looks for a [JsonMethod] attributed method
  * corresponding to the specific message it is trying to deliver.  If such a

@@ -94,8 +94,6 @@ abstract class NonRoutingActor protected constructor(
      * This message delivers textual debugging information from the other end
      * of the connection.  The received text is written to the server log.
      *
-     *
-     *
      * <u>recv</u>: ` { to:*ignored*, op:"debug",
      * msg:*STR* } `<br></br>
      *
@@ -114,8 +112,6 @@ abstract class NonRoutingActor protected constructor(
      *
      * This message is a simple connectivity test.  Respond by sending a 'pong'
      * message back to the sender.
-     *
-     *
      *
      * <u>recv</u>: ` { to:*REF*, op:"ping",
      * tag:*optSTR* } `<br></br>
@@ -137,8 +133,6 @@ abstract class NonRoutingActor protected constructor(
      *
      * This message is the reply to an earlier 'ping' message.  It is simply
      * discarded.
-     *
-     *
      *
      * <u>recv</u>: ` { to:*ignored*, op:"pong",
      * tag:*optSTR* } `<br></br>

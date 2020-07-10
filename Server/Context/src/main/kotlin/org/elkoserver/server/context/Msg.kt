@@ -83,9 +83,7 @@ object Msg {
      * Create a 'make' message with a default creator and explicit session
      * identifier.  This method is exactly equivalent to:
      *
-     *
      * `msgMake(target, obj, null, false, sess)`
-     *
      *
      * and is provided just for convenience.
      *

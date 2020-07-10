@@ -4,14 +4,12 @@ package org.elkoserver.server.gatekeeper
  * Interface implemented by classes that provide an authorization policy
  * and mechanism to the Gatekeeper.
  *
- *
  * The Gatekeeper does not intrinsically implement any particular means of
  * authenticating and authorizing the users for whom it is handling
  * reservations.  Instead, it calls upon an object implementing this interface,
  * which it instantiates at server startup time.  The server takes the fully
  * qualified class name of the class of Authorizer to instantiate from the
  * `"conf.gatekeeper.authorizer"` configuration property.
- *
  *
  * In addition to implementing this interface, an Authorizer class must
  * also provide a zero-argument constructor).

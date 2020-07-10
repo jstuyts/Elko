@@ -40,7 +40,6 @@ class FileObjectStore : ObjectStore {
      * Do the initialization required to begin providing object store
      * services.
      *
-     *
      * The property `"*propRoot*.odjdb"` should specify the
      * pathname of the directory in which the object description files are
      * stored.

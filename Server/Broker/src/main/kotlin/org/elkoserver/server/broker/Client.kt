@@ -55,7 +55,6 @@ internal class Client(private val myBroker: Broker, private val myActor: BrokerA
     /**
      * Test if a given label matches this client.
      *
-     *
      * This will be true if the label is this client's label or one of its
      * host+port strings or its provider ID.
      *

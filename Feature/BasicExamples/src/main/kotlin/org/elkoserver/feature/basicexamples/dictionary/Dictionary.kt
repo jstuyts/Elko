@@ -59,16 +59,12 @@ class Dictionary @JsonMethod("names", "values", "persist") constructor(names: Ar
     /**
      * Message handler for the 'delvar' message.
      *
-     *
      * This message is a request to delete of one or more of the variables
      * from the set.  If the operation is successful, a corresponding 'delvar'
      * message is broadcast to the context.
      *
-     *
      * Warning: This message is not secure.  As implemented today, anyone
      * can delete variables.
-     *
-     *
      *
      * <u>recv</u>: ` { to:*REF*, op:"delvar",
      * names:*STR[]* } `<br></br>

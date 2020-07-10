@@ -4,10 +4,8 @@ package org.elkoserver.server.context
  * Interface implemented by mods that wish to be notified when an item is
  * added to or removed from the container they are attached to.
  *
- *
  * To enable this notification, mods may implement this interface, though
  * only one mod per object may implement it.
- *
  *
  * This interface is only useful when implemented by subclasses of [ ] that are attached to container objects of some kind.
  */

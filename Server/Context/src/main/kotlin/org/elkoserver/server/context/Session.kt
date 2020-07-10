@@ -16,7 +16,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 /**
  * Singleton administrative object for entering and exiting contexts.
  *
- *
  * Unlike most objects, JSON messages may be sent to this object when the
  * user is in either the entered or exited state.  The behavior is somewhat
  * different in the two cases.  For example, when a user has not yet entered a

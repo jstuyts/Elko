@@ -45,15 +45,12 @@ class MongoObjectStore : ObjectStore {
      * Do the initialization required to begin providing object store
      * services.
      *
-     *
      * The property `"*propRoot*.odjdb.mongo.hostport"` should
      * specify the address of the MongoDB server holding the objects.
-     *
      *
      * The optional property `"*propRoot*.odjdb.mongo.dbname"`
      * allows the Mongo database name to be specified.  If omitted, this
      * defaults to `"elko"`.
-     *
      *
      * The optional property `"*propRoot*.odjdb.mongo.collname"`
      * allows the collection containing the object repository to be specified.

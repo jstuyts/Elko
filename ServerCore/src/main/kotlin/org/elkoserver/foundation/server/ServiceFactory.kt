@@ -6,7 +6,6 @@ import org.elkoserver.foundation.server.metadata.AuthDesc
 /**
  * Interface to provide the application-specific portion of [ ] creation.
  *
- *
  * An Elko server application provides an implementation of this interface
  * to the [Server] object when it asks it to start listeners based on
  * information in the server configuration file.  Whenever a listener is

@@ -5,7 +5,6 @@ import java.io.IOException
 /**
  * Interface supporting message framing services.
  *
- *
  * A ByteIoFramer is responsible for actually extracting messages from the
  * bytes arriving over a connection and doing something meaningful with them.
  * It is also responsible for actually producing the bytes to be transmitted
@@ -26,7 +25,6 @@ interface ByteIoFramer {
 
     /**
      * Produce the bytes for writing a message to a connection.
-     *
      *
      * Although the message is declared to be of class Object, particular
      * implementors of this interface may accept a more limited set of classes

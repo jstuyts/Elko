@@ -4,7 +4,6 @@ package org.elkoserver.server.context
  * Interface implemented by mods that wish to be notified when the presence
  * of other users in a user's social graph changes.
  *
- *
  * To enable this notification, mods may implement this interface, though
  * only one mod per user and one mod per context may implement it.
  */

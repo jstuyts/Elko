@@ -9,7 +9,6 @@ package org.elkoserver.foundation.json
  * the opportunity to substitute some object other than itself as the 'from'
  * parameter to the message handler.
  *
- *
  * Compare and contrast with [MessageRetargeter].
  */
 interface SourceRetargeter {

@@ -12,7 +12,6 @@ interface MessageHandlerFactory {
     /**
      * Provide a message handler for a new connection.
      *
-     *
      * Note: in the case of attempting to establish an outbound connection,
      * this method also acts as a callback to notify the application that the
      * connection is now established or that the attempt to establish it

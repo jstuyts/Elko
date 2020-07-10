@@ -26,7 +26,6 @@ class StringHttpFramer private constructor() : HttpFramer() {
         /**
          * Test if there are more messages.
          *
-         *
          * When using this unpacking scheme, there can be only one
          * application- level message in an HTTP message.  That message has
          * either been given out or it hasn't.
@@ -35,7 +34,6 @@ class StringHttpFramer private constructor() : HttpFramer() {
 
         /**
          * Get the next message.
-         *
          *
          * Since there is only the one application-level message possible
          * here, just return that, or null if it was returned previously.

@@ -51,12 +51,9 @@ class NoteMaker @JsonMethod("styles") constructor(private val myStyleOptions: St
     /**
      * Message handler for the 'makenote' message.
      *
-     *
      * This is a request from a client to create a new note.  If the
      * creation operation is successful, a 'make' message will be broadcast to
      * the context, describing the new note object.
-     *
-     *
      *
      * <u>recv</u>: ` { to:*REF*, op:"makeNote", into:*optREF*,
      * left:*INT*, top:*INT*, width:*INT*,

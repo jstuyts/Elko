@@ -18,11 +18,9 @@ import org.elkoserver.server.context.UserMod
  * operates in conjunction with [TalkOptions] and [Chat] mods that
  * should be attached to the context the user is in.
  *
- *
  * This mod gets attached to a user, but note that it is not normally attached
  * to the user record in the object database.  It does not persist, but instead
  * is attached dynamically by the [TalkOptions] mod.
- *
  *
  * Note that although this method takes a 'style'
  * parameter, normally styles are initialized (in the [ ][.objectIsComplete] method) by choosing, in a round-robin fashion, from
@@ -54,7 +52,6 @@ class TalkPrefs @JsonMethod("style") constructor(private var myStyle: StyleDesc)
      * Upon completion of the user object to which this mod attached, grab the
      * next set of available style choices from the context's [ ] mod.
      *
-     *
      * Application code should not call this method.
      */
     override fun objectIsComplete() {
@@ -67,12 +64,9 @@ class TalkPrefs @JsonMethod("style") constructor(private var myStyle: StyleDesc)
     /**
      * Message handler for the 'style' message.
      *
-     *
      * This is a request from a client to change one or more of the style
      * attributes.  If the change operation is successful, a corresponding
      * 'style' message is broadcast to the context.
-     *
-     *
      *
      * <u>recv</u>: ` { to:*REF*, op:"style", color:*optSTR*,
      * backgroundColor:*optSTR*, icon:*optSTR*,

@@ -9,7 +9,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * MessageHandlerFactory class to create new actors for new connections to a
  * workshop's listen port.
  *
- *
  * @param workshop  The workshop this factory is making actors for.
  * @param myAuth  The authorization needed for connections to this port.
  * @param allowAdmin  If true, permit admin connections.

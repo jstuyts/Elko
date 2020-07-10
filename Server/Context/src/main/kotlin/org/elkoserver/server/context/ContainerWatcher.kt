@@ -4,10 +4,8 @@ package org.elkoserver.server.context
  * Interface implemented by mods that wish to be notified when the item they
  * are attached to has its container changed.
  *
- *
  * To enable this notification, mods may implement this interface, though
  * only one mod per object may implement it.
- *
  *
  * This interface is only useful when implemented by item Mods.
  */
