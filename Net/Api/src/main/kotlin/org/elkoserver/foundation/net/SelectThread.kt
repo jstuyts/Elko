@@ -2,8 +2,6 @@ package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
 import org.elkoserver.foundation.run.Queue
-import org.elkoserver.foundation.run.Runner
-import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -11,7 +9,6 @@ import java.nio.channels.ClosedChannelException
 import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.SocketChannel
-import java.time.Clock
 import java.util.concurrent.Callable
 import javax.net.ssl.SSLContext
 
@@ -24,14 +21,9 @@ import javax.net.ssl.SSLContext
  * @param sslContext  SSL context to use, if supporting SSL, else null
  */
 class SelectThread(
-        private val runner: Runner,
-        private val loadMonitor: LoadMonitor,
         sslContext: SSLContext?,
-        private val clock: Clock,
         private val commGorgel: Gorgel,
-        private val tcpConnectionGorgel: Gorgel,
-        private val tcpConnectionCommGorgel: Gorgel,
-        private val idGenerator: IdGenerator,
+        private val tcpConnectionFactory: TcpConnectionFactory,
         private val listenerFactory: ListenerFactory)
     : Thread("Elko Select") {
     /** Selector to await available I/O opportunities.  */
@@ -163,8 +155,7 @@ class SelectThread(
         try {
             channel.configureBlocking(false)
             val key = channel.register(mySelector, SelectionKey.OP_READ)
-            key.attach(TcpConnection(handlerFactory, framerFactory,
-                    channel, key, this, runner, loadMonitor, isSecure, tcpConnectionGorgel, clock, tcpConnectionCommGorgel, idGenerator))
+            key.attach(tcpConnectionFactory.create(handlerFactory, framerFactory, channel, isSecure, key, this))
         } catch (e: ClosedChannelException) {
             handlerFactory.provideMessageHandler(null)
             commGorgel.error("channel closed before it could be used", e)

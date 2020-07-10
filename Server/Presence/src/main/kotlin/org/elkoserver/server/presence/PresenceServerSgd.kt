@@ -28,6 +28,7 @@ import org.elkoserver.foundation.net.ListenerFactory
 import org.elkoserver.foundation.net.SelectThread
 import org.elkoserver.foundation.net.SslSetup
 import org.elkoserver.foundation.net.TcpConnection
+import org.elkoserver.foundation.net.TcpConnectionFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
@@ -178,16 +179,21 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
         ListenerFactory(req(listenerGorgel))
     }
 
-    val selectThread by Once {
-        SelectThread(
+    val tcpConnectionFactory by Once {
+        TcpConnectionFactory(
                 req(runner),
                 req(serverLoadMonitor),
-                opt(sslContext),
                 req(provided.clock()),
-                req(selectThreadCommGorgel),
                 req(tcpConnectionGorgel),
                 req(tcpConnectionCommGorgel),
-                req(connectionIdGenerator),
+                req(connectionIdGenerator))
+    }
+
+    val selectThread by Once {
+        SelectThread(
+                opt(sslContext),
+                req(selectThreadCommGorgel),
+                req(tcpConnectionFactory),
                 req(listenerFactory))
     }
             .dispose { it.shutDown() }
