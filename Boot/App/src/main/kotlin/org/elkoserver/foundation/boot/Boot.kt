@@ -107,7 +107,6 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
 
         private fun tryToBoot(arguments: Array<out String>) {
             val bootArguments = BootArguments(*arguments)
-            val clock = Clock.systemDefaultZone()
             val gorgel = initializeGorgel(bootArguments)
             val exceptionReporter = ExceptionReporter(ProcessExitOnUncaughtExceptionNoticer(GorgelExceptionNoticer(gorgel.getChild(bootArguments.mainClassName, Tag("category", "exception")))))
             val threadGroup = ExceptionReportingThreadGroup("Elko Thread Group", exceptionReporter)
