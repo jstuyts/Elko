@@ -34,6 +34,7 @@ import org.elkoserver.foundation.net.http.server.HTTPMessageHandlerFactory
 import org.elkoserver.foundation.net.http.server.HTTPSessionConnection
 import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
 import org.elkoserver.foundation.net.http.server.HttpServerFactory
+import org.elkoserver.foundation.net.http.server.HttpSessionConnectionFactory
 import org.elkoserver.foundation.net.http.server.JSONHTTPFramer
 import org.elkoserver.foundation.net.rtcp.server.RTCPMessageHandler
 import org.elkoserver.foundation.net.rtcp.server.RTCPMessageHandlerFactory
@@ -214,21 +215,27 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
         WebsocketByteIOFramerFactoryFactory(req(websocketFramerGorgel), req(chunkyByteArrayInputStreamFactory), req(jsonByteIOFramerFactoryFactory).create())
     }
 
-    val httpServerFactory by Once {
-        HttpServerFactory(
-                req(provided.props()),
-                req(serverLoadMonitor),
+    val httpSessionConnectionFactory by Once {
+        HttpSessionConnectionFactory(
                 req(runner),
+                req(serverLoadMonitor),
                 req(provided.timer()),
                 req(provided.clock()),
                 req(httpSessionConnectionCommGorgel),
                 req(baseCommGorgel),
+                req(sessionIdGenerator),
+                req(connectionIdGenerator))
+    }
+
+    val httpServerFactory by Once {
+        HttpServerFactory(
+                req(provided.props()),
+                req(provided.timer()),
                 req(httpMessageHandlerCommGorgel),
                 req(httpMessageHandlerFactoryCommGorgel),
-                req(sessionIdGenerator),
-                req(connectionIdGenerator),
                 req(tcpServerFactory),
-                req(httpRequestByteIOFramerFactoryFactory))
+                req(httpRequestByteIOFramerFactoryFactory),
+                req(httpSessionConnectionFactory))
     }
 
     val httpConnectionSetupFactory by Once {
@@ -451,7 +458,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
         }
     }
 
-    val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class))  }
+    val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
     val broker: D<Broker> by Once {
         Broker(

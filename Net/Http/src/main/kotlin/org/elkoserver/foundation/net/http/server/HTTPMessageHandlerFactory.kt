@@ -4,16 +4,12 @@ import org.elkoserver.foundation.byteioframer.http.HTTPError
 import org.elkoserver.foundation.byteioframer.http.HTTPOptionsReply
 import org.elkoserver.foundation.byteioframer.http.HTTPRequest
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.SessionURI
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.time.Clock
 import java.util.HashMap
 
 /**
@@ -43,17 +39,11 @@ class HTTPMessageHandlerFactory internal constructor(
         internal val innerFactory: MessageHandlerFactory,
         rootURI: String,
         internal val httpFramer: HTTPFramer,
-        private val myRunner: Runner,
-        private val myLoadMonitor: LoadMonitor,
         props: ElkoProperties,
         private val timer: Timer,
-        private val clock: Clock,
-        private val httpSessionConnectionGorgel: Gorgel,
-        private val connectionCommGorgel: Gorgel,
         private val handlerCommGorgel: Gorgel,
         private val handlerFactoryCommGorgel: Gorgel,
-        private val sessionIdGenerator: IdGenerator,
-        private val connectionIdGenerator: IdGenerator) : MessageHandlerFactory {
+        private val httpSessionConnectionFactory: HttpSessionConnectionFactory) : MessageHandlerFactory {
 
     /** The root URI for GETs and POSTs.  */
     private val myRootURI: String = "/$rootURI/"
@@ -110,7 +100,7 @@ class HTTPMessageHandlerFactory internal constructor(
      * @return true if an HTTP reply was sent.
      */
     private fun doConnect(connection: Connection): Boolean {
-        val session = HTTPSessionConnection(this, httpSessionConnectionGorgel, myRunner, myLoadMonitor, sessionIdGenerator.generate(), timer, clock, connectionCommGorgel, connectionIdGenerator)
+        val session = httpSessionConnectionFactory.create(this)
         associateTCPConnection(session, connection)
         handlerFactoryCommGorgel.i?.run { info("$session connect over $connection") }
         val reply = httpFramer.makeConnectReply(session.sessionID)
