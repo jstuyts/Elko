@@ -598,7 +598,6 @@ internal constructor(name: String,
 
     private inner class UserIterator internal constructor() : MutableIterator<User> {
         private val myInnerIterator = group.members().iterator()
-        private var myNext: User?
         override fun hasNext(): Boolean = myNext != null
 
         override fun next(): User {
@@ -626,9 +625,7 @@ internal constructor(name: String,
                 return null
             }
 
-        init {
-            myNext = nextUser
-        }
+        private var myNext = nextUser
     }
 
     /**

@@ -14,20 +14,13 @@ class HostDesc(theProtocol: String?, isSecure: Boolean,
                val hostPort: String?,
                val auth: AuthDesc, retryInterval: Int) {
     /** Protocol spoken.  */
-    var protocol: String? = null
-        private set
+    val protocol: String? = if (isSecure) "s$theProtocol" else theProtocol
 
     /** Retry interval for reconnect attempts, in seconds (-1 for default).  */
-    var retryInterval: Int = 0
-        private set
+    val retryInterval = if (retryInterval == -1) DEFAULT_CONNECT_RETRY_TIMEOUT else retryInterval
 
     companion object {
         /** Connection retry interval default, in seconds.  */
         private const val DEFAULT_CONNECT_RETRY_TIMEOUT = 15
-    }
-
-    init {
-        protocol = if (isSecure) "s$theProtocol" else theProtocol
-        this.retryInterval = if (retryInterval == -1) DEFAULT_CONNECT_RETRY_TIMEOUT else retryInterval
     }
 }

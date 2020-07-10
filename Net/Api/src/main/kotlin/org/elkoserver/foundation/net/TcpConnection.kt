@@ -1,6 +1,5 @@
 package org.elkoserver.foundation.net
 
-import org.elkoserver.foundation.byteioframer.ByteIoFramer
 import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.foundation.run.Queue
@@ -45,13 +44,13 @@ class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
     private val myOutputQueue = Queue<Any>()
 
     /** Framer to perform low-level message conversion.  */
-    private val myFramer: ByteIoFramer
+    private val myFramer = framerFactory.provideFramer(this, label())
 
     /** Buffer holding actual output bytes.  */
     private var myOutputBuffer: ByteBuffer? = null
 
     /** Buffer receiving actual input bytes.  */
-    private val myInputBuffer: ByteBuffer
+    private val myInputBuffer = ByteBuffer.wrap(ByteArray(INPUT_BUFFER_SIZE))
 
     /** Monitor lock for syncing with the select thread.  */
     private val myWakeupLock = Any()
@@ -336,13 +335,11 @@ class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
     init {
         wakeupSelectForWrite()
         myChannel.configureBlocking(false)
-        val socket = myChannel.socket()
-        socket.setSoLinger(true, 0)
-        socket.reuseAddress = true
-        val myRemoteAddr = "${socket.inetAddress.hostAddress}:${socket.port}"
-        myInputBuffer = ByteBuffer.wrap(ByteArray(INPUT_BUFFER_SIZE))
-        myFramer = framerFactory.provideFramer(this, label())
+        val socket = myChannel.socket().apply {
+            setSoLinger(true, 0)
+            reuseAddress = true
+        }
         enqueueHandlerFactory(handlerFactory)
-        gorgel.i?.run { info("${this@TcpConnection} new connection from $myRemoteAddr") }
+        gorgel.i?.run { info("${this@TcpConnection} new connection from ${socket.inetAddress.hostAddress}:${socket.port}") }
     }
 }

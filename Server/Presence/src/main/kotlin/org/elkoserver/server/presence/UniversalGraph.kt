@@ -51,24 +51,18 @@ internal class UniversalGraph : SocialGraph, RandomUsingObject {
     }
 
     private inner class PseudoFriendFilter<V> internal constructor(base: Iterator<V>, private val myExclusion: V) : ExcludingIterator<V>(base) {
-        private var myStochasticFriendshipOdds = 0f
+        private val myStochasticFriendshipOdds =
+                if (myPseudoFriendCount < 0) {
+                    1.0f
+                } else {
+                    val userCount = myMaster.userCount()
+                    if (userCount < myPseudoFriendCount) 1.0f else myPseudoFriendCount.toFloat() / userCount
+                }
+
         public override fun isExcluded(element: V) = when {
             element == myExclusion -> true
             myStochasticFriendshipOdds >= 1.0f -> false
             else -> myRandom.nextFloat() < myStochasticFriendshipOdds
-        }
-
-        init {
-            myStochasticFriendshipOdds = if (myPseudoFriendCount < 0) {
-                1.0f
-            } else {
-                val userCount = myMaster.userCount()
-                if (userCount < myPseudoFriendCount) {
-                    1.0f
-                } else {
-                    myPseudoFriendCount.toFloat() / userCount.toFloat()
-                }
-            }
         }
     }
 

@@ -56,17 +56,17 @@ class HttpMessageHandlerFactory internal constructor(
 
     /** Time an HTTP select request can wait before it must be responded to, in
      * milliseconds.  */
-    private val mySelectTimeout: Int
+    private val mySelectTimeout = props.intProperty("conf.comm.httpselectwait", DEFAULT_SELECT_TIMEOUT) * 1000
 
     /** Like mySelectTimeout, but when connection is in debug mode.  */
-    private val myDebugSelectTimeout: Int
+    private val myDebugSelectTimeout = props.intProperty("conf.comm.httpselectwait.debug", DEFAULT_SELECT_TIMEOUT) * 1000
 
     /** Time an HTTP session can sit idle before being closed, in
      * milliseconds.  */
-    private val mySessionTimeout: Int
+    private val mySessionTimeout = props.intProperty("conf.comm.httptimeout", DEFAULT_SESSION_TIMEOUT) * 1000
 
     /** Like mySessionTimeout, but when connection is in debug mode.  */
-    private val myDebugSessionTimeout: Int
+    private val myDebugSessionTimeout = props.intProperty("conf.comm.httptimeout.debug", DEFAULT_SESSION_TIMEOUT) * 1000
 
     /**
      * Add a session to the session table.
@@ -333,13 +333,8 @@ class HttpMessageHandlerFactory internal constructor(
      *
      * @return the select timeout interval, in milliseconds.
      */
-    fun selectTimeout(debug: Boolean): Int {
-        return if (debug) {
-            myDebugSelectTimeout
-        } else {
-            mySelectTimeout
-        }
-    }
+    fun selectTimeout(debug: Boolean) =
+            if (debug) myDebugSelectTimeout else mySelectTimeout
 
     /**
      * Get the HTTP session timeout interval: the time an HTTP session can be
@@ -350,13 +345,8 @@ class HttpMessageHandlerFactory internal constructor(
      *
      * @return the session timeout interval, in milliseconds.
      */
-    fun sessionTimeout(debug: Boolean): Int {
-        return if (debug) {
-            myDebugSessionTimeout
-        } else {
-            mySessionTimeout
-        }
-    }
+    fun sessionTimeout(debug: Boolean) =
+            if (debug) myDebugSessionTimeout else mySessionTimeout
 
     /**
      * Receive notification that an underlying TCP connection has died.
@@ -380,16 +370,5 @@ class HttpMessageHandlerFactory internal constructor(
 
         /** Default session timeout if none is explicitly given, in seconds.  */
         private const val DEFAULT_SESSION_TIMEOUT = 15
-    }
-
-    init {
-        mySelectTimeout = props.intProperty("conf.comm.httpselectwait",
-                DEFAULT_SELECT_TIMEOUT) * 1000
-        myDebugSelectTimeout = props.intProperty("conf.comm.httpselectwait.debug",
-                DEFAULT_SELECT_TIMEOUT) * 1000
-        mySessionTimeout = props.intProperty("conf.comm.httptimeout",
-                DEFAULT_SESSION_TIMEOUT) * 1000
-        myDebugSessionTimeout = props.intProperty("conf.comm.httptimeout.debug",
-                DEFAULT_SESSION_TIMEOUT) * 1000
     }
 }

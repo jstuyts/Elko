@@ -44,7 +44,7 @@ class Chat @JsonMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
     private val amAllowChat: Boolean = allowChat.value(true)
     private val amAllowPrivate: Boolean = allowPrivate.value(true)
     private val amAllowPush: Boolean = allowPush.value(true)
-    private val amAllowPrivatePush: Boolean
+    private val amAllowPrivatePush = allowPrivatePush.value(amAllowPrivate && amAllowPush)
 
     /**
      * Encode this mod for transmission or persistence.
@@ -164,9 +164,5 @@ class Chat @JsonMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
         } else {
             throw MessageHandlerException("chat not allowed")
         }
-    }
-
-    init {
-        amAllowPrivatePush = allowPrivatePush.value(amAllowPrivate && amAllowPush)
     }
 }

@@ -59,7 +59,8 @@ abstract class ConnectionBase protected constructor(
      * Process a received message from the run queue.
      */
     private inner class MessageHandlerThunk internal constructor(private val myMessage: Any) : Runnable {
-        private var myOnQueueTime: Long = 0
+        private val myOnQueueTime = clock.millis()
+
         override fun run() {
             val currentMessageHandler = myMessageHandler
             if (currentMessageHandler != null) {
@@ -69,10 +70,6 @@ abstract class ConnectionBase protected constructor(
                 commGorgel.i?.run { info("${this@ConnectionBase} ignores message received while message handler is null") }
             }
             myLoadMonitor.addTime(clock.millis() - myOnQueueTime)
-        }
-
-        init {
-            myOnQueueTime = clock.millis()
         }
     }
 

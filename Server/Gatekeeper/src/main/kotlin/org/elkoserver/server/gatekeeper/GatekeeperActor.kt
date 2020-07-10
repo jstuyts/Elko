@@ -45,7 +45,11 @@ internal class GatekeeperActor(
 
     /** Timeout for kicking off users who connect and don't either request a
      * reservation or authenticate as an administrator.  */
-    private var myActionTimeout: Timeout?
+    private var myActionTimeout: Timeout? = timer.after(actionTime.toLong(), object : TimeoutNoticer {
+        override fun noticeTimeout() {
+            disconnectAfterTimeout()
+        }
+    })
 
     /**
      * Cancel the reservation timeout, because the user is real.
@@ -127,14 +131,6 @@ internal class GatekeeperActor(
      * @return a printable representation of this actor.
      */
     override fun toString() = label ?: super.toString()
-
-    init {
-        myActionTimeout = timer.after(actionTime.toLong(), object : TimeoutNoticer {
-            override fun noticeTimeout() {
-                disconnectAfterTimeout()
-            }
-        })
-    }
 
     private fun disconnectAfterTimeout() {
         if (myActionTimeout != null) {

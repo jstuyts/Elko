@@ -7,7 +7,6 @@ import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceLink
-import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.AdminObject
 import org.elkoserver.server.context.Contextor
@@ -100,7 +99,11 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
      * Internal class to hold onto a request under construction.
      */
     private inner class BankRequest internal constructor(op: String, key: String?, memo: String?) {
-        val msg: JsonLiteral
+        val msg = JsonLiteralFactory.targetVerb(myServiceName, op).apply {
+            addParameterOpt("key", key)
+            addParameter("xid", myXid)
+            addParameterOpt("memo", memo)
+        }
         private val myXid: String = "x${myXidCounter++}"
 
         /**
@@ -119,14 +122,6 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
                 myServiceLink!!.send(msg)
             } else {
                 resultHandler!!.fail("noconn", "no connection to bank service")
-            }
-        }
-
-        init {
-            msg = JsonLiteralFactory.targetVerb(myServiceName, op).apply {
-                addParameterOpt("key", key)
-                addParameter("xid", myXid)
-                addParameterOpt("memo", memo)
             }
         }
     }

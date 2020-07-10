@@ -68,7 +68,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
      * coded in awareness of what is being done here.
      */
     /** Byte buffer currently being read from.  */
-    private var myWorkingBuffer: ByteArray?
+    private var myWorkingBuffer: ByteArray? = null
 
     /** Position of the next byte to read from the working buffer.  */
     private var myWorkingBufferIdx = 0
@@ -81,22 +81,22 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
 
     /** A byte array that has been passed to this object by its client but not
      * yet copied to storage internal to this object.  */
-    private var myClientBuffer: ByteArray?
+    private var myClientBuffer: ByteArray? = null
 
     /** Number of bytes in client buffer that may be used.  */
     private var myClientBufferLength = 0
 
     /** Number of bytes fed in that haven't yet been read.  */
-    private var myTotalByteCount: Int
+    private var myTotalByteCount = 0
 
     /** Number of unread bytes that can actually be returned right now.  */
-    private var myUsefulByteCount: Int
+    private var myUsefulByteCount = 0
 
     /** Flag indicating an actual EOF in the input.  */
-    private var amAtEOF: Boolean
+    private var amAtEOF = false
 
     /** Flag indicating that WebSocket framing is enabled.  */
-    private var amWebsocketFraming: Boolean
+    private var amWebsocketFraming = false
 
     /**
      * Be given a buffer full of input bytes.
@@ -400,17 +400,5 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
         } else {
             false
         }
-    }
-
-    /**
-     * Constructor.  Initially, no input has been provided.
-     */
-    init {
-        myWorkingBuffer = null
-        myClientBuffer = null
-        myTotalByteCount = 0
-        myUsefulByteCount = 0
-        amAtEOF = false
-        amWebsocketFraming = false
     }
 }

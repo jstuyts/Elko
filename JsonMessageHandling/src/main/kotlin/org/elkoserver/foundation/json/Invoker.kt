@@ -29,10 +29,10 @@ abstract class Invoker<in TTarget>(
         protected val commGorgel: Gorgel,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
     /** Mapping of JSON parameter names to Java parameter positions  */
-    private val myParamMap: MutableMap<String, Int>
+    private val myParamMap: MutableMap<String, Int> = HashMap(myParamNames.size)
 
     /** Parameter optionality flags, by position.  */
-    private val myParamOptFlags: BooleanArray
+    private val myParamOptFlags = BooleanArray(myParamNames.size)
 
     /**
      * Subclass-provided method that knows how to actually call the method.
@@ -244,17 +244,16 @@ abstract class Invoker<in TTarget>(
 
     init {
         (method as AccessibleObject).isAccessible = true
-        myParamMap = HashMap(myParamNames.size)
-        myParamOptFlags = BooleanArray(myParamNames.size)
-        for (i in myParamNames.indices) {
-            var name = myParamNames[i]
+        myParamNames.forEachIndexed { i, name ->
+            val actualName: String
             if (name[0] == '?') {
-                name = name.substring(1)
+                actualName = name.substring(1)
                 myParamOptFlags[i] = true
             } else {
+                actualName = name
                 myParamOptFlags[i] = false
             }
-            myParamMap[name] = i + firstIndex
+            myParamMap[actualName] = i + firstIndex
         }
     }
 }

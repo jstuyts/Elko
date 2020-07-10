@@ -2,7 +2,6 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.NonRoutingActor
 import org.elkoserver.foundation.actor.msgAuth
-import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageHandlerException
@@ -63,10 +62,10 @@ class DirectorActor(
      */
     private inner class RelayIterator internal constructor(context: OptString, user: OptString) {
         private var myMode = 0
-        private val myContexts: Iterator<DispatchTarget>
-        private var myUsers: Iterator<DispatchTarget>
         private val myContextRef = context.value<String?>(null)
+        private val myContexts = lookupClones(myContextRef).iterator()
         private val myUserRef = user.value<String?>(null)
+        private var myUsers = lookupClones(myUserRef).iterator()
         private var myActiveContext: Context? = null
         private var myNextResult: Any? = null
 
@@ -135,8 +134,6 @@ class DirectorActor(
         }
 
         init {
-            myContexts = lookupClones(myContextRef).iterator()
-            myUsers = lookupClones(myUserRef).iterator()
             if (myContexts.hasNext()) {
                 if (myUsers.hasNext()) {
                     myMode = MODE_USER_IN_CONTEXT
@@ -145,12 +142,7 @@ class DirectorActor(
                     myMode = MODE_CONTEXT
                 }
             } else {
-                myMode = if (myUsers.hasNext()) {
-                    MODE_USER
-                } else {
-                    throw MessageHandlerException(
-                            "missing context and/or user parameters")
-                }
+                myMode = if (myUsers.hasNext()) MODE_USER else throw MessageHandlerException( "missing context and/or user parameters")
             }
         }
     }

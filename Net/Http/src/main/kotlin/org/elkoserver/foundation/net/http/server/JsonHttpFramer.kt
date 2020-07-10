@@ -67,12 +67,12 @@ class JsonHttpFramer(private val commGorgel: Gorgel, private val mustSendDebugRe
      * @param postBody  The HTTP message body was POSTed.
      */
     private class JsonBodyUnpacker internal constructor(postBody: String, private val commGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : MutableIterator<Any> {
-        private var postBody: String
+        private var postBody = extractBodyFromSafariPostIfNeeded(postBody)
 
         /** Last JSON message parsed.  This will be the next JSON message to be
          * returned because the framer always parses one JSON message ahead,
          * in order to be able to see the end of the HTTP message string.  */
-        private var myLastMessageParsed: Any?
+        private var myLastMessageParsed = parseNextMessage()
 
         // XXX Temporary hack to decode POSTs from Safari
         private fun extractBodyFromSafariPostIfNeeded(postBody: String): String {
@@ -135,8 +135,6 @@ class JsonHttpFramer(private val commGorgel: Gorgel, private val mustSendDebugRe
 
         init {
             commGorgel.d?.run { debug("unpacker for: /$postBody/") }
-            this.postBody = extractBodyFromSafariPostIfNeeded(postBody)
-            myLastMessageParsed = parseNextMessage()
         }
     }
 }

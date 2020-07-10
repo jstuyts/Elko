@@ -68,22 +68,26 @@ constructor(
         accountCollection: OptString)
     : Encodable, ClockUsingObject, ClassspecificGorgelUsingObject, PostInjectionInitializingObject {
     /** Currently defined currencies, by name.  */
-    private val myCurrencies: MutableMap<String, Currency> = HashMap()
+    private val myCurrencies = mutableMapOf<String, Currency>().apply {
+        currencies.associateByTo(this) { it.name }
+    }
 
     /** Access keys, by key ref.  */
-    private val myKeys: MutableMap<String?, Key?> = HashMap()
+    private val myKeys = mutableMapOf<String?, Key>().apply {
+        keys.associateByTo(this) { it.ref }
+    }
 
     /** A new root key that has been generated but not issued.  */
     private var myVirginRootKey: Key? = null
 
     /** The reference string of this bank's root key.  */
-    private var myRootKeyRef: String?
+    private var myRootKeyRef = rootKeyRef.value<String?>(null)
 
     /** The workshop in which this bank is running.  */
     private lateinit var myWorkshop: Workshop
 
     /** MongoDB collection into which account data will be stored.  */
-    private val myAccountCollection: String?
+    private val myAccountCollection = accountCollection.value<String?>(null)
 
     private lateinit var clock: Clock
 
@@ -104,7 +108,7 @@ constructor(
             myRootKeyRef = generateRef("key")
             rootKeyGenerated = true
         }
-        val rootKey = Key(null, myRootKeyRef, "full", null,
+        val rootKey = Key(null, myRootKeyRef!!, "full", null,
                 ExpirationDate(Long.MAX_VALUE, clock), "root key")
         myKeys[myRootKeyRef] = rootKey
         if (rootKeyGenerated) {
@@ -112,7 +116,7 @@ constructor(
         }
         for (key in myKeys.values) {
             if (key != rootKey) {
-                val parentKey = myKeys[key!!.parentRef()]
+                val parentKey = myKeys[key.parentRef()]
                 if (parentKey != null) {
                     key.setParent(parentKey)
                 } else {
@@ -135,9 +139,7 @@ constructor(
                 JsonLiteralFactory.type("bank", control).apply {
                     addParameter("ref", myRef)
                     addParameter("rootkey", myRootKeyRef)
-                    val rootKey = myKeys.remove(myRootKeyRef)
-                    addParameter("keys", myKeys.values.toTypedArray())
-                    myKeys[myRootKeyRef] = rootKey
+                    addParameter("keys", myKeys.filterKeys { it != myRootKeyRef }.values.toTypedArray())
                     addParameter("currencies", myCurrencies.values.toTypedArray())
                     addParameterOpt("collection", myAccountCollection)
                     finish()
@@ -180,7 +182,7 @@ constructor(
      */
     fun deleteKey(key: Key?) {
         for (otherKey in myKeys.values) {
-            if (otherKey!!.hasAncestor(key!!)) {
+            if (otherKey.hasAncestor(key!!)) {
                 myKeys.remove(otherKey.ref)
             }
         }
@@ -612,16 +614,5 @@ constructor(
         /** Random number source for generating new refs.  */
         @Deprecated("Obsolete code. Global variable")
         private val theRandom = SecureRandom()
-    }
-
-    init {
-        for (curr in currencies) {
-            myCurrencies[curr.name] = curr
-        }
-        for (key in keys) {
-            myKeys[key.ref] = key
-        }
-        myAccountCollection = accountCollection.value<String?>(null)
-        myRootKeyRef = rootKeyRef.value<String?>(null)
     }
 }

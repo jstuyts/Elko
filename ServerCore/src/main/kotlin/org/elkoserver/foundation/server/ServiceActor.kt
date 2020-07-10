@@ -25,13 +25,13 @@ class ServiceActor internal constructor(
         commGorgel: Gorgel,
         mustSendDebugReplies: Boolean) : RoutingActor(connection, refTable, commGorgel, mustSendDebugReplies) {
     /** Optional convenience label for logging and such.  */
-    private val label: String
+    private val label = "workshop-${desc.hostport}"
 
     /** List of service links using this actor.  */
     internal val serviceLinks = LinkedList<ServiceLink>()
 
     /** Provider ID of the host we are connected to.  */
-    internal val providerID: Int
+    internal val providerID = desc.providerID
 
     /**
      * Add a service link to the list of links known to be dependent upon this
@@ -65,7 +65,5 @@ class ServiceActor internal constructor(
 
     init {
         send(msgAuth("workshop", desc.auth, myServer.serverName))
-        label = "workshop-${desc.hostport}"
-        providerID = desc.providerID
     }
 }

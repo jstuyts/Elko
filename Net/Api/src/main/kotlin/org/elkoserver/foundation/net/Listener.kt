@@ -84,18 +84,22 @@ class Listener(
     }
 
     init {
-        val netAddr = NetAddr(myLocalAddress)
-        myOptIP = netAddr.inetAddress!!
-        val localPort = netAddr.port
-        if (false && amSecure) {
+        fun createChannel() =
+                if (false && amSecure) {
 //            val asSSL = SSLServerSocketChannel.open(myMgr.sslContext)
 //            myChannel = asSSL
 //            asSSL.socket().needClientAuth = false
-            throw IllegalStateException()
-        } else {
-            myChannel = ServerSocketChannel.open()
+                    throw IllegalStateException()
+                } else {
+                    ServerSocketChannel.open()
+                }
+
+        val netAddr = NetAddr(myLocalAddress)
+        myOptIP = netAddr.inetAddress!!
+        val localPort = netAddr.port
+        myChannel = createChannel().apply {
+            configureBlocking(false)
+            socket().bind(InetSocketAddress(myOptIP, localPort), 50)
         }
-        myChannel.configureBlocking(false)
-        myChannel.socket().bind(InetSocketAddress(myOptIP, localPort), 50)
     }
 }

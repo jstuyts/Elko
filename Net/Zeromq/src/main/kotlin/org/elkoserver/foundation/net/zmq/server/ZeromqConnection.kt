@@ -1,6 +1,5 @@
 package org.elkoserver.foundation.net.zmq.server
 
-import org.elkoserver.foundation.byteioframer.ByteIoFramer
 import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.foundation.net.ConnectionBase
@@ -36,7 +35,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
     private val myOutputQueue = Queue<Any>()
 
     /** Framer to perform low-level message conversion.  */
-    private val myFramer: ByteIoFramer
+    private val myFramer = framerFactory.provideFramer(this, label())
 
     /** Monitor lock for syncing with the ZMQ thread.  */
     private val myWakeupLock = Any()
@@ -268,7 +267,6 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
     init {
         wakeupThreadForWrite()
         /* Printable form of the address this connection is connected to. */
-        myFramer = framerFactory.provideFramer(this, label())
         enqueueHandlerFactory(handlerFactory)
         commGorgel.i?.run { info("${this@ZeromqConnection} new ZMQ connection with $remoteAddr") }
     }

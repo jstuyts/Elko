@@ -22,7 +22,9 @@ class Runner(name: String, private val gorgel: Gorgel) : Runnable {
      * holding myRunLock, that thread is remembered in myWorker so it
      * can be interrupted instead of myThread.
      */
-    private val myWorker: Thread
+    private val myWorker = RunnerThread(this, name).apply {
+        start()
+    }
 
     /**
      * The lock protecting the heap of objects "inside" the runner.  All
@@ -186,10 +188,5 @@ class Runner(name: String, private val gorgel: Gorgel) : Runnable {
                 throw t
             }
         }
-    }
-
-    init {
-        myWorker = RunnerThread(this, name)
-        myWorker.start()
     }
 }

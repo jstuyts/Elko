@@ -12,7 +12,6 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
-import java.util.HashSet
 
 /**
  * An implementation of [Connection] that virtualizes a continuous
@@ -33,16 +32,16 @@ class HttpSessionConnection internal constructor(
     : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator) {
 
     /** Server to client message sequence number.  */
-    private var mySelectSequenceNumber: Int
+    private var mySelectSequenceNumber = 1
 
     /** Client to server message sequence number.  */
-    private var myXmitSequenceNumber: Int
+    private var myXmitSequenceNumber = 1
 
     /** Queue of outgoing messages awaiting retrieval by the client.  */
-    private val myQueue: Queue<Any>
+    private val myQueue = Queue<Any>()
 
     /** Flag indicating that connection is in the midst of shutting down.  */
-    private var amClosing: Boolean
+    private var amClosing = false
 
     /** TCP connection for transmitting messages to the client, if a select is
      * currently pending, or null if not.  */
@@ -52,13 +51,32 @@ class HttpSessionConnection internal constructor(
     private var myDownstreamIsNonPersistent = false
 
     /** HTTP framer to interpret HTTP POSTs and format HTTP replies.  */
-    private val myHttpFramer: HttpFramer
+    private val myHttpFramer = sessionFactory.httpFramer
+
+    /** Time a select request may sit waiting without sending a response, in
+     * milliseconds.  */
+    private var mySelectTimeoutInterval = sessionFactory.selectTimeout(false)
+
+    /** Time a session may sit idle before closing it, in milliseconds.  */
+    private var mySessionTimeoutInterval = sessionFactory.sessionTimeout(false)
 
     /** Clock: ticks watch for expired message selects.  */
-    private val mySelectClock: org.elkoserver.foundation.timer.Clock
+    private val mySelectClock = timer.every((mySelectTimeoutInterval + 1000) / 4.toLong(), object : TickNoticer {
+        override fun noticeTick(ticks: Int) {
+            noticeSelectTick()
+        }
+    }).apply {
+        start()
+    }
 
     /** Clock: ticks watch for dead session.  */
-    private val myInactivityClock: org.elkoserver.foundation.timer.Clock
+    private val myInactivityClock = timer.every(mySessionTimeoutInterval + 1000.toLong(), object : TickNoticer {
+        override fun noticeTick(ticks: Int) {
+            noticeInactivityTick()
+        }
+    }).apply {
+        start()
+    }
 
     /** Time that connection started waiting for a message select to be
      * responded to, or 0 if it isn't waiting for that.  */
@@ -66,17 +84,10 @@ class HttpSessionConnection internal constructor(
 
     /** Last time that there was any traffic on this connection from the user,
      * to enable detection of inactive sessions.  */
-    private var myLastActivityTime: Long
-
-    /** Time a select request may sit waiting without sending a response, in
-     * milliseconds.  */
-    private var mySelectTimeoutInterval: Int
-
-    /** Time a session may sit idle before closing it, in milliseconds.  */
-    private var mySessionTimeoutInterval: Int
+    private var myLastActivityTime = clock.millis()
 
     /** Open TCP connections associated with this session, for cleanup.  */
-    private var myConnections: MutableSet<Connection>
+    private var myConnections = mutableSetOf<Connection>()
 
     /**
      * Associate a TCP connection with this session.
@@ -105,7 +116,7 @@ class HttpSessionConnection internal constructor(
         if (!amClosing) {
             amClosing = true
             val connectionsToClose: Set<Connection> = myConnections
-            myConnections = HashSet()
+            myConnections = mutableSetOf()
             connectionsToClose
                     .filter { it !== myDownstreamConnection }
                     .forEach(Connection::close)
@@ -373,29 +384,8 @@ class HttpSessionConnection internal constructor(
 
     init {
         sessionFactory.addSession(this)
-        myConnections = HashSet()
-        myLastActivityTime = clock.millis()
         gorgel.i?.run { info("${this@HttpSessionConnection} new connection") }
-        mySelectSequenceNumber = 1
-        myXmitSequenceNumber = 1
         clearDownstreamConnection()
-        myQueue = Queue()
-        myHttpFramer = sessionFactory.httpFramer
-        amClosing = false
-        mySelectTimeoutInterval = sessionFactory.selectTimeout(false)
-        mySelectClock = timer.every((mySelectTimeoutInterval + 1000) / 4.toLong(), object : TickNoticer {
-            override fun noticeTick(ticks: Int) {
-                noticeSelectTick()
-            }
-        })
-        mySelectClock.start()
-        mySessionTimeoutInterval = sessionFactory.sessionTimeout(false)
-        myInactivityClock = timer.every(mySessionTimeoutInterval + 1000.toLong(), object : TickNoticer {
-            override fun noticeTick(ticks: Int) {
-                noticeInactivityTick()
-            }
-        })
-        myInactivityClock.start()
         enqueueHandlerFactory(sessionFactory.innerFactory)
     }
 }

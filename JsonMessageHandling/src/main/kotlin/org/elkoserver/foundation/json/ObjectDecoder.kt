@@ -65,16 +65,17 @@ class ObjectDecoder internal constructor(
         val paramTypes = jsonConstructor.parameterTypes
         val note = jsonConstructor.getAnnotation(JsonMethod::class.java)
         val paramNames = note.value
-        val includeRawObject = when {
-            paramNames.size + 1 == paramTypes.size -> {
-                if (!JsonObject::class.java.isAssignableFrom(paramTypes[0])) {
-                    throw JsonSetupError("class ${decodeClass.name} JSON constructor lacks a JsonObject first parameter")
+        val includeRawObject =
+                when {
+                    paramNames.size + 1 == paramTypes.size -> {
+                        if (!JsonObject::class.java.isAssignableFrom(paramTypes[0])) {
+                            throw JsonSetupError("class ${decodeClass.name} JSON constructor lacks a JsonObject first parameter")
+                        }
+                        true
+                    }
+                    paramNames.size != paramTypes.size -> throw JsonSetupError("class ${decodeClass.name} JSON constructor has wrong number of parameters")
+                    else -> false
                 }
-                true
-            }
-            paramNames.size != paramTypes.size -> throw JsonSetupError("class ${decodeClass.name} JSON constructor has wrong number of parameters")
-            else -> false
-        }
 
         myConstructor = ConstructorInvoker(jsonConstructor, includeRawObject, jsonConstructor.parameterTypes, paramNames, constructorInvokerCommGorgel, jsonToObjectDeserializer, injectors)
     }

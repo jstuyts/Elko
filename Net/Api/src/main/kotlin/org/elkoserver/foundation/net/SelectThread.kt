@@ -189,12 +189,13 @@ class SelectThread(
 
     init {
         try {
-            mySelector = if (false && sslContext != null) {
+            mySelector =
+                    if (false && sslContext != null) {
 //                SSLSelector.open(sslContext)
-                throw IllegalStateException()
-            } else {
-                Selector.open()
-            }
+                        throw IllegalStateException()
+                    } else {
+                        Selector.open()
+                    }
             start()
         } catch (e: IOException) {
             commGorgel.error("failed to start SelectThread", e)

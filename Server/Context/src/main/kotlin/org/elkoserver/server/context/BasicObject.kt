@@ -70,10 +70,10 @@ abstract class BasicObject internal constructor(
     var myRef: String? = null
 
     /** Objects contained by this object.  */ /* protected */
-    var myContents: Contents? = null
+    var myContents = (if (isContainer || contents != null) null else Contents.theVoidContents)
 
     /** Mods attached to this object.  */ /* protected */
-    var myModSet: ModSet
+    var myModSet = ModSet(mods)
 
     /** The contextor for this server.  */ /* protected */
     private var myContextor: Contextor? = null
@@ -92,7 +92,7 @@ abstract class BasicObject internal constructor(
     private var myUnfinishedInitCount = 0
 
     /** Inactive content items, prior to activating this object.  */
-    private var myPassiveContents: Array<Item>?
+    private var myPassiveContents = contents
 
     protected lateinit var myGorgel: Gorgel
 
@@ -646,16 +646,6 @@ abstract class BasicObject internal constructor(
 
         /** Visible according to the visibility of its container.  */
         private const val VIS_CONTAINER = 4
-    }
-
-    init {
-        myContents = if (isContainer || contents != null) {
-            null
-        } else {
-            Contents.theVoidContents
-        }
-        myPassiveContents = contents
-        myModSet = ModSet(mods)
     }
 
     protected fun <TResult> assertActivated(myContextorConsumer: (Contextor) -> TResult): TResult =

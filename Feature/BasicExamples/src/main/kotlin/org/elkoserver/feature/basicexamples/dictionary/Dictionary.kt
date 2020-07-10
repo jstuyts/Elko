@@ -131,16 +131,14 @@ class Dictionary @JsonMethod("names", "values", "persist") constructor(names: Ar
     }
 
     init {
-        myOriginalVars =
-                if (amPersistent) {
-                    null
-                } else {
-                    val nameCount = names.size
-                    HashMap<String, String>(nameCount, 1.0f).apply {
-                        names.forEachIndexed { index, name ->
-                            this[name] = values[index]
-                        }
-                    }
+        fun convertNamesAndValuesToMap(): MutableMap<String, String>? {
+            val nameCount = names.size
+            return HashMap<String, String>(nameCount, 1.0f).apply {
+                names.forEachIndexed { index, name ->
+                    this[name] = values[index]
                 }
+            }
+        }
+        myOriginalVars = if (amPersistent) null else convertNamesAndValuesToMap()
     }
 }

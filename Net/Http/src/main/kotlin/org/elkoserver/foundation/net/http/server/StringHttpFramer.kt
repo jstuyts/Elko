@@ -49,12 +49,8 @@ class StringHttpFramer private constructor() : HttpFramer() {
         }
 
         init {
-            var actualPostBody = postBody
-            val junkMark = actualPostBody.indexOf('=')
-            if (junkMark >= 0) {
-                actualPostBody = actualPostBody.substring(junkMark + 1)
-            }
-            myReceivedMessage = actualPostBody
+            val junkMark = postBody.indexOf('=')
+            myReceivedMessage = if (junkMark >= 0) postBody.substring(junkMark + 1) else postBody
         }
     }
 }

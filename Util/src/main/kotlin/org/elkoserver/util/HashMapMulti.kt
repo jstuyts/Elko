@@ -90,7 +90,7 @@ class HashMapMulti<K, V> {
     }
 
     private inner class HashMapMultiValueIterator internal constructor() : Iterator<V> {
-        private val mySetIter: Iterator<HashSetMulti<V>>
+        private val mySetIter = myMap.values.iterator()
         private var myValueIter: Iterator<V>? = null
         private var myNext: V? = null
         private val myStartVersionNumber: Int = myVersionNumber
@@ -125,7 +125,6 @@ class HashMapMulti<K, V> {
         }
 
         init {
-            mySetIter = myMap.values.iterator()
             advance()
         }
     }

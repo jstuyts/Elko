@@ -20,7 +20,7 @@ import java.util.Arrays.binarySearch
  * @param memo  Annotation on key.
  */
 internal class Key(
-        private var myParent: Key?, internal val ref: String?, internal val auth: String, theCurrencies: Array<String>?,
+        private var myParent: Key?, internal val ref: String, internal val auth: String, theCurrencies: Array<String>?,
         internal val expires: ExpirationDate, private val memo: String?) : Encodable {
 
     /** Currencies upon which this key authorizes action, or null if the key is
@@ -155,9 +155,6 @@ internal class Key(
     }
 
     init {
-        if (theCurrencies != null) {
-            Arrays.sort(theCurrencies)
-        }
-        currencies = theCurrencies
+        currencies = theCurrencies?.also { Arrays.sort(it) }
     }
 }

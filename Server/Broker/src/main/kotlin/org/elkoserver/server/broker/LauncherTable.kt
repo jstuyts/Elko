@@ -25,7 +25,7 @@ internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private
     /**
      * Map from launcher names to launcher descriptors.
      */
-    internal val myLaunchers: MutableMap<String, Launcher> = HashMap()
+    internal val myLaunchers = launchers.associateBy { it.componentName }
 
     /**
      * Dirty flag for checkpointing changes to launcher settings.
@@ -168,7 +168,7 @@ internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private
          * Flag that is true if this launcher should be executed when starting
          * in Restart or Recover mode.
          */
-        var isRunSettingOn: Boolean
+        var isRunSettingOn = optRunSetting.value(true)
 
         /**
          * Encode this launcher.
@@ -209,10 +209,6 @@ internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private
                     gorgel.i?.run { info("process launch '$componentName' failed: $e") }
                     "fail $componentName $e"
                 }
-
-        init {
-            isRunSettingOn = optRunSetting.value(true)
-        }
     }
 
     companion object {
@@ -223,11 +219,5 @@ internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private
         const val START_INITIAL = 1
         const val START_RECOVER = 2
         const val START_RESTART = 3
-    }
-
-    init {
-        for (launcher in launchers) {
-            myLaunchers[launcher.componentName] = launcher
-        }
     }
 }

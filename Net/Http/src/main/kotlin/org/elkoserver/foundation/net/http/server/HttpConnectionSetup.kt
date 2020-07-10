@@ -20,9 +20,9 @@ class HttpConnectionSetup(
         gorgel: Gorgel,
         private val jsonHttpFramerCommGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel) {
-    private val domain: String?
-    private val rootUri: String
-    override val serverAddress: String
+    private val domain = determineDomain(host, props, propRoot)
+    private val rootUri = props.getProperty("$propRoot.root", "")
+    override val serverAddress = "$host/$rootUri"
 
     override val protocol: String = "http"
 
@@ -30,17 +30,9 @@ class HttpConnectionSetup(
     override fun tryToStartListener(): NetAddr =
             httpServerFactory.listenHTTP(bind, actorFactory, secure, rootUri, JsonHttpFramer(jsonHttpFramerCommGorgel, mustSendDebugReplies))
 
-    override val listenAddressDescription: String
-        get() = "$host/$rootUri/ in domain $domain"
+    override val listenAddressDescription = "$host/$rootUri/ in domain $domain"
 
-    override val valueToCompareWithBind: String
-        get() = host
-
-    init {
-        domain = determineDomain(host, props, propRoot)
-        rootUri = props.getProperty("$propRoot.root", "")
-        serverAddress = "$host/$rootUri"
-    }
+    override val valueToCompareWithBind = host
 
     companion object {
         private fun determineDomain(host: String, props: ElkoProperties, propRoot: String): String? {

@@ -24,7 +24,13 @@ class RtcpMessageHandler(
         private val rtcpMessageHandlerCommGorgel: Gorgel) : MessageHandler {
 
     /** Timeout for kicking off users who connect and then don't do anything  */
-    private var myStartupTimeout: Timeout?
+    private var myStartupTimeout: Timeout? = timer.after(
+            startupTimeoutInterval.toLong(),
+            object : TimeoutNoticer {
+                override fun noticeTimeout() {
+                    handleStartupTimeout()
+                }
+            })
 
     /** Flag that startup timeout has tripped, to detect late messages.  */
     private var myStartupTimeoutTripped = false
@@ -75,17 +81,6 @@ class RtcpMessageHandler(
             RtcpRequest.VERB_END -> myFactory.doEnd(connection)
             RtcpRequest.VERB_ERROR -> myFactory.doError(connection, actualMessage.error!!)
         }
-    }
-
-    init {
-        /* Kick the user off if they haven't yet done anything. */
-        myStartupTimeout = timer.after(
-                startupTimeoutInterval.toLong(),
-                object : TimeoutNoticer {
-                    override fun noticeTimeout() {
-                        handleStartupTimeout()
-                    }
-                })
     }
 
     private fun handleStartupTimeout() {

@@ -30,10 +30,14 @@ class ZeromqThread(
     private val myPoller = myContext.poller()
 
     /** Internal socket for sending signal to thread.  */
-    private val mySignalSendSocket = myContext.socket(SocketType.PAIR)
+    private val mySignalSendSocket = myContext.socket(SocketType.PAIR).apply {
+        connect(ZMQ_SIGNAL_ADDR)
+    }
 
     /** Internal socket for receiving signal to thread.  */
-    private val mySignalRecvSocket = myContext.socket(SocketType.PAIR)
+    private val mySignalRecvSocket = myContext.socket(SocketType.PAIR).apply {
+        bind(ZMQ_SIGNAL_ADDR)
+    }
 
     /** Poller index of internal socket for thread to receive signals.  */
     private val mySignalRecvSocketIndex = myPoller.register(mySignalRecvSocket, ZMQ.Poller.POLLIN)
@@ -281,8 +285,6 @@ class ZeromqThread(
     }
 
     init {
-        mySignalRecvSocket.bind(ZMQ_SIGNAL_ADDR)
-        mySignalSendSocket.connect(ZMQ_SIGNAL_ADDR)
         start()
     }
 }

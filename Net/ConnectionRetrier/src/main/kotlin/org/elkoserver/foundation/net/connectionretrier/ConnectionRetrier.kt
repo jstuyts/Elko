@@ -37,10 +37,16 @@ class ConnectionRetrier(
     private var myKeepTryingFlag = true
 
     /** Message handler factory to use when connection attempt is pending.  */
-    private val myRetryHandlerFactory: MessageHandlerFactory
+    private val myRetryHandlerFactory = object : MessageHandlerFactory {
+        override fun provideMessageHandler(connection: Connection?) = createRetryHandler(connection, timer)
+    }
 
     /** Timeout handler to retry failed connection attempts after a while.  */
-    private val myRetryTimeout: TimeoutNoticer
+    private val myRetryTimeout = object : TimeoutNoticer {
+        override fun noticeTimeout() {
+            handleRetryTimeout()
+        }
+    }
 
     /**
      * Attempt to make the connection.
@@ -58,14 +64,6 @@ class ConnectionRetrier(
 
     init {
         gorgel.i?.run { info("connecting to $myLabel at ${myHost.hostPort}") }
-        myRetryTimeout = object : TimeoutNoticer {
-            override fun noticeTimeout() {
-                handleRetryTimeout()
-            }
-        }
-        myRetryHandlerFactory = object : MessageHandlerFactory {
-            override fun provideMessageHandler(connection: Connection?) = createRetryHandler(connection, timer)
-        }
         doConnect(myRetryHandlerFactory)
     }
 

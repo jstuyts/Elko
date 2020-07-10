@@ -20,17 +20,12 @@ class WebsocketConnectionSetup(
         gorgel: Gorgel)
     : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel) {
     private val socketUri: String = props.getProperty("$propRoot.sock", "")
-    override val serverAddress: String
+    override val serverAddress = "$host/${props.getProperty("$propRoot.sock", "")}"
     override val protocol: String = "ws"
 
     @Throws(IOException::class)
     override fun tryToStartListener(): NetAddr =
             websocketServerFactory.listenWebsocket(bind, actorFactory, secure, socketUri, actualGorgel)
-
-    init {
-        val socketUri = props.getProperty("$propRoot.sock", "")
-        serverAddress = "$host/$socketUri"
-    }
 
     override val listenAddressDescription: String
         get() = "$host/$socketUri"

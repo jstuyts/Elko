@@ -27,7 +27,7 @@ class WebsocketByteIoFramerFactory(
         private val jsonByteIoFramerFactory: JsonByteIoFramerFactory) : ByteIoFramerFactory {
 
     /** The host address, stripped of port number.  */
-    private var myHostName: String? = null
+    private val myHostName: String
 
     /**
      * Provide an I/O framer for a new HTTP connection.
@@ -50,10 +50,10 @@ class WebsocketByteIoFramerFactory(
         private var myMessageFramer: JsonByteIoFramer? = null
 
         /** Stage of WebSocket input reading.  */
-        private var myWSParseStage: Int
+        private var myWSParseStage = WS_STAGE_START
 
         /** HTTP request object under construction, for start handshake.  */
-        private val myRequest: WebsocketRequest
+        private val myRequest = WebsocketRequest()
 
         /**
          * Process bytes of data received.
@@ -198,14 +198,6 @@ class WebsocketByteIoFramerFactory(
                 else -> throw IOException("unwritable message type: ${msg.javaClass}")
             }
         }
-
-        /**
-         * Constructor.
-         */
-        init {
-            myWSParseStage = WS_STAGE_START
-            myRequest = WebsocketRequest()
-        }
     }
 
     companion object {
@@ -226,10 +218,6 @@ class WebsocketByteIoFramerFactory(
 
     init {
         val colonPos = myHostAddress.indexOf(':')
-        myHostName = if (colonPos != -1) {
-            myHostAddress.take(colonPos)
-        } else {
-            myHostAddress
-        }
+        myHostName = if (colonPos != -1) myHostAddress.take(colonPos) else myHostAddress
     }
 }

@@ -55,8 +55,17 @@ class RtcpSessionConnection internal constructor(
      * is currently open, or null if not.  */
     private var myLiveConnection: Connection? = null
 
+    /** Time a session may sit idle before closing it, in milliseconds.  */
+    private var myInactivityTimeoutInterval = mySessionFactory.sessionInactivityTimeout(false)
+
     /** Clock: ticks watch for inactive (and thus presumed dead) session.  */
-    private val myInactivityClock: org.elkoserver.foundation.timer.Clock
+    private val myInactivityClock = timer.every(myInactivityTimeoutInterval / 2 + 1000.toLong(), object : TickNoticer {
+        override fun noticeTick(ticks: Int) {
+            noticeInactivityTick()
+        }
+    }).apply {
+        start()
+    }
 
     /** Timeout for closing an abandoned session.  */
     private var myDisconnectedTimeout: Timeout? = null
@@ -65,11 +74,8 @@ class RtcpSessionConnection internal constructor(
      * to enable detection of inactive sessions.  */
     private var myLastActivityTime: Long = clock.millis()
 
-    /** Time a session may sit idle before closing it, in milliseconds.  */
-    private var myInactivityTimeoutInterval: Int
-
     /** Time a session may sit disconnected before closing it, milliseconds.  */
-    private var myDisconnectedTimeoutInterval: Int
+    private var myDisconnectedTimeoutInterval = mySessionFactory.sessionDisconnectedTimeout(false)
 
     /** Session ID -- a swiss number to authenticate client RTCP requests.  */
     internal val sessionID: String = sessionIDAsLong.toString()
@@ -326,14 +332,6 @@ class RtcpSessionConnection internal constructor(
     init {
         mySessionFactory.addSession(this)
         commGorgel.i?.run { info("${this@RtcpSessionConnection} new connection session ${sessionID}") }
-        myDisconnectedTimeoutInterval = mySessionFactory.sessionDisconnectedTimeout(false)
-        myInactivityTimeoutInterval = mySessionFactory.sessionInactivityTimeout(false)
-        myInactivityClock = timer.every(myInactivityTimeoutInterval / 2 + 1000.toLong(), object : TickNoticer {
-            override fun noticeTick(ticks: Int) {
-                noticeInactivityTick()
-            }
-        })
-        myInactivityClock.start()
         enqueueHandlerFactory(mySessionFactory.innerFactory)
     }
 }

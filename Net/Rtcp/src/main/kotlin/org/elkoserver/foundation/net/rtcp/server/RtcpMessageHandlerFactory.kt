@@ -40,20 +40,20 @@ class RtcpMessageHandlerFactory(
     private val mySessionsByConnection = HashMap<Connection, RtcpSessionConnection>()
 
     /** Time an RTCP session can sit idle before being closed, milliseconds.  */
-    private val mySessionInactivityTimeout: Int
+    private val mySessionInactivityTimeout = props.intProperty("conf.comm.rtcptimeout", DEFAULT_SESSION_INACTIVITY_TIMEOUT) * 1000
 
     /** Like mySessionInactivityTimeout, but when in debug mode.  */
-    private val myDebugSessionInactivityTimeout: Int
+    private val myDebugSessionInactivityTimeout = props.intProperty("conf.comm.rtcptimeout.debug", DEFAULT_SESSION_INACTIVITY_TIMEOUT) * 1000
 
     /** Time a session can sit disconnected before being closed, in ms.  */
-    private val mySessionDisconnectedTimeout: Int
+    private val mySessionDisconnectedTimeout = props.intProperty("conf.comm.rtcpdisconntimeout", DEFAULT_SESSION_DISCONNECTED_TIMEOUT) * 1000
 
     /** Like mySessionDisconnectedTimeout, but when in debug mode.  */
-    private val myDebugSessionDisconnectedTimeout: Int
+    private val myDebugSessionDisconnectedTimeout = props.intProperty("conf.comm.rtcpdisconntimeout.debug", DEFAULT_SESSION_DISCONNECTED_TIMEOUT) * 1000
 
     /** Volume of message backlog an RTCP session can tolerate before being
      * closed, in characters.  */
-    internal val sessionBacklogLimit: Int
+    internal val sessionBacklogLimit = props.intProperty("conf.comm.rtcpbacklog", DEFAULT_SESSION_BACKLOG_LIMIT)
 
     /**
      * Associate a particular TCP connection with an RTCP session.
@@ -350,18 +350,5 @@ class RtcpMessageHandlerFactory(
 
         /** Default message backlog limit if none explicitly given, in chars.  */
         private const val DEFAULT_SESSION_BACKLOG_LIMIT = 64000
-    }
-
-    init {
-        mySessionInactivityTimeout = props.intProperty("conf.comm.rtcptimeout",
-                DEFAULT_SESSION_INACTIVITY_TIMEOUT) * 1000
-        myDebugSessionInactivityTimeout = props.intProperty("conf.comm.rtcptimeout.debug",
-                DEFAULT_SESSION_INACTIVITY_TIMEOUT) * 1000
-        mySessionDisconnectedTimeout = props.intProperty("conf.comm.rtcpdisconntimeout",
-                DEFAULT_SESSION_DISCONNECTED_TIMEOUT) * 1000
-        myDebugSessionDisconnectedTimeout = props.intProperty("conf.comm.rtcpdisconntimeout.debug",
-                DEFAULT_SESSION_DISCONNECTED_TIMEOUT) * 1000
-        sessionBacklogLimit = props.intProperty("conf.comm.rtcpbacklog",
-                DEFAULT_SESSION_BACKLOG_LIMIT)
     }
 }
