@@ -2,15 +2,11 @@ package org.elkoserver.foundation.net.rtcp.server
 
 import org.elkoserver.foundation.byteioframer.rtcp.RtcpRequest
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.time.Clock
 import java.util.HashMap
 
 /**
@@ -31,17 +27,11 @@ import java.util.HashMap
  */
 class RtcpMessageHandlerFactory(
         internal val innerFactory: MessageHandlerFactory,
-        private val rtcpSessionConnectionGorgel: Gorgel,
-        private val connectionCommGorgel: Gorgel,
         private val gorgel: Gorgel,
-        private val myRunner: Runner,
-        private val myLoadMonitor: LoadMonitor,
+        private val rtcpSessionConnectionFactory: RtcpSessionConnectionFactory,
         props: ElkoProperties,
         private val timer: Timer,
-        private val clock: Clock,
-        private val rtcpMessageHandlerCommGorgel: Gorgel,
-        private val sessionIdGenerator: IdGenerator,
-        private val connectionIdGenerator: IdGenerator) : MessageHandlerFactory {
+        private val rtcpMessageHandlerCommGorgel: Gorgel) : MessageHandlerFactory {
 
     /** Table of current sessions, indexed by session ID.  */
     private val mySessions = HashMap<String, RtcpSessionConnection>()
@@ -193,7 +183,7 @@ class RtcpMessageHandlerFactory(
         if (session != null) {
             reply = makeErrorReply("sessionInProgress")
         } else {
-            session = RtcpSessionConnection(this, myRunner, myLoadMonitor, sessionIdGenerator.generate(), timer, clock, rtcpSessionConnectionGorgel, connectionCommGorgel, connectionIdGenerator)
+            session = rtcpSessionConnectionFactory.create(this)
             acquireTCPConnection(session, connection)
             gorgel.i?.run { info("$session start ${session.sessionID}") }
             reply = makeStartReply(session.sessionID)

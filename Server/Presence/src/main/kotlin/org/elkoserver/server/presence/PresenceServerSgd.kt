@@ -40,8 +40,10 @@ import org.elkoserver.foundation.net.http.server.JsonHttpFramer
 import org.elkoserver.foundation.net.rtcp.server.RtcpConnectionSetupFactory
 import org.elkoserver.foundation.net.rtcp.server.RtcpMessageHandler
 import org.elkoserver.foundation.net.rtcp.server.RtcpMessageHandlerFactory
+import org.elkoserver.foundation.net.rtcp.server.RtcpMessageHandlerFactoryFactory
 import org.elkoserver.foundation.net.rtcp.server.RtcpServerFactory
 import org.elkoserver.foundation.net.rtcp.server.RtcpSessionConnection
+import org.elkoserver.foundation.net.rtcp.server.RtcpSessionConnectionFactory
 import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.net.tcp.server.TcpConnectionSetupFactory
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
@@ -254,18 +256,29 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(mustSendDebugReplies))
     }
 
-    val rtcpServerFactory by Once {
-        RtcpServerFactory(
-                req(provided.props()),
-                req(serverLoadMonitor),
-                req(runner),
-                req(provided.timer()),
-                req(provided.clock()),
+    val rtcpSessionConnectionFactory by Once {
+        RtcpSessionConnectionFactory(
                 req(rtcpSessionConnectionGorgel),
                 req(rtcpSessionConnectionCommGorgel),
-                req(rtcpMessageHandlerCommGorgel),
+                req(runner),
+                req(serverLoadMonitor),
+                req(provided.timer()),
+                req(provided.clock()),
                 req(sessionIdGenerator),
-                req(connectionIdGenerator),
+                req(connectionIdGenerator))
+    }
+
+    val rtcpMessageHandlerFactoryFactory by Once {
+        RtcpMessageHandlerFactoryFactory(
+                req(provided.props()),
+                req(provided.timer()),
+                req(rtcpMessageHandlerCommGorgel),
+                req(rtcpSessionConnectionFactory))
+    }
+
+    val rtcpServerFactory by Once {
+        RtcpServerFactory(
+                req(rtcpMessageHandlerFactoryFactory),
                 req(tcpServerFactory),
                 req(rtcpByteIoFramerFactoryFactory))
     }

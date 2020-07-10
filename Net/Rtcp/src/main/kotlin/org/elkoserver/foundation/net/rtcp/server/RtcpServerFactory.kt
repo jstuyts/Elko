@@ -1,29 +1,14 @@
 package org.elkoserver.foundation.net.rtcp.server
 
 import org.elkoserver.foundation.byteioframer.rtcp.RtcpRequestByteIoFramerFactoryFactory
-import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
-import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner
-import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
-import java.time.Clock
 
 class RtcpServerFactory(
-        private val props: ElkoProperties,
-        private val loadMonitor: LoadMonitor,
-        private val runner: Runner,
-        private val timer: Timer,
-        private val clock: Clock,
-        private val rtcpSessionConnectionGorgel: Gorgel,
-        private val rtcpSessionConnectionCommGorgel: Gorgel,
-        private val rtcpMessageHandlerCommGorgel: Gorgel,
-        private val sessionIdGenerator: IdGenerator,
-        private val connectionIdGenerator: IdGenerator,
+        private val rtcpMessageHandlerFactoryFactory: RtcpMessageHandlerFactoryFactory,
         private val tcpServerFactory: TcpServerFactory,
         private val rtcpRequestByteIoFramerFactoryFactory: RtcpRequestByteIoFramerFactoryFactory) {
 
@@ -43,7 +28,7 @@ class RtcpServerFactory(
                    innerHandlerFactory: MessageHandlerFactory,
                    secure: Boolean,
                    rtcpMessageHandlerFactoryGorgel: Gorgel): NetAddr {
-        val outerHandlerFactory = RtcpMessageHandlerFactory(innerHandlerFactory, rtcpSessionConnectionGorgel, rtcpSessionConnectionCommGorgel, rtcpMessageHandlerFactoryGorgel, runner, loadMonitor, props, timer, clock, rtcpMessageHandlerCommGorgel, sessionIdGenerator, connectionIdGenerator)
+        val outerHandlerFactory = rtcpMessageHandlerFactoryFactory.create(innerHandlerFactory, rtcpMessageHandlerFactoryGorgel)
         val framerFactory = rtcpRequestByteIoFramerFactoryFactory.create()
         return tcpServerFactory.listenTCP(listenAddress, outerHandlerFactory, secure, framerFactory)
     }
