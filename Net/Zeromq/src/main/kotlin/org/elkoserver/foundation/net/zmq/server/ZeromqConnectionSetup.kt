@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net.zmq.server
 
-import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactory
+import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramerFactoryFactory
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
@@ -27,7 +27,7 @@ class ZeromqConnectionSetup(
         private val threadCommGorgel: Gorgel,
         private val idGenerator: IdGenerator,
         private val clock: Clock,
-        private val jsonByteIOFramerFactoryFactory: JSONByteIOFramerFactoryFactory)
+        private val jsonByteIoFramerFactoryFactory: JsonByteIoFramerFactoryFactory)
     : BaseConnectionSetup(
         label,
         host,
@@ -40,8 +40,8 @@ class ZeromqConnectionSetup(
     override val protocol = "zeromq"
 
     override fun tryToStartListener(): NetAddr {
-        val framerFactory = jsonByteIOFramerFactoryFactory.create()
-        val thread = ZeroMQThread(runner, loadMonitor, connectionBaseCommGorgel, idGenerator, clock, threadCommGorgel)
+        val framerFactory = jsonByteIoFramerFactoryFactory.create()
+        val thread = ZeromqThread(runner, loadMonitor, connectionBaseCommGorgel, idGenerator, clock, threadCommGorgel)
         return thread.listen(host, actorFactory, framerFactory, secure)
     }
 

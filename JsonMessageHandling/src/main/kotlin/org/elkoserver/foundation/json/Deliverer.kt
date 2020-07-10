@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.json
 
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 
 /**
  * Interface for an object that will deliver JSON messages somewhere.  Possible
@@ -16,5 +16,5 @@ interface Deliverer {
      *
      * @param message  The message to send.
      */
-    fun send(message: JSONLiteral)
+    fun send(message: JsonLiteral)
 }

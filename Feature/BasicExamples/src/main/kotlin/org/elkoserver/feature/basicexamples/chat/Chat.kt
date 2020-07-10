@@ -1,11 +1,11 @@
 package org.elkoserver.feature.basicexamples.chat
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.Msg
@@ -34,7 +34,7 @@ import org.elkoserver.server.context.UserWatcher
  *
  * @see PrivateChat
  */
-class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepush") constructor(
+class Chat @JsonMethod("allowchat", "allowprivate", "allowpush", "allowprivatepush") constructor(
         allowChat: OptBoolean,
         allowPrivate: OptBoolean,
         allowPush: OptBoolean,
@@ -54,7 +54,7 @@ class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
      */
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
-                JSONLiteralFactory.type("chat", control).apply {
+                JsonLiteralFactory.type("chat", control).apply {
                     if (!amAllowChat) {
                         addParameter("allowchat", amAllowChat)
                     }
@@ -116,7 +116,7 @@ class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
      * @throws MessageHandlerException if 'from' is not in the same context as
      * this mod or if the 'allowPush' configuration was parameter false.
      */
-    @JSONMethod("url", "frame", "features")
+    @JsonMethod("url", "frame", "features")
     fun push(from: User, url: String, frame: OptString, features: OptString) {
         if (amAllowPush) {
             ensureSameContext(from)
@@ -152,7 +152,7 @@ class Chat @JSONMethod("allowchat", "allowprivate", "allowpush", "allowprivatepu
      * @throws MessageHandlerException if 'from' is not in the same context as
      * this mod or if the 'allowChat' configuration parameter was false.
      */
-    @JSONMethod("text")
+    @JsonMethod("text")
     fun say(from: User, text: String) {
         if (amAllowChat) {
             ensureSameContext(from)

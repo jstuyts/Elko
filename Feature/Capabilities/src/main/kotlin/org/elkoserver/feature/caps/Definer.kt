@@ -1,11 +1,11 @@
 package org.elkoserver.feature.caps
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.BasicObject
 import org.elkoserver.server.context.ItemMod
@@ -15,7 +15,7 @@ import org.elkoserver.server.context.UserMod
 /**
  * Capability to enable external definition of persistent C-U-I objects.
  */
-class Definer @JSONMethod constructor(raw: JsonObject) : Cap(raw), ItemMod, UserMod {
+class Definer @JsonMethod constructor(raw: JsonObject) : Cap(raw), ItemMod, UserMod {
     /**
      * Message handler for a 'define' message.  This is a request to define a
      * new context, item, or user.
@@ -36,7 +36,7 @@ class Definer @JSONMethod constructor(raw: JsonObject) : Cap(raw), ItemMod, User
      * object is loaded, or if the object descriptor is not a valid context,
      * item or user descriptor.
      */
-    @JSONMethod("into", "ref", "obj")
+    @JsonMethod("into", "ref", "obj")
     fun define(from: User, into: OptString, ref: OptString, obj: BasicObject) {
         ensureReachable(from)
         val intoRef = into.value<String?>(null)
@@ -63,8 +63,8 @@ class Definer @JSONMethod constructor(raw: JsonObject) : Cap(raw), ItemMod, User
      *
      * @return a JSON literal representing this object.
      */
-    override fun encode(control: EncodeControl): JSONLiteral {
-        val result = JSONLiteralFactory.type("definer", control)
+    override fun encode(control: EncodeControl): JsonLiteral {
+        val result = JsonLiteralFactory.type("definer", control)
         encodeDefaultParameters(result)
         result.finish()
         return result

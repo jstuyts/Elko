@@ -6,15 +6,15 @@ package org.elkoserver.json
  */
 interface Encodable {
     /**
-     * Produce a [JSONLiteral] representing the encoded state of this
+     * Produce a [JsonLiteral] representing the encoded state of this
      * object, suitable for transmission over a messaging medium or for writing
      * to persistent storage.
      *
      * @param control  Encode control determining what flavor of encoding
      * should be done.
      *
-     * @return a [JSONLiteral] representing the encoded state of this
+     * @return a [JsonLiteral] representing the encoded state of this
      * object.
      */
-    fun encode(control: EncodeControl): JSONLiteral?
+    fun encode(control: EncodeControl): JsonLiteral?
 }

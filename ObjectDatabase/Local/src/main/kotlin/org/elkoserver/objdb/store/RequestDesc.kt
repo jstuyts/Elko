@@ -1,11 +1,11 @@
 package org.elkoserver.objdb.store
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory.type
+import org.elkoserver.json.JsonLiteralFactory.type
 
 /**
  * Description of a request for an object.
@@ -30,7 +30,7 @@ class RequestDesc(val ref: String, val collectionName: String?, private val cont
      * it contains; if false (the default if omitted), only retrieve the
      * referenced object itself.
      */
-    @JSONMethod("ref", "coll", "contents")
+    @JsonMethod("ref", "coll", "contents")
     constructor(ref: String, collectionName: OptString, contents: OptBoolean)
             : this(ref, collectionName.value<String?>(null), contents.value(false))
 

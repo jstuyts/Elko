@@ -5,12 +5,12 @@ package org.elkoserver.server.gatekeeper
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
-import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactoryFactory
-import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramer
-import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactory
-import org.elkoserver.foundation.byteioframer.rtcp.RTCPRequestByteIOFramerFactoryFactory
-import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactory
-import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
+import org.elkoserver.foundation.byteioframer.http.HttpRequestByteIoFramerFactoryFactory
+import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramer
+import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramerFactoryFactory
+import org.elkoserver.foundation.byteioframer.rtcp.RtcpRequestByteIoFramerFactoryFactory
+import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIoFramerFactory
+import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIoFramerFactoryFactory
 import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
 import org.elkoserver.foundation.json.BaseCommGorgelInjector
 import org.elkoserver.foundation.json.ClassspecificGorgelInjector
@@ -27,28 +27,28 @@ import org.elkoserver.foundation.net.Listener
 import org.elkoserver.foundation.net.ListenerFactory
 import org.elkoserver.foundation.net.SelectThread
 import org.elkoserver.foundation.net.SslSetup
-import org.elkoserver.foundation.net.TCPConnection
+import org.elkoserver.foundation.net.TcpConnection
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
-import org.elkoserver.foundation.net.http.server.HTTPMessageHandler
-import org.elkoserver.foundation.net.http.server.HTTPMessageHandlerFactory
-import org.elkoserver.foundation.net.http.server.HTTPSessionConnection
 import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
+import org.elkoserver.foundation.net.http.server.HttpMessageHandler
+import org.elkoserver.foundation.net.http.server.HttpMessageHandlerFactory
 import org.elkoserver.foundation.net.http.server.HttpServerFactory
+import org.elkoserver.foundation.net.http.server.HttpSessionConnection
 import org.elkoserver.foundation.net.http.server.HttpSessionConnectionFactory
-import org.elkoserver.foundation.net.http.server.JSONHTTPFramer
-import org.elkoserver.foundation.net.rtcp.server.RTCPMessageHandler
-import org.elkoserver.foundation.net.rtcp.server.RTCPMessageHandlerFactory
-import org.elkoserver.foundation.net.rtcp.server.RTCPSessionConnection
+import org.elkoserver.foundation.net.http.server.JsonHttpFramer
 import org.elkoserver.foundation.net.rtcp.server.RtcpConnectionSetupFactory
+import org.elkoserver.foundation.net.rtcp.server.RtcpMessageHandler
+import org.elkoserver.foundation.net.rtcp.server.RtcpMessageHandlerFactory
 import org.elkoserver.foundation.net.rtcp.server.RtcpServerFactory
+import org.elkoserver.foundation.net.rtcp.server.RtcpSessionConnection
 import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.net.tcp.server.TcpConnectionSetupFactory
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
 import org.elkoserver.foundation.net.ws.server.WebsocketConnectionSetupFactory
 import org.elkoserver.foundation.net.ws.server.WebsocketServerFactory
-import org.elkoserver.foundation.net.zmq.server.ZeroMQThread
 import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
+import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.BrokerActor
@@ -66,12 +66,12 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.LongIdGenerator
 import org.elkoserver.idgeneration.RandomIdGenerator
 import org.elkoserver.objdb.GetRequestFactory
-import org.elkoserver.objdb.ODBActor
-import org.elkoserver.objdb.ObjDBLocal
-import org.elkoserver.objdb.ObjDBLocalFactory
-import org.elkoserver.objdb.ObjDBLocalRunnerFactory
-import org.elkoserver.objdb.ObjDBRemote
-import org.elkoserver.objdb.ObjDBRemoteFactory
+import org.elkoserver.objdb.ObjDbActor
+import org.elkoserver.objdb.ObjDbLocal
+import org.elkoserver.objdb.ObjDbLocalFactory
+import org.elkoserver.objdb.ObjDbLocalRunnerFactory
+import org.elkoserver.objdb.ObjDbRemote
+import org.elkoserver.objdb.ObjDbRemoteFactory
 import org.elkoserver.objdb.PutRequestFactory
 import org.elkoserver.objdb.QueryRequestFactory
 import org.elkoserver.objdb.RemoveRequestFactory
@@ -121,10 +121,10 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val gatekeeperActorCommGorgel by Once { req(gatekeeperActorGorgel).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
 
-    val jsonHttpFramerCommGorgel by Once { req(provided.baseGorgel()).getChild(JSONHTTPFramer::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
-    val tcpConnectionGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class) }
-    val jsonByteIoFramerWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(JSONByteIOFramer::class) }
-    val websocketFramerGorgel by Once { req(provided.baseGorgel()).getChild(WebsocketByteIOFramerFactory.WebsocketFramer::class) }
+    val jsonHttpFramerCommGorgel by Once { req(provided.baseGorgel()).getChild(JsonHttpFramer::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
+    val tcpConnectionGorgel by Once { req(provided.baseGorgel()).getChild(TcpConnection::class) }
+    val jsonByteIoFramerWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(JsonByteIoFramer::class) }
+    val websocketFramerGorgel by Once { req(provided.baseGorgel()).getChild(WebsocketByteIoFramerFactory.WebsocketFramer::class) }
     val methodInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(MethodInvoker::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
     val constructorInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(ConstructorInvoker::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
 
@@ -132,11 +132,11 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val listenerGorgel by Once { req(provided.baseGorgel()).getChild(Listener::class) }
 
-    val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBLocal::class) }
+    val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbLocal::class) }
 
-    val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDBRemote::class) }
+    val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbRemote::class) }
 
-    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ODBActor::class, COMMUNICATION_CATEGORY_TAG) }
+    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbActor::class, COMMUNICATION_CATEGORY_TAG) }
 
     val runnerGorgel by Once { req(provided.baseGorgel()).getChild(Runner::class) }
 
@@ -150,17 +150,17 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
-    val httpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
-    val rtcpSessionConnectionGorgel by Once { req(provided.baseGorgel()).getChild(RTCPSessionConnection::class) }
-    val rtcpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
-    val rtcpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandler::class, COMMUNICATION_CATEGORY_TAG) }
-    val rtcpMessageHandlerFactoryGorgel by Once { req(provided.baseGorgel()).getChild(RTCPMessageHandlerFactory::class) }
-    val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TCPConnection::class, COMMUNICATION_CATEGORY_TAG) }
+    val httpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(HttpSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
+    val rtcpSessionConnectionGorgel by Once { req(provided.baseGorgel()).getChild(RtcpSessionConnection::class) }
+    val rtcpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(RtcpSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
+    val rtcpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(RtcpMessageHandler::class, COMMUNICATION_CATEGORY_TAG) }
+    val rtcpMessageHandlerFactoryGorgel by Once { req(provided.baseGorgel()).getChild(RtcpMessageHandlerFactory::class) }
+    val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TcpConnection::class, COMMUNICATION_CATEGORY_TAG) }
     val baseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
-    val zeromqThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(ZeroMQThread::class, COMMUNICATION_CATEGORY_TAG) }
+    val zeromqThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(ZeromqThread::class, COMMUNICATION_CATEGORY_TAG) }
 
-    val httpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandler::class, COMMUNICATION_CATEGORY_TAG) }
-    val httpMessageHandlerFactoryCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandlerFactory::class, COMMUNICATION_CATEGORY_TAG) }
+    val httpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(HttpMessageHandler::class, COMMUNICATION_CATEGORY_TAG) }
+    val httpMessageHandlerFactoryCommGorgel by Once { req(provided.baseGorgel()).getChild(HttpMessageHandlerFactory::class, COMMUNICATION_CATEGORY_TAG) }
 
     val inputGorgel by Once { req(provided.baseGorgel()).getChild(ChunkyByteArrayInputStream::class, COMMUNICATION_CATEGORY_TAG) }
 
@@ -195,13 +195,13 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
     }
             .dispose { it.shutDown() }
 
-    val objDBLocalRunnerFactory by Once { ObjDBLocalRunnerFactory(req(runnerGorgel)) }
+    val objDbLocalRunnerFactory by Once { ObjDbLocalRunnerFactory(req(runnerGorgel)) }
 
-    val objDBLocalFactory by Once {
-        ObjDBLocalFactory(
+    val objDbLocalFactory by Once {
+        ObjDbLocalFactory(
                 req(provided.props()),
                 req(objDbLocalGorgel),
-                req(objDBLocalRunnerFactory),
+                req(objDbLocalRunnerFactory),
                 req(provided.baseGorgel()),
                 req(jsonToObjectDeserializer),
                 req(runner))
@@ -211,20 +211,20 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
         ChunkyByteArrayInputStreamFactory(req(inputGorgel))
     }
 
-    val httpRequestByteIOFramerFactoryFactory by Once {
-        HTTPRequestByteIOFramerFactoryFactory(req(baseCommGorgel), req(chunkyByteArrayInputStreamFactory))
+    val httpRequestByteIoFramerFactoryFactory by Once {
+        HttpRequestByteIoFramerFactoryFactory(req(baseCommGorgel), req(chunkyByteArrayInputStreamFactory))
     }
 
-    val jsonByteIOFramerFactoryFactory by Once {
-        JSONByteIOFramerFactoryFactory(req(jsonByteIoFramerWithoutLabelGorgel), req(chunkyByteArrayInputStreamFactory), req(mustSendDebugReplies))
+    val jsonByteIoFramerFactoryFactory by Once {
+        JsonByteIoFramerFactoryFactory(req(jsonByteIoFramerWithoutLabelGorgel), req(chunkyByteArrayInputStreamFactory), req(mustSendDebugReplies))
     }
 
-    val rtcpByteIOFramerFactoryFactory by Once {
-        RTCPRequestByteIOFramerFactoryFactory(req(tcpConnectionGorgel), req(chunkyByteArrayInputStreamFactory), req(mustSendDebugReplies))
+    val rtcpByteIoFramerFactoryFactory by Once {
+        RtcpRequestByteIoFramerFactoryFactory(req(tcpConnectionGorgel), req(chunkyByteArrayInputStreamFactory), req(mustSendDebugReplies))
     }
 
-    val websocketByteIOFramerFactoryFactory by Once {
-        WebsocketByteIOFramerFactoryFactory(req(websocketFramerGorgel), req(chunkyByteArrayInputStreamFactory), req(jsonByteIOFramerFactoryFactory).create())
+    val websocketByteIoFramerFactoryFactory by Once {
+        WebsocketByteIoFramerFactoryFactory(req(websocketFramerGorgel), req(chunkyByteArrayInputStreamFactory), req(jsonByteIoFramerFactoryFactory).create())
     }
 
     val httpSessionConnectionFactory by Once {
@@ -246,7 +246,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(httpMessageHandlerCommGorgel),
                 req(httpMessageHandlerFactoryCommGorgel),
                 req(tcpServerFactory),
-                req(httpRequestByteIOFramerFactoryFactory),
+                req(httpRequestByteIoFramerFactoryFactory),
                 req(httpSessionConnectionFactory))
     }
 
@@ -272,7 +272,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(sessionIdGenerator),
                 req(connectionIdGenerator),
                 req(tcpServerFactory),
-                req(rtcpByteIOFramerFactoryFactory))
+                req(rtcpByteIoFramerFactoryFactory))
     }
 
     val rtcpConnectionSetupFactory by Once {
@@ -292,13 +292,13 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(provided.props()),
                 req(tcpServerFactory),
                 req(baseConnectionSetupGorgel),
-                req(jsonByteIOFramerFactoryFactory))
+                req(jsonByteIoFramerFactoryFactory))
     }
 
     val websocketServerFactory by Once {
         WebsocketServerFactory(
                 req(tcpServerFactory),
-                req(websocketByteIOFramerFactoryFactory))
+                req(websocketByteIoFramerFactoryFactory))
     }
 
     val websocketConnectionSetupFactory by Once {
@@ -318,7 +318,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(zeromqThreadCommGorgel),
                 req(connectionIdGenerator),
                 req(provided.clock()),
-                req(jsonByteIOFramerFactoryFactory))
+                req(jsonByteIoFramerFactoryFactory))
     }
 
     val tcpClientFactory by Once {
@@ -330,7 +330,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(tcpClientFactory),
                 req(provided.timer()),
                 req(connectionRetrierWithoutLabelGorgel),
-                req(jsonByteIOFramerFactoryFactory))
+                req(jsonByteIoFramerFactoryFactory))
     }
 
     val connectionSetupFactoriesByCode by Once {
@@ -359,8 +359,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(serverTagGenerator),
                 req(serverLoadMonitor),
                 req(runner),
-                req(objDBRemoteFactory),
-                req(objDBLocalFactory),
+                req(objDbRemoteFactory),
+                req(objDbLocalFactory),
                 req(connectionSetupFactoriesByCode),
                 req(connectionRetrierFactory))
     }
@@ -437,8 +437,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val messageDispatcherFactory by Once { MessageDispatcherFactory(req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
 
-    val objDBRemoteFactory by Once {
-        ObjDBRemoteFactory(
+    val objDbRemoteFactory by Once {
+        ObjDbRemoteFactory(
                 req(provided.props()),
                 req(objDbRemoteGorgel),
                 req(odbActorGorgel),

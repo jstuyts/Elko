@@ -2,24 +2,24 @@ package com.example.game.mods
 
 import com.example.game.mods.Movement.Companion.msgMove
 import org.elkoserver.feature.basicexamples.cartesian.CartesianPosition
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.Item
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.Msg
 import org.elkoserver.server.context.User
 
-class Prop @JSONMethod("kind") constructor(private val myKind: String) : Mod(), ItemMod {
+class Prop @JsonMethod("kind") constructor(private val myKind: String) : Mod(), ItemMod {
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("prop", control).apply {
+            JsonLiteralFactory.type("prop", control).apply {
                 addParameter("kind", myKind)
                 finish()
             }
 
-    @JSONMethod
+    @JsonMethod
     fun grab(from: User) {
         ensureInContext(from)
         val item = `object`() as Item
@@ -35,7 +35,7 @@ class Prop @JSONMethod("kind") constructor(private val myKind: String) : Mod(), 
         from.send(msgMove(item, 0, 0, from))
     }
 
-    @JSONMethod
+    @JsonMethod
     fun drop(from: User) {
         ensureHolding(from)
         val item = `object`() as Item

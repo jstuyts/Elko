@@ -12,13 +12,13 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
     /**
      * Collection of pending timer events, sorted by time
      */
-    private var myEvents: TreeMap<TimerQEntry, TimerQEntry> = TreeMap()
+    private var myEvents: TreeMap<TimerQueueEntry, TimerQueueEntry> = TreeMap()
 
     /**
      * Flag to control execution
      */
     private var myRunning = true
-    fun cancelTimeout(event: TimerQEntry?): Boolean {
+    fun cancelTimeout(event: TimerQueueEntry?): Boolean {
         synchronized(this) { return@cancelTimeout myEvents.remove(event) != null }
     }
 
@@ -27,7 +27,7 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
      *
      * @param newEntry A TimerQEntry describing the new event.
      */
-    private fun insertEntry(newEntry: TimerQEntry) {
+    private fun insertEntry(newEntry: TimerQueueEntry) {
         synchronized(this) {
             while (myEvents[newEntry] != null) {
                 /* All times must be unique.  */
@@ -71,8 +71,8 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
      */
     private fun runloop() {
         var time: Long
-        var notifies: TimerQEntry? = null
-        var entry: TimerQEntry
+        var notifies: TimerQueueEntry? = null
+        var entry: TimerQueueEntry
         synchronized(this) {
             if (myEvents.isEmpty()) {
                 time = 0
@@ -144,7 +144,7 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
      */
     fun setTimeout(repeat: Boolean, millis: Long, target: TimerWatcher) {
         synchronized(this) {
-            val entry = TimerQEntry(repeat, millis, target, clock)
+            val entry = TimerQueueEntry(repeat, millis, target, clock)
             insertEntry(entry)
             target.setEvent(entry)
             if (myEvents.firstKey() === entry) {

@@ -1,12 +1,12 @@
 package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.actor.NonRoutingActor
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
@@ -92,7 +92,7 @@ internal class DirectorActor(
      * @param optAuth  The authorization code to connect with.
      * @param optDeny  Error message in the case of failure.
      */
-    @JSONMethod("context", "user", "hostport", "reservation", "deny")
+    @JsonMethod("context", "user", "hostport", "reservation", "deny")
     fun reserve(from: DirectorActor, context: String, optActor: OptString, optHostport: OptString, optAuth: OptString, optDeny: OptString) {
         val hostport = optHostport.value<String?>(null)
         val auth = optAuth.value<String?>(null)
@@ -131,7 +131,7 @@ internal class DirectorActor(
          */
         private fun msgReserve(target: Referenceable, protocol: String,
                                context: String, actor: String?) =
-                JSONLiteralFactory.targetVerb(target, "reserve").apply {
+                JsonLiteralFactory.targetVerb(target, "reserve").apply {
                     addParameter("protocol", protocol)
                     addParameter("context", context)
                     addParameterOpt("user", actor)

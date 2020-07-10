@@ -3,11 +3,11 @@ package org.elkoserver.feature.basicexamples.notes
 import org.elkoserver.feature.basicexamples.cartesian.Cartesian
 import org.elkoserver.feature.basicexamples.styledtext.StyleDesc
 import org.elkoserver.feature.basicexamples.styledtext.StyleOptions
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.Msg
@@ -23,7 +23,7 @@ import kotlin.contracts.ExperimentalContracts
  * @param myStyleOptions  Style options permitted in notes created by this
  *    mod.
  */
-class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: StyleOptions) : Mod(), GeneralMod {
+class NoteMaker @JsonMethod("styles") constructor(private val myStyleOptions: StyleOptions) : Mod(), GeneralMod {
     /**
      * Test if this mod's style options are compatible with particular style
      * settings.
@@ -43,7 +43,7 @@ class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: St
      * @return a JSON literal representing this mod.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("notemaker", control).apply {
+            JsonLiteralFactory.type("notemaker", control).apply {
                 addParameter("styles", myStyleOptions)
                 finish()
             }
@@ -81,7 +81,7 @@ class NoteMaker @JSONMethod("styles") constructor(private val myStyleOptions: St
      * proposed container is not valid.
      */
     @ExperimentalContracts
-    @JSONMethod("into", "left", "top", "width", "height", "text", "?style")
+    @JsonMethod("into", "left", "top", "width", "height", "text", "?style")
     fun makenote(from: User, into: OptString, left: Int, top: Int,
                  width: Int, height: Int, text: String, style: StyleDesc?) {
         ensureSameContext(from)

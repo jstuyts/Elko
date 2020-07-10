@@ -79,7 +79,7 @@ abstract class Invoker<in TTarget>(
                 val paramType = myParamTypes[paramNum]
                 if (value != null) {
                     val param = packParam(paramType, value, resolver)
-                            ?: throw JSONInvocationException("parameter '$paramName' should be type $paramType")
+                            ?: throw JsonInvocationException("parameter '$paramName' should be type $paramType")
                     params[paramNum] = param
                 }
             }
@@ -92,7 +92,7 @@ abstract class Invoker<in TTarget>(
                     } else if (isOptionalParamType(myParamTypes[it])) {
                         params[it] = missingValue(myParamTypes[it])
                     } else {
-                        throw JSONInvocationException("expected parameter '${myParamNames[it - firstIndex]}' missing")
+                        throw JsonInvocationException("expected parameter '${myParamNames[it - firstIndex]}' missing")
                     }
                 }
         if (firstParam != null) {
@@ -101,7 +101,7 @@ abstract class Invoker<in TTarget>(
         return try {
             invokeMe(target, params)
         } catch (e: IllegalAccessException) {
-            throw JSONInvocationException("can't invoke method: $e")
+            throw JsonInvocationException("can't invoke method: $e")
         } catch (e: InvocationTargetException) {
             throw MessageHandlerException("exception in message handler method: ", e.targetException)
         }

@@ -4,8 +4,8 @@ import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralFactory.targetVerb
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
 
 /**
@@ -33,7 +33,7 @@ abstract class Actor internal constructor(private val myConnection: Connection, 
      *
      * @param message  The message to send.
      */
-    override fun send(message: JSONLiteral) {
+    override fun send(message: JsonLiteral) {
         myConnection.sendMsg(message)
     }
 

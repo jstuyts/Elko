@@ -1,6 +1,6 @@
 package org.elkoserver.feature.deviceuser
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Contextor
@@ -13,7 +13,7 @@ import java.util.function.Consumer
  *
  * @param device  The name of the device (IOS, etc).
  */
-class DeviceEphemeralUserFactory @JSONMethod("device") constructor(device: String) : DevicePersistentUserFactory(device) {
+class DeviceEphemeralUserFactory @JsonMethod("device") constructor(device: String) : DevicePersistentUserFactory(device) {
     /**
      * Synthesize an ephemeral user object based on user description info
      * fetched from the Device.

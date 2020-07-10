@@ -1,7 +1,7 @@
 package org.elkoserver.server.repository
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -31,7 +31,7 @@ internal class AdminHandler(private val myRepository: Repository, commGorgel: Go
      *
      * @param from The administrator sending the message.
      */
-    @JSONMethod
+    @JsonMethod
     fun reinit(from: RepositoryActor) {
         from.ensureAuthorizedAdmin()
         myRepository.reinit()
@@ -44,7 +44,7 @@ internal class AdminHandler(private val myRepository: Repository, commGorgel: Go
      *
      * @param from The administrator sending the message.
      */
-    @JSONMethod
+    @JsonMethod
     fun shutdown(from: RepositoryActor) {
         from.ensureAuthorizedAdmin()
         myRepository.shutdown()

@@ -1,13 +1,13 @@
 package org.elkoserver.server.broker
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.metadata.LoadDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
@@ -59,7 +59,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
      * @param what  Server to send them information about, or null for all.
      */
     private fun sendLoadDesc(who: BrokerActor, what: String?) {
-        val array = JSONLiteralArray()
+        val array = JsonLiteralArray()
         for (actor in myBroker.actors()) {
             val client = actor.client
             if (client != null) {
@@ -96,7 +96,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
      * @param from  The administrator who is commanding this.
      * @param name  The name of component launcher configuration
      */
-    @JSONMethod("name")
+    @JsonMethod("name")
     fun launch(from: BrokerActor, name: String) {
         from.ensureAuthorizedAdmin()
         var status = myBroker.launcherTable!!.launch(name)
@@ -114,7 +114,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
      *
      * @param from  The administrator asking for the information.
      */
-    @JSONMethod
+    @JsonMethod
     fun launcherdesc(from: BrokerActor) {
         from.ensureAuthorizedAdmin()
         from.send(msgLauncherDesc(this,
@@ -129,7 +129,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
      * @param from  The administrator asking for the information.
      * @param optServer  The name of the server of interest (or null for all).
      */
-    @JSONMethod("server")
+    @JsonMethod("server")
     fun loaddesc(from: BrokerActor, optServer: OptString) {
         from.ensureAuthorizedAdmin()
         sendLoadDesc(from, optServer.value<String?>(null))
@@ -145,7 +145,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
      * them, or null for none of them).
      * @param optSelf  true if the this broker itself should be re-init'ed.
      */
-    @JSONMethod("server", "self")
+    @JsonMethod("server", "self")
     fun reinit(from: BrokerActor, optServer: OptString, optSelf: OptBoolean) {
         from.ensureAuthorizedAdmin()
         val serverName = optServer.value<String?>(null)
@@ -175,7 +175,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
      * @param service  The name of the service of interest (or null for all).
      * @param protocol The name of the protocol of interest
      */
-    @JSONMethod("service", "protocol")
+    @JsonMethod("service", "protocol")
     fun servicedesc(from: BrokerActor, service: OptString, protocol: OptString) {
         from.ensureAuthorizedAdmin()
         sendServiceDesc(from, service.value<String?>(null), protocol.value("tcp"))
@@ -194,7 +194,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
      * @param optCluster  true if this is part of a cluster shutdown that should
      * not alter component run settings.
      */
-    @JSONMethod("server", "self", "cluster")
+    @JsonMethod("server", "self", "cluster")
     fun shutdown(from: BrokerActor, optServer: OptString, optSelf: OptBoolean, optCluster: OptBoolean) {
         from.ensureAuthorizedAdmin()
         val serverName = optServer.value<String?>(null)
@@ -235,7 +235,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
      * about server load status changes (true=>yes, false=>no,
      * omitted=>leave as currently set).
      */
-    @JSONMethod("services", "load")
+    @JsonMethod("services", "load")
     fun watch(from: BrokerActor, services: OptBoolean, load: OptBoolean) {
         from.ensureAuthorizedAdmin()
         if (services.present) {
@@ -261,7 +261,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
          * Generate a 'launch' message.
          */
         private fun msgLaunch(target: Referenceable, status: String) =
-                JSONLiteralFactory.targetVerb(target, "launch").apply {
+                JsonLiteralFactory.targetVerb(target, "launch").apply {
                     addParameter("status", status)
                     finish()
                 }
@@ -269,8 +269,8 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
         /**
          * Generate a 'launcherdesc' message.
          */
-        private fun msgLauncherDesc(target: Referenceable, launchers: JSONLiteralArray) =
-                JSONLiteralFactory.targetVerb(target, "launcherdesc").apply {
+        private fun msgLauncherDesc(target: Referenceable, launchers: JsonLiteralArray) =
+                JsonLiteralFactory.targetVerb(target, "launcherdesc").apply {
                     addParameter("launchers", launchers)
                     finish()
                 }
@@ -278,8 +278,8 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
         /**
          * Generate a 'loaddesc' message.
          */
-        fun msgLoadDesc(target: Referenceable, desc: JSONLiteralArray?) =
-                JSONLiteralFactory.targetVerb(target, "loaddesc").apply {
+        fun msgLoadDesc(target: Referenceable, desc: JsonLiteralArray?) =
+                JsonLiteralFactory.targetVerb(target, "loaddesc").apply {
                     addParameter("desc", desc)
                     finish()
                 }
@@ -288,15 +288,15 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
          * Generate a 'reinit' message.
          */
         private fun msgReinit(target: Referenceable) =
-                JSONLiteralFactory.targetVerb(target, "reinit").apply {
+                JsonLiteralFactory.targetVerb(target, "reinit").apply {
                     finish()
                 }
 
         /**
          * Generate a 'servicedesc' message.
          */
-        fun msgServiceDesc(target: Referenceable, desc: JSONLiteralArray?, on: Boolean) =
-                JSONLiteralFactory.targetVerb(target, "servicedesc").apply {
+        fun msgServiceDesc(target: Referenceable, desc: JsonLiteralArray?, on: Boolean) =
+                JsonLiteralFactory.targetVerb(target, "servicedesc").apply {
                     addParameter("desc", desc)
                     addParameter("on", on)
                     finish()
@@ -306,7 +306,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
          * Generate a 'shutdown' message.
          */
         private fun msgShutdown(target: Referenceable) =
-                JSONLiteralFactory.targetVerb(target, "shutdown").apply {
+                JsonLiteralFactory.targetVerb(target, "shutdown").apply {
                     finish()
                 }
     }

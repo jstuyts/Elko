@@ -1,7 +1,7 @@
 package org.elkoserver.server.presence
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -35,7 +35,7 @@ internal class ClientHandler(private val myPresenceServer: PresenceServer, commG
      * @param domain  The domain being updated.
      * @param conf  Domain-specific configuration update parameters.
      */
-    @JSONMethod("domain", "conf")
+    @JsonMethod("domain", "conf")
     fun update(from: PresenceActor, domain: String, conf: JsonObject) {
         from.ensureAuthorizedClient()
         myPresenceServer.updateDomain(domain, conf, from)
@@ -53,7 +53,7 @@ internal class ClientHandler(private val myPresenceServer: PresenceServer, commG
      * @param userMeta  Optional user metadata.
      * @param contextMeta  Optional context metadata.
      */
-    @JSONMethod("context", "user", "on", "?umeta", "?cmeta")
+    @JsonMethod("context", "user", "on", "?umeta", "?cmeta")
     fun user(from: PresenceActor, context: String, user: String,
              on: Boolean, userMeta: JsonObject?, contextMeta: JsonObject?) {
         from.ensureAuthorizedClient()
@@ -82,7 +82,7 @@ internal class ClientHandler(private val myPresenceServer: PresenceServer, commG
      * @param visible  Flag indicating if presence in the given context is
      * visible outside the context
      */
-    @JSONMethod("context", "?domains", "visible")
+    @JsonMethod("context", "?domains", "visible")
     fun subscribe(from: PresenceActor, context: String, domains: Array<String>?, visible: OptBoolean) {
         if (domains != null) {
             for (domain in domains) {
@@ -102,7 +102,7 @@ internal class ClientHandler(private val myPresenceServer: PresenceServer, commG
      *
      * @param context  The context who is no longer interested
      */
-    @JSONMethod("context")
+    @JsonMethod("context")
     fun unsubscribe(from: PresenceActor, context: String) {
         from.client!!.unsubscribeToUpdates(context)
         from.client!!.noteInvisibleContext(context)

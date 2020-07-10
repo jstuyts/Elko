@@ -60,7 +60,7 @@ val startRepositoryDev by tasks.registering(JavaExec::class) {
 
             "conf.rep.service=contextdb",
             "conf.rep.name=Repository",
-            "conf.rep.odb=${File(repositoryDataDirectory.get().temporaryDir, "odb").path}",
+            "conf.rep.odjdb=${File(repositoryDataDirectory.get().temporaryDir, "odb").path}",
 
             "conf.listen.host=127.0.0.1:9050",
             "conf.listen.bind=127.0.0.1:9050",

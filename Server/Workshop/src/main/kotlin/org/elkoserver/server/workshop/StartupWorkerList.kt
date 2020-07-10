@@ -1,7 +1,7 @@
 package org.elkoserver.server.workshop
 
-import org.elkoserver.foundation.json.JSONMethod
-import org.elkoserver.objdb.ObjDB
+import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.objdb.ObjDb
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -13,17 +13,17 @@ import java.util.function.Consumer
  * the object database.  By convention these two are the same but they need not
  * be.
  */
-internal class StartupWorkerList @JSONMethod("workers") constructor(private val myWorkers: Array<WorkerListElem>) {
+internal class StartupWorkerList @JsonMethod("workers") constructor(private val myWorkers: Array<WorkerListElem>) {
 
     /**
      * Fetch the worker objects from the object database.
      *
-     * @param odb  The object database to tell.
+     * @param objDb  The object database to tell.
      * @param workshop  Workshop for whom these objects are being loaded
      */
-    fun fetchFromODB(odb: ObjDB, workshop: Workshop, gorgel: Gorgel) {
+    fun fetchFromObjDb(objDb: ObjDb, workshop: Workshop, gorgel: Gorgel) {
         myWorkers.forEach { elem ->
-            odb.getObject(elem.ref, null, WorkerReceiver(workshop, elem, gorgel))
+            objDb.getObject(elem.ref, null, WorkerReceiver(workshop, elem, gorgel))
         }
     }
 
@@ -42,5 +42,5 @@ internal class StartupWorkerList @JSONMethod("workers") constructor(private val 
         }
     }
 
-    internal class WorkerListElem @JSONMethod("key", "ref") internal constructor(val key: String, val ref: String)
+    internal class WorkerListElem @JsonMethod("key", "ref") internal constructor(val key: String, val ref: String)
 }

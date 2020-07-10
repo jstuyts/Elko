@@ -1,6 +1,6 @@
 package org.elkoserver.server.director
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
@@ -55,7 +55,7 @@ internal class ProviderHandler(director: Director, commGorgel: Gorgel, random: R
      * @param protocol  The protocol it will server it with.
      * @param hostPort  Where to connect for service.
      */
-    @JSONMethod("protocol", "hostport")
+    @JsonMethod("protocol", "hostport")
     fun address(from: DirectorActor, protocol: String, hostPort: String) {
         from.ensureAuthorizedProvider()
         from.provider!!.addProtocol(protocol, hostPort)
@@ -77,7 +77,7 @@ internal class ProviderHandler(director: Director, commGorgel: Gorgel, random: R
      * @param optRestricted  Optional flag indicating whether or not the
      * context is restricted (unrestricted by default).
      */
-    @JSONMethod("context", "open", "yours", "maxcap", "basecap", "restricted")
+    @JsonMethod("context", "open", "yours", "maxcap", "basecap", "restricted")
     fun context(from: DirectorActor, context: String, open: Boolean,
                 mine: Boolean, optMaxCapacity: OptInteger,
                 optBaseCapacity: OptInteger, optRestricted: OptBoolean) {
@@ -104,7 +104,7 @@ internal class ProviderHandler(director: Director, commGorgel: Gorgel, random: R
      * closed (ignored for opening).  This will be reported to users who
      * attempt to enter when they fail.
      */
-    @JSONMethod("context", "open", "reason")
+    @JsonMethod("context", "open", "reason")
     fun gate(from: DirectorActor, context: String, open: Boolean, optReason: OptString) {
         from.ensureAuthorizedProvider()
         from.provider!!.noteContextGateSetting(context, open, optReason.value<String?>(null))
@@ -118,7 +118,7 @@ internal class ProviderHandler(director: Director, commGorgel: Gorgel, random: R
      * @param from  The provider server announcing its load.
      * @param factor  The load factor.
      */
-    @JSONMethod("factor")
+    @JsonMethod("factor")
     fun load(from: DirectorActor, factor: Double) {
         from.ensureAuthorizedProvider()
         from.provider!!.loadFactor = factor
@@ -134,7 +134,7 @@ internal class ProviderHandler(director: Director, commGorgel: Gorgel, random: R
      * @param user  The user to be broadcast to.
      * @param msg  The message to relay to them.
      */
-    @JSONMethod("context", "user", "msg")
+    @JsonMethod("context", "user", "msg")
     fun relay(from: DirectorActor, context: OptString, user: OptString, msg: JsonObject) {
         from.ensureAuthorizedProvider()
         director.doRelay(from, context, user, msg)
@@ -150,7 +150,7 @@ internal class ProviderHandler(director: Director, commGorgel: Gorgel, random: R
      * @param user  The user who entered or exited.
      * @param on  true on entry, false on exit.
      */
-    @JSONMethod("context", "user", "on")
+    @JsonMethod("context", "user", "on")
     fun user(from: DirectorActor, context: String, user: String, on: Boolean) {
         from.ensureAuthorizedProvider()
         if (on) {
@@ -171,7 +171,7 @@ internal class ProviderHandler(director: Director, commGorgel: Gorgel, random: R
      * @param restricted  Optional flag restricting reservations for this
      * class of contexts to reservations made internally.
      */
-    @JSONMethod("context", "capacity", "restricted")
+    @JsonMethod("context", "capacity", "restricted")
     fun willserve(from: DirectorActor, context: String, capacity: OptInteger, restricted: OptBoolean) {
         from.ensureAuthorizedProvider()
         from.provider!!.addService(context, capacity.value(-1), restricted.value(false))

@@ -1,12 +1,12 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Contents.Companion.sendContentsDescription
 import org.elkoserver.server.context.Msg.msgExit
@@ -64,7 +64,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * contents of this user, or null if there are no contents now.
      * @param ref  Optional reference string for this user object.
      */
-    @JSONMethod("name", "?mods", "?contents", "ref")
+    @JsonMethod("name", "?mods", "?contents", "ref")
     internal constructor(name: OptString, mods: Array<Mod>?, contents: Array<Item>?, ref: OptString) : this(name.value<String?>(null), mods, contents, ref.value<String?>(null))
 
     /**
@@ -159,7 +159,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @return a JSON literal representing this user.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("user", control).apply {
+            JsonLiteralFactory.type("user", control).apply {
                 if (control.toClient()) {
                     addParameter("ref", myRef)
                 }
@@ -315,7 +315,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      *
      * @param message  The message to send.
      */
-    override fun send(message: JSONLiteral) {
+    override fun send(message: JsonLiteral) {
         myActor.send(message)
     }
 
@@ -396,7 +396,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
          * @param reservation  Reservation code to tender to gain entry
          */
         private fun msgPushContext(target: Referenceable, contextRef: String, hostPort: String?, reservation: String?) =
-                JSONLiteralFactory.targetVerb(target, "pushcontext").apply {
+                JsonLiteralFactory.targetVerb(target, "pushcontext").apply {
                     addParameter("context", contextRef)
                     addParameterOpt("hostport", hostPort)
                     addParameterOpt("reservation", reservation)

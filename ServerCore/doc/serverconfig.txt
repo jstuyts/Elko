@@ -84,7 +84,7 @@ Meta symbols:
 
     when <root> + ".objstore" is
       org.elkoserver.objdb.store.filestore.FileObjectStore:
-    str ".odb"         { Pathname, relative to the server's current working
+    str ".odjdb"         { Pathname, relative to the server's current working
                          directory, of the directory containing the files
                          holding the database objects (in simpler terms, the
                          'object database directory'). }

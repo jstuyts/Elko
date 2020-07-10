@@ -1,7 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 
 /**
  * A limbo [SendGroup], so actors can have a place to be when they aren't
@@ -35,7 +35,7 @@ internal class LimboGroup private constructor() : SendGroup {
      *
      * @param message  The message to (not) send.
      */
-    override fun send(message: JSONLiteral) {
+    override fun send(message: JsonLiteral) {
         /* Nothing here. */
     }
 
@@ -46,7 +46,7 @@ internal class LimboGroup private constructor() : SendGroup {
      * @param exclude  The member to exclude from receiving the message.
      * @param message  The message to send.
      */
-    override fun sendToNeighbors(exclude: Deliverer, message: JSONLiteral) {
+    override fun sendToNeighbors(exclude: Deliverer, message: JsonLiteral) {
         /* Nothing here. */
     }
 

@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net.ws.server
 
-import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIOFramerFactoryFactory
+import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIoFramerFactoryFactory
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
@@ -9,7 +9,7 @@ import java.io.IOException
 
 class WebsocketServerFactory(
         private val tcpServerFactory: TcpServerFactory,
-        private val websocketByteIOFramerFactoryFactory: WebsocketByteIOFramerFactoryFactory) {
+        private val websocketByteIoFramerFactoryFactory: WebsocketByteIoFramerFactoryFactory) {
 
     /**
      * Begin listening for incoming WebSocket connections on some port.
@@ -20,7 +20,7 @@ class WebsocketServerFactory(
      * made to this port.
      * @param secure  If true, use SSL.
      *
-     * @param socketURI  The WebSocket URI that browsers connect to
+     * @param socketUri  The WebSocket URI that browsers connect to
      * @return the address that ended up being listened upon
      */
     @Throws(IOException::class)
@@ -28,14 +28,14 @@ class WebsocketServerFactory(
             listenAddress: String,
             innerHandlerFactory: MessageHandlerFactory,
             secure: Boolean,
-            socketURI: String,
+            socketUri: String,
             gorgel: Gorgel): NetAddr {
-        var actualSocketURI = socketURI
-        if (!actualSocketURI.startsWith("/")) {
-            actualSocketURI = "/$actualSocketURI"
+        var actualSocketUri = socketUri
+        if (!actualSocketUri.startsWith("/")) {
+            actualSocketUri = "/$actualSocketUri"
         }
-        val outerHandlerFactory = WebsocketMessageHandlerFactory(innerHandlerFactory, actualSocketURI, gorgel)
-        val framerFactory = websocketByteIOFramerFactoryFactory.create(listenAddress, actualSocketURI)
+        val outerHandlerFactory = WebsocketMessageHandlerFactory(innerHandlerFactory, actualSocketUri, gorgel)
+        val framerFactory = websocketByteIoFramerFactoryFactory.create(listenAddress, actualSocketUri)
         return tcpServerFactory.listenTCP(listenAddress, outerHandlerFactory, secure, framerFactory)
     }
 }

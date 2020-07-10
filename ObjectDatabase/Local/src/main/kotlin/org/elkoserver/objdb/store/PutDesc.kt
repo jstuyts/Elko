@@ -1,11 +1,11 @@
 package org.elkoserver.objdb.store
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory.type
+import org.elkoserver.json.JsonLiteralFactory.type
 
 /**
  * Description of a request write to the object store.
@@ -36,7 +36,7 @@ open class PutDesc(val ref: String, val obj: String, val collectionName: String?
      * @param requireNew  Optional flag to force failure if object with ref
      * already exists.
      */
-    @JSONMethod("ref", "obj", "coll", "requirenew")
+    @JsonMethod("ref", "obj", "coll", "requirenew")
     constructor(ref: String, obj: String, collectionName: OptString, requireNew: OptBoolean)
             : this(ref, obj, collectionName.value<String?>(null), requireNew.value(false))
 

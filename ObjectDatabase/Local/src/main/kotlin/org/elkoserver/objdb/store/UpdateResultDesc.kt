@@ -1,9 +1,9 @@
 package org.elkoserver.objdb.store
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory.type
+import org.elkoserver.json.JsonLiteralFactory.type
 
 /**
  * Description of the result status of an object update operation.
@@ -25,7 +25,7 @@ class UpdateResultDesc(ref: String, failure: String?, val isAtomicFailure: Boole
      * @param ref  Object reference of the object acted upon.
      * @param failure  Optional error message.
      */
-    @JSONMethod("ref", "failure", "atomic")
+    @JsonMethod("ref", "failure", "atomic")
     constructor(ref: String, failure: OptString, isAtomicFailure: Boolean)
             : this(ref, failure.value<String?>(null), isAtomicFailure)
 

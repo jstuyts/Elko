@@ -1,7 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralArray
+import org.elkoserver.json.JsonLiteralArray
 
 /**
  * Collection class to hold all the mods attached to a basic object.
@@ -78,8 +78,8 @@ class ModSet private constructor() {
      *
      * @return a JSONLiteralArray object representing this mods list.
      */
-    fun encode(control: EncodeControl): JSONLiteralArray {
-        val result = JSONLiteralArray(control)
+    fun encode(control: EncodeControl): JsonLiteralArray {
+        val result = JsonLiteralArray(control)
         myMods.values
                 .filter { control.toClient() || !it.isEphemeral }
                 .forEach(result::addElement)

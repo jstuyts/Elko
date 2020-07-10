@@ -23,7 +23,7 @@ interface EphemeralUserFactory {
      * @param connection  The connection over which the new user presented
      * themselves.
      * @param param  Arbitrary JSON object parameterizing the construction.
-     * this is analogous to the user record read from the ODB, but may be
+     * this is analogous to the user record read from the ObjDb, but may be
      * anything that makes sense for the particular factory implementation.
      * Of course, the sender of this parameter must be coordinated with the
      * factory implementation.

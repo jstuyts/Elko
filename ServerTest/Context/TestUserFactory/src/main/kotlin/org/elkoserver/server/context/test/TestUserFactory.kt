@@ -7,12 +7,12 @@ import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ClockUsingObject
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.Cryptor
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.PostInjectionInitializingObject
 import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.json.JSONDecodingException
+import org.elkoserver.json.JsonDecodingException
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Contextor
 import org.elkoserver.server.context.EphemeralUserFactory
@@ -47,7 +47,7 @@ import java.util.TreeSet
  * 'nonce' is a random string token generated from a secure random source
  * 'expire' is the time (seconds since epoch) that the nonce expires
  * 'context' is the optional ref of the context into which the user will go
- * 'user' is a JSON encoded User object, as would be returned by the ODB
+ * 'user' is a JSON encoded User object, as would be returned by the ObjDb
  *
  * Upon receiving one of these, if the current time is before the expiration
  * time and the nonce is not a previously received nonce, this factory will
@@ -61,7 +61,7 @@ import java.util.TreeSet
  * enough for a large number of them to accumulate in this factory's history of
  * nonces seen).
  */
-internal class TestUserFactory @JSONMethod("key") constructor(private val key: String) : EphemeralUserFactory, ClockUsingObject, ClassspecificGorgelUsingObject, PostInjectionInitializingObject {
+internal class TestUserFactory @JsonMethod("key") constructor(private val key: String) : EphemeralUserFactory, ClockUsingObject, ClassspecificGorgelUsingObject, PostInjectionInitializingObject {
     /** Cryptor incorporating the key used to decrypt blobs.  */
     private var myCryptor: Cryptor? = null
 
@@ -160,7 +160,7 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                                     "context template ref mismatch")
                             throw IllegalStateException()
                         }
-                        val result = jsonToObjectDeserializer.decode(User::class.java, userDesc, contextor.odb)
+                        val result = jsonToObjectDeserializer.decode(User::class.java, userDesc, contextor.objDb)
                         return result as User
                     }
                     myGorgel.error("reused nonce")
@@ -171,7 +171,7 @@ internal class TestUserFactory @JSONMethod("key") constructor(private val key: S
                 myGorgel.error("malformed cryptoblob")
             } catch (e: JsonParserException) {
                 myGorgel.error("bad JSON string in cryptoblob")
-            } catch (e: JSONDecodingException) {
+            } catch (e: JsonDecodingException) {
                 myGorgel.error("missing or improperly typed property in cryptoblob")
             }
         }

@@ -1,12 +1,12 @@
 package com.example.game.mods
 
 import org.elkoserver.feature.basicexamples.cartesian.CartesianPosition
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
-import org.elkoserver.json.JSONLiteralFactory.targetVerb
+import org.elkoserver.json.JsonLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
@@ -16,7 +16,7 @@ import org.elkoserver.server.context.User
 /**
  * A simple context mod to enable users in a context to move around.
  */
-class Movement @JSONMethod("minx", "miny", "maxx", "maxy") constructor(
+class Movement @JsonMethod("minx", "miny", "maxx", "maxy") constructor(
         minX: OptInteger,
         minY: OptInteger,
         maxX: OptInteger,
@@ -30,7 +30,7 @@ class Movement @JSONMethod("minx", "miny", "maxx", "maxy") constructor(
             if (control.toClient()) {
                 null
             } else {
-                JSONLiteralFactory.type("movement", control).apply {
+                JsonLiteralFactory.type("movement", control).apply {
                     addParameter("minx", myMinX)
                     addParameter("miny", myMinY)
                     addParameter("maxx", myMaxX)
@@ -39,7 +39,7 @@ class Movement @JSONMethod("minx", "miny", "maxx", "maxy") constructor(
                 }
             }
 
-    @JSONMethod("x", "y")
+    @JsonMethod("x", "y")
     fun move(from: User, x: Int, y: Int) {
         ensureSameContext(from)
         if (x < myMinX || myMaxX < x || y < myMinY || myMaxY < y) {

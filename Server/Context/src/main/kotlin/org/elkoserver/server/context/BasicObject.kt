@@ -6,7 +6,7 @@ import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.MessageRetargeter
 import org.elkoserver.json.Encodable
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Contents.Companion.withContents
@@ -510,7 +510,7 @@ abstract class BasicObject internal constructor(
      *
      * @param message  The message to send.
      */
-    fun sendToClones(message: JSONLiteral) {
+    fun sendToClones(message: JsonLiteral) {
         assertActivated { it.relay(this, message) }
     }
 

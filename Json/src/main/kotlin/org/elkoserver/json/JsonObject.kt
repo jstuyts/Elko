@@ -21,10 +21,10 @@ class JsonObject {
     override fun toString() =
             JsonObjectSerialization.literal(this, ForRepositoryEncodeControl).sendableString()
 
-    @Throws(JSONDecodingException::class)
+    @Throws(JsonDecodingException::class)
     fun getString(key: String): String {
         if (impl[key] !is String) {
-            throw JSONDecodingException()
+            throw JsonDecodingException()
         }
         return impl.getString(key)
     }
@@ -48,18 +48,18 @@ class JsonObject {
 
     fun getLong(key: String?, defaultValue: Long) = impl.getLong(key, defaultValue)
 
-    @Throws(JSONDecodingException::class)
+    @Throws(JsonDecodingException::class)
     fun getObject(key: String): JsonObject {
         if (impl[key] !is JsonObject && impl[key] !is com.grack.nanojson.JsonObject) {
-            throw JSONDecodingException()
+            throw JsonDecodingException()
         }
         return JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(impl.getObject(key)) as JsonObject
     }
 
-    @Throws(JSONDecodingException::class)
+    @Throws(JsonDecodingException::class)
     fun getInt(key: String): Int {
         if (impl[key] !is Int) {
-            throw JSONDecodingException()
+            throw JsonDecodingException()
         }
         return impl.getInt(key)
     }

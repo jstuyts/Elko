@@ -10,7 +10,7 @@ object JsonObjectSerialization {
      * is being done.
      */
     fun literal(`object`: JsonObject, control: EncodeControl) =
-            JSONLiteral(control).apply {
+            JsonLiteral(control).apply {
                 /* What follows is a little bit of hackery to ensure that the canonical
                    message and object properties ("to:", "op:", and "type:") are
                    output first, regardless of what order the iterator spits all the
@@ -35,7 +35,7 @@ object JsonObjectSerialization {
      * is being done.
      */
     fun encodeLiteral(`object`: JsonObject, buf: StringBuilder, control: EncodeControl) {
-        JSONLiteral(buf, control).apply {
+        JsonLiteral(buf, control).apply {
             for ((key, value) in `object`.entrySet()) {
                 addParameter(key, value)
             }

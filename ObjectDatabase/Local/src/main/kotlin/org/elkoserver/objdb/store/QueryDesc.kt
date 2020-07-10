@@ -1,11 +1,11 @@
 package org.elkoserver.objdb.store
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory.type
+import org.elkoserver.json.JsonLiteralFactory.type
 import org.elkoserver.json.JsonObject
 
 /**
@@ -30,7 +30,7 @@ class QueryDesc(val template: JsonObject, val collectionName: String?, val maxRe
      * @param maxResults  Maximum number of result objects to return, or 0 to
      * indicate no fixed limit (the default if omitted).
      */
-    @JSONMethod("template", "coll", "limit")
+    @JsonMethod("template", "coll", "limit")
     constructor(template: JsonObject, collectionName: OptString, maxResults: OptInteger)
             : this(template, collectionName.value<String?>(null), maxResults.value(0))
 

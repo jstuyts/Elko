@@ -1,9 +1,9 @@
 package org.elkoserver.objdb.store
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory.type
+import org.elkoserver.json.JsonLiteralFactory.type
 
 /**
  * Description of a request to update to the object store.
@@ -28,7 +28,7 @@ class UpdateDesc(ref: String, val version: Int, obj: String, collectionName: Str
      * @param collectionName  Name of collection to write to, or null to take
      * the configured default.
      */
-    @JSONMethod("ref", "version", "obj", "coll")
+    @JsonMethod("ref", "version", "obj", "coll")
     constructor(ref: String, version: Int, obj: String, collectionName: OptString)
             : this(ref, version, obj, collectionName.value<String?>(null))
 

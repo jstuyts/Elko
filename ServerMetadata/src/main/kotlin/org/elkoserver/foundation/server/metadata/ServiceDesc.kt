@@ -1,12 +1,12 @@
 package org.elkoserver.foundation.server.metadata
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 
 /**
  * Description of a (possibly) registered service.
@@ -58,7 +58,7 @@ class ServiceDesc(val service: String, val hostport: String?, val protocol: Stri
      * @param failure  Optional error message.
      * @param providerID  Optional provider ID.
      */
-    @JSONMethod("service", "hostport", "protocol", "label", "?auth", "failure", "provider")
+    @JsonMethod("service", "hostport", "protocol", "label", "?auth", "failure", "provider")
     constructor(service: String, hostport: OptString, protocol: OptString,
                 label: OptString, auth: AuthDesc?, failure: OptString,
                 providerID: OptInteger) : this(service, hostport.value<String?>(null), protocol.value<String?>(null),
@@ -107,7 +107,7 @@ class ServiceDesc(val service: String, val hostport: String?, val protocol: Stri
      * @return a JSON literal representing this object.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("servicedesc", control).apply {
+            JsonLiteralFactory.type("servicedesc", control).apply {
                 addParameter("service", service)
                 addParameterOpt("hostport", hostport)
                 addParameterOpt("protocol", protocol)
@@ -124,7 +124,7 @@ class ServiceDesc(val service: String, val hostport: String?, val protocol: Stri
      * Encode this descriptor as a single-element JSONLiteralArray.
      */
     fun encodeAsArray() =
-            JSONLiteralArray().apply {
+            JsonLiteralArray().apply {
                 addElement(this)
                 finish()
             }
@@ -135,7 +135,7 @@ class ServiceDesc(val service: String, val hostport: String?, val protocol: Stri
          * them.
          */
         fun encodeArray(services: Iterable<ServiceDesc?>?) =
-                JSONLiteralArray().apply {
+                JsonLiteralArray().apply {
                     if (services != null) {
                         for (service in services) {
                             addElement(service)

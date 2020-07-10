@@ -1,9 +1,9 @@
 package org.elkoserver.feature.basicexamples.image
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
 
@@ -18,7 +18,7 @@ import org.elkoserver.server.context.Mod
  * @param myHeight  Vertical extent of the image (optional).
  * @param myImg  URL of the image itself.
  */
-class Image @JSONMethod("width", "height", "img") constructor(private val myWidth: OptInteger, private val myHeight: OptInteger, private val myImg: String) : Mod(), GeneralMod {
+class Image @JsonMethod("width", "height", "img") constructor(private val myWidth: OptInteger, private val myHeight: OptInteger, private val myImg: String) : Mod(), GeneralMod {
 
     /**
      * Encode this mod for transmission or persistence.
@@ -29,7 +29,7 @@ class Image @JSONMethod("width", "height", "img") constructor(private val myWidt
      * @return a JSON literal representing this mod.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("image", control).apply {
+            JsonLiteralFactory.type("image", control).apply {
                 if (myWidth.present) {
                     addParameter("width", myWidth.value())
                 }

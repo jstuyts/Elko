@@ -1,6 +1,6 @@
 package org.elkoserver.objdb
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -8,16 +8,16 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * all the class tags known to the object database and the actual Java classes
  * that they correspond to.
  */
-internal class ClassDesc @JSONMethod("classes") constructor(private val myClasses: Array<ClassTagDesc>) {
+internal class ClassDesc @JsonMethod("classes") constructor(private val myClasses: Array<ClassTagDesc>) {
 
     /**
      * Tell an object database about all the classes this object describes.
      *
-     * @param odb The object database to tell.
+     * @param objDb The object database to tell.
      */
-    fun useInODB(odb: ObjDB, gorgel: Gorgel) {
+    fun useInObjDb(objDb: ObjDb, gorgel: Gorgel) {
         for (odbClass in myClasses) {
-            odbClass.useInODB(odb, gorgel)
+            odbClass.useInObjDb(objDb, gorgel)
         }
     }
 }

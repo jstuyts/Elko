@@ -1,10 +1,10 @@
 package org.elkoserver.feature.basicexamples.cartesian
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.BasicObject
 import org.elkoserver.server.context.Item
@@ -28,7 +28,7 @@ import kotlin.contracts.ExperimentalContracts
  * @param myLeft  X coordinate of object position relative to container.
  * @param myTop  Y coordinate of object position relative to container.
  */
-class Cartesian @JSONMethod("width", "height", "left", "top") constructor(
+class Cartesian @JsonMethod("width", "height", "left", "top") constructor(
         private val myWidth: Int,
         private val myHeight: Int,
         private var myLeft: Int,
@@ -43,7 +43,7 @@ class Cartesian @JSONMethod("width", "height", "left", "top") constructor(
      * @return a JSON literal representing this mod.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("cart", control).apply {
+            JsonLiteralFactory.type("cart", control).apply {
                 addParameter("width", myWidth)
                 addParameter("height", myHeight)
                 addParameter("left", myLeft)
@@ -75,7 +75,7 @@ class Cartesian @JSONMethod("width", "height", "left", "top") constructor(
      * this mod or if the proposed destination container is invalid.
      */
     @ExperimentalContracts
-    @JSONMethod("into", "left", "top")
+    @JsonMethod("into", "left", "top")
     fun move(from: User, into: OptString, left: Int, top: Int) {
         ensureSameContext(from)
         val item = `object`() as Item
@@ -106,7 +106,7 @@ class Cartesian @JSONMethod("width", "height", "left", "top") constructor(
          * @param top  Y coordinate of new position relative to container.
          */
         private fun msgMove(target: Referenceable, into: BasicObject?, left: Int, top: Int) =
-                JSONLiteralFactory.targetVerb(target, "move").apply {
+                JsonLiteralFactory.targetVerb(target, "move").apply {
                     addParameterOpt("into", into as Referenceable?)
                     addParameter("left", left)
                     addParameter("top", top)

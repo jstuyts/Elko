@@ -1,12 +1,12 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Contents.Companion.sendContentsDescription
 import org.elkoserver.server.context.Msg.msgDelete
@@ -84,7 +84,7 @@ class Item : BasicObject {
      * @param isPortable  Flag indicating whether users may move this item.
      * @param isClosed  Flag indicating whether this container is closed.
      */
-    @JSONMethod("name", "ref", "mods", "contents", "in", "cont", "deletable", "portable", "closed")
+    @JsonMethod("name", "ref", "mods", "contents", "in", "cont", "deletable", "portable", "closed")
     internal constructor(name: String, ref: OptString, mods: Array<Mod>, contents: Array<Item>, `in`: OptString,
                          isPossibleContainer: OptBoolean, isDeletable: OptBoolean,
                          isPortable: OptBoolean, isClosed: OptBoolean) : super(name, mods, isPossibleContainer.value(true), contents) {
@@ -167,7 +167,7 @@ class Item : BasicObject {
         assertActivated { it.remove(this) }
     }
 
-    private fun baseEncode(result: JSONLiteral, control: EncodeControl) {
+    private fun baseEncode(result: JsonLiteral, control: EncodeControl) {
         result.run {
             addParameter("ref", myRef)
             addParameterOpt("name", name)
@@ -202,8 +202,8 @@ class Item : BasicObject {
      *
      * @return a JSON literal representing this item.
      */
-    override fun encode(control: EncodeControl): JSONLiteral {
-        val result = JSONLiteralFactory.type("item", control)
+    override fun encode(control: EncodeControl): JsonLiteral {
+        val result = JsonLiteralFactory.type("item", control)
         baseEncode(result, control)
         result.finish()
         return result
@@ -368,7 +368,7 @@ class Item : BasicObject {
      * If the item is deletable, the item is deleted and a 'delete' message
      * is broadcast to everyone in the context informing them of this.
      */
-    @JSONMethod
+    @JsonMethod
     fun delete(from: User) {
         ensureSameContext(from)
         if (isDeletable) {

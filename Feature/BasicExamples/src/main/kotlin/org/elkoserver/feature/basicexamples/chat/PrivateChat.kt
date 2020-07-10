@@ -1,10 +1,10 @@
 package org.elkoserver.feature.basicexamples.chat
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.Msg
 import org.elkoserver.server.context.User
@@ -37,7 +37,7 @@ class PrivateChat(private val amAllowPrivate: Boolean, private val amAllowPush: 
      *
      * @return null since this mod is never persisted or transmitted.
      */
-    override fun encode(control: EncodeControl): JSONLiteral? = null
+    override fun encode(control: EncodeControl): JsonLiteral? = null
 
     /**
      * Message handler for the 'push' message.
@@ -61,7 +61,7 @@ class PrivateChat(private val amAllowPrivate: Boolean, private val amAllowPush: 
      * @throws MessageHandlerException if 'from' is not in the same context as
      * this mod or if the 'allowPush' constructor parameter was false.
      */
-    @JSONMethod("url", "frame", "features")
+    @JsonMethod("url", "frame", "features")
     fun push(from: User, url: String, frame: OptString, features: OptString) {
         if (amAllowPush) {
             ensureSameContext(from)
@@ -95,7 +95,7 @@ class PrivateChat(private val amAllowPrivate: Boolean, private val amAllowPush: 
      * @throws MessageHandlerException if 'from' is not in the same context as
      * this mod or if the 'allowPrivate' constructor parameter was false.
      */
-    @JSONMethod("text")
+    @JsonMethod("text")
     fun say(from: User, text: String) {
         if (amAllowPrivate) {
             ensureSameContext(from)

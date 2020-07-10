@@ -2,12 +2,12 @@ package org.elkoserver.feature.caps
 
 import org.elkoserver.foundation.json.ClockUsingObject
 import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.BasicObject
 import org.elkoserver.server.context.Item
@@ -64,7 +64,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * @param lit  The JSONLiteral into which this capability mod is being
      * encoded.
      */
-    fun encodeDefaultParameters(lit: JSONLiteral) {
+    fun encodeDefaultParameters(lit: JsonLiteral) {
         if (!amDeletable) {
             lit.addParameter("deletable", amDeletable)
         }
@@ -116,7 +116,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      *
      * @param from  The user who sent the message.
      */
-    @JSONMethod
+    @JsonMethod
     fun delete(from: User) {
         ensureReachable(from)
         if (!amDeletable && !isExpired) {
@@ -140,7 +140,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * @param from  The user who sent the message.
      * @param label  The new label string.
      */
-    @JSONMethod("label")
+    @JsonMethod("label")
     fun setlabel(from: User, label: String) {
         ensureReachable(from)
         `object`().name = label
@@ -165,7 +165,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * @param destRef  Reference to user or context that is to receive the
      * capability.
      */
-    @JSONMethod("dest")
+    @JsonMethod("dest")
     fun transfer(from: User, destRef: String) {
         ensureReachable(from)
         if (!amTransferrable) {
@@ -224,7 +224,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * @param expiration  Expiration time of the new capability, expressed as
      * an absolute system time (in milliseconds).
      */
-    @JSONMethod("dest", "transferrable", "deletable", "duration", "expiration")
+    @JsonMethod("dest", "transferrable", "deletable", "duration", "expiration")
     fun spawn(from: User, dest: OptString, transferrable: OptBoolean,
               deleteable: OptBoolean, duration: OptInteger,
               expiration: OptInteger) {

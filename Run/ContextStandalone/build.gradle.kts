@@ -56,8 +56,8 @@ val startContextStandalone by tasks.registering(JavaExec::class) {
             "conf.listen2.bind=127.0.0.1:9002",
             "conf.listen2.protocol=rtcp",
 
-            "conf.context.odb=mongo",
-            "conf.context.odb.mongo.hostport=$actualMongodbHostAndPort",
+            "conf.context.odjdb=mongo",
+            "conf.context.odjdb.mongo.hostport=$actualMongodbHostAndPort",
             "conf.context.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
 
             "conf.context.classdesc=classes-test",

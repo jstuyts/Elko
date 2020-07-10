@@ -50,8 +50,8 @@ val startWorkshopDev by tasks.registering(JavaExec::class) {
 
             "conf.broker.host=127.0.0.1:9011",
 
-            "conf.workshop.odb=mongo",
-            "conf.workshop.odb.mongo.hostport=$actualMongodbHostAndPort",
+            "conf.workshop.odjdb=mongo",
+            "conf.workshop.odjdb.mongo.hostport=$actualMongodbHostAndPort",
             "conf.workshop.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
             "conf.workshop.classdesc=\"classes-workshoptest,classes-bank\"",
             "conf.workshop.shutdownpassword=figleaf",

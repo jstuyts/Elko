@@ -1,9 +1,9 @@
 package org.elkoserver.server.gatekeeper.passwd
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 
 /**
  * Database object describing a place name to context mapping.
@@ -11,7 +11,7 @@ import org.elkoserver.json.JSONLiteralFactory
  * @param name  The place name.
  * @param contextID  Identifier of the context that 'name' maps to.
  */
-internal class PlaceDesc @JSONMethod("name", "context") constructor(private val name: String, internal val contextID: String) : Encodable {
+internal class PlaceDesc @JsonMethod("name", "context") constructor(private val name: String, internal val contextID: String) : Encodable {
 
     /**
      * Encode this place for transmission or persistence.
@@ -22,7 +22,7 @@ internal class PlaceDesc @JSONMethod("name", "context") constructor(private val 
      * @return a JSON literal representing this object.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("place", control).apply {
+            JsonLiteralFactory.type("place", control).apply {
                 addParameter("name", name)
                 addParameter("context", contextID)
                 finish()

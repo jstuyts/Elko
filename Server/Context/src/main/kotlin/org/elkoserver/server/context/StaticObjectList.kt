@@ -1,7 +1,7 @@
 package org.elkoserver.server.context
 
-import org.elkoserver.foundation.json.JSONMethod
-import org.elkoserver.objdb.ObjDB
+import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.objdb.ObjDb
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -12,17 +12,17 @@ import java.util.function.Consumer
  * in the server, and a ref string, by which the object is stored in the
  * object database.
  */
-internal class StaticObjectList @JSONMethod("statics") constructor(private val myStatics: Array<StaticObjectListElem>) {
+internal class StaticObjectList @JsonMethod("statics") constructor(private val myStatics: Array<StaticObjectListElem>) {
 
     /**
      * Fetch the static objects from the object database.
      *
-     * @param odb  The object database to tell.
+     * @param objDb  The object database to tell.
      * @param contextor  Contextor for whom these objects are being loaded
      */
-    fun fetchFromODB(odb: ObjDB, contextor: Contextor, gorgel: Gorgel) {
+    fun fetchFromObjDb(objDb: ObjDb, contextor: Contextor, gorgel: Gorgel) {
         for (elem in myStatics) {
-            odb.getObject(elem.ref, null,
+            objDb.getObject(elem.ref, null,
                     StaticObjectReceiver(contextor, elem, gorgel))
         }
     }
@@ -40,5 +40,5 @@ internal class StaticObjectList @JSONMethod("statics") constructor(private val m
 
     }
 
-    internal class StaticObjectListElem @JSONMethod("key", "ref") internal constructor(val key: String, val ref: String)
+    internal class StaticObjectListElem @JsonMethod("key", "ref") internal constructor(val key: String, val ref: String)
 }

@@ -1,11 +1,11 @@
 package org.elkoserver.feature.basicexamples.notes
 
 import org.elkoserver.feature.basicexamples.styledtext.StyleDesc
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.Mod
@@ -18,7 +18,7 @@ import org.elkoserver.server.context.User
  * @param myText  The text of this note.
  * @param myStyle  How its text is to be displayed.
  */
-class Note @JSONMethod("text", "style") constructor(private var myText: String, private var myStyle: StyleDesc) : Mod(), ItemMod {
+class Note @JsonMethod("text", "style") constructor(private var myText: String, private var myStyle: StyleDesc) : Mod(), ItemMod {
 
     /**
      * Encode this mod for transmission or persistence.
@@ -29,7 +29,7 @@ class Note @JSONMethod("text", "style") constructor(private var myText: String, 
      * @return a JSON literal representing this mod.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("note", control).apply {
+            JsonLiteralFactory.type("note", control).apply {
                 addParameter("text", myText)
                 addParameterOpt("style", myStyle)
                 finish()
@@ -56,7 +56,7 @@ class Note @JSONMethod("text", "style") constructor(private var myText: String, 
      * @throws MessageHandlerException if 'from' is not in the same context as
      * this mod or if invalid style information is provided.
      */
-    @JSONMethod("text", "?style")
+    @JsonMethod("text", "?style")
     fun edit(from: User, text: OptString, style: StyleDesc?) {
         ensureSameContext(from)
         var actualStyle = style
@@ -88,7 +88,7 @@ class Note @JSONMethod("text", "style") constructor(private var myText: String, 
          * @param style  New style information, or null if not being changed.
          */
         private fun msgEdit(target: Referenceable, text: String?, style: StyleDesc?) =
-                JSONLiteralFactory.targetVerb(target, "edit").apply {
+                JsonLiteralFactory.targetVerb(target, "edit").apply {
                     addParameterOpt("text", text)
                     addParameterOpt("style", style)
                     finish()

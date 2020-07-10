@@ -1,11 +1,11 @@
 package org.elkoserver.feature.basicexamples.chat
 
 import org.elkoserver.feature.basicexamples.styledtext.StyleDesc
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.ObjectCompletionWatcher
@@ -31,7 +31,7 @@ import org.elkoserver.server.context.UserMod
  * @param myStyle The [StyleDesc] associated with the chat text of the
  * user to whom this mod is attached.
  */
-class TalkPrefs @JSONMethod("style") constructor(private var myStyle: StyleDesc) : Mod(), ObjectCompletionWatcher, UserMod {
+class TalkPrefs @JsonMethod("style") constructor(private var myStyle: StyleDesc) : Mod(), ObjectCompletionWatcher, UserMod {
 
     /**
      * Encode this mod for transmission or persistence.
@@ -42,7 +42,7 @@ class TalkPrefs @JSONMethod("style") constructor(private var myStyle: StyleDesc)
      */
     override fun encode(control: EncodeControl) =
             if (control.toClient()) {
-                JSONLiteralFactory.type("talkprefs", control).apply {
+                JsonLiteralFactory.type("talkprefs", control).apply {
                     addParameter("style", myStyle)
                     finish()
                 }
@@ -90,7 +90,7 @@ class TalkPrefs @JSONMethod("style") constructor(private var myStyle: StyleDesc)
      * @throws MessageHandlerException if 'from' is not in the same user this
      * mod is attached to.
      */
-    @JSONMethod("color", "backgroundColor", "icon", "textStyle")
+    @JsonMethod("color", "backgroundColor", "icon", "textStyle")
     fun style(from: User, color: OptString, backgroundColor: OptString,
               icon: OptString, textStyle: OptString) {
         ensureSameUser(from)
@@ -124,7 +124,7 @@ class TalkPrefs @JSONMethod("style") constructor(private var myStyle: StyleDesc)
          */
         private fun msgStyle(target: Referenceable, color: String?,
                              backgroundColor: String?, icon: String?, textStyle: String?) =
-                JSONLiteralFactory.targetVerb(target, "style").apply {
+                JsonLiteralFactory.targetVerb(target, "style").apply {
                     addParameterOpt("color", color)
                     addParameterOpt("backgroundColor", backgroundColor)
                     addParameterOpt("icon", icon)

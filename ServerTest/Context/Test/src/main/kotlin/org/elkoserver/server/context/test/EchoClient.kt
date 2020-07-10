@@ -1,9 +1,9 @@
 package org.elkoserver.server.context.test
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceLink
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.AdminObject
 import org.elkoserver.server.context.Contextor
 import java.util.LinkedList
@@ -12,7 +12,7 @@ import java.util.function.Consumer
 /**
  * Internal object that acts as a client for the external 'echo' service.
  */
-class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<ServiceLink?> {
+class EchoClient @JsonMethod constructor() : AdminObject(), Consumer<ServiceLink?> {
     /** Connection to the workshop running the echo service.  */
     private var myServiceLink: ServiceLink? = null
 
@@ -65,7 +65,7 @@ class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<ServiceLink
         val currentServiceLink = myServiceLink
         if (currentServiceLink != null) {
             myResultHandlers.addLast(resultHandler)
-            val msg = JSONLiteralFactory.targetVerb("echotest", "echo").apply {
+            val msg = JsonLiteralFactory.targetVerb("echotest", "echo").apply {
                 addParameter("rep", this)
                 addParameter("text", text)
                 finish()
@@ -80,7 +80,7 @@ class EchoClient @JSONMethod constructor() : AdminObject(), Consumer<ServiceLink
      * Handler for the 'echo' message, which is a reply to earlier an echo
      * requests sent to the external service.
      */
-    @JSONMethod("text")
+    @JsonMethod("text")
     fun echo(from: ServiceActor, text: String) {
         val resultHandler = myResultHandlers.removeFirst()
         resultHandler.accept(text)

@@ -33,47 +33,47 @@ class MessageDispatcher(
      * dispatch on a given Java class.
      *
      * The class must be a JSON message handler class.  Such classes have JSON
-     * message handler methods marked with the [JSONMethod] annotation.
+     * message handler methods marked with the [JsonMethod] annotation.
      * JSON message handler methods must have public scope, a return type of
      * void, and a least one parameter, the first of which must have a type
      * assignable to a variable of type [Deliverer].
      *
      * The name of the method is the name of the JSON message verb that the
-     * method handles.  The value of the attached [JSONMethod] annotation
+     * method handles.  The value of the attached [JsonMethod] annotation
      * is an array of Strings, one for each method parameter except the initial
      * [Deliverer] parameter.  These strings will be the names of JSON
      * message parameters and will be mapped one-to-one to the corresponding
      * parameters of the method itself when it is invoked to handle a JSON
      * message.
      *
-     * If a method is annotated [JSONMethod] but does not follow these
+     * If a method is annotated [JsonMethod] but does not follow these
      * rules, no dispatch information will be recorded for that method and an
      * error message will be logged.
      *
      * @param targetClass  Class to compute method dispatch information for.
      *
-     * @throws JSONSetupError if an annotated method breaks the rules for a
+     * @throws JsonSetupError if an annotated method breaks the rules for a
      * JSON method.
      */
     fun addClass(targetClass: Class<*>) {
         if (!myClasses.contains(targetClass)) {
             for (method in targetClass.methods) {
-                val note = method.getAnnotation(JSONMethod::class.java)
+                val note = method.getAnnotation(JsonMethod::class.java)
                 if (note != null) {
                     if (!Modifier.isPublic(method.modifiers)) {
-                        throw JSONSetupError("class ${targetClass.name} JSON message handler method ${method.name} is not public")
+                        throw JsonSetupError("class ${targetClass.name} JSON message handler method ${method.name} is not public")
                     }
                     if (method.returnType != Void.TYPE) {
-                        throw JSONSetupError("class ${targetClass.name} JSON message handler method ${method.name} does not have return type void")
+                        throw JsonSetupError("class ${targetClass.name} JSON message handler method ${method.name} does not have return type void")
                     }
                     val paramTypes = method.parameterTypes
                     if (paramTypes.isEmpty() ||
                             !Deliverer::class.java.isAssignableFrom(paramTypes[0])) {
-                        throw JSONSetupError("class ${targetClass.name} JSON message handler method ${method.name} does not have a Deliverer first parameter")
+                        throw JsonSetupError("class ${targetClass.name} JSON message handler method ${method.name} does not have a Deliverer first parameter")
                     }
                     val paramNames: Array<out String> = note.value
                     if (paramNames.size + 1 != paramTypes.size) {
-                        throw JSONSetupError("class ${targetClass.name} JSON message handler method ${method.name} has wrong number of parameters")
+                        throw JsonSetupError("class ${targetClass.name} JSON message handler method ${method.name} has wrong number of parameters")
                     }
                     val name = method.name
                     val prev = myInvokers[name]

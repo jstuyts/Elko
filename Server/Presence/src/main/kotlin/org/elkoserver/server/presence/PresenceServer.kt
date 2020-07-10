@@ -4,7 +4,7 @@ import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonObject
-import org.elkoserver.objdb.ObjDB
+import org.elkoserver.objdb.ObjDb
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.function.Consumer
@@ -21,7 +21,7 @@ internal class PresenceServer(
         baseCommGorgel: Gorgel,
         private val domainRegistry: DomainRegistry) {
     /** Database that this server stores stuff in.  */
-    internal val objDB: ObjDB
+    internal val objDb: ObjDb
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false
@@ -233,9 +233,9 @@ internal class PresenceServer(
         myUsers = HashMap()
         myVisibles = HashMap()
         myContextMetadata = HashMap()
-        objDB = myServer.openObjectDatabase("conf.presence") ?: throw IllegalStateException("no database specified")
-        objDB.addClass("graphtable", GraphTable::class.java)
-        objDB.getObject("graphs", null, Consumer { obj: Any? ->
+        objDb = myServer.openObjectDatabase("conf.presence") ?: throw IllegalStateException("no database specified")
+        objDb.addClass("graphtable", GraphTable::class.java)
+        objDb.getObject("graphs", null, Consumer { obj: Any? ->
             if (obj != null) {
                 val info = obj as GraphTable
                 info.graphs
@@ -252,7 +252,7 @@ internal class PresenceServer(
                 for (actor in actorListCopy) {
                     actor.doDisconnect()
                 }
-                objDB.shutdown()
+                objDb.shutdown()
             }
         })
     }

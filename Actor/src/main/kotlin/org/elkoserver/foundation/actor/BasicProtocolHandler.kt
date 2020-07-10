@@ -2,10 +2,10 @@ package org.elkoserver.foundation.actor
 
 import org.elkoserver.foundation.json.BaseCommGorgelUsingObject
 import org.elkoserver.foundation.json.DispatchTarget
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.metadata.AuthDesc
-import org.elkoserver.json.JSONLiteralFactory.targetVerb
+import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -50,7 +50,7 @@ abstract class BasicProtocolHandler protected constructor(): Referenceable, Disp
      * @param auth  Authorization information being offered.
      * @param label  Descriptive label for this connection, for logging.
      */
-    @JSONMethod("?auth", "label")
+    @JsonMethod("?auth", "label")
     fun auth(from: BasicProtocolActor, auth: AuthDesc?, label: OptString) {
         if (!from.doAuth(this, auth, label.value("<anonymous>"))) {
             from.doDisconnect()
@@ -73,7 +73,7 @@ abstract class BasicProtocolHandler protected constructor(): Referenceable, Disp
      * @param from  The connection over which the message was received.
      * @param msg  Text to write to the server log;
      */
-    @JSONMethod("msg")
+    @JsonMethod("msg")
     fun debug(from: BasicProtocolActor, msg: String) {
         commGorgel.i?.run { info("Debug msg: $msg") }
     }
@@ -92,7 +92,7 @@ abstract class BasicProtocolHandler protected constructor(): Referenceable, Disp
      *
      * @param from  The connection over which the message was received.
      */
-    @JSONMethod
+    @JsonMethod
     fun disconnect(from: BasicProtocolActor) {
         from.doDisconnect()
     }
@@ -115,7 +115,7 @@ abstract class BasicProtocolHandler protected constructor(): Referenceable, Disp
      * @param tag  Optional tag string; if provided, it will be included in the
      * reply.
      */
-    @JSONMethod("tag")
+    @JsonMethod("tag")
     fun ping(from: BasicProtocolActor, tag: OptString) {
         from.send(msgPong(this, tag.value<String?>(null)))
     }
@@ -137,7 +137,7 @@ abstract class BasicProtocolHandler protected constructor(): Referenceable, Disp
      * @param tag  Optional tag string, which should echo the tag (if any) from
      * the 'ping' message that caused this 'pong' to be sent.
      */
-    @JSONMethod("tag")
+    @JsonMethod("tag")
     fun pong(from: BasicProtocolActor?, tag: OptString?) {
         /* Nothing to do here. */
     }

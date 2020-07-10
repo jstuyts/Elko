@@ -37,7 +37,7 @@ class ConstructorInvoker(
     fun construct(obj: JsonObject, resolver: TypeResolver): Any? {
         return try {
             tryToConstruct(obj, resolver)
-        } catch (e: JSONInvocationException) {
+        } catch (e: JsonInvocationException) {
             commGorgel.error("error calling JSON constructor: ${e.message}")
             null
         } catch (e: MessageHandlerException) {

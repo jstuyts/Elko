@@ -49,8 +49,8 @@ val startPresenceDev by tasks.registering(JavaExec::class) {
             "conf.listen1.auth.code=secret",
             "conf.listen1.allow=admin",
 
-            "conf.presence.odb=mongo",
-            "conf.presence.odb.mongo.hostport=$actualMongodbHostAndPort",
+            "conf.presence.odjdb=mongo",
+            "conf.presence.odjdb.mongo.hostport=$actualMongodbHostAndPort",
             "conf.presence.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
 
             "conf.msgdiagnostics=true",

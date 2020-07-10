@@ -1,7 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 
 /**
  * A collection of Deliverers treated as a unit.  Invoking the send() method on
@@ -32,5 +32,5 @@ interface SendGroup : Deliverer {
      * @param exclude  The member to exclude from receiving the message.
      * @param message  The message to send.
      */
-    fun sendToNeighbors(exclude: Deliverer, message: JSONLiteral)
+    fun sendToNeighbors(exclude: Deliverer, message: JsonLiteral)
 }

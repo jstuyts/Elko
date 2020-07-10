@@ -1,9 +1,9 @@
 package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -39,7 +39,7 @@ internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gor
      * @param name  Optional readable name for the user.
      * @param password  Password for entry, when relevant.
      */
-    @JSONMethod("protocol", "context", "id", "name", "password")
+    @JsonMethod("protocol", "context", "id", "name", "password")
     fun reserve(from: GatekeeperActor, protocol: String, context: String, id: OptString, name: OptString, password: OptString) {
         val idStr = id.value<String?>(null)
         myAuthorizer.reserve(
@@ -65,7 +65,7 @@ internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gor
      * @param oldpassword  Current password, to check for permission.
      * @param newpassword  New password setting.
      */
-    @JSONMethod("id", "oldpassword", "newpassword")
+    @JsonMethod("id", "oldpassword", "newpassword")
     fun setpassword(from: GatekeeperActor, id: String, oldpassword: OptString, newpassword: OptString) {
         myAuthorizer.setPassword(
                 id,
@@ -92,7 +92,7 @@ internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gor
          * @param deny  Error message in error case, or null in normal case.
          */
         private fun msgReserve(target: Referenceable, id: String?, context: String?, actor: String?, name: String?, hostPort: String?, auth: String?, deny: String?) =
-                JSONLiteralFactory.targetVerb(target, "reserve").apply {
+                JsonLiteralFactory.targetVerb(target, "reserve").apply {
                     addParameterOpt("id", id)
                     addParameter("context", context)
                     addParameterOpt("actor", actor)
@@ -111,7 +111,7 @@ internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gor
          * @param failure  Error message, or null if no error.
          */
         private fun msgSetPassword(target: Referenceable, id: String, failure: String?) =
-                JSONLiteralFactory.targetVerb(target, "setpassword").apply {
+                JsonLiteralFactory.targetVerb(target, "setpassword").apply {
                     addParameter("id", id)
                     addParameterOpt("failure", failure)
                     finish()

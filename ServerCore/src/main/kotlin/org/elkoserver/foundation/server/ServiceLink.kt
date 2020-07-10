@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 
@@ -21,7 +21,7 @@ class ServiceLink internal constructor(internal val service: String, private val
 
     /** A list of messages awaiting transmission, accumulated when the
      * connection is down.  */
-    private var myPendingMessages: LinkedList<JSONLiteral>? = null
+    private var myPendingMessages: LinkedList<JsonLiteral>? = null
 
     /** Flag indicating that service connection setup failed.  */
     private var amFailed = false
@@ -75,7 +75,7 @@ class ServiceLink internal constructor(internal val service: String, private val
      *
      * @param message  The message to send.
      */
-    override fun send(message: JSONLiteral) {
+    override fun send(message: JsonLiteral) {
         if (amFailed) {
             throw RuntimeException("message send on failed $this")
         }

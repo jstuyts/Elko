@@ -59,7 +59,7 @@ val startClusterDevContext1 by tasks.registering(JavaExec::class) {
 
             "conf.register.host=127.0.0.1:9060",
 
-            "conf.context.odb=odb-test",
+            "conf.context.odjdb=odb-test",
             "conf.context.classdesc=classes-test,classes-app",
 
             "conf.context.name=ContextServer1",
@@ -120,7 +120,7 @@ val startClusterDevContext2 by tasks.registering(JavaExec::class) {
 
             "conf.register.host=127.0.0.1:9060",
 
-            "conf.context.odb=odb-test",
+            "conf.context.odjdb=odb-test",
             "conf.context.classdesc=classes-test,classes-app",
 
             "conf.context.name=ContextServer2",

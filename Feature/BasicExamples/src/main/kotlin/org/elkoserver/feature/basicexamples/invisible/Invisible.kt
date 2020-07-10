@@ -1,8 +1,8 @@
 package org.elkoserver.feature.basicexamples.invisible
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.BasicObject
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.Mod
@@ -16,7 +16,7 @@ import org.elkoserver.server.context.ObjectCompletionWatcher
  * omitted from the description of the containing context that is transmitted
  * to users who enter that context.
  */
-class Invisible @JSONMethod internal constructor() : Mod(), ObjectCompletionWatcher, ItemMod {
+class Invisible @JsonMethod internal constructor() : Mod(), ObjectCompletionWatcher, ItemMod {
     /**
      * Encode this mod for transmission or persistence.
      *
@@ -27,7 +27,7 @@ class Invisible @JSONMethod internal constructor() : Mod(), ObjectCompletionWatc
      */
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
-                JSONLiteralFactory.type("invisible", control).apply {
+                JsonLiteralFactory.type("invisible", control).apply {
                     finish()
                 }
             } else {

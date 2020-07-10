@@ -40,8 +40,8 @@ Run/ -- root of the runtime environment
     logs/ -- directory where log files go
       <<logfiles>> -- various logfiles
     modules.properties -- propes file for context server's installed modules
-    odb/ -- flat-file ODB to hold broker configuration
-      classes.json -- necessary classes file for a well-formed ODB
+    odb/ -- flat-file Obj DB to hold broker configuration
+      classes.json -- necessary classes file for a well-formed Obj DB
       launchertable.json -- serialized table of broker's configured launchers
     <<setlocvars>> -- set shell and environment vars specific to this cluster
     uploads/ -- directory for uploaded JAR files prior to deployment

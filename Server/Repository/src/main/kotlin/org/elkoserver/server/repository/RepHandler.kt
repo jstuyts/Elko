@@ -1,9 +1,9 @@
 package org.elkoserver.server.repository
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.objdb.store.GetResultHandler
 import org.elkoserver.objdb.store.ObjectDesc
@@ -47,7 +47,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
      * @param tag  Client tag for matching replies.
      * @param what  Objects requested.
      */
-    @JSONMethod("tag", "what")
+    @JsonMethod("tag", "what")
     operator fun get(from: RepositoryActor, tag: OptString,
                      what: Array<RequestDesc>) {
         myObjectStore.getObjects(what, object : GetResultHandler {
@@ -66,7 +66,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
      * @param tag  Client tag for matching replies.
      * @param what  Objects to be written.
      */
-    @JSONMethod("tag", "what")
+    @JsonMethod("tag", "what")
     fun put(from: RepositoryActor, tag: OptString,
             what: Array<PutDesc>) {
         myObjectStore.putObjects(what, object : RequestResultHandler {
@@ -85,7 +85,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
      * @param tag  Client tag for matching replies.
      * @param what  Objects to be written.
      */
-    @JSONMethod("tag", "what")
+    @JsonMethod("tag", "what")
     fun update(from: RepositoryActor, tag: OptString,
                what: Array<UpdateDesc>) {
         myObjectStore.updateObjects(what, object : RequestResultHandler {
@@ -104,7 +104,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
      * @param tag  Client tag for matching replies.
      * @param what  Query templates for the objects requested.
      */
-    @JSONMethod("tag", "what")
+    @JsonMethod("tag", "what")
     fun query(from: RepositoryActor, tag: OptString,
               what: Array<QueryDesc>) {
         myObjectStore.queryObjects(what, object : GetResultHandler {
@@ -123,7 +123,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
      * @param tag  Client tag for matching replies.
      * @param what  Objects to be deleted.
      */
-    @JSONMethod("tag", "what")
+    @JsonMethod("tag", "what")
     fun remove(from: RepositoryActor, tag: OptString,
                what: Array<RequestDesc>) {
         myObjectStore.removeObjects(what, object : RequestResultHandler {
@@ -142,7 +142,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
          * @param results  Object results.
          */
         private fun msgGet(target: Referenceable, tag: String?, results: Array<ObjectDesc>?) =
-                JSONLiteralFactory.targetVerb(target, "get").apply {
+                JsonLiteralFactory.targetVerb(target, "get").apply {
                     addParameterOpt("tag", tag)
                     addParameter("results", results)
                     finish()
@@ -156,7 +156,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
          * @param results  Status results.
          */
         private fun msgPut(target: Referenceable, tag: String?, results: Array<out ResultDesc>) =
-                JSONLiteralFactory.targetVerb(target, "put").apply {
+                JsonLiteralFactory.targetVerb(target, "put").apply {
                     addParameterOpt("tag", tag)
                     addParameter("results", results)
                     finish()
@@ -170,7 +170,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
          * @param results  Status results.
          */
         private fun msgUpdate(target: Referenceable, tag: String?, results: Array<out ResultDesc>) =
-                JSONLiteralFactory.targetVerb(target, "update").apply {
+                JsonLiteralFactory.targetVerb(target, "update").apply {
                     addParameterOpt("tag", tag)
                     addParameter("results", results)
                     finish()
@@ -184,7 +184,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
          * @param results  Object results.
          */
         private fun msgQuery(target: Referenceable, tag: String?, results: Array<ObjectDesc>?) =
-                JSONLiteralFactory.targetVerb(target, "query").apply {
+                JsonLiteralFactory.targetVerb(target, "query").apply {
                     addParameterOpt("tag", tag)
                     addParameter("results", results)
                     finish()
@@ -198,7 +198,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
          * @param results  Status results.
          */
         private fun msgRemove(target: Referenceable, tag: String?, results: Array<out ResultDesc>) =
-                JSONLiteralFactory.targetVerb(target, "remove").apply {
+                JsonLiteralFactory.targetVerb(target, "remove").apply {
                     addParameterOpt("tag", tag)
                     addParameter("results", results)
                     finish()

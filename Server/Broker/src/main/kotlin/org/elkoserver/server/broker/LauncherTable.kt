@@ -1,12 +1,12 @@
 package org.elkoserver.server.broker
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
-import org.elkoserver.objdb.ObjDB
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
+import org.elkoserver.objdb.ObjDb
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.util.LinkedList
@@ -20,7 +20,7 @@ import java.util.StringTokenizer
  *    called "launchtable".
  * @param launchers  Array of launcher configurations.
  */
-internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private val myRef: String, launchers: Array<Launcher>) : Encodable {
+internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private val myRef: String, launchers: Array<Launcher>) : Encodable {
 
     /**
      * Map from launcher names to launcher descriptors.
@@ -40,7 +40,7 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
      * @return a JSON literal representing this table.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("launchertable", control).apply {
+            JsonLiteralFactory.type("launchertable", control).apply {
                 addParameter("ref", myRef)
                 addParameter("launchers", myLaunchers.values)
                 finish()
@@ -53,7 +53,7 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
      * @return a JSON literal representing the launchers.
      */
     fun encodeAsArray() =
-            JSONLiteralArray().apply {
+            JsonLiteralArray().apply {
                 for (launcher in myLaunchers.values) {
                     addElement(launcher)
                 }
@@ -63,11 +63,11 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
     /**
      * Save this launcher table to the repository if it has changed.
      *
-     * @param odb The object database to save into.
+     * @param objDb The object database to save into.
      */
-    fun checkpoint(odb: ObjDB?) {
-        if (amDirty && odb != null) {
-            odb.putObject(myRef, this, null, false, null)
+    fun checkpoint(objDb: ObjDb?) {
+        if (amDirty && objDb != null) {
+            objDb.putObject(myRef, this, null, false, null)
             amDirty = false
         }
     }
@@ -153,7 +153,7 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
      * @param optInitial    Optional "initial" flag; defaults to false.
      * @param optRunSetting Optional "run setting" flag; defaults to true.
      */
-    internal class Launcher @JSONMethod("name", "script", "initial", "on") constructor(
+    internal class Launcher @JsonMethod("name", "script", "initial", "on") constructor(
             internal val componentName: String,
             private val myLaunchScript: String, optInitial: OptBoolean, optRunSetting: OptBoolean) : Encodable {
         internal lateinit var gorgel: Gorgel
@@ -178,7 +178,7 @@ internal class LauncherTable @JSONMethod("ref", "launchers") constructor(private
          * @return a JSON literal representing this launcher.
          */
         override fun encode(control: EncodeControl) =
-                JSONLiteralFactory.type("launcher", control).apply {
+                JsonLiteralFactory.type("launcher", control).apply {
                     addParameter("name", componentName)
                     addParameter("script", myLaunchScript)
                     addParameter("on", isRunSettingOn)

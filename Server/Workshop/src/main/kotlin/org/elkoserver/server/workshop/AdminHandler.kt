@@ -1,7 +1,7 @@
 package org.elkoserver.server.workshop
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -33,7 +33,7 @@ internal class AdminHandler(private val myWorkshop: Workshop, commGorgel: Gorgel
      *
      * @param from  The administrator sending the message.
      */
-    @JSONMethod
+    @JsonMethod
     fun reinit(from: WorkshopActor) {
         from.ensureAuthorizedAdmin()
         myWorkshop.reinit()
@@ -46,7 +46,7 @@ internal class AdminHandler(private val myWorkshop: Workshop, commGorgel: Gorgel
      *
      * @param from  The administrator sending the message.
      */
-    @JSONMethod
+    @JsonMethod
     fun shutdown(from: WorkshopActor) {
         from.ensureAuthorizedAdmin()
         myWorkshop.shutdown()

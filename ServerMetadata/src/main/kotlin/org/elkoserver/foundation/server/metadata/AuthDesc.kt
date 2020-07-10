@@ -1,10 +1,10 @@
 package org.elkoserver.foundation.server.metadata
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 
 /**
  * Descriptor containing information required or presented to authorize a
@@ -23,7 +23,7 @@ class AuthDesc(val mode: String, private val code: String?, private val id: Stri
      * @param code  Optional authorization code.
      * @param id  Optional authorization ID.
      */
-    @JSONMethod("mode", "code", "id")
+    @JsonMethod("mode", "code", "id")
     constructor(mode: String, code: OptString, id: OptString) : this(mode, code.value<String?>(null), id.value<String?>(null))
 
     /**
@@ -63,7 +63,7 @@ class AuthDesc(val mode: String, private val code: String?, private val id: Stri
             if (control.toClient() && mode == "open") {
                 null
             } else {
-                JSONLiteralFactory.type("auth", control).apply {
+                JsonLiteralFactory.type("auth", control).apply {
                     addParameter("mode", mode)
                     addParameterOpt("id", id)
                     addParameterOpt("code", code)

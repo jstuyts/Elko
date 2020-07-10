@@ -87,10 +87,10 @@ val startChatBasicContext by tasks.registering(JavaExec::class) {
             "conf.listen4.protocol=ws",
             "conf.listen4.sock=test",
 
-            "conf.context.odb=mongo",
-            "conf.context.odb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.context.odb.mongo.dbname=$databaseName",
-            "conf.context.odb.mongo.collname=$collectionName",
+            "conf.context.odjdb=mongo",
+            "conf.context.odjdb.mongo.hostport=$actualMongodbHostAndPort",
+            "conf.context.odjdb.mongo.dbname=$databaseName",
+            "conf.context.odjdb.mongo.collname=$collectionName",
             "conf.context.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
 
             "conf.context.classdesc=classes-chat",

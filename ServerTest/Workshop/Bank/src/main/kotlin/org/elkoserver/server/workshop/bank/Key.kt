@@ -1,10 +1,10 @@
 package org.elkoserver.server.workshop.bank
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 import java.util.Arrays
 import java.util.Arrays.binarySearch
 
@@ -42,7 +42,7 @@ internal class Key(
      * @param expires  The key's expiration date.
      * @param memo  Annotation on key.
      */
-    @JSONMethod("parent", "ref", "auth", "?currs", "expires", "memo")
+    @JsonMethod("parent", "ref", "auth", "?currs", "expires", "memo")
     constructor(parentRef: String, ref: String, auth: String, currencies: Array<String>?,
                 expires: ExpirationDate, memo: OptString) : this(null, ref, auth, currencies, expires, memo.value<String?>(null)) {
         myParentRef = parentRef
@@ -58,7 +58,7 @@ internal class Key(
      */
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
-                JSONLiteral(control).apply {
+                JsonLiteral(control).apply {
                     addParameter("ref", ref)
                     addParameter("parent", myParent!!.ref)
                     addParameter("currs", currencies)

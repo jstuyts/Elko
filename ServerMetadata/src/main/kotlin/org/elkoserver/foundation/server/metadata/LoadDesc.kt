@@ -1,15 +1,15 @@
 package org.elkoserver.foundation.server.metadata
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 
 /**
  * Description of the load on a server.
  */
-class LoadDesc @JSONMethod("label", "load", "provider") constructor(private val label: String, private val load: Double, private val providerID: Int) : Encodable {
+class LoadDesc @JsonMethod("label", "load", "provider") constructor(private val label: String, private val load: Double, private val providerID: Int) : Encodable {
 
     /**
      * Encode this object for transmission or persistence.
@@ -20,7 +20,7 @@ class LoadDesc @JSONMethod("label", "load", "provider") constructor(private val 
      * @return a JSON literal representing this object.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("loaddesc", control).apply {
+            JsonLiteralFactory.type("loaddesc", control).apply {
                 addParameter("label", label)
                 addParameter("load", load)
                 addParameter("provider", providerID)
@@ -31,7 +31,7 @@ class LoadDesc @JSONMethod("label", "load", "provider") constructor(private val 
      * Encode this descriptor as a single-element JSONLiteralArray.
      */
     fun encodeAsArray() =
-            JSONLiteralArray().apply {
+            JsonLiteralArray().apply {
                 addElement(this)
                 finish()
             }

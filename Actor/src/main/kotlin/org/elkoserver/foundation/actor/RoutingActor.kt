@@ -3,7 +3,7 @@ package org.elkoserver.foundation.actor
 import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.json.JSONLiteralFactory.targetVerb
+import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -14,7 +14,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * This class is abstract, in that its implementation of the [org.elkoserver.foundation.net.MessageHandler] interface is
  * incomplete: it implements the [org.elkoserver.foundation.net.MessageHandler.processMessage]
  * method, but subclasses must implement [org.elkoserver.foundation.net.MessageHandler.connectionDied]
- * method (as well as any [org.elkoserver.foundation.json.JSONMethod] methods for whatever specific
+ * method (as well as any [org.elkoserver.foundation.json.JsonMethod] methods for whatever specific
  * object behavior the subclass is intended for).
  *
  * @param connection  Connection associated with this actor.

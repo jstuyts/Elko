@@ -1,8 +1,8 @@
 package org.elkoserver.feature.caps
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.ContextKey
 import org.elkoserver.server.context.ItemMod
@@ -14,7 +14,7 @@ import org.elkoserver.server.context.UserMod
  * @param myContexts  Array of refs for the contexts to which this key grants
  *    entry permission.
  */
-class ContextKeyCap @JSONMethod("contexts") constructor(
+class ContextKeyCap @JsonMethod("contexts") constructor(
         raw: JsonObject,
         private val myContexts: Array<String>) : Cap(raw), ItemMod, UserMod, ContextKey {
 
@@ -42,7 +42,7 @@ class ContextKeyCap @JSONMethod("contexts") constructor(
      * @return a JSON literal representing this object.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("ctxkey", control).apply {
+            JsonLiteralFactory.type("ctxkey", control).apply {
                 encodeDefaultParameters(this)
                 addParameter("contexts", myContexts)
                 finish()

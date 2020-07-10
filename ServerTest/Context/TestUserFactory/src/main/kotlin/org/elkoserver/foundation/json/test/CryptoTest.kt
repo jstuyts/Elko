@@ -7,8 +7,8 @@ import org.elkoserver.foundation.json.Cryptor
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.json.EncodeControl.ForClientEncodeControl
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.util.trace.slf4j.GorgelImpl
 import org.slf4j.Logger.ROOT_LOGGER_NAME
 import org.slf4j.LoggerFactory
@@ -30,14 +30,14 @@ internal object CryptoTest {
     private const val CHAR_RANGE = CHAR_TOP - CHAR_BASE
     private const val NONCE_LENGTH = 20
     private fun makeNonce(timeout: String, userName: String, clock: Clock): String {
-        val nonce = JSONLiteral().apply {
+        val nonce = JsonLiteral().apply {
             val idstr = StringBuilder(NONCE_LENGTH)
             for (i in 0 until NONCE_LENGTH) {
                 idstr.append((CHAR_BASE + theRandom.nextInt(CHAR_RANGE)).toChar())
             }
             addParameter("nonce", idstr.toString())
             addParameter("expire", clock.millis() / 1000 + timeout.toInt())
-            val user = JSONLiteralFactory.type("user", ForClientEncodeControl).apply {
+            val user = JsonLiteralFactory.type("user", ForClientEncodeControl).apply {
                 addParameter("name", userName)
                 finish()
             }

@@ -1,7 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 
 /**
  * The normal, ordinary implementation of [SendGroup].
@@ -40,7 +40,7 @@ open class LiveGroup : SendGroup {
      *
      * @param message  The message to send.
      */
-    override fun send(message: JSONLiteral) {
+    override fun send(message: JsonLiteral) {
         for (member in myMembers) {
             member.send(message)
         }
@@ -52,7 +52,7 @@ open class LiveGroup : SendGroup {
      * @param exclude  The member to exclude from receiving the message.
      * @param message  The message to send.
      */
-    override fun sendToNeighbors(exclude: Deliverer, message: JSONLiteral) {
+    override fun sendToNeighbors(exclude: Deliverer, message: JsonLiteral) {
         myMembers
                 .filter { it !== exclude }
                 .forEach { it.send(message) }

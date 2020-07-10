@@ -79,7 +79,7 @@ val startClusterManagedBroker by tasks.registering(JavaExec::class) {
 
             "conf.msgdiagnostics=true",
 
-            "conf.broker.odb=${File(brokerDataDirectory.get().temporaryDir, "odb").path}",
+            "conf.broker.odjdb=${File(brokerDataDirectory.get().temporaryDir, "odb").path}",
 
             "org.elkoserver.server.broker.BrokerBoot"
     )
@@ -129,8 +129,8 @@ val startClusterManagedContext by tasks.registering(JavaExec::class) {
 
             "conf.context.entrytimeout=300",
 
-            "conf.context.odb=mongo",
-            "conf.context.odb.mongo.hostport=$actualMongodbHostAndPort",
+            "conf.context.odjdb=mongo",
+            "conf.context.odjdb.mongo.hostport=$actualMongodbHostAndPort",
             "conf.context.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
 
             "conf.context.name=ContextServer",
@@ -236,8 +236,8 @@ val startClusterManagedGatekeeper by tasks.registering(JavaExec::class) {
             "conf.gatekeeper.director.auto=true",
             "conf.gatekeeper.name=Gatekeeper",
 
-            "conf.gatekeeper.odb=mongo",
-            "conf.gatekeeper.odb.mongo.hostport=$actualMongodbHostAndPort",
+            "conf.gatekeeper.odjdb=mongo",
+            "conf.gatekeeper.odjdb.mongo.hostport=$actualMongodbHostAndPort",
             "conf.gatekeeper.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
 
             "conf.msgdiagnostics=true",

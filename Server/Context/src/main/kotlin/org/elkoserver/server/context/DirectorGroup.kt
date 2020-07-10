@@ -10,8 +10,8 @@ import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.ConcurrentModificationException
 
@@ -215,7 +215,7 @@ class DirectorGroup(server: Server,
      * @param userRef  Users to deliver to, or null if don't care.
      * @param message  The message to relay.
      */
-    fun relay(target: String?, contextRef: String?, userRef: String?, message: JSONLiteral) {
+    fun relay(target: String?, contextRef: String?, userRef: String?, message: JsonLiteral) {
         /* If relayer is null, assume there are no directors and thus no
            relaying to be done. */
         pickADirector()?.send(msgRelay("provider", contextRef, userRef, message))
@@ -266,7 +266,7 @@ class DirectorGroup(server: Server,
          * @param restricted  Flag indicated if context is restricted
          */
         private fun msgContext(context: String, open: Boolean, yours: Boolean, maxCapacity: Int, baseCapacity: Int, restricted: Boolean) =
-                JSONLiteralFactory.targetVerb("provider", "context").apply {
+                JsonLiteralFactory.targetVerb("provider", "context").apply {
                     addParameter("context", context)
                     addParameter("open", open)
                     addParameter("yours", yours)
@@ -290,7 +290,7 @@ class DirectorGroup(server: Server,
          * @param factor  Load factor to report.
          */
         private fun msgLoad(factor: Double) =
-                JSONLiteralFactory.targetVerb("provider", "load").apply {
+                JsonLiteralFactory.targetVerb("provider", "load").apply {
                     addParameter("factor", factor)
                     finish()
                 }
@@ -303,8 +303,8 @@ class DirectorGroup(server: Server,
          * @param userName  The base name of the user to relay to.
          * @param relay  The message to relay.
          */
-        private fun msgRelay(target: String, contextName: String?, userName: String?, relay: JSONLiteral) =
-                JSONLiteralFactory.targetVerb(target, "relay").apply {
+        private fun msgRelay(target: String, contextName: String?, userName: String?, relay: JsonLiteral) =
+                JsonLiteralFactory.targetVerb(target, "relay").apply {
                     addParameterOpt("context", contextName)
                     addParameterOpt("user", userName)
                     addParameter("msg", relay)
@@ -319,7 +319,7 @@ class DirectorGroup(server: Server,
          * @param reason  Reason for closing the gate
          */
         private fun msgGate(context: String, open: Boolean, reason: String?) =
-                JSONLiteralFactory.targetVerb("provider", "gate").apply {
+                JsonLiteralFactory.targetVerb("provider", "gate").apply {
                     addParameter("context", context)
                     addParameter("open", open)
                     addParameterOpt("reason", reason)
@@ -334,7 +334,7 @@ class DirectorGroup(server: Server,
          * @param on  Flag indicating online or offline.
          */
         private fun msgUser(context: String, user: String, on: Boolean) =
-                JSONLiteralFactory.targetVerb("provider", "user").apply {
+                JsonLiteralFactory.targetVerb("provider", "user").apply {
                     addParameter("context", context)
                     addParameter("user", user)
                     addParameter("on", on)

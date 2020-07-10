@@ -1,12 +1,12 @@
 package org.elkoserver.server.gatekeeper.passwd
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.json.RandomUsingObject
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory.type
+import org.elkoserver.json.JsonLiteralFactory.type
 import org.elkoserver.server.gatekeeper.MessageDigestUsingObject
 import java.security.MessageDigest
 import java.util.Random
@@ -69,7 +69,7 @@ class ActorDesc : Encodable, RandomUsingObject, MessageDigestUsingObject {
      * @param optPassword  Login password (hashed).
      * @param optCanSetPass  Permission to change password.
      */
-    @JSONMethod("id", "iid", "name", "password", "cansetpass")
+    @JsonMethod("id", "iid", "name", "password", "cansetpass")
     constructor(id: String, optInternalID: OptString, optName: OptString,
                 optPassword: OptString, optCanSetPass: OptBoolean) {
         this.id = id

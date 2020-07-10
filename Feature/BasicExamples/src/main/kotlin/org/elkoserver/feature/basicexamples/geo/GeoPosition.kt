@@ -1,8 +1,8 @@
 package org.elkoserver.feature.basicexamples.geo
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.BasicObject
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.Mod
@@ -15,7 +15,7 @@ import org.elkoserver.server.context.UserMod
  * @param lat  Latitude (decimal degrees)
  * @param lon  Longitude (decimal degrees)
  */
-class GeoPosition @JSONMethod("lat", "lon") constructor(private val lat: Double, private val lon: Double) : Mod(), UserMod, ItemMod {
+class GeoPosition @JsonMethod("lat", "lon") constructor(private val lat: Double, private val lon: Double) : Mod(), UserMod, ItemMod {
 
     /**
      * Encode this position for transmission or persistence.
@@ -26,7 +26,7 @@ class GeoPosition @JSONMethod("lat", "lon") constructor(private val lat: Double,
      * @return a JSON literal representing this position.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("geopos", control).apply {
+            JsonLiteralFactory.type("geopos", control).apply {
                 addParameter("lat", lat)
                 addParameter("lon", lon)
                 finish()

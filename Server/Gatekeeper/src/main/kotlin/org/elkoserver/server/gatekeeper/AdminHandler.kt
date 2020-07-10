@@ -1,11 +1,11 @@
 package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.HostDesc
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -44,7 +44,7 @@ internal class AdminHandler(private val myGatekeeper: Gatekeeper, commGorgel: Go
      * @param auth  Optional authorization configuration for connection to the
      * director.
      */
-    @JSONMethod("hostport", "?auth")
+    @JsonMethod("hostport", "?auth")
     fun director(from: GatekeeperActor, hostport: OptString, auth: AuthDesc?) {
         from.ensureAuthorizedAdmin()
         val hostportStr = hostport.value<String?>(null)
@@ -62,7 +62,7 @@ internal class AdminHandler(private val myGatekeeper: Gatekeeper, commGorgel: Go
      *
      * @param from  The administrator sending the message.
      */
-    @JSONMethod
+    @JsonMethod
     fun reinit(from: GatekeeperActor) {
         from.ensureAuthorizedAdmin()
         myGatekeeper.reinit()
@@ -75,7 +75,7 @@ internal class AdminHandler(private val myGatekeeper: Gatekeeper, commGorgel: Go
      *
      * @param from  The administrator sending the message.
      */
-    @JSONMethod()
+    @JsonMethod()
     fun shutdown(from: GatekeeperActor) {
         from.ensureAuthorizedAdmin()
         myGatekeeper.shutdown()
@@ -86,7 +86,7 @@ internal class AdminHandler(private val myGatekeeper: Gatekeeper, commGorgel: Go
          * Generate a 'director' message.
          */
         private fun msgDirector(target: Referenceable, hostport: String) =
-                JSONLiteralFactory.targetVerb(target, "director").apply {
+                JsonLiteralFactory.targetVerb(target, "director").apply {
                     addParameter("hostport", hostport)
                     finish()
                 }

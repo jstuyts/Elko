@@ -13,7 +13,7 @@ import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 
 internal class PasswdAuthorizerSgd(provided: AuthorizerProvided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
-    val authorizer by Once { PasswdAuthorizer(req(random), req(provided.gatekeeper()), req(odb), req(anonymousOk), req(actorIdBase)) }
+    val authorizer by Once { PasswdAuthorizer(req(random), req(provided.gatekeeper()), req(objDb), req(anonymousOk), req(actorIdBase)) }
             .wire {
                 req(provided.server()).registerShutdownWatcher(object : ShutdownWatcher {
                     override fun noteShutdown() {
@@ -47,5 +47,5 @@ internal class PasswdAuthorizerSgd(provided: AuthorizerProvided, configuration: 
 
     val anonymousOk by Once { !req(provided.props()).testProperty("conf.gatekeeper.anonymous", "false") }
 
-    val odb by Once { req(provided.server()).openObjectDatabase("conf.gatekeeper") ?: throw IllegalStateException("no database specified") }
+    val objDb by Once { req(provided.server()).openObjectDatabase("conf.gatekeeper") ?: throw IllegalStateException("no database specified") }
 }

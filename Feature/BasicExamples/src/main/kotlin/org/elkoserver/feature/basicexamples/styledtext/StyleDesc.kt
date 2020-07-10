@@ -1,10 +1,10 @@
 package org.elkoserver.feature.basicexamples.styledtext
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 
 /**
  * Representation of style information for something containing text.
@@ -36,7 +36,7 @@ class StyleDesc(
      * for text.
      * @param icon  Optional URL of an icon to go with text.
      */
-    @JSONMethod("color", "backgroundColor", "borderColor", "textStyle", "icon")
+    @JsonMethod("color", "backgroundColor", "borderColor", "textStyle", "icon")
     constructor(color: OptString, backgroundColor: OptString,
                 borderColor: OptString, textStyle: OptString,
                 icon: OptString) : this(color.value<String?>(null), backgroundColor.value<String?>(null),
@@ -51,7 +51,7 @@ class StyleDesc(
      * @return a JSON literal representing this object.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("style", control).apply {
+            JsonLiteralFactory.type("style", control).apply {
                 addParameterOpt("color", color)
                 addParameterOpt("backgroundColor", backgroundColor)
                 addParameterOpt("borderColor", borderColor)

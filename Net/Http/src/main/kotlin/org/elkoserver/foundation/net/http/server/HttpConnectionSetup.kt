@@ -20,25 +20,25 @@ class HttpConnectionSetup(
         private val jsonHttpFramerCommGorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) : BaseConnectionSetup(label, host, auth, secure, props, propRoot, gorgel) {
     private val domain: String?
-    private val rootURI: String
+    private val rootUri: String
     override val serverAddress: String
 
     override val protocol = "http"
 
     @Throws(IOException::class)
     override fun tryToStartListener() =
-            httpServerFactory.listenHTTP(bind, actorFactory, secure, rootURI, JSONHTTPFramer(jsonHttpFramerCommGorgel, mustSendDebugReplies))
+            httpServerFactory.listenHTTP(bind, actorFactory, secure, rootUri, JsonHttpFramer(jsonHttpFramerCommGorgel, mustSendDebugReplies))
 
     override val listenAddressDescription: String
-        get() = "$host/$rootURI/ in domain $domain"
+        get() = "$host/$rootUri/ in domain $domain"
 
     override val valueToCompareWithBind: String
         get() = host
 
     init {
         domain = determineDomain(host, props, propRoot)
-        rootURI = props.getProperty("$propRoot.root", "")
-        serverAddress = "$host/$rootURI"
+        rootUri = props.getProperty("$propRoot.root", "")
+        serverAddress = "$host/$rootUri"
     }
 
     companion object {

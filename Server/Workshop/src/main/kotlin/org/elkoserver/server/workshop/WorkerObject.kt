@@ -3,7 +3,7 @@ package org.elkoserver.server.workshop
 import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.Referenceable
 
 /**
@@ -48,7 +48,7 @@ abstract class WorkerObject protected constructor(private val myServiceName: Str
     protected fun workshop() = myWorkshop
     /* ----- Encodable interface ------------------------------------------ */
     /**
-     * Produce a [JSONLiteral] representing the encoded state of this
+     * Produce a [JsonLiteral] representing the encoded state of this
      * object, suitable for transmission over a messaging medium or for writing
      * to persistent storage.  The default implementation makes this object
      * not actually encodable, but subclasses can override.
@@ -56,10 +56,10 @@ abstract class WorkerObject protected constructor(private val myServiceName: Str
      * @param control  Encode control determining what flavor of encoding
      * should be done.
      *
-     * @return a [JSONLiteral] representing the encoded state of this
+     * @return a [JsonLiteral] representing the encoded state of this
      * object.
      */
-    override fun encode(control: EncodeControl): JSONLiteral? = null
+    override fun encode(control: EncodeControl): JsonLiteral? = null
 
     /* ----- Referenceable interface --------------------------------------- */
     /**

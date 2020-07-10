@@ -2,12 +2,12 @@ package org.elkoserver.server.workshop.bank
 
 import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.ClockUsingObject
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.workshop.WorkerObject
 import org.elkoserver.server.workshop.WorkshopActor
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -24,7 +24,7 @@ import java.util.function.Consumer
  * this worker object provides the interface to.
  */
 class BankWorker
-@JSONMethod("service", "bank") constructor(serviceName: OptString, private val myBankRef: String)
+@JsonMethod("service", "bank") constructor(serviceName: OptString, private val myBankRef: String)
     : WorkerObject(serviceName.value("bank")), ClockUsingObject, ClassspecificGorgelUsingObject {
     /** The bank this worker is the interface to.  */
     private var myBank: Bank? = null
@@ -96,7 +96,7 @@ class BankWorker
          * @return an open JSON literal as described.
          */
         fun beginReply() =
-                JSONLiteralFactory.targetVerb(rep!!, verb).apply {
+                JsonLiteralFactory.targetVerb(rep!!, verb).apply {
                     if (xid != null) {
                         addParameter("xid", xid)
                     }
@@ -368,7 +368,7 @@ class BankWorker
      * @param rep  Optioanl reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      */
-    @JSONMethod("xid", "rep", "memo")
+    @JsonMethod("xid", "rep", "memo")
     fun issuerootkey(from: WorkshopActor, xid: OptString, rep: OptString,
                      memo: OptString) {
         val env = init(from, "issuerootkey", null, xid, rep, true, memo, false, clock) ?: return
@@ -398,7 +398,7 @@ class BankWorker
      * @param dst  Ref of transfer destination account.
      * @param amount  Quantity of money to transfer.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "src", "dst", "amount")
+    @JsonMethod("key", "xid", "rep", "memo", "src", "dst", "amount")
     fun xfer(from: WorkshopActor, key: String, xid: OptString,
              rep: OptString, memo: OptString, src: String,
              dst: String, amount: Int) {
@@ -474,7 +474,7 @@ class BankWorker
      * @param dst  Ref of destination account for new money.
      * @param amount  Quantity of money to create.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "dst", "amount")
+    @JsonMethod("key", "xid", "rep", "memo", "dst", "amount")
     fun mint(from: WorkshopActor, key: String, xid: OptString,
              rep: OptString, memo: OptString, dst: String,
              amount: Int) {
@@ -527,7 +527,7 @@ class BankWorker
      * @param src  Ref of the account from which the money should be taken.
      * @param amount  Quantity of money to destroy.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "src", "amount")
+    @JsonMethod("key", "xid", "rep", "memo", "src", "amount")
     fun unmint(from: WorkshopActor, key: String, xid: OptString,
                rep: OptString, memo: OptString, src: String,
                amount: Int) {
@@ -582,7 +582,7 @@ class BankWorker
      * @param amount  Quantity of money to encumber.
      * @param expiresStr  Date after which the encumbrance will be released.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "src", "amount", "expires")
+    @JsonMethod("key", "xid", "rep", "memo", "src", "amount", "expires")
     fun encumber(from: WorkshopActor, key: String, xid: OptString,
                  rep: OptString, memo: OptString, src: String,
                  amount: Int, expiresStr: String) {
@@ -642,7 +642,7 @@ class BankWorker
      * @param memo  Transaction annotation, for logging.
      * @param encRef  Ref of the encumbrance to release.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "enc")
+    @JsonMethod("key", "xid", "rep", "memo", "enc")
     fun releaseenc(from: WorkshopActor, key: String, xid: OptString,
                    rep: OptString, memo: OptString, encRef: String) {
         val env = init(from, "releaseenc", key, xid, rep, false, memo, false, clock) ?: return
@@ -691,7 +691,7 @@ class BankWorker
      * @param dst  Ref of transfer destination account.
      * @param encRef  Ref of the encumbrance that will be the source of funds.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "dst", "enc")
+    @JsonMethod("key", "xid", "rep", "memo", "dst", "enc")
     fun xferenc(from: WorkshopActor, key: String, xid: OptString,
                 rep: OptString, memo: OptString, dst: String,
                 encRef: String) {
@@ -761,7 +761,7 @@ class BankWorker
      * @param memo  Transaction annotation, for logging.
      * @param encRef  Ref of the encumbrance that will be the source of funds.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "enc")
+    @JsonMethod("key", "xid", "rep", "memo", "enc")
     fun unmintenc(from: WorkshopActor, key: String, xid: OptString,
                   rep: OptString, memo: OptString, encRef: String) {
         val env = init(from, "unmintenc", key, xid, rep, false, memo, false, clock) ?: return
@@ -809,7 +809,7 @@ class BankWorker
      * @param memo  Transaction annotation, for logging.
      * @param encRef  Ref of the encumbrance that is of interest.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "enc")
+    @JsonMethod("key", "xid", "rep", "memo", "enc")
     fun queryenc(from: WorkshopActor, key: String, xid: OptString,
                  rep: OptString, memo: OptString, encRef: String) {
         val env = init(from, "queryenc", key, xid, rep, true, memo, false, clock) ?: return
@@ -860,7 +860,7 @@ class BankWorker
      * @param currs  Currencies in which the new accounts will be denominated.
      * @param owner  Ref of the user who is to be the owner of the new account.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "currs", "owner")
+    @JsonMethod("key", "xid", "rep", "memo", "currs", "owner")
     fun makeaccounts(from: WorkshopActor, key: String, xid: OptString,
                      rep: OptString, memo: OptString, currs: Array<String>,
                      owner: String) {
@@ -874,7 +874,7 @@ class BankWorker
         if (env.currencyAuthorityFailure(currs)) {
             return
         }
-        val replyAccounts = JSONLiteralArray()
+        val replyAccounts = JsonLiteralArray()
         currs
                 .map { myBank!!.makeAccount(it, owner, env.memo) }
                 .forEach { replyAccounts.addElement(it.ref) }
@@ -896,7 +896,7 @@ class BankWorker
      * @param memo  Transaction annotation, for logging.
      * @param account  Ref of the account that is to be deleted.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "account")
+    @JsonMethod("key", "xid", "rep", "memo", "account")
     fun deleteaccount(from: WorkshopActor, key: String,
                       xid: OptString, rep: OptString, memo: OptString,
                       account: String) {
@@ -944,7 +944,7 @@ class BankWorker
      * @param accounts  Refs of the accounts of interest
      * @param encs  Flag that is true if reply should include encumbrance info.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "accounts", "encs")
+    @JsonMethod("key", "xid", "rep", "memo", "accounts", "encs")
     fun queryaccounts(from: WorkshopActor, key: String,
                       xid: OptString, rep: OptString, memo: OptString,
                       accounts: Array<String>, encs: OptBoolean) {
@@ -959,7 +959,7 @@ class BankWorker
         val lookupHandler: AccountUpdater = object : AccountUpdater {
             private var myResultCount = 0
             private var amFailed = false
-            private val myAccountDescs = arrayOfNulls<JSONLiteral>(accounts.size)
+            private val myAccountDescs = arrayOfNulls<JsonLiteral>(accounts.size)
             override fun modify(account: Account?): Boolean {
                 if (amFailed) {
                     return false
@@ -972,7 +972,7 @@ class BankWorker
                     amFailed = true
                     return false
                 }
-                val accountDesc = JSONLiteral().apply {
+                val accountDesc = JsonLiteral().apply {
                     addParameter("account", account.ref)
                     addParameter("curr", account.currency)
                     addParameter("total", account.totalBalance)
@@ -981,9 +981,9 @@ class BankWorker
                     addParameter("memo", account.memo)
                     addParameter("owner", account.owner)
                     if (encs.value(false)) {
-                        val encsList = JSONLiteralArray()
+                        val encsList = JsonLiteralArray()
                         account.encumbrances.forEach { enc ->
-                            val encDesc = JSONLiteral().apply {
+                            val encDesc = JsonLiteral().apply {
                                 addParameter("enc", enc.ref)
                                 addParameter("amount", enc.amount)
                                 addParameter("expires", enc.expires.toString())
@@ -1035,7 +1035,7 @@ class BankWorker
      * @param memo  Transaction annotation, for logging.
      * @param account  Ref of the account to be frozen.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "account")
+    @JsonMethod("key", "xid", "rep", "memo", "account")
     fun freezeaccount(from: WorkshopActor, key: String,
                       xid: OptString, rep: OptString, memo: OptString,
                       account: String) {
@@ -1078,7 +1078,7 @@ class BankWorker
      * @param memo  Transaction annotation, for logging.
      * @param account  Ref of the account to be unfrozen.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "account")
+    @JsonMethod("key", "xid", "rep", "memo", "account")
     fun unfreezeaccount(from: WorkshopActor, key: String,
                         xid: OptString, rep: OptString, memo: OptString,
                         account: String) {
@@ -1120,7 +1120,7 @@ class BankWorker
      * @param memo  Transaction annotation, for logging.
      * @param curr  Name for the new currency.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "curr")
+    @JsonMethod("key", "xid", "rep", "memo", "curr")
     fun makecurrency(from: WorkshopActor, key: String, xid: OptString,
                      rep: OptString, memo: OptString, curr: String) {
         val env = init(from, "makecurrency", key, xid, rep, false, memo, true, clock) ?: return
@@ -1149,7 +1149,7 @@ class BankWorker
      * @param rep  Optioanl reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      */
-    @JSONMethod("key", "xid", "rep", "memo")
+    @JsonMethod("key", "xid", "rep", "memo")
     fun querycurrencies(from: WorkshopActor, key: String, xid: OptString,
                         rep: OptString, memo: OptString) {
         val env = init(from, "querycurrencies", key, xid, rep, true, memo, false, clock) ?: return
@@ -1157,9 +1157,9 @@ class BankWorker
             return
         }
         val reply = env.beginReply().apply {
-            val currList = JSONLiteralArray()
+            val currList = JsonLiteralArray()
             myBank!!.currencies().forEach { curr ->
-                val currDesc = JSONLiteral().apply {
+                val currDesc = JsonLiteral().apply {
                     addParameter("curr", curr.name)
                     addParameter("memo", curr.memo)
                     finish()
@@ -1185,7 +1185,7 @@ class BankWorker
      * @param currs  Optional currencies scoping the new key.
      * @param optExpires  Date after which the new key will become invalid.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "auth", "currs", "expires")
+    @JsonMethod("key", "xid", "rep", "memo", "auth", "currs", "expires")
     fun makekey(from: WorkshopActor, key: String, xid: OptString,
                 rep: OptString, memo: OptString, auth: String,
                 currs: Array<String>, optExpires: OptString) {
@@ -1227,7 +1227,7 @@ class BankWorker
      * @param memo  Transaction annotation, for logging.
      * @param cancel  Ref of the key to be cancelled.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "cancel")
+    @JsonMethod("key", "xid", "rep", "memo", "cancel")
     fun cancelkey(from: WorkshopActor, key: String, xid: OptString,
                   rep: OptString, memo: OptString, cancel: String) {
         val env = init(from, "cancelkey", key, xid, rep, false, memo, false, clock) ?: return
@@ -1259,7 +1259,7 @@ class BankWorker
      * @param memo  Transaction annotation, for logging.
      * @param optExpires  Date after which the new key will become invalid.
      */
-    @JSONMethod("key", "xid", "rep", "memo", "expires")
+    @JsonMethod("key", "xid", "rep", "memo", "expires")
     fun dupkey(from: WorkshopActor, key: String, xid: OptString,
                rep: OptString, memo: OptString, optExpires: OptString) {
         val env = init(from, "makekey", key, xid, rep, true, memo, true, clock) ?: return

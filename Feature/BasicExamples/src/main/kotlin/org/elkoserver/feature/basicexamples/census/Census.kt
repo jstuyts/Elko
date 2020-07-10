@@ -1,9 +1,9 @@
 package org.elkoserver.feature.basicexamples.census
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.User
@@ -12,7 +12,7 @@ import org.elkoserver.server.context.User
  * Mod to enable tracking a context's population.  This mod may be attached to
  * a context, user or item.
  */
-class Census @JSONMethod constructor() : Mod(), GeneralMod {
+class Census @JsonMethod constructor() : Mod(), GeneralMod {
     /**
      * Encode this mod for transmission or persistence.
      *
@@ -23,7 +23,7 @@ class Census @JSONMethod constructor() : Mod(), GeneralMod {
      */
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
-                JSONLiteralFactory.type("census", control).apply {
+                JsonLiteralFactory.type("census", control).apply {
                     finish()
                 }
             } else {
@@ -47,13 +47,13 @@ class Census @JSONMethod constructor() : Mod(), GeneralMod {
      * this mod, or if this mod is attached to a user and 'from' is not that
      * user.
      */
-    @JSONMethod
+    @JsonMethod
     fun census(from: User) {
         ensureSameContext(from)
         if (`object`() is User) {
             ensureSameUser(from)
         }
-        val response = JSONLiteralFactory.targetVerb(`object`(), "census").apply {
+        val response = JsonLiteralFactory.targetVerb(`object`(), "census").apply {
             addParameter("occupancy", context().userCount)
             finish()
         }

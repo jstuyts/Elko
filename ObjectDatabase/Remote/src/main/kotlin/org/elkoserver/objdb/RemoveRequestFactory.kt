@@ -2,8 +2,8 @@ package org.elkoserver.objdb
 
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.json.EncodeControl.ForClientEncodeControl
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 import java.util.function.Consumer
 
 class RemoveRequestFactory(private val tagGenerator: IdGenerator) {
@@ -20,14 +20,14 @@ class RemoveRequestFactory(private val tagGenerator: IdGenerator) {
      * take the configured default (or the db doesn't use this abstraction).
      */
     private fun msgRemove(ref: String, tag: String, collectionName: String?) =
-            JSONLiteralFactory.targetVerb("rep", "remove").apply {
+            JsonLiteralFactory.targetVerb("rep", "remove").apply {
                 addParameter("tag", tag)
-                val what = JSONLiteralFactory.type("reqi", ForClientEncodeControl).apply {
+                val what = JsonLiteralFactory.type("reqi", ForClientEncodeControl).apply {
                     addParameter("ref", ref)
                     addParameterOpt("coll", collectionName)
                     finish()
                 }
-                addParameter("what", JSONLiteralArray.singleElementArray(what))
+                addParameter("what", JsonLiteralArray.singleElementArray(what))
                 finish()
             }
 }

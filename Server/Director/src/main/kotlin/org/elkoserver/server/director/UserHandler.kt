@@ -1,9 +1,9 @@
 package org.elkoserver.server.director
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.Random
@@ -41,7 +41,7 @@ internal open class UserHandler(protected val director: Director, commGorgel: Go
      * @param user  The user who is asking for this.
      * @param optTag  Optional tag for requestor to match
      */
-    @JSONMethod("protocol", "context", "user", "tag")
+    @JsonMethod("protocol", "context", "user", "tag")
     fun reserve(from: DirectorActor, protocol: String, contextName: String, user: OptString, optTag: OptString) {
         from.ensureAuthorizedUser()
         val userName = user.value<String?>(null)
@@ -102,7 +102,7 @@ internal open class UserHandler(protected val director: Director, commGorgel: Go
     companion object {
 
         private fun msgDoReserve(target: Referenceable, context: String?, user: String?, reservation: String) =
-                JSONLiteralFactory.targetVerb(target, "doreserve").apply {
+                JsonLiteralFactory.targetVerb(target, "doreserve").apply {
                     addParameter("context", context)
                     addParameterOpt("user", user)
                     addParameterOpt("reservation", reservation)
@@ -110,7 +110,7 @@ internal open class UserHandler(protected val director: Director, commGorgel: Go
                 }
 
         private fun msgReserve(target: Referenceable, context: String?, user: String?, hostPort: String?, reservation: String?, deny: String?, tag: String?) =
-                JSONLiteralFactory.targetVerb(target, "reserve").apply {
+                JsonLiteralFactory.targetVerb(target, "reserve").apply {
                     addParameter("context", context)
                     addParameterOpt("user", user)
                     addParameterOpt("hostport", hostPort)

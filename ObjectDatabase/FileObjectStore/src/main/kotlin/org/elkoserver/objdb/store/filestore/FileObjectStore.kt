@@ -34,14 +34,14 @@ import java.util.LinkedList
  */
 class FileObjectStore : ObjectStore {
     /** The directory in which the object "database" contents are stored.  */
-    private lateinit var myODBDirectory: File
+    private lateinit var myObjDbDirectory: File
 
     /**
      * Do the initialization required to begin providing object store
      * services.
      *
      *
-     * The property `"*propRoot*.odb"` should specify the
+     * The property `"*propRoot*.odjdb"` should specify the
      * pathname of the directory in which the object description files are
      * stored.
      *
@@ -49,12 +49,12 @@ class FileObjectStore : ObjectStore {
      * @param propRoot  Prefix string for selecting relevant properties.
      */
     override fun initialize(props: ElkoProperties, propRoot: String, gorgel: Gorgel) {
-        val dirname = props.getProperty("$propRoot.odb")
+        val dirname = props.getProperty("$propRoot.odjdb")
                 ?: throw java.lang.IllegalStateException("no object database directory specified")
-        myODBDirectory = File(dirname)
-        if (!myODBDirectory.exists()) {
+        myObjDbDirectory = File(dirname)
+        if (!myObjDbDirectory.exists()) {
             throw IllegalStateException("object database directory '$dirname' does not exist")
-        } else if (!myODBDirectory.isDirectory) {
+        } else if (!myObjDbDirectory.isDirectory) {
             throw IllegalStateException("requested object database directory $dirname is not a directory")
         }
     }
@@ -200,7 +200,7 @@ class FileObjectStore : ObjectStore {
      *
      * @return a File object for the file containing JSON for 'ref'.
      */
-    private fun odbFile(ref: String): File = File(myODBDirectory, "$ref.json")
+    private fun odbFile(ref: String): File = File(myObjDbDirectory, "$ref.json")
 
     /**
      * Service a 'put' request.  This is a request to write one or more objects

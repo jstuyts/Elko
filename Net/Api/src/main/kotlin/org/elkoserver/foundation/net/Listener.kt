@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net
 
-import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.net.InetAddress
@@ -25,7 +25,7 @@ import java.nio.channels.ServerSocketChannel
 class Listener(
         private val myLocalAddress: String,
         private val myHandlerFactory: MessageHandlerFactory,
-        private val myFramerFactory: ByteIOFramerFactory,
+        private val myFramerFactory: ByteIoFramerFactory,
         private val amSecure: Boolean,
         private val myGorgel: Gorgel) {
     /** The address to listen on, or null for the default address.  */

@@ -1,8 +1,8 @@
 package org.elkoserver.feature.deviceuser
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.UserMod
 
@@ -11,7 +11,7 @@ import org.elkoserver.server.context.UserMod
  *
  * @param uuid  The Device specific user ID, a device dependent user ID
  */
-class DeviceUserMod @JSONMethod("uuid") constructor(private val uuid: String) : Mod(), UserMod {
+class DeviceUserMod @JsonMethod("uuid") constructor(private val uuid: String) : Mod(), UserMod {
 
     /**
      * Encode this mod for transmission or persistence.  This mod is
@@ -24,7 +24,7 @@ class DeviceUserMod @JSONMethod("uuid") constructor(private val uuid: String) : 
      */
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
-                JSONLiteralFactory.type("deviceuser", control).apply {
+                JsonLiteralFactory.type("deviceuser", control).apply {
                     addParameter("uuid", uuid)
                     finish()
                 }

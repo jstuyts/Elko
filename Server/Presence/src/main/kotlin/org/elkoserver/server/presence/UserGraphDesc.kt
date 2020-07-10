@@ -1,17 +1,17 @@
 package org.elkoserver.server.presence
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 
 /**
- * A user's social graph, as represented in the ODB.
+ * A user's social graph, as represented in the ObjDb.
  *
  * @param ref  The user's reference string
  * @param friends  Array of the user's friend references
  */
-internal class UserGraphDesc @JSONMethod("ref", "friends") constructor(private val ref: String,
+internal class UserGraphDesc @JsonMethod("ref", "friends") constructor(private val ref: String,
                                                                        internal val friends: Array<String>) : Encodable {
 
     /**
@@ -23,7 +23,7 @@ internal class UserGraphDesc @JSONMethod("ref", "friends") constructor(private v
      * @return a JSON literal representing this object.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("ugraf", control).apply {
+            JsonLiteralFactory.type("ugraf", control).apply {
                 addParameter("ref", ref)
                 addParameter("friends", friends)
                 finish()

@@ -1,10 +1,10 @@
 package org.elkoserver.objdb.store
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory.type
+import org.elkoserver.json.JsonLiteralFactory.type
 
 /**
  * Description of a requested object returned from the object store.
@@ -24,7 +24,7 @@ class ObjectDesc(internal val ref: String, val obj: String?, val failure: String
      * @param obj  Optional object description.
      * @param failure  Optional error message.
      */
-    @JSONMethod("ref", "obj", "failure")
+    @JsonMethod("ref", "obj", "failure")
     constructor(ref: String, obj: OptString, failure: OptString) : this(ref, obj.value<String?>(null), failure.value<String?>(null))
 
     /**

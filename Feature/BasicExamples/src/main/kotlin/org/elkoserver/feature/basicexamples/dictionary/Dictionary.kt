@@ -1,11 +1,11 @@
 package org.elkoserver.feature.basicexamples.dictionary
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.GeneralMod
 import org.elkoserver.server.context.Mod
@@ -20,7 +20,7 @@ import org.elkoserver.server.context.User
  * @param persist  If true, make sure any changes get saved to disk; if
  *    false (the default), changes are ephemeral.
  */
-class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Array<String>, values: Array<String>, persist: OptBoolean) : Mod(), GeneralMod {
+class Dictionary @JsonMethod("names", "values", "persist") constructor(names: Array<String>, values: Array<String>, persist: OptBoolean) : Mod(), GeneralMod {
     private val myVars: MutableMap<String, String> = HashMap<String, String>().apply {
         names.forEachIndexed { index, name ->
             this[name] = values[index]
@@ -37,14 +37,14 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl): JSONLiteral {
+    override fun encode(control: EncodeControl): JsonLiteral {
         val vars =
                 if (control.toClient() || amPersistent) {
                     myVars
                 } else {
                     myOriginalVars
                 }
-        return JSONLiteralFactory.type("dictionary", control).apply {
+        return JsonLiteralFactory.type("dictionary", control).apply {
             vars?.let {
                 addParameter("names", it.keys.toTypedArray() as Array<out String?>)
                 addParameter("values", it.values.toTypedArray() as Array<out String?>)
@@ -82,7 +82,7 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
      * @throws MessageHandlerException if 'from' is not in the same context as
      * this mod.
      */
-    @JSONMethod("names")
+    @JsonMethod("names")
     fun delvar(from: User, names: Array<String>) {
         ensureSameContext(from)
         for (name in names) {
@@ -119,7 +119,7 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
      * @throws MessageHandlerException if 'from' is not in the same context as
      * this mod.
      */
-    @JSONMethod("names", "values")
+    @JsonMethod("names", "values")
     fun setvar(from: User, names: Array<String>, values: Array<String>) {
         ensureSameContext(from)
         if (names.size != values.size) {
@@ -145,7 +145,7 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
          * @param names  Names of the variables to delete.
          */
         private fun msgDelvar(target: Referenceable, from: Referenceable, names: Array<String>) =
-                JSONLiteralFactory.targetVerb(target, "delvar").apply {
+                JsonLiteralFactory.targetVerb(target, "delvar").apply {
                     addParameterOpt("from", from)
                     addParameter("names", names)
                     finish()
@@ -161,7 +161,7 @@ class Dictionary @JSONMethod("names", "values", "persist") constructor(names: Ar
          * @param values  The values to change them to.
          */
         private fun msgSetvar(target: Referenceable, from: Referenceable, names: Array<String>, values: Array<String>) =
-                JSONLiteralFactory.targetVerb(target, "setvar").apply {
+                JsonLiteralFactory.targetVerb(target, "setvar").apply {
                     addParameterOpt("from", from)
                     addParameter("names", names)
                     addParameter("values", values)

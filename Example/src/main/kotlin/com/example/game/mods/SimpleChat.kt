@@ -1,12 +1,12 @@
 package com.example.game.mods
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
-import org.elkoserver.json.JSONLiteralFactory.targetVerb
+import org.elkoserver.json.JsonLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
@@ -18,11 +18,11 @@ import org.elkoserver.server.context.UserWatcher
  * A simple context mod to enable users in a context to chat with
  * each other.
  */
-class SimpleChat @JSONMethod("allowpush") constructor(allowPush: OptBoolean) : Mod(), ObjectCompletionWatcher, ContextMod {
+class SimpleChat @JsonMethod("allowpush") constructor(allowPush: OptBoolean) : Mod(), ObjectCompletionWatcher, ContextMod {
     /** Whether users are permitted to push URLs to other users.  */
     private val amAllowingPush = allowPush.value(false)
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("schat", control).apply {
+            JsonLiteralFactory.type("schat", control).apply {
                 if (!control.toClient()) {
                     addParameter("allowpush", amAllowingPush)
                 }
@@ -41,7 +41,7 @@ class SimpleChat @JSONMethod("allowpush") constructor(allowPush: OptBoolean) : M
         )
     }
 
-    @JSONMethod("url", "frame")
+    @JsonMethod("url", "frame")
     fun push(from: User, url: String, frame: OptString) {
         if (amAllowingPush) {
             ensureSameContext(from)
@@ -51,7 +51,7 @@ class SimpleChat @JSONMethod("allowpush") constructor(allowPush: OptBoolean) : M
         }
     }
 
-    @JSONMethod("speech")
+    @JsonMethod("speech")
     fun say(from: User, speech: String) {
         ensureSameContext(from)
         context().send(msgSay(context(), from, speech))

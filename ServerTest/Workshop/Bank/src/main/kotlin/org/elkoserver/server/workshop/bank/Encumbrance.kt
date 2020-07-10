@@ -1,10 +1,10 @@
 package org.elkoserver.server.workshop.bank
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 
 /**
  * Object representing an encumbrance, a tentative reservation of the funds in
@@ -36,7 +36,7 @@ internal class Encumbrance(internal val ref: String, theAccount: Account?, inter
      * redeemed.
      * @param memo  Optional annotation on encumbrance.
      */
-    @JSONMethod("ref", "amount", "expires", "memo")
+    @JsonMethod("ref", "amount", "expires", "memo")
     constructor(ref: String, amount: Int, expires: ExpirationDate, memo: OptString) : this(ref, null, amount, expires, memo.value<String?>(null))
 
     /**
@@ -49,7 +49,7 @@ internal class Encumbrance(internal val ref: String, theAccount: Account?, inter
      */
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
-                JSONLiteral(control).apply {
+                JsonLiteral(control).apply {
                     addParameter("ref", ref)
                     addParameter("amount", amount)
                     addParameter("expires", expires)

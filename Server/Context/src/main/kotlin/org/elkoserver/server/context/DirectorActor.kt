@@ -2,7 +2,7 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.NonRoutingActor
 import org.elkoserver.foundation.json.DispatchTarget
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
@@ -11,7 +11,7 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Msg.msgSay
@@ -184,7 +184,7 @@ class DirectorActor(
      * @param dup  True if this is being done to eliminated a duplicate
      * context.
      */
-    @JSONMethod("context", "user", "dup")
+    @JsonMethod("context", "user", "dup")
     fun close(from: DirectorActor, context: OptString, user: OptString, dup: OptBoolean) {
         val isDup = dup.value(false)
 
@@ -219,7 +219,7 @@ class DirectorActor(
      * @param user  The user who will enter.
      * @param reservation  Authorization code for entry.
      */
-    @JSONMethod("context", "user", "reservation")
+    @JsonMethod("context", "user", "reservation")
     fun doreserve(from: DirectorActor, context: String, user: OptString, reservation: String) {
         myGroup.addReservation(reservationFactory.create(user.value<String?>(null), context,
                 reservation, from))
@@ -230,7 +230,7 @@ class DirectorActor(
      *
      * Process a directive to reinitialize relationships with directors.
      */
-    @JSONMethod
+    @JsonMethod
     fun reinit(from: DirectorActor) {
         myGroup.contextor.reinitServer()
     }
@@ -240,7 +240,7 @@ class DirectorActor(
      *
      * Relay a message to various entities on this server.
      */
-    @JSONMethod("context", "user", "msg")
+    @JsonMethod("context", "user", "msg")
     fun relay(from: DirectorActor, context: OptString, user: OptString, msg: JsonObject) {
         val iter = RelayIterator(context, user)
         while (iter.hasNext()) {
@@ -269,7 +269,7 @@ class DirectorActor(
      * @param optUser  The user who is asking for this.
      * @param optTag  Optional tag for requestor to match
      */
-    @JSONMethod("context", "user", "hostport", "reservation", "deny", "tag")
+    @JsonMethod("context", "user", "hostport", "reservation", "deny", "tag")
     fun reserve(from: DirectorActor, context: String, optUser: OptString,
                 optHostPort: OptString, optReservation: OptString,
                 optDeny: OptString, optTag: OptString) {
@@ -306,7 +306,7 @@ class DirectorActor(
      * @param userRef  The user to send to, or omitted if not relevant.
      * @param text  The message to transmit.
      */
-    @JSONMethod("context", "user", "text")
+    @JsonMethod("context", "user", "text")
     fun say(from: DirectorActor, contextRef: OptString, userRef: OptString, text: String) {
         val iter = RelayIterator(contextRef, userRef)
         while (iter.hasNext()) {
@@ -325,7 +325,7 @@ class DirectorActor(
      *
      * Process a directive to shut down the server.
      */
-    @JSONMethod
+    @JsonMethod
     fun shutdown(from: DirectorActor) {
         myGroup.contextor.shutdownServer()
     }
@@ -347,7 +347,7 @@ class DirectorActor(
          * concerned.
          */
         private fun msgAddress(target: Referenceable, protocol: String, hostPort: String) =
-                JSONLiteralFactory.targetVerb(target, "address").apply {
+                JsonLiteralFactory.targetVerb(target, "address").apply {
                     addParameter("protocol", protocol)
                     addParameter("hostport", hostPort)
                     finish()
@@ -363,7 +363,7 @@ class DirectorActor(
          * @param tag  Tag for matching responses with requests
          */
         private fun msgReserve(target: Referenceable, protocol: String, contextRef: String, userRef: String, tag: String) =
-                JSONLiteralFactory.targetVerb(target, "reserve").apply {
+                JsonLiteralFactory.targetVerb(target, "reserve").apply {
                     addParameter("protocol", protocol)
                     addParameter("context", contextRef)
                     addParameterOpt("user", userRef)
@@ -380,7 +380,7 @@ class DirectorActor(
          * @param restricted  True if the context family is restricted
          */
         private fun msgWillserve(target: Referenceable, context: String, capacity: Int, restricted: Boolean) =
-                JSONLiteralFactory.targetVerb(target, "willserve").apply {
+                JsonLiteralFactory.targetVerb(target, "willserve").apply {
                     addParameter("context", context)
                     if (capacity > 0) {
                         addParameter("capacity", capacity)

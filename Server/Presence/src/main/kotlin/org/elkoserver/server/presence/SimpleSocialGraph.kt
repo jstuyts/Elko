@@ -1,13 +1,13 @@
 package org.elkoserver.server.presence
 
 import org.elkoserver.json.JsonObject
-import org.elkoserver.objdb.ObjDB
+import org.elkoserver.objdb.ObjDb
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
 internal class SimpleSocialGraph : SocialGraph {
     /** Database that social graph is stored in.  */
-    private lateinit var myODB: ObjDB
+    private lateinit var myObjDb: ObjDb
 
     /** The presence server lording over us.  */
     private lateinit var myMaster: PresenceServer
@@ -22,13 +22,13 @@ internal class SimpleSocialGraph : SocialGraph {
     private lateinit var myPrefix: String
 
     override fun init(master: PresenceServer, gorgel: Gorgel, domain: Domain, conf: JsonObject) {
-        myODB = master.objDB
-        myODB.addClass("ugraf", UserGraphDesc::class.java)
+        myObjDb = master.objDb
+        myObjDb.addClass("ugraf", UserGraphDesc::class.java)
         myMaster = master
         myDomain = domain
         myGorgel = gorgel
         myPrefix = conf.getString("prefix", "g")
-        myGorgel.i?.run { info("init SimpleSocialGraph for domain '${domain.name}', odb prefix '$myPrefix-'") }
+        myGorgel.i?.run { info("init SimpleSocialGraph for domain '${domain.name}', obj db prefix '$myPrefix-'") }
     }
 
     /**
@@ -44,7 +44,7 @@ internal class SimpleSocialGraph : SocialGraph {
      * @param user  The user whose social graph should be fetched.
      */
     override fun loadUserGraph(user: ActiveUser) {
-        myODB.getObject("$myPrefix-${user.ref}", null, Consumer<Any?> { obj ->
+        myObjDb.getObject("$myPrefix-${user.ref}", null, Consumer<Any?> { obj ->
             if (obj != null) {
                 val desc = obj as UserGraphDesc
                 val friends = Iterable { ArrayIterator(desc.friends) }

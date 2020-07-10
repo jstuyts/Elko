@@ -8,7 +8,7 @@ import org.elkoserver.json.JsonObject
  *
  *
  * When the [MessageDispatcher] attempts to deliver a message to an
- * object, it first looks for a [JSONMethod] attributed method
+ * object, it first looks for a [JsonMethod] attributed method
  * corresponding to the specific message it is trying to deliver.  If such a
  * method is found, that method is invoked.  However, if there is no such
  * method, then the dispatcher checks whether the object implements this

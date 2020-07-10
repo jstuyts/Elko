@@ -1,14 +1,14 @@
 package org.elkoserver.foundation.timer
 
 abstract class TimerWatcher {
-    internal var myEvent: TimerQEntry? = null
+    internal var myEvent: TimerQueueEntry? = null
 
     /**
      * Notification (from within the package) that the timeout has tripped.
      */
     internal abstract fun handleTimeout()
 
-    internal fun setEvent(event: TimerQEntry?) {
+    internal fun setEvent(event: TimerQueueEntry?) {
         myEvent = event
     }
 }

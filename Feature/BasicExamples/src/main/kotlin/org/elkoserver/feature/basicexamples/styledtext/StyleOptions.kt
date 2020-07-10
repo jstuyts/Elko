@@ -1,10 +1,10 @@
 package org.elkoserver.feature.basicexamples.styledtext
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 
 /**
  * Representation of permissible text style information in a context that can
@@ -20,7 +20,7 @@ import org.elkoserver.json.JSONLiteralFactory
  * @param theIconWidth  Common width of icons, or -1 if not relevant.
  * @param theIconHeight  Common height of icons, or -1 if not relevant.
  */
-class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "textStyles", "icons", "iconWidth", "iconHeight") constructor(
+class StyleOptions @JsonMethod("colors", "backgroundColors", "borderColors", "textStyles", "icons", "iconWidth", "iconHeight") constructor(
         internal val colors: Array<String>,
         internal val backgroundColors: Array<String>,
         private val borderColors: Array<String>,
@@ -77,7 +77,7 @@ class StyleOptions @JSONMethod("colors", "backgroundColors", "borderColors", "te
      * @return a JSON literal representing this object.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("styleoptions", control).apply {
+            JsonLiteralFactory.type("styleoptions", control).apply {
                 if (colors != null && colors.isNotEmpty()) {
                     addParameter("colors", colors)
                 }

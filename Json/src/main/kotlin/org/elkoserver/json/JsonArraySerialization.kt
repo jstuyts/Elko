@@ -11,7 +11,7 @@ object JsonArraySerialization {
      * is being done.
      */
     fun encodeLiteral(array: JsonArray, buf: StringBuilder, control: EncodeControl) {
-        JSONLiteralArray(buf, control).apply {
+        JsonLiteralArray(buf, control).apply {
             for (element in array) {
                 addElement(element)
             }
@@ -26,7 +26,7 @@ object JsonArraySerialization {
      * is being done.
      */
     fun literal(array: JsonArray, control: EncodeControl) =
-            JSONLiteralArray(control).apply {
+            JsonLiteralArray(control).apply {
                 for (element in array) {
                     addElement(element)
                 }

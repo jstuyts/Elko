@@ -1,10 +1,10 @@
 package org.elkoserver.server.workshop.bank
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.workshop.Workshop
 import java.util.TreeSet
 import java.util.function.Consumer
@@ -54,7 +54,7 @@ internal class Account(internal val ref: String, private var myVersion: Int, int
      * @param encumbrances  Encumbrances on the account.
      * @param deleted  Flag indicating whether or not account is deleted.
      */
-    @JSONMethod("ref", "version", "curr", "owner", "memo", "bal", "frozen", "encs", "deleted")
+    @JsonMethod("ref", "version", "curr", "owner", "memo", "bal", "frozen", "encs", "deleted")
     constructor(ref: String, version: Int, currency: String, owner: String,
                 memo: String, totalBalance: Int, frozen: Boolean,
                 encumbrances: Array<Encumbrance>, deleted: OptBoolean) : this(ref, version, currency, owner, memo) {
@@ -82,7 +82,7 @@ internal class Account(internal val ref: String, private var myVersion: Int, int
      */
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
-                JSONLiteralFactory.type("bankacct", control).apply {
+                JsonLiteralFactory.type("bankacct", control).apply {
                     addParameter("ref", ref)
                     addParameter("version", myVersion)
                     addParameter("curr", currency)

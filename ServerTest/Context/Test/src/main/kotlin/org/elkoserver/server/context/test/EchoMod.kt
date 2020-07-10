@@ -1,9 +1,9 @@
 package org.elkoserver.server.context.test
 
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.ContextMod
 import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.ObjectCompletionWatcher
@@ -13,7 +13,7 @@ import java.util.function.Consumer
 /**
  * Mod to enable a context user to exercise the external 'echo' service.
  */
-class EchoMod @JSONMethod constructor() : Mod(), ContextMod, ObjectCompletionWatcher {
+class EchoMod @JsonMethod constructor() : Mod(), ContextMod, ObjectCompletionWatcher {
     /** The internal object that acts as the client for the echo service.  */
     private var myService: EchoClient? = null
 
@@ -25,8 +25,8 @@ class EchoMod @JSONMethod constructor() : Mod(), ContextMod, ObjectCompletionWat
      *
      * @return a JSON literal representing this mod.
      */
-    override fun encode(control: EncodeControl): JSONLiteral {
-        val result = JSONLiteralFactory.type("echomod", control)
+    override fun encode(control: EncodeControl): JsonLiteral {
+        val result = JsonLiteralFactory.type("echomod", control)
         result.finish()
         return result
     }
@@ -35,20 +35,20 @@ class EchoMod @JSONMethod constructor() : Mod(), ContextMod, ObjectCompletionWat
      * Message handler for the 'echo' message.  This invokes the external
      * echo service, if possible.
      */
-    @JSONMethod("text")
+    @JsonMethod("text")
     fun echo(from: User, text: String) {
         ensureSameContext(from)
         val currentService = myService
         if (currentService != null) {
             currentService.probe(text, Consumer<String> { obj ->
-                val msg = JSONLiteralFactory.targetVerb(`object`(), "echo").apply {
+                val msg = JsonLiteralFactory.targetVerb(`object`(), "echo").apply {
                     addParameter("text", obj)
                     finish()
                 }
                 from.send(msg)
             })
         } else {
-            val msg = JSONLiteralFactory.targetVerb(`object`(), "echo").apply {
+            val msg = JsonLiteralFactory.targetVerb(`object`(), "echo").apply {
                 addParameter("error", "no service")
                 finish()
             }
@@ -60,10 +60,10 @@ class EchoMod @JSONMethod constructor() : Mod(), ContextMod, ObjectCompletionWat
      * Message handler for the 'status' message.  This requests a report on
      * the state of the echo client connection.
      */
-    @JSONMethod
+    @JsonMethod
     fun status(from: User) {
         ensureSameContext(from)
-        val msg = JSONLiteralFactory.targetVerb(`object`(), "status").apply {
+        val msg = JsonLiteralFactory.targetVerb(`object`(), "status").apply {
             addParameter("status", myService?.status ?: "no service")
             finish()
         }

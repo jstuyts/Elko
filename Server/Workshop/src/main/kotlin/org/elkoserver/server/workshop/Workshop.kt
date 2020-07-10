@@ -7,7 +7,7 @@ import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.JsonObject
-import org.elkoserver.objdb.ObjDB
+import org.elkoserver.objdb.ObjDb
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.StringTokenizer
@@ -28,11 +28,11 @@ import java.util.function.Consumer
  * then possess it in a parameter variable whence it can be both passed to
  * the superclass constructor and saved in an instance variable.
  *
- * @param myODB  Database for persistent object storage.
+ * @param myObjDb  Database for persistent object storage.
  * @param myServer  Server object.
  */
 class Workshop internal constructor(
-        private val myODB: ObjDB,
+        private val myObjDb: ObjDb,
         private val myServer: Server,
         internal val refTable: RefTable,
         private val gorgel: Gorgel,
@@ -56,14 +56,14 @@ class Workshop internal constructor(
      * Load the statically configured worker objects.
      */
     fun loadStartupWorkers(workerListRefs: String?) {
-        myODB.addClass("workers", StartupWorkerList::class.java)
-        myODB.getObject("workers", null,
+        myObjDb.addClass("workers", StartupWorkerList::class.java)
+        myObjDb.getObject("workers", null,
                 StartupWorkerListReceiver("workers"))
         if (workerListRefs != null) {
             val tags = StringTokenizer(workerListRefs, " ,;:")
             while (tags.hasMoreTokens()) {
                 val tag = tags.nextToken()
-                myODB.getObject(tag, null, StartupWorkerListReceiver(tag))
+                myObjDb.getObject(tag, null, StartupWorkerListReceiver(tag))
             }
         }
     }
@@ -73,7 +73,7 @@ class Workshop internal constructor(
             val workers = obj as StartupWorkerList?
             if (workers != null) {
                 gorgel.i?.run { info("loading startup worker list '$myTag'") }
-                workers.fetchFromODB(myODB, this@Workshop, startupWorkerListGorgel)
+                workers.fetchFromObjDb(myObjDb, this@Workshop, startupWorkerListGorgel)
             } else {
                 gorgel.error("unable to load startup worker list '$myTag'")
             }
@@ -118,7 +118,7 @@ class Workshop internal constructor(
      * question, or null if the object was not available.
      */
     fun getObject(ref: String, handler: Consumer<Any?>) {
-        myODB.getObject(ref, null, handler)
+        myObjDb.getObject(ref, null, handler)
     }
 
     /**
@@ -130,7 +130,7 @@ class Workshop internal constructor(
      * question, or null if the object was not available.
      */
     fun getObject(ref: String, collection: String?, handler: Consumer<Any?>) {
-        myODB.getObject(ref, collection, handler)
+        myObjDb.getObject(ref, collection, handler)
     }
 
     /**
@@ -143,7 +143,7 @@ class Workshop internal constructor(
      * null if the query failed.
      */
     fun queryObjects(query: JsonObject, maxResults: Int, handler: Consumer<Any?>) {
-        myODB.queryObjects(query, null, maxResults, handler)
+        myObjDb.queryObjects(query, null, maxResults, handler)
     }
 
     /**
@@ -157,7 +157,7 @@ class Workshop internal constructor(
      * null if the query failed.
      */
     fun queryObjects(query: JsonObject, collection: String?, maxResults: Int, handler: Consumer<Any?>) {
-        myODB.queryObjects(query, collection, maxResults, handler)
+        myObjDb.queryObjects(query, collection, maxResults, handler)
     }
 
     /**
@@ -167,7 +167,7 @@ class Workshop internal constructor(
      * @param object  The object itself.
      */
     fun putObject(ref: String, `object`: Encodable) {
-        myODB.putObject(ref, `object`, null, false, null)
+        myObjDb.putObject(ref, `object`, null, false, null)
     }
 
     /**
@@ -182,7 +182,7 @@ class Workshop internal constructor(
      * an error string if the operation failed.
      */
     fun putObject(ref: String, `object`: Encodable, collection: String?, resultHandler: Consumer<Any?>?) {
-        myODB.putObject(ref, `object`, collection, false, resultHandler)
+        myObjDb.putObject(ref, `object`, collection, false, resultHandler)
     }
 
     /**
@@ -196,7 +196,7 @@ class Workshop internal constructor(
      * an error string if the operation failed.
      */
     fun updateObject(ref: String, version: Int, `object`: Encodable, resultHandler: Consumer<Any?>) {
-        myODB.updateObject(ref, version, `object`, null, resultHandler)
+        myObjDb.updateObject(ref, version, `object`, null, resultHandler)
     }
 
     /**
@@ -211,7 +211,7 @@ class Workshop internal constructor(
      * an error string if the operation failed.
      */
     fun updateObject(ref: String, version: Int, `object`: Encodable, collection: String?, resultHandler: Consumer<Any?>?) {
-        myODB.updateObject(ref, version, `object`, collection, resultHandler)
+        myObjDb.updateObject(ref, version, `object`, collection, resultHandler)
     }
 
     /**
@@ -220,18 +220,18 @@ class Workshop internal constructor(
      * @param ref  The ref of the object to be deleted.
      */
     fun removeObject(ref: String) {
-        myODB.removeObject(ref, null, null)
+        myObjDb.removeObject(ref, null, null)
     }
 
     init {
-        myODB.addClass("auth", AuthDesc::class.java)
+        myObjDb.addClass("auth", AuthDesc::class.java)
         refTable.addRef(ClientHandler(this, baseCommGorgel.getChild(ClientHandler::class)))
         refTable.addRef(AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class)))
         isShuttingDown = false
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 isShuttingDown = true
-                myODB.shutdown()
+                myObjDb.shutdown()
             }
         })
     }

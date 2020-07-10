@@ -2,7 +2,7 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralArray
+import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.Referenceable
 import java.util.LinkedList
 
@@ -31,7 +31,7 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
      * @return a JSONLiteralArray object representing these contents.
      */
     fun encode(control: EncodeControl) =
-            JSONLiteralArray(control).apply {
+            JsonLiteralArray(control).apply {
                 for (elem in myContents) {
                     if (control.toClient()) {
                         addElement(elem.ref())

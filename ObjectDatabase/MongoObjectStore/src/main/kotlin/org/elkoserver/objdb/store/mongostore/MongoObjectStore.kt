@@ -39,23 +39,23 @@ class MongoObjectStore : ObjectStore {
     private lateinit var myDB: MongoDatabase
 
     /** The default Mongo collection holding the normal objects  */
-    private lateinit var myODBCollection: MongoCollection<Document>
+    private lateinit var myObjDbCollection: MongoCollection<Document>
 
     /**
      * Do the initialization required to begin providing object store
      * services.
      *
      *
-     * The property `"*propRoot*.odb.mongo.hostport"` should
+     * The property `"*propRoot*.odjdb.mongo.hostport"` should
      * specify the address of the MongoDB server holding the objects.
      *
      *
-     * The optional property `"*propRoot*.odb.mongo.dbname"`
+     * The optional property `"*propRoot*.odjdb.mongo.dbname"`
      * allows the Mongo database name to be specified.  If omitted, this
      * defaults to `"elko"`.
      *
      *
-     * The optional property `"*propRoot*.odb.mongo.collname"`
+     * The optional property `"*propRoot*.odjdb.mongo.collname"`
      * allows the collection containing the object repository to be specified.
      * If omitted, this defaults to `"odb"`.
      *
@@ -63,7 +63,7 @@ class MongoObjectStore : ObjectStore {
      * @param propRoot  Prefix string for selecting relevant properties.
      */
     override fun initialize(props: ElkoProperties, propRoot: String, gorgel: Gorgel) {
-        val mongoPropRoot = "$propRoot.odb.mongo"
+        val mongoPropRoot = "$propRoot.odjdb.mongo"
         val addressStr = props.getProperty("$mongoPropRoot.hostport")
                 ?: throw IllegalStateException("no mongo database server address specified")
         val colon = addressStr.indexOf(':')
@@ -81,7 +81,7 @@ class MongoObjectStore : ObjectStore {
         val dbName = props.getProperty("$mongoPropRoot.dbname", "elko")
         myDB = myMongo.getDatabase(dbName)
         val collName = props.getProperty("$mongoPropRoot.collname", "odb")
-        myODBCollection = myDB.getCollection(collName)
+        myObjDbCollection = myDB.getCollection(collName)
     }
 
     /**
@@ -435,7 +435,7 @@ class MongoObjectStore : ObjectStore {
      */
     private fun getCollection(collectionName: String?) =
             if (collectionName == null) {
-                myODBCollection
+                myObjDbCollection
             } else {
                 myDB.getCollection(collectionName)
             }

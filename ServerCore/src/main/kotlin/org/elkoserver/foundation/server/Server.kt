@@ -16,9 +16,9 @@ import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.objdb.ObjDB
-import org.elkoserver.objdb.ObjDBLocalFactory
-import org.elkoserver.objdb.ObjDBRemoteFactory
+import org.elkoserver.objdb.ObjDb
+import org.elkoserver.objdb.ObjDbLocalFactory
+import org.elkoserver.objdb.ObjDbRemoteFactory
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.HashMap
@@ -51,8 +51,8 @@ class Server(
         private val myTagGenerator: IdGenerator,
         private val myLoadMonitor: ServerLoadMonitor,
         private val runner: Runner,
-        private val objDBRemoteFactory: ObjDBRemoteFactory,
-        private val objDBLocalFactory: ObjDBLocalFactory,
+        private val objDbRemoteFactory: ObjDbRemoteFactory,
+        private val objDbLocalFactory: ObjDbLocalFactory,
         private val connectionSetupFactoriesByCode: Map<String, ConnectionSetupFactory>,
         private val connectionRetrierFactory: ConnectionRetrierFactory)
     : ServiceFinder {
@@ -323,19 +323,19 @@ class Server(
      * Open an asynchronous object database whose location (directory path or
      * remote repository host) is specified by properties.
      *
-     * @param propRoot  Prefix string for all the properties describing the odb
+     * @param propRoot  Prefix string for all the properties describing the objDb
      * that is to be opened.
      *
-     * @return an object for communicating with the opened odb, or null if the
+     * @return an object for communicating with the opened objDb, or null if the
      * location was not properly specified.
      */
-    fun openObjectDatabase(propRoot: String): ObjDB? {
-        return if (myProps.getProperty("$propRoot.odb") != null) {
-            objDBLocalFactory.create(propRoot)
+    fun openObjectDatabase(propRoot: String): ObjDb? {
+        return if (myProps.getProperty("$propRoot.odjdb") != null) {
+            objDbLocalFactory.create(propRoot)
         } else {
             if (myProps.getProperty("$propRoot.repository.host") != null ||
                     myProps.getProperty("$propRoot.repository.service") != null) {
-                objDBRemoteFactory.create(this, serverName, propRoot)
+                objDbRemoteFactory.create(this, serverName, propRoot)
             } else {
                 null
             }

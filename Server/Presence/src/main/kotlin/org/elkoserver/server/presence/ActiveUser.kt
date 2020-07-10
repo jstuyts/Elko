@@ -2,9 +2,9 @@ package org.elkoserver.server.presence
 
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
 import java.util.LinkedList
 
@@ -89,12 +89,12 @@ internal class ActiveUser(internal val ref: String, private val domainRegistry: 
      *
      * @return a JSON literal array encoding this user's social graph.
      */
-    fun encodeFriendsDump(): JSONLiteralArray {
-        val result = JSONLiteralArray()
+    fun encodeFriendsDump(): JsonLiteralArray {
+        val result = JsonLiteralArray()
         if (graphsAreReady()) {
             myFriendsByDomain!!.indices
                     .map {
-                        JSONLiteral().apply {
+                        JsonLiteral().apply {
                             addParameter("domain", domainRegistry.domain(it).name)
                             addParameter("friends", myFriendsByDomain!![it])
                             finish()
@@ -274,12 +274,12 @@ internal class ActiveUser(internal val ref: String, private val domainRegistry: 
      * social graph.
      */
     private fun msgGroupToUser(user: String, context: String?, friends: Map<Domain, List<FriendInfo?>>) =
-            JSONLiteralFactory.targetVerb("presence", "gtou").apply {
+            JsonLiteralFactory.targetVerb("presence", "gtou").apply {
                 addParameter("touser", user)
                 addParameter("ctx", context)
-                val group = JSONLiteralArray().apply {
+                val group = JsonLiteralArray().apply {
                     for ((key, value) in friends) {
-                        val domainInfo = JSONLiteral().apply {
+                        val domainInfo = JsonLiteral().apply {
                             addParameter("domain", key.name)
                             addParameter("friends", value)
                             finish()
@@ -308,19 +308,19 @@ internal class ActiveUser(internal val ref: String, private val domainRegistry: 
                                context: String?, on: Boolean,
                                friends: Map<Domain, Map<String, List<String?>>>,
                                master: PresenceServer) =
-            JSONLiteralFactory.targetVerb("presence", "utog").apply {
+            JsonLiteralFactory.targetVerb("presence", "utog").apply {
                 addParameter("user", user)
                 addParameterOpt("umeta", userMeta)
                 addParameter("ctx", context)
                 addParameterOpt("cmeta", master.getContextMetadata(context!!))
                 addParameter("on", on)
-                val group = JSONLiteralArray().apply {
+                val group = JsonLiteralArray().apply {
                     for ((domain, who) in friends) {
-                        val obj = JSONLiteral().apply {
+                        val obj = JsonLiteral().apply {
                             addParameter("domain", domain.name)
-                            val whoArr = JSONLiteralArray().apply {
+                            val whoArr = JsonLiteralArray().apply {
                                 for ((key, value) in who) {
-                                    val ctxInfo = JSONLiteral().apply {
+                                    val ctxInfo = JsonLiteral().apply {
                                         addParameter("ctx", key)
                                         addParameter("users", value)
                                         finish()
@@ -348,7 +348,7 @@ internal class ActiveUser(internal val ref: String, private val domainRegistry: 
     private class FriendInfo internal constructor(private val myUser: String, private val myUserMeta: JsonObject?, private val myContext: String,
                                                   private val myContextMeta: JsonObject?) : Encodable {
         override fun encode(control: EncodeControl) =
-                JSONLiteral(control).apply {
+                JsonLiteral(control).apply {
                     addParameter("user", myUser)
                     addParameterOpt("umeta", myUserMeta)
                     addParameter("ctx", myContext)

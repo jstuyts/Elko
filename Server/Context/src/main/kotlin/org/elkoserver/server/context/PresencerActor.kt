@@ -1,7 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.NonRoutingActor
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -52,7 +52,7 @@ internal class PresencerActor(
      * @param contextRef  The context the user is in
      * @param group  Info about the other users whose presences are online
      */
-    @JSONMethod("touser", "ctx", "group")
+    @JsonMethod("touser", "ctx", "group")
     fun gtou(from: PresencerActor, userRef: String, contextRef: String, group: Array<GToUDomainInfo>) {
         for (info in group) {
             for (friend in info.friends) {
@@ -63,9 +63,9 @@ internal class PresencerActor(
         }
     }
 
-    internal class GToUDomainInfo @JSONMethod("domain", "friends") internal constructor(val domain: String, val friends: Array<GToUFriendInfo>)
+    internal class GToUDomainInfo @JsonMethod("domain", "friends") internal constructor(val domain: String, val friends: Array<GToUFriendInfo>)
 
-    internal class GToUFriendInfo @JSONMethod("user", "?umeta", "ctx", "?cmeta") internal constructor(val user: String, val userMeta: JsonObject, val context: String,
+    internal class GToUFriendInfo @JsonMethod("user", "?umeta", "ctx", "?cmeta") internal constructor(val user: String, val userMeta: JsonObject, val context: String,
                                                                                                       val contextMeta: JsonObject)
 
     /**
@@ -80,7 +80,7 @@ internal class PresencerActor(
      * @param on  Flag indicating whether the presence is coming online or not
      * @param toGroup  List of users who may be interested in this
      */
-    @JSONMethod("user", "?umeta", "ctx", "?cmeta", "on", "togroup")
+    @JsonMethod("user", "?umeta", "ctx", "?cmeta", "on", "togroup")
     fun utog(from: PresencerActor, userRef: String, userMeta: JsonObject?, contextRef: String, contextMeta: JsonObject?, on: Boolean, toGroup: Array<UToGDomainInfo>) {
         for (domainInfo in toGroup) {
             for (contextInfo in domainInfo.who) {
@@ -93,9 +93,9 @@ internal class PresencerActor(
         }
     }
 
-    internal class UToGDomainInfo @JSONMethod("domain", "who") internal constructor(val domain: String, val who: Array<UToGContextInfo>)
+    internal class UToGDomainInfo @JsonMethod("domain", "who") internal constructor(val domain: String, val who: Array<UToGContextInfo>)
 
-    internal class UToGContextInfo @JSONMethod("ctx", "users") internal constructor(val context: String, val users: Array<String>)
+    internal class UToGContextInfo @JsonMethod("ctx", "users") internal constructor(val context: String, val users: Array<String>)
 
     init {
         myGroup.admitMember(this)

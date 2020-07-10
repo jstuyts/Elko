@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.net.connectionretrier
 
-import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactory
-import org.elkoserver.foundation.byteioframer.json.JSONByteIOFramerFactoryFactory
+import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramerFactory
+import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramerFactoryFactory
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
@@ -28,10 +28,10 @@ class ConnectionRetrier(
         private val myActualFactory: MessageHandlerFactory,
         timer: Timer,
         private val gorgel: Gorgel,
-        jsonByteIOFramerFactoryFactory: JSONByteIOFramerFactoryFactory) {
+        jsonByteIoFramerFactoryFactory: JsonByteIoFramerFactoryFactory) {
 
     /** Low-level I/O framer factory for the new connection.  */
-    private val myFramerFactory: JSONByteIOFramerFactory = jsonByteIOFramerFactoryFactory.create(myLabel)
+    private val myFramerFactory: JsonByteIoFramerFactory = jsonByteIoFramerFactoryFactory.create(myLabel)
 
     /** Flag to stop retries.  */
     private var myKeepTryingFlag = true

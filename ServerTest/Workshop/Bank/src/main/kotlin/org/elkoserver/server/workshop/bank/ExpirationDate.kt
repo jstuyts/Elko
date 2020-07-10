@@ -1,11 +1,11 @@
 package org.elkoserver.server.workshop.bank
 
 import org.elkoserver.foundation.json.ClockUsingObject
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.PostInjectionInitializingObject
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
+import org.elkoserver.json.JsonLiteral
 import java.text.DateFormat
 import java.text.ParseException
 import java.time.Clock
@@ -67,7 +67,7 @@ internal class ExpirationDate : Comparable<ExpirationDate>, Encodable, ClockUsin
      *
      * @param time  Millisecond clock time when expiration happens
      */
-    @JSONMethod("when")
+    @JsonMethod("when")
     constructor(time: Long) {
         myTime = if (time == 0L) {
             Long.MAX_VALUE
@@ -105,9 +105,9 @@ internal class ExpirationDate : Comparable<ExpirationDate>, Encodable, ClockUsin
      *
      * @return a JSON literal representing this expiration date.
      */
-    override fun encode(control: EncodeControl): JSONLiteral {
+    override fun encode(control: EncodeControl): JsonLiteral {
         val encTime = if (myTime == Long.MAX_VALUE) 0 else myTime
-        val result = JSONLiteral(control).apply {
+        val result = JsonLiteral(control).apply {
             addParameter("when", encTime)
             finish()
         }

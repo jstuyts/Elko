@@ -2,12 +2,12 @@ package org.elkoserver.foundation.actor
 
 import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.DispatchTarget
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.json.JSONLiteralFactory.targetVerb
+import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -18,7 +18,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * This class is abstract, in that its implementation of the [org.elkoserver.foundation.net.MessageHandler] interface is
  * incomplete: it implements the [org.elkoserver.foundation.net.MessageHandler.processMessage]
  * method, but subclasses must implement the [org.elkoserver.foundation.net.MessageHandler.connectionDied]
- * method (as well as any [JSONMethod] methods for whatever specific
+ * method (as well as any [JsonMethod] methods for whatever specific
  * object behavior the subclass is intended for).
  *
  * In contrast to [RoutingActor], objects of this class disregard the
@@ -104,7 +104,7 @@ abstract class NonRoutingActor protected constructor(
      * @param from  The connection over which the message was received.
      * @param msg  Text to write to the server log;
      */
-    @JSONMethod("msg")
+    @JsonMethod("msg")
     fun debug(from: Deliverer, msg: String) {
         gorgel.i?.run { info("Debug msg: $msg") }
     }
@@ -127,7 +127,7 @@ abstract class NonRoutingActor protected constructor(
      * @param tag  Optional tag string; if provided, it will be included in the
      * reply.
      */
-    @JSONMethod("tag")
+    @JsonMethod("tag")
     fun ping(from: Deliverer, tag: OptString) {
         from.send(msgPong(this, tag.value<String?>(null)))
     }
@@ -149,7 +149,7 @@ abstract class NonRoutingActor protected constructor(
      * @param tag  Optional tag string, which should echo that (if any) from
      * the 'ping' message that caused this 'pong' to be sent.
      */
-    @JSONMethod("tag")
+    @JsonMethod("tag")
     fun pong(from: Deliverer, tag: OptString) {
         /* Nothing to do here. */
     }

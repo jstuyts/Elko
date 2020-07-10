@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net.ws.server
 
-import org.elkoserver.foundation.byteioframer.http.HTTPError
+import org.elkoserver.foundation.byteioframer.http.HttpError
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketHandshake
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketRequest
 import org.elkoserver.foundation.net.Connection
@@ -24,11 +24,11 @@ import java.util.stream.Collectors
  *
  * @param myInnerFactory  The application-level message handler factor that
  * is to be wrapped by this.
- * @param mySocketURI  The URI of the WebSocket connection point.
+ * @param mySocketUri  The URI of the WebSocket connection point.
  */
 internal class WebsocketMessageHandlerFactory(
         private val myInnerFactory: MessageHandlerFactory,
-        private val mySocketURI: String,
+        private val mySocketUri: String,
         private val gorgel: Gorgel) : MessageHandlerFactory {
 
     private fun makeErrorReply(problem: String): String {
@@ -54,7 +54,7 @@ internal class WebsocketMessageHandlerFactory(
      */
     private fun sendError(connection: Connection, problem: String) {
         gorgel.i?.run { info("$connection received invalid WebSocket connection startup: $problem") }
-        connection.sendMsg(HTTPError(400, "Bad Request",
+        connection.sendMsg(HttpError(400, "Bad Request",
                 makeErrorReply(problem)))
     }
 
@@ -64,7 +64,7 @@ internal class WebsocketMessageHandlerFactory(
         val key2 = request.header("sec-websocket-key2")
         if (!request.method.equals("GET", ignoreCase = true)) {
             sendError(connection, "WebSocket connection start requires GET")
-        } else if (!request.uri.equals(mySocketURI, ignoreCase = true)) {
+        } else if (!request.uri.equals(mySocketUri, ignoreCase = true)) {
             sendError(connection, "Invalid WebSocket endpoint URI")
         } else if (!"WebSocket".equals(request.header("upgrade"), ignoreCase = true)) {
             sendError(connection, "Invalid WebSocket Upgrade header")

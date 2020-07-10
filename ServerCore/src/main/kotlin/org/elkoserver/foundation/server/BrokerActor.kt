@@ -1,14 +1,14 @@
 package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.actor.NonRoutingActor
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc.Companion.encodeArray
-import org.elkoserver.json.JSONLiteralFactory.targetVerb
+import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -82,7 +82,7 @@ class BrokerActor(
      * @param desc  The service description(s) returned by the broker.
      * @param tag  The 'tag' string from the request.  (Optional, default "").
      */
-    @JSONMethod("desc", "tag")
+    @JsonMethod("desc", "tag")
     fun find(from: BrokerActor, desc: Array<ServiceDesc>, tag: OptString) {
         myServer.foundService(desc, tag.value(""))
     }
@@ -90,7 +90,7 @@ class BrokerActor(
     /**
      * Handle a 'reinit' message: reinitialize this server.
      */
-    @JSONMethod
+    @JsonMethod
     fun reinit(from: BrokerActor?) {
         myServer.reinit()
     }
@@ -98,7 +98,7 @@ class BrokerActor(
     /**
      * Handle a 'shutdown' message: shut down this server.
      */
-    @JSONMethod
+    @JsonMethod
     fun shutdown(from: BrokerActor) {
         myServer.shutdown()
     }

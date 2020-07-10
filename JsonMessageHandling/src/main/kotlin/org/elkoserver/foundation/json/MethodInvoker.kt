@@ -61,7 +61,7 @@ class MethodInvoker(
     fun handle(target: DispatchTarget, from: Deliverer?, message: JsonObject, resolver: TypeResolver) {
         try {
             apply(target, from, message.entrySet(), resolver)
-        } catch (e: JSONInvocationException) {
+        } catch (e: JsonInvocationException) {
             throw MessageHandlerException("error calling JSON method", e)
         }
     }

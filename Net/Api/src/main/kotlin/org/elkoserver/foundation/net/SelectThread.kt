@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net
 
-import org.elkoserver.foundation.byteioframer.ByteIOFramerFactory
+import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
 import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
@@ -79,12 +79,12 @@ class SelectThread(
                             listener.doAccept()
                         }
                         if (key.isValid && key.isReadable) {
-                            val connection = key.attachment() as TCPConnection
+                            val connection = key.attachment() as TcpConnection
                             commGorgel.d?.run { debug("select has read for $connection") }
                             connection.doRead()
                         }
                         if (key.isValid && key.isWritable) {
-                            val connection = key.attachment() as TCPConnection
+                            val connection = key.attachment() as TcpConnection
                             connection.wakeupSelectForWrite()
                             commGorgel.d?.run { debug("select has write for $connection") }
                             connection.doWrite()
@@ -109,7 +109,7 @@ class SelectThread(
      * @param remoteAddr  Host name and port number to connect to.
      */
     fun connect(handlerFactory: MessageHandlerFactory,
-                framerFactory: ByteIOFramerFactory,
+                framerFactory: ByteIoFramerFactory,
                 remoteAddr: String) {
         myQueue.enqueue(Callable<Any?> {
             try {
@@ -139,7 +139,7 @@ class SelectThread(
      */
     @Throws(IOException::class)
     fun listen(localAddress: String, handlerFactory: MessageHandlerFactory,
-               framerFactory: ByteIOFramerFactory, secure: Boolean): Listener {
+               framerFactory: ByteIoFramerFactory, secure: Boolean): Listener {
         val listener = listenerFactory.create(localAddress, handlerFactory, framerFactory, secure)
         myQueue.enqueue(listener)
         mySelector.wakeup()
@@ -158,12 +158,12 @@ class SelectThread(
      * @param isSecure  If true, this will be an SSL connnection.
      */
     fun newChannel(handlerFactory: MessageHandlerFactory,
-                   framerFactory: ByteIOFramerFactory,
+                   framerFactory: ByteIoFramerFactory,
                    channel: SocketChannel, isSecure: Boolean) {
         try {
             channel.configureBlocking(false)
             val key = channel.register(mySelector, SelectionKey.OP_READ)
-            key.attach(TCPConnection(handlerFactory, framerFactory,
+            key.attach(TcpConnection(handlerFactory, framerFactory,
                     channel, key, this, runner, loadMonitor, isSecure, tcpConnectionGorgel, clock, tcpConnectionCommGorgel, idGenerator))
         } catch (e: ClosedChannelException) {
             handlerFactory.provideMessageHandler(null)
@@ -185,7 +185,7 @@ class SelectThread(
      *
      * @param connection  The connection that has messages ready to send.
      */
-    fun readyToSend(connection: TCPConnection) {
+    fun readyToSend(connection: TcpConnection) {
         commGorgel.d?.run { debug("$connection ready to send") }
         myQueue.enqueue(connection)
         mySelector.wakeup()

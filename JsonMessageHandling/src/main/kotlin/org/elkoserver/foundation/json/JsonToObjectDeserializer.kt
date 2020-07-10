@@ -27,7 +27,7 @@ class JsonToObjectDeserializer(
             try {
                 decoder = ObjectDecoder(decodeClass, constructorInvokerCommGorgel, this, injectors)
                 theDecoders[decodeClass] = decoder
-            } catch (e: JSONSetupError) {
+            } catch (e: JsonSetupError) {
                 gorgel.error(e.message ?: e.toString())
                 decoder = null
             }

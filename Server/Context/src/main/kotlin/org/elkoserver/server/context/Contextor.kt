@@ -9,12 +9,12 @@ import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.json.JSONDecodingException
-import org.elkoserver.json.JSONLiteral
 import org.elkoserver.json.JsonArray
+import org.elkoserver.json.JsonDecodingException
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
-import org.elkoserver.objdb.ObjDB
+import org.elkoserver.objdb.ObjDb
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
@@ -39,12 +39,12 @@ import kotlin.math.abs
  * then possess it in a parameter variable whence it can be both passed to
  * the superclass constructor and saved in an instance variable.
  *
- * @param odb  Database for persistent object storage.
+ * @param objDb  Database for persistent object storage.
  * @param server  Server object.
  * @param myRandom Random number generator, for creating unique IDs and sub-IDs.
  */
 class Contextor internal constructor(
-        val odb: ObjDB,
+        val objDb: ObjDb,
         val server: Server,
         internal val refTable: RefTable,
         private val contextorGorgel: Gorgel,
@@ -83,7 +83,7 @@ class Contextor internal constructor(
     /** Send group for currently connected presence servers.  */
     private var myPresencerGroup: PresencerGroup? = null
 
-    /** Static objects loaded from the ODB and available in all contexts.  */
+    /** Static objects loaded from the ObjDb and available in all contexts.  */
     private val myStaticObjects: MutableMap<String, Any> = HashMap()
 
     /** Context families served by this server.  Names prefixed by '$'
@@ -284,7 +284,7 @@ class Contextor internal constructor(
      */
     fun createObjectRecord(ref: String?, contRef: String?, obj: BasicObject) {
         val actualRef = ref ?: uniqueID(obj.type())
-        odb.putObject(actualRef, obj, null, false, null)
+        objDb.putObject(actualRef, obj, null, false, null)
     }
 
     /**
@@ -293,7 +293,7 @@ class Contextor internal constructor(
      * @param ref  Reference string identifying the user to be deleted.
      */
     fun deleteUserRecord(ref: String) {
-        odb.removeObject(ref, null, null)
+        objDb.removeObject(ref, null, null)
     }
 
     /**
@@ -361,7 +361,7 @@ class Contextor internal constructor(
                 val contentsHandler = ContentsHandler(null, getHandler)
                 val contextReceiver = Consumer { obj: Any? -> contentsHandler.receiveContainer(obj as BasicObject?) }
                 if (addPendingGet(actualContextTemplate, contextHandler)) {
-                    odb.getObject(actualContextTemplate, null, contextReceiver)
+                    objDb.getObject(actualContextTemplate, null, contextReceiver)
                     loadContentsOfContainer(contextRef, contentsHandler)
                 }
             } else {
@@ -485,7 +485,7 @@ class Contextor internal constructor(
         }
 
         /**
-         * Runnable invoked by the ODB to accept the delivery of stuff fetched
+         * Runnable invoked by the ObjDb to accept the delivery of stuff fetched
          * from the database.
          *
          * @param obj The thing that was obtained from the database.  In the
@@ -611,7 +611,7 @@ class Contextor internal constructor(
             val result = refTable.get(itemRef) as Item?
             if (result == null) {
                 if (addPendingGet(itemRef, itemHandler)) {
-                    odb.getObject(itemRef, null,
+                    objDb.getObject(itemRef, null,
                             GetItemHandler(itemRef))
                 }
             } else {
@@ -670,14 +670,14 @@ class Contextor internal constructor(
      * object names.
      */
     private fun loadStaticObjects(staticListRefs: String?) {
-        odb.addClass("statics", StaticObjectList::class.java)
-        odb.getObject("statics", null,
+        objDb.addClass("statics", StaticObjectList::class.java)
+        objDb.getObject("statics", null,
                 StaticObjectListReceiver("statics"))
         if (staticListRefs != null) {
             val tags = StringTokenizer(staticListRefs, " ,;:")
             while (tags.hasMoreTokens()) {
                 val tag = tags.nextToken()
-                odb.getObject(tag, null, StaticObjectListReceiver(tag))
+                objDb.getObject(tag, null, StaticObjectListReceiver(tag))
             }
         }
     }
@@ -687,7 +687,7 @@ class Contextor internal constructor(
             val statics = obj as StaticObjectList?
             if (statics != null) {
                 contextorGorgel.i?.run { info("loading static object list '$myTag'") }
-                statics.fetchFromODB(odb, this@Contextor, staticObjectReceiverGorgel)
+                statics.fetchFromObjDb(objDb, this@Contextor, staticObjectReceiverGorgel)
             } else {
                 contextorGorgel.i?.run { info("unable to load static object list '$myTag'") }
             }
@@ -714,7 +714,7 @@ class Contextor internal constructor(
             val contentsHandler = ContentsHandler(null, getHandler)
             val userReceiver = Consumer { obj: Any? -> contentsHandler.receiveContainer(obj as BasicObject?) }
             if (addPendingGet(userRef, actualUserHandler)) {
-                odb.getObject(userRef, null, userReceiver)
+                objDb.getObject(userRef, null, userReceiver)
                 loadContentsOfContainer(userRef, contentsHandler)
             }
         } else {
@@ -866,7 +866,7 @@ class Contextor internal constructor(
             try {
                 val name = whoMeta.getString("name")
                 myUserNames[whoRef] = name
-            } catch (e: JSONDecodingException) {
+            } catch (e: JsonDecodingException) {
                 // No action needed. Do not add a user name.
             }
         }
@@ -874,7 +874,7 @@ class Contextor internal constructor(
             try {
                 val name = whereMeta.getString("name")
                 myContextNames[whereRef] = name
-            } catch (e: JSONDecodingException) {
+            } catch (e: JsonDecodingException) {
                 // No action needed. Do not add a context name.
             }
         }
@@ -941,7 +941,7 @@ class Contextor internal constructor(
      * XXX Is this a POLA (Principle of Least Authority) violation??
      */
     fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>) {
-        odb.queryObjects(template, collectionName, maxResults, handler)
+        objDb.queryObjects(template, collectionName, maxResults, handler)
     }
 
     /**
@@ -993,7 +993,7 @@ class Contextor internal constructor(
      * @param source  Object that is sending the message.
      * @param message  The message itself.
      */
-    fun relay(source: BasicObject, message: JSONLiteral) {
+    fun relay(source: BasicObject, message: JsonLiteral) {
         if (source.isClone) {
             val baseRef = source.baseRef()
             var contextRef: String? = null
@@ -1162,7 +1162,7 @@ class Contextor internal constructor(
      * @param handler  Completion handler.
      */
     fun writeObjectDelete(ref: String, handler: Consumer<Any?>? = null) {
-        odb.removeObject(ref, null, handler)
+        objDb.removeObject(ref, null, handler)
     }
 
     /**
@@ -1173,7 +1173,7 @@ class Contextor internal constructor(
      * @param handler  Completion handler
      */
     fun writeObjectState(ref: String, state: BasicObject, handler: Consumer<Any?>? = null) {
-        odb.putObject(ref, state, null, false, handler)
+        objDb.putObject(ref, state, null, false, handler)
     }
 
     companion object {
@@ -1214,7 +1214,7 @@ class Contextor internal constructor(
 
         /**
          * Generate and return a MongoDB query to fetch an object's non-embedded,
-         * application-scoped mods.  These mods are stored in the ODB as
+         * application-scoped mods.  These mods are stored in the ObjDb as
          * independent objects.  Such a mod is identified by a "refx" property and
          * a "scope" property.  The "refx" property corresponds to the ref of the
          * object the mod should be attached to.  The "scope" property matches if
@@ -1281,7 +1281,7 @@ class Contextor internal constructor(
                 myDirectorGroup?.disconnectHosts()
                 myPresencerGroup?.disconnectHosts()
                 checkpointAll()
-                odb.shutdown()
+                objDb.shutdown()
             }
         })
     }

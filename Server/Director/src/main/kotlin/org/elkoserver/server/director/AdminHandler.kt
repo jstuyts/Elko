@@ -1,14 +1,14 @@
 package org.elkoserver.server.director
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -150,7 +150,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      * @param context  The context to be closed.
      * @param user  The user to be closed.
      */
-    @JSONMethod("context", "user")
+    @JsonMethod("context", "user")
     fun close(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
         val contextName = context.value<String?>(null)
@@ -170,7 +170,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      * @param provider  A provider to limit the dump to.
      * @param context  A context to limit the dump to.
      */
-    @JSONMethod("depth", "provider", "context")
+    @JsonMethod("depth", "provider", "context")
     fun dump(from: DirectorActor, depth: Int, provider: OptString, context: OptString) {
         from.ensureAuthorizedAdmin()
         val providerName = provider.value<String?>(null)
@@ -204,7 +204,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
         private val myOpenContexts = LinkedList<ContextDump>()
 
         override fun encode(control: EncodeControl) =
-                JSONLiteralFactory.type("providerdesc", control).apply {
+                JsonLiteralFactory.type("providerdesc", control).apply {
                     addParameter("provider", myProvider.actor.label)
                     addParameter("numcontexts", numContexts)
                     addParameter("numusers", numUsers)
@@ -235,7 +235,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
 
     private class ContextDump internal constructor(private val myDepth: Int, private val myContext: OpenContext) : Encodable {
         override fun encode(control: EncodeControl) =
-                JSONLiteralFactory.type("contextdesc", control).apply {
+                JsonLiteralFactory.type("contextdesc", control).apply {
                     addParameter("context", myContext.name)
                     addParameter("numusers", myContext.userCount())
                     if (myDepth > 2) {
@@ -255,7 +255,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      * @param context  The context sought.
      * @param user  The user sought.
      */
-    @JSONMethod("context", "user")
+    @JsonMethod("context", "user")
     fun find(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
         doFind(false, from, context, user)
@@ -268,7 +268,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      *
      * @param from  The administrator asking for the information.
      */
-    @JSONMethod
+    @JsonMethod
     fun listcontexts(from: DirectorActor) {
         from.ensureAuthorizedAdmin()
         from.send(
@@ -282,7 +282,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      *
      * @param from  The administrator asking for the information.
      */
-    @JSONMethod
+    @JsonMethod
     fun listproviders(from: DirectorActor) {
         from.ensureAuthorizedAdmin()
         from.send(
@@ -296,7 +296,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      *
      * @param from  The administrator asking for the information.
      */
-    @JSONMethod
+    @JsonMethod
     fun listusers(from: DirectorActor) {
         from.ensureAuthorizedAdmin()
         from.send(msgListusers(this, encodeStrings(myDirector.users())))
@@ -311,7 +311,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      * @param provider  The provider to be re-init'ed.
      * @param director  true if this director itself should be re-init'ed.
      */
-    @JSONMethod("provider", "director")
+    @JsonMethod("provider", "director")
     fun reinit(from: DirectorActor, provider: OptString, director: OptBoolean) {
         from.ensureAuthorizedAdmin()
         val providerName = provider.value<String?>(null)
@@ -339,7 +339,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      * @param user  The user to be broadcast to.
      * @param msg  The message to relay to them.
      */
-    @JSONMethod("context", "user", "msg")
+    @JsonMethod("context", "user", "msg")
     fun relay(from: DirectorActor, context: OptString, user: OptString, msg: JsonObject) {
         from.ensureAuthorizedAdmin()
         myDirector.doRelay(null, context, user, msg)
@@ -355,7 +355,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      * @param user  The user to be broadcast to.
      * @param text  The message to send them.
      */
-    @JSONMethod("context", "user", "text")
+    @JsonMethod("context", "user", "text")
     fun say(from: DirectorActor, context: OptString, user: OptString, text: String) {
         from.ensureAuthorizedAdmin()
         val contextName = context.value<String?>(null)
@@ -374,7 +374,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      * @param provider  The provider(s) to be shut down, if any.
      * @param director  true if this director itself should be shut down.
      */
-    @JSONMethod("provider", "director")
+    @JsonMethod("provider", "director")
     fun shutdown(from: DirectorActor, provider: OptString, director: OptBoolean) {
         from.ensureAuthorizedAdmin()
         val providerName = provider.value<String?>(null)
@@ -401,7 +401,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      * @param context  The context that was watched.
      * @param user  The user that was watched.
      */
-    @JSONMethod("context", "user")
+    @JsonMethod("context", "user")
     fun unwatch(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
         val contextName = context.value<String?>(null)
@@ -429,7 +429,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      * @param context  The context sought.
      * @param user  The user sought.
      */
-    @JSONMethod("context", "user")
+    @JsonMethod("context", "user")
     fun watch(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
         doFind(true, from, context, user)
@@ -441,7 +441,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
          * OpenContext objects.
          */
         private fun encodeContexts(contexts: Iterable<OpenContext>) =
-                JSONLiteralArray().apply {
+                JsonLiteralArray().apply {
                     for (context in contexts) {
                         addElement(context.name)
                     }
@@ -452,7 +452,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
          * Generate a JSONLiteralArray from a linked list of Encodable objects.
          */
         private fun encodeEncodableList(list: List<Encodable>) =
-                JSONLiteralArray().apply {
+                JsonLiteralArray().apply {
                     for (elem in list) {
                         addElement(elem)
                     }
@@ -464,7 +464,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
          * DirectorActor objects.
          */
         private fun encodeProviders(providers: Set<Provider>) =
-                JSONLiteralArray().apply {
+                JsonLiteralArray().apply {
                     for (subj in providers) {
                         addElement(subj.actor.label)
                     }
@@ -475,7 +475,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
          * Generate a JSONLiteralArray of strings from a collection of strings.
          */
         private fun encodeStrings(strings: Collection<String>) =
-                JSONLiteralArray().apply {
+                JsonLiteralArray().apply {
                     for (str in strings) {
                         addElement(str)
                     }
@@ -486,7 +486,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
          * Generate a 'close' message.
          */
         fun msgClose(target: Referenceable, contextName: String?, userName: String?, isDup: Boolean) =
-                JSONLiteralFactory.targetVerb(target, "close").apply {
+                JsonLiteralFactory.targetVerb(target, "close").apply {
                     addParameterOpt("context", contextName)
                     addParameterOpt("user", userName)
                     if (isDup) {
@@ -498,8 +498,8 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
         /**
          * Generate a 'context' message.
          */
-        private fun msgContext(target: Referenceable, contextName: String?, open: Boolean, provider: String?, clones: JSONLiteralArray?) =
-                JSONLiteralFactory.targetVerb(target, "context").apply {
+        private fun msgContext(target: Referenceable, contextName: String?, open: Boolean, provider: String?, clones: JsonLiteralArray?) =
+                JsonLiteralFactory.targetVerb(target, "context").apply {
                     addParameter("context", contextName)
                     addParameter("open", open)
                     addParameterOpt("provider", provider)
@@ -511,7 +511,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
          * Generate a 'dump' message.
          */
         private fun msgDump(target: Referenceable, numProviders: Int, numContexts: Int, numUsers: Int, providerList: List<ProviderDump>) =
-                JSONLiteralFactory.targetVerb(target, "dump").apply {
+                JsonLiteralFactory.targetVerb(target, "dump").apply {
                     addParameter("numproviders", numProviders)
                     addParameter("numcontexts", numContexts)
                     addParameter("numusers", numUsers)
@@ -524,8 +524,8 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
         /**
          * Generate a 'listcontexts' message.
          */
-        private fun msgListcontexts(target: Referenceable, contexts: JSONLiteralArray) =
-                JSONLiteralFactory.targetVerb(target, "listcontexts").apply {
+        private fun msgListcontexts(target: Referenceable, contexts: JsonLiteralArray) =
+                JsonLiteralFactory.targetVerb(target, "listcontexts").apply {
                     addParameter("contexts", contexts)
                     finish()
                 }
@@ -533,8 +533,8 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
         /**
          * Generate a 'listproviders' message.
          */
-        private fun msgListproviders(target: Referenceable, providers: JSONLiteralArray) =
-                JSONLiteralFactory.targetVerb(target, "listproviders").apply {
+        private fun msgListproviders(target: Referenceable, providers: JsonLiteralArray) =
+                JsonLiteralFactory.targetVerb(target, "listproviders").apply {
                     addParameter("providers", providers)
                     finish()
                 }
@@ -542,8 +542,8 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
         /**
          * Generate a 'listusers' message.
          */
-        private fun msgListusers(target: Referenceable, users: JSONLiteralArray) =
-                JSONLiteralFactory.targetVerb(target, "listusers").apply {
+        private fun msgListusers(target: Referenceable, users: JsonLiteralArray) =
+                JsonLiteralFactory.targetVerb(target, "listusers").apply {
                     addParameter("users", users)
                     finish()
                 }
@@ -552,7 +552,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
          * Generate a 'reinit' message.
          */
         private fun msgReinit(target: Referenceable) =
-                JSONLiteralFactory.targetVerb(target, "reinit").apply {
+                JsonLiteralFactory.targetVerb(target, "reinit").apply {
                     finish()
                 }
 
@@ -560,7 +560,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
          * Generate a 'say' message.
          */
         private fun msgSay(target: Referenceable, contextName: String?, userName: String?, text: String) =
-                JSONLiteralFactory.targetVerb(target, "say").apply {
+                JsonLiteralFactory.targetVerb(target, "say").apply {
                     addParameterOpt("context", contextName)
                     addParameterOpt("user", userName)
                     addParameter("text", text)
@@ -571,15 +571,15 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
          * Generate a 'shutdown' message.
          */
         private fun msgShutdown(target: Referenceable) =
-                JSONLiteralFactory.targetVerb(target, "shutdown").apply {
+                JsonLiteralFactory.targetVerb(target, "shutdown").apply {
                     finish()
                 }
 
         /**
          * Generate a 'user' message.
          */
-        private fun msgUser(target: Referenceable, userName: String, online: Boolean, contexts: JSONLiteralArray?) =
-                JSONLiteralFactory.targetVerb(target, "user").apply {
+        private fun msgUser(target: Referenceable, userName: String, online: Boolean, contexts: JsonLiteralArray?) =
+                JsonLiteralFactory.targetVerb(target, "user").apply {
                     addParameter("user", userName)
                     addParameter("on", online)
                     addParameterOpt("contexts", contexts)

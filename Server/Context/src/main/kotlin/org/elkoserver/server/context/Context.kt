@@ -1,16 +1,16 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Contents.Companion.sendContentsDescription
 import org.elkoserver.server.context.Msg.msgDelete
@@ -51,7 +51,7 @@ import java.util.NoSuchElementException
  * @param isAllowAnonymous  Flag that context permits anonymous users to
  * enter (false by default).
  */
-class Context @JSONMethod("name", "capacity", "basecapacity", "semiprivate", "restricted", "agnostic", "multientry", "mods", "?usermods", "?contents", "ref", "?subscribe", "ephemeral", "template", "templateonly", "allowanonymous")
+class Context @JsonMethod("name", "capacity", "basecapacity", "semiprivate", "restricted", "agnostic", "multientry", "mods", "?usermods", "?contents", "ref", "?subscribe", "ephemeral", "template", "templateonly", "allowanonymous")
 internal constructor(name: String,
                      internal val maxCapacity: Int, baseCapacity: OptInteger,
                      isSemiPrivate: OptBoolean, isEntryRestricted: OptBoolean,
@@ -575,7 +575,7 @@ internal constructor(name: String,
      * @param exclude  Who to exclude from the send operation.
      * @param message  The message to send.
      */
-    fun sendToNeighbors(exclude: Deliverer, message: JSONLiteral) {
+    fun sendToNeighbors(exclude: Deliverer, message: JsonLiteral) {
         group.sendToNeighbors(exclude, message)
     }
 
@@ -589,7 +589,7 @@ internal constructor(name: String,
      */
     fun neighbors(exclude: Deliverer): Deliverer {
         return object : Deliverer {
-            override fun send(message: JSONLiteral) {
+            override fun send(message: JsonLiteral) {
                 sendToNeighbors(exclude, message)
             }
         }
@@ -650,7 +650,7 @@ internal constructor(name: String,
      *
      * Exit the context and disconnect the user who sent it.
      */
-    @JSONMethod
+    @JsonMethod
     fun exit(from: Deliverer) {
         val fromUser = from as User
         fromUser.exitContext("normal exit", "bye", false)
@@ -692,7 +692,7 @@ internal constructor(name: String,
      *
      * @param message  The message to send.
      */
-    override fun send(message: JSONLiteral) {
+    override fun send(message: JsonLiteral) {
         group.send(message)
     }
     /* ----- Encodable. interface, inherited from BasicObject -------------- */
@@ -705,7 +705,7 @@ internal constructor(name: String,
      * @return a JSON literal representing this context.
      */
     override fun encode(control: EncodeControl) =
-            JSONLiteralFactory.type("context", control).apply {
+            JsonLiteralFactory.type("context", control).apply {
                 if (control.toClient()) {
                     addParameter("ref", myRef)
                 } else {
@@ -741,7 +741,7 @@ internal constructor(name: String,
                     addParameter("mods", mods)
                 }
                 if (control.toRepository() && myUserMods != null) {
-                    val userMods = JSONLiteralArray(control)
+                    val userMods = JsonLiteralArray(control)
                     for (mod in myUserMods) {
                         userMods.addElement(mod)
                     }
@@ -762,7 +762,7 @@ internal constructor(name: String,
          */
         fun toList(toList: List<BasicObject>): Deliverer {
             return object : Deliverer {
-                override fun send(message: JSONLiteral) {
+                override fun send(message: JsonLiteral) {
                     toList
                             .map { it as User }
                             .forEach { it.send(message) }
@@ -783,7 +783,7 @@ internal constructor(name: String,
         fun toListExcluding(toList: List<BasicObject>,
                             exclude: Deliverer): Deliverer {
             return object : Deliverer {
-                override fun send(message: JSONLiteral) {
+                override fun send(message: JsonLiteral) {
                     toList
                             .map { it as User }
                             .filter { it != exclude }

@@ -54,24 +54,24 @@ class ObjectDecoder internal constructor(
     internal fun decode(obj: JsonObject, resolver: TypeResolver): Any? = myConstructor.construct(obj, resolver)
 
     init {
-        val jsonConstructors = decodeClass.declaredConstructors.filter { it.getAnnotation(JSONMethod::class.java) != null }
+        val jsonConstructors = decodeClass.declaredConstructors.filter { it.getAnnotation(JsonMethod::class.java) != null }
 
         when  {
-            jsonConstructors.isEmpty() -> throw JSONSetupError("no JSON constructor for class ${decodeClass.name}")
-            1 < jsonConstructors.size ->throw JSONSetupError("class ${decodeClass.name} has more than one JSON constructor")
+            jsonConstructors.isEmpty() -> throw JsonSetupError("no JSON constructor for class ${decodeClass.name}")
+            1 < jsonConstructors.size ->throw JsonSetupError("class ${decodeClass.name} has more than one JSON constructor")
         }
 
         val jsonConstructor = jsonConstructors.first()
         val paramTypes = jsonConstructor.parameterTypes
-        val note = jsonConstructor.getAnnotation(JSONMethod::class.java)
+        val note = jsonConstructor.getAnnotation(JsonMethod::class.java)
         val paramNames = note.value
         val includeRawObject = if (paramNames.size + 1 == paramTypes.size) {
             if (!JsonObject::class.java.isAssignableFrom(paramTypes[0])) {
-                throw JSONSetupError("class ${decodeClass.name} JSON constructor lacks a JsonObject first parameter")
+                throw JsonSetupError("class ${decodeClass.name} JSON constructor lacks a JsonObject first parameter")
             }
             true
         } else if (paramNames.size != paramTypes.size) {
-            throw JSONSetupError("class ${decodeClass.name} JSON constructor has wrong number of parameters")
+            throw JsonSetupError("class ${decodeClass.name} JSON constructor has wrong number of parameters")
         } else {
             false
         }

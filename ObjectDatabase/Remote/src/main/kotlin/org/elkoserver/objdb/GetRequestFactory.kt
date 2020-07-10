@@ -2,8 +2,8 @@ package org.elkoserver.objdb
 
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.json.EncodeControl.ForClientEncodeControl
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 import java.util.function.Consumer
 
 class GetRequestFactory(private val tagGenerator: IdGenerator) {
@@ -18,15 +18,15 @@ class GetRequestFactory(private val tagGenerator: IdGenerator) {
      * @param collectionName  Name of collection to get from, or null to take
      */
     private fun msgGet(ref: String, tag: String, collectionName: String?) =
-            JSONLiteralFactory.targetVerb("rep", "get").apply {
+            JsonLiteralFactory.targetVerb("rep", "get").apply {
                 addParameter("tag", tag)
-                val what = JSONLiteralFactory.type("reqi", ForClientEncodeControl).apply {
+                val what = JsonLiteralFactory.type("reqi", ForClientEncodeControl).apply {
                     addParameter("ref", ref)
                     addParameter("contents", true)
                     addParameterOpt("coll", collectionName)
                     finish()
                 }
-                addParameter("what", JSONLiteralArray.singleElementArray(what))
+                addParameter("what", JsonLiteralArray.singleElementArray(what))
                 finish()
             }
 }

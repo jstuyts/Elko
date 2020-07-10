@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.net.http.server
 
-import org.elkoserver.foundation.byteioframer.http.HTTPRequestByteIOFramerFactoryFactory
+import org.elkoserver.foundation.byteioframer.http.HttpRequestByteIoFramerFactoryFactory
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
@@ -15,7 +15,7 @@ class HttpServerFactory(
         private val handlerCommGorgel: Gorgel,
         private val handlerFactoryCommGorgel: Gorgel,
         private val tcpServerFactory: TcpServerFactory,
-        private val httpRequestByteIOFramerFactoryFactory: HTTPRequestByteIOFramerFactoryFactory,
+        private val httpRequestByteIoFramerFactoryFactory: HttpRequestByteIoFramerFactoryFactory,
         private val httpSessionConnectionFactory: HttpSessionConnectionFactory) {
 
     /**
@@ -27,7 +27,7 @@ class HttpServerFactory(
      * to this port.
      *
      * @param secure  If true, use SSL.
-     * @param rootURI  The root URI that GETs and POSTs must reference.
+     * @param rootUri  The root URI that GETs and POSTs must reference.
      * @param httpFramer  HTTP framer to interpret HTTP POSTs and format HTTP
      * replies.
      * @return the address that ended up being listened upon
@@ -36,10 +36,10 @@ class HttpServerFactory(
     fun listenHTTP(listenAddress: String,
                    innerHandlerFactory: MessageHandlerFactory,
                    secure: Boolean,
-                   rootURI: String, httpFramer: HTTPFramer): NetAddr {
-        val outerHandlerFactory = HTTPMessageHandlerFactory(
-                innerHandlerFactory, rootURI, httpFramer, props, timer, handlerCommGorgel, handlerFactoryCommGorgel, httpSessionConnectionFactory)
-        val framerFactory = httpRequestByteIOFramerFactoryFactory.create()
+                   rootUri: String, httpFramer: HttpFramer): NetAddr {
+        val outerHandlerFactory = HttpMessageHandlerFactory(
+                innerHandlerFactory, rootUri, httpFramer, props, timer, handlerCommGorgel, handlerFactoryCommGorgel, httpSessionConnectionFactory)
+        val framerFactory = httpRequestByteIoFramerFactoryFactory.create()
         return tcpServerFactory.listenTCP(listenAddress, outerHandlerFactory, secure, framerFactory)
     }
 }

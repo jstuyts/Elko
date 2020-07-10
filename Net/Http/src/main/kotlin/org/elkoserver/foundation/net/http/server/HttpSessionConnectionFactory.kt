@@ -16,6 +16,6 @@ class HttpSessionConnectionFactory(
         private val connectionCommGorgel: Gorgel,
         private val sessionIdGenerator: IdGenerator,
         private val connectionIdGenerator: IdGenerator) {
-    fun create(sessionFactory: HTTPMessageHandlerFactory) =
-            HTTPSessionConnection(sessionFactory, httpSessionConnectionGorgel, myRunner, myLoadMonitor, sessionIdGenerator.generate(), timer, clock, connectionCommGorgel, connectionIdGenerator)
+    fun create(sessionFactory: HttpMessageHandlerFactory) =
+            HttpSessionConnection(sessionFactory, httpSessionConnectionGorgel, myRunner, myLoadMonitor, sessionIdGenerator.generate(), timer, clock, connectionCommGorgel, connectionIdGenerator)
 }

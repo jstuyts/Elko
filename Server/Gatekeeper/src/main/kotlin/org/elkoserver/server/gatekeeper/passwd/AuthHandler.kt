@@ -2,10 +2,10 @@ package org.elkoserver.server.gatekeeper.passwd
 
 import org.elkoserver.foundation.actor.BasicProtocolActor
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.gatekeeper.Gatekeeper
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -41,7 +41,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param optPassword  Password for the actor.
      * @param optCanSetPass  Flag that actor can set their own password.
      */
-    @JSONMethod("id", "iid", "name", "password", "cansetpass")
+    @JsonMethod("id", "iid", "name", "password", "cansetpass")
     fun createactor(from: BasicProtocolActor, optID: OptString,
                     optIID: OptString, optName: OptString, optPassword: OptString,
                     optCanSetPass: OptBoolean) {
@@ -89,7 +89,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param name  The name of the new place.
      * @param context  The context that it maps to.
      */
-    @JSONMethod("name", "context")
+    @JsonMethod("name", "context")
     fun createplace(from: BasicProtocolActor, name: String, context: String) {
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.addPlace(name, context)
@@ -103,7 +103,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param from  The administrator asking for the deletion.
      * @param id  The ID of the actor to be deleted.
      */
-    @JSONMethod("id")
+    @JsonMethod("id")
     fun deleteactor(from: BasicProtocolActor, id: String) {
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.removeActor(id, Consumer { obj: Any? ->
@@ -119,7 +119,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param from  The administrator asking for the deletion.
      * @param name  The name of the entry to be deleted.
      */
-    @JSONMethod("name")
+    @JsonMethod("name")
     fun deleteplace(from: BasicProtocolActor, name: String) {
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.removePlace(name)
@@ -133,7 +133,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param from  The administrator asking for the lookup.
      * @param id  The ID of the actor to be looked up.
      */
-    @JSONMethod("id")
+    @JsonMethod("id")
     fun lookupactor(from: BasicProtocolActor, id: String) {
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.getActor(id, Consumer { obj: Any? ->
@@ -154,7 +154,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param from  The administrator asking for the lookup.
      * @param name  The name of the place to be looked up.
      */
-    @JSONMethod("name")
+    @JsonMethod("name")
     fun lookupplace(from: BasicProtocolActor, name: String) {
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.getPlace(name, Consumer { obj: Any? ->
@@ -173,7 +173,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param id  The ID of the actor.
      * @param canSetPass  The (new) permission setting.
      */
-    @JSONMethod("id", "cansetpass")
+    @JsonMethod("id", "cansetpass")
     fun setcansetpass(from: BasicProtocolActor, id: String, canSetPass: Boolean) {
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.getActor(id, Consumer { obj: Any? ->
@@ -197,7 +197,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param optInternalID  The (new) internal ID for the actor (empty string or omitted
      * to remove).
      */
-    @JSONMethod("id", "iid")
+    @JsonMethod("id", "iid")
     fun setiid(from: BasicProtocolActor, id: String, optInternalID: OptString) {
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.getActor(id, Consumer { obj: Any? ->
@@ -222,7 +222,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param optName  The (new) name for the actor (empty string or omitted to
      * remove).
      */
-    @JSONMethod("id", "name")
+    @JsonMethod("id", "name")
     fun setname(from: BasicProtocolActor, id: String, optName: OptString) {
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.getActor(id, Consumer { obj: Any? ->
@@ -247,7 +247,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
      * @param optPassword  The (new) password for the actor (empty string or
      * omitted to remove).
      */
-    @JSONMethod("id", "password")
+    @JsonMethod("id", "password")
     fun setpassword(from: BasicProtocolActor, id: String, optPassword: OptString) {
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.getActor(id, Consumer { obj: Any? ->
@@ -267,7 +267,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
          * Generate a 'createactor' message.
          */
         private fun msgCreateActor(target: Referenceable, id: String, failure: String?) =
-                JSONLiteralFactory.targetVerb(target, "createactor").apply {
+                JsonLiteralFactory.targetVerb(target, "createactor").apply {
                     addParameter("id", id)
                     addParameterOpt("failure", failure)
                     finish()
@@ -277,7 +277,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
          * Generate a 'deleteactor' message.
          */
         private fun msgDeleteActor(target: Referenceable, id: String, failure: String?) =
-                JSONLiteralFactory.targetVerb(target, "deleteactor").apply {
+                JsonLiteralFactory.targetVerb(target, "deleteactor").apply {
                     addParameter("id", id)
                     addParameterOpt("failure", failure)
                     finish()
@@ -287,7 +287,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
          * Generate a 'lookupactor' message.
          */
         private fun msgLookupActor(target: Referenceable, id: String, iid: String?, name: String?, failure: String?) =
-                JSONLiteralFactory.targetVerb(target, "lookupactor").apply {
+                JsonLiteralFactory.targetVerb(target, "lookupactor").apply {
                     addParameter("id", id)
                     addParameterOpt("iid", iid)
                     addParameterOpt("name", name)
@@ -299,7 +299,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
          * Generate a 'lookupplace' message.
          */
         private fun msgLookupPlace(target: Referenceable, name: String, context: String?) =
-                JSONLiteralFactory.targetVerb(target, "lookupplace").apply {
+                JsonLiteralFactory.targetVerb(target, "lookupplace").apply {
                     addParameter("name", name)
                     addParameterOpt("context", context)
                     finish()

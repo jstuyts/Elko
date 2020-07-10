@@ -8,8 +8,8 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -141,7 +141,7 @@ internal class PresencerGroup(
      * @return JSON-encoded metadata for the give context.
      */
     private fun contextMeta(context: Context) =
-            JSONLiteral().apply {
+            JsonLiteral().apply {
                 addParameter("name", context.name)
                 finish()
             }
@@ -155,7 +155,7 @@ internal class PresencerGroup(
      * @return JSON-encoded metadata for the give user.
      */
     private fun userMeta(user: User) =
-            JSONLiteral().apply {
+            JsonLiteral().apply {
                 addParameter("name", user.name)
                 finish()
             }
@@ -170,7 +170,7 @@ internal class PresencerGroup(
          * visible outside the context
          */
         private fun msgSubscribe(context: String, domains: Array<String>, visible: Boolean) =
-                JSONLiteralFactory.targetVerb("presence", "subscribe").apply {
+                JsonLiteralFactory.targetVerb("presence", "subscribe").apply {
                     addParameter("context", context)
                     addParameter("domains", domains)
                     addParameter("visible", visible)
@@ -183,7 +183,7 @@ internal class PresencerGroup(
          * @param context  The context that is ceasing to subscribe
          */
         private fun msgUnsubscribe(context: String) =
-                JSONLiteralFactory.targetVerb("presence", "unsubscribe").apply {
+                JsonLiteralFactory.targetVerb("presence", "unsubscribe").apply {
                     addParameter("context", context)
                     finish()
                 }
@@ -195,8 +195,8 @@ internal class PresencerGroup(
          * @param user  Who entered or exited.
          * @param on  Flag indicating online or offline.
          */
-        private fun msgUser(context: String, user: String, on: Boolean, userMeta: JSONLiteral, contextMeta: JSONLiteral) =
-                JSONLiteralFactory.targetVerb("presence", "user").apply {
+        private fun msgUser(context: String, user: String, on: Boolean, userMeta: JsonLiteral, contextMeta: JsonLiteral) =
+                JsonLiteralFactory.targetVerb("presence", "user").apply {
                     addParameter("context", context)
                     addParameter("user", user)
                     addParameter("on", on)

@@ -1,9 +1,9 @@
 package org.elkoserver.feature.deviceuser
 
 import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.json.JSONDecodingException
+import org.elkoserver.json.JsonDecodingException
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Contextor
 import org.elkoserver.server.context.Mod
@@ -19,7 +19,7 @@ import java.util.function.Consumer
  *
  * @param myDevice  The name of the device (IOS, etc).
  */
-open class DevicePersistentUserFactory @JSONMethod("device") internal constructor(private val myDevice: String) : UserFactory, ClassspecificGorgelUsingObject {
+open class DevicePersistentUserFactory @JsonMethod("device") internal constructor(private val myDevice: String) : UserFactory, ClassspecificGorgelUsingObject {
     protected lateinit var myGorgel: Gorgel
 
     override fun setGorgel(gorgel: Gorgel) {
@@ -34,7 +34,7 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
      * @param connection  The connection over which the new user presented
      * themselves.
      * @param param   Arbitrary JSON object parameterizing the construction.
-     * this is analogous to the user record read from the ODB, but may be
+     * this is analogous to the user record read from the ObdDb, but may be
      * anything that makes sense for the particular factory implementation.
      * Of course, the sender of this parameter must be coordinated with the
      * factory implementation.
@@ -115,7 +115,7 @@ open class DevicePersistentUserFactory @JSONMethod("device") internal constructo
                 name = param.getString("nickname")
             }
             return DeviceCredentials(uuid, name)
-        } catch (e: JSONDecodingException) {
+        } catch (e: JsonDecodingException) {
             myGorgel.error("bad parameter: $e")
         }
         return null

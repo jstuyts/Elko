@@ -2,8 +2,8 @@ package org.elkoserver.objdb
 
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.json.EncodeControl.ForClientEncodeControl
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
 import java.util.function.Consumer
 
@@ -23,9 +23,9 @@ class QueryRequestFactory(private val tagGenerator: IdGenerator) {
      * indicate no fixed limit.
      */
     private fun msgQuery(template: JsonObject, tag: String, collectionName: String?, maxResults: Int) =
-            JSONLiteralFactory.targetVerb("rep", "query").apply {
+            JsonLiteralFactory.targetVerb("rep", "query").apply {
                 addParameter("tag", tag)
-                val what = JSONLiteralFactory.type("queryi", ForClientEncodeControl).apply {
+                val what = JsonLiteralFactory.type("queryi", ForClientEncodeControl).apply {
                     addParameter("template", template)
                     addParameterOpt("coll", collectionName)
                     if (maxResults > 0) {
@@ -33,7 +33,7 @@ class QueryRequestFactory(private val tagGenerator: IdGenerator) {
                     }
                     finish()
                 }
-                addParameter("what", JSONLiteralArray.singleElementArray(what))
+                addParameter("what", JsonLiteralArray.singleElementArray(what))
                 finish()
             }
 }

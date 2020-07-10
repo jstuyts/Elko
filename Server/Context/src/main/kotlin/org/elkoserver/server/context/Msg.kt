@@ -1,7 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.json.Encodable
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 
 /**
@@ -20,7 +20,7 @@ object Msg {
      * deleted).
      */
     fun msgDelete(target: Referenceable) =
-            JSONLiteralFactory.targetVerb(target, "delete").apply {
+            JsonLiteralFactory.targetVerb(target, "delete").apply {
                 finish()
             }
 
@@ -34,7 +34,7 @@ object Msg {
      * @param error  Contents of the error message.
      */
     fun msgError(target: Referenceable, op: String, error: String?) =
-            JSONLiteralFactory.targetVerb(target, op).apply {
+            JsonLiteralFactory.targetVerb(target, op).apply {
                 addParameter("error", error)
                 finish()
             }
@@ -48,7 +48,7 @@ object Msg {
      * @param reload  True if client should attempt a reload.
      */
     fun msgExit(target: Referenceable, why: String?, whyCode: String?, reload: Boolean) =
-            JSONLiteralFactory.targetVerb(target, "exit").apply {
+            JsonLiteralFactory.targetVerb(target, "exit").apply {
                 addParameterOpt("why", why)
                 addParameterOpt("whycode", whyCode)
                 if (reload) {
@@ -69,7 +69,7 @@ object Msg {
      * @param sess  The client context session ID, or null if there is none.
      */
     fun msgMake(target: Referenceable, obj: BasicObject?, maker: User? = null, you: Boolean = false, sess: String? = null) =
-            JSONLiteralFactory.targetVerb(target, "make").apply {
+            JsonLiteralFactory.targetVerb(target, "make").apply {
                 addParameter("obj", obj as Encodable?)
                 addParameterOpt("maker", maker as Referenceable?)
                 if (you) {
@@ -112,7 +112,7 @@ object Msg {
      * not relevant.
      */
     fun msgPush(target: Referenceable, from: Referenceable, url: String?, frame: String?, features: String?) =
-            JSONLiteralFactory.targetVerb(target, "push").apply {
+            JsonLiteralFactory.targetVerb(target, "push").apply {
                 addParameterOpt("from", from)
                 addParameter("url", url)
                 addParameterOpt("frame", frame)
@@ -126,7 +126,7 @@ object Msg {
      * @param target  Object the message is being sent to.
      */
     fun msgReady(target: Referenceable) =
-            JSONLiteralFactory.targetVerb(target, "ready").apply {
+            JsonLiteralFactory.targetVerb(target, "ready").apply {
                 finish()
             }
 
@@ -140,7 +140,7 @@ object Msg {
      * @param text  The text to be said.
      */
     fun msgSay(target: Referenceable, from: Referenceable?, text: String?) =
-            JSONLiteralFactory.targetVerb(target, "say").apply {
+            JsonLiteralFactory.targetVerb(target, "say").apply {
                 addParameterOpt("from", from)
                 addParameter("text", text)
                 finish()

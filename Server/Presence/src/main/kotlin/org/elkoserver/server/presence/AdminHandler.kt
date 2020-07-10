@@ -1,11 +1,11 @@
 package org.elkoserver.server.presence
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -44,19 +44,19 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, commGo
      * user names, 2 ==> adds presence info, 3 ==> adds social graph data
      * @param optUser  A user to limit the dump to
      */
-    @JSONMethod("depth", "user")
+    @JsonMethod("depth", "user")
     fun dump(from: PresenceActor, depth: Int, optUser: OptString) {
         from.ensureAuthorizedAdmin()
         val userName = optUser.value<String?>(null)
         var numUsers = 0
         var numPresences = 0
-        val userDump = JSONLiteralArray()
+        val userDump = JsonLiteralArray()
         for (user in myPresenceServer.users()) {
             if (userName == null || user.ref == userName) {
                 ++numUsers
                 numPresences += user.presenceCount()
                 if (depth > 0) {
-                    val elem = JSONLiteral().apply {
+                    val elem = JsonLiteral().apply {
                         addParameter("user", user.ref)
                         if (depth > 1) {
                             addParameter("pres", user.presences)
@@ -82,7 +82,7 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, commGo
      *
      * @param from  The administrator sending the message.
      */
-    @JSONMethod
+    @JsonMethod
     fun reinit(from: PresenceActor) {
         from.ensureAuthorizedAdmin()
         myPresenceServer.reinitServer()
@@ -95,7 +95,7 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, commGo
      *
      * @param from  The administrator sending the message.
      */
-    @JSONMethod
+    @JsonMethod
     fun shutdown(from: PresenceActor) {
         from.ensureAuthorizedAdmin()
         myPresenceServer.shutdownServer()
@@ -110,7 +110,7 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, commGo
      * @param domain  The domain being updated.
      * @param conf  Domain-specific configuration update parameters.
      */
-    @JSONMethod("domain", "conf")
+    @JsonMethod("domain", "conf")
     fun update(from: PresenceActor, domain: String, conf: JsonObject) {
         from.ensureAuthorizedAdmin()
         myPresenceServer.updateDomain(domain, conf, from)
@@ -120,8 +120,8 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, commGo
         /**
          * Generate a 'dump' message.
          */
-        private fun msgDump(target: Referenceable, numUsers: Int, numPresences: Int, userDump: JSONLiteralArray?) =
-                JSONLiteralFactory.targetVerb(target, "dump").apply {
+        private fun msgDump(target: Referenceable, numUsers: Int, numPresences: Int, userDump: JsonLiteralArray?) =
+                JsonLiteralFactory.targetVerb(target, "dump").apply {
                     addParameter("numusers", numUsers)
                     addParameter("numpresences", numPresences)
                     if (userDump != null) {

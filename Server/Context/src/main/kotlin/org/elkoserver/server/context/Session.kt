@@ -3,12 +3,12 @@ package org.elkoserver.server.context
 import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JSONLiteralArray
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Msg.msgExit
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -43,7 +43,7 @@ class Session(private val myContextor: Contextor, private val password: String?,
      *
      * @param text  The text to log.
      */
-    @JSONMethod("text")
+    @JsonMethod("text")
     fun log(from: User, text: String) {
         myGorgel.info(text)
     }
@@ -58,15 +58,15 @@ class Session(private val myContextor: Contextor, private val password: String?,
      * @param optContext  Optional context parameter, when relevant
      * @param testPassword  Password to verify that sender is allowed to do this
      */
-    @JSONMethod("what", "password", "context")
+    @JsonMethod("what", "password", "context")
     fun dump(from: Deliverer, what: String, testPassword: OptString, optContext: OptString) {
         val contextRef = optContext.value<String?>(null)
         if (password == null || password == testPassword.value<String?>(null)) {
-            val reply = JSONLiteralFactory.targetVerb("session", "dump").apply {
+            val reply = JsonLiteralFactory.targetVerb("session", "dump").apply {
                 addParameter("what", what)
                 when (what) {
                     "contexts" -> {
-                        val list = JSONLiteralArray()
+                        val list = JsonLiteralArray()
                         for (ctx in myContextor.contexts()) {
                             list.addElement(ctx.ref())
                         }
@@ -74,7 +74,7 @@ class Session(private val myContextor: Contextor, private val password: String?,
                         addParameter("contexts", list)
                     }
                     "users" -> {
-                        val list = JSONLiteralArray()
+                        val list = JsonLiteralArray()
                         myContextor.users()
                                 .filter { contextRef == null || it.context().ref() == contextRef }
                                 .forEach { list.addElement(it.ref()) }
@@ -108,7 +108,7 @@ class Session(private val myContextor: Contextor, private val password: String?,
      * @param debug This session will use debug settings, if enabled.
      * @param scope  Application scope for filtering mods
      */
-    @JSONMethod("user", "name", "context", "ctmpl", "sess", "auth", "utag", "?uparam", "debug", "scope")
+    @JsonMethod("user", "name", "context", "ctmpl", "sess", "auth", "utag", "?uparam", "debug", "scope")
     fun entercontext(from: Deliverer, user: OptString, name: OptString,
                      context: String, contextTemplate: OptString,
                      sess: OptString, auth: OptString, utag: OptString,
@@ -131,7 +131,7 @@ class Session(private val myContextor: Contextor, private val password: String?,
      * Exit the context and disconnect the user who sent it -- except that the
      * user isn't in any context, so there's nothing to do.
      */
-    @JSONMethod
+    @JsonMethod
     fun exit(from: Deliverer) {
         throw MessageHandlerException("not in a context")
     }
@@ -143,7 +143,7 @@ class Session(private val myContextor: Contextor, private val password: String?,
      *
      * @param testPassword  Password to verify that sender is allowed to do this.
      */
-    @JSONMethod("password")
+    @JsonMethod("password")
     fun shutdown(from: Deliverer, testPassword: OptString) {
         var fromUser: User? = null
         if (from is User) {

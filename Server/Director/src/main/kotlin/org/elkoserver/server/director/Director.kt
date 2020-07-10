@@ -5,8 +5,8 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
-import org.elkoserver.json.JSONLiteral
-import org.elkoserver.json.JSONLiteralFactory
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.HashMapMulti
@@ -300,7 +300,7 @@ internal class Director(
      *
      * @throws MessageHandlerException if there was a problem doing this.
      */
-    fun targetedBroadCast(omitProvider: Provider?, contextRef: String?, userRef: String?, msg: JSONLiteral) {
+    fun targetedBroadCast(omitProvider: Provider?, contextRef: String?, userRef: String?, msg: JsonLiteral) {
         var context: OpenContext? = null
         var clones: HashSetMulti<OpenContext>? = null
         if (contextRef != null) {
@@ -442,7 +442,7 @@ internal class Director(
          * Generate a 'relay' message.
          */
         private fun msgRelay(target: Referenceable, contextName: String?, userName: String?, relay: JsonObject) =
-                JSONLiteralFactory.targetVerb(target, "relay").apply {
+                JsonLiteralFactory.targetVerb(target, "relay").apply {
                     addParameterOpt("context", contextName)
                     addParameterOpt("user", userName)
                     addParameter("msg", relay)

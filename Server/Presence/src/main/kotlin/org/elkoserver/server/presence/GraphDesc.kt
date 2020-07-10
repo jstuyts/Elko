@@ -1,12 +1,12 @@
 package org.elkoserver.server.presence
 
 import org.elkoserver.foundation.json.Injector
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.InvocationTargetException
 
-internal class GraphDesc @JSONMethod("class", "name", "?conf") constructor(
+internal class GraphDesc @JsonMethod("class", "name", "?conf") constructor(
         private val myClassName: String,
         private val myGraphName: String,
         conf: JsonObject?) : DomainRegistryUsingObject, InjectorsUsingObject {

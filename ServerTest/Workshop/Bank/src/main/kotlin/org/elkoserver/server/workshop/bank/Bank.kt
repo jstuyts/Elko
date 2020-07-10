@@ -2,13 +2,13 @@ package org.elkoserver.server.workshop.bank
 
 import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.ClockUsingObject
-import org.elkoserver.foundation.json.JSONMethod
+import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.json.PostInjectionInitializingObject
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JSONLiteralFactory
 import org.elkoserver.json.JsonArray
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.workshop.Workshop
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -59,7 +59,7 @@ import kotlin.math.abs
  * @param currencies  Array of currencies this bank is managing.
  * @param accountCollection  Optional collection name for account storage.
  */
-internal class Bank @JSONMethod("ref", "rootkey", "keys", "currencies", "collection")
+internal class Bank @JsonMethod("ref", "rootkey", "keys", "currencies", "collection")
 constructor(
         private val myRef: String,
         rootKeyRef: OptString,
@@ -132,7 +132,7 @@ constructor(
      */
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
-                JSONLiteralFactory.type("bank", control).apply {
+                JsonLiteralFactory.type("bank", control).apply {
                     addParameter("ref", myRef)
                     addParameter("rootkey", myRootKeyRef)
                     val rootKey = myKeys.remove(myRootKeyRef)
