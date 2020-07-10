@@ -179,18 +179,30 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val httpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandler::class, COMMUNICATION_CATEGORY_TAG) }
     val httpMessageHandlerFactoryCommGorgel by Once { req(provided.baseGorgel()).getChild(HTTPMessageHandlerFactory::class, COMMUNICATION_CATEGORY_TAG) }
 
-    val contextServiceFactory by Once {
-        ContextServiceFactory(
+    val internalActorFactoryFactory by Once {
+        InternalActorFactoryFactory(
                 req(contextor),
-                req(contextServiceFactoryGorgel),
                 req(internalActorGorgel),
                 req(internalActorCommGorgel),
+                req(mustSendDebugReplies))
+    }
+
+    val userActorFactoryFactory by Once {
+        UserActorFactoryFactory(
+                req(contextor),
                 req(userActorGorgel),
                 req(userActorCommGorgel),
                 req(userGorgelWithoutRef),
                 req(provided.timer()),
                 req(idGenerator),
                 req(mustSendDebugReplies))
+    }
+
+    val contextServiceFactory by Once {
+        ContextServiceFactory(
+                req(contextServiceFactoryGorgel),
+                req(internalActorFactoryFactory),
+                req(userActorFactoryFactory))
     }
             .init {
                 if (req(server).startListeners("conf.listen", it) == 0) {
