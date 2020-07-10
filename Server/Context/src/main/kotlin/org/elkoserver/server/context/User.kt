@@ -8,7 +8,6 @@ import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
-import org.elkoserver.server.context.Contents.Companion.sendContentsDescription
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -338,7 +337,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
     fun sendUserDescription(to: Deliverer, maker: Referenceable, you: Boolean) {
         to.send(msgMake(maker, this, null, you, null))
         if (!amPrivateContents || to === this) {
-            sendContentsDescription(to, this, myContents)
+            myContents?.sendContentsDescription(to, this)
         }
         to.send(msgReady(this))
     }

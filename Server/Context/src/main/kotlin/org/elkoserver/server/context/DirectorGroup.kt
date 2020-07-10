@@ -253,11 +253,6 @@ class DirectorGroup(server: Server,
     companion object {
         /** Default reservation expiration time, in seconds.  */
         internal const val DEFAULT_RESERVATION_EXPIRATION_TIMEOUT = 30
-
-
-
-
-
     }
 
     init {

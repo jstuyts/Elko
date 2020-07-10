@@ -128,20 +128,4 @@ class ServiceDesc(val service: String, val hostport: String?, val protocol: Stri
                 addElement(this)
                 finish()
             }
-
-    companion object {
-        /**
-         * Generate a JSONLiteralArray of ServiceDesc objects from a sequence of
-         * them.
-         */
-        fun encodeArray(services: Iterable<ServiceDesc?>?): JsonLiteralArray =
-                JsonLiteralArray().apply {
-                    if (services != null) {
-                        for (service in services) {
-                            addElement(service)
-                        }
-                    }
-                    finish()
-                }
-    }
 }

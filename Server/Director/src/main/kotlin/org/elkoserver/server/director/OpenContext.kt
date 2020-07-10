@@ -1,7 +1,5 @@
 package org.elkoserver.server.director
 
-import org.elkoserver.server.director.Director.Companion.isUserClone
-import org.elkoserver.server.director.Director.Companion.userCloneSetName
 import org.elkoserver.util.HashSetMulti
 
 /**

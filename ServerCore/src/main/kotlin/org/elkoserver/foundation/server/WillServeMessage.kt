@@ -1,6 +1,7 @@
 package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.server.metadata.ServiceDesc
+import org.elkoserver.foundation.server.metadata.encodeServiceDescs
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 
@@ -14,6 +15,6 @@ import org.elkoserver.json.Referenceable
 internal fun msgWillserve(target: Referenceable,
                           services: List<ServiceDesc?>) =
         JsonLiteralFactory.targetVerb(target, "willserve").apply {
-            addParameter("services", ServiceDesc.encodeArray(services))
+            addParameter("services", encodeServiceDescs(services))
             finish()
         }

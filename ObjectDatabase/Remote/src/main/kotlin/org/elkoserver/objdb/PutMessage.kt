@@ -2,8 +2,8 @@ package org.elkoserver.objdb
 
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
+import org.elkoserver.json.singleElementArray
 
 /**
  * Fill in this request's message field with a 'put' request.
@@ -26,6 +26,6 @@ internal fun msgPut(ref: String, tag: String, obj: Encodable, collectionName: St
                 }
                 finish()
             }
-            addParameter("what", JsonLiteralArray.singleElementArray(what))
+            addParameter("what", singleElementArray(what))
             finish()
         }

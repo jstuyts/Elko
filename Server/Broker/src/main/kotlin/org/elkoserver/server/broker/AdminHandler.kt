@@ -5,7 +5,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.metadata.LoadDesc
-import org.elkoserver.foundation.server.metadata.ServiceDesc
+import org.elkoserver.foundation.server.metadata.encodeServiceDescs
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
@@ -81,7 +81,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
     private fun sendServiceDesc(who: BrokerActor, service: String?,
                                 protocol: String?) {
         val services = myBroker.services(service, protocol!!)
-        who.send(msgServiceDesc(this, ServiceDesc.encodeArray(services),
+        who.send(msgServiceDesc(this, encodeServiceDescs(services),
                 true))
     }
 

@@ -11,7 +11,6 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.server.context.Contents.Companion.withContents
 import org.elkoserver.server.context.Contents.Companion.withoutContents
-import org.elkoserver.server.context.Contextor.Companion.extractBaseRef
 import org.elkoserver.server.context.ModSet.Companion.withMod
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList

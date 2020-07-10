@@ -67,7 +67,7 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
      * @param to  Where to send the description.
      * @param maker  Maker object to address message to.
      */
-    private fun sendContentsDescription(to: Deliverer, maker: Referenceable) {
+    internal fun sendContentsDescription(to: Deliverer, maker: Referenceable) {
         for (elem in myContents) {
             elem.sendItemDescription(to, maker, false)
         }
@@ -77,18 +77,6 @@ class Contents private constructor(private val myContents: MutableList<Item> = L
         /** Marker object representing the "contents" of objects that are not
          * allowed to be containers.  */
         val theVoidContents: Contents = Contents()
-
-        /**
-         * Transmit contents as a series of 'make' messages.
-         *
-         * @param to  Where to send the description.
-         * @param maker  Maker object to address message to.
-         * @param contents  The contents to transmit, if not null.
-         */
-        fun sendContentsDescription(to: Deliverer, maker: Referenceable,
-                                    contents: Contents?) {
-            contents?.sendContentsDescription(to, maker)
-        }
 
         /**
          * Add an item to a contents container, creating the container if

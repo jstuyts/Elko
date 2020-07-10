@@ -75,8 +75,4 @@ internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gor
                     }
                 })
     }
-
-    companion object {
-
-    }
 }

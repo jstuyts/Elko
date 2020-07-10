@@ -1,9 +1,9 @@
 package org.elkoserver.objdb
 
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
+import org.elkoserver.json.singleElementArray
 
 /**
  * Fill in this request's message field with a 'query' request.
@@ -25,6 +25,6 @@ internal fun msgQuery(template: JsonObject, tag: String, collectionName: String?
                 }
                 finish()
             }
-            addParameter("what", JsonLiteralArray.singleElementArray(what))
+            addParameter("what", singleElementArray(what))
             finish()
         }

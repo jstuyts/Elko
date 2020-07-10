@@ -1,8 +1,8 @@
 package org.elkoserver.objdb
 
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
+import org.elkoserver.json.singleElementArray
 
 /**
  * Fill in this request's message field with a 'remove' request.
@@ -19,6 +19,6 @@ internal fun msgRemove(ref: String, tag: String, collectionName: String?) =
                 addParameterOpt("coll", collectionName)
                 finish()
             }
-            addParameter("what", JsonLiteralArray.singleElementArray(what))
+            addParameter("what", singleElementArray(what))
             finish()
         }

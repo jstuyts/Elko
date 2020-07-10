@@ -6,6 +6,7 @@ import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.metadata.ServiceDesc
+import org.elkoserver.foundation.server.metadata.encodeServiceDescs
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -92,7 +93,7 @@ internal class ClientHandler(private val myBroker: Broker, commGorgel: Gorgel) :
                 myBroker.waitForService(service, from, monitor, wait, false, tag)
             }
         } else {
-            from.send(msgFind(this, ServiceDesc.encodeArray(services), tag))
+            from.send(msgFind(this, encodeServiceDescs(services), tag))
             if (monitor) {
                 myBroker.waitForService(service, from, true, wait, true, tag)
             }

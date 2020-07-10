@@ -2,8 +2,8 @@ package org.elkoserver.objdb
 
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
+import org.elkoserver.json.singleElementArray
 
 /**
  * Fill in this request's message field with an 'update' request.
@@ -24,6 +24,6 @@ internal fun msgUpdate(ref: String, tag: String, version: Int, obj: Encodable, c
                 addParameterOpt("coll", collectionName)
                 finish()
             }
-            addParameter("what", JsonLiteralArray.singleElementArray(what))
+            addParameter("what", singleElementArray(what))
             finish()
         }

@@ -8,7 +8,6 @@ import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
-import org.elkoserver.server.context.Contents.Companion.sendContentsDescription
 import java.util.LinkedList
 import java.util.function.Consumer
 
@@ -237,7 +236,7 @@ class Item : BasicObject {
                 it.loadItemContents(this, Consumer { obj: Any? ->
                     activatePassiveContents("")
                     it.notifyPendingObjectCompletionWatchers()
-                    sendContentsDescription(context(), this@Item, myContents)
+                    myContents?.sendContentsDescription(context(), this@Item)
                 })
             }
         }
@@ -277,7 +276,7 @@ class Item : BasicObject {
     fun sendItemDescription(to: Deliverer, maker: Referenceable, force: Boolean) {
         if (force || visibleTo(to)) {
             to.send(msgMake(maker, this))
-            sendContentsDescription(to, this, myContents)
+            myContents?.sendContentsDescription(to, this)
         }
     }
 

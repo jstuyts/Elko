@@ -12,7 +12,6 @@ import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
-import org.elkoserver.server.context.Contents.Companion.sendContentsDescription
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.NoSuchElementException
@@ -557,7 +556,7 @@ internal constructor(name: String,
                     .forEach { it.sendUserDescription(to, this, false) }
         }
         if (!amContentAgnostic) {
-            sendContentsDescription(to, this, myContents)
+            myContents?.sendContentsDescription(to, this)
         }
         to.send(msgReady(this))
     }
@@ -746,47 +745,6 @@ internal constructor(name: String,
                 }
                 finish()
             }
-
-    companion object {
-        /**
-         * Obtain a Deliverer that will deliver to an arbitrary list of users.
-         *
-         * @param toList  List of users to deliver to
-         *
-         * @return a Deliverer that wraps toList
-         */
-        fun toList(toList: List<BasicObject>): Deliverer {
-            return object : Deliverer {
-                override fun send(message: JsonLiteral) {
-                    toList
-                            .map { it as User }
-                            .forEach { it.send(message) }
-                }
-            }
-        }
-
-        /**
-         * Obtain a Deliverer that will deliver to an arbitrary list of users
-         * except for one distinguished user.
-         *
-         * @param toList  List of users to deliver to
-         * @param exclude  The one to exclude
-         *
-         * @return a Deliverer that wraps toList, taking note to exclude the one
-         * odd user out
-         */
-        fun toListExcluding(toList: List<BasicObject>,
-                            exclude: Deliverer): Deliverer {
-            return object : Deliverer {
-                override fun send(message: JsonLiteral) {
-                    toList
-                            .map { it as User }
-                            .filter { it != exclude }
-                            .forEach { it.send(message) }
-                }
-            }
-        }
-    }
 
     init {
         if (isEphemeral.value(false)) {

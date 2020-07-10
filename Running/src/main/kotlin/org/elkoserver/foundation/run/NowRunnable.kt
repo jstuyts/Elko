@@ -80,8 +80,7 @@ internal class NowRunnable(private var myOptTodo: Callable<Any>?) : Runnable {
          *
          * @param problem  The [Throwable] to wrap
          */
-        private fun asSafe(problem: Throwable): RuntimeException = if (problem is RuntimeException) {
-            problem
-        } else RuntimeException(problem)
+        private fun asSafe(problem: Throwable) =
+                if (problem is RuntimeException) problem else RuntimeException(problem)
     }
 }

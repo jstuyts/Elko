@@ -182,13 +182,7 @@ class Runner(name: String, private val gorgel: Gorgel) : Runnable {
          * the run loop.
          */
         fun throwIfMandatory(t: Throwable) {
-            if (t is VirtualMachineError) {
-                throw t
-            }
-            if (t is ThreadDeath) {
-                throw t
-            }
-            if (t is LinkageError) {
+            if (t is VirtualMachineError || t is ThreadDeath || t is LinkageError) {
                 throw t
             }
         }
