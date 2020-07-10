@@ -43,17 +43,15 @@ class Server(
         serverType: String,
         private val gorgel: Gorgel,
         private val serviceLinkGorgel: Gorgel,
-        private val serviceActorGorgel: Gorgel,
-        private val serviceActorCommGorgel: Gorgel,
-        private val brokerActorGorgel: Gorgel,
-        private val myDispatcher: MessageDispatcher,
+        private val brokerActorFactory: BrokerActorFactory,
+        private val serviceActorFactory: ServiceActorFactory,
+        myDispatcher: MessageDispatcher,
         private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
         hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
         private val myTagGenerator: IdGenerator,
         private val myLoadMonitor: ServerLoadMonitor,
         private val runner: Runner,
         private val objDBRemoteFactory: ObjDBRemoteFactory,
-        private val mustSendDebugReplies: Boolean,
         private val objDBLocalFactory: ObjDBLocalFactory,
         private val connectionSetupFactoriesByCode: Map<String, ConnectionSetupFactory>,
         private val connectionRetrierFactory: ConnectionRetrierFactory)
@@ -139,7 +137,7 @@ class Server(
     }
 
     private inner class BrokerMessageHandlerFactory : MessageHandlerFactory {
-        override fun provideMessageHandler(connection: Connection?): MessageHandler = BrokerActor(connection!!, myDispatcher, this@Server, myBrokerHost!!, brokerActorGorgel, mustSendDebugReplies)
+        override fun provideMessageHandler(connection: Connection?): MessageHandler = brokerActorFactory.create(connection!!, this@Server, myBrokerHost!!)
     }
 
     /**
@@ -280,8 +278,7 @@ class Server(
          * @param connection  The Connection object that was just created.
          */
         override fun provideMessageHandler(connection: Connection?): MessageHandler {
-            val actor = ServiceActor(connection!!, myServiceRefTable!!, myDesc!!,
-                    this@Server, serviceActorGorgel, serviceActorCommGorgel, mustSendDebugReplies)
+            val actor = serviceActorFactory.create(connection!!, myServiceRefTable!!, myDesc!!, this@Server)
             myServiceActorsByProviderID[myDesc!!.providerID] = actor
             connectLinkToActor(actor)
             return actor

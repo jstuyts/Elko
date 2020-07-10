@@ -50,10 +50,12 @@ import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.BrokerActor
+import org.elkoserver.foundation.server.BrokerActorFactory
 import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.ServiceActor
+import org.elkoserver.foundation.server.ServiceActorFactory
 import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
@@ -374,15 +376,18 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 "zmq" to req(zeromqConnectionSetupFactory))
     }
 
+    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(brokerActorGorgel), req(mustSendDebugReplies)) }
+
+    val serviceActorFactory by Once { ServiceActorFactory(req(serviceActorGorgel), req(serviceActorCommGorgel), req(mustSendDebugReplies)) }
+
     val server by Once {
         Server(
                 req(provided.props()),
                 "context",
                 req(serverGorgel),
                 req(serviceLinkGorgel),
-                req(serviceActorGorgel),
-                req(serviceActorCommGorgel),
-                req(brokerActorGorgel),
+                req(brokerActorFactory),
+                req(serviceActorFactory),
                 req(messageDispatcher),
                 req(provided.authDescFromPropertiesFactory()),
                 req(provided.hostDescFromPropertiesFactory()),
@@ -390,7 +395,6 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(serverLoadMonitor),
                 req(runner),
                 req(objDBRemoteFactory),
-                req(mustSendDebugReplies),
                 req(objDBLocalFactory),
                 req(connectionSetupFactoriesByCode),
                 req(connectionRetrierFactory))
