@@ -17,8 +17,6 @@ class ElkoProperties() {
         this.properties.putAll(properties)
     }
 
-    fun containsProperty(property: String): Boolean = properties.containsKey(property)
-
     fun getProperty(property: String): String? = properties.getProperty(property)
 
     fun <TDefault : String?> getProperty(property: String, defaultValue: TDefault): TDefault = properties.getProperty(property, defaultValue) as TDefault
