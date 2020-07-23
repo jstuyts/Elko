@@ -19,7 +19,7 @@ The code for this example can be found in class `SimpleChat` and folder `web`.
 
 ### Server-Side
 
-Note that most code of [`SimpleChat`](../../Example/src/main/kotlin/com/example/game/mods/SimpleChat.kt) is not used in this example: pushing a URL and private chat are not supported in the web client. So the only interesting functions are `say(User?, String?)` and `msgSay(Referenceable?, Referenceable?, String?)`.
+Note that most code of [`SimpleChat`](../../Example/src/main/kotlin/com/example/game/mods/SimpleChat.kt) is not used in this example: pushing a URL and private chat are not supported in the web client. So the only interesting functions are `say(User?, String?)` and `msgSay(Referenceable?, Referenceable?, String?)` in [`SayMessage`](../../Example/src/main/kotlin/com/example/game/mods/SayMessage.kt).
 
 ### Client-Side
 
