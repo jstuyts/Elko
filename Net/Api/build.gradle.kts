@@ -20,6 +20,7 @@ dependencies {
     api(project(":Running"))
     api(project(":ServerMetadata"))
     api(project(":Trace"))
+    api(Libraries.ooverkommelig)
 
     implementation(kotlin("stdlib-jdk8"))
 }

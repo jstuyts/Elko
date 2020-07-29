@@ -25,7 +25,7 @@ import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.foundation.net.Listener
 import org.elkoserver.foundation.net.ListenerFactory
 import org.elkoserver.foundation.net.SelectThread
-import org.elkoserver.foundation.net.SslSetup
+import org.elkoserver.foundation.net.SslContextSgd
 import org.elkoserver.foundation.net.TcpConnection
 import org.elkoserver.foundation.net.TcpConnectionFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
@@ -87,20 +87,28 @@ import org.ooverkommelig.Once
 import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.opt
+import org.ooverkommelig.providedByMe
 import org.ooverkommelig.req
 import java.security.SecureRandom
 import java.time.Clock
 
 internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
-    interface Provided : ProvidedBase {
-        fun props(): D<ElkoProperties>
+    interface Provided : ProvidedBase, SslContextSgd.Provided {
+        override fun props(): D<ElkoProperties>
         fun timer(): D<Timer>
         fun clock(): D<Clock>
         fun baseGorgel(): D<Gorgel>
         fun authDescFromPropertiesFactory(): D<AuthDescFromPropertiesFactory>
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
+        override fun sslContextPropertyNamePrefix(): D<String> = providedByMe()
+        override fun sslContextSgdGorgel(): D<Gorgel>  = providedByMe()
     }
+
+    val sslContextSgd = add(SslContextSgd(object : SslContextSgd.Provided by provided {
+        override fun sslContextSgdGorgel() = sslContextSgdGorgel
+        override fun sslContextPropertyNamePrefix() = sslContextPropertyNamePrefix
+    }, configuration))
 
     val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class) }
 
@@ -143,6 +151,8 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val serviceLinkGorgel by Once { req(provided.baseGorgel()).getChild(ServiceLink::class) }
 
+    val sslContextSgdGorgel by Once { req(provided.baseGorgel()).getChild(SslContextSgd::class) }
+
     val httpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(HttpSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
     val rtcpSessionConnectionGorgel by Once { req(provided.baseGorgel()).getChild(RtcpSessionConnection::class) }
     val rtcpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(RtcpSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
@@ -157,15 +167,17 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val inputGorgel by Once { req(provided.baseGorgel()).getChild(ChunkyByteArrayInputStream::class, COMMUNICATION_CATEGORY_TAG) }
 
-    val sslSetupGorgel by Once { req(provided.baseGorgel()).getChild(SslSetup::class) }
-
     val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
 
     val selectThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(SelectThread::class, COMMUNICATION_CATEGORY_TAG) }
 
-    val sslContext by Once {
-        if (req(provided.props()).testProperty("conf.ssl.enable"))
-            SslSetup.setupSsl(req(provided.props()), "conf.ssl.", req(sslSetupGorgel))
+    val sslContextPropertyNamePrefix by Once { "conf.ssl." }
+
+    val isSslEnabled by Once { req(provided.props()).testProperty("${req(sslContextPropertyNamePrefix)}enable") }
+
+    val optionalSslContext by Once {
+        if (req(isSslEnabled))
+            req(sslContextSgd.sslContext)
         else
             null
     }
@@ -186,7 +198,7 @@ internal class RepositoryServerSgd(provided: Provided, configuration: ObjectGrap
 
     val selectThread by Once {
         SelectThread(
-                opt(sslContext),
+                opt(optionalSslContext),
                 req(selectThreadCommGorgel),
                 req(tcpConnectionFactory),
                 req(listenerFactory))
