@@ -5,12 +5,9 @@ package org.elkoserver.foundation.timer
  * by calling the [after()][Timer.after] method on a [Timer]
  * instance.
  *
- * @param myThread  The timer thread responsible for this timeout.
- * @param myTarget  The object to be notified at timeout time
- *
  * @see TimeoutNoticer
  */
-class Timeout internal constructor(private var myThread: TimerThread?, private val myTarget: TimeoutNoticer) : TimerWatcher() {
+interface Timeout {
 
     /**
      * Cancels this timeout.  Note, however, that although a `Timeout`
@@ -20,21 +17,5 @@ class Timeout internal constructor(private var myThread: TimerThread?, private v
      * @return `true` if cancellation was successful, `false` if
      * it wasn't.
      */
-    fun cancel(): Boolean {
-        val currentThread = myThread
-        return if (currentThread == null) {
-            false
-        } else {
-            val result = currentThread.cancelTimeout(myEvent)
-            myThread = null
-            result
-        }
-    }
-
-    /**
-     * Called by the timer thread when the timeout time comes.
-     */
-    override fun handleTimeout() {
-        myTarget.noticeTimeout()
-    }
+    fun cancel(): Boolean
 }

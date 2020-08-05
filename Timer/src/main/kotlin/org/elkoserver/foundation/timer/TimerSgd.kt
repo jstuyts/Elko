@@ -20,7 +20,7 @@ class TimerSgd(provided: Provided, configuration: ObjectGraphConfiguration = Obj
         fun baseGorgel(): D<Gorgel>
     }
 
-    val timer: Definition<Timer> by Once { Timer(req(timerThread)) }
+    val timer: Definition<Timer> by Once { TimerThreadTimer(req(timerThread)) }
 
     internal val timerThread by Once { TimerThread(req(provided.clock()), req(exceptionReporter)) }
             .init(TimerThread::start)

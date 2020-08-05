@@ -8,7 +8,7 @@ package org.elkoserver.foundation.timer
  * method of the `TickNoticer` object will be invoked periodically at
  * the indicated frequency.
  *
- * @see Timer.every Timer.every
+ * @see imer.every Timer.every
  * @see Clock
  */
 interface TickNoticer {

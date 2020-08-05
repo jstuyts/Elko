@@ -14,7 +14,7 @@ package org.elkoserver.foundation.timer
  * lets you specify times with millisecond precision, millisecond accuracy in
  * practice should not be assumed.
  */
-class Timer internal constructor(private val myThread: TimerThread) {
+interface Timer {
 
     /**
      * Sets a timeout for the specified number of milliseconds.  After the
@@ -28,11 +28,7 @@ class Timer internal constructor(private val myThread: TimerThread) {
      *
      * @see TimeoutNoticer
      */
-    fun after(millis: Long, target: TimeoutNoticer): Timeout {
-        val newTimeout = Timeout(myThread, target)
-        myThread.setTimeout(false, millis, newTimeout)
-        return newTimeout
-    }
+    fun after(millis: Long, target: TimeoutNoticer): Timeout
 
     /**
      * Creates a new clock.  The new clock begins life stopped with its tick
@@ -45,5 +41,5 @@ class Timer internal constructor(private val myThread: TimerThread) {
      *
      * @see TickNoticer
      */
-    fun every(resolution: Long, target: TickNoticer): Clock = Clock(myThread, resolution, target)
+    fun every(resolution: Long, target: TickNoticer): Clock
 }
