@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
-import org.elkoserver.foundation.run.Queue
+import org.elkoserver.util.Queue
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.net.InetSocketAddress

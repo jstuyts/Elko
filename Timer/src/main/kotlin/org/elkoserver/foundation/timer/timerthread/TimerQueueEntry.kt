@@ -1,16 +1,16 @@
-package org.elkoserver.foundation.timer
+package org.elkoserver.foundation.timer.timerthread
 
 import java.time.Clock
 
 /**
  * An entry in the timer event queue.
  */
-internal class TimerQueueEntry(internal var myRepeat: Boolean, internal var myDelta: Long, var myTarget: TimerWatcher, clock: Clock) : Comparable<TimerQueueEntry?> {
+internal class TimerQueueEntry(internal var myRepeat: Boolean, internal var myDelta: Long, var myTarget: TimerWatcher, clock: Clock) : Comparable<TimerQueueEntry> {
     var myWhen = clock.millis() + myDelta
 
     var myNext: TimerQueueEntry? = null
 
-    override fun compareTo(other: TimerQueueEntry?) =
+    override fun compareTo(other: TimerQueueEntry) =
             if (other != null) {
                 myWhen.compareTo(other.myWhen)
             } else {

@@ -5,11 +5,11 @@ import org.elkoserver.foundation.net.ConnectionBase
 import org.elkoserver.foundation.net.ConnectionCloseException
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.SessionUri
-import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
+import org.elkoserver.util.Queue
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 

@@ -998,24 +998,22 @@ class Contextor internal constructor(
             for (target in refTable.clones(baseRef)) {
                 val obj = target as BasicObject
                 if (obj !== source) {
-                    if (msgObject == null) {
-                        /* Generating the text form of the message and then
-                           parsing it internally may seem like a ludicrously
-                           inefficient way to do this, but it saves a vast
-                           amount of complication that would otherwise result
-                           if internal message relay had to be treated as a
-                           special case.  Note that the expensive operations
-                           are conditional inside the loop, so that if there is
-                           no local relaying to do, no parsing is done, and it
-                           is only ever done once in any case.  If this
-                           actually turns out to be a performance issue in
-                           practice (unlikely, IMHO), this can be revisited. */
-                        msgObject = try {
-                            JsonParsing.jsonObjectFromString(message.sendableString()) ?: throw IllegalStateException()
-                        } catch (e: JsonParserException) {
-                            contextorGorgel.error("syntax error in internal JSON message: ${e.message}")
-                            break
-                        }
+                    /* Generating the text form of the message and then
+                       parsing it internally may seem like a ludicrously
+                       inefficient way to do this, but it saves a vast
+                       amount of complication that would otherwise result
+                       if internal message relay had to be treated as a
+                       special case.  Note that the expensive operations
+                       are conditional inside the loop, so that if there is
+                       no local relaying to do, no parsing is done, and it
+                       is only ever done once in any case.  If this
+                       actually turns out to be a performance issue in
+                       practice (unlikely, IMHO), this can be revisited. */
+                    msgObject = msgObject ?: try {
+                        JsonParsing.jsonObjectFromString(message.sendableString()) ?: throw IllegalStateException()
+                    } catch (e: JsonParserException) {
+                        contextorGorgel.error("syntax error in internal JSON message: ${e.message}")
+                        break
                     }
                     deliverMessage(obj, msgObject)
                 }

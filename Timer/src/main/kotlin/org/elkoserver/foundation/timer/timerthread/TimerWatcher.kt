@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.timer
+package org.elkoserver.foundation.timer.timerthread
 
 internal abstract class TimerWatcher {
     internal var myEvent: TimerQueueEntry? = null

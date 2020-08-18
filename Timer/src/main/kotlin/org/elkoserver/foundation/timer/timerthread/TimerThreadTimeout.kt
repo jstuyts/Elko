@@ -1,4 +1,7 @@
-package org.elkoserver.foundation.timer
+package org.elkoserver.foundation.timer.timerthread
+
+import org.elkoserver.foundation.timer.Timeout
+import org.elkoserver.foundation.timer.TimeoutNoticer
 
 internal class TimerThreadTimeout internal constructor(private var myThread: TimerThread?, private val myTarget: TimeoutNoticer) : TimerWatcher(), Timeout {
 

@@ -5,7 +5,7 @@ buildscript {
     }
 
     dependencies {
-        classpath(kotlin("gradle-plugin", version = "1.3.72"))
+        classpath(kotlin("gradle-plugin", version = "1.4.0"))
     }
 }
 
@@ -16,7 +16,7 @@ plugins {
 group = "org.elko"
 version = "2.0.4-SNAPSHOT"
 
-tasks.wrapper {
-    gradleVersion = "6.5"
+tasks.named<Wrapper>("wrapper") {
+    gradleVersion = "6.6"
     distributionType = Wrapper.DistributionType.ALL
 }

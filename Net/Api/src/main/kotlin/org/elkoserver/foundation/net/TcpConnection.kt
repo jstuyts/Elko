@@ -2,10 +2,10 @@ package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
-import org.elkoserver.foundation.run.Queue
 import org.elkoserver.foundation.run.Runner
-import org.elkoserver.foundation.run.Runner.Companion.throwIfMandatory
+import org.elkoserver.foundation.run.thread.ThreadRunner.Companion.throwIfMandatory
 import org.elkoserver.idgeneration.IdGenerator
+import org.elkoserver.util.Queue
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.EOFException
 import java.io.IOException

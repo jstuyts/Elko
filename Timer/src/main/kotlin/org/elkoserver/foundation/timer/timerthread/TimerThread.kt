@@ -1,4 +1,4 @@
-package org.elkoserver.foundation.timer
+package org.elkoserver.foundation.timer.timerthread
 
 import org.elkoserver.util.trace.exceptionreporting.ExceptionReporter
 import java.time.Clock
@@ -30,20 +30,6 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
     private fun insertEntry(newEntry: TimerQueueEntry) {
         synchronized(this) {
             while (myEvents[newEntry] != null) {
-                /* All times must be unique.  */
-                // XXX TODO: This is a very ugly hack.  It will need to be
-                // revisited should we find ourselves in a use case that
-                // entails scheduling numerous events within a small time
-                // window, both because the linear search for an unused time
-                // position will get expensive, and because of the actual
-                // delays introduced by artificially incrementing the trigger
-                // time by a large amount.  Current experience is that two
-                // events being scheduled at the same time is very rare, and
-                // three is nearly unheard of, but this observation is based on
-                // a sparsely explored application space.  The obvious fix
-                // would be to replace each entry for a given time slot with a
-                // list of entries, but the extra allocation overhead is not
-                // yet justified by need.
                 newEntry.myWhen++
             }
             myEvents.put(newEntry, newEntry)

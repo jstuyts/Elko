@@ -1,4 +1,7 @@
-package org.elkoserver.foundation.timer
+package org.elkoserver.foundation.timer.timerthread
+
+import org.elkoserver.foundation.timer.Clock
+import org.elkoserver.foundation.timer.TickNoticer
 
 internal class TimerThreadClock internal constructor(private val myThread: TimerThread, private val myResolution: Long, private val myTarget: TickNoticer) : TimerWatcher(), Clock {
 

@@ -53,6 +53,7 @@ import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
 import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
+import org.elkoserver.foundation.run.thread.ThreadRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
 import org.elkoserver.foundation.server.LoadWatcher
@@ -491,7 +492,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector)) }
 
-    val runner by Once { Runner(req(runnerGorgel)) }
+    val runner by Once { ThreadRunner(req(runnerGorgel)) }
             .dispose { it.orderlyShutdown() }
 
     val serverTagGenerator by Once { LongIdGenerator() }

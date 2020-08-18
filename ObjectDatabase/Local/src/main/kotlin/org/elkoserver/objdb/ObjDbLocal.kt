@@ -4,6 +4,7 @@ import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
+import org.elkoserver.foundation.run.thread.ThreadRunner
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl.ForRepositoryEncodeControl
 import org.elkoserver.json.JsonLiteral
@@ -44,7 +45,7 @@ import java.util.function.Consumer
  *    properties.
  */
 class ObjDbLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGorgel: Gorgel, jsonToObjectDeserializer: JsonToObjectDeserializer,
-                 private val myRunner: Runner, private val myReturnRunner: Runner) : ObjDbBase(gorgel, jsonToObjectDeserializer) {
+                 private val myRunner: ThreadRunner, private val myReturnRunner: Runner) : ObjDbBase(gorgel, jsonToObjectDeserializer) {
     /** Local object storage module.  */
     private val myObjectStore: ObjectStore = createAndInitializeObjectStore(props, propRoot, baseGorgel)
 

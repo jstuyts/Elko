@@ -1,7 +1,8 @@
 @file:Suppress("MemberVisibilityCanBePrivate")
 
-package org.elkoserver.foundation.timer
+package org.elkoserver.foundation.timer.timerthread
 
+import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.exceptionreporting.ExceptionReporter
 import org.elkoserver.util.trace.exceptionreporting.exceptionnoticer.gorgel.GorgelExceptionNoticer
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -14,7 +15,7 @@ import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.req
 
-class TimerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
+class TimerThreadTimerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
     interface Provided : ProvidedBase {
         fun clock(): D<java.time.Clock>
         fun baseGorgel(): D<Gorgel>
@@ -26,7 +27,7 @@ class TimerSgd(provided: Provided, configuration: ObjectGraphConfiguration = Obj
             .init(TimerThread::start)
             .dispose(TimerThread::shutdown)
 
-    val timerThreadExceptionGorgel: Definition<Gorgel> by Once { req(provided.baseGorgel()).getChild(TimerThread::class, Tag("category", "exception")) }
+    internal val timerThreadExceptionGorgel: Definition<Gorgel> by Once { req(provided.baseGorgel()).getChild(TimerThread::class, Tag("category", "exception")) }
 
-    val exceptionReporter: Definition<ExceptionReporter> by Once { ExceptionReporter(GorgelExceptionNoticer(req(timerThreadExceptionGorgel))) }
+    internal val exceptionReporter: Definition<ExceptionReporter> by Once { ExceptionReporter(GorgelExceptionNoticer(req(timerThreadExceptionGorgel))) }
 }

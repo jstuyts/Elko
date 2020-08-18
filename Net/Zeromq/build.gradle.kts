@@ -16,6 +16,7 @@ repositories {
 dependencies {
     api(project(":ByteIoFramer:Json"))
     api(project(":Net:Api"))
+    api(project(":Util"))
 
     implementation(kotlin("stdlib-jdk8"))
     implementation(Libraries.jeromq)
