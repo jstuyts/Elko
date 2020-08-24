@@ -24,9 +24,7 @@ class Census @JsonMethod constructor() : Mod(), GeneralMod {
      */
     override fun encode(control: EncodeControl): JsonLiteral? =
             if (control.toRepository()) {
-                JsonLiteralFactory.type("census", control).apply {
-                    finish()
-                }
+                JsonLiteralFactory.type("census", control).apply(JsonLiteral::finish)
             } else {
                 null
             }

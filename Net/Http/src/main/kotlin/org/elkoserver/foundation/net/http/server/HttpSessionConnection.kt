@@ -65,18 +65,14 @@ class HttpSessionConnection internal constructor(
         override fun noticeTick(ticks: Int) {
             noticeSelectTick()
         }
-    }).apply {
-        start()
-    }
+    }).apply(org.elkoserver.foundation.timer.Clock::start)
 
     /** Clock: ticks watch for dead session.  */
     private val myInactivityClock = timer.every(mySessionTimeoutInterval + 1000.toLong(), object : TickNoticer {
         override fun noticeTick(ticks: Int) {
             noticeInactivityTick()
         }
-    }).apply {
-        start()
-    }
+    }).apply(org.elkoserver.foundation.timer.Clock::start)
 
     /** Time that connection started waiting for a message select to be
      * responded to, or 0 if it isn't waiting for that.  */

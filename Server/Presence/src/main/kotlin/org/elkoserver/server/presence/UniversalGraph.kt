@@ -50,7 +50,7 @@ internal class UniversalGraph : SocialGraph, RandomUsingObject {
         override fun transform(from: ActiveUser) = from.ref
     }
 
-    private inner class PseudoFriendFilter<V> internal constructor(base: Iterator<V>, private val myExclusion: V) : ExcludingIterator<V>(base) {
+    private inner class PseudoFriendFilter<V>(base: Iterator<V>, private val myExclusion: V) : ExcludingIterator<V>(base) {
         private val myStochasticFriendshipOdds =
                 if (myPseudoFriendCount < 0) {
                     1.0f

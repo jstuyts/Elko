@@ -23,9 +23,7 @@ class ThreadRunner(name: String, private val gorgel: Gorgel) : Runner, Runnable 
      * holding myRunLock, that thread is remembered in myWorker so it
      * can be interrupted instead of myThread.
      */
-    private val myWorker = Thread(this, name).apply {
-        start()
-    }
+    private val myWorker = Thread(this, name).apply(Thread::start)
 
     /**
      * The lock protecting the heap of objects "inside" the runner.  All
@@ -81,7 +79,7 @@ class ThreadRunner(name: String, private val gorgel: Gorgel) : Runner, Runnable 
      * happen in the meantime.
      */
     fun orderlyShutdown() {
-        enqueue(Runnable { mustStop = true })
+        enqueue({ mustStop = true })
     }
 
     private var mustStop = false

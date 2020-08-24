@@ -107,7 +107,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
         override fun sslContextPropertyNamePrefix(): D<String> = providedByMe()
-        override fun sslContextSgdGorgel(): D<Gorgel>  = providedByMe()
+        override fun sslContextSgdGorgel(): D<Gorgel> = providedByMe()
     }
 
     val sslContextSgd = add(SslContextSgd(object : SslContextSgd.Provided by provided {
@@ -214,7 +214,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(tcpConnectionFactory),
                 req(listenerFactory))
     }
-            .dispose { it.shutDown() }
+            .dispose(SelectThread::shutDown)
 
     val objDbLocalRunnerFactory by Once { ObjDbLocalRunnerFactory(req(runnerGorgel)) }
 
@@ -425,7 +425,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val connectionIdGenerator by Once { LongIdGenerator() }
 
-    val sessionIdRandom by Once { SecureRandom() }
+    val sessionIdRandom by Once(::SecureRandom)
             .init { it.nextBoolean() }
 
     val jsonToObjectDeserializer by Once {
@@ -441,7 +441,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val baseCommGorgelInjector by Once { BaseCommGorgelInjector(req(baseCommGorgel)) }
 
-    val deserializedObjectRandom by Once { SecureRandom() }
+    val deserializedObjectRandom by Once(::SecureRandom)
 
     val deserializedObjectRandomInjector by Once { RandomInjector(req(deserializedObjectRandom)) }
 
@@ -463,7 +463,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
     val injectors by Once { listOf(req(clockInjector), req(deserializedObjectRandomInjector), req(deserializedObjectMessageDigestInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector)) }
 
     val runner by Once { ThreadRunner(req(runnerGorgel)) }
-            .dispose { it.orderlyShutdown() }
+            .dispose(ThreadRunner::orderlyShutdown)
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
@@ -567,8 +567,6 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
     val authorizer by Once { req(authorizerGraph).authorizer() }
 
     val userHandler by Once { UserHandler(req(authorizer), req(baseCommGorgel).getChild(UserHandler::class)) }
-            .wire {
-                req(gatekeeper).refTable.addRef(it)
-            }
+            .wire { req(gatekeeper).refTable.addRef(it) }
             .eager()
 }

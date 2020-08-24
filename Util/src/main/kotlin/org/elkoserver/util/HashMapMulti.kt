@@ -89,7 +89,7 @@ class HashMapMulti<K, V> {
         override fun iterator() = HashMapMultiValueIterator()
     }
 
-    private inner class HashMapMultiValueIterator internal constructor() : Iterator<V> {
+    private inner class HashMapMultiValueIterator : Iterator<V> {
         private val mySetIter = myMap.values.iterator()
         private var myValueIter: Iterator<V>? = null
         private var myNext: V? = null

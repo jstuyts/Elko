@@ -1,5 +1,6 @@
 package org.elkoserver.server.director
 
+import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 
@@ -7,6 +8,4 @@ import org.elkoserver.json.Referenceable
  * Generate a 'reinit' message.
  */
 internal fun msgReinit(target: Referenceable) =
-        JsonLiteralFactory.targetVerb(target, "reinit").apply {
-            finish()
-        }
+        JsonLiteralFactory.targetVerb(target, "reinit").apply(JsonLiteral::finish)

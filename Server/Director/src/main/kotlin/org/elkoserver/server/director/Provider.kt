@@ -114,7 +114,7 @@ internal class Provider(
      * the protocol whose name string is lexically the highest.
      */
     fun dupKey(): String? {
-        val candidateProtocol = myHostPorts.keys.max()
+        val candidateProtocol = myHostPorts.keys.maxOrNull()
                 ?: ""
         return myHostPorts[candidateProtocol]
     }

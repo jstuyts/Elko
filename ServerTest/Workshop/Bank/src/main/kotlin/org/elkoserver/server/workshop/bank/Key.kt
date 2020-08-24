@@ -25,7 +25,7 @@ internal class Key(
 
     /** Currencies upon which this key authorizes action, or null if the key is
      * not scoped by currency.  */
-    internal val currencies: Array<String>?
+    internal val currencies: Array<String>? = theCurrencies?.also { Arrays.sort(it) }
 
     /** Ref of parent key.  Note that this field is valid only during the
      * extended key decode/construction process, and must be null in a
@@ -154,7 +154,4 @@ internal class Key(
         myParentRef = null
     }
 
-    init {
-        currencies = theCurrencies?.also { Arrays.sort(it) }
-    }
 }

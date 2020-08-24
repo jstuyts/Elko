@@ -6,11 +6,9 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JsonDecodingException
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Contextor
-import org.elkoserver.server.context.Mod
 import org.elkoserver.server.context.User
 import org.elkoserver.server.context.UserFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.util.concurrent.Callable
 import java.util.function.Consumer
 
 /**
@@ -46,7 +44,7 @@ open class DevicePersistentUserFactory @JsonMethod("device") internal constructo
         if (creds == null) {
             handler.accept(null)
         } else {
-            contextor.server.enqueueSlowTask(Callable {
+            contextor.server.enqueueSlowTask({
                 contextor.queryObjects(deviceQuery(creds.uuid), null, 0,
                         DeviceQueryResultHandler(contextor, myGorgel, creds, handler))
                 null
@@ -54,7 +52,7 @@ open class DevicePersistentUserFactory @JsonMethod("device") internal constructo
         }
     }
 
-    private class DeviceQueryResultHandler internal constructor(
+    private class DeviceQueryResultHandler(
             private val myContextor: Contextor,
             private val gorgel: Gorgel,
             private val myCreds: DeviceCredentials,
@@ -73,7 +71,7 @@ open class DevicePersistentUserFactory @JsonMethod("device") internal constructo
                 val uuid = myCreds.uuid
                 gorgel.i?.run { info("synthesizing user record for $uuid") }
                 val mod = DeviceUserMod(uuid)
-                user = User(name, arrayOf<Mod>(mod), null, myContextor.uniqueID("u"))
+                user = User(name, arrayOf(mod), null, myContextor.uniqueID("u"))
                 user.markAsChanged()
             }
             myHandler.accept(user)

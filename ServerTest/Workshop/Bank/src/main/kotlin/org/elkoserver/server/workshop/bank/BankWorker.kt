@@ -13,7 +13,6 @@ import org.elkoserver.server.workshop.WorkshopActor
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.text.ParseException
 import java.time.Clock
-import java.util.function.Consumer
 
 /**
  * Workshop worker object for the bank service.
@@ -244,8 +243,7 @@ class BankWorker
          * or null if not.
          */
         fun getValidExpiration(expiresStr: String?, limitToKey: Boolean): ExpirationDate? {
-            val expires: ExpirationDate
-            expires = if (expiresStr == null && limitToKey) {
+            val expires: ExpirationDate = if (expiresStr == null && limitToKey) {
                 key!!.expires
             } else {
                 try {
@@ -255,10 +253,7 @@ class BankWorker
                     return null
                 }
             }
-            return if (expires == null) {
-                fail("badexpiry", "invalid 'expires' parameter")
-                null
-            } else if (limitToKey && key!!.expires < expires) {
+            return if (limitToKey && key!!.expires < expires) {
                 fail("badexpiry", "expiration time exceeds authority")
                 null
             } else if (expires.isExpired) {
@@ -300,7 +295,7 @@ class BankWorker
      * Activate the bank service.
      */
     public override fun activate() {
-        workshop().getObject(myBankRef, Consumer { obj: Any? ->
+        workshop().getObject(myBankRef, { obj: Any? ->
             if (obj is Bank) {
                 myBank = obj
                 obj.activate(workshop())

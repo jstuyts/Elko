@@ -18,9 +18,9 @@ import org.elkoserver.json.JsonObject
  * @param master  The presence server master instance.
  */
 internal fun msgUserToGroup(user: String, userMeta: JsonObject?,
-                           context: String?, on: Boolean,
-                           friends: Map<Domain, Map<String, List<String?>>>,
-                           master: PresenceServer) =
+                            context: String?, on: Boolean,
+                            friends: Map<Domain, Map<String, List<String?>>>,
+                            master: PresenceServer) =
         JsonLiteralFactory.targetVerb("presence", "utog").apply {
             addParameter("user", user)
             addParameterOpt("umeta", userMeta)

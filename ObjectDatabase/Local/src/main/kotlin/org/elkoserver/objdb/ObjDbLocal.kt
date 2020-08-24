@@ -66,7 +66,7 @@ class ObjDbLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGo
     /**
      * Handler to call the store's 'get' method.  Runs in the ObjDb thread.
      */
-    private inner class GetCallHandler internal constructor(private val myRef: String, private val myCollectionName: String?, private val myRunnable: Consumer<Any?>) : Runnable, GetResultHandler {
+    private inner class GetCallHandler(private val myRef: String, private val myCollectionName: String?, private val myRunnable: Consumer<Any?>) : Runnable, GetResultHandler {
         override fun run() {
             val what = arrayOf(RequestDesc(myRef, myCollectionName, true))
             myObjectStore.getObjects(what, this)
@@ -125,7 +125,7 @@ class ObjDbLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGo
     /**
      * Handler to call the store's 'put' method.  Runs in the ObjDb thread.
      */
-    private inner class PutCallHandler internal constructor(private val myRef: String, private val myObj: JsonLiteral, private val myCollectionName: String?, private val amRequireNew: Boolean, private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
+    private inner class PutCallHandler(private val myRef: String, private val myObj: JsonLiteral, private val myCollectionName: String?, private val amRequireNew: Boolean, private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
         override fun run() {
             val what = arrayOf(PutDesc(myRef, myObj.sendableString(), myCollectionName, amRequireNew))
             myObjectStore.putObjects(what, this)
@@ -141,8 +141,8 @@ class ObjDbLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGo
     /**
      * Handler to call the store's 'update' method.  Runs in the ObjDb thread.
      */
-    private inner class UpdateCallHandler internal constructor(private val myRef: String, private val myVersion: Int, private val myObj: JsonLiteral,
-                                                               private val myCollectionName: String?, private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
+    private inner class UpdateCallHandler(private val myRef: String, private val myVersion: Int, private val myObj: JsonLiteral,
+                                          private val myCollectionName: String?, private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
         override fun run() {
             val what = arrayOf(UpdateDesc(myRef, myVersion, myObj.sendableString(), myCollectionName))
             myObjectStore.updateObjects(what, this)
@@ -185,8 +185,8 @@ class ObjDbLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGo
     /**
      * Handler to call the store's 'query' method.  Runs in the ObjDb thread.
      */
-    private inner class QueryCallHandler internal constructor(private val myTemplate: JsonObject, private val myCollectionName: String?,
-                                                              private val myMaxResults: Int, private val myRunnable: Consumer<Any?>) : Runnable, GetResultHandler {
+    private inner class QueryCallHandler(private val myTemplate: JsonObject, private val myCollectionName: String?,
+                                         private val myMaxResults: Int, private val myRunnable: Consumer<Any?>) : Runnable, GetResultHandler {
         override fun run() {
             val what = arrayOf(QueryDesc(myTemplate, myCollectionName, myMaxResults))
             myObjectStore.queryObjects(what, this)
@@ -244,8 +244,8 @@ class ObjDbLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGo
     /**
      * Handler to call store's 'remove' method.  Runs in the ObjDb thread.
      */
-    private inner class RemoveCallHandler internal constructor(private val myRef: String, private val myCollectionName: String?,
-                                                               private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
+    private inner class RemoveCallHandler(private val myRef: String, private val myCollectionName: String?,
+                                          private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
         override fun run() {
             val what = arrayOf(RequestDesc(myRef, myCollectionName, true))
             myObjectStore.removeObjects(what, this)
@@ -268,7 +268,7 @@ class ObjDbLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGo
     /**
      * Runnable to invoke an Consumer.  Runs in the main thread.
      */
-    private class ArgRunnableRunnable internal constructor(private val myRunnable: Consumer<Any?>, private val myResult: Any?) : Runnable {
+    private class ArgRunnableRunnable(private val myRunnable: Consumer<Any?>, private val myResult: Any?) : Runnable {
         override fun run() {
             myRunnable.accept(myResult)
         }

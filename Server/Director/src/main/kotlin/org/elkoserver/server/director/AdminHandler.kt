@@ -231,7 +231,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
         }
     }
 
-    private class ContextDump internal constructor(private val myDepth: Int, private val myContext: OpenContext) : Encodable {
+    private class ContextDump(private val myDepth: Int, private val myContext: OpenContext) : Encodable {
         override fun encode(control: EncodeControl) =
                 JsonLiteralFactory.type("contextdesc", control).apply {
                     addParameter("context", myContext.name)

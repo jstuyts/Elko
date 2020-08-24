@@ -27,8 +27,8 @@ internal class StaticObjectList @JsonMethod("statics") constructor(private val m
         }
     }
 
-    private class StaticObjectReceiver internal constructor(var myContextor: Contextor, var myElem: StaticObjectListElem,
-                                                            var gorgel: Gorgel) : Consumer<Any?> {
+    private class StaticObjectReceiver(var myContextor: Contextor, var myElem: StaticObjectListElem,
+                                       var gorgel: Gorgel) : Consumer<Any?> {
         override fun accept(obj: Any?) {
             if (obj != null) {
                 gorgel.i?.run { info("loading static object '${myElem.ref}' as '${myElem.key}'") }

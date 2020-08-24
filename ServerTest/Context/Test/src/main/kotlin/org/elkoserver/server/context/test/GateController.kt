@@ -23,9 +23,7 @@ class GateController @JsonMethod constructor() : Mod(), ContextMod {
      * @return a JSON literal representing this mod.
      */
     override fun encode(control: EncodeControl): JsonLiteral =
-            JsonLiteralFactory.type("gate", control).apply {
-                finish()
-            }
+            JsonLiteralFactory.type("gate", control).apply(JsonLiteral::finish)
 
     /**
      * Message handler for the 'gate' message.

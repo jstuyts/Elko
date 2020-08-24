@@ -31,7 +31,7 @@ class HttpRequestByteIoFramerFactory(private val baseCommGorgel: Gorgel, private
     /**
      * I/O framer implementation for HTTP requests.
      */
-    private class HttpRequestFramer internal constructor(private val myReceiver: MessageReceiver, private val myLabel: String, private val commGorgel: Gorgel, private val myIn: ChunkyByteArrayInputStream) : ByteIoFramer {
+    private class HttpRequestFramer(private val myReceiver: MessageReceiver, private val myLabel: String, private val commGorgel: Gorgel, private val myIn: ChunkyByteArrayInputStream) : ByteIoFramer {
 
         /** Stage of HTTP request reading.  */
         private var myHTTPParseStage = HTTP_STAGE_START

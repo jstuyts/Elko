@@ -63,9 +63,7 @@ class RtcpSessionConnection internal constructor(
         override fun noticeTick(ticks: Int) {
             noticeInactivityTick()
         }
-    }).apply {
-        start()
-    }
+    }).apply(org.elkoserver.foundation.timer.Clock::start)
 
     /** Timeout for closing an abandoned session.  */
     private var myDisconnectedTimeout: Timeout? = null
@@ -327,11 +325,11 @@ class RtcpSessionConnection internal constructor(
      * Simple struct to hold outgoing messages along with their sequence
      * numbers in the message replay queue.
      */
-    private class RtcpMessage internal constructor(var seqNum: Int, var message: JsonLiteral)
+    private class RtcpMessage(var seqNum: Int, var message: JsonLiteral)
 
     init {
         mySessionFactory.addSession(this)
-        commGorgel.i?.run { info("${this@RtcpSessionConnection} new connection session ${sessionID}") }
+        commGorgel.i?.run { info("${this@RtcpSessionConnection} new connection session $sessionID") }
         enqueueHandlerFactory(mySessionFactory.innerFactory)
     }
 }

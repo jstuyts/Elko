@@ -52,7 +52,7 @@ class ThreadPoolExecutorSlowServiceRunner(private val myResultRunner: Runner, ma
             } catch (e: Exception) {
                 e
             }
-            myResultRunner.enqueue(Runnable {
+            myResultRunner.enqueue({
                 resultHandler?.accept(realResult)
             })
         }

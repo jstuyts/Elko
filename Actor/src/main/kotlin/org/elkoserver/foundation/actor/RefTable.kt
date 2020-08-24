@@ -43,7 +43,7 @@ class RefTable(private val myDispatcher: MessageDispatcher, baseCommGorgel: Gorg
      * it is created, so that received error and debug messages have someplace
      * to go.
      */
-    private class ErrorHandler internal constructor(commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
+    private class ErrorHandler(commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
         /**
          * This object is always called 'error' (there should only ever be one
          * instance).

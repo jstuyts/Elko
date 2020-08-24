@@ -103,7 +103,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
         override fun sslContextPropertyNamePrefix(): D<String> = providedByMe()
-        override fun sslContextSgdGorgel(): D<Gorgel>  = providedByMe()
+        override fun sslContextSgdGorgel(): D<Gorgel> = providedByMe()
     }
 
     val sslContextSgd = add(SslContextSgd(object : SslContextSgd.Provided by provided {
@@ -268,7 +268,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 req(tcpConnectionFactory),
                 req(listenerFactory))
     }
-            .dispose { it.shutDown() }
+            .dispose(SelectThread::shutDown)
 
     val objDbLocalRunnerFactory by Once { ObjDbLocalRunnerFactory(req(runnerGorgel)) }
 
@@ -474,7 +474,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val connectionIdGenerator by Once { LongIdGenerator() }
 
-    val sessionIdRandom by Once { SecureRandom() }
+    val sessionIdRandom by Once(::SecureRandom)
             .init { it.nextBoolean() }
 
     val jsonToObjectDeserializer by Once {
@@ -493,7 +493,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector)) }
 
     val runner by Once { ThreadRunner(req(runnerGorgel)) }
-            .dispose { it.orderlyShutdown() }
+            .dispose(ThreadRunner::orderlyShutdown)
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
@@ -622,7 +622,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val families by Once { req(provided.props()).getProperty("conf.context.contexts") }
 
-    val contextorRandom by Once { SecureRandom() }
+    val contextorRandom by Once(::SecureRandom)
 
     val hostListScanner by Once { HostListScanner(req(provided.hostDescFromPropertiesFactory())) }
 

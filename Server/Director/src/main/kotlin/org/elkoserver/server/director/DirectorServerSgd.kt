@@ -103,7 +103,7 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
         override fun sslContextPropertyNamePrefix(): D<String> = providedByMe()
-        override fun sslContextSgdGorgel(): D<Gorgel>  = providedByMe()
+        override fun sslContextSgdGorgel(): D<Gorgel> = providedByMe()
     }
 
     val sslContextSgd = add(SslContextSgd(object : SslContextSgd.Provided by provided {
@@ -208,7 +208,7 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(tcpConnectionFactory),
                 req(listenerFactory))
     }
-            .dispose { it.shutDown() }
+            .dispose(SelectThread::shutDown)
 
     val objDbLocalRunnerFactory by Once { ObjDbLocalRunnerFactory(req(runnerGorgel)) }
 
@@ -423,7 +423,7 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val connectionIdGenerator by Once { LongIdGenerator() }
 
-    val sessionIdRandom by Once { SecureRandom() }
+    val sessionIdRandom by Once(::SecureRandom)
             .init { it.nextBoolean() }
 
     val jsonToObjectDeserializer by Once {
@@ -442,7 +442,7 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
     val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector)) }
 
     val runner by Once { ThreadRunner(req(runnerGorgel)) }
-            .dispose { it.orderlyShutdown() }
+            .dispose(ThreadRunner::orderlyShutdown)
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
@@ -494,7 +494,7 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(providerLimit))
     }
 
-    val random by Once { SecureRandom() }
+    val random by Once(::SecureRandom)
 
     val adminFactory by Once { AdminFactory(req(director)) }
 

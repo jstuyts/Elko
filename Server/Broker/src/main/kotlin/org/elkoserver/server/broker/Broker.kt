@@ -248,8 +248,8 @@ internal class Broker(
      * @param myTag  Arbitrary tag that will be sent back with the response,
      *    to match up requests and responses.
      */
-    private inner class WaiterForService internal constructor(internal val service: String, private val myWaiter: BrokerActor,
-                                                              private val amKeepWatching: Boolean, timeout: Int, private var amSuccessful: Boolean, private val myTag: String?, timer: Timer) : TimeoutNoticer {
+    private inner class WaiterForService(val service: String, private val myWaiter: BrokerActor,
+                                         private val amKeepWatching: Boolean, timeout: Int, private var amSuccessful: Boolean, private val myTag: String?, timer: Timer) : TimeoutNoticer {
         private var myTimeout: Timeout? = if (timeout > 0) timer.after(timeout * 1000.toLong(), this) else null
 
         /**

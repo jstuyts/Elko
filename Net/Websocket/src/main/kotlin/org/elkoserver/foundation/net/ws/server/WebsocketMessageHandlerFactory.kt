@@ -142,7 +142,7 @@ internal class WebsocketMessageHandlerFactory(
      */
     override fun provideMessageHandler(connection: Connection?): MessageHandler = WebsocketMessageHandler(myInnerFactory.provideMessageHandler(connection)!!)
 
-    private inner class WebsocketMessageHandler internal constructor(var myInnerHandler: MessageHandler) : MessageHandler {
+    private inner class WebsocketMessageHandler(var myInnerHandler: MessageHandler) : MessageHandler {
 
         /**
          * Cope with connection death.

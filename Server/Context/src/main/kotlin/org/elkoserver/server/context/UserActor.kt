@@ -76,7 +76,7 @@ class UserActor(
         if (!amDead) {
             amDead = true
             val users: List<User> = LinkedList(myUsers.values)
-            myContextor.server.enqueue(Runnable {
+            myContextor.server.enqueue({
                 for (user in users) {
                     user.connectionDied(connection)
                 }
@@ -211,8 +211,8 @@ class UserActor(
      * by the database: If so, it processes the entry normally.  If not, the
      * user is kicked off.
      */
-    private inner class EnterRunnable internal constructor(private var myUserRef: String?, private val amEphemeral: Boolean, private val amAnonymous: Boolean,
-                                                           private val myEntryName: String?, private val myContextRef: String, private val mySess: String?) : Consumer<Any?> {
+    private inner class EnterRunnable(private var myUserRef: String?, private val amEphemeral: Boolean, private val amAnonymous: Boolean,
+                                      private val myEntryName: String?, private val myContextRef: String, private val mySess: String?) : Consumer<Any?> {
         private var myUser: User? = null
         private var myContext: Context? = null
         private var myComponentCount = 0

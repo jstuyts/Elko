@@ -68,7 +68,7 @@ class Workshop internal constructor(
         }
     }
 
-    private inner class StartupWorkerListReceiver internal constructor(var myTag: String) : Consumer<Any?> {
+    private inner class StartupWorkerListReceiver(var myTag: String) : Consumer<Any?> {
         override fun accept(obj: Any?) {
             val workers = obj as StartupWorkerList?
             if (workers != null) {

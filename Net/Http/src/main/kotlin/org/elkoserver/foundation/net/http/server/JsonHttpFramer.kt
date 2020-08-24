@@ -66,7 +66,7 @@ class JsonHttpFramer(private val commGorgel: Gorgel, private val mustSendDebugRe
      *
      * @param postBody  The HTTP message body was POSTed.
      */
-    private class JsonBodyUnpacker internal constructor(postBody: String, private val commGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : MutableIterator<Any> {
+    private class JsonBodyUnpacker(postBody: String, private val commGorgel: Gorgel, private val mustSendDebugReplies: Boolean) : MutableIterator<Any> {
         private var postBody = extractBodyFromSafariPostIfNeeded(postBody)
 
         /** Last JSON message parsed.  This will be the next JSON message to be

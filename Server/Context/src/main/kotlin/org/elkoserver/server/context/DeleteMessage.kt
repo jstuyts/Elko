@@ -11,6 +11,4 @@ import org.elkoserver.json.Referenceable
  * deleted).
  */
 fun msgDelete(target: Referenceable): JsonLiteral =
-        JsonLiteralFactory.targetVerb(target, "delete").apply {
-            finish()
-        }
+        JsonLiteralFactory.targetVerb(target, "delete").apply(JsonLiteral::finish)

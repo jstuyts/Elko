@@ -194,9 +194,9 @@ abstract class Invoker<in TTarget>(
             } else if (paramType == OptInteger::class.java) {
                 OptInteger((value as Double).toInt())
             } else if (paramType == java.lang.Byte::class.java || paramType == Byte::class.javaPrimitiveType || paramType == Byte::class.java || paramType == Byte::class) {
-                (value as Double).toByte()
+                (value as Double).toInt().toByte()
             } else if (paramType == java.lang.Short::class.java || paramType == Short::class.javaPrimitiveType || paramType == Short::class.java || paramType == Short::class) {
-                (value as Double).toShort()
+                (value as Double).toInt().toShort()
             } else {
                 null
             }

@@ -10,6 +10,4 @@ import org.elkoserver.json.Referenceable
  * @param target  Object the message is being sent to.
  */
 fun msgReady(target: Referenceable): JsonLiteral =
-        JsonLiteralFactory.targetVerb(target, "ready").apply {
-            finish()
-        }
+        JsonLiteralFactory.targetVerb(target, "ready").apply(JsonLiteral::finish)

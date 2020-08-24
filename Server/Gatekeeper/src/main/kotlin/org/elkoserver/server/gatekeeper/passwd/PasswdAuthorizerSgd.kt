@@ -23,12 +23,10 @@ internal class PasswdAuthorizerSgd(provided: AuthorizerProvided, configuration: 
             }
 
     val authHandler by Once { AuthHandler(req(authorizer), req(provided.gatekeeper()), req(provided.baseCommGorgel()).getChild(AuthHandler::class), req(random), req(sha)) }
-            .wire {
-                req(provided.gatekeeper()).refTable.addRef(it)
-            }
+            .wire { req(provided.gatekeeper()).refTable.addRef(it) }
             .eager()
 
-    val random by Once { SecureRandom() }
+    val random by Once(::SecureRandom)
 
     val sha by Once {
         try {

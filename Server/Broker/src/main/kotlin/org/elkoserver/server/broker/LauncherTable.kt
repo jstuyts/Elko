@@ -25,7 +25,7 @@ internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private
     /**
      * Map from launcher names to launcher descriptors.
      */
-    internal val myLaunchers = launchers.associateBy { it.componentName }
+    internal val myLaunchers = launchers.associateBy(Launcher::componentName)
 
     /**
      * Dirty flag for checkpointing changes to launcher settings.

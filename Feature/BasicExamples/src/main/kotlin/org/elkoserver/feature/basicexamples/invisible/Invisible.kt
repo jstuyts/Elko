@@ -28,9 +28,7 @@ class Invisible @JsonMethod internal constructor() : Mod(), ObjectCompletionWatc
      */
     override fun encode(control: EncodeControl): JsonLiteral? =
             if (control.toRepository()) {
-                JsonLiteralFactory.type("invisible", control).apply {
-                    finish()
-                }
+                JsonLiteralFactory.type("invisible", control).apply(JsonLiteral::finish)
             } else {
                 null
             }

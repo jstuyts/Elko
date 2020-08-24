@@ -7,7 +7,6 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDb
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
-import java.util.function.Consumer
 
 /**
  * Main state data structure in a Presence Server.
@@ -235,7 +234,7 @@ internal class PresenceServer(
         myContextMetadata = HashMap()
         objDb = myServer.openObjectDatabase("conf.presence") ?: throw IllegalStateException("no database specified")
         objDb.addClass("graphtable", GraphTable::class.java)
-        objDb.getObject("graphs", null, Consumer { obj: Any? ->
+        objDb.getObject("graphs", null, { obj: Any? ->
             if (obj != null) {
                 val info = obj as GraphTable
                 info.graphs

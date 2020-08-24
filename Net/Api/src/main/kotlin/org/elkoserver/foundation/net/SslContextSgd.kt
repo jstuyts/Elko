@@ -31,10 +31,14 @@ class SslContextSgd(provided: Provided, objectGraphConfiguration: ObjectGraphCon
 
     private val keyStoreType by Once { req(provided.props()).getProperty("${req(provided.sslContextPropertyNamePrefix())}keystoretype", "JKS") }
 
-    private val keyFile by Once { req(provided.props()).getProperty("${req(provided.sslContextPropertyNamePrefix())}keyfile") ?: throw IllegalStateException() }
+    private val keyFile by Once {
+        req(provided.props()).getProperty("${req(provided.sslContextPropertyNamePrefix())}keyfile")
+                ?: throw IllegalStateException()
+    }
 
     private val passwordChars by Once {
-        req(provided.props()).getProperty("${req(provided.sslContextPropertyNamePrefix())}keypassword")?.toCharArray() ?: throw IllegalStateException()
+        req(provided.props()).getProperty("${req(provided.sslContextPropertyNamePrefix())}keypassword")?.toCharArray()
+                ?: throw IllegalStateException()
     }
 
     private val keys by Once {

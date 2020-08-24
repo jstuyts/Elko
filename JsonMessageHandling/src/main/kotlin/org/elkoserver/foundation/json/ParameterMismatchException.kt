@@ -35,11 +35,13 @@ internal class ParameterMismatchException : RuntimeException {
                         val suppliedParam = suppliedParams[it]
                         suppliedParam == null || expectedParams[it].isAssignableFrom(suppliedParam.javaClass)
                     }
-                    .forEach { message.append("Parameter mismatch: Method requires ")
-                            .append(expectedParams[it])
-                            .append("; found ")
-                            .append(suppliedParams[it]?.javaClass ?: "null")
-                            .append(" ") }
+                    .forEach {
+                        message.append("Parameter mismatch: Method requires ")
+                                .append(expectedParams[it])
+                                .append("; found ")
+                                .append(suppliedParams[it]?.javaClass ?: "null")
+                                .append(" ")
+                    }
             return message.toString()
         }
     }

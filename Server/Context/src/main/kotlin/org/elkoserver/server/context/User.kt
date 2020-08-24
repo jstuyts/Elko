@@ -9,7 +9,6 @@ import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.util.function.Consumer
 
 /**
  * A User represents a connection to someone entered into a context from a
@@ -245,7 +244,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param reservation  Reservation to get them in.
      */
     fun exitWithContextChange(contextRef: String, hostPort: String?, reservation: String?) {
-        checkpoint(Consumer { ignored: Any? ->
+        checkpoint({ ignored: Any? ->
             assertActivated { send(msgPushContext(it.session, contextRef, hostPort, reservation)) }
         })
     }

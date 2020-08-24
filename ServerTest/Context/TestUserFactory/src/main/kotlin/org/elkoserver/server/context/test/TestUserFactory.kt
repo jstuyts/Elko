@@ -82,7 +82,7 @@ internal class TestUserFactory @JsonMethod("key") constructor(private val key: S
      * Nonce.  Our nonces consist of an unguessable random string and an
      * expiration time.
      */
-    private class Nonce internal constructor(val expiration: Int, val nonceID: String) : Comparable<Nonce> {
+    private class Nonce(val expiration: Int, val nonceID: String) : Comparable<Nonce> {
         override fun compareTo(other: Nonce): Int {
             val primary = expiration - other.expiration
             return if (primary == 0) {

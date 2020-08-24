@@ -137,8 +137,8 @@ class PasswdAuthorizer(
         }
     }
 
-    private inner class ReserveRunnable internal constructor(private val myHandler: ReservationResultHandler, private val myProtocol: String,
-                                                             private val myContextName: String, private var myID: String?, private var myName: String?, private val myPassword: String?) : Consumer<Any?> {
+    private inner class ReserveRunnable(private val myHandler: ReservationResultHandler, private val myProtocol: String,
+                                        private val myContextName: String, private var myID: String?, private var myName: String?, private val myPassword: String?) : Consumer<Any?> {
         private var myComponentCount = 0
         private var myActor: ActorDesc? = null
         private var myContextID: String? = null
@@ -225,7 +225,7 @@ class PasswdAuthorizer(
     override fun setPassword(id: String, oldPassword: String?,
                              newPassword: String?,
                              handler: SetPasswordResultHandler) {
-        getActor(id, Consumer { obj: Any? ->
+        getActor(id, { obj: Any? ->
             val failure =
                     if (obj != null) {
                         val actor = obj as ActorDesc

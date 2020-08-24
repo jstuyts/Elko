@@ -3,7 +3,6 @@ package org.elkoserver.server.presence
 import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDb
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.util.function.Consumer
 
 internal class SimpleSocialGraph : SocialGraph {
     /** Database that social graph is stored in.  */
@@ -44,7 +43,7 @@ internal class SimpleSocialGraph : SocialGraph {
      * @param user  The user whose social graph should be fetched.
      */
     override fun loadUserGraph(user: ActiveUser) {
-        myObjDb.getObject("$myPrefix-${user.ref}", null, Consumer { obj ->
+        myObjDb.getObject("$myPrefix-${user.ref}", null, { obj ->
             if (obj != null) {
                 val desc = obj as UserGraphDesc
                 val friends = Iterable { ArrayIterator(desc.friends) }

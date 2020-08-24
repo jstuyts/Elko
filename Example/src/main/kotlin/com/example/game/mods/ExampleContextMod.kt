@@ -14,9 +14,7 @@ import org.elkoserver.server.context.User
  */
 class ExampleContextMod @JsonMethod constructor() : Mod(), ContextMod {
     override fun encode(control: EncodeControl): JsonLiteral =
-            JsonLiteralFactory.type("exc", control).apply {
-                finish()
-            }
+            JsonLiteralFactory.type("exc", control).apply(JsonLiteral::finish)
 
     @JsonMethod("arg", "otherarg")
     fun ctxverb(from: User, arg: String, otherArg: OptString) {

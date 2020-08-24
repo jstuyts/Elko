@@ -269,7 +269,7 @@ internal class ActiveUser(internal val ref: String, private val domainRegistry: 
      * of the friend's user ref and the context ref of the context they are in.
      */
     internal class FriendInfo internal constructor(private val myUser: String, private val myUserMeta: JsonObject?, private val myContext: String,
-                                                  private val myContextMeta: JsonObject?) : Encodable {
+                                                   private val myContextMeta: JsonObject?) : Encodable {
         override fun encode(control: EncodeControl) =
                 JsonLiteral(control).apply {
                     addParameter("user", myUser)

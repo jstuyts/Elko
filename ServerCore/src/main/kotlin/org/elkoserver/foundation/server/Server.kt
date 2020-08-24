@@ -170,7 +170,7 @@ class Server(
      */
     fun reestablishServiceConnection(service: String, link: ServiceLink) {
         findService(service,
-                ServiceFoundHandler(Consumer { obj: ServiceLink? ->
+                ServiceFoundHandler({ obj: ServiceLink? ->
                     if (obj == null) {
                         link.fail()
                     }
@@ -231,7 +231,7 @@ class Server(
      * @param link  Service link that will be associated with the
      * connection; if null, a new link will be created
      */
-    private inner class ServiceFoundHandler internal constructor(
+    private inner class ServiceFoundHandler(
             private val myInnerHandler: Consumer<in ServiceLink?>,
             private val myLabel: String, link: ServiceLink?) : Consumer<Array<ServiceDesc>>, MessageHandlerFactory {
 

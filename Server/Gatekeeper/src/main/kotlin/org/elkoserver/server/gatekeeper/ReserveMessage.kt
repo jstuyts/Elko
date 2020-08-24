@@ -12,7 +12,7 @@ import org.elkoserver.json.Referenceable
  * @param actor Who wants to enter.
  */
 internal fun msgReserve(target: Referenceable, protocol: String,
-                       context: String, actor: String?) =
+                        context: String, actor: String?) =
         JsonLiteralFactory.targetVerb(target, "reserve").apply {
             addParameter("protocol", protocol)
             addParameter("context", context)

@@ -512,7 +512,7 @@ internal constructor(name: String,
      * the event, the thunk is executed on the server run queue and the context
      * is then released.
      */
-    private inner class ContextEventThunk internal constructor(private val myThunk: Runnable) : Runnable, TimeoutNoticer {
+    private inner class ContextEventThunk(private val myThunk: Runnable) : Runnable, TimeoutNoticer {
         override fun noticeTimeout() {
             assertActivated { it.server.enqueue(this) }
         }
@@ -596,7 +596,7 @@ internal constructor(name: String,
      */
     override fun toString(): String = "Context '${ref()}'"
 
-    private inner class UserIterator internal constructor() : MutableIterator<User> {
+    private inner class UserIterator : MutableIterator<User> {
         private val myInnerIterator = group.members().iterator()
         override fun hasNext(): Boolean = myNext != null
 

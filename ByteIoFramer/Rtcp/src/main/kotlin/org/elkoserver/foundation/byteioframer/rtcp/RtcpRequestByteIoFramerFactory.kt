@@ -45,7 +45,7 @@ class RtcpRequestByteIoFramerFactory(private val gorgel: Gorgel, private val chu
     /**
      * I/O framer implementation for RTCP requests.
      */
-    private inner class RtcpRequestFramer internal constructor(
+    private inner class RtcpRequestFramer(
             private val myReceiver: MessageReceiver,
             private val myLabel: String,
             private val myIn: ChunkyByteArrayInputStream) : ByteIoFramer {

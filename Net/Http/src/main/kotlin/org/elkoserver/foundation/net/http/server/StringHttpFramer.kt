@@ -19,7 +19,7 @@ class StringHttpFramer private constructor() : HttpFramer() {
      *
      * @param postBody  The HTTP message body was POSTed.
      */
-    private class StringBodyUnpacker internal constructor(postBody: String) : MutableIterator<Any> {
+    private class StringBodyUnpacker(postBody: String) : MutableIterator<Any> {
         /** The message string that was received.  */
         private var myReceivedMessage: String?
 

@@ -69,12 +69,12 @@ constructor(
     : Encodable, ClockUsingObject, ClassspecificGorgelUsingObject, PostInjectionInitializingObject {
     /** Currently defined currencies, by name.  */
     private val myCurrencies = mutableMapOf<String, Currency>().apply {
-        currencies.associateByTo(this) { it.name }
+        currencies.associateByTo(this, Currency::name)
     }
 
     /** Access keys, by key ref.  */
     private val myKeys = mutableMapOf<String?, Key>().apply {
-        keys.associateByTo(this) { it.ref }
+        keys.associateByTo(this, Key::ref)
     }
 
     /** A new root key that has been generated but not issued.  */
@@ -508,7 +508,7 @@ constructor(
      */
     fun withAccount(accountRef: String, updater: AccountUpdater) {
         myWorkshop.getObject(accountRef, myAccountCollection,
-                Consumer { obj: Any? ->
+                { obj: Any? ->
                     if (obj == null) {
                         gorgel.error("account object $accountRef not found")
                         updater.modify(null)
@@ -529,7 +529,7 @@ constructor(
      */
     fun withEncumberedAccount(encRef: String, updater: AccountUpdater) {
         myWorkshop.queryObjects(queryEnc(encRef), myAccountCollection, 1,
-                Consumer { queryResult: Any? ->
+                { queryResult: Any? ->
                     if (queryResult == null) {
                         gorgel.error("encumbrance object $encRef not found")
                         updater.modify(null)
@@ -560,7 +560,7 @@ constructor(
      */
     fun withEncumbranceAndAccount(encRef: String, accountRef: String, updater: DualAccountUpdater) {
         myWorkshop.queryObjects(queryEncAndAccount(encRef, accountRef),
-                myAccountCollection, 2, Consumer { queryResult: Any? ->
+                myAccountCollection, 2, { queryResult: Any? ->
             if (queryResult == null) {
                 gorgel.error("accounts via $encRef+$accountRef not found")
                 updater.modify(null, null)
@@ -591,7 +591,7 @@ constructor(
     fun withTwoAccounts(account1Ref: String, account2Ref: String,
                         updater: DualAccountUpdater) {
         myWorkshop.queryObjects(queryTwoAccounts(account1Ref, account2Ref),
-                myAccountCollection, 2, Consumer { queryResult: Any? ->
+                myAccountCollection, 2, { queryResult: Any? ->
             if (queryResult == null) {
                 gorgel.error("accounts $account1Ref+$account2Ref not found")
                 updater.modify(null, null)

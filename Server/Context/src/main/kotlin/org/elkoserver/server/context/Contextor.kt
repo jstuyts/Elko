@@ -380,18 +380,13 @@ class Contextor internal constructor(
      * also loaded.  This class manages that process.  Each instance of this
      * class represents a container that is being loaded; it tracks the loading
      * of its contents and then notifies the container that contains *it*.
-     */
-    private inner class ContentsHandler
-
-    /**
-     * Constructor.
      *
      * @param myParentHandler ContentsHandler for the enclosing parent
      * container, or null if we are the top level container.
      * @param myTopHandler Thunk to be notified with the complete result once
      * it is available.
      */
-    internal constructor(
+    private inner class ContentsHandler(
             private val myParentHandler: ContentsHandler?,
             private val myTopHandler: Consumer<in BasicObject?>) : Consumer<Any?> {
 
@@ -541,7 +536,7 @@ class Contextor internal constructor(
      * @param myContextRef  The ref of the context itself.
      * @param myOpener  The director who requested the context activation.
      */
-    private inner class GetContextHandler internal constructor(
+    private inner class GetContextHandler(
             private val myContextTemplate: String,
             private var myContextRef: String,
             private val myOpener: DirectorActor?) : Consumer<BasicObject?> {
@@ -621,7 +616,7 @@ class Contextor internal constructor(
         }
     }
 
-    private inner class GetItemHandler internal constructor(private val myItemRef: String) : Consumer<Any?> {
+    private inner class GetItemHandler(private val myItemRef: String) : Consumer<Any?> {
         override fun accept(obj: Any?) {
             if (obj != null) {
                 val item = obj as Item
@@ -681,7 +676,7 @@ class Contextor internal constructor(
         }
     }
 
-    private inner class StaticObjectListReceiver internal constructor(var myTag: String) : Consumer<Any?> {
+    private inner class StaticObjectListReceiver(var myTag: String) : Consumer<Any?> {
         override fun accept(obj: Any?) {
             val statics = obj as StaticObjectList?
             if (statics != null) {
@@ -726,15 +721,12 @@ class Contextor internal constructor(
      * generate a query to fetch that object's application-scoped mods, and
      * attach those mods to the object before passing the object to whoever
      * actually asked for it originally.
-     */
-    private inner class ScopedModAttacher
-    /**
-     * Constructor.
      *
      * @param myScope  The application scope to be queried against.
      * @param myOuterHandler  The original handler to which the modified
      * object should be passed.
-     */ internal constructor(private val myScope: String, private val myOuterHandler: Consumer<in BasicObject?>) : Consumer<Any?> {
+     */
+    private inner class ScopedModAttacher(private val myScope: String, private val myOuterHandler: Consumer<in BasicObject?>) : Consumer<Any?> {
         private var myObj: BasicObject? = null
 
         /**

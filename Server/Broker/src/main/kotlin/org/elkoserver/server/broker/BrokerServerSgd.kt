@@ -101,7 +101,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
         override fun sslContextPropertyNamePrefix(): D<String> = providedByMe()
-        override fun sslContextSgdGorgel(): D<Gorgel>  = providedByMe()
+        override fun sslContextSgdGorgel(): D<Gorgel> = providedByMe()
     }
 
     val sslContextSgd = add(SslContextSgd(object : SslContextSgd.Provided by provided {
@@ -202,7 +202,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
                 req(tcpConnectionFactory),
                 req(listenerFactory))
     }
-            .dispose { it.shutDown() }
+            .dispose(SelectThread::shutDown)
 
     val objDbLocalRunnerFactory by Once { ObjDbLocalRunnerFactory(req(runnerGorgel)) }
 
@@ -421,7 +421,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val connectionIdGenerator by Once { LongIdGenerator() }
 
-    val sessionIdRandom by Once { SecureRandom() }
+    val sessionIdRandom by Once(::SecureRandom)
             .init { it.nextBoolean() }
 
     val jsonToObjectDeserializer by Once {
@@ -440,7 +440,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
     val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector)) }
 
     val runner by Once { ThreadRunner(req(runnerGorgel)) }
-            .dispose { it.orderlyShutdown() }
+            .dispose(ThreadRunner::orderlyShutdown)
 
     val serverTagGenerator by Once { LongIdGenerator() }
 

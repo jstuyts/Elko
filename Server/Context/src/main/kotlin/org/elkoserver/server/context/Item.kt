@@ -9,7 +9,6 @@ import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
 import java.util.LinkedList
-import java.util.function.Consumer
 
 /**
  * A Item is an application object contained by a context or a user (or another
@@ -233,7 +232,7 @@ class Item : BasicObject {
             isClosed = false
             markAsChanged()
             assertActivated {
-                it.loadItemContents(this, Consumer { obj: Any? ->
+                it.loadItemContents(this, { obj: Any? ->
                     activatePassiveContents("")
                     it.notifyPendingObjectCompletionWatchers()
                     myContents?.sendContentsDescription(context(), this@Item)

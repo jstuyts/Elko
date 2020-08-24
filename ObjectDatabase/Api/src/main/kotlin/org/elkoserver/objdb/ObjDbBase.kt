@@ -192,7 +192,7 @@ abstract class ObjDbBase(
         }
     }
 
-    private inner class ClassDescReceiver internal constructor(var myTag: String) : Consumer<Any?> {
+    private inner class ClassDescReceiver(var myTag: String) : Consumer<Any?> {
         override fun accept(obj: Any?) {
             val classes = obj as ClassDesc?
             if (classes != null) {

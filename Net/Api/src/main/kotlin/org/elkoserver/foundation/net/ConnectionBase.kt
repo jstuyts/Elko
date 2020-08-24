@@ -58,7 +58,7 @@ abstract class ConnectionBase protected constructor(
     /**
      * Process a received message from the run queue.
      */
-    private inner class MessageHandlerThunk internal constructor(private val myMessage: Any) : Runnable {
+    private inner class MessageHandlerThunk(private val myMessage: Any) : Runnable {
         private val myOnQueueTime = clock.millis()
 
         override fun run() {
@@ -84,7 +84,7 @@ abstract class ConnectionBase protected constructor(
         myRunner.enqueue(HandlerFactoryThunk(handlerFactory))
     }
 
-    private inner class HandlerFactoryThunk internal constructor(private val myHandlerFactory: MessageHandlerFactory) : Runnable {
+    private inner class HandlerFactoryThunk(private val myHandlerFactory: MessageHandlerFactory) : Runnable {
         override fun run() {
             myMessageHandler = myHandlerFactory.provideMessageHandler(this@ConnectionBase)
             if (myMessageHandler == null) {

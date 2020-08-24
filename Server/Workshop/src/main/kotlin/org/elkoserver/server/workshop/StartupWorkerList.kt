@@ -27,7 +27,7 @@ internal class StartupWorkerList @JsonMethod("workers") constructor(private val 
         }
     }
 
-    private class WorkerReceiver internal constructor(var myWorkshop: Workshop, var myElem: WorkerListElem, var gorgel: Gorgel) : Consumer<Any?> {
+    private class WorkerReceiver(var myWorkshop: Workshop, var myElem: WorkerListElem, var gorgel: Gorgel) : Consumer<Any?> {
         override fun accept(obj: Any?) {
             if (obj != null) {
                 if (obj is WorkerObject) {

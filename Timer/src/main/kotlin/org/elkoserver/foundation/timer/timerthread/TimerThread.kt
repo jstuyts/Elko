@@ -39,7 +39,7 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
     /**
      * Return the current clock time, in milliseconds
      */
-    fun queryTimerMillis() = clock.millis()
+    private fun queryTimerMillis() = clock.millis()
 
     /**
      * Run the timer thread until told to stop.

@@ -60,7 +60,7 @@ class DirectorActor(
      * actually implement the Iterator interface because some of its methods
      * need to declare exceptions.
      */
-    private inner class RelayIterator internal constructor(context: OptString, user: OptString) {
+    private inner class RelayIterator(context: OptString, user: OptString) {
         private var myMode = 0
         private val myContextRef = context.value<String?>(null)
         private val myContexts = lookupClones(myContextRef).iterator()
@@ -142,7 +142,7 @@ class DirectorActor(
                     myMode = MODE_CONTEXT
                 }
             } else {
-                myMode = if (myUsers.hasNext()) MODE_USER else throw MessageHandlerException( "missing context and/or user parameters")
+                myMode = if (myUsers.hasNext()) MODE_USER else throw MessageHandlerException("missing context and/or user parameters")
             }
         }
     }
