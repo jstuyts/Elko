@@ -55,6 +55,7 @@ import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.thread.ThreadRunner
+import org.elkoserver.foundation.run.threadpoolexecutor.ThreadPoolExecutorSlowServiceRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
 import org.elkoserver.foundation.server.LoadWatcher
@@ -394,7 +395,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 req(objDbRemoteFactory),
                 req(objDbLocalFactory),
                 req(connectionSetupFactoriesByCode),
-                req(connectionRetrierFactory))
+                req(connectionRetrierFactory),
+                req(slowRunner))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -404,6 +406,10 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                     req(bootGorgel).error("no listeners specified")
                 }
             }
+
+    val slowRunnerMaximumNumberOfThreads by Once { req(provided.props()).intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS) }
+
+    val slowRunner by Once { ThreadPoolExecutorSlowServiceRunner(req(runner), req(slowRunnerMaximumNumberOfThreads)) }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -569,4 +575,9 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
     val userHandler by Once { UserHandler(req(authorizer), req(baseCommGorgel).getChild(UserHandler::class)) }
             .wire { req(gatekeeper).refTable.addRef(it) }
             .eager()
+
+    companion object {
+        /** Default value for max number of threads in slow service thread pool.  */
+        private const val DEFAULT_SLOW_THREADS = 5
+    }
 }

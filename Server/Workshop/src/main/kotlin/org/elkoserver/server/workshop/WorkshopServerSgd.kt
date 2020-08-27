@@ -54,6 +54,7 @@ import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.thread.ThreadRunner
+import org.elkoserver.foundation.run.threadpoolexecutor.ThreadPoolExecutorSlowServiceRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
 import org.elkoserver.foundation.server.LoadWatcher
@@ -390,7 +391,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(objDbRemoteFactory),
                 req(objDbLocalFactory),
                 req(connectionSetupFactoriesByCode),
-                req(connectionRetrierFactory))
+                req(connectionRetrierFactory),
+                req(slowRunner))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -403,6 +405,10 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 }
 
             }
+
+    val slowRunnerMaximumNumberOfThreads by Once { req(provided.props()).intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS) }
+
+    val slowRunner by Once { ThreadPoolExecutorSlowServiceRunner(req(runner), req(slowRunnerMaximumNumberOfThreads)) }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -489,4 +495,9 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
     val workshop: D<Workshop> by Once { Workshop(req(objectDatabase), req(server), req(refTable), req(workshopGorgel), req(startupWorkerListGorgel), req(baseCommGorgel)) }
 
     val workshopServiceFactory by Once { WorkshopServiceFactory(req(workshop), req(workshopActorGorgel), req(workshopActorCommGorgel), req(mustSendDebugReplies)) }
+
+    companion object {
+        /** Default value for max number of threads in slow service thread pool.  */
+        private const val DEFAULT_SLOW_THREADS = 5
+    }
 }

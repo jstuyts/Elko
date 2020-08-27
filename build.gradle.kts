@@ -17,6 +17,6 @@ group = "org.elko"
 version = "2.0.4-SNAPSHOT"
 
 tasks.named<Wrapper>("wrapper") {
-    gradleVersion = "6.6"
+    gradleVersion = "6.6.1"
     distributionType = Wrapper.DistributionType.ALL
 }

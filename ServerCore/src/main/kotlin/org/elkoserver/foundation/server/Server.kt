@@ -10,7 +10,6 @@ import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.SlowServiceRunner
-import org.elkoserver.foundation.run.threadpoolexecutor.ThreadPoolExecutorSlowServiceRunner
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
@@ -55,7 +54,8 @@ class Server(
         private val objDbRemoteFactory: ObjDbRemoteFactory,
         private val objDbLocalFactory: ObjDbLocalFactory,
         private val connectionSetupFactoriesByCode: Map<String, ConnectionSetupFactory>,
-        private val connectionRetrierFactory: ConnectionRetrierFactory)
+        private val connectionRetrierFactory: ConnectionRetrierFactory,
+        private val mySlowRunner: SlowServiceRunner)
     : ServiceFinder {
 
     /** The name of this server (for logging).  */
@@ -86,10 +86,7 @@ class Server(
     /** Objects to be notified when the server is reinitialized.  */
     private val myReinitWatchers: MutableList<ReinitWatcher> = LinkedList()
 
-    /** Thread pool isolation for external blocking tasks.  */
-    private val mySlowRunner: SlowServiceRunner = ThreadPoolExecutorSlowServiceRunner(runner, myProps.intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS))
-
-    /** Flag that server is in the midst of trying to shut down.  */
+        /** Flag that server is in the midst of trying to shut down.  */
     private var amShuttingDown = false
 
     /** Map from external service names to links to the services.  */
@@ -535,11 +532,6 @@ class Server(
         }
         listeners = theListeners
         return listenerCount
-    }
-
-    companion object {
-        /** Default value for max number of threads in slow service thread pool.  */
-        private const val DEFAULT_SLOW_THREADS = 5
     }
 
     init {
