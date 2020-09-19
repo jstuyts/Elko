@@ -7,6 +7,7 @@ import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.SourceRetargeter
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
@@ -31,6 +32,7 @@ import java.util.function.Consumer
 class UserActor(
         private val myConnection: Connection,
         private val myContextor: Contextor,
+        private val runner: Runner,
         private val amAuthRequired: Boolean,
         internal val protocol: String,
         private val userActorGorgel: Gorgel,
@@ -76,7 +78,7 @@ class UserActor(
         if (!amDead) {
             amDead = true
             val users: List<User> = LinkedList(myUsers.values)
-            myContextor.server.enqueue({
+            runner.enqueue({
                 for (user in users) {
                     user.connectionDied(connection)
                 }

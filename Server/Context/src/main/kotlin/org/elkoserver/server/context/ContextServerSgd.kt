@@ -20,6 +20,7 @@ import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageDispatcherFactory
 import org.elkoserver.foundation.json.MethodInvoker
+import org.elkoserver.foundation.json.SlowServiceRunnerInjector
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.foundation.net.Listener
@@ -57,8 +58,11 @@ import org.elkoserver.foundation.run.thread.ThreadRunner
 import org.elkoserver.foundation.run.threadpoolexecutor.ThreadPoolExecutorSlowServiceRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
+import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
 import org.elkoserver.foundation.server.LoadWatcher
+import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceActorFactory
@@ -206,6 +210,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val userActorFactoryFactory by Once {
         UserActorFactoryFactory(
                 req(contextor),
+                req(runner),
                 req(userActorGorgel),
                 req(userActorCommGorgel),
                 req(userGorgelWithoutRef),
@@ -428,29 +433,30 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
                 "zmq" to req(zeromqConnectionSetupFactory))
     }
 
-    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(brokerActorGorgel), req(mustSendDebugReplies)) }
+    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(serverLoadMonitor), req(brokerActorGorgel), req(mustSendDebugReplies)) }
 
     val serviceActorFactory by Once { ServiceActorFactory(req(serviceActorGorgel), req(serviceActorCommGorgel), req(mustSendDebugReplies)) }
+
+    val listenerConfigurationFromPropertiesFactory by Once { ListenerConfigurationFromPropertiesFactory(req(provided.props()), req(provided.authDescFromPropertiesFactory())) }
+
+    val serverDescriptionFromPropertiesFactory by Once { ServerDescriptionFromPropertiesFactory(req(provided.props())) }
+
+    val serverDescription by Once { req(serverDescriptionFromPropertiesFactory).create("context") }
 
     val server by Once {
         Server(
                 req(provided.props()),
-                "context",
+                req(serverDescription),
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(brokerActorFactory),
                 req(serviceActorFactory),
                 req(messageDispatcher),
-                req(provided.authDescFromPropertiesFactory()),
-                req(provided.hostDescFromPropertiesFactory()),
+                req(listenerConfigurationFromPropertiesFactory),
+                req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
                 req(serverTagGenerator),
-                req(serverLoadMonitor),
-                req(runner),
-                req(objDbRemoteFactory),
-                req(objDbLocalFactory),
                 req(connectionSetupFactoriesByCode),
-                req(connectionRetrierFactory),
-                req(slowRunner))
+                req(connectionRetrierFactory))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -496,7 +502,9 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val baseCommGorgelInjector by Once { BaseCommGorgelInjector(req(baseCommGorgel)) }
 
-    val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector)) }
+    val slowServiceRunnerInjector by Once { SlowServiceRunnerInjector(req(slowRunner)) }
+
+    val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector), req(slowServiceRunnerInjector)) }
 
     val runner by Once { ThreadRunner(req(runnerGorgel)) }
             .dispose(ThreadRunner::orderlyShutdown)
@@ -507,6 +515,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val objDbRemoteFactory by Once {
         ObjDbRemoteFactory(
+                req(server),
+                req(serverDescription).serverName,
                 req(provided.props()),
                 req(objDbRemoteGorgel),
                 req(odbActorGorgel),
@@ -536,8 +546,10 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val serverListeners by Once { req(server).listeners }
 
+    val objectDatabaseFactory by Once { ObjectDatabaseFactory(req(provided.props()), req(objDbRemoteFactory), req(objDbLocalFactory)) }
+
     val objectDatabase by Once {
-        req(server).openObjectDatabase("conf.context")!!.apply {
+        req(objectDatabaseFactory).openObjectDatabase("conf.context").apply {
             addClass("context", Context::class.java)
             addClass("item", Item::class.java)
             addClass("user", User::class.java)
@@ -583,6 +595,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val directorGroupFactory by Once {
         DirectorGroupFactory(
                 req(server),
+                req(serverLoadMonitor),
                 req(directorGroupGorgel),
                 req(reservationFactory),
                 req(directorActorFactory),
@@ -604,6 +617,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
         Contextor(
                 req(objectDatabase),
                 req(server),
+                req(runner),
                 req(refTable),
                 req(contextorGorgel),
                 req(contextGorgelWithoutRef),

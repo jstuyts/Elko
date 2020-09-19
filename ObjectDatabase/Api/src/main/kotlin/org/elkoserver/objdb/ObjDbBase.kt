@@ -6,10 +6,10 @@ import org.elkoserver.json.JsonArray
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
 import org.elkoserver.objdb.store.ObjectDesc
+import org.elkoserver.util.tokenize
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.HashMap
 import java.util.LinkedList
-import java.util.StringTokenizer
 import java.util.function.Consumer
 
 /**
@@ -183,12 +183,8 @@ abstract class ObjDbBase(
         addClass("classes", ClassDesc::class.java)
         addClass("class", ClassTagDesc::class.java)
         getObject("classes", null, ClassDescReceiver("classes"))
-        if (classDescRefs != null) {
-            val tags = StringTokenizer(classDescRefs, " ,;:")
-            while (tags.hasMoreTokens()) {
-                val tag = tags.nextToken()
-                getObject(tag, null, ClassDescReceiver(tag))
-            }
+        classDescRefs?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
+            getObject(tag, null, ClassDescReceiver(tag))
         }
     }
 

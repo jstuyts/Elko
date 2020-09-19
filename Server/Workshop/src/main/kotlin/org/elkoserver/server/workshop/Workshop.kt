@@ -8,9 +8,9 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.JsonObject
 import org.elkoserver.objdb.ObjDb
+import org.elkoserver.util.tokenize
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
-import java.util.StringTokenizer
 import java.util.function.Consumer
 
 /**
@@ -59,12 +59,8 @@ class Workshop internal constructor(
         myObjDb.addClass("workers", StartupWorkerList::class.java)
         myObjDb.getObject("workers", null,
                 StartupWorkerListReceiver("workers"))
-        if (workerListRefs != null) {
-            val tags = StringTokenizer(workerListRefs, " ,;:")
-            while (tags.hasMoreTokens()) {
-                val tag = tags.nextToken()
-                myObjDb.getObject(tag, null, StartupWorkerListReceiver(tag))
-            }
+        workerListRefs?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
+            myObjDb.getObject(tag, null, StartupWorkerListReceiver(tag))
         }
     }
 

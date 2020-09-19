@@ -9,6 +9,8 @@ import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 class ObjDbRemoteFactory(
+        private val serviceFinder: ServiceFinder,
+        private val serverName: String,
         private val myProps: ElkoProperties,
         private val objDbRemoteGorgel: Gorgel,
         private val odbActorGorgel: Gorgel,
@@ -22,7 +24,7 @@ class ObjDbRemoteFactory(
         private val removeRequestFactory: RemoveRequestFactory,
         private val mustSendDebugReplies: Boolean,
         private val connectionRetrierFactory: ConnectionRetrierFactory) {
-    fun create(serviceFinder: ServiceFinder, serverName: String, propRoot: String): ObjDbRemote =
+    fun create(propRoot: String): ObjDbRemote =
             ObjDbRemote(
                     serviceFinder,
                     serverName,

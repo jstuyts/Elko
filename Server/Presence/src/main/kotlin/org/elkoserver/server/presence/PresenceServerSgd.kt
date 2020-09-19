@@ -55,11 +55,13 @@ import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.thread.ThreadRunner
-import org.elkoserver.foundation.run.threadpoolexecutor.ThreadPoolExecutorSlowServiceRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
+import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
 import org.elkoserver.foundation.server.LoadWatcher
+import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceActorFactory
@@ -373,29 +375,30 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
         MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
     }
 
-    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(brokerActorGorgel), req(mustSendDebugReplies)) }
+    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(serverLoadMonitor), req(brokerActorGorgel), req(mustSendDebugReplies)) }
 
     val serviceActorFactory by Once { ServiceActorFactory(req(serviceActorGorgel), req(serviceActorCommGorgel), req(mustSendDebugReplies)) }
+
+    val listenerConfigurationFromPropertiesFactory by Once { ListenerConfigurationFromPropertiesFactory(req(provided.props()), req(provided.authDescFromPropertiesFactory())) }
+
+    val serverDescriptionFromPropertiesFactory by Once { ServerDescriptionFromPropertiesFactory(req(provided.props())) }
+
+    val serverDescription by Once { req(serverDescriptionFromPropertiesFactory).create("presence") }
 
     val server by Once {
         Server(
                 req(provided.props()),
-                "presence",
+                req(serverDescription),
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(brokerActorFactory),
                 req(serviceActorFactory),
                 req(messageDispatcher),
-                req(provided.authDescFromPropertiesFactory()),
-                req(provided.hostDescFromPropertiesFactory()),
+                req(listenerConfigurationFromPropertiesFactory),
+                req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
                 req(serverTagGenerator),
-                req(serverLoadMonitor),
-                req(runner),
-                req(objDbRemoteFactory),
-                req(objDbLocalFactory),
                 req(connectionSetupFactoriesByCode),
-                req(connectionRetrierFactory),
-                req(slowRunner))
+                req(connectionRetrierFactory))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -405,10 +408,6 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                     req(bootGorgel).error("no listeners specified")
                 }
             }
-
-    val slowRunnerMaximumNumberOfThreads by Once { req(provided.props()).intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS) }
-
-    val slowRunner by Once { ThreadPoolExecutorSlowServiceRunner(req(runner), req(slowRunnerMaximumNumberOfThreads)) }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -473,6 +472,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val objDbRemoteFactory by Once {
         ObjDbRemoteFactory(
+                req(server),
+                req(serverDescription).serverName,
                 req(provided.props()),
                 req(objDbRemoteGorgel),
                 req(odbActorGorgel),
@@ -502,9 +503,12 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
+    val objectDatabaseFactory by Once { ObjectDatabaseFactory(req(provided.props()), req(objDbRemoteFactory), req(objDbLocalFactory)) }
+
     val presenceServer: D<PresenceServer> by Once {
         PresenceServer(
                 req(server),
+                req(objectDatabaseFactory),
                 req(refTable),
                 req(presenceServerGorgel),
                 req(graphDescGorgel),
@@ -519,10 +523,5 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(presenceActorGorgel),
                 req(presenceActorCommGorgel),
                 req(mustSendDebugReplies))
-    }
-
-    companion object {
-        /** Default value for max number of threads in slow service thread pool.  */
-        private const val DEFAULT_SLOW_THREADS = 5
     }
 }

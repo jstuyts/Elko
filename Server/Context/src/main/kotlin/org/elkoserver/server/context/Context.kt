@@ -5,6 +5,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.EncodeControl
@@ -132,6 +133,8 @@ internal constructor(name: String,
 
     private lateinit var timer: Timer
 
+    private lateinit var runner: Runner
+
     /**
      * Activate a context.
      * @param ref  Reference string for the new context.
@@ -144,10 +147,11 @@ internal constructor(name: String,
      * if not relevant.
      */
     fun activate(ref: String, subID: String, isEphemeral: Boolean,
-                 contextor: Contextor, loadedFromRef: String,
+                 contextor: Contextor, runner: Runner, loadedFromRef: String,
                  opener: DirectorActor?, gorgel: Gorgel, timer: Timer) {
         super.activate(ref, subID, isEphemeral, contextor, gorgel)
         this.timer = timer
+        this.runner = runner
         group = LiveGroup()
         userCount = 0
         myRetainCount = 0
@@ -514,7 +518,7 @@ internal constructor(name: String,
      */
     private inner class ContextEventThunk(private val myThunk: Runnable) : Runnable, TimeoutNoticer {
         override fun noticeTimeout() {
-            assertActivated { it.server.enqueue(this) }
+            assertActivated { runner.enqueue(this) }
         }
 
         override fun run() {

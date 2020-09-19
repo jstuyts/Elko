@@ -33,5 +33,5 @@ interface ServiceFactory {
      * handlers for connections made to the new listener.
      */
     fun provideFactory(label: String, auth: AuthDesc,
-                       allow: Set<String>, serviceNames: MutableList<String>, protocol: String): MessageHandlerFactory
+                       allow: Collection<String>, serviceNames: MutableList<String>, protocol: String): MessageHandlerFactory
 }

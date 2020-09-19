@@ -1,6 +1,7 @@
 package org.elkoserver.server.presence
 
 import org.elkoserver.foundation.actor.RefTable
+import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonObject
@@ -13,6 +14,7 @@ import java.util.LinkedList
  */
 internal class PresenceServer(
         private val myServer: Server,
+        objectDatabaseFactory: ObjectDatabaseFactory,
         internal val refTable: RefTable,
         private val gorgel: Gorgel,
         private val graphDescGorgel: Gorgel,
@@ -232,7 +234,7 @@ internal class PresenceServer(
         myUsers = HashMap()
         myVisibles = HashMap()
         myContextMetadata = HashMap()
-        objDb = myServer.openObjectDatabase("conf.presence") ?: throw IllegalStateException("no database specified")
+        objDb = objectDatabaseFactory.openObjectDatabase("conf.presence")
         objDb.addClass("graphtable", GraphTable::class.java)
         objDb.getObject("graphs", null, { obj: Any? ->
             if (obj != null) {

@@ -1,6 +1,7 @@
 package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.properties.ElkoProperties
+import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
@@ -12,6 +13,8 @@ interface AuthorizerProvided : ProvidedBase {
     fun gatekeeper(): D<Gatekeeper>
 
     fun server(): D<Server>
+
+    fun objectDatabaseFactory(): D<ObjectDatabaseFactory>
 
     fun baseGorgel(): D<Gorgel>
 

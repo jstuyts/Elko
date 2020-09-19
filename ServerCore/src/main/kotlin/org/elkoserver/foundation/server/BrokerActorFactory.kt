@@ -7,8 +7,9 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 
 class BrokerActorFactory(
         private val dispatcher: MessageDispatcher,
+        private val serverLoadMonitor: ServerLoadMonitor,
         private val gorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) {
     fun create(connection: Connection, server: Server, brokerHost: HostDesc): BrokerActor =
-            BrokerActor(connection, dispatcher, server, brokerHost, gorgel, mustSendDebugReplies)
+            BrokerActor(connection, dispatcher, server, serverLoadMonitor, brokerHost, gorgel, mustSendDebugReplies)
 }

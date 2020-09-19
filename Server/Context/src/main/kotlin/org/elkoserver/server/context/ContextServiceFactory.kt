@@ -23,7 +23,7 @@ internal class ContextServiceFactory(
      * @param protocol  The protocol (TCP, HTTP, etc.) that connections
      * made to the new listener are expected to speak
      */
-    override fun provideFactory(label: String, auth: AuthDesc, allow: Set<String>, serviceNames: MutableList<String>, protocol: String): MessageHandlerFactory {
+    override fun provideFactory(label: String, auth: AuthDesc, allow: Collection<String>, serviceNames: MutableList<String>, protocol: String): MessageHandlerFactory {
         return if (allow.contains("internal")) {
             serviceNames.add("context-internal")
             internalActorFactoryFactory.create(auth)

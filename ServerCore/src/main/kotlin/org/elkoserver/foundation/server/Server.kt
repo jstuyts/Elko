@@ -8,24 +8,14 @@ import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner
-import org.elkoserver.foundation.run.SlowServiceRunner
-import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDesc
-import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.objdb.ObjDb
-import org.elkoserver.objdb.ObjDbLocalFactory
-import org.elkoserver.objdb.ObjDbRemoteFactory
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.HashMap
-import java.util.HashSet
 import java.util.LinkedList
-import java.util.StringTokenizer
-import java.util.concurrent.Callable
 import java.util.function.Consumer
 
 /**
@@ -35,34 +25,25 @@ import java.util.function.Consumer
  * port listeners) that are configured by those property settings.
  *
  * @param myProps  The properties, as determined by the boot process.
- * @param serverType  Server type tag (for generating property names).
  * @param myTagGenerator Counter to generate tags for 'find' requests to the broker.
  */
 class Server(
         private val myProps: ElkoProperties,
-        serverType: String,
+        private val description: ServerDescription,
         private val gorgel: Gorgel,
         private val serviceLinkGorgel: Gorgel,
         private val brokerActorFactory: BrokerActorFactory,
         private val serviceActorFactory: ServiceActorFactory,
         myDispatcher: MessageDispatcher,
-        private val authDescFromPropertiesFactory: AuthDescFromPropertiesFactory,
-        hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
+        private val listenerConfigurationFromPropertiesFactory: ListenerConfigurationFromPropertiesFactory,
+        private val myBrokerHost: HostDesc?,
         private val myTagGenerator: IdGenerator,
-        private val myLoadMonitor: ServerLoadMonitor,
-        private val runner: Runner,
-        private val objDbRemoteFactory: ObjDbRemoteFactory,
-        private val objDbLocalFactory: ObjDbLocalFactory,
         private val connectionSetupFactoriesByCode: Map<String, ConnectionSetupFactory>,
-        private val connectionRetrierFactory: ConnectionRetrierFactory,
-        private val mySlowRunner: SlowServiceRunner)
+        private val connectionRetrierFactory: ConnectionRetrierFactory)
     : ServiceFinder {
 
     /** The name of this server (for logging).  */
-    val serverName: String = myProps.getProperty("conf.$serverType.name", "<anonymous>")
-
-    /** Name of service, to distinguish variants of same service type.  */
-    private val myServiceName: String = myProps.getProperty("conf.$serverType.service")?.let { "-$it" } ?: ""
+    val serverName: String = description.serverName
 
     /** List of ServiceDesc objects describing services this server offers.  */
     private val myServices: MutableList<ServiceDesc> = LinkedList()
@@ -72,9 +53,6 @@ class Server(
 
     /** Connection to the broker, if there is one.  */
     private var myBrokerActor: BrokerActor? = null
-
-    /** Host description for connection to broker, if there is one.  */
-    private val myBrokerHost: HostDesc? = hostDescFromPropertiesFactory.fromProperties("conf.broker")
 
     /** Table of 'find' requests that have been issued to the broker, for which
      * responses are still pending.  Indexed by the service name queried.  */
@@ -86,7 +64,7 @@ class Server(
     /** Objects to be notified when the server is reinitialized.  */
     private val myReinitWatchers: MutableList<ReinitWatcher> = LinkedList()
 
-        /** Flag that server is in the midst of trying to shut down.  */
+    /** Flag that server is in the midst of trying to shut down.  */
     private var amShuttingDown = false
 
     /** Map from external service names to links to the services.  */
@@ -136,27 +114,6 @@ class Server(
 
     private inner class BrokerMessageHandlerFactory : MessageHandlerFactory {
         override fun provideMessageHandler(connection: Connection?): MessageHandler = brokerActorFactory.create(connection!!, this@Server, myBrokerHost!!)
-    }
-
-    /**
-     * Drop a runnable onto the main run queue.
-     *
-     * @param runnable  The thing to run.
-     */
-    fun enqueue(runnable: Runnable?) {
-        runner.enqueue(runnable)
-    }
-
-    /**
-     * Drop a task onto the slow queue.
-     *
-     * @param task  Callable that executes the task.  This will be executed in
-     * a separate thread and so is permitted to block.
-     * @param resultHandler  Thunk that will be invoked with the result
-     * returned by the task.  This will be executed on the main run queue.
-     */
-    fun enqueueSlowTask(task: Callable<Any?>, resultHandler: Consumer<Any?>?) {
-        mySlowRunner.enqueueTask(task, resultHandler)
     }
 
     /**
@@ -248,7 +205,7 @@ class Server(
          *
          * Note that the broker can return multiple providers for a service,
          * but for the purposes of this API we want exactly one. If more than
-         * one provider was located we arbitraily choose the first one but also
+         * one provider was located we arbitrarily choose the first one but also
          * write a warning to the log.
          *
          * @param obj  Array of service descriptors for the service that was
@@ -315,49 +272,6 @@ class Server(
                 }
             }
         }
-    }
-
-    /**
-     * Open an asynchronous object database whose location (directory path or
-     * remote repository host) is specified by properties.
-     *
-     * @param propRoot  Prefix string for all the properties describing the objDb
-     * that is to be opened.
-     *
-     * @return an object for communicating with the opened objDb, or null if the
-     * location was not properly specified.
-     */
-    fun openObjectDatabase(propRoot: String): ObjDb? {
-        return if (myProps.getProperty("$propRoot.odjdb") != null) {
-            objDbLocalFactory.create(propRoot)
-        } else {
-            if (myProps.getProperty("$propRoot.repository.host") != null ||
-                    myProps.getProperty("$propRoot.repository.service") != null) {
-                objDbRemoteFactory.create(this, serverName, propRoot)
-            } else {
-                null
-            }
-        }
-    }
-
-    /**
-     * Add an object to the collection of objects to be notified when the
-     * server samples its load.
-     *
-     * @param watcher  An object to notify about load samples.
-     */
-    fun registerLoadWatcher(watcher: LoadWatcher) {
-        myLoadMonitor.registerLoadWatcher(watcher)
-    }
-
-    /**
-     * Remove an object from the collection of objects that are notified when
-     * the server samples its load.
-     *
-     * @param watcher  The object to stop notifying about load samples.
-     */
-    fun unregisterLoadWatcher(watcher: LoadWatcher) {
-        myLoadMonitor.unregisterLoadWatcher(watcher)
     }
 
     /**
@@ -453,7 +367,7 @@ class Server(
     fun shutdown() {
         if (!amShuttingDown) {
             amShuttingDown = true
-            gorgel.i?.run { info("Shutting down $serverName") }
+            gorgel.i?.run { info("Shutting down ${description.serverName}") }
             myBrokerActor?.close()
             for (watcher in myShutdownWatchers) {
                 watcher.noteShutdown()
@@ -479,33 +393,24 @@ class Server(
      * @return host description for the listener that was started, or null if
      * the operation failed for some reason.
      */
-    private fun startOneListener(propRoot: String, host: String,
-                                 metaFactory: ServiceFactory): HostDesc {
-        val auth = authDescFromPropertiesFactory.fromProperties(propRoot)
-        val allowString = myProps.getProperty("$propRoot.allow")
-        val allow: MutableSet<String> = HashSet()
-        if (allowString != null) {
-            val scan = StringTokenizer(allowString, ",")
-            while (scan.hasMoreTokens()) {
-                allow.add(scan.nextToken())
+    private fun startOneListener(propRoot: String, host: String, metaFactory: ServiceFactory) =
+            startOneListener(propRoot, host, metaFactory, listenerConfigurationFromPropertiesFactory.read(propRoot))
+
+    private fun startOneListener(propRoot: String, host: String, metaFactory: ServiceFactory, configuration: ListenerConfiguration) =
+            configuration.run {
+                val serviceNames: MutableList<String> = LinkedList()
+                val actorFactory = metaFactory.provideFactory(propRoot, auth, allow, serviceNames, protocol)
+                val connectionSetup = connectionSetupFactoriesByCode[protocol]?.create(label, host, auth, secure, propRoot, actorFactory)
+                if (connectionSetup == null) {
+                    gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
+                    throw IllegalStateException()
+                }
+                connectionSetup.startListener()
+                serviceNames
+                        .map { "$it${description.serviceName}" }
+                        .forEach { registerService(ServiceDesc(it, host, protocol, label, auth, null, -1)) }
+                HostDesc(protocol, secure, connectionSetup.serverAddress, auth, -1)
             }
-        }
-        val protocol = myProps.getProperty("$propRoot.protocol", "tcp")
-        val serviceNames: MutableList<String> = LinkedList()
-        val actorFactory = metaFactory.provideFactory(propRoot, auth, allow, serviceNames, protocol)
-        val label = myProps.getProperty("$propRoot.label")
-        val secure = myProps.testProperty("$propRoot.secure")
-        val connectionSetup = connectionSetupFactoriesByCode[protocol]?.create(label, host, auth, secure, propRoot, actorFactory)
-        if (connectionSetup == null) {
-            gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
-            throw IllegalStateException()
-        }
-        connectionSetup.startListener()
-        serviceNames
-                .map { "$it$myServiceName" }
-                .forEach { registerService(ServiceDesc(it, host, protocol, label, auth, null, -1)) }
-        return HostDesc(protocol, secure, connectionSetup.serverAddress, auth, -1)
-    }
 
     /**
      * Start listening for connections on all the ports that are configured.
@@ -521,11 +426,14 @@ class Server(
         var listenerPropRoot = propRoot
         var listenerCount = 0
         val theListeners: MutableList<HostDesc> = LinkedList()
-        while (true) {
-            val hostName = myProps.getProperty("$listenerPropRoot.host") ?: break
+        var hostName = myProps.getProperty("$listenerPropRoot.host")
+        while (hostName != null) {
             val listener = startOneListener(listenerPropRoot, hostName, serviceFactory)
             theListeners.add(listener)
+
             listenerPropRoot = propRoot + ++listenerCount
+
+            hostName = myProps.getProperty("$listenerPropRoot.host")
         }
         if (myBrokerHost != null) {
             connectToBroker()
@@ -538,7 +446,7 @@ class Server(
         gorgel.i?.run {
             info(BuildVersion.version)
             info(("Copyright 2016 ElkoServer.org; see LICENSE"))
-            info("Starting $serverName")
+            info("Starting ${description.serverName}")
         }
 
         myDispatcher.addClass(BrokerActor::class.java)

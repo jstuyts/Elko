@@ -7,10 +7,9 @@ import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.objdb.ObjDb
+import org.elkoserver.util.tokenize
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
-import java.util.LinkedList
-import java.util.StringTokenizer
 
 /**
  * Holder of knowledge as to how to start external processes, normally for the
@@ -196,11 +195,7 @@ internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private
          */
         fun launch() =
                 try {
-                    val parser = StringTokenizer(myLaunchScript)
-                    val exploded: MutableList<String> = LinkedList()
-                    while (parser.hasMoreTokens()) {
-                        exploded.add(parser.nextToken())
-                    }
+                    val exploded = myLaunchScript.tokenize(' ', '\t', '\n', '\r', '\u000C')
                     ProcessBuilder(exploded).start()
                     gorgel.i?.run { info("start process '$componentName'") }
                     isRunSettingOn = true

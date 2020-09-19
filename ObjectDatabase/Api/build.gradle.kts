@@ -15,6 +15,7 @@ dependencies {
     api(Libraries.nanojson)
 
     implementation(kotlin("stdlib-jdk8"))
+    implementation(project(":Util"))
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

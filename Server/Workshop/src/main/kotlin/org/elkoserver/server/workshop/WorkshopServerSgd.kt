@@ -54,11 +54,13 @@ import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.thread.ThreadRunner
-import org.elkoserver.foundation.run.threadpoolexecutor.ThreadPoolExecutorSlowServiceRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
+import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
 import org.elkoserver.foundation.server.LoadWatcher
+import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceActorFactory
@@ -370,29 +372,30 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
         MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
     }
 
-    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(brokerActorGorgel), req(mustSendDebugReplies)) }
+    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(serverLoadMonitor), req(brokerActorGorgel), req(mustSendDebugReplies)) }
 
     val serviceActorFactory by Once { ServiceActorFactory(req(serviceActorGorgel), req(serviceActorCommGorgel), req(mustSendDebugReplies)) }
+
+    val listenerConfigurationFromPropertiesFactory by Once { ListenerConfigurationFromPropertiesFactory(req(provided.props()), req(provided.authDescFromPropertiesFactory())) }
+
+    val serverDescriptionFromPropertiesFactory by Once { ServerDescriptionFromPropertiesFactory(req(provided.props())) }
+
+    val serverDescription by Once { req(serverDescriptionFromPropertiesFactory).create("workshop") }
 
     val server by Once {
         Server(
                 req(provided.props()),
-                "workshop",
+                req(serverDescription),
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(brokerActorFactory),
                 req(serviceActorFactory),
                 req(messageDispatcher),
-                req(provided.authDescFromPropertiesFactory()),
-                req(provided.hostDescFromPropertiesFactory()),
+                req(listenerConfigurationFromPropertiesFactory),
+                req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
                 req(serverTagGenerator),
-                req(serverLoadMonitor),
-                req(runner),
-                req(objDbRemoteFactory),
-                req(objDbLocalFactory),
                 req(connectionSetupFactoriesByCode),
-                req(connectionRetrierFactory),
-                req(slowRunner))
+                req(connectionRetrierFactory))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -405,10 +408,6 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
                 }
 
             }
-
-    val slowRunnerMaximumNumberOfThreads by Once { req(provided.props()).intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS) }
-
-    val slowRunner by Once { ThreadPoolExecutorSlowServiceRunner(req(runner), req(slowRunnerMaximumNumberOfThreads)) }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -455,6 +454,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val objDbRemoteFactory by Once {
         ObjDbRemoteFactory(
+                req(server),
+                req(serverDescription).serverName,
                 req(provided.props()),
                 req(objDbRemoteGorgel),
                 req(odbActorGorgel),
@@ -484,8 +485,10 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
+    val objectDatabaseFactory by Once { ObjectDatabaseFactory(req(provided.props()), req(objDbRemoteFactory), req(objDbLocalFactory)) }
+
     val objectDatabase by Once {
-        req(server).openObjectDatabase("conf.workshop") ?: throw IllegalStateException("no database specified")
+        req(objectDatabaseFactory).openObjectDatabase("conf.workshop")
     }
 
     val objectDatabaseDispatcher by Once { MessageDispatcher(req(objectDatabase), req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }

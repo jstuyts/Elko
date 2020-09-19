@@ -2,7 +2,9 @@ package org.elkoserver.feature.deviceuser
 
 import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.foundation.json.SlowServiceRunnerUsingObject
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.run.SlowServiceRunner
 import org.elkoserver.json.JsonDecodingException
 import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Contextor
@@ -17,11 +19,16 @@ import java.util.function.Consumer
  *
  * @param myDevice  The name of the device (IOS, etc).
  */
-open class DevicePersistentUserFactory @JsonMethod("device") internal constructor(private val myDevice: String) : UserFactory, ClassspecificGorgelUsingObject {
+open class DevicePersistentUserFactory @JsonMethod("device") internal constructor(private val myDevice: String) : UserFactory, ClassspecificGorgelUsingObject, SlowServiceRunnerUsingObject {
     private lateinit var myGorgel: Gorgel
+    private lateinit var slowServiceRunner: SlowServiceRunner
 
     override fun setGorgel(gorgel: Gorgel) {
         myGorgel = gorgel
+    }
+
+    override fun setSlowServiceRunner(slowServiceRunner: SlowServiceRunner) {
+        this.slowServiceRunner = slowServiceRunner
     }
 
     /**
@@ -44,7 +51,7 @@ open class DevicePersistentUserFactory @JsonMethod("device") internal constructo
         if (creds == null) {
             handler.accept(null)
         } else {
-            contextor.server.enqueueSlowTask({
+            slowServiceRunner.enqueueTask({
                 contextor.queryObjects(deviceQuery(creds.uuid), null, 0,
                         DeviceQueryResultHandler(contextor, myGorgel, creds, handler))
                 null

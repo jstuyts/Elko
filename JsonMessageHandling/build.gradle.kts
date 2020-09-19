@@ -12,6 +12,7 @@ repositories {
 
 dependencies {
     api(project(":Json"))
+    api(project(":Running"))
     api(project(":Trace"))
     api(Libraries.nanojson)
 

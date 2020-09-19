@@ -12,6 +12,10 @@ repositories {
 
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
+
+    testImplementation(Libraries.junit_jupiter_api)
+    testImplementation(kotlin("test-junit5"))
+    testRuntimeOnly(Libraries.junit_jupiter_engine)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

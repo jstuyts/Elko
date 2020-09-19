@@ -10,7 +10,7 @@ interface LoadWatcher {
      *
      * @param loadFactor  Load factor that was sampled.
      *
-     * @see Server.registerLoadWatcher
+     * @see ServerLoadMonitor.registerLoadWatcher
      */
     fun noteLoadSample(loadFactor: Double)
 }

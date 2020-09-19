@@ -22,6 +22,7 @@ class BrokerActor(
         connection: Connection,
         dispatcher: MessageDispatcher,
         private val myServer: Server,
+        private val loadMonitor: ServerLoadMonitor,
         host: HostDesc,
         gorgel: Gorgel,
         mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
@@ -41,7 +42,7 @@ class BrokerActor(
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
         gorgel.i?.run { info("lost broker connection $connection: $reason") }
-        myServer.unregisterLoadWatcher(myLoadWatcher)
+        loadMonitor.unregisterLoadWatcher(myLoadWatcher)
         myServer.brokerConnected(null)
     }
 
@@ -104,7 +105,7 @@ class BrokerActor(
     init {
         send(msgAuth(this, host.auth, myServer.serverName))
         send(msgWillserve(this, myServer.services()))
-        myServer.registerLoadWatcher(myLoadWatcher)
+        loadMonitor.registerLoadWatcher(myLoadWatcher)
         myServer.brokerConnected(this)
     }
 }

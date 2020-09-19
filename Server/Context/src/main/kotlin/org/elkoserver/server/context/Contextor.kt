@@ -4,6 +4,7 @@ import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.ShutdownWatcher
@@ -15,11 +16,11 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
 import org.elkoserver.objdb.ObjDb
 import org.elkoserver.util.HashMapMulti
+import org.elkoserver.util.tokenize
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList
 import java.util.Random
-import java.util.StringTokenizer
 import java.util.function.Consumer
 import kotlin.math.abs
 
@@ -44,7 +45,8 @@ import kotlin.math.abs
  */
 class Contextor internal constructor(
         val objDb: ObjDb,
-        val server: Server,
+        private val server: Server,
+        private val runner: Runner,
         internal val refTable: RefTable,
         private val contextorGorgel: Gorgel,
         private val contextGorgelWithoutRef: Gorgel,
@@ -107,11 +109,8 @@ class Contextor internal constructor(
                 add("\$rctx")
                 add("\$rcontext")
 
-                if (families != null) {
-                    val tags = StringTokenizer(families, " ,;:")
-                    while (tags.hasMoreTokens()) {
-                        add(tags.nextToken())
-                    }
+                families?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
+                    add(tag)
                 }
             }
 
@@ -569,7 +568,7 @@ class Contextor internal constructor(
                     }
                     context.activate(myContextRef, subID,
                             myContextRef != myContextTemplate,
-                            this@Contextor, myContextTemplate,
+                            this@Contextor, runner, myContextTemplate,
                             myOpener, contextGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", myContextRef)), timer)
                     context.objectIsComplete()
                     notifyPendingObjectCompletionWatchers()
@@ -667,12 +666,8 @@ class Contextor internal constructor(
         objDb.addClass("statics", StaticObjectList::class.java)
         objDb.getObject("statics", null,
                 StaticObjectListReceiver("statics"))
-        if (staticListRefs != null) {
-            val tags = StringTokenizer(staticListRefs, " ,;:")
-            while (tags.hasMoreTokens()) {
-                val tag = tags.nextToken()
-                objDb.getObject(tag, null, StaticObjectListReceiver(tag))
-            }
+        staticListRefs?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
+            objDb.getObject(tag, null, StaticObjectListReceiver(tag))
         }
     }
 

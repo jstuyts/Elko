@@ -8,6 +8,7 @@ import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JsonLiteral
@@ -25,6 +26,7 @@ import java.util.ConcurrentModificationException
  *    listeners to register with the indicated directors.
  */
 class DirectorGroup(server: Server,
+                    loadMonitor: ServerLoadMonitor,
                     contextor: Contextor,
                     directors: List<HostDesc>,
                     internal val listeners: List<HostDesc>,
@@ -256,7 +258,7 @@ class DirectorGroup(server: Server,
     }
 
     init {
-        server.registerLoadWatcher(object : LoadWatcher {
+        loadMonitor.registerLoadWatcher(object : LoadWatcher {
             override fun noteLoadSample(loadFactor: Double) {
                 send(msgLoad(loadFactor))
             }

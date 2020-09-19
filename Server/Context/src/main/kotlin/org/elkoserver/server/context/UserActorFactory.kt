@@ -2,6 +2,7 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
+import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -16,6 +17,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  */
 internal class UserActorFactory(
         private val myContextor: Contextor,
+        private val runner: Runner,
         private val amAuthRequired: Boolean,
         private val myProtocol: String,
         private val userActorGorgel: Gorgel,
@@ -31,5 +33,5 @@ internal class UserActorFactory(
      * @param connection  The new connection.
      */
     override fun provideMessageHandler(connection: Connection?) =
-            UserActor(connection!!, myContextor, amAuthRequired, myProtocol, userActorGorgel, userGorgelWithoutRef, timer, userActorCommGorgel, idGenerator, mustSendDebugReplies)
+            UserActor(connection!!, myContextor, runner, amAuthRequired, myProtocol, userActorGorgel, userGorgelWithoutRef, timer, userActorCommGorgel, idGenerator, mustSendDebugReplies)
 }

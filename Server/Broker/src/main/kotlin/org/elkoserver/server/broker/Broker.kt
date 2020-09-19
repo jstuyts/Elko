@@ -1,6 +1,7 @@
 package org.elkoserver.server.broker
 
 import org.elkoserver.foundation.actor.RefTable
+import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.LoadDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
@@ -21,6 +22,7 @@ import java.util.function.Consumer
  */
 internal class Broker(
         private val myServer: Server,
+        objectDatabaseFactory: ObjectDatabaseFactory,
         internal val refTable: RefTable,
         gorgel: Gorgel,
         launcherTableGorgel: Gorgel,
@@ -305,23 +307,19 @@ internal class Broker(
     init {
         refTable.addRef(clientHandler)
         refTable.addRef(myAdminHandler)
-        myObjDb = myServer.openObjectDatabase("conf.broker")
-        if (myObjDb != null) {
-            myObjDb.addClass("launchertable", LauncherTable::class.java)
-            myObjDb.addClass("launcher", LauncherTable.Launcher::class.java)
-            myObjDb.getObject("launchertable", null, Consumer { obj: Any? ->
-                if (obj != null) {
-                    launcherTable = (obj as? LauncherTable)?.apply {
-                        myLaunchers.values.forEach { it.gorgel = launcherTableGorgel.withAdditionalStaticTags(Tag("launcherComponent", it.componentName)) }
-                        doStartupLaunches(startMode)
-                    }
-                } else {
-                    gorgel.warn("unable to load launcher table")
-                    launcherTable = LauncherTable("launchertable", arrayOf())
+        myObjDb = objectDatabaseFactory.openObjectDatabase("conf.broker")
+        myObjDb.addClass("launchertable", LauncherTable::class.java)
+        myObjDb.addClass("launcher", LauncherTable.Launcher::class.java)
+        myObjDb.getObject("launchertable", null, Consumer { obj: Any? ->
+            if (obj != null) {
+                launcherTable = (obj as? LauncherTable)?.apply {
+                    myLaunchers.values.forEach { it.gorgel = launcherTableGorgel.withAdditionalStaticTags(Tag("launcherComponent", it.componentName)) }
+                    doStartupLaunches(startMode)
                 }
-            })
-        } else {
-            gorgel.warn("no database specified for launcher configuration")
-        }
+            } else {
+                gorgel.warn("unable to load launcher table")
+                launcherTable = LauncherTable("launchertable", arrayOf())
+            }
+        })
     }
 }

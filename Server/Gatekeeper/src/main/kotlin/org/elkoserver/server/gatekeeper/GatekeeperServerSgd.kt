@@ -55,11 +55,13 @@ import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.thread.ThreadRunner
-import org.elkoserver.foundation.run.threadpoolexecutor.ThreadPoolExecutorSlowServiceRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
+import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
 import org.elkoserver.foundation.server.LoadWatcher
+import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceActorFactory
@@ -374,29 +376,30 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 "zmq" to req(zeromqConnectionSetupFactory))
     }
 
-    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(brokerActorGorgel), req(mustSendDebugReplies)) }
+    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(serverLoadMonitor), req(brokerActorGorgel), req(mustSendDebugReplies)) }
 
     val serviceActorFactory by Once { ServiceActorFactory(req(serviceActorGorgel), req(serviceActorCommGorgel), req(mustSendDebugReplies)) }
+
+    val listenerConfigurationFromPropertiesFactory by Once { ListenerConfigurationFromPropertiesFactory(req(provided.props()), req(provided.authDescFromPropertiesFactory())) }
+
+    val serverDescriptionFromPropertiesFactory by Once { ServerDescriptionFromPropertiesFactory(req(provided.props())) }
+
+    val serverDescription by Once { req(serverDescriptionFromPropertiesFactory).create("gatekeeper") }
 
     val server by Once {
         Server(
                 req(provided.props()),
-                "gatekeeper",
+                req(serverDescription),
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(brokerActorFactory),
                 req(serviceActorFactory),
                 req(messageDispatcher),
-                req(provided.authDescFromPropertiesFactory()),
-                req(provided.hostDescFromPropertiesFactory()),
+                req(listenerConfigurationFromPropertiesFactory),
+                req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
                 req(serverTagGenerator),
-                req(serverLoadMonitor),
-                req(runner),
-                req(objDbRemoteFactory),
-                req(objDbLocalFactory),
                 req(connectionSetupFactoriesByCode),
-                req(connectionRetrierFactory),
-                req(slowRunner))
+                req(connectionRetrierFactory))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -407,9 +410,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 }
             }
 
-    val slowRunnerMaximumNumberOfThreads by Once { req(provided.props()).intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS) }
-
-    val slowRunner by Once { ThreadPoolExecutorSlowServiceRunner(req(runner), req(slowRunnerMaximumNumberOfThreads)) }
+    val objectDatabaseFactory by Once { ObjectDatabaseFactory(req(provided.props()), req(objDbRemoteFactory), req(objDbLocalFactory)) }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -477,6 +478,8 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val objDbRemoteFactory by Once {
         ObjDbRemoteFactory(
+                req(server),
+                req(serverDescription).serverName,
                 req(provided.props()),
                 req(objDbRemoteGorgel),
                 req(odbActorGorgel),
@@ -554,6 +557,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
                 override fun props() = provided.props()
                 override fun gatekeeper() = gatekeeper
                 override fun server() = server
+                override fun objectDatabaseFactory() = objectDatabaseFactory
                 override fun baseGorgel() = provided.baseGorgel()
                 override fun baseCommGorgel() = provided.baseCommGorgel()
             }, configuration) as AuthorizerOgd
@@ -575,9 +579,4 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
     val userHandler by Once { UserHandler(req(authorizer), req(baseCommGorgel).getChild(UserHandler::class)) }
             .wire { req(gatekeeper).refTable.addRef(it) }
             .eager()
-
-    companion object {
-        /** Default value for max number of threads in slow service thread pool.  */
-        private const val DEFAULT_SLOW_THREADS = 5
-    }
 }

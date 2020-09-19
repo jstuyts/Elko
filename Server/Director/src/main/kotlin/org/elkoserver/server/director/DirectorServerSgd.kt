@@ -18,7 +18,6 @@ import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
-import org.elkoserver.foundation.json.MessageDispatcherFactory
 import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
@@ -54,11 +53,12 @@ import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.thread.ThreadRunner
-import org.elkoserver.foundation.run.threadpoolexecutor.ThreadPoolExecutorSlowServiceRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
+import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
 import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceActorFactory
@@ -69,17 +69,6 @@ import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.LongIdGenerator
 import org.elkoserver.idgeneration.RandomIdGenerator
-import org.elkoserver.objdb.GetRequestFactory
-import org.elkoserver.objdb.ObjDbActor
-import org.elkoserver.objdb.ObjDbLocal
-import org.elkoserver.objdb.ObjDbLocalFactory
-import org.elkoserver.objdb.ObjDbLocalRunnerFactory
-import org.elkoserver.objdb.ObjDbRemote
-import org.elkoserver.objdb.ObjDbRemoteFactory
-import org.elkoserver.objdb.PutRequestFactory
-import org.elkoserver.objdb.QueryRequestFactory
-import org.elkoserver.objdb.RemoveRequestFactory
-import org.elkoserver.objdb.UpdateRequestFactory
 import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
 import org.elkoserver.server.director.Director.Companion.DEFAULT_ESTIMATED_LOAD_INCREMENT
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -136,12 +125,6 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
     val listenerGorgel by Once { req(provided.baseGorgel()).getChild(Listener::class) }
-
-    val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbLocal::class) }
-
-    val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbRemote::class) }
-
-    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbActor::class, COMMUNICATION_CATEGORY_TAG) }
 
     val providerGorgel by Once { req(provided.baseGorgel()).getChild(Provider::class) }
 
@@ -210,18 +193,6 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                 req(listenerFactory))
     }
             .dispose(SelectThread::shutDown)
-
-    val objDbLocalRunnerFactory by Once { ObjDbLocalRunnerFactory(req(runnerGorgel)) }
-
-    val objDbLocalFactory by Once {
-        ObjDbLocalFactory(
-                req(provided.props()),
-                req(objDbLocalGorgel),
-                req(objDbLocalRunnerFactory),
-                req(provided.baseGorgel()),
-                req(jsonToObjectDeserializer),
-                req(runner))
-    }
 
     val chunkyByteArrayInputStreamFactory by Once {
         ChunkyByteArrayInputStreamFactory(req(inputGorgel))
@@ -372,29 +343,30 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
         MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
     }
 
-    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(brokerActorGorgel), req(mustSendDebugReplies)) }
+    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(serverLoadMonitor), req(brokerActorGorgel), req(mustSendDebugReplies)) }
 
     val serviceActorFactory by Once { ServiceActorFactory(req(serviceActorGorgel), req(serviceActorCommGorgel), req(mustSendDebugReplies)) }
+
+    val listenerConfigurationFromPropertiesFactory by Once { ListenerConfigurationFromPropertiesFactory(req(provided.props()), req(provided.authDescFromPropertiesFactory())) }
+
+    val serverDescriptionFromPropertiesFactory by Once { ServerDescriptionFromPropertiesFactory(req(provided.props())) }
+
+    val serverDescription by Once { req(serverDescriptionFromPropertiesFactory).create("director") }
 
     val server by Once {
         Server(
                 req(provided.props()),
-                "director",
+                req(serverDescription),
                 req(serverGorgel),
                 req(serviceLinkGorgel),
                 req(brokerActorFactory),
                 req(serviceActorFactory),
                 req(messageDispatcher),
-                req(provided.authDescFromPropertiesFactory()),
-                req(provided.hostDescFromPropertiesFactory()),
+                req(listenerConfigurationFromPropertiesFactory),
+                req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
                 req(serverTagGenerator),
-                req(serverLoadMonitor),
-                req(runner),
-                req(objDbRemoteFactory),
-                req(objDbLocalFactory),
                 req(connectionSetupFactoriesByCode),
-                req(connectionRetrierFactory),
-                req(slowRunner))
+                req(connectionRetrierFactory))
     }
             .wire {
                 it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -404,10 +376,6 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
                     req(bootGorgel).error("no listeners specified")
                 }
             }
-
-    val slowRunnerMaximumNumberOfThreads by Once { req(provided.props()).intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS) }
-
-    val slowRunner by Once { ThreadPoolExecutorSlowServiceRunner(req(runner), req(slowRunnerMaximumNumberOfThreads)) }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -452,37 +420,6 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
-    val messageDispatcherFactory by Once { MessageDispatcherFactory(req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
-
-    val objDbRemoteFactory by Once {
-        ObjDbRemoteFactory(
-                req(provided.props()),
-                req(objDbRemoteGorgel),
-                req(odbActorGorgel),
-                req(messageDispatcherFactory),
-                req(provided.hostDescFromPropertiesFactory()),
-                req(jsonToObjectDeserializer),
-                req(getRequestFactory),
-                req(putRequestFactory),
-                req(updateRequestFactory),
-                req(queryRequestFactory),
-                req(removeRequestFactory),
-                req(mustSendDebugReplies),
-                req(connectionRetrierFactory))
-    }
-
-    val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
-
-    val putRequestFactory by Once { PutRequestFactory(req(requestTagGenerator)) }
-
-    val updateRequestFactory by Once { UpdateRequestFactory(req(requestTagGenerator)) }
-
-    val queryRequestFactory by Once { QueryRequestFactory(req(requestTagGenerator)) }
-
-    val removeRequestFactory by Once { RemoveRequestFactory(req(requestTagGenerator)) }
-
-    val requestTagGenerator by Once { LongIdGenerator(1L) }
-
     val providerLimit by Once { req(provided.props()).intProperty("conf.director.providerlimit", 0) }
 
     val estimatedLoadIncrement by Once { req(provided.props()).doubleProperty("conf.director.estloadbump", DEFAULT_ESTIMATED_LOAD_INCREMENT) }
@@ -517,9 +454,4 @@ internal class DirectorServerSgd(provided: Provided, configuration: ObjectGraphC
     }
 
     val ordinalGenerator by Once { LongOrdinalGenerator() }
-
-    companion object {
-        /** Default value for max number of threads in slow service thread pool.  */
-        private const val DEFAULT_SLOW_THREADS = 5
-    }
 }

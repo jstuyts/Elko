@@ -23,7 +23,7 @@ internal class GatekeeperServiceFactory(
         private val mustSendDebugReplies: Boolean) : ServiceFactory {
     override fun provideFactory(label: String,
                                 auth: AuthDesc,
-                                allow: Set<String>,
+                                allow: Collection<String>,
                                 serviceNames: MutableList<String>,
                                 protocol: String): MessageHandlerFactory {
         var allowUser = false
