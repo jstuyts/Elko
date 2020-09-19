@@ -13,7 +13,6 @@ import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList
-import java.util.function.Consumer
 
 /**
  * Main state data structure in a Broker.
@@ -31,7 +30,7 @@ internal class Broker(
         startMode: Int) {
 
     /** Database for configuration data.  */
-    private val myObjDb: ObjDb?
+    private val myObjDb: ObjDb
 
     /** Registered services.  Maps (service name, protocol) pairs to sets of
      * ServiceDesc objects.  */
@@ -196,7 +195,7 @@ internal class Broker(
         for (actor in LinkedList(myActors)) {
             actor.doDisconnect()
         }
-        myObjDb?.shutdown()
+        myObjDb.shutdown()
         myServer.shutdown()
     }
 
@@ -310,9 +309,9 @@ internal class Broker(
         myObjDb = objectDatabaseFactory.openObjectDatabase("conf.broker")
         myObjDb.addClass("launchertable", LauncherTable::class.java)
         myObjDb.addClass("launcher", LauncherTable.Launcher::class.java)
-        myObjDb.getObject("launchertable", null, Consumer { obj: Any? ->
+        myObjDb.getObject("launchertable", null, { obj: Any? ->
             if (obj != null) {
-                launcherTable = (obj as? LauncherTable)?.apply {
+                launcherTable = (obj as LauncherTable).apply {
                     myLaunchers.values.forEach { it.gorgel = launcherTableGorgel.withAdditionalStaticTags(Tag("launcherComponent", it.componentName)) }
                     doStartupLaunches(startMode)
                 }

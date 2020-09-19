@@ -64,8 +64,8 @@ internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private
      *
      * @param objDb The object database to save into.
      */
-    fun checkpoint(objDb: ObjDb?) {
-        if (amDirty && objDb != null) {
+    fun checkpoint(objDb: ObjDb) {
+        if (amDirty) {
             objDb.putObject(myRef, this, null, false, null)
             amDirty = false
         }
