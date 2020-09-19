@@ -210,12 +210,6 @@ abstract class ObjDbBase(
      * @return a class named by 'typeName' suitable for assignment to a
      * method or constructor parameter of class 'baseType'.
      */
-    override fun resolveType(baseType: Class<*>, typeName: String): Class<*>? {
-        var result = myClasses[typeName]
-        if (result != null && !baseType.isAssignableFrom(result)) {
-            result = null
-        }
-        return result
-    }
-
+    override fun resolveType(baseType: Class<*>, typeName: String) =
+            myClasses[typeName]?.takeIf { typeClass -> baseType.isAssignableFrom(typeClass) }
 }
