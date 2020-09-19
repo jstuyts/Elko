@@ -11,11 +11,7 @@ internal class TimerQueueEntry(internal var myRepeat: Boolean, internal var myDe
     var myNext: TimerQueueEntry? = null
 
     override fun compareTo(other: TimerQueueEntry) =
-            if (other != null) {
-                myWhen.compareTo(other.myWhen)
-            } else {
-                throw ClassCastException()
-            }
+            myWhen.compareTo(other.myWhen)
 
     override fun equals(other: Any?): Boolean {
         return if (other is TimerQueueEntry) {
