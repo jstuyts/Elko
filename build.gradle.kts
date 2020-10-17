@@ -10,13 +10,13 @@ buildscript {
 }
 
 plugins {
-    id("com.gitlab.stfs.gradle.dependency-graph-plugin") version "0.3"
+    id("com.gitlab.stfs.gradle.dependency-graph-plugin") version "0.4"
 }
 
 group = "org.elko"
 version = "2.0.4-SNAPSHOT"
 
 tasks.named<Wrapper>("wrapper") {
-    gradleVersion = "6.6.1"
+    gradleVersion = "6.7"
     distributionType = Wrapper.DistributionType.ALL
 }
