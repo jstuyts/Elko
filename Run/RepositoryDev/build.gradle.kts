@@ -4,14 +4,6 @@ plugins {
 
 val logbackRunConfigurationFilePath: String by project(":Run").extra
 
-repositories {
-    jcenter()
-    mavenCentral()
-    maven {
-        url = uri("https://dl.bintray.com/squins/Squins")
-    }
-}
-
 dependencies {
     implementation(project(":Feature:BasicExamples"))
     implementation(project(":Feature:Capabilities"))

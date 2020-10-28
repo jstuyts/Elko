@@ -5,14 +5,6 @@ plugins {
     kotlin("jvm")
 }
 
-repositories {
-    jcenter()
-    mavenCentral()
-    maven {
-        url = uri("https://dl.bintray.com/squins/Squins")
-    }
-}
-
 dependencies {
     api(project(":ByteIoFramer:Http"))
     api(project(":ByteIoFramer:Websocket"))

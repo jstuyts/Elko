@@ -5,11 +5,6 @@ plugins {
     kotlin("jvm")
 }
 
-repositories {
-    jcenter()
-    mavenCentral()
-}
-
 dependencies {
     api(project(":Properties"))
     api(Libraries.slf4j_api)

@@ -6,14 +6,6 @@ val logbackRunConfigurationFilePath: String by project(":Run").extra
 val mongodbHostAndPort: String? by project
 val actualMongodbHostAndPort = mongodbHostAndPort ?: "localhost:27017"
 
-repositories {
-    jcenter()
-    mavenCentral()
-    maven {
-        url = uri("https://dl.bintray.com/squins/Squins")
-    }
-}
-
 dependencies {
     implementation(project(":ObjectDatabase:MongoObjectStore"))
     implementation(project(":Server:Presence"))

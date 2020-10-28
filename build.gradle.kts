@@ -20,3 +20,18 @@ tasks.named<Wrapper>("wrapper") {
     gradleVersion = "6.7"
     distributionType = Wrapper.DistributionType.ALL
 }
+
+subprojects {
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven {
+            url = uri("https://dl.bintray.com/squins/Squins")
+        }
+        mavenLocal {
+            mavenContent {
+                snapshotsOnly()
+            }
+        }
+    }
+}

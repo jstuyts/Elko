@@ -5,11 +5,6 @@ plugins {
     kotlin("jvm")
 }
 
-repositories {
-    jcenter()
-    mavenCentral()
-}
-
 dependencies {
     api(project(":Trace"))
     api(project(":Util"))

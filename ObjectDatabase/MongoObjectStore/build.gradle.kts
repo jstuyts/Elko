@@ -4,11 +4,6 @@ plugins {
     kotlin("jvm")
 }
 
-repositories {
-    jcenter()
-    mavenCentral()
-}
-
 dependencies {
     api(project(":ObjectDatabase:Local"))
     api(project(":Properties"))

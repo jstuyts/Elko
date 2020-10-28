@@ -5,11 +5,6 @@ plugins {
     kotlin("jvm")
 }
 
-repositories {
-    jcenter()
-    mavenCentral()
-}
-
 dependencies {
     implementation(kotlin("stdlib-jdk8"))
 
@@ -20,6 +15,10 @@ dependencies {
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {
     dependsOn(tasks.classes)
+}
+
+tasks.test {
+    useJUnitPlatform()
 }
 
 tasks.withType<KotlinCompile>().configureEach {

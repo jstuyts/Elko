@@ -11,14 +11,6 @@ val actualMongodbHostAndPort = mongodbHostAndPort ?: "localhost:27017"
 val databaseName = "chatbasic"
 val collectionName = "chats"
 
-repositories {
-    jcenter()
-    mavenCentral()
-    maven {
-        url = uri("https://dl.bintray.com/squins/Squins")
-    }
-}
-
 val webFiles by configurations.creating { }
 
 dependencies {

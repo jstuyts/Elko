@@ -5,11 +5,6 @@ plugins {
     kotlin("jvm")
 }
 
-repositories {
-    jcenter()
-    mavenCentral()
-}
-
 dependencies {
     api(project(":JsonMessageHandling"))
     api(project(":ObjectDatabase:Api"))

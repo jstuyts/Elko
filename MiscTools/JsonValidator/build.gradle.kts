@@ -2,11 +2,6 @@ plugins {
     java
 }
 
-repositories {
-    jcenter()
-    mavenCentral()
-}
-
 dependencies {
     implementation(project(":Json"))
     implementation(Libraries.nanojson)
