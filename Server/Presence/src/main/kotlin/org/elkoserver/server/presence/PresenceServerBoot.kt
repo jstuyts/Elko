@@ -7,7 +7,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.ConstantDefinition
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.ObjectGraphLogger
-import org.ooverkommelig.ProvidedAdministration
 import java.time.Clock
 
 /**
@@ -25,7 +24,7 @@ class PresenceServerBoot : Bootable {
                 presenceServerGraph.close()
             }
         }
-        presenceServerGraph = PresenceServerOgd(object : PresenceServerOgd.Provided, ProvidedAdministration() {
+        presenceServerGraph = PresenceServerOgd(object : PresenceServerOgd.Provided {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
             override fun props() = ConstantDefinition(props)

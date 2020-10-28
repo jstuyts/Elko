@@ -12,7 +12,7 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 
-internal class PasswdAuthorizerSgd(provided: AuthorizerProvided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
+internal class PasswdAuthorizerSgd(provided: AuthorizerProvided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(configuration) {
     val authorizer by Once { PasswdAuthorizer(req(random), req(provided.gatekeeper()), req(objDb), req(anonymousOk), req(actorIdBase)) }
             .wire {
                 req(provided.server()).registerShutdownWatcher(object : ShutdownWatcher {

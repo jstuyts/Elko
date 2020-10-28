@@ -9,12 +9,11 @@ import org.ooverkommelig.D
 import org.ooverkommelig.Definition
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.Once
-import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.req
 
-class ServerMetadataSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
-    interface Provided : ProvidedBase {
+class ServerMetadataSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(configuration) {
+    interface Provided {
         fun props(): D<ElkoProperties>
         fun baseGorgel(): D<Gorgel>
     }

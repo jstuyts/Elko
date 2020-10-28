@@ -13,6 +13,6 @@ object Libraries {
     val logstash_logback_encoder: String = "net.logstash.logback:logstash-logback-encoder:6.4"
     val mongodb_driver: String = "org.mongodb:mongodb-driver:3.4.3"
     val nanojson: String = "com.grack:nanojson:1.6"
-    val ooverkommelig: String = "org.ooverkommelig:ooverkommelig-jvm8:1beta1"
+    val ooverkommelig: String = "org.ooverkommelig:ooverkommelig-jvm8:1beta2"
     val slf4j_api: String = "org.slf4j:slf4j-api:1.7.30"
 }

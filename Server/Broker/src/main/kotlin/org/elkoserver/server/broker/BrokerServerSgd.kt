@@ -86,28 +86,25 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.Once
-import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.opt
-import org.ooverkommelig.providedByMe
 import org.ooverkommelig.req
 import java.security.SecureRandom
 import java.time.Clock
 
-internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
-    interface Provided : ProvidedBase, SslContextSgd.Provided {
+internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(configuration) {
+    interface Provided {
         fun timer(): D<Timer>
-        override fun props(): D<ElkoProperties>
+        fun props(): D<ElkoProperties>
         fun clock(): D<Clock>
         fun baseGorgel(): D<Gorgel>
         fun authDescFromPropertiesFactory(): D<AuthDescFromPropertiesFactory>
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
-        override fun sslContextPropertyNamePrefix(): D<String> = providedByMe()
-        override fun sslContextSgdGorgel(): D<Gorgel> = providedByMe()
     }
 
-    val sslContextSgd = add(SslContextSgd(object : SslContextSgd.Provided by provided {
+    val sslContextSgd = add(SslContextSgd(object : SslContextSgd.Provided {
+        override fun props() = provided.props()
         override fun sslContextSgdGorgel() = sslContextSgdGorgel
         override fun sslContextPropertyNamePrefix() = sslContextPropertyNamePrefix
     }, configuration))

@@ -7,7 +7,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.Once
-import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.req
 import java.io.FileInputStream
@@ -18,8 +17,8 @@ import java.security.KeyStore
 import javax.net.ssl.KeyManagerFactory
 import javax.net.ssl.SSLContext
 
-class SslContextSgd(provided: Provided, objectGraphConfiguration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, objectGraphConfiguration) {
-    interface Provided : ProvidedBase {
+class SslContextSgd(provided: Provided, objectGraphConfiguration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(objectGraphConfiguration) {
+    interface Provided {
         fun props(): D<ElkoProperties>
         fun sslContextPropertyNamePrefix(): D<String>
         fun sslContextSgdGorgel(): D<Gorgel>

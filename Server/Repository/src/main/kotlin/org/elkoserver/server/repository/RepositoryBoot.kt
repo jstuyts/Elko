@@ -7,7 +7,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.ConstantDefinition
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.ObjectGraphLogger
-import org.ooverkommelig.ProvidedAdministration
 import java.time.Clock
 
 /**
@@ -24,7 +23,7 @@ class RepositoryBoot : Bootable {
                 repositoryServerGraph.close()
             }
         }
-        repositoryServerGraph = RepositoryServerOgd(object : RepositoryServerOgd.Provided, ProvidedAdministration() {
+        repositoryServerGraph = RepositoryServerOgd(object : RepositoryServerOgd.Provided {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
             override fun props() = ConstantDefinition(props)

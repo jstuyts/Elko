@@ -5,9 +5,8 @@ import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
-import org.ooverkommelig.ProvidedBase
 
-interface AuthorizerProvided : ProvidedBase {
+interface AuthorizerProvided {
     fun props(): D<ElkoProperties>
 
     fun gatekeeper(): D<Gatekeeper>

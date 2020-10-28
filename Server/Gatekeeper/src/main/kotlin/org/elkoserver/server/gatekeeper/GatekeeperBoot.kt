@@ -8,7 +8,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.ConstantDefinition
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.ObjectGraphLogger
-import org.ooverkommelig.ProvidedAdministration
 import java.time.Clock
 
 /**
@@ -26,7 +25,7 @@ class GatekeeperBoot : Bootable {
                 gatekeeperServerGraph.close()
             }
         }
-        gatekeeperServerGraph = GatekeeperServerOgd(object : GatekeeperServerOgd.Provided, ProvidedAdministration() {
+        gatekeeperServerGraph = GatekeeperServerOgd(object : GatekeeperServerOgd.Provided {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
             override fun baseCommGorgel() = ConstantDefinition(gorgel.withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG))

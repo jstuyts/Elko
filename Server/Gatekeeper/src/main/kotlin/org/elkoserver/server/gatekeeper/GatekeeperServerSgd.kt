@@ -87,11 +87,8 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.Once
-import org.ooverkommelig.ProvidedAdministration
-import org.ooverkommelig.ProvidedBase
 import org.ooverkommelig.SubGraphDefinition
 import org.ooverkommelig.opt
-import org.ooverkommelig.providedByMe
 import org.ooverkommelig.req
 import java.lang.reflect.InvocationTargetException
 import java.security.MessageDigest
@@ -99,21 +96,20 @@ import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.time.Clock
 
-internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(provided, configuration) {
-    interface Provided : ProvidedBase, SslContextSgd.Provided {
+internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(configuration) {
+    interface Provided {
         fun timer(): D<Timer>
         fun clock(): D<Clock>
-        override fun props(): D<ElkoProperties>
+        fun props(): D<ElkoProperties>
         fun baseGorgel(): D<Gorgel>
         fun baseCommGorgel(): D<Gorgel>
         fun authDescFromPropertiesFactory(): D<AuthDescFromPropertiesFactory>
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
-        override fun sslContextPropertyNamePrefix(): D<String> = providedByMe()
-        override fun sslContextSgdGorgel(): D<Gorgel> = providedByMe()
     }
 
-    val sslContextSgd = add(SslContextSgd(object : SslContextSgd.Provided by provided {
+    val sslContextSgd = add(SslContextSgd(object : SslContextSgd.Provided {
+        override fun props() = provided.props()
         override fun sslContextSgdGorgel() = sslContextSgdGorgel
         override fun sslContextPropertyNamePrefix() = sslContextPropertyNamePrefix
     }, configuration))
@@ -553,7 +549,7 @@ internal class GatekeeperServerSgd(provided: Provided, configuration: ObjectGrap
 
     val authorizerOgd by Once {
         try {
-            req(authorizerOgdClass).getConstructor(AuthorizerProvided::class.java, ObjectGraphConfiguration::class.java).newInstance(object : ProvidedAdministration(), AuthorizerProvided {
+            req(authorizerOgdClass).getConstructor(AuthorizerProvided::class.java, ObjectGraphConfiguration::class.java).newInstance(object : AuthorizerProvided {
                 override fun props() = provided.props()
                 override fun gatekeeper() = gatekeeper
                 override fun server() = server
