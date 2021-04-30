@@ -1,11 +1,10 @@
 buildscript {
     repositories {
-        jcenter()
         mavenCentral()
     }
 
     dependencies {
-        classpath(kotlin("gradle-plugin", version = "1.4.10"))
+        classpath(kotlin("gradle-plugin", version = "1.4.32"))
     }
 }
 
@@ -17,13 +16,12 @@ group = "org.elko"
 version = "2.0.4-SNAPSHOT"
 
 tasks.named<Wrapper>("wrapper") {
-    gradleVersion = "6.7"
+    gradleVersion = "7.0"
     distributionType = Wrapper.DistributionType.ALL
 }
 
 subprojects {
     repositories {
-        jcenter()
         mavenCentral()
         maven {
             url = uri("https://dl.bintray.com/squins/Squins")
