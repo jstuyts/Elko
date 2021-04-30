@@ -71,7 +71,7 @@ The example needs 2 servers: the Elko context and a web server for the web resou
 
 Open the web page in multiple browsers. It should work on all modern (mobile) browsers (if not, please [create an issue](https://github.com/jstuyts/Elko/issues/new)): `http://<hostname>:8080/`. If the hostname does not resolve to an IP address, use an IP address instead.
 
-The following URL will work on the computer running the servers: http://127.0.0.1:8080/
+The following URL will work on the computer running the servers: http://127.0.0.1:8080/
 
 ### Logging in
 

@@ -81,7 +81,7 @@
             const users = [];
 
             const session = ELKO.session();
-            session.getObject("session").op_exit = function(msg) {
+            session.getObject("session").op_exit = function(msg) {
                 window.alert(msg.why);
                 disconnect(session);
             };
