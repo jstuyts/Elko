@@ -10,7 +10,6 @@ import org.elkoserver.foundation.net.SessionUri
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.util.HashMap
 
 /**
  * Message handler factory to provide message handlers that wrap a message
@@ -124,8 +123,7 @@ class HttpMessageHandlerFactory internal constructor(
             associateTCPConnection(session, connection)
             session.noteClientActivity()
         }
-        val reply: String
-        reply = if (session == null) {
+        val reply = if (session == null) {
             handlerFactoryCommGorgel.error("got disconnect with invalid session ${uri.sessionID}")
             httpFramer.makeSequenceErrorReply("sessionIDError")
         } else {
@@ -225,8 +223,7 @@ class HttpMessageHandlerFactory internal constructor(
      */
     fun handleGET(connection: Connection, uri: String, nonPersistent: Boolean) {
         val parsed = SessionUri(uri, myRootUri)
-        val replied: Boolean
-        replied = if (!parsed.valid) {
+        val replied = if (!parsed.valid) {
             doError(connection, uri)
         } else if (parsed.verb == SessionUri.VERB_CONNECT) {
             doConnect(connection)
@@ -269,8 +266,7 @@ class HttpMessageHandlerFactory internal constructor(
      */
     fun handlePOST(connection: Connection, uri: String, nonPersistent: Boolean, message: String?) {
         val parsed = SessionUri(uri, myRootUri)
-        val replied: Boolean
-        replied = if (!parsed.valid) {
+        val replied = if (!parsed.valid) {
             doError(connection, uri)
         } else if (parsed.verb == SessionUri.VERB_SELECT) {
             doSelect(connection, parsed, nonPersistent)

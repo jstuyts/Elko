@@ -231,8 +231,7 @@ class ZeromqThread(
             else -> subscribe = true
         }
         val result = NetAddr(actualListenAddress)
-        val finalAddress: String
-        finalAddress = if (subscribe) {
+        val finalAddress = if (subscribe) {
             "tcp://$actualListenAddress"
         } else {
             "tcp://*:${result.port}"

@@ -76,8 +76,7 @@ private class Boot private constructor(private val myExceptionReporter: Exceptio
      */
     private fun startApplication() {
         /* Make an instance of the start class */
-        val starter: Bootable
-        starter = try {
+        val starter = try {
             Class.forName(bootArguments.mainClassName).getConstructor().newInstance() as Bootable
         } catch (e: ClassCastException) {
             throw ClassCastException("${bootArguments.mainClassName} isn't a Bootable")

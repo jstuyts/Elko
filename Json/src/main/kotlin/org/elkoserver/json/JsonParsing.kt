@@ -7,16 +7,13 @@ import java.io.Reader
 
 object JsonParsing {
     @Throws(JsonParserException::class)
-    fun jsonObjectFromString(string: String): JsonObject? {
-        val result: JsonObject?
-        result = if (string.isEmpty()) {
-            null
-        } else {
-            val nanoObject = JsonParser.`object`().from(string)
-            nanoObject?.let(::JsonObject)
-        }
-        return result
-    }
+    fun jsonObjectFromString(string: String) =
+            if (string.isEmpty()) {
+                null
+            } else {
+                val nanoObject = JsonParser.`object`().from(string)
+                nanoObject?.let(::JsonObject)
+            }
 
     @Throws(JsonParserException::class)
     fun jsonObjectFromReader(reader: Reader): JsonObject? {

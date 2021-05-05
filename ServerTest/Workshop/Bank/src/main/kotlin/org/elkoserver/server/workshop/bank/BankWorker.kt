@@ -1181,8 +1181,7 @@ class BankWorker
                 rep: OptString, memo: OptString, auth: String,
                 currs: Array<String>, optExpires: OptString) {
         val env = init(from, "makekey", key, xid, rep, true, memo, true, clock) ?: return
-        val requiredAuth: String
-        requiredAuth = if (auth == "curr") {
+        val requiredAuth = if (auth == "curr") {
             "full"
         } else if (auth == "acct" || auth == "mint" || auth == "xfer") {
             "curr"

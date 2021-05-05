@@ -2,7 +2,6 @@ package org.elkoserver.objdb.store.mongostore
 
 import com.grack.nanojson.JsonParserException
 import com.mongodb.MongoClient
-import com.mongodb.client.FindIterable
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.UpdateOptions
@@ -393,8 +392,7 @@ class MongoObjectStore : ObjectStore {
         val results: MutableList<ObjectDesc> = LinkedList()
         try {
             val query = jsonObjectToDBObject(template)
-            val cursor: FindIterable<Document>
-            cursor = if (maxResults > 0) {
+            val cursor = if (maxResults > 0) {
                 collection.find(query).batchSize(-maxResults)
             } else {
                 collection.find(query)

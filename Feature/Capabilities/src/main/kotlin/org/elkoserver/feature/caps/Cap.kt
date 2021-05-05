@@ -207,8 +207,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
               expiration: OptInteger) {
         ensureReachable(from)
         val destRef = dest.valueOrNull()
-        val container: BasicObject?
-        container = if (destRef == null) {
+        val container = if (destRef == null) {
             from
         } else {
             context()[destRef]
@@ -234,8 +233,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
         } else if (newDuration != 0L) { /* && newExpiration != 0 */
             throw MessageHandlerException("can't specify both duration and expiration")
         }
-        val expireOK: Boolean
-        expireOK = when (myExpiration) {
+        val expireOK = when (myExpiration) {
             0L -> true
             -1L -> newExpiration == -1L
             else -> newExpiration <= myExpiration

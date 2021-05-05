@@ -10,8 +10,7 @@ object ObjectStoreFactory {
         val result: ObjectStore
         val objectStoreClassName = props.getProperty("$propRoot.objstore",
                 "org.elkoserver.objdb.store.filestore.FileObjectStore")
-        val objectStoreClass: Class<*>
-        objectStoreClass = try {
+        val objectStoreClass = try {
             Class.forName(objectStoreClassName)
         } catch (e: ClassNotFoundException) {
             throw IllegalStateException("object store class $objectStoreClassName not found", e)

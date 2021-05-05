@@ -46,8 +46,7 @@ class ThreadPoolExecutorSlowServiceRunner(private val myResultRunner: Runner, ma
      */
     override fun enqueueTask(task: Callable<Any?>, resultHandler: Consumer<Any?>?) {
         myExecutor.execute {
-            val realResult: Any?
-            realResult = try {
+            val realResult = try {
                 task.call()
             } catch (e: Exception) {
                 e

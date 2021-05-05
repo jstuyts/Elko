@@ -1,10 +1,6 @@
 package org.elkoserver.foundation.net.http.server
 
-import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.ConnectionBase
-import org.elkoserver.foundation.net.ConnectionCloseException
-import org.elkoserver.foundation.net.LoadMonitor
-import org.elkoserver.foundation.net.SessionUri
+import org.elkoserver.foundation.net.*
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timer
@@ -238,8 +234,7 @@ class HttpSessionConnection internal constructor(
         } else {
             noteClientActivity()
             gorgel.i?.run { info("${this@HttpSessionConnection}:$connection -> $message") }
-            val reply: String
-            reply = if (uri.sequenceNumber != myXmitSequenceNumber) {
+            val reply = if (uri.sequenceNumber != myXmitSequenceNumber) {
                 gorgel.error("$this expected xmit seq # $myXmitSequenceNumber, got ${uri.sequenceNumber}")
                 myHttpFramer.makeSequenceErrorReply("sequenceError")
             } else {
