@@ -10,7 +10,7 @@ import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
- * Actor representing a connection to a director.
+ * Actor representing a connection to a presencer.
  *
  * @param connection  The connection for actually communicating.
  * @param dispatcher  Message dispatcher for incoming messages.
@@ -26,13 +26,13 @@ internal class PresencerActor(
         mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
     /**
-     * Handle loss of connection from the director.
+     * Handle loss of connection from the presencer.
      *
-     * @param connection  The director connection that died.
+     * @param connection  The presencer connection that died.
      * @param reason  Exception explaining why.
      */
     override fun connectionDied(connection: Connection, reason: Throwable) {
-        gorgel.i?.run { info("lost director connection $connection: $reason") }
+        gorgel.i?.run { info("lost presencer connection $connection: $reason") }
         myGroup.expelMember(this)
     }
 

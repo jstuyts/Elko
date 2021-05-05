@@ -81,10 +81,8 @@ class DirectorActor(
                     emptyList()
                 } else {
                     val result = myGroup.contextor.refTable.clones(ref)
-                    if (result.isEmpty()) {
+                    result.ifEmpty {
                         throw MessageHandlerException("$ref not found")
-                    } else {
-                        result
                     }
                 }
 

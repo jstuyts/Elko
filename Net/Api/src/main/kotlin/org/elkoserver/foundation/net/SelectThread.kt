@@ -148,7 +148,7 @@ class SelectThread(
      * for the new connection.
      * @param framerFactory  Byte I/O framer factory for the new connection.
      * @param channel  The new channel for the new connection.
-     * @param isSecure  If true, this will be an SSL connnection.
+     * @param isSecure  If true, this will be an SSL connection.
      */
     fun newChannel(handlerFactory: MessageHandlerFactory,
                    framerFactory: ByteIoFramerFactory,

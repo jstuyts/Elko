@@ -12,7 +12,7 @@ import java.util.LinkedList
  * Actor for a connection to an external service.
  *
  * @param connection  The connection for talking to this actor.
- * @param refTable  Ref table for dispatching messaes sent here.
+ * @param refTable  Ref table for dispatching messages sent here.
  * @param desc  Service descriptor for the server being connected to
  * @param myServer  The server we are calling from
  */

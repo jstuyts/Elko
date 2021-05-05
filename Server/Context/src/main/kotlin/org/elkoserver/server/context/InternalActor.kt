@@ -10,7 +10,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Actor for an internal connection to a context server from within the server
- * farm.  Such connnections may send messages to any addressable object but do
+ * farm.  Such connections may send messages to any addressable object but do
  * not have associated users and are not placed into any context.
  *
  * @param connection  The connection for talking to this actor.
