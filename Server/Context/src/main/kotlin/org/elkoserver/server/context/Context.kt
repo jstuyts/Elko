@@ -1,21 +1,12 @@
 package org.elkoserver.server.context
 
-import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.foundation.json.JsonMethod
-import org.elkoserver.foundation.json.OptBoolean
-import org.elkoserver.foundation.json.OptInteger
-import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.json.*
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JsonLiteral
-import org.elkoserver.json.JsonLiteralArray
-import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.Referenceable
+import org.elkoserver.json.*
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
-import java.util.NoSuchElementException
 
 /**
  * A [Context] is a place for interaction between connected users.  It
@@ -344,7 +335,7 @@ internal constructor(name: String,
         return if (ref == "context") {
             this
         } else {
-            assertActivated { it.refTable[ref] as BasicObject }
+            assertActivated { it.refTable[ref] as? BasicObject }
         }
     }
 
