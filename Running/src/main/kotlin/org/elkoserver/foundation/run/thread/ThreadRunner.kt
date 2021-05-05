@@ -57,7 +57,7 @@ class ThreadRunner(name: String, private val gorgel: Gorgel) : Runner, Runnable 
      * Queues something for this Runnable's thread to do.  May be called
      * from any thead.
      */
-    override fun enqueue(todo: Runnable?) {
+    override fun enqueue(todo: Runnable) {
         /* enqueueing is guarded by the queue's lock, not the runLock. */
         myQ.enqueue(todo)
         if (myNeedsNotify) {

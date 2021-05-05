@@ -59,6 +59,7 @@ class ZeromqThread(
                     if (workToDo is Runnable) {
                         workToDo.run()
                     } else {
+                        // FIXME: Does not handle TcpConnection. See #readyToSend
                         commGorgel.error("non-Runnable on ZMQ queue: $workToDo")
                     }
                     workToDo = myQueue.optDequeue()

@@ -1,7 +1,6 @@
 package org.elkoserver.util
 
 import java.util.Enumeration
-import java.util.NoSuchElementException
 
 /**
  * A conventional fifo queue in which dequeued items are removed in the same
@@ -14,7 +13,7 @@ import java.util.NoSuchElementException
  * Queue is a thread-safe data structure, providing its own lock, and a
  * blocking [.dequeue] operation.
  */
-class Queue<TElement> : Enumeration<TElement> {
+class Queue<TElement: Any> : Enumeration<TElement> {
     private val myQLock = Object()
     private var myStuff = arrayOfNulls<Any>(INITIAL_SIZE)
     private var myMaxSize = INITIAL_SIZE
@@ -52,10 +51,7 @@ class Queue<TElement> : Enumeration<TElement> {
      * @throws ArrayStoreException thrown if newElement does not conform
      * to the elementType specified in the Queue constructor.
      */
-    fun enqueue(newElement: TElement?) {
-        if (newElement == null) {
-            throw NullPointerException("cannot enqueue a null")
-        }
+    fun enqueue(newElement: TElement) {
         synchronized(myQLock) {
 
             /* grow array if necessary */
@@ -112,7 +108,7 @@ class Queue<TElement> : Enumeration<TElement> {
             return null
         }
         synchronized(myQLock) {
-            val result = myStuff[myOut] as TElement?
+            val result = myStuff[myOut] as TElement
             myStuff[myOut] = null
             ++myOut
             if (myOut == myMaxSize) {

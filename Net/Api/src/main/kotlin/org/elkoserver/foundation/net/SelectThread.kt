@@ -54,6 +54,7 @@ class SelectThread(
                             commGorgel.d?.run { debug("select thread registers listener $listener") }
                         }
                         is Callable<*> -> workToDo.call()
+                        // FIXME: Does not handle TcpConnection. See #readyToSend
                         else -> commGorgel.error("mystery object on select queue: $workToDo")
                     }
                     workToDo = myQueue.optDequeue()

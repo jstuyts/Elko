@@ -5,5 +5,5 @@ package org.elkoserver.foundation.run
  * of Runnables.
  */
 interface Runner {
-    fun enqueue(todo: Runnable?)
+    fun enqueue(todo: Runnable)
 }
