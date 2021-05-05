@@ -1,0 +1,8 @@
+<root>
+    <item name='com.grack.nanojson.JsonObject java.lang.String getString(java.lang.String, java.lang.String)'>
+        <annotation name='org.jetbrains.annotations.Contract'>
+            <val name="value" val="&quot;_, !null -&gt; !null&quot;"/>
+            <val name="pure" val="true"/>
+        </annotation>
+    </item>
+</root>
