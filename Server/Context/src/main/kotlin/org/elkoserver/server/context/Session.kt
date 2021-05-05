@@ -2,11 +2,7 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.foundation.json.JsonMethod
-import org.elkoserver.foundation.json.MessageHandlerException
-import org.elkoserver.foundation.json.OptBoolean
-import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.json.*
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.JsonObject
@@ -58,8 +54,8 @@ class Session(private val myContextor: Contextor, private val password: String?,
      */
     @JsonMethod("what", "password", "context")
     fun dump(from: Deliverer, what: String, testPassword: OptString, optContext: OptString) {
-        val contextRef = optContext.value<String?>(null)
-        if (password == null || password == testPassword.value<String?>(null)) {
+        val contextRef = optContext.valueOrNull()
+        if (password == null || password == testPassword.valueOrNull()) {
             val reply = JsonLiteralFactory.targetVerb("session", "dump").apply {
                 addParameter("what", what)
                 when (what) {
@@ -116,11 +112,11 @@ class Session(private val myContextor: Contextor, private val password: String?,
             throw MessageHandlerException("already in a context")
         }   /* if (from instanceof UserActor) */
         val fromActor = from as UserActor
-        fromActor.enterContext(user.value<String?>(null), name.value<String?>(null), context,
-                contextTemplate.value<String?>(null),
-                sess.value<String?>(null), auth.value<String?>(null),
-                utag.value<String?>(null), uparam,
-                debug.value(false), scope.value<String?>(null))
+        fromActor.enterContext(user.valueOrNull(), name.valueOrNull(), context,
+                contextTemplate.valueOrNull(),
+                sess.valueOrNull(), auth.valueOrNull(),
+                utag.valueOrNull(), uparam,
+                debug.value(false), scope.valueOrNull())
     }
 
     /**
@@ -147,7 +143,7 @@ class Session(private val myContextor: Contextor, private val password: String?,
         if (from is User) {
             fromUser = from
         }
-        if (password == null || password == testPassword.value<String?>(null)) {
+        if (password == null || password == testPassword.valueOrNull()) {
             myContextor.shutdownServer()
             if (fromUser != null) {
                 fromUser.exitContext("server shutting down", "shutdown", false)

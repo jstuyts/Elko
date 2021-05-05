@@ -69,7 +69,7 @@ class Note @JsonMethod("text", "style") constructor(private var myText: String, 
                 throw MessageHandlerException("invalid style choice")
             }
         }
-        val newText = text.value<String?>(null)
+        val newText = text.valueOrNull()
         if (newText != null) {
             myText = newText
         }

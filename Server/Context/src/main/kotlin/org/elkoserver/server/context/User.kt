@@ -60,7 +60,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param ref  Optional reference string for this user object.
      */
     @JsonMethod("name", "?mods", "?contents", "ref")
-    internal constructor(name: OptString, mods: Array<Mod>?, contents: Array<Item>?, ref: OptString) : this(name.value<String?>(null), mods, contents, ref.value<String?>(null))
+    internal constructor(name: OptString, mods: Array<Mod>?, contents: Array<Item>?, ref: OptString) : this(name.valueOrNull(), mods, contents, ref.valueOrNull())
 
     /**
      * Activate a user.
@@ -244,7 +244,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
      * @param reservation  Reservation to get them in.
      */
     fun exitWithContextChange(contextRef: String, hostPort: String?, reservation: String?) {
-        checkpoint({ ignored: Any? ->
+        checkpoint({
             assertActivated { send(msgPushContext(it.session, contextRef, hostPort, reservation)) }
         })
     }

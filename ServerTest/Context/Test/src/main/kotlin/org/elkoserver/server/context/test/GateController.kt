@@ -35,7 +35,7 @@ class GateController @JsonMethod constructor() : Mod(), ContextMod {
             context().openGate()
             from.send(msgSay(from, from, "gate opened"))
         } else {
-            val reason = optReason.value<String?>(null)
+            val reason = optReason.valueOrNull()
             context().closeGate(reason)
             from.send(msgSay(from, from, "gate closed: $reason"))
         }

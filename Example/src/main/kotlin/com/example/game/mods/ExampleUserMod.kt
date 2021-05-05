@@ -19,6 +19,6 @@ class ExampleUserMod @JsonMethod constructor() : Mod(), UserMod {
     @JsonMethod("arg", "otherarg")
     fun userverb(from: User, arg: String, otherArg: OptString) {
         ensureSameUser(from)
-        from.send(msgUserVerb(from, arg, otherArg.value<String?>(null)))
+        from.send(msgUserVerb(from, arg, otherArg.valueOrNull()))
     }
 }

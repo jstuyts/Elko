@@ -7,7 +7,6 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.util.HashMap
 import java.util.LinkedList
 
 /**
@@ -136,7 +135,7 @@ class RefTable(private val myDispatcher: MessageDispatcher, baseCommGorgel: Gorg
      * handling the message.
      */
     fun dispatchMessage(from: Deliverer, message: JsonObject) {
-        val targetRef = message.getString<String?>("to", null)
+        val targetRef = message.getStringOrNull("to")
         if (targetRef != null) {
             val target = get(targetRef)
             if (target != null) {

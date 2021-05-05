@@ -74,9 +74,9 @@ class ActorDesc : Encodable, RandomUsingObject, MessageDigestUsingObject {
     constructor(id: String, optInternalID: OptString, optName: OptString,
                 optPassword: OptString, optCanSetPass: OptBoolean) {
         this.id = id
-        myInternalID = optInternalID.value<String?>(null)
-        name = optName.value<String?>(null)
-        myPassword = optPassword.value<String?>(null)
+        myInternalID = optInternalID.valueOrNull()
+        name = optName.valueOrNull()
+        myPassword = optPassword.valueOrNull()
         val currentPassword = myPassword
         if (currentPassword == null) {
             mySalt = null

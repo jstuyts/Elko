@@ -2,7 +2,7 @@ package org.elkoserver.foundation.byteioframer.http
 
 import java.net.URLDecoder
 import java.nio.charset.StandardCharsets
-import java.util.HashMap
+import java.util.Locale
 
 /**
  * An HTTP request descriptor, obtained by parsing the lines of text in an HTTP
@@ -66,7 +66,7 @@ open class HttpRequest {
         actualLine = actualLine.trim { it <= ' ' }
         val colon = actualLine.indexOf(':')
         if (0 < colon && colon < actualLine.length - 1) {
-            val name = actualLine.take(colon).trim { it <= ' ' }.toLowerCase()
+            val name = actualLine.take(colon).trim { it <= ' ' }.lowercase(Locale.getDefault())
             val value = actualLine.substring(colon + 1).trim { it <= ' ' }
             myHeaders[name] = value
             when (name) {
@@ -91,7 +91,7 @@ open class HttpRequest {
             ++methodEnd
             val uriEnd = actualLine.indexOf(' ', methodEnd)
             if (uriEnd >= 0) {
-                uri = actualLine.substring(methodEnd, uriEnd).toLowerCase()
+                uri = actualLine.substring(methodEnd, uriEnd).lowercase(Locale.getDefault())
             }
         }
     }

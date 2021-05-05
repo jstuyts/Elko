@@ -119,7 +119,7 @@ class MessageDispatcher(
      * handling the message.
      */
     fun dispatchMessage(from: Deliverer?, target: DispatchTarget, message: JsonObject) {
-        val verb = message.getString<String?>("op", null)
+        val verb = message.getStringOrNull("op")
         if (verb != null) {
             var actualFrom: Deliverer? = from
             var invoker = myInvokers[verb]

@@ -33,7 +33,7 @@ class QueryDesc(val template: JsonObject, val collectionName: String?, val maxRe
      */
     @JsonMethod("template", "coll", "limit")
     constructor(template: JsonObject, collectionName: OptString, maxResults: OptInteger)
-            : this(template, collectionName.value<String?>(null), maxResults.value(0))
+            : this(template, collectionName.valueOrNull(), maxResults.value(0))
 
     /**
      * Encode this object for transmission or persistence.

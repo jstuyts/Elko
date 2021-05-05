@@ -10,7 +10,7 @@ internal object ZeromqReceiver {
     /** Subscribe filter to receive all messages.  */
     private val UNIVERSAL_SUBSCRIPTION = ByteArray(0)
 
-    private const val LINEFEED_ASCII_BYTE = '\n'.toByte()
+    private const val LINEFEED_ASCII_BYTE = '\n'.code.toByte()
 
     @JvmStatic
     fun main(args: Array<String>) {
@@ -22,15 +22,13 @@ internal object ZeromqReceiver {
         } else if (host.startsWith("PULL:")) {
             host = host.substring(5)
         }
-        val netAddr: NetAddr
-        netAddr = try {
+        val netAddr = try {
             NetAddr(host)
         } catch (e: IOException) {
             println("problem parsing host address: $e")
             return
         }
-        val addr: String
-        addr = if (subscribe) {
+        val addr = if (subscribe) {
             "tcp://$host"
         } else {
             "tcp://*:${netAddr.port}"

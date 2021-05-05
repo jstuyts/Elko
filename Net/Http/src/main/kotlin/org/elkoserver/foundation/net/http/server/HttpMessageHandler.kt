@@ -91,7 +91,7 @@ class HttpMessageHandler(
             debug("$connection $actualMessage")
             debug("$connection |> ${actualMessage.uri}")
         }
-        when (actualMessage.method!!.toUpperCase(Locale.ENGLISH)) {
+        when (actualMessage.method!!.uppercase(Locale.ENGLISH)) {
             "GET" -> myFactory.handleGET(connection, actualMessage.uri!!, actualMessage.isNonPersistent)
             "POST" -> myFactory.handlePOST(connection, actualMessage.uri!!, actualMessage.isNonPersistent, actualMessage.content)
             "OPTIONS" -> myFactory.handleOPTIONS(connection, actualMessage)

@@ -101,7 +101,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
                    for the brace character that starts the message.  Yes, this
                    is a hack; we'll refactor later. */
                 var start = 0
-                while (data[start] != '{'.toByte() && start < length) {
+                while (data[start] != OPEN_BRACE_AS_BYTE && start < length) {
                     ++start
                 }
                 if (start > 0) {
@@ -112,7 +112,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
                 }
                 /* XXX end of hack */
                 var nlCount = 0
-                while (length > 0 && data[length - 1] == '\n'.toByte()) {
+                while (length > 0 && data[length - 1] == LINEFEED_AS_BYTE) {
                     --length
                     ++nlCount
                 }
@@ -262,7 +262,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
     companion object {
         /** A cached array of two newlines, in case we need to add framing to
          * an unframed received ZMQ blob.  */
-        private val NEWLINES = byteArrayOf('\n'.toByte(), '\n'.toByte())
+        private val NEWLINES = byteArrayOf(LINEFEED_AS_BYTE, LINEFEED_AS_BYTE)
     }
 
     init {
@@ -272,3 +272,6 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
         commGorgel.i?.run { info("${this@ZeromqConnection} new ZMQ connection with $remoteAddr") }
     }
 }
+
+private const val LINEFEED_AS_BYTE = '\n'.code.toByte()
+private const val OPEN_BRACE_AS_BYTE = '{'.code.toByte()

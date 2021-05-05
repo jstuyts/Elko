@@ -3,11 +3,7 @@ package org.elkoserver.foundation.server.metadata
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.Encodable
-import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JsonLiteral
-import org.elkoserver.json.JsonLiteralArray
-import org.elkoserver.json.JsonLiteralFactory
+import org.elkoserver.json.*
 
 /**
  * Description of a (possibly) registered service.
@@ -61,8 +57,8 @@ class ServiceDesc(val service: String, val hostport: String?, val protocol: Stri
     @JsonMethod("service", "hostport", "protocol", "label", "?auth", "failure", "provider")
     constructor(service: String, hostport: OptString, protocol: OptString,
                 label: OptString, auth: AuthDesc?, failure: OptString,
-                providerID: OptInteger) : this(service, hostport.value<String?>(null), protocol.value<String?>(null),
-            label.value<String?>(null), auth, failure.value<String?>(null),
+                providerID: OptInteger) : this(service, hostport.valueOrNull(), protocol.valueOrNull(),
+            label.valueOrNull(), auth, failure.valueOrNull(),
             providerID.value(-1))
 
     /**

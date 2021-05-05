@@ -104,7 +104,7 @@ abstract class BasicProtocolHandler protected constructor() : Referenceable, Dis
      */
     @JsonMethod("tag")
     fun ping(from: BasicProtocolActor, tag: OptString) {
-        from.send(msgPong(this, tag.value<String?>(null)))
+        from.send(msgPong(this, tag.valueOrNull()))
     }
 
     /**

@@ -130,7 +130,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
     @JsonMethod("server")
     fun loaddesc(from: BrokerActor, optServer: OptString) {
         from.ensureAuthorizedAdmin()
-        sendLoadDesc(from, optServer.value<String?>(null))
+        sendLoadDesc(from, optServer.valueOrNull())
     }
 
     /**
@@ -146,7 +146,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
     @JsonMethod("server", "self")
     fun reinit(from: BrokerActor, optServer: OptString, optSelf: OptBoolean) {
         from.ensureAuthorizedAdmin()
-        val serverName = optServer.value<String?>(null)
+        val serverName = optServer.valueOrNull()
         if (serverName != null) {
             val msg = msgReinit(myBroker.clientHandler)
             for (actor in myBroker.actors()) {
@@ -176,7 +176,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
     @JsonMethod("service", "protocol")
     fun servicedesc(from: BrokerActor, service: OptString, protocol: OptString) {
         from.ensureAuthorizedAdmin()
-        sendServiceDesc(from, service.value<String?>(null), protocol.value("tcp"))
+        sendServiceDesc(from, service.valueOrNull(), protocol.value("tcp"))
     }
 
     /**
@@ -195,7 +195,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
     @JsonMethod("server", "self", "cluster")
     fun shutdown(from: BrokerActor, optServer: OptString, optSelf: OptBoolean, optCluster: OptBoolean) {
         from.ensureAuthorizedAdmin()
-        val serverName = optServer.value<String?>(null)
+        val serverName = optServer.valueOrNull()
         val componentShutdown = !optCluster.value(false)
         if (serverName != null) {
             val msg = msgShutdown(myBroker.clientHandler)

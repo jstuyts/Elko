@@ -31,7 +31,7 @@ class UpdateDesc(ref: String, val version: Int, obj: String, collectionName: Str
      */
     @JsonMethod("ref", "version", "obj", "coll")
     constructor(ref: String, version: Int, obj: String, collectionName: OptString)
-            : this(ref, version, obj, collectionName.value<String?>(null))
+            : this(ref, version, obj, collectionName.valueOrNull())
 
     /**
      * Encode this object for transmission or persistence.

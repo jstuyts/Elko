@@ -1,10 +1,6 @@
 package org.elkoserver.server.workshop.bank.client
 
-import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
-import org.elkoserver.foundation.json.JsonMethod
-import org.elkoserver.foundation.json.OptBoolean
-import org.elkoserver.foundation.json.OptInteger
-import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.json.*
 import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.json.JsonLiteralFactory
@@ -147,7 +143,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
         if (handler == null) {
             myGorgel.error("no reply handler for bank xid $xid")
         }
-        val fail = optFail.value<String?>(null)
+        val fail = optFail.valueOrNull()
         return if (fail != null) {
             val desc = optDesc.value("")
             if (handler != null) {
@@ -671,7 +667,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
     fun cancelkey(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optCancel: OptString) {
         val handler = handlerForReply("cancelkey", xid, fail, desc) as KeyResultHandler?
         if (handler != null) {
-            val cancel = optCancel.value<String?>(null)
+            val cancel = optCancel.valueOrNull()
             if (cancel == null) {
                 innerFail(handler, "cancelkey", "badreply", "required reply parameter cancel missing")
             } else {
@@ -687,7 +683,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
     fun deleteaccount(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optAccount: OptString) {
         val handler = handlerForReply("deleteaccount", xid, fail, desc) as AccountResultHandler?
         if (handler != null) {
-            val account = optAccount.value<String?>(null)
+            val account = optAccount.valueOrNull()
             if (account == null) {
                 innerFail(handler, "deleteaccount", "badreply",
                         "required reply parameter account missing")
@@ -704,7 +700,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
     fun dupkey(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optNewkey: OptString) {
         val handler = handlerForReply("dupkey", xid, fail, desc) as KeyResultHandler?
         if (handler != null) {
-            val newkey = optNewkey.value<String?>(null)
+            val newkey = optNewkey.valueOrNull()
             if (newkey == null) {
                 innerFail(handler, "dupkey", "badreply",
                         "required reply parameter newkey missing")
@@ -721,7 +717,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
     fun encumber(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optEnc: OptString, optSrcbal: OptInteger) {
         val handler = handlerForReply("encumber", xid, fail, desc) as EncumberResultHandler?
         if (handler != null) {
-            val enc = optEnc.value<String?>(null)
+            val enc = optEnc.valueOrNull()
             val srcbal = optSrcbal.value(-1)
             when {
                 enc == null -> innerFail(handler, "encumber", "badreply", "required reply parameter enc missing")
@@ -738,7 +734,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
     fun freezeaccount(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optAccount: OptString) {
         val handler = handlerForReply("freezeaccount", xid, fail, desc) as AccountResultHandler?
         if (handler != null) {
-            val account = optAccount.value<String?>(null)
+            val account = optAccount.valueOrNull()
             if (account == null) {
                 innerFail(handler, "freezeaccount", "badreply",
                         "required reply parameter account missing")
@@ -755,7 +751,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
     fun issuerootkey(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optRootkey: OptString) {
         val handler = handlerForReply("issuerootkey", xid, fail, desc) as KeyResultHandler?
         if (handler != null) {
-            val rootkey = optRootkey.value<String?>(null)
+            val rootkey = optRootkey.valueOrNull()
             if (rootkey == null) {
                 innerFail(handler, "issuerootkey", "badreply",
                         "required reply parameter rootkey missing")
@@ -788,7 +784,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
     fun makecurrency(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optCurrency: OptString) {
         val handler = handlerForReply("makecurrency", xid, fail, desc) as CurrencyResultHandler?
         if (handler != null) {
-            val currency = optCurrency.value<String?>(null)
+            val currency = optCurrency.valueOrNull()
             if (currency == null) {
                 innerFail(handler, "makecurrency", "badreply",
                         "required reply parameter currency missing")
@@ -805,7 +801,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
     fun makekey(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optNewkey: OptString) {
         val handler = handlerForReply("makekey", xid, fail, desc) as KeyResultHandler?
         if (handler != null) {
-            val newkey = optNewkey.value<String?>(null)
+            val newkey = optNewkey.valueOrNull()
             if (newkey == null) {
                 innerFail(handler, "makekey", "badreply",
                         "required reply parameter newkey missing")
@@ -822,7 +818,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
     fun mint(from: ServiceActor, xid: String, fail: OptString, desc: OptString, optDst: OptString, optDstbal: OptInteger) {
         val handler = handlerForReply("mint", xid, fail, desc) as BalanceResultHandler?
         if (handler != null) {
-            val dst = optDst.value<String?>(null)
+            val dst = optDst.valueOrNull()
             val dstbal = optDstbal.value(-1)
             when {
                 dst == null -> innerFail(handler, "mint", "badreply", "required reply parameter dst missing")
@@ -867,12 +863,12 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
                  optExpires: OptString, optMemo: OptString) {
         val handler = handlerForReply("queryenc", xid, fail, desc) as QueryEncumbranceResultHandler?
         if (handler != null) {
-            val enc = optEnc.value<String?>(null)
-            val curr = optCurr.value<String?>(null)
-            val account = optAccount.value<String?>(null)
+            val enc = optEnc.valueOrNull()
+            val curr = optCurr.valueOrNull()
+            val account = optAccount.valueOrNull()
             val amount = optAmount.value(-1)
-            val expires = optExpires.value<String?>(null)
-            val memo = optMemo.value<String?>(null)
+            val expires = optExpires.valueOrNull()
+            val memo = optMemo.valueOrNull()
             when {
                 enc == null -> innerFail(handler, "queryenc", "badreply", "required reply parameter enc missing")
                 curr == null -> innerFail(handler, "queryenc", "badreply", "required reply parameter curr missing")
@@ -893,7 +889,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
                    optSrcbal: OptInteger, optActive: OptBoolean) {
         val handler = handlerForReply("releaseenc", xid, fail, desc) as ReleaseResultHandler?
         if (handler != null) {
-            val src = optSrc.value<String?>(null)
+            val src = optSrc.valueOrNull()
             val srcbal = optSrcbal.value(-1)
             val active = optActive.value(true)
             when {
@@ -912,7 +908,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
                         desc: OptString, optAccount: OptString) {
         val handler = handlerForReply("unfreezeaccount", xid, fail, desc) as AccountResultHandler?
         if (handler != null) {
-            val account = optAccount.value<String?>(null)
+            val account = optAccount.valueOrNull()
             if (account == null) {
                 innerFail(handler, "unfreezeaccount", "badreply",
                         "required reply parameter account missing")
@@ -930,7 +926,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
                desc: OptString, optSrc: OptString, optSrcbal: OptInteger) {
         val handler = handlerForReply("unmint", xid, fail, desc) as BalanceResultHandler?
         if (handler != null) {
-            val src = optSrc.value<String?>(null)
+            val src = optSrc.valueOrNull()
             val srcbal = optSrcbal.value(-1)
             when {
                 src == null -> innerFail(handler, "unmint", "badreply", "required reply parameter src missing")
@@ -949,7 +945,7 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
                   optSrcbal: OptInteger) {
         val handler = handlerForReply("unmintenc", xid, fail, desc) as BalanceResultHandler?
         if (handler != null) {
-            val src = optSrc.value<String?>(null)
+            val src = optSrc.valueOrNull()
             val srcbal = optSrcbal.value(-1)
             when {
                 src == null -> innerFail(handler, "unmintenc", "badreply", "required reply parameter src missing")
@@ -968,9 +964,9 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
              optDst: OptString, optDstbal: OptInteger) {
         val handler = handlerForReply("xfer", xid, fail, desc) as TransferResultHandler?
         if (handler != null) {
-            val src = optSrc.value<String?>(null)
+            val src = optSrc.valueOrNull()
             val srcbal = optSrcbal.value(-1)
-            val dst = optDst.value<String?>(null)
+            val dst = optDst.valueOrNull()
             val dstbal = optDstbal.value(-1)
             when {
                 src == null -> innerFail(handler, "xfer", "badreply", "required reply parameter src missing")
@@ -991,9 +987,9 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
                 optDst: OptString, optDstbal: OptInteger) {
         val handler = handlerForReply("xferenc", xid, fail, desc) as TransferResultHandler?
         if (handler != null) {
-            val src = optSrc.value<String?>(null)
+            val src = optSrc.valueOrNull()
             val srcbal = optSrcbal.value(-1)
-            val dst = optDst.value<String?>(null)
+            val dst = optDst.valueOrNull()
             val dstbal = optDstbal.value(-1)
             when {
                 src == null -> innerFail(handler, "xferenc", "badreply", "required reply parameter src missing")

@@ -115,7 +115,7 @@ open class DevicePersistentUserFactory @JsonMethod("device") internal constructo
 
         try {
             val uuid = param.getString("uuid")
-            var name = param.getString<String?>("name", null)
+            var name = param.getStringOrNull("name")
             if (name == null) {
                 name = param.getString("nickname")
             }

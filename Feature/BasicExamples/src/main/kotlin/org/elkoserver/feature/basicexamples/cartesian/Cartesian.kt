@@ -6,12 +6,7 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.BasicObject
-import org.elkoserver.server.context.Item
-import org.elkoserver.server.context.ItemMod
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.User
-import org.elkoserver.server.context.validContainer
+import org.elkoserver.server.context.*
 import kotlin.contracts.ExperimentalContracts
 
 /**
@@ -80,7 +75,7 @@ class Cartesian @JsonMethod("width", "height", "left", "top") constructor(
         ensureSameContext(from)
         val item = `object`() as Item
         var newContainer: BasicObject? = null
-        val newContainerRef = into.value<String?>(null)
+        val newContainerRef = into.valueOrNull()
         if (newContainerRef != null) {
             newContainer = context()[newContainerRef]
             if (!validContainer(newContainer, from)) {

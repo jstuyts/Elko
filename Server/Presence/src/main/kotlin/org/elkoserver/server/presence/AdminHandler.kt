@@ -45,7 +45,7 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, commGo
     @JsonMethod("depth", "user")
     fun dump(from: PresenceActor, depth: Int, optUser: OptString) {
         from.ensureAuthorizedAdmin()
-        val userName = optUser.value<String?>(null)
+        val userName = optUser.valueOrNull()
         var numUsers = 0
         var numPresences = 0
         val userDump = JsonLiteralArray()

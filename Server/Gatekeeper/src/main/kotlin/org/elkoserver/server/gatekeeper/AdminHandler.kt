@@ -45,7 +45,7 @@ internal class AdminHandler(private val myGatekeeper: Gatekeeper, commGorgel: Go
     @JsonMethod("hostport", "?auth")
     fun director(from: GatekeeperActor, hostport: OptString, auth: AuthDesc?) {
         from.ensureAuthorizedAdmin()
-        val hostportStr = hostport.value<String?>(null)
+        val hostportStr = hostport.valueOrNull()
         if (hostportStr != null) {
             myGatekeeper.setDirectorHost(HostDesc("tcp", false, hostportStr, AuthDesc.theOpenAuth, -1))
         }

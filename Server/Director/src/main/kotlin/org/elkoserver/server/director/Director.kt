@@ -128,8 +128,8 @@ internal class Director(
      * @param msg  The message to relay.
      */
     fun doRelay(from: DirectorActor?, optContext: OptString, optUser: OptString, msg: JsonObject) {
-        val contextName = optContext.value<String?>(null)
-        val userName = optUser.value<String?>(null)
+        val contextName = optContext.valueOrNull()
+        val userName = optUser.valueOrNull()
         val relay = msgRelay(providerHandler, contextName, userName, msg)
         targetedBroadCast(from?.provider, contextName, userName, relay)
     }

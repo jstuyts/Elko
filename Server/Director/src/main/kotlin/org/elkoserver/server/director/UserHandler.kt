@@ -42,9 +42,9 @@ internal open class UserHandler(protected val director: Director, commGorgel: Go
     @JsonMethod("protocol", "context", "user", "tag")
     fun reserve(from: DirectorActor, protocol: String, contextName: String, user: OptString, optTag: OptString) {
         from.ensureAuthorizedUser()
-        val userName = user.value<String?>(null)
+        val userName = user.valueOrNull()
         val provider: Provider?
-        val tag = optTag.value<String?>(null)
+        val tag = optTag.valueOrNull()
 
         /* See if somebody is serving the requested context. */
         var context = director.getContext(contextName)

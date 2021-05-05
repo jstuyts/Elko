@@ -2,11 +2,7 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.actor.NonRoutingActor
 import org.elkoserver.foundation.actor.msgAuth
-import org.elkoserver.foundation.json.JsonMethod
-import org.elkoserver.foundation.json.MessageDispatcher
-import org.elkoserver.foundation.json.MessageHandlerException
-import org.elkoserver.foundation.json.OptBoolean
-import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.json.*
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.TimeoutNoticer
@@ -14,7 +10,6 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
-import java.util.NoSuchElementException
 
 /**
  * Actor representing a connection to a director.
@@ -62,9 +57,9 @@ class DirectorActor(
      */
     private inner class RelayIterator(context: OptString, user: OptString) {
         private var myMode = 0
-        private val myContextRef = context.value<String?>(null)
+        private val myContextRef = context.valueOrNull()
         private val myContexts = lookupClones(myContextRef).iterator()
-        private val myUserRef = user.value<String?>(null)
+        private val myUserRef = user.valueOrNull()
         private var myUsers = lookupClones(myUserRef).iterator()
         private var myActiveContext: Context? = null
         private var myNextResult: Any? = null
@@ -211,7 +206,7 @@ class DirectorActor(
      */
     @JsonMethod("context", "user", "reservation")
     fun doreserve(from: DirectorActor, context: String, user: OptString, reservation: String) {
-        myGroup.addReservation(reservationFactory.create(user.value<String?>(null), context,
+        myGroup.addReservation(reservationFactory.create(user.valueOrNull(), context,
                 reservation, from))
     }
 
@@ -263,10 +258,10 @@ class DirectorActor(
     fun reserve(from: DirectorActor, context: String, optUser: OptString,
                 optHostPort: OptString, optReservation: OptString,
                 optDeny: OptString, optTag: OptString) {
-        val tag = optTag.value<String?>(null)
-        val hostPort = optHostPort.value<String?>(null)
-        val reservation = optReservation.value<String?>(null)
-        val deny = optDeny.value<String?>(null)
+        val tag = optTag.valueOrNull()
+        val hostPort = optHostPort.valueOrNull()
+        val reservation = optReservation.valueOrNull()
+        val deny = optDeny.valueOrNull()
         if (tag != null) {
             val who = myPendingReservationRequests.remove(tag)
             when {

@@ -1,20 +1,9 @@
 package org.elkoserver.feature.caps
 
-import org.elkoserver.foundation.json.ClockUsingObject
-import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.foundation.json.JsonMethod
-import org.elkoserver.foundation.json.MessageHandlerException
-import org.elkoserver.foundation.json.OptBoolean
-import org.elkoserver.foundation.json.OptInteger
-import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.json.*
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonObject
-import org.elkoserver.server.context.BasicObject
-import org.elkoserver.server.context.Item
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.ObjectCompletionWatcher
-import org.elkoserver.server.context.User
-import org.elkoserver.server.context.msgDelete
+import org.elkoserver.server.context.*
 import java.time.Clock
 
 /**
@@ -217,7 +206,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
               deleteable: OptBoolean, duration: OptInteger,
               expiration: OptInteger) {
         ensureReachable(from)
-        val destRef = dest.value<String?>(null)
+        val destRef = dest.valueOrNull()
         val container: BasicObject?
         container = if (destRef == null) {
             from

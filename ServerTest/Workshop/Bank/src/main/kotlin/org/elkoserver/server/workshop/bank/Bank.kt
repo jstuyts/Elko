@@ -1,15 +1,7 @@
 package org.elkoserver.server.workshop.bank
 
-import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
-import org.elkoserver.foundation.json.ClockUsingObject
-import org.elkoserver.foundation.json.JsonMethod
-import org.elkoserver.foundation.json.OptString
-import org.elkoserver.foundation.json.PostInjectionInitializingObject
-import org.elkoserver.json.Encodable
-import org.elkoserver.json.EncodeControl
-import org.elkoserver.json.JsonArray
-import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.JsonObject
+import org.elkoserver.foundation.json.*
+import org.elkoserver.json.*
 import org.elkoserver.server.workshop.Workshop
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.security.SecureRandom
@@ -81,13 +73,13 @@ constructor(
     private var myVirginRootKey: Key? = null
 
     /** The reference string of this bank's root key.  */
-    private var myRootKeyRef = rootKeyRef.value<String?>(null)
+    private var myRootKeyRef = rootKeyRef.valueOrNull()
 
     /** The workshop in which this bank is running.  */
     private lateinit var myWorkshop: Workshop
 
     /** MongoDB collection into which account data will be stored.  */
-    private val myAccountCollection = accountCollection.value<String?>(null)
+    private val myAccountCollection = accountCollection.valueOrNull()
 
     private lateinit var clock: Clock
 

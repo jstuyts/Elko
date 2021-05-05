@@ -83,7 +83,7 @@ internal class ClientHandler(private val myBroker: Broker, commGorgel: Gorgel) :
     fun find(from: BrokerActor, service: String, optProtocol: OptString, optWait: OptInteger, optMonitor: OptBoolean, optTag: OptString) {
         val wait = optWait.value(0)
         val monitor = optMonitor.value(false)
-        val tag = optTag.value<String?>(null)
+        val tag = optTag.valueOrNull()
         val protocol = optProtocol.value("tcp")
         val services = myBroker.services(service, protocol)
         if (!services.iterator().hasNext()) {

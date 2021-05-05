@@ -91,7 +91,7 @@ internal class WebsocketMessageHandlerFactory(
         for (i in 0 until len) {
             val c = key[i]
             if (c in '0'..'9') {
-                num = num * 10 + c.toLong() - '0'.toLong()
+                num = num * 10 + c.code.toLong() - ZERO_AS_LONG
             } else if (c == ' ') {
                 ++spaceCount
             }
@@ -174,3 +174,5 @@ internal class WebsocketMessageHandlerFactory(
         private const val MAGIC_WS_HANDSHAKE_GUID = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11"
     }
 }
+
+private const val ZERO_AS_LONG = '0'.code.toLong()

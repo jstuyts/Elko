@@ -8,7 +8,6 @@ import org.elkoserver.json.JsonParsing.jsonObjectFromString
 import org.elkoserver.objdb.store.ObjectDesc
 import org.elkoserver.util.tokenize
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.util.HashMap
 import java.util.LinkedList
 import java.util.function.Consumer
 
@@ -42,7 +41,7 @@ abstract class ObjDbBase(
      */
     fun decodeJSONObject(jsonObj: JsonObject): Any? {
         var result: Any? = null
-        val typeTag = jsonObj.getString<String?>("type", null)
+        val typeTag = jsonObj.getStringOrNull("type")
         if (typeTag != null) {
             val type = myClasses[typeTag]
             if (type != null) {

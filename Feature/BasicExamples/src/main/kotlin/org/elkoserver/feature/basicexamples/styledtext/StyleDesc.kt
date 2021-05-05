@@ -40,8 +40,8 @@ class StyleDesc(
     @JsonMethod("color", "backgroundColor", "borderColor", "textStyle", "icon")
     constructor(color: OptString, backgroundColor: OptString,
                 borderColor: OptString, textStyle: OptString,
-                icon: OptString) : this(color.value<String?>(null), backgroundColor.value<String?>(null),
-            borderColor.value<String?>(null), textStyle.value<String?>(null), icon.value<String?>(null))
+                icon: OptString) : this(color.valueOrNull(), backgroundColor.valueOrNull(),
+            borderColor.valueOrNull(), textStyle.valueOrNull(), icon.valueOrNull())
 
     /**
      * Encode this object for transmission or persistence.

@@ -125,7 +125,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
             myClientBuffer = buf
             myClientBufferLength = length
             (0 until length)
-                    .filter { buf[it] == '\n'.toByte() || amWebsocketFraming && buf[it] == (-1).toByte() }
+                    .filter { buf[it] == LINE_FEED_AS_BYTE || amWebsocketFraming && buf[it] == (-1).toByte() }
                     .forEach { myUsefulByteCount = myTotalByteCount + it + 1 }
             myTotalByteCount += length
         }
@@ -264,7 +264,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
             return 0
         } else if (amWebsocketFraming && byteA == 0xFF) {
             /* WebSocket end-of-frame: pretend it's a newline */
-            return '\n'.toInt()
+            return LINE_FEED_AS_INT
         } else if (byteA and 0x80 == 0) {
             /* One byte UTF-8 character */
             return byteA
@@ -330,7 +330,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
                 ""
             } else {
                 do {
-                    if (inCharCode != -1 && inChar != '\r' && inChar.toInt() != 0) {
+                    if (inCharCode != -1 && inChar != '\r' && inChar.code != 0) {
                         myLine.append(inChar)
                     }
                     inCharCode = if (doUTF8) readUTF8Char() else read()
@@ -402,3 +402,6 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
         }
     }
 }
+
+private const val LINE_FEED_AS_BYTE = '\n'.code.toByte()
+private const val LINE_FEED_AS_INT = LINE_FEED_AS_BYTE.toInt()

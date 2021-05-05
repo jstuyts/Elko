@@ -44,7 +44,7 @@ class SimpleChat @JsonMethod("allowpush") constructor(allowPush: OptBoolean) : M
     fun push(from: User, url: String, frame: OptString) {
         if (amAllowingPush) {
             ensureSameContext(from)
-            context().send(msgPush(context(), from, url, frame.value<String?>(null)))
+            context().send(msgPush(context(), from, url, frame.valueOrNull()))
         } else {
             throw MessageHandlerException("push not allowed here")
         }

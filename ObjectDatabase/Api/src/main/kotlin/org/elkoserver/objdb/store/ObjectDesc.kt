@@ -26,7 +26,7 @@ class ObjectDesc(internal val ref: String, val obj: String?, val failure: String
      * @param failure  Optional error message.
      */
     @JsonMethod("ref", "obj", "failure")
-    constructor(ref: String, obj: OptString, failure: OptString) : this(ref, obj.value<String?>(null), failure.value<String?>(null))
+    constructor(ref: String, obj: OptString, failure: OptString) : this(ref, obj.valueOrNull(), failure.valueOrNull())
 
     /**
      * Encode this object for transmission or persistence.

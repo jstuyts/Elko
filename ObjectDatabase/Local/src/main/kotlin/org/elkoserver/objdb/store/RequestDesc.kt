@@ -33,7 +33,7 @@ class RequestDesc(val ref: String, val collectionName: String?, private val cont
      */
     @JsonMethod("ref", "coll", "contents")
     constructor(ref: String, collectionName: OptString, contents: OptBoolean)
-            : this(ref, collectionName.value<String?>(null), contents.value(false))
+            : this(ref, collectionName.valueOrNull(), contents.value(false))
 
     /**
      * Encode this object for transmission or persistence.

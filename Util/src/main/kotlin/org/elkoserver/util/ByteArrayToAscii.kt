@@ -25,8 +25,8 @@ object ByteArrayToAscii {
         (0 until length)
                 .map { buf[offset + it] }
                 .forEach {
-                    if (' '.toByte() <= it && it <= '~'.toByte() || it == '\n'.toByte() || it == '\r'.toByte() || it == '\t'.toByte()) {
-                        chars.append(it.toChar())
+                    if (it in NON_CONTROL_CHARACTERS || it == LINE_FEED_AS_BYTE || it == CARRIAGE_RETURN_AS_BYTE || it == TAB_AS_BYTE) {
+                        chars.append(it.toInt().toChar())
                     } else {
                         chars.append(String.format("\\x%02x", it))
                     }
@@ -34,3 +34,10 @@ object ByteArrayToAscii {
         return chars.toString()
     }
 }
+
+private const val CARRIAGE_RETURN_AS_BYTE = '\r'.code.toByte()
+private const val LINE_FEED_AS_BYTE = '\n'.code.toByte()
+private const val SPACE_AS_BYTE = ' '.code.toByte()
+private const val TAB_AS_BYTE = '\t'.code.toByte()
+private const val TILDE_AS_BYTE = '~'.code.toByte()
+private val NON_CONTROL_CHARACTERS = SPACE_AS_BYTE .. TILDE_AS_BYTE

@@ -39,7 +39,7 @@ class AuthDescFromPropertiesFactory(private val props: ElkoProperties, private v
         return if (mode == "open") {
             AuthDesc.theOpenAuth
         } else {
-            val code = props.getProperty<String?>("$actualPropRoot.code", null)
+            val code = props.getPropertyOrNull("$actualPropRoot.code")
             if (mode == "password") {
                 if (code == null) {
                     gorgel.error("missing value for $actualPropRoot.code")
@@ -49,7 +49,7 @@ class AuthDescFromPropertiesFactory(private val props: ElkoProperties, private v
                 gorgel.error("unknown value for $actualPropRoot.auth.mode: $mode")
                 throw IllegalStateException()
             }
-            val id = props.getProperty<String?>("$actualPropRoot.id", null)
+            val id = props.getPropertyOrNull("$actualPropRoot.id")
             AuthDesc(mode, code, id)
         }
     }

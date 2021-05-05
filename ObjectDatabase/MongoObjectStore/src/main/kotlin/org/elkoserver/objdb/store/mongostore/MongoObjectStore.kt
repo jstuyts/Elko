@@ -9,21 +9,8 @@ import com.mongodb.client.model.UpdateOptions
 import org.bson.Document
 import org.bson.types.ObjectId
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.json.JsonArray
-import org.elkoserver.json.JsonObject
-import org.elkoserver.json.JsonObjectSerialization
-import org.elkoserver.json.JsonParsing
-import org.elkoserver.json.JsonWrapping
-import org.elkoserver.objdb.store.GetResultHandler
-import org.elkoserver.objdb.store.ObjectDesc
-import org.elkoserver.objdb.store.ObjectStore
-import org.elkoserver.objdb.store.PutDesc
-import org.elkoserver.objdb.store.QueryDesc
-import org.elkoserver.objdb.store.RequestDesc
-import org.elkoserver.objdb.store.RequestResultHandler
-import org.elkoserver.objdb.store.ResultDesc
-import org.elkoserver.objdb.store.UpdateDesc
-import org.elkoserver.objdb.store.UpdateResultDesc
+import org.elkoserver.json.*
+import org.elkoserver.objdb.store.*
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 
@@ -204,7 +191,7 @@ class MongoObjectStore : ObjectStore {
         mods.iterator().forEachRemaining { mod: Any? ->
             val elkoModAsObject = JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(mod)
             if (elkoModAsObject is JsonObject) {
-                if ("geopos" == elkoModAsObject.getString<String?>("type", null)) {
+                if ("geopos" == elkoModAsObject.getStringOrNull("type")) {
                     val lat = elkoModAsObject.getDouble("lat", 0.0)
                     val lon = elkoModAsObject.getDouble("lon", 0.0)
                     val qpos = Document()
@@ -278,7 +265,7 @@ class MongoObjectStore : ObjectStore {
     private fun doPut(ref: String, obj: String, collection: MongoCollection<Document>, requireNew: Boolean): ResultDesc {
         var failure: String? = null
         try {
-            val objectToWrite = jsonLiteralToDBObject(obj, ref)
+            val objectToWrite = jsonLiteralToDBObject(obj, ref) ?: throw IllegalStateException()
             if (requireNew) {
                 collection.insertOne(objectToWrite)
             } else {
@@ -307,7 +294,7 @@ class MongoObjectStore : ObjectStore {
         var failure: String? = null
         var atomicFailure = false
         try {
-            val objectToWrite = jsonLiteralToDBObject(obj, ref)
+            val objectToWrite = jsonLiteralToDBObject(obj, ref) ?: throw IllegalStateException()
             val query = Document()
             query["ref"] = ref
             query["version"] = version

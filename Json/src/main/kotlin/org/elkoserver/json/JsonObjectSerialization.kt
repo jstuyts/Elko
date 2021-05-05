@@ -16,9 +16,9 @@ object JsonObjectSerialization {
                    output first, regardless of what order the iterator spits all the
                    properties out in.  This is strictly for the sake of legibility and
                    has no deeper semantics. */
-                addParameterOpt("to", `object`.getString<String?>("to", null))
-                addParameterOpt("op", `object`.getString<String?>("op", null))
-                addParameterOpt("type", `object`.getString<String?>("type", null))
+                addParameterOpt("to", `object`.getStringOrNull("to"))
+                addParameterOpt("op", `object`.getStringOrNull("op"))
+                addParameterOpt("type", `object`.getStringOrNull("type"))
                 for ((key, value) in `object`.entrySet()) {
                     if (key != "to" && key != "op" && key != "type") {
                         addParameter(key, value)

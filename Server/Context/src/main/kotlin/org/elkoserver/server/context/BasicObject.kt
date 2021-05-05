@@ -1,10 +1,6 @@
 package org.elkoserver.server.context
 
-import org.elkoserver.foundation.json.DefaultDispatchTarget
-import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.foundation.json.DispatchTarget
-import org.elkoserver.foundation.json.MessageHandlerException
-import org.elkoserver.foundation.json.MessageRetargeter
+import org.elkoserver.foundation.json.*
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonObject
@@ -601,7 +597,7 @@ abstract class BasicObject internal constructor(
      */
     override fun handleMessage(from: Deliverer, message: JsonObject) {
         myDefaultDispatchTarget?.handleMessage(from, message)
-                ?: throw MessageHandlerException("no message handler method for verb '${message.getString<String?>("op", null)}'")
+                ?: throw MessageHandlerException("no message handler method for verb '${message.getStringOrNull("op")}'")
     }
     /* ----- MessageRetargeter interface ---------------------------------- */
     /**

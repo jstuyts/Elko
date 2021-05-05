@@ -28,7 +28,7 @@ class UpdateResultDesc(ref: String, failure: String?, val isAtomicFailure: Boole
      */
     @JsonMethod("ref", "failure", "atomic")
     constructor(ref: String, failure: OptString, isAtomicFailure: Boolean)
-            : this(ref, failure.value<String?>(null), isAtomicFailure)
+            : this(ref, failure.valueOrNull(), isAtomicFailure)
 
     /**
      * Encode this object for transmission or persistence.

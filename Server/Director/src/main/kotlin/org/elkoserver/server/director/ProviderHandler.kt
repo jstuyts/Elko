@@ -107,7 +107,7 @@ internal class ProviderHandler(director: Director, commGorgel: Gorgel, random: R
     @JsonMethod("context", "open", "reason")
     fun gate(from: DirectorActor, context: String, open: Boolean, optReason: OptString) {
         from.ensureAuthorizedProvider()
-        from.provider!!.noteContextGateSetting(context, open, optReason.value<String?>(null))
+        from.provider!!.noteContextGateSetting(context, open, optReason.valueOrNull())
     }
 
     /**

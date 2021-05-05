@@ -93,10 +93,10 @@ internal class DirectorActor(
      */
     @JsonMethod("context", "user", "hostport", "reservation", "deny")
     fun reserve(from: DirectorActor, context: String, optActor: OptString, optHostport: OptString, optAuth: OptString, optDeny: OptString) {
-        val hostport = optHostport.value<String?>(null)
-        val auth = optAuth.value<String?>(null)
-        val deny = optDeny.value<String?>(null)
-        val actor = optActor.value<String?>(null)
+        val hostport = optHostport.valueOrNull()
+        val auth = optAuth.valueOrNull()
+        val deny = optDeny.valueOrNull()
+        val actor = optActor.valueOrNull()
         val nonNullActor = actor ?: ""
         var contextKey = context
         var haveAllSlashesBeenProcessed = false

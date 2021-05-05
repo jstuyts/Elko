@@ -25,7 +25,7 @@ class AuthDesc(val mode: String, private val code: String?, private val id: Stri
      * @param id  Optional authorization ID.
      */
     @JsonMethod("mode", "code", "id")
-    constructor(mode: String, code: OptString, id: OptString) : this(mode, code.value<String?>(null), id.value<String?>(null))
+    constructor(mode: String, code: OptString, id: OptString) : this(mode, code.valueOrNull(), id.valueOrNull())
 
     /**
      * Check an authorization.  This authorization descriptor is treated as a

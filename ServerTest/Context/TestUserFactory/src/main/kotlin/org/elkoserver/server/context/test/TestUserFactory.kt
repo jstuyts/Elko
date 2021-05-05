@@ -1,15 +1,7 @@
 package org.elkoserver.server.context.test
 
 import com.grack.nanojson.JsonParserException
-import org.elkoserver.foundation.json.BaseCommGorgelInjector
-import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
-import org.elkoserver.foundation.json.ClockInjector
-import org.elkoserver.foundation.json.ClockUsingObject
-import org.elkoserver.foundation.json.ConstructorInvoker
-import org.elkoserver.foundation.json.Cryptor
-import org.elkoserver.foundation.json.JsonMethod
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
-import org.elkoserver.foundation.json.PostInjectionInitializingObject
+import org.elkoserver.foundation.json.*
 import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JsonDecodingException
@@ -147,13 +139,13 @@ internal class TestUserFactory @JsonMethod("key") constructor(private val key: S
                     if (!myNonces.contains(nonce)) {
                         purgeExpiredNonces(now)
                         myNonces.add(nonce)
-                        val reqContextRef = params.getString<String?>("context", null)
+                        val reqContextRef = params.getStringOrNull("context")
                         if (reqContextRef != null &&
                                 reqContextRef != contextRef) {
                             myGorgel.error("context ref mismatch")
                             throw IllegalStateException()
                         }
-                        val reqContextTemplate = params.getString<String?>("ctmpl", null)
+                        val reqContextTemplate = params.getStringOrNull("ctmpl")
                         if (reqContextTemplate != null &&
                                 reqContextTemplate != contextTemplate) {
                             myGorgel.error(

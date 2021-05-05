@@ -5,11 +5,7 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.User
-import org.elkoserver.server.context.UserMod
-import org.elkoserver.server.context.msgPush
-import org.elkoserver.server.context.msgSay
+import org.elkoserver.server.context.*
 
 /**
  * Mod to enable users in a context to chat privately with each other.  This
@@ -68,7 +64,7 @@ class PrivateChat(private val amAllowPrivate: Boolean, private val amAllowPush: 
             ensureSameContext(from)
             if (!context().isSemiPrivate) {
                 val who = `object`() as User
-                val response = msgPush(who, from, url, frame.value<String?>(null), features.value<String?>(null))
+                val response = msgPush(who, from, url, frame.valueOrNull(), features.valueOrNull())
                 who.send(response)
                 if (from !== who) {
                     from.send(response)

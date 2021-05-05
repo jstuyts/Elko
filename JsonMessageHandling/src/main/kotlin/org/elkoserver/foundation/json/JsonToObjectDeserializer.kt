@@ -51,7 +51,7 @@ class JsonToObjectDeserializer(
      */
     fun decode(baseType: Class<*>, obj: JsonObject, resolver: TypeResolver): Any? {
         var result: Any? = null
-        val typeName = obj.getString<String?>("type", null)
+        val typeName = obj.getStringOrNull("type")
         val targetClass: Class<*>?
         if (typeName != null) {
             targetClass = resolver.resolveType(baseType, typeName)

@@ -79,19 +79,19 @@ class StyleOptions @JsonMethod("colors", "backgroundColors", "borderColors", "te
      */
     override fun encode(control: EncodeControl): JsonLiteral =
             JsonLiteralFactory.type("styleoptions", control).apply {
-                if (colors != null && colors.isNotEmpty()) {
+                if (colors.isNotEmpty()) {
                     addParameter("colors", colors)
                 }
-                if (backgroundColors != null && backgroundColors.isNotEmpty()) {
+                if (backgroundColors.isNotEmpty()) {
                     addParameter("backgroundColors", backgroundColors)
                 }
-                if (borderColors != null && borderColors.isNotEmpty()) {
+                if (borderColors.isNotEmpty()) {
                     addParameter("borderColors", borderColors)
                 }
-                if (textStyles != null && textStyles.isNotEmpty()) {
+                if (textStyles.isNotEmpty()) {
                     addParameter("textStyles", textStyles)
                 }
-                if (icons != null && icons.isNotEmpty()) {
+                if (icons.isNotEmpty()) {
                     addParameter("icons", icons)
                 }
                 if (iconWidth >= 0) {

@@ -44,7 +44,7 @@ internal class Key(
      */
     @JsonMethod("parent", "ref", "auth", "?currs", "expires", "memo")
     constructor(parentRef: String, ref: String, auth: String, currencies: Array<String>?,
-                expires: ExpirationDate, memo: OptString) : this(null, ref, auth, currencies, expires, memo.value<String?>(null)) {
+                expires: ExpirationDate, memo: OptString) : this(null, ref, auth, currencies, expires, memo.valueOrNull()) {
         myParentRef = parentRef
     }
 

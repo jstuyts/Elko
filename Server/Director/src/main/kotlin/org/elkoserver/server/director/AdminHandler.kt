@@ -70,8 +70,8 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
      */
     private fun doFind(watch: Boolean, from: DirectorActor, context: OptString,
                        user: OptString) {
-        val contextName = context.value<String?>(null)
-        val userName = user.value<String?>(null)
+        val contextName = context.valueOrNull()
+        val userName = user.valueOrNull()
         if (userName != null && contextName != null) {
             throw MessageHandlerException(
                     "context and user parameters are mutually exclusive")
@@ -151,8 +151,8 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
     @JsonMethod("context", "user")
     fun close(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
-        val contextName = context.value<String?>(null)
-        val userName = user.value<String?>(null)
+        val contextName = context.valueOrNull()
+        val userName = user.valueOrNull()
         val msg = msgClose(myDirector.providerHandler, contextName,
                 userName, false)
         myDirector.targetedBroadCast(null, contextName, userName, msg)
@@ -171,8 +171,8 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
     @JsonMethod("depth", "provider", "context")
     fun dump(from: DirectorActor, depth: Int, provider: OptString, context: OptString) {
         from.ensureAuthorizedAdmin()
-        val providerName = provider.value<String?>(null)
-        val contextName = context.value<String?>(null)
+        val providerName = provider.valueOrNull()
+        val contextName = context.valueOrNull()
         var numProviders = 0
         var numContexts = 0
         var numUsers = 0
@@ -310,7 +310,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
     @JsonMethod("provider", "director")
     fun reinit(from: DirectorActor, provider: OptString, director: OptBoolean) {
         from.ensureAuthorizedAdmin()
-        val providerName = provider.value<String?>(null)
+        val providerName = provider.valueOrNull()
         if (providerName != null) {
             val msg = msgReinit(myDirector.providerHandler)
             myDirector.providers()
@@ -354,8 +354,8 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
     @JsonMethod("context", "user", "text")
     fun say(from: DirectorActor, context: OptString, user: OptString, text: String) {
         from.ensureAuthorizedAdmin()
-        val contextName = context.value<String?>(null)
-        val userName = user.value<String?>(null)
+        val contextName = context.valueOrNull()
+        val userName = user.valueOrNull()
         val msg = msgSay(myDirector.providerHandler, contextName, userName, text)
         myDirector.targetedBroadCast(null, contextName, userName, msg)
     }
@@ -372,7 +372,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
     @JsonMethod("provider", "director")
     fun shutdown(from: DirectorActor, provider: OptString, director: OptBoolean) {
         from.ensureAuthorizedAdmin()
-        val providerName = provider.value<String?>(null)
+        val providerName = provider.valueOrNull()
         if (providerName != null) {
             val msg = msgShutdown(myDirector.providerHandler)
             myDirector.providers()
@@ -399,8 +399,8 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
     @JsonMethod("context", "user")
     fun unwatch(from: DirectorActor, context: OptString, user: OptString) {
         from.ensureAuthorizedAdmin()
-        val contextName = context.value<String?>(null)
-        val userName = user.value<String?>(null)
+        val contextName = context.valueOrNull()
+        val userName = user.valueOrNull()
         if (contextName != null && userName != null) {
             throw MessageHandlerException(
                     "context and user parameters are mutually exclusive")

@@ -44,7 +44,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
                     optIID: OptString, optName: OptString, optPassword: OptString,
                     optCanSetPass: OptBoolean) {
         myGatekeeper.ensureAuthorizedAdmin(from)
-        var id = optID.value<String?>(null)
+        var id = optID.valueOrNull()
         var generated = false
         if (id == null) {
             id = myAuthorizer.generateID()
@@ -52,9 +52,9 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
         }
         myAuthorizer.getActor(id,
                 CreateActorRunnable(from, id, generated,
-                        optIID.value<String?>(null),
-                        optName.value<String?>(null),
-                        optPassword.value<String?>(null),
+                        optIID.valueOrNull(),
+                        optName.valueOrNull(),
+                        optPassword.valueOrNull(),
                         optCanSetPass.value(true)))
     }
 
@@ -200,7 +200,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.getActor(id, { obj: Any? ->
             if (obj != null) {
-                val internalID = optInternalID.value<String?>(null)
+                val internalID = optInternalID.valueOrNull()
                 val actor = obj as ActorDesc
                 if (internalID != actor.internalID()) {
                     actor.setInternalID(internalID)
@@ -225,7 +225,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.getActor(id, { obj: Any? ->
             if (obj != null) {
-                val name = optName.value<String?>(null)
+                val name = optName.valueOrNull()
                 val actor = obj as ActorDesc
                 if (name != actor.name) {
                     actor.setName(name)
@@ -250,7 +250,7 @@ internal class AuthHandler(private val myAuthorizer: PasswdAuthorizer, private v
         myGatekeeper.ensureAuthorizedAdmin(from)
         myAuthorizer.getActor(id, { obj: Any? ->
             if (obj != null) {
-                val password = optPassword.value<String?>(null)
+                val password = optPassword.valueOrNull()
                 val actor = obj as ActorDesc
                 if (!actor.testPassword(password)) {
                     actor.setPassword(password)

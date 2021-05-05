@@ -9,11 +9,7 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.GeneralMod
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.User
-import org.elkoserver.server.context.msgMake
-import org.elkoserver.server.context.validContainer
+import org.elkoserver.server.context.*
 import kotlin.contracts.ExperimentalContracts
 
 /**
@@ -83,7 +79,7 @@ class NoteMaker @JsonMethod("styles") constructor(private val myStyleOptions: St
     fun makenote(from: User, into: OptString, left: Int, top: Int,
                  width: Int, height: Int, text: String, style: StyleDesc?) {
         ensureSameContext(from)
-        val intoRef = into.value<String?>(null)
+        val intoRef = into.valueOrNull()
         val intoObj = if (intoRef != null) {
             context()[intoRef]
         } else {

@@ -24,7 +24,7 @@ open class ResultDesc(protected val ref: String, val failure: String?) : Encodab
      * @param failure  Optional error message.
      */
     @JsonMethod("ref", "failure")
-    constructor(ref: String, failure: OptString) : this(ref, failure.value<String?>(null))
+    constructor(ref: String, failure: OptString) : this(ref, failure.valueOrNull())
 
     /**
      * Encode this object for transmission or persistence.

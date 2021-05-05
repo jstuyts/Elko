@@ -1,11 +1,6 @@
 package org.elkoserver.foundation.actor
 
-import org.elkoserver.foundation.json.Deliverer
-import org.elkoserver.foundation.json.DispatchTarget
-import org.elkoserver.foundation.json.JsonMethod
-import org.elkoserver.foundation.json.MessageDispatcher
-import org.elkoserver.foundation.json.MessageHandlerException
-import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.json.*
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.JsonObject
@@ -59,15 +54,15 @@ abstract class NonRoutingActor protected constructor(
      * the dispatcher that was provided in this actor's constructor.
      *
      * @param connection  Connection over which the message was received.
-     * @param rawMessage  The message received.  Normally this should be a
+     * @param message  The message received.  Normally this should be a
      * [JsonObject], but it could be a [Throwable] indicating a
      * problem receiving or parsing the message.
      */
-    override fun processMessage(connection: Connection, rawMessage: Any) {
+    override fun processMessage(connection: Connection, message: Any) {
         var report: Throwable? = null
-        if (rawMessage is JsonObject) {
+        if (message is JsonObject) {
             try {
-                myDispatcher.dispatchMessage(this, this, rawMessage)
+                myDispatcher.dispatchMessage(this, this, message)
             } catch (result: MessageHandlerException) {
                 report = result.cause
                 if (report == null) {
@@ -76,8 +71,8 @@ abstract class NonRoutingActor protected constructor(
                     gorgel.error("exception in message handler", report)
                 }
             }
-        } else if (rawMessage is Throwable) {
-            report = rawMessage
+        } else if (message is Throwable) {
+            report = message
         }
         if (report != null) {
             val warning = "message handler error: $report"
@@ -125,7 +120,7 @@ abstract class NonRoutingActor protected constructor(
      */
     @JsonMethod("tag")
     fun ping(from: Deliverer, tag: OptString) {
-        from.send(msgPong(this, tag.value<String?>(null)))
+        from.send(msgPong(this, tag.valueOrNull()))
     }
 
     /**

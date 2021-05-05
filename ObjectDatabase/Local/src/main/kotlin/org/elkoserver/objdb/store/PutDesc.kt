@@ -39,7 +39,7 @@ open class PutDesc(val ref: String, val obj: String, val collectionName: String?
      */
     @JsonMethod("ref", "obj", "coll", "requirenew")
     constructor(ref: String, obj: String, collectionName: OptString, requireNew: OptBoolean)
-            : this(ref, obj, collectionName.value<String?>(null), requireNew.value(false))
+            : this(ref, obj, collectionName.valueOrNull(), requireNew.value(false))
 
     /**
      * Encode this object for transmission or persistence.

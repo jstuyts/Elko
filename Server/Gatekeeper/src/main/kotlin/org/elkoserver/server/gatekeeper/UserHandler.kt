@@ -39,9 +39,9 @@ internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gor
      */
     @JsonMethod("protocol", "context", "id", "name", "password")
     fun reserve(from: GatekeeperActor, protocol: String, context: String, id: OptString, name: OptString, password: OptString) {
-        val idStr = id.value<String?>(null)
+        val idStr = id.valueOrNull()
         myAuthorizer.reserve(
-                protocol, context, idStr, name.value<String?>(null), password.value<String?>(null),
+                protocol, context, idStr, name.valueOrNull(), password.valueOrNull(),
                 object : ReservationResultHandler {
                     override fun handleReservation(actor: String?, context: String?, name: String?, hostport: String?, auth: String?) {
                         from.send(msgReserve(this@UserHandler, idStr, context, actor, name, hostport, auth, null))
@@ -67,8 +67,8 @@ internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gor
     fun setpassword(from: GatekeeperActor, id: String, oldpassword: OptString, newpassword: OptString) {
         myAuthorizer.setPassword(
                 id,
-                oldpassword.value<String?>(null),
-                newpassword.value<String?>(null),
+                oldpassword.valueOrNull(),
+                newpassword.valueOrNull(),
                 object : SetPasswordResultHandler {
                     override fun handle(failure: String?) {
                         from.send(msgSetPassword(this@UserHandler, id, failure))

@@ -19,6 +19,6 @@ class ExampleContextMod @JsonMethod constructor() : Mod(), ContextMod {
     @JsonMethod("arg", "otherarg")
     fun ctxverb(from: User, arg: String, otherArg: OptString) {
         ensureSameContext(from)
-        context().send(msgCtxVerb(context(), from, arg, otherArg.value<String?>(null)))
+        context().send(msgCtxVerb(context(), from, arg, otherArg.valueOrNull()))
     }
 }

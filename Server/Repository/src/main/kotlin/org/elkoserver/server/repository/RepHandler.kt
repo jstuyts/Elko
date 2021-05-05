@@ -3,14 +3,7 @@ package org.elkoserver.server.repository
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.objdb.store.GetResultHandler
-import org.elkoserver.objdb.store.ObjectDesc
-import org.elkoserver.objdb.store.PutDesc
-import org.elkoserver.objdb.store.QueryDesc
-import org.elkoserver.objdb.store.RequestDesc
-import org.elkoserver.objdb.store.RequestResultHandler
-import org.elkoserver.objdb.store.ResultDesc
-import org.elkoserver.objdb.store.UpdateDesc
+import org.elkoserver.objdb.store.*
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -50,7 +43,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
                      what: Array<RequestDesc>) {
         myObjectStore.getObjects(what, object : GetResultHandler {
             override fun handle(results: Array<ObjectDesc>?) {
-                from.send(msgGet(this@RepHandler, tag.value<String?>(null), results))
+                from.send(msgGet(this@RepHandler, tag.valueOrNull(), results))
             }
         })
     }
@@ -69,7 +62,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
             what: Array<PutDesc>) {
         myObjectStore.putObjects(what, object : RequestResultHandler {
             override fun handle(results: Array<out ResultDesc>) {
-                from.send(msgPut(this@RepHandler, tag.value<String?>(null), results))
+                from.send(msgPut(this@RepHandler, tag.valueOrNull(), results))
             }
         })
     }
@@ -88,7 +81,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
                what: Array<UpdateDesc>) {
         myObjectStore.updateObjects(what, object : RequestResultHandler {
             override fun handle(results: Array<out ResultDesc>) {
-                from.send(msgUpdate(this@RepHandler, tag.value<String?>(null), results))
+                from.send(msgUpdate(this@RepHandler, tag.valueOrNull(), results))
             }
         })
     }
@@ -107,7 +100,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
               what: Array<QueryDesc>) {
         myObjectStore.queryObjects(what, object : GetResultHandler {
             override fun handle(results: Array<ObjectDesc>?) {
-                from.send(msgQuery(this@RepHandler, tag.value<String?>(null), results))
+                from.send(msgQuery(this@RepHandler, tag.valueOrNull(), results))
             }
         })
     }
@@ -126,7 +119,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
                what: Array<RequestDesc>) {
         myObjectStore.removeObjects(what, object : RequestResultHandler {
             override fun handle(results: Array<out ResultDesc>) {
-                from.send(msgRemove(this@RepHandler, tag.value<String?>(null), results))
+                from.send(msgRemove(this@RepHandler, tag.valueOrNull(), results))
             }
         })
     }

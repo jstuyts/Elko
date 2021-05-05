@@ -56,7 +56,7 @@ class ObjDbActor(
      */
     @JsonMethod("tag", "results")
     operator fun get(from: ObjDbActor, tag: OptString, results: Array<ObjectDesc>) {
-        myObjDb.handleGetResult(tag.value<String?>(null), results)
+        myObjDb.handleGetResult(tag.valueOrNull(), results)
     }
 
     /**
@@ -66,7 +66,7 @@ class ObjDbActor(
      */
     @JsonMethod("tag", "results")
     fun put(from: ObjDbActor, tag: OptString, results: Array<ResultDesc>) {
-        myObjDb.handlePutResult(tag.value<String?>(null), results)
+        myObjDb.handlePutResult(tag.valueOrNull(), results)
     }
 
     /**
@@ -76,7 +76,7 @@ class ObjDbActor(
      */
     @JsonMethod("tag", "results")
     fun update(from: ObjDbActor, tag: OptString, results: Array<ResultDesc>) {
-        myObjDb.handleUpdateResult(tag.value<String?>(null), results)
+        myObjDb.handleUpdateResult(tag.valueOrNull(), results)
     }
 
     /**
@@ -86,7 +86,7 @@ class ObjDbActor(
      */
     @JsonMethod("tag", "results")
     fun query(from: ObjDbActor, tag: OptString, results: Array<ObjectDesc>) {
-        myObjDb.handleQueryResult(tag.value<String?>(null), results)
+        myObjDb.handleQueryResult(tag.valueOrNull(), results)
     }
 
     /**
@@ -96,7 +96,7 @@ class ObjDbActor(
      */
     @JsonMethod("tag", "results")
     fun remove(from: ObjDbActor, tag: OptString, results: Array<ResultDesc>) {
-        myObjDb.handleRemoveResult(tag.value<String?>(null), results)
+        myObjDb.handleRemoveResult(tag.valueOrNull(), results)
     }
 
     init {

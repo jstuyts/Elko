@@ -11,16 +11,7 @@ import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
 import org.elkoserver.objdb.ObjectStoreFactory.createAndInitializeObjectStore
-import org.elkoserver.objdb.store.GetResultHandler
-import org.elkoserver.objdb.store.ObjectDesc
-import org.elkoserver.objdb.store.ObjectStore
-import org.elkoserver.objdb.store.PutDesc
-import org.elkoserver.objdb.store.QueryDesc
-import org.elkoserver.objdb.store.RequestDesc
-import org.elkoserver.objdb.store.RequestResultHandler
-import org.elkoserver.objdb.store.ResultDesc
-import org.elkoserver.objdb.store.UpdateDesc
-import org.elkoserver.objdb.store.UpdateResultDesc
+import org.elkoserver.objdb.store.*
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -211,7 +202,7 @@ class ObjDbLocal(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGo
             for (i in descs.indices) {
                 try {
                     val jsonObj = jsonObjectFromString(descs[i].obj!!)!!
-                    if (jsonObj.getString<String?>("type", null) != null) {
+                    if (jsonObj.getStringOrNull("type") != null) {
                         results[i] = decodeJSONObject(jsonObj)
                     } else {
                         results[i] = jsonObj
