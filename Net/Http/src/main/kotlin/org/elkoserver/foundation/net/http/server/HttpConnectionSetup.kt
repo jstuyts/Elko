@@ -35,7 +35,7 @@ class HttpConnectionSetup(
     override val valueToCompareWithBind = host
 
     companion object {
-        private fun determineDomain(host: String, props: ElkoProperties, propRoot: String): String? {
+        private fun determineDomain(host: String, props: ElkoProperties, propRoot: String): String {
             var result = props.getProperty("$propRoot.domain")
             if (result == null) {
                 val colonIndex = host.indexOf(':')

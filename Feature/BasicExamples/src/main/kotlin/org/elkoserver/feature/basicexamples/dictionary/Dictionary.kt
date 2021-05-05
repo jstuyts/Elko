@@ -20,13 +20,13 @@ import org.elkoserver.server.context.User
  *    false (the default), changes are ephemeral.
  */
 class Dictionary @JsonMethod("names", "values", "persist") constructor(names: Array<String>, values: Array<String>, persist: OptBoolean) : Mod(), GeneralMod {
-    private val myVars: MutableMap<String, String> = HashMap<String, String>().apply {
+    private val myVars: MutableMap<String, String> = mutableMapOf<String, String>().apply {
         names.forEachIndexed { index, name ->
             this[name] = values[index]
         }
     }
     private val amPersistent = persist.value(false)
-    private val myOriginalVars: MutableMap<String, String>?
+    private val myOriginalVars: Map<String, String>?
 
     /**
      * Encode this mod for transmission or persistence.
@@ -131,14 +131,8 @@ class Dictionary @JsonMethod("names", "values", "persist") constructor(names: Ar
     }
 
     init {
-        fun convertNamesAndValuesToMap(): MutableMap<String, String>? {
-            val nameCount = names.size
-            return HashMap<String, String>(nameCount, 1.0f).apply {
-                names.forEachIndexed { index, name ->
-                    this[name] = values[index]
-                }
-            }
-        }
+        fun convertNamesAndValuesToMap() =
+                names.mapIndexed { index, name -> name to values[index] }.toMap()
         myOriginalVars = if (amPersistent) null else convertNamesAndValuesToMap()
     }
 }
