@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.byteioframer.rtcp
 
-import org.elkoserver.json.JsonObject
+import com.grack.nanojson.JsonObject
 import java.util.LinkedList
 import java.util.regex.Pattern
 

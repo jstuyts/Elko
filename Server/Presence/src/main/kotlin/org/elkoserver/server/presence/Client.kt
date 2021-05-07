@@ -1,6 +1,6 @@
 package org.elkoserver.server.presence
 
-import org.elkoserver.json.JsonObject
+import com.grack.nanojson.JsonObject
 
 /**
  * The client facet of a presence server actor.  This object represents the

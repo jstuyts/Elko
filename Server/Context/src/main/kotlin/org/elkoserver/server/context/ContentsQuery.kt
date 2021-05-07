@@ -1,6 +1,6 @@
 package org.elkoserver.server.context
 
-import org.elkoserver.json.JsonObject
+import com.grack.nanojson.JsonObject
 
 /**
  * Generate and return a MongoDB query to fetch an object's contents.

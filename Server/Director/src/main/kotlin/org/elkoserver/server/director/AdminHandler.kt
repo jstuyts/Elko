@@ -1,5 +1,6 @@
 package org.elkoserver.server.director
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
@@ -8,7 +9,6 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 

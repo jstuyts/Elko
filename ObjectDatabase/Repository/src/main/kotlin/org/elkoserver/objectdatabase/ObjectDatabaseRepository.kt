@@ -1,5 +1,6 @@
 package org.elkoserver.objectdatabase
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcherFactory
 import org.elkoserver.foundation.net.Connection
@@ -11,7 +12,6 @@ import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.json.Encodable
-import org.elkoserver.json.JsonObject
 import org.elkoserver.objectdatabase.store.ObjectDesc
 import org.elkoserver.objectdatabase.store.ResultDesc
 import org.elkoserver.util.trace.slf4j.Gorgel

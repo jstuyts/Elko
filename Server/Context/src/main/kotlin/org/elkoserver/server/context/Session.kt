@@ -1,11 +1,11 @@
 package org.elkoserver.server.context
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.*
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**

@@ -1,8 +1,10 @@
 package org.elkoserver.feature.caps
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.*
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.json.JsonObject
+import org.elkoserver.json.getOptionalBoolean
+import org.elkoserver.json.getOptionalLong
 import org.elkoserver.server.context.*
 import java.time.Clock
 
@@ -15,12 +17,12 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * Scope flag: if true, holder can transfer the capability to another
      * holder.
      */
-    private var amTransferrable = desc.getBoolean("transferrable", true)
+    private var amTransferrable = desc.getOptionalBoolean("transferrable", true)
 
     /**
      * Scope flag: if true, holder can delete this capability.
      */
-    private var amDeletable = desc.getBoolean("deletable", true)
+    private var amDeletable = desc.getOptionalBoolean("deletable", true)
 
     /**
      * Expiration time.  After this time, this capability will no longer
@@ -28,7 +30,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * that the capability never expires.  A value of -1 indicates that the
      * capability is ephemeral, i.e., that it expires when the holder exits.
      */
-    private var myExpiration = desc.getLong("expiration", 0L)
+    private var myExpiration = desc.getOptionalLong("expiration", 0L)
 
     private lateinit var clock: Clock
 

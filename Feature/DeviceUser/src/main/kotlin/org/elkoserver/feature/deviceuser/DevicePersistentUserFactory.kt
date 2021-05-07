@@ -1,12 +1,14 @@
 package org.elkoserver.feature.deviceuser
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.SlowServiceRunnerUsingObject
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.run.SlowServiceRunner
 import org.elkoserver.json.JsonDecodingException
-import org.elkoserver.json.JsonObject
+import org.elkoserver.json.getRequiredString
+import org.elkoserver.json.getStringOrNull
 import org.elkoserver.server.context.Contextor
 import org.elkoserver.server.context.User
 import org.elkoserver.server.context.UserFactory
@@ -114,10 +116,10 @@ open class DevicePersistentUserFactory @JsonMethod("device") internal constructo
         checkNotNull(param)
 
         try {
-            val uuid = param.getString("uuid")
+            val uuid = param.getRequiredString("uuid")
             var name = param.getStringOrNull("name")
             if (name == null) {
-                name = param.getString("nickname")
+                name = param.getRequiredString("nickname")
             }
             return DeviceCredentials(uuid, name)
         } catch (e: JsonDecodingException) {

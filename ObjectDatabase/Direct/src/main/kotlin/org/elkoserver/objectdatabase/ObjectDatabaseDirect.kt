@@ -1,5 +1,6 @@
 package org.elkoserver.objectdatabase
 
+import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -8,8 +9,8 @@ import org.elkoserver.foundation.run.thread.ThreadRunner
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl.ForRepositoryEncodeControl
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
+import org.elkoserver.json.getStringOrNull
 import org.elkoserver.objectdatabase.ObjectStoreFactory.createAndInitializeObjectStore
 import org.elkoserver.objectdatabase.store.*
 import org.elkoserver.util.trace.slf4j.Gorgel

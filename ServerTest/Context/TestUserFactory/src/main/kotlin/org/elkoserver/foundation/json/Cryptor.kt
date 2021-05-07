@@ -1,7 +1,7 @@
 package org.elkoserver.foundation.json
 
+import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParserException
-import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
@@ -11,12 +11,7 @@ import java.security.InvalidKeyException
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 import java.util.Base64
-import javax.crypto.BadPaddingException
-import javax.crypto.Cipher
-import javax.crypto.IllegalBlockSizeException
-import javax.crypto.KeyGenerator
-import javax.crypto.NoSuchPaddingException
-import javax.crypto.SecretKey
+import javax.crypto.*
 import javax.crypto.spec.IvParameterSpec
 import javax.crypto.spec.SecretKeySpec
 

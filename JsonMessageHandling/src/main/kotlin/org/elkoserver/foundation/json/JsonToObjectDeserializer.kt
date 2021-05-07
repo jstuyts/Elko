@@ -1,8 +1,9 @@
 package org.elkoserver.foundation.json
 
+import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParserException
-import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
+import org.elkoserver.json.getStringOrNull
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 class JsonToObjectDeserializer(

@@ -1,5 +1,6 @@
 package org.elkoserver.server.context
 
+import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
@@ -12,8 +13,8 @@ import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JsonDecodingException
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
+import org.elkoserver.json.getRequiredString
 import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.tokenize
@@ -850,7 +851,7 @@ class Contextor internal constructor(
                               whereMeta: JsonObject?, on: Boolean) {
         if (whoMeta != null) {
             try {
-                val name = whoMeta.getString("name")
+                val name = whoMeta.getRequiredString("name")
                 myUserNames[whoRef] = name
             } catch (e: JsonDecodingException) {
                 // No action needed. Do not add a user name.
@@ -858,7 +859,7 @@ class Contextor internal constructor(
         }
         if (whereMeta != null) {
             try {
-                val name = whereMeta.getString("name")
+                val name = whereMeta.getRequiredString("name")
                 myContextNames[whereRef] = name
             } catch (e: JsonDecodingException) {
                 // No action needed. Do not add a context name.

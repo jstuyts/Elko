@@ -1,5 +1,6 @@
 package org.elkoserver.json
 
+import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParser
 import com.grack.nanojson.JsonParserException
 import java.io.IOException
@@ -11,8 +12,7 @@ object JsonParsing {
             if (string.isEmpty()) {
                 null
             } else {
-                val nanoObject = JsonParser.`object`().from(string)
-                nanoObject?.let(::JsonObject)
+                JsonParser.`object`().from(string)
             }
 
     @Throws(JsonParserException::class)

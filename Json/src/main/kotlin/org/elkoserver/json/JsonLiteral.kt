@@ -1,5 +1,7 @@
 package org.elkoserver.json
 
+import com.grack.nanojson.JsonArray
+import com.grack.nanojson.JsonObject
 import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 
 /**

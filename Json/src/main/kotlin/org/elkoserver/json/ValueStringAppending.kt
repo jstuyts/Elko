@@ -1,5 +1,8 @@
 package org.elkoserver.json
 
+import com.grack.nanojson.JsonArray
+import com.grack.nanojson.JsonObject
+
 /**
  * Convert a value of any type into the appropriate characters appended
  * onto the string under construction.

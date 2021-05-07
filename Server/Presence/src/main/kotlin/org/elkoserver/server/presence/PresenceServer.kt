@@ -1,10 +1,10 @@
 package org.elkoserver.server.presence
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
-import org.elkoserver.json.JsonObject
 import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList

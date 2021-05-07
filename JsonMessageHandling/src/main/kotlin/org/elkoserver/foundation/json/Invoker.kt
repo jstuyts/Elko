@@ -1,8 +1,8 @@
 package org.elkoserver.foundation.json
 
+import com.grack.nanojson.JsonArray
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.OptionalParameter.Companion.missingValue
-import org.elkoserver.json.JsonArray
-import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.AccessibleObject
 import java.lang.reflect.InvocationTargetException

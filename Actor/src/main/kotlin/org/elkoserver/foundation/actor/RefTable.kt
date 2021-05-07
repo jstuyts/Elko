@@ -1,11 +1,12 @@
 package org.elkoserver.foundation.actor
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.MessageHandlerException
-import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
+import org.elkoserver.json.getStringOrNull
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 

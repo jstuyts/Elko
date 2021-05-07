@@ -1,7 +1,8 @@
 package org.elkoserver.server.presence
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.RandomUsingObject
-import org.elkoserver.json.JsonObject
+import org.elkoserver.json.getOptionalInt
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.Random
 
@@ -35,7 +36,7 @@ internal class UniversalGraph : SocialGraph, RandomUsingObject {
     override fun init(master: PresenceServer, gorgel: Gorgel, domain: Domain, conf: JsonObject) {
         myMaster = master
         myDomain = domain
-        myPseudoFriendCount = conf.getInt("friends", -1)
+        myPseudoFriendCount = conf.getOptionalInt("friends", -1)
         gorgel.i?.run { info("init UniversalGraph for domain '${domain.name}'") }
     }
 

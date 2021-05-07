@@ -1,7 +1,11 @@
 package org.elkoserver.server.workshop.bank
 
+import com.grack.nanojson.JsonArray
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.*
-import org.elkoserver.json.*
+import org.elkoserver.json.Encodable
+import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.workshop.Workshop
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.security.SecureRandom
@@ -416,7 +420,7 @@ constructor(
      */
     private fun queryAccount(ref: String): JsonObject {
         val queryTemplate = JsonObject()
-        queryTemplate.put("ref", ref)
+        queryTemplate["ref"] = ref
         return queryTemplate
     }
 

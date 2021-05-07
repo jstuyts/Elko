@@ -1,5 +1,6 @@
 package org.elkoserver.server.context
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.BasicProtocolActor
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.actor.RoutingActor
@@ -13,7 +14,6 @@ import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList

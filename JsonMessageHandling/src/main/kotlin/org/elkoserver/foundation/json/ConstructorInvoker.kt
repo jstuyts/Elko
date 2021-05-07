@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.json
 
-import org.elkoserver.json.JsonObject
+import com.grack.nanojson.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.Constructor
 import java.lang.reflect.InvocationTargetException
@@ -51,7 +51,7 @@ class ConstructorInvoker(
     }
 
     private fun tryToConstruct(obj: JsonObject, resolver: TypeResolver): Any? {
-        val result = apply(null, if (amIncludingRawObject) obj else null, obj.entrySet(), resolver)
+        val result = apply(null, if (amIncludingRawObject) obj else null, obj.entries, resolver)
 
         injectors.forEach { it.inject(result) }
 

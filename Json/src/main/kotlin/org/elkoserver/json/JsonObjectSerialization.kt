@@ -1,5 +1,6 @@
 package org.elkoserver.json
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 
 object JsonObjectSerialization {
@@ -19,7 +20,7 @@ object JsonObjectSerialization {
                 addParameterOpt("to", `object`.getStringOrNull("to"))
                 addParameterOpt("op", `object`.getStringOrNull("op"))
                 addParameterOpt("type", `object`.getStringOrNull("type"))
-                for ((key, value) in `object`.entrySet()) {
+                for ((key, value) in `object`.entries) {
                     if (key != "to" && key != "op" && key != "type") {
                         addParameter(key, value)
                     }
@@ -36,7 +37,7 @@ object JsonObjectSerialization {
      */
     fun encodeLiteral(`object`: JsonObject, buf: StringBuilder, control: EncodeControl) {
         JsonLiteral(buf, control).apply {
-            for ((key, value) in `object`.entrySet()) {
+            for ((key, value) in `object`.entries) {
                 addParameter(key, value)
             }
             finish()

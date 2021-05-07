@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.json
 
-import org.elkoserver.json.JsonObject
+import com.grack.nanojson.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**

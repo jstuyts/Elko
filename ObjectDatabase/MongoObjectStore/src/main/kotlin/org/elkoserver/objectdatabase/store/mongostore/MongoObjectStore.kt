@@ -1,5 +1,7 @@
 package org.elkoserver.objectdatabase.store.mongostore
 
+import com.grack.nanojson.JsonArray
+import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParserException
 import com.mongodb.MongoClient
 import com.mongodb.client.MongoCollection
@@ -89,10 +91,10 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
                 } else if (value is Document) {
                     value = dbObjectToJSONObject(value)
                 }
-                result.put(key, value)
+                result[key] = value
             } else if (key == "_id") {
                 val oid = dbObj[key] as ObjectId
-                result.put(key, oid.toString())
+                result[key] = oid.toString()
             }
         }
         return result
@@ -144,13 +146,12 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
         // MongoDB's 2D coordinate encoding rules, and have Mongodb index
         // *that*.  When an object is read from the database, we strip this
         // property off again before we return the object to the application.
-        val mods = obj.getArray("mods")
-        mods?.iterator()?.forEachRemaining { mod: Any? ->
-            val elkoModAsObject = JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(mod)
-            if (elkoModAsObject is JsonObject) {
-                if ("geopos" == elkoModAsObject.getStringOrNull("type")) {
-                    val lat = elkoModAsObject.getDouble("lat", 0.0)
-                    val lon = elkoModAsObject.getDouble("lon", 0.0)
+        val mods = obj.getRequiredArray("mods")
+        mods.iterator().forEachRemaining { mod: Any? ->
+            if (mod is JsonObject) {
+                if ("geopos" == mod.getStringOrNull("type")) {
+                    val lat = mod.getOptionalDouble("lat", 0.0)
+                    val lon = mod.getOptionalDouble("lon", 0.0)
                     val qpos = Document()
                     qpos["lat"] = lat
                     qpos["lon"] = lon
@@ -178,14 +179,14 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
             }
 
     private fun jsonArrayToDBArray(arr: JsonArray): ArrayList<Any?> {
-        val result = ArrayList<Any?>(arr.size())
+        val result = ArrayList<Any?>(arr.size)
         arr.mapTo(result, ::valueToDBValue)
         return result
     }
 
     private fun jsonObjectToDBObject(obj: JsonObject): Document {
         val result = Document()
-        for ((key, value) in obj.entrySet()) {
+        for ((key, value) in obj.entries) {
             result[key] = valueToDBValue(value)
         }
         return result
@@ -201,7 +202,7 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
      */
     private fun doGetContents(obj: JsonObject, collection: MongoCollection<Document>): List<ObjectDesc> {
         val results: MutableList<ObjectDesc> = LinkedList()
-        for ((propName, value) in obj.entrySet()) {
+        for ((propName, value) in obj.entries) {
             if (propName.startsWith("ref$")) {
                 dereferenceValue(value, collection, results)
             }

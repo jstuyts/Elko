@@ -1,11 +1,11 @@
 package org.elkoserver.server.context.test
 
+import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.json.*
 import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.json.JsonDecodingException
-import org.elkoserver.json.JsonObject
+import org.elkoserver.json.*
 import org.elkoserver.server.context.Contextor
 import org.elkoserver.server.context.EphemeralUserFactory
 import org.elkoserver.server.context.User
@@ -129,13 +129,13 @@ internal class TestUserFactory @JsonMethod("key") constructor(private val key: S
                              contextTemplate: String?): User {
         if (myCryptor != null) {
             try {
-                val blob = param!!.getString("blob")
+                val blob = param!!.getRequiredString("blob")
                 val params = myCryptor!!.decryptJSONObject(blob)
-                val userDesc = params.getObject("user")
-                val expire = params.getInt("expire")
+                val userDesc = params.getRequiredObject("user")
+                val expire = params.getRequiredInt("expire")
                 val now = clock.millis() / 1000
                 if (expire > now) {
-                    val nonceID = params.getString("nonce")
+                    val nonceID = params.getRequiredString("nonce")
                     val nonce = Nonce(expire, nonceID)
                     if (!myNonces.contains(nonce)) {
                         purgeExpiredNonces(now)

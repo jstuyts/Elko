@@ -1,7 +1,7 @@
 package org.elkoserver.server.context
 
-import org.elkoserver.json.JsonArray
-import org.elkoserver.json.JsonObject
+import com.grack.nanojson.JsonArray
+import com.grack.nanojson.JsonObject
 
 /**
  * Generate and return a MongoDB query to fetch an object's non-embedded,
@@ -46,11 +46,11 @@ internal fun scopeQuery(ref: String, scope: String): JsonObject {
             scopePart += "-$frag"
         }
         val orTerm = JsonObject()
-        orTerm.put("scope", scopePart)
+        orTerm["scope"] = scopePart
         orList.add(orTerm)
     }
     val query = JsonObject()
-    query.put("refx", ref)
-    query.put("\$or", orList)
+    query["refx"] = ref
+    query["\$or"] = orList
     return query
 }

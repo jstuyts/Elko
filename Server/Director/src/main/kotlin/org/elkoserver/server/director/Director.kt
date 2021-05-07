@@ -1,12 +1,12 @@
 package org.elkoserver.server.director
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.json.JsonObject
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.HashSetMulti
 import org.elkoserver.util.trace.slf4j.Gorgel

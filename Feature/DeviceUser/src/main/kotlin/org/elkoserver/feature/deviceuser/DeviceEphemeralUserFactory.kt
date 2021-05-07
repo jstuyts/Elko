@@ -1,8 +1,8 @@
 package org.elkoserver.feature.deviceuser
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.Contextor
 import org.elkoserver.server.context.User
 import java.util.function.Consumer

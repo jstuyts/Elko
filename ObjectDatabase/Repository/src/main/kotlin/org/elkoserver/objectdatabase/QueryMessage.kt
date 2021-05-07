@@ -1,8 +1,8 @@
 package org.elkoserver.objectdatabase
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.JsonObject
 import org.elkoserver.json.singleElementArray
 
 /**

@@ -1,7 +1,7 @@
 package org.elkoserver.objectdatabase.store.filestore
 
-import org.elkoserver.json.JsonArray
-import org.elkoserver.json.JsonObject
+import com.grack.nanojson.JsonArray
+import com.grack.nanojson.JsonObject
 import org.elkoserver.json.JsonParsing
 import org.elkoserver.objectdatabase.store.*
 import java.io.*
@@ -86,7 +86,7 @@ class FileObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
      */
     private fun doGetContents(obj: JsonObject): List<ObjectDesc> {
         val results: MutableList<ObjectDesc> = LinkedList()
-        for ((propName, value) in obj.entrySet()) {
+        for ((propName, value) in obj.entries) {
             if (propName.startsWith("ref$")) {
                 dereferenceValue(value, results)
             }

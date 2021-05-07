@@ -1,10 +1,11 @@
 package org.elkoserver.objectdatabase
 
+import com.grack.nanojson.JsonArray
+import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
-import org.elkoserver.json.JsonArray
-import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
+import org.elkoserver.json.getStringOrNull
 import org.elkoserver.objectdatabase.store.ObjectDesc
 import org.elkoserver.util.tokenize
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -103,7 +104,7 @@ abstract class ObjectDatabaseBase(
         var result: Any? = null
         if (refValue is JsonArray) {
             val refs = refValue.iterator()
-            val contents = arrayOfNulls<Any>(refValue.size())
+            val contents = arrayOfNulls<Any>(refValue.size)
             var resultClass: Class<*>? = null
             for (i in contents.indices) {
                 val ref = refs.next()
@@ -150,7 +151,7 @@ abstract class ObjectDatabaseBase(
      */
     private fun insertContents(obj: JsonObject, results: Array<ObjectDesc>) {
         var contentsProps: MutableList<Map.Entry<String, Any>>? = null
-        val iter: MutableIterator<Map.Entry<String, Any>> = obj.entrySet().iterator()
+        val iter: MutableIterator<Map.Entry<String, Any>> = obj.entries.iterator()
         while (iter.hasNext()) {
             val entry = iter.next()
             val propName = entry.key
@@ -166,7 +167,7 @@ abstract class ObjectDatabaseBase(
             for ((key, value) in contentsProps) {
                 val prop = dereferenceValue(value, results)
                 if (prop != null) {
-                    obj.put(key.substring(4), prop)
+                    obj[key.substring(4)] = prop
                 }
             }
         }

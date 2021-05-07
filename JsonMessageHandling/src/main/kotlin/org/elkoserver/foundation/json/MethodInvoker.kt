@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.json
 
-import org.elkoserver.json.JsonObject
+import com.grack.nanojson.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.InvocationTargetException
 import java.lang.reflect.Method
@@ -58,7 +58,7 @@ class MethodInvoker(
      */
     fun handle(target: DispatchTarget, from: Deliverer?, message: JsonObject, resolver: TypeResolver) {
         try {
-            apply(target, from, message.entrySet(), resolver)
+            apply(target, from, message.entries, resolver)
         } catch (e: JsonInvocationException) {
             throw MessageHandlerException("error calling JSON method", e)
         }

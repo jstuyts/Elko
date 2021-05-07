@@ -1,5 +1,6 @@
 package org.elkoserver.objectdatabase.store
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
@@ -7,7 +8,6 @@ import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory.type
-import org.elkoserver.json.JsonObject
 
 /**
  * Description of a query for an object.

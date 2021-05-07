@@ -1,10 +1,10 @@
 package org.elkoserver.server.director
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.Random
 

@@ -1,8 +1,8 @@
 package org.elkoserver.objectdatabase
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.TypeResolver
 import org.elkoserver.json.Encodable
-import org.elkoserver.json.JsonObject
 import java.util.function.Consumer
 
 /**

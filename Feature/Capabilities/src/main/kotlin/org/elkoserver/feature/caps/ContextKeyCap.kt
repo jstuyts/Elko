@@ -1,10 +1,10 @@
 package org.elkoserver.feature.caps
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.JsonObject
 import org.elkoserver.server.context.ContextKey
 import org.elkoserver.server.context.ItemMod
 import org.elkoserver.server.context.UserMod

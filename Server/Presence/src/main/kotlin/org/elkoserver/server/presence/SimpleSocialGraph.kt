@@ -1,6 +1,7 @@
 package org.elkoserver.server.presence
 
-import org.elkoserver.json.JsonObject
+import com.grack.nanojson.JsonObject
+import org.elkoserver.json.getOptionalString
 import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -26,7 +27,7 @@ internal class SimpleSocialGraph : SocialGraph {
         myMaster = master
         myDomain = domain
         myGorgel = gorgel
-        myPrefix = conf.getString("prefix", "g")
+        myPrefix = conf.getOptionalString("prefix", "g")
         myGorgel.i?.run { info("init SimpleSocialGraph for domain '${domain.name}', obj db prefix '$myPrefix-'") }
     }
 

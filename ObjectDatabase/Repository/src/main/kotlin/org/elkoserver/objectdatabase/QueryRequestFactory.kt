@@ -1,7 +1,7 @@
 package org.elkoserver.objectdatabase
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.json.JsonObject
 import java.util.function.Consumer
 
 class QueryRequestFactory(private val tagGenerator: IdGenerator) {

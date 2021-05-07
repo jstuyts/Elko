@@ -1,9 +1,9 @@
 package org.elkoserver.foundation.actor
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.*
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JsonLiteralFactory.targetVerb
-import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 import org.elkoserver.util.trace.slf4j.Gorgel
 

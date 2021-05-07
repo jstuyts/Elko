@@ -9,6 +9,9 @@ dependencies {
     api(Libraries.nanojson)
 
     implementation(kotlin("stdlib-jdk8"))
+
+    testApi(kotlin("test"))
+    testImplementation(Libraries.junit_jupiter_engine)
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {
@@ -17,4 +20,8 @@ val apiClasses by tasks.registering(ApiClassesTask::class) {
 
 tasks.withType<KotlinCompile>().configureEach {
     kotlinOptions.jvmTarget = "11"
+}
+
+tasks.test {
+    useJUnitPlatform()
 }

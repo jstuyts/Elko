@@ -1,8 +1,8 @@
 package org.elkoserver.foundation.net.http.server
 
+import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonObjectSerialization.sendableString
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
 import org.elkoserver.util.trace.slf4j.Gorgel

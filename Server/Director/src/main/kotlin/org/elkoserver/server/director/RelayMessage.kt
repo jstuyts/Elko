@@ -1,7 +1,7 @@
 package org.elkoserver.server.director
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.JsonObject
 import org.elkoserver.json.Referenceable
 
 /**

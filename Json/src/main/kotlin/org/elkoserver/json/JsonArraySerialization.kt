@@ -1,5 +1,6 @@
 package org.elkoserver.json
 
+import com.grack.nanojson.JsonArray
 import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 
 object JsonArraySerialization {

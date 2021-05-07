@@ -1,8 +1,8 @@
 package org.elkoserver.server.presence
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.Injector
 import org.elkoserver.foundation.json.JsonMethod
-import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.lang.reflect.InvocationTargetException
 

@@ -1,6 +1,6 @@
 package org.elkoserver.foundation.json
 
-import org.elkoserver.json.JsonObject
+import com.grack.nanojson.JsonObject
 
 /**
  * Interface for an object to handle JSON messages addressed to it for which it

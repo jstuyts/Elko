@@ -1,9 +1,9 @@
 package org.elkoserver.server.presence
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.json.JsonObject
 
 /**
  * Generate a notification message to a client, telling it to inform a

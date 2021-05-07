@@ -1,9 +1,9 @@
 package org.elkoserver.server.presence
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptBoolean
-import org.elkoserver.json.JsonObject
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**

@@ -1,12 +1,12 @@
 package org.elkoserver.server.workshop
 
+import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.json.Encodable
-import org.elkoserver.json.JsonObject
 import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.tokenize
 import org.elkoserver.util.trace.slf4j.Gorgel
