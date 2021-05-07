@@ -1,8 +1,5 @@
 package org.elkoserver.objectdatabase.store
 
-import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.util.trace.slf4j.Gorgel
-
 /**
  * Access to a persistent object data storage mechanism.
  *
@@ -13,15 +10,6 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * which they instantiate at startup time.
  */
 interface ObjectStore {
-    /**
-     * Do whatever initialization is required to begin serving objects.  This
-     * method gets invoked once, at server startup time.
-     *
-     * @param props  Properties describing configuration information.
-     * @param propRoot  Prefix string for selecting relevant properties.
-     */
-    fun initialize(props: ElkoProperties, propRoot: String, gorgel: Gorgel)
-
     /**
      * Service a 'get' request.  This is a request to retrieve one or more
      * objects from the store.

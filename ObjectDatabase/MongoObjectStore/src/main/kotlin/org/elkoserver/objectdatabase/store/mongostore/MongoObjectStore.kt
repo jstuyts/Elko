@@ -7,10 +7,8 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.UpdateOptions
 import org.bson.Document
 import org.bson.types.ObjectId
-import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.json.*
 import org.elkoserver.objectdatabase.store.*
-import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 
 /**
@@ -20,52 +18,12 @@ import java.util.LinkedList
  * Constructor.  Currently there is nothing to do, since all the real
  * initialization work happens in [initialize()][.initialize].
  */
-class MongoObjectStore : ObjectStore {
+class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
     /** The Mongo database we are using  */
-    private lateinit var myDatabase: MongoDatabase
+    private val myDatabase: MongoDatabase
 
     /** The default Mongo collection holding the normal objects  */
-    private lateinit var myObjectDatabaseCollection: MongoCollection<Document>
-
-    /**
-     * Do the initialization required to begin providing object store
-     * services.
-     *
-     * The property `"*propRoot*.odjdb.mongo.hostport"` should
-     * specify the address of the MongoDB server holding the objects.
-     *
-     * The optional property `"*propRoot*.odjdb.mongo.dbname"`
-     * allows the Mongo database name to be specified.  If omitted, this
-     * defaults to `"elko"`.
-     *
-     * The optional property `"*propRoot*.odjdb.mongo.collname"`
-     * allows the collection containing the object repository to be specified.
-     * If omitted, this defaults to `"odb"`.
-     *
-     * @param props  Properties describing configuration information.
-     * @param propRoot  Prefix string for selecting relevant properties.
-     */
-    override fun initialize(props: ElkoProperties, propRoot: String, gorgel: Gorgel) {
-        val mongoPropRoot = "$propRoot.odjdb.mongo"
-        val addressStr = props.getProperty("$mongoPropRoot.hostport")
-                ?: throw IllegalStateException("no mongo database server address specified")
-        val colon = addressStr.indexOf(':')
-        val port: Int
-        val host: String
-        if (colon < 0) {
-            port = 27017
-            host = addressStr
-        } else {
-            port = addressStr.substring(colon + 1).toInt()
-            host = addressStr.take(colon)
-        }
-        /* The MongoDB instance in which the objects are stored. */
-        val myMongo = MongoClient(host, port)
-        val dbName = props.getProperty("$mongoPropRoot.dbname", "elko")
-        myDatabase = myMongo.getDatabase(dbName)
-        val collName = props.getProperty("$mongoPropRoot.collname", "odb")
-        myObjectDatabaseCollection = myDatabase.getCollection(collName)
-    }
+    private val myObjectDatabaseCollection: MongoCollection<Document>
 
     /**
      * Obtain the object or objects that a field value references.
@@ -458,5 +416,48 @@ class MongoObjectStore : ObjectStore {
      */
     override fun shutdown() {
         /* nothing to do in this implementation */
+    }
+
+
+    /**
+     * Do the initialization required to begin providing object store
+     * services.
+     *
+     * The property `"*propRoot*.odjdb.mongo.hostport"` should
+     * specify the address of the MongoDB server holding the objects.
+     *
+     * The optional property `"*propRoot*.odjdb.mongo.dbname"`
+     * allows the Mongo database name to be specified.  If omitted, this
+     * defaults to `"elko"`.
+     *
+     * The optional property `"*propRoot*.odjdb.mongo.collname"`
+     * allows the collection containing the object repository to be specified.
+     * If omitted, this defaults to `"odb"`.
+     *
+     * @param props  Properties describing configuration information.
+     * @param propRoot  Prefix string for selecting relevant properties.
+     */
+    init {
+        arguments.run {
+            val mongoPropRoot = "$propRoot.odjdb.mongo"
+            val addressStr = props.getProperty("$mongoPropRoot.hostport")
+                    ?: throw IllegalStateException("no mongo database server address specified")
+            val colon = addressStr.indexOf(':')
+            val port: Int
+            val host: String
+            if (colon < 0) {
+                port = 27017
+                host = addressStr
+            } else {
+                port = addressStr.substring(colon + 1).toInt()
+                host = addressStr.take(colon)
+            }
+            /* The MongoDB instance in which the objects are stored. */
+            val myMongo = MongoClient(host, port)
+            val dbName = props.getProperty("$mongoPropRoot.dbname", "elko")
+            myDatabase = myMongo.getDatabase(dbName)
+            val collName = props.getProperty("$mongoPropRoot.collname", "odb")
+            myObjectDatabaseCollection = myDatabase.getCollection(collName)
+        }
     }
 }
