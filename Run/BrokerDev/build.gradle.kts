@@ -41,7 +41,7 @@ val startBrokerDev by tasks.registering(JavaExec::class) {
             "conf.msgdiagnostics=true",
             "conf.broker.odjdb=mongo",
             "conf.broker.odjdb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.broker.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.broker.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
             "org.elkoserver.server.broker.BrokerBoot"
     )
 }

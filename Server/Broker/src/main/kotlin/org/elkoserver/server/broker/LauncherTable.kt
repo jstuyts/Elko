@@ -6,7 +6,7 @@ import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.objdb.ObjDb
+import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.tokenize
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
@@ -62,11 +62,11 @@ internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private
     /**
      * Save this launcher table to the repository if it has changed.
      *
-     * @param objDb The object database to save into.
+     * @param objectDatabase The object database to save into.
      */
-    fun checkpoint(objDb: ObjDb) {
+    fun checkpoint(objectDatabase: ObjectDatabase) {
         if (amDirty) {
-            objDb.putObject(myRef, this, null, false, null)
+            objectDatabase.putObject(myRef, this, null, false, null)
             amDirty = false
         }
     }

@@ -88,7 +88,7 @@ val startExampleBroker by tasks.registering(JavaExec::class) {
             "conf.broker.startmode=recover",
 
             "conf.broker.odjdb=${File(brokerDataDirectory.get().temporaryDir, "odb").path}",
-            "conf.broker.objstore=org.elkoserver.objdb.store.filestore.FileObjectStore",
+            "conf.broker.objstore=org.elkoserver.objectdatabase.store.filestore.FileObjectStore",
 
             "org.elkoserver.server.broker.BrokerBoot"
     )
@@ -153,7 +153,7 @@ val startExampleContext by tasks.registering(JavaExec::class) {
 
             "conf.context.odjdb=mongo",
             "conf.context.odjdb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.context.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.context.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
 
             "org.elkoserver.server.context.ContextServerBoot"
     )
@@ -265,7 +265,7 @@ val startExampleWorkshop by tasks.registering(JavaExec::class) {
 
             "conf.workshop.odjdb=mongo",
             "conf.workshop.odjdb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.workshop.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.workshop.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
 
             "org.elkoserver.server.workshop.WorkshopBoot"
     )

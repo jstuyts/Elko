@@ -11,39 +11,13 @@ import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramerFactoryFactor
 import org.elkoserver.foundation.byteioframer.rtcp.RtcpRequestByteIoFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIoFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIoFramerFactoryFactory
-import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
-import org.elkoserver.foundation.json.BaseCommGorgelInjector
-import org.elkoserver.foundation.json.ClassspecificGorgelInjector
-import org.elkoserver.foundation.json.ClockInjector
-import org.elkoserver.foundation.json.ConstructorInvoker
-import org.elkoserver.foundation.json.JsonToObjectDeserializer
-import org.elkoserver.foundation.json.MessageDispatcher
-import org.elkoserver.foundation.json.MessageDispatcherFactory
-import org.elkoserver.foundation.json.MethodInvoker
-import org.elkoserver.foundation.net.BaseConnectionSetup
+import org.elkoserver.foundation.json.*
+import org.elkoserver.foundation.net.*
 import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
-import org.elkoserver.foundation.net.Listener
-import org.elkoserver.foundation.net.ListenerFactory
-import org.elkoserver.foundation.net.SelectThread
-import org.elkoserver.foundation.net.SslContextSgd
-import org.elkoserver.foundation.net.TcpConnection
-import org.elkoserver.foundation.net.TcpConnectionFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
-import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
-import org.elkoserver.foundation.net.http.server.HttpMessageHandler
-import org.elkoserver.foundation.net.http.server.HttpMessageHandlerFactory
-import org.elkoserver.foundation.net.http.server.HttpServerFactory
-import org.elkoserver.foundation.net.http.server.HttpSessionConnection
-import org.elkoserver.foundation.net.http.server.HttpSessionConnectionFactory
-import org.elkoserver.foundation.net.http.server.JsonHttpFramer
-import org.elkoserver.foundation.net.rtcp.server.RtcpConnectionSetupFactory
-import org.elkoserver.foundation.net.rtcp.server.RtcpMessageHandler
-import org.elkoserver.foundation.net.rtcp.server.RtcpMessageHandlerFactory
-import org.elkoserver.foundation.net.rtcp.server.RtcpMessageHandlerFactoryFactory
-import org.elkoserver.foundation.net.rtcp.server.RtcpServerFactory
-import org.elkoserver.foundation.net.rtcp.server.RtcpSessionConnection
-import org.elkoserver.foundation.net.rtcp.server.RtcpSessionConnectionFactory
+import org.elkoserver.foundation.net.http.server.*
+import org.elkoserver.foundation.net.rtcp.server.*
 import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.net.tcp.server.TcpConnectionSetupFactory
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
@@ -54,41 +28,17 @@ import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.thread.ThreadRunner
+import org.elkoserver.foundation.server.*
 import org.elkoserver.foundation.server.BrokerActorFactory
-import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
-import org.elkoserver.foundation.server.LoadWatcher
-import org.elkoserver.foundation.server.ObjectDatabaseFactory
-import org.elkoserver.foundation.server.Server
-import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
-import org.elkoserver.foundation.server.ServerLoadMonitor
-import org.elkoserver.foundation.server.ServiceActor
-import org.elkoserver.foundation.server.ServiceActorFactory
-import org.elkoserver.foundation.server.ServiceLink
-import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.LongIdGenerator
 import org.elkoserver.idgeneration.RandomIdGenerator
-import org.elkoserver.objdb.GetRequestFactory
-import org.elkoserver.objdb.ObjDbActor
-import org.elkoserver.objdb.ObjDbLocal
-import org.elkoserver.objdb.ObjDbLocalFactory
-import org.elkoserver.objdb.ObjDbLocalRunnerFactory
-import org.elkoserver.objdb.ObjDbRemote
-import org.elkoserver.objdb.ObjDbRemoteFactory
-import org.elkoserver.objdb.PutRequestFactory
-import org.elkoserver.objdb.QueryRequestFactory
-import org.elkoserver.objdb.RemoveRequestFactory
-import org.elkoserver.objdb.UpdateRequestFactory
+import org.elkoserver.objectdatabase.*
 import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
-import org.ooverkommelig.D
-import org.ooverkommelig.ObjectGraphConfiguration
-import org.ooverkommelig.Once
-import org.ooverkommelig.SubGraphDefinition
-import org.ooverkommelig.opt
-import org.ooverkommelig.req
+import org.ooverkommelig.*
 import java.security.SecureRandom
 import java.time.Clock
 
@@ -134,11 +84,11 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val listenerGorgel by Once { req(provided.baseGorgel()).getChild(Listener::class) }
 
-    val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbLocal::class) }
+    val directObjectDatabaseGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseDirect::class) }
 
-    val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbRemote::class) }
+    val repositoryObjectDatabaseGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepository::class) }
 
-    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbActor::class, COMMUNICATION_CATEGORY_TAG) }
+    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseActor::class, COMMUNICATION_CATEGORY_TAG) }
 
     val runnerGorgel by Once { req(provided.baseGorgel()).getChild(Runner::class) }
 
@@ -204,13 +154,13 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
     }
             .dispose(SelectThread::shutDown)
 
-    val objDbLocalRunnerFactory by Once { ObjDbLocalRunnerFactory(req(runnerGorgel)) }
+    val directObjectDatabaseRunnerFactory by Once { DirectObjectDatabaseRunnerFactory(req(runnerGorgel)) }
 
-    val objDbLocalFactory by Once {
-        ObjDbLocalFactory(
+    val directObjectDatabaseFactory by Once {
+        DirectObjectDatabaseFactory(
                 req(provided.props()),
-                req(objDbLocalGorgel),
-                req(objDbLocalRunnerFactory),
+                req(directObjectDatabaseGorgel),
+                req(directObjectDatabaseRunnerFactory),
                 req(provided.baseGorgel()),
                 req(jsonToObjectDeserializer),
                 req(runner))
@@ -450,12 +400,12 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val messageDispatcherFactory by Once { MessageDispatcherFactory(req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
 
-    val objDbRemoteFactory by Once {
-        ObjDbRemoteFactory(
+    val repositoryObjectDatabaseFactory by Once {
+        RepositoryObjectDatabaseFactory(
                 req(server),
                 req(serverDescription).serverName,
                 req(provided.props()),
-                req(objDbRemoteGorgel),
+                req(repositoryObjectDatabaseGorgel),
                 req(odbActorGorgel),
                 req(messageDispatcherFactory),
                 req(provided.hostDescFromPropertiesFactory()),
@@ -496,7 +446,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
-    val objectDatabaseFactory by Once { ObjectDatabaseFactory(req(provided.props()), req(objDbRemoteFactory), req(objDbLocalFactory)) }
+    val objectDatabaseFactory by Once { ObjectDatabaseFactory(req(provided.props()), req(repositoryObjectDatabaseFactory), req(directObjectDatabaseFactory)) }
 
     val broker: D<Broker> by Once {
         Broker(

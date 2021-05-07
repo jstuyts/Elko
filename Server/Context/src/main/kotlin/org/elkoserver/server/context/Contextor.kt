@@ -14,7 +14,7 @@ import org.elkoserver.json.JsonDecodingException
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonObject
 import org.elkoserver.json.JsonParsing
-import org.elkoserver.objdb.ObjDb
+import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.tokenize
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -39,12 +39,12 @@ import kotlin.math.abs
  * then possess it in a parameter variable whence it can be both passed to
  * the superclass constructor and saved in an instance variable.
  *
- * @param objDb  Database for persistent object storage.
+ * @param objectDatabase  Database for persistent object storage.
  * @param server  Server object.
  * @param myRandom Random number generator, for creating unique IDs and sub-IDs.
  */
 class Contextor internal constructor(
-        val objDb: ObjDb,
+        val objectDatabase: ObjectDatabase,
         private val server: Server,
         private val runner: Runner,
         internal val refTable: RefTable,
@@ -84,7 +84,7 @@ class Contextor internal constructor(
     /** Send group for currently connected presence servers.  */
     private var myPresencerGroup: PresencerGroup? = null
 
-    /** Static objects loaded from the ObjDb and available in all contexts.  */
+    /** Static objects loaded from the object database and available in all contexts.  */
     private val myStaticObjects: MutableMap<String, Any> = HashMap()
 
     /** Context families served by this server.  Names prefixed by '$'
@@ -282,7 +282,7 @@ class Contextor internal constructor(
      */
     fun createObjectRecord(ref: String?, contRef: String?, obj: BasicObject) {
         val actualRef = ref ?: uniqueID(obj.type())
-        objDb.putObject(actualRef, obj, null, false, null)
+        objectDatabase.putObject(actualRef, obj, null, false, null)
     }
 
     /**
@@ -291,7 +291,7 @@ class Contextor internal constructor(
      * @param ref  Reference string identifying the user to be deleted.
      */
     fun deleteUserRecord(ref: String) {
-        objDb.removeObject(ref, null, null)
+        objectDatabase.removeObject(ref, null, null)
     }
 
     /**
@@ -359,7 +359,7 @@ class Contextor internal constructor(
                 val contentsHandler = ContentsHandler(null, getHandler)
                 val contextReceiver = Consumer { obj: Any? -> contentsHandler.receiveContainer(obj as BasicObject?) }
                 if (addPendingGet(actualContextTemplate, contextHandler)) {
-                    objDb.getObject(actualContextTemplate, null, contextReceiver)
+                    objectDatabase.getObject(actualContextTemplate, null, contextReceiver)
                     loadContentsOfContainer(contextRef, contentsHandler)
                 }
             } else {
@@ -478,8 +478,8 @@ class Contextor internal constructor(
         }
 
         /**
-         * Runnable invoked by the ObjDb to accept the delivery of stuff fetched
-         * from the database.
+         * Runnable invoked by the object database to accept the delivery of
+         * stuff fetched from the database.
          *
          * @param obj The thing that was obtained from the database.  In the
          * current case, this will *always* be an array of objects
@@ -604,7 +604,7 @@ class Contextor internal constructor(
             val result = refTable[itemRef] as Item?
             if (result == null) {
                 if (addPendingGet(itemRef, itemHandler)) {
-                    objDb.getObject(itemRef, null,
+                    objectDatabase.getObject(itemRef, null,
                             GetItemHandler(itemRef))
                 }
             } else {
@@ -663,11 +663,11 @@ class Contextor internal constructor(
      * object names.
      */
     private fun loadStaticObjects(staticListRefs: String?) {
-        objDb.addClass("statics", StaticObjectList::class.java)
-        objDb.getObject("statics", null,
+        objectDatabase.addClass("statics", StaticObjectList::class.java)
+        objectDatabase.getObject("statics", null,
                 StaticObjectListReceiver("statics"))
         staticListRefs?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
-            objDb.getObject(tag, null, StaticObjectListReceiver(tag))
+            objectDatabase.getObject(tag, null, StaticObjectListReceiver(tag))
         }
     }
 
@@ -676,7 +676,7 @@ class Contextor internal constructor(
             val statics = obj as StaticObjectList?
             if (statics != null) {
                 contextorGorgel.i?.run { info("loading static object list '$myTag'") }
-                statics.fetchFromObjDb(objDb, this@Contextor, staticObjectReceiverGorgel)
+                statics.fetchFromObjectDatabase(objectDatabase, this@Contextor, staticObjectReceiverGorgel)
             } else {
                 contextorGorgel.i?.run { info("unable to load static object list '$myTag'") }
             }
@@ -703,7 +703,7 @@ class Contextor internal constructor(
             val contentsHandler = ContentsHandler(null, getHandler)
             val userReceiver = Consumer { obj: Any? -> contentsHandler.receiveContainer(obj as BasicObject?) }
             if (addPendingGet(userRef, actualUserHandler)) {
-                objDb.getObject(userRef, null, userReceiver)
+                objectDatabase.getObject(userRef, null, userReceiver)
                 loadContentsOfContainer(userRef, contentsHandler)
             }
         } else {
@@ -927,7 +927,7 @@ class Contextor internal constructor(
      * XXX Is this a POLA (Principle of Least Authority) violation??
      */
     fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>) {
-        objDb.queryObjects(template, collectionName, maxResults, handler)
+        objectDatabase.queryObjects(template, collectionName, maxResults, handler)
     }
 
     /**
@@ -1138,7 +1138,7 @@ class Contextor internal constructor(
      * @param handler  Completion handler.
      */
     fun writeObjectDelete(ref: String, handler: Consumer<Any?>? = null) {
-        objDb.removeObject(ref, null, handler)
+        objectDatabase.removeObject(ref, null, handler)
     }
 
     /**
@@ -1149,7 +1149,7 @@ class Contextor internal constructor(
      * @param handler  Completion handler
      */
     fun writeObjectState(ref: String, state: BasicObject, handler: Consumer<Any?>? = null) {
-        objDb.putObject(ref, state, null, false, handler)
+        objectDatabase.putObject(ref, state, null, false, handler)
     }
 
     init {
@@ -1168,7 +1168,7 @@ class Contextor internal constructor(
                 myDirectorGroup?.disconnectHosts()
                 myPresencerGroup?.disconnectHosts()
                 checkpointAll()
-                objDb.shutdown()
+                objectDatabase.shutdown()
             }
         })
     }

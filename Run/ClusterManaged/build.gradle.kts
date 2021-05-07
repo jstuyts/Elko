@@ -123,7 +123,7 @@ val startClusterManagedContext by tasks.registering(JavaExec::class) {
 
             "conf.context.odjdb=mongo",
             "conf.context.odjdb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.context.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.context.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
 
             "conf.context.name=ContextServer",
             "conf.context.shutdownpassword=figleaf",
@@ -230,7 +230,7 @@ val startClusterManagedGatekeeper by tasks.registering(JavaExec::class) {
 
             "conf.gatekeeper.odjdb=mongo",
             "conf.gatekeeper.odjdb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.gatekeeper.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.gatekeeper.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
 
             "conf.msgdiagnostics=true",
 

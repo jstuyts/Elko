@@ -1,7 +1,7 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.JsonMethod
-import org.elkoserver.objdb.ObjDb
+import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -17,12 +17,12 @@ internal class StaticObjectList @JsonMethod("statics") constructor(private val m
     /**
      * Fetch the static objects from the object database.
      *
-     * @param objDb  The object database to tell.
+     * @param objectDatabase  The object database to tell.
      * @param contextor  Contextor for whom these objects are being loaded
      */
-    fun fetchFromObjDb(objDb: ObjDb, contextor: Contextor, gorgel: Gorgel) {
+    fun fetchFromObjectDatabase(objectDatabase: ObjectDatabase, contextor: Contextor, gorgel: Gorgel) {
         for (elem in myStatics) {
-            objDb.getObject(elem.ref, null,
+            objectDatabase.getObject(elem.ref, null,
                     StaticObjectReceiver(contextor, elem, gorgel))
         }
     }

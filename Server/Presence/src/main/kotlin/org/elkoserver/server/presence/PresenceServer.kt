@@ -5,7 +5,7 @@ import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonObject
-import org.elkoserver.objdb.ObjDb
+import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 
@@ -22,7 +22,7 @@ internal class PresenceServer(
         baseCommGorgel: Gorgel,
         private val domainRegistry: DomainRegistry) {
     /** Database that this server stores stuff in.  */
-    internal val objDb: ObjDb
+    internal val objectDatabase: ObjectDatabase
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false
@@ -234,9 +234,9 @@ internal class PresenceServer(
         myUsers = HashMap()
         myVisibles = HashMap()
         myContextMetadata = HashMap()
-        objDb = objectDatabaseFactory.openObjectDatabase("conf.presence")
-        objDb.addClass("graphtable", GraphTable::class.java)
-        objDb.getObject("graphs", null, { obj: Any? ->
+        objectDatabase = objectDatabaseFactory.openObjectDatabase("conf.presence")
+        objectDatabase.addClass("graphtable", GraphTable::class.java)
+        objectDatabase.getObject("graphs", null, { obj: Any? ->
             if (obj != null) {
                 val info = obj as GraphTable
                 info.graphs
@@ -253,7 +253,7 @@ internal class PresenceServer(
                 for (actor in actorListCopy) {
                     actor.doDisconnect()
                 }
-                objDb.shutdown()
+                objectDatabase.shutdown()
             }
         })
     }

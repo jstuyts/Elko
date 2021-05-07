@@ -39,7 +39,8 @@ import java.util.TreeSet
  * 'nonce' is a random string token generated from a secure random source
  * 'expire' is the time (seconds since epoch) that the nonce expires
  * 'context' is the optional ref of the context into which the user will go
- * 'user' is a JSON encoded User object, as would be returned by the ObjDb
+ * 'user' is a JSON encoded User object, as would be returned by the object
+ * database
  *
  * Upon receiving one of these, if the current time is before the expiration
  * time and the nonce is not a previously received nonce, this factory will
@@ -152,7 +153,7 @@ internal class TestUserFactory @JsonMethod("key") constructor(private val key: S
                                     "context template ref mismatch")
                             throw IllegalStateException()
                         }
-                        val result = jsonToObjectDeserializer.decode(User::class.java, userDesc, contextor.objDb)
+                        val result = jsonToObjectDeserializer.decode(User::class.java, userDesc, contextor.objectDatabase)
                         return result as User
                     }
                     myGorgel.error("reused nonce")

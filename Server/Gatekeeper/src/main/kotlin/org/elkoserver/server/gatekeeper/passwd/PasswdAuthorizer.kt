@@ -1,11 +1,7 @@
 package org.elkoserver.server.gatekeeper.passwd
 
-import org.elkoserver.objdb.ObjDb
-import org.elkoserver.server.gatekeeper.Authorizer
-import org.elkoserver.server.gatekeeper.Gatekeeper
-import org.elkoserver.server.gatekeeper.ReservationResult
-import org.elkoserver.server.gatekeeper.ReservationResultHandler
-import org.elkoserver.server.gatekeeper.SetPasswordResultHandler
+import org.elkoserver.objectdatabase.ObjectDatabase
+import org.elkoserver.server.gatekeeper.*
 import java.util.Random
 import java.util.function.Consumer
 import kotlin.math.abs
@@ -21,12 +17,12 @@ import kotlin.math.abs
 class PasswdAuthorizer(
         private val myRandom: Random,
         private val myGatekeeper: Gatekeeper,
-        private val myObjDb: ObjDb,
+        private val myObjectDatabase: ObjectDatabase,
         private val amAnonymousOK: Boolean,
         private val myActorIDBase: String) : Authorizer {
 
     init {
-        myObjDb.apply {
+        myObjectDatabase.apply {
             addClass("place", PlaceDesc::class.java)
             addClass("actor", ActorDesc::class.java)
         }
@@ -38,7 +34,7 @@ class PasswdAuthorizer(
      * @param actor  The actor description for the actor to add.
      */
     fun addActor(actor: ActorDesc) {
-        myObjDb.putObject("a-${actor.id}", actor, null, false, null)
+        myObjectDatabase.putObject("a-${actor.id}", actor, null, false, null)
     }
 
     /**
@@ -49,7 +45,7 @@ class PasswdAuthorizer(
      */
     fun addPlace(name: String, context: String) {
         val place = PlaceDesc(name, context)
-        myObjDb.putObject("p-$name", place, null, false, null)
+        myObjectDatabase.putObject("p-$name", place, null, false, null)
     }
 
     /**
@@ -58,7 +54,7 @@ class PasswdAuthorizer(
      * @param actor  The actor description for the actor to checkpoint.
      */
     fun checkpointActor(actor: ActorDesc) {
-        myObjDb.putObject("a-${actor.id}", actor, null, false, null)
+        myObjectDatabase.putObject("a-${actor.id}", actor, null, false, null)
     }
 
     /**
@@ -79,7 +75,7 @@ class PasswdAuthorizer(
      * when retrieved.
      */
     fun getActor(actorID: String, handler: Consumer<Any?>) {
-        myObjDb.getObject("a-$actorID", null, handler)
+        myObjectDatabase.getObject("a-$actorID", null, handler)
     }
 
     /**
@@ -90,7 +86,7 @@ class PasswdAuthorizer(
      * retrieved.
      */
     fun getPlace(name: String, handler: Consumer<Any?>) {
-        myObjDb.getObject("p-$name", null, handler)
+        myObjectDatabase.getObject("p-$name", null, handler)
     }
 
     /**
@@ -100,7 +96,7 @@ class PasswdAuthorizer(
      * @param handler  Handler to be called with deletion result.
      */
     fun removeActor(actorID: String, handler: Consumer<Any?>?) {
-        myObjDb.removeObject("a-$actorID", null, handler)
+        myObjectDatabase.removeObject("a-$actorID", null, handler)
     }
 
     /**
@@ -109,7 +105,7 @@ class PasswdAuthorizer(
      * @param name  The name of the place to remove.
      */
     fun removePlace(name: String) {
-        myObjDb.removeObject("p-$name", null, null)
+        myObjectDatabase.removeObject("p-$name", null, null)
     }
 
     /**
@@ -251,6 +247,6 @@ class PasswdAuthorizer(
      * Shut down the authorization service.
      */
     override fun shutdown() {
-        myObjDb.shutdown()
+        myObjectDatabase.shutdown()
     }
 }

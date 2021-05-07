@@ -8,7 +8,7 @@ import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
-import org.elkoserver.objdb.ObjDb
+import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
@@ -30,7 +30,7 @@ internal class Broker(
         startMode: Int) {
 
     /** Database for configuration data.  */
-    private val myObjDb: ObjDb
+    private val myObjectDatabase: ObjectDatabase
 
     /** Registered services.  Maps (service name, protocol) pairs to sets of
      * ServiceDesc objects.  */
@@ -88,7 +88,7 @@ internal class Broker(
      * Make sure the state of the launch table is saved in persistent form.
      */
     fun checkpoint() {
-        launcherTable?.checkpoint(myObjDb)
+        launcherTable?.checkpoint(myObjectDatabase)
     }
 
     /**
@@ -195,7 +195,7 @@ internal class Broker(
         for (actor in LinkedList(myActors)) {
             actor.doDisconnect()
         }
-        myObjDb.shutdown()
+        myObjectDatabase.shutdown()
         myServer.shutdown()
     }
 
@@ -306,10 +306,10 @@ internal class Broker(
     init {
         refTable.addRef(clientHandler)
         refTable.addRef(myAdminHandler)
-        myObjDb = objectDatabaseFactory.openObjectDatabase("conf.broker")
-        myObjDb.addClass("launchertable", LauncherTable::class.java)
-        myObjDb.addClass("launcher", LauncherTable.Launcher::class.java)
-        myObjDb.getObject("launchertable", null, { obj: Any? ->
+        myObjectDatabase = objectDatabaseFactory.openObjectDatabase("conf.broker")
+        myObjectDatabase.addClass("launchertable", LauncherTable::class.java)
+        myObjectDatabase.addClass("launcher", LauncherTable.Launcher::class.java)
+        myObjectDatabase.getObject("launchertable", null, { obj: Any? ->
             if (obj != null) {
                 launcherTable = (obj as LauncherTable).apply {
                     myLaunchers.values.forEach { it.gorgel = launcherTableGorgel.withAdditionalStaticTags(Tag("launcherComponent", it.componentName)) }

@@ -5,7 +5,7 @@ plugins {
 }
 
 dependencies {
-    api(project(":ObjectDatabase:Local"))
+    api(project(":ObjectDatabase:Direct"))
     api(project(":Properties"))
     api(project(":Trace"))
 

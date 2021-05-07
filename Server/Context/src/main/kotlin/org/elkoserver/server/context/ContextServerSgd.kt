@@ -35,7 +35,7 @@ import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.LongIdGenerator
 import org.elkoserver.idgeneration.RandomIdGenerator
-import org.elkoserver.objdb.*
+import org.elkoserver.objectdatabase.*
 import org.elkoserver.server.context.DirectorGroup.Companion.DEFAULT_RESERVATION_EXPIRATION_TIMEOUT
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
@@ -89,11 +89,11 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val listenerGorgel by Once { req(provided.baseGorgel()).getChild(Listener::class) }
 
-    val objDbLocalGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbLocal::class) }
+    val directObjectDatabaseGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseDirect::class) }
 
-    val objDbRemoteGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbRemote::class) }
+    val repositoryObjectDatabaseGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepository::class) }
 
-    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjDbActor::class, COMMUNICATION_CATEGORY_TAG) }
+    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseActor::class, COMMUNICATION_CATEGORY_TAG) }
 
     val presencerActorGorgel by Once { req(provided.baseGorgel()).getChild(PresencerActor::class, COMMUNICATION_CATEGORY_TAG) }
 
@@ -220,13 +220,13 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     }
             .dispose(SelectThread::shutDown)
 
-    val objDbLocalRunnerFactory by Once { ObjDbLocalRunnerFactory(req(runnerGorgel)) }
+    val directObjectDatabaseRunnerFactory by Once { DirectObjectDatabaseRunnerFactory(req(runnerGorgel)) }
 
-    val objDbLocalFactory by Once {
-        ObjDbLocalFactory(
+    val directObjectDatabaseFactory by Once {
+        DirectObjectDatabaseFactory(
                 req(provided.props()),
-                req(objDbLocalGorgel),
-                req(objDbLocalRunnerFactory),
+                req(directObjectDatabaseGorgel),
+                req(directObjectDatabaseRunnerFactory),
                 req(provided.baseGorgel()),
                 req(jsonToObjectDeserializer),
                 req(runner))
@@ -457,12 +457,12 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val messageDispatcherFactory by Once { MessageDispatcherFactory(req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
 
-    val objDbRemoteFactory by Once {
-        ObjDbRemoteFactory(
+    val repositoryObjectDatabaseFactory by Once {
+        RepositoryObjectDatabaseFactory(
                 req(server),
                 req(serverDescription).serverName,
                 req(provided.props()),
-                req(objDbRemoteGorgel),
+                req(repositoryObjectDatabaseGorgel),
                 req(odbActorGorgel),
                 req(messageDispatcherFactory),
                 req(provided.hostDescFromPropertiesFactory()),
@@ -490,7 +490,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val serverListeners by Once { req(server).listeners }
 
-    val objectDatabaseFactory by Once { ObjectDatabaseFactory(req(provided.props()), req(objDbRemoteFactory), req(objDbLocalFactory)) }
+    val objectDatabaseFactory by Once { ObjectDatabaseFactory(req(provided.props()), req(repositoryObjectDatabaseFactory), req(directObjectDatabaseFactory)) }
 
     val objectDatabase by Once {
         req(objectDatabaseFactory).openObjectDatabase("conf.context").apply {

@@ -23,8 +23,8 @@ dependencies {
     implementation(project(":Net:Tcp"))
     implementation(project(":Net:Websocket"))
     implementation(project(":Net:Zeromq"))
-    implementation(project(":ObjectDatabase:Local"))
-    implementation(project(":ObjectDatabase:Remote"))
+    implementation(project(":ObjectDatabase:Direct"))
+    implementation(project(":ObjectDatabase:Repository"))
 }
 
 val apiClasses by tasks.registering(ApiClassesTask::class) {

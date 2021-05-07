@@ -5,7 +5,7 @@ import org.elkoserver.json.JsonObject
 
 /**
  * Generate and return a MongoDB query to fetch an object's non-embedded,
- * application-scoped mods.  These mods are stored in the ObjDb as
+ * application-scoped mods.  These mods are stored in the object database as
  * independent objects.  Such a mod is identified by a "refx" property and
  * a "scope" property.  The "refx" property corresponds to the ref of the
  * object the mod should be attached to.  The "scope" property matches if

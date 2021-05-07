@@ -88,7 +88,7 @@ val startFullProductionBroker by tasks.registering(JavaExec::class) {
             "conf.broker.startmode=recover",
 
             "conf.broker.odjdb=${File(brokerDataDirectory.get().temporaryDir, "odb").path}",
-            "conf.broker.objstore=org.elkoserver.objdb.store.filestore.FileObjectStore",
+            "conf.broker.objstore=org.elkoserver.objectdatabase.store.filestore.FileObjectStore",
 
             "org.elkoserver.server.broker.BrokerBoot"
     )
@@ -154,7 +154,7 @@ val startFullProductionContext by tasks.registering(JavaExec::class) {
 
             "conf.context.odjdb=mongo",
             "conf.context.odjdb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.context.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.context.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
 
             "org.elkoserver.server.context.ContextServerBoot"
     )
@@ -269,7 +269,7 @@ val startFullProductionPresence by tasks.registering(JavaExec::class) {
 
             "conf.presence.odjdb=mongo",
             "conf.presence.odjdb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.presence.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.presence.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
 
             "conf.msgdiagnostics=true",
             "org.elkoserver.server.presence.PresenceServerBoot"
@@ -323,7 +323,7 @@ val startFullProductionWorkshop by tasks.registering(JavaExec::class) {
 
             "conf.workshop.odjdb=mongo",
             "conf.workshop.odjdb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.workshop.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.workshop.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
 
             "org.elkoserver.server.workshop.WorkshopBoot"
     )

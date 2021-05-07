@@ -2,7 +2,7 @@ package org.elkoserver.server.repository
 
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
-import org.elkoserver.objdb.store.ResultDesc
+import org.elkoserver.objectdatabase.store.ResultDesc
 
 /**
  * Create a 'put' reply message.

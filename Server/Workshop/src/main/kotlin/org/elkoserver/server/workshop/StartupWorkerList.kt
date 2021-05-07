@@ -1,7 +1,7 @@
 package org.elkoserver.server.workshop
 
 import org.elkoserver.foundation.json.JsonMethod
-import org.elkoserver.objdb.ObjDb
+import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -18,12 +18,12 @@ internal class StartupWorkerList @JsonMethod("workers") constructor(private val 
     /**
      * Fetch the worker objects from the object database.
      *
-     * @param objDb  The object database to tell.
+     * @param objectDatabase  The object database to tell.
      * @param workshop  Workshop for whom these objects are being loaded
      */
-    fun fetchFromObjDb(objDb: ObjDb, workshop: Workshop, gorgel: Gorgel) {
+    fun fetchFromObjectDatabase(objectDatabase: ObjectDatabase, workshop: Workshop, gorgel: Gorgel) {
         myWorkers.forEach { elem ->
-            objDb.getObject(elem.ref, null, WorkerReceiver(workshop, elem, gorgel))
+            objectDatabase.getObject(elem.ref, null, WorkerReceiver(workshop, elem, gorgel))
         }
     }
 

@@ -6,7 +6,7 @@ import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteralFactory
 
 /**
- * A user's social graph, as represented in the ObjDb.
+ * A user's social graph, as represented in the object database.
  *
  * @param ref  The user's reference string
  * @param friends  Array of the user's friend references

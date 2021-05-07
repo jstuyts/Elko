@@ -43,7 +43,7 @@ val startPresenceDev by tasks.registering(JavaExec::class) {
 
             "conf.presence.odjdb=mongo",
             "conf.presence.odjdb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.presence.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.presence.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
 
             "conf.msgdiagnostics=true",
             "org.elkoserver.server.presence.PresenceServerBoot"

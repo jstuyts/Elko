@@ -78,12 +78,12 @@ Meta symbols:
         Repository. }
     str ".objstore"    { Fully qualified class name of the Java class
                          implementing the
-                         org.elkoserver.objdb.store.ObjectStore interface.  The
+                         org.elkoserver.objectdatabase.store.ObjectStore interface.  The
                          remaining repository properties depend on what
                          implementation class is selected. }
 
     when <root> + ".objstore" is
-      org.elkoserver.objdb.store.filestore.FileObjectStore:
+      org.elkoserver.objectdatabase.store.filestore.FileObjectStore:
     str ".odjdb"         { Pathname, relative to the server's current working
                          directory, of the directory containing the files
                          holding the database objects (in simpler terms, the

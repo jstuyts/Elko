@@ -3,7 +3,7 @@ package org.elkoserver.server.repository
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ShutdownWatcher
-import org.elkoserver.objdb.store.ObjectStore
+import org.elkoserver.objectdatabase.store.ObjectStore
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**

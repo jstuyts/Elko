@@ -44,7 +44,7 @@ val startGatekeeperDev by tasks.registering(JavaExec::class) {
 
             "conf.gatekeeper.odjdb=mongo",
             "conf.gatekeeper.odjdb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.gatekeeper.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.gatekeeper.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
 
             "conf.gatekeeper.name=Gatekeeper",
             "conf.broker.host=127.0.0.1:9010",

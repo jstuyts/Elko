@@ -2,7 +2,7 @@ package org.elkoserver.server.repository
 
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
-import org.elkoserver.objdb.store.ObjectDesc
+import org.elkoserver.objectdatabase.store.ObjectDesc
 
 /**
  * Create a 'query' reply message.

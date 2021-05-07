@@ -60,7 +60,7 @@ val startContextDev by tasks.registering(JavaExec::class) {
 
             "conf.context.odjdb=mongo",
             "conf.context.odjdb.mongo.hostport=$actualMongodbHostAndPort",
-            "conf.context.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.context.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
 
             "conf.context.classdesc=classes-test,classes-bank,classes-app",
             "conf.context.shutdownpassword=figleaf",

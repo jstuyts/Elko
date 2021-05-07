@@ -83,7 +83,7 @@ val startChatBasicContext by tasks.registering(JavaExec::class) {
             "conf.context.odjdb.mongo.hostport=$actualMongodbHostAndPort",
             "conf.context.odjdb.mongo.dbname=$databaseName",
             "conf.context.odjdb.mongo.collname=$collectionName",
-            "conf.context.objstore=org.elkoserver.objdb.store.mongostore.MongoObjectStore",
+            "conf.context.objstore=org.elkoserver.objectdatabase.store.mongostore.MongoObjectStore",
 
             "conf.context.classdesc=classes-chat",
             "conf.context.shutdownpassword=figleaf",

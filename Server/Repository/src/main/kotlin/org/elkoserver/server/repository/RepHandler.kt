@@ -3,7 +3,7 @@ package org.elkoserver.server.repository
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.objdb.store.*
+import org.elkoserver.objectdatabase.store.*
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
