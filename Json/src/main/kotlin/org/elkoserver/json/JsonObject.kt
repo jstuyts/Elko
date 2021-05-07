@@ -35,20 +35,17 @@ class JsonObject {
         impl[key] = JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(value)
     }
 
-    fun getObject(key: String?, defaultValue: JsonObject?): JsonObject =
-            JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(impl.getObject(key, defaultValue?.impl)) as JsonObject
-
     fun getString(key: String, defaultValue: String): String = impl.getString(key, defaultValue)
 
     fun getStringOrNull(key: String): String? = impl.getString(key, null)
 
-    fun getDouble(key: String?, defaultValue: Double): Double = impl.getDouble(key, defaultValue)
+    fun getDouble(key: String, defaultValue: Double): Double = impl.getDouble(key, defaultValue)
 
-    fun getInt(key: String?, defaultValue: Int): Int = impl.getInt(key, defaultValue)
+    fun getInt(key: String, defaultValue: Int): Int = impl.getInt(key, defaultValue)
 
-    fun getBoolean(key: String?, defaultValue: Boolean): Boolean = impl.getBoolean(key, defaultValue)
+    fun getBoolean(key: String, defaultValue: Boolean): Boolean = impl.getBoolean(key, defaultValue)
 
-    fun getLong(key: String?, defaultValue: Long): Long = impl.getLong(key, defaultValue)
+    fun getLong(key: String, defaultValue: Long): Long = impl.getLong(key, defaultValue)
 
     @Throws(JsonDecodingException::class)
     fun getObject(key: String): JsonObject {
@@ -66,6 +63,6 @@ class JsonObject {
         return impl.getInt(key)
     }
 
-    fun getArray(key: String?, defaultValue: JsonArray?): JsonArray =
-            JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(impl.getArray(key, defaultValue?.impl)) as JsonArray
+    fun getArray(key: String): JsonArray? =
+            JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(impl.getArray(key)) as JsonArray?
 }

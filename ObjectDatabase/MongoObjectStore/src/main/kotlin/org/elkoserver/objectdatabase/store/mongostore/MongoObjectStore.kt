@@ -144,8 +144,8 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
         // MongoDB's 2D coordinate encoding rules, and have Mongodb index
         // *that*.  When an object is read from the database, we strip this
         // property off again before we return the object to the application.
-        val mods = obj.getArray("mods", null)
-        mods.iterator().forEachRemaining { mod: Any? ->
+        val mods = obj.getArray("mods")
+        mods?.iterator()?.forEachRemaining { mod: Any? ->
             val elkoModAsObject = JsonWrapping.wrapWithElkoJsonImplementationIfNeeded(mod)
             if (elkoModAsObject is JsonObject) {
                 if ("geopos" == elkoModAsObject.getStringOrNull("type")) {
