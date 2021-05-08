@@ -9,17 +9,15 @@ import org.elkoserver.json.singleElementArray
  * Fill in this request's message field with a 'query' request.
  *
  * @param template  Template object for the objects desired.
- * @param collectionName  Name of collection to query, or null to take the
- * configured default.
  * @param maxResults  Maximum number of result objects to return, or 0 to
  * indicate no fixed limit.
  */
-internal fun msgQuery(template: JsonObject, tag: String, collectionName: String?, maxResults: Int) =
+internal fun msgQuery(template: JsonObject, tag: String, maxResults: Int) =
         JsonLiteralFactory.targetVerb("rep", "query").apply {
             addParameter("tag", tag)
+            @Suppress("SpellCheckingInspection")
             val what = JsonLiteralFactory.type("queryi", EncodeControl.ForClientEncodeControl).apply {
                 addParameter("template", template)
-                addParameterOpt("coll", collectionName)
                 if (maxResults > 0) {
                     addParameter("limit", maxResults)
                 }

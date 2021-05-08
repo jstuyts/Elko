@@ -22,8 +22,7 @@ internal class StaticObjectList @JsonMethod("statics") constructor(private val m
      */
     fun fetchFromObjectDatabase(objectDatabase: ObjectDatabase, contextor: Contextor, gorgel: Gorgel) {
         for (elem in myStatics) {
-            objectDatabase.getObject(elem.ref, null,
-                    StaticObjectReceiver(contextor, elem, gorgel))
+            objectDatabase.getObject(elem.ref, StaticObjectReceiver(contextor, elem, gorgel))
         }
     }
 

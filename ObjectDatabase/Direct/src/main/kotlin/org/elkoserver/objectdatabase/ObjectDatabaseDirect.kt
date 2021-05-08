@@ -45,23 +45,21 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * Fetch an object from the store.
      *
      * @param ref  Reference string naming the object desired.
-     * @param collectionName  Name of collection to get from, or null to take
-     * the configured default (or the db doesn't use this abstraction).
      * @param handler  Handler to be called with the result.  The result will
      * be the object requested, or null if the object could not be
      * retrieved.
      */
-    override fun getObject(ref: String, collectionName: String?, handler: Consumer<Any?>) {
-        myRunner.enqueue(GetCallHandler(ref, collectionName, handler))
+    override fun getObject(ref: String, handler: Consumer<Any?>) {
+        myRunner.enqueue(GetCallHandler(ref, handler))
     }
 
     /**
      * Handler to call the store's 'get' method.  Runs in the object database
      * thread.
      */
-    private inner class GetCallHandler(private val myRef: String, private val myCollectionName: String?, private val myRunnable: Consumer<Any?>) : Runnable, GetResultHandler {
+    private inner class GetCallHandler(private val myRef: String, private val myRunnable: Consumer<Any?>) : Runnable, GetResultHandler {
         override fun run() {
-            val what = arrayOf(RequestDesc(myRef, myCollectionName, true))
+            val what = arrayOf(RequestDesc(myRef, true))
             myObjectStore.getObjects(what, this)
         }
 
@@ -82,17 +80,13 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      *
      * @param ref  Reference string naming the object to be stored.
      * @param obj  The object to be stored.
-     * @param collectionName  Name of collection to put into, or null to take
-     * the configured default (or the db doesn't use this abstraction).
-     * @param requireNew  If true, require that the object with the given ref
-     * not already exist
      * @param handler  Handler to be called with the result.  The result will
      * be a status indicator: an error message string if there was an error,
      * or null if the operation was successful.
      */
-    override fun putObject(ref: String, obj: Encodable, collectionName: String?, requireNew: Boolean, handler: Consumer<Any?>?) {
+    override fun putObject(ref: String, obj: Encodable, handler: Consumer<Any?>?) {
         val objToWrite = obj.encode(ForRepositoryEncodeControl) ?: throw IllegalStateException()
-        myRunner.enqueue(PutCallHandler(ref, objToWrite, collectionName, requireNew, handler))
+        myRunner.enqueue(PutCallHandler(ref, objToWrite, handler))
     }
 
     /**
@@ -101,24 +95,22 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * @param ref  Reference string naming the object to be stored.
      * @param version  Version number of the object to be updated
      * @param obj  The object to be stored.
-     * @param collectionName  Name of collection to put into, or null to take
-     * the configured default (or the db doesn't use this abstraction).
      * @param handler  Handler to be called with the result.  The result will
      * be a status indicator: an error message string if there was an error,
      * or null if the operation was successful.
      */
-    override fun updateObject(ref: String, version: Int, obj: Encodable, collectionName: String?, handler: Consumer<Any?>?) {
+    override fun updateObject(ref: String, version: Int, obj: Encodable, handler: Consumer<Any?>?) {
         val objToWrite = obj.encode(ForRepositoryEncodeControl) ?: throw IllegalStateException()
-        myRunner.enqueue(UpdateCallHandler(ref, version, objToWrite, collectionName, handler))
+        myRunner.enqueue(UpdateCallHandler(ref, version, objToWrite, handler))
     }
 
     /**
      * Handler to call the store's 'put' method.  Runs in the object database
      * thread.
      */
-    private inner class PutCallHandler(private val myRef: String, private val myObj: JsonLiteral, private val myCollectionName: String?, private val amRequireNew: Boolean, private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
+    private inner class PutCallHandler(private val myRef: String, private val myObj: JsonLiteral, private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
         override fun run() {
-            val what = arrayOf(PutDesc(myRef, myObj.sendableString(), myCollectionName, amRequireNew))
+            val what = arrayOf(PutDesc(myRef, myObj.sendableString()))
             myObjectStore.putObjects(what, this)
         }
 
@@ -134,9 +126,9 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * thread.
      */
     private inner class UpdateCallHandler(private val myRef: String, private val myVersion: Int, private val myObj: JsonLiteral,
-                                          private val myCollectionName: String?, private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
+                                          private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
         override fun run() {
-            val what = arrayOf(UpdateDesc(myRef, myVersion, myObj.sendableString(), myCollectionName))
+            val what = arrayOf(UpdateDesc(myRef, myVersion, myObj.sendableString()))
             myObjectStore.updateObjects(what, this)
         }
 
@@ -162,26 +154,24 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * Query the object store.
      *
      * @param template  Query template indicating the object(s) desired.
-     * @param collectionName  Name of collection to query, or null to take the
-     * configured default.
      * @param maxResults  Maximum number of result objects to return, or 0 to
      * indicate no fixed limit.
      * @param handler  Handler to be called with the results.  The results will
      * be an array of the object(s) requested, or null if no objects could
      * be retrieved.
      */
-    override fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>) {
-        myRunner.enqueue(QueryCallHandler(template, collectionName, maxResults, handler))
+    override fun queryObjects(template: JsonObject, maxResults: Int, handler: Consumer<Any?>) {
+        myRunner.enqueue(QueryCallHandler(template, maxResults, handler))
     }
 
     /**
      * Handler to call the store's 'query' method.  Runs in the object database
      * thread.
      */
-    private inner class QueryCallHandler(private val myTemplate: JsonObject, private val myCollectionName: String?,
+    private inner class QueryCallHandler(private val myTemplate: JsonObject,
                                          private val myMaxResults: Int, private val myRunnable: Consumer<Any?>) : Runnable, GetResultHandler {
         override fun run() {
-            val what = arrayOf(QueryDesc(myTemplate, myCollectionName, myMaxResults))
+            val what = arrayOf(QueryDesc(myTemplate, myMaxResults))
             myObjectStore.queryObjects(what, this)
         }
 
@@ -224,24 +214,22 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * operation always succeeds.
      *
      * @param ref  Reference string naming the object to remove.
-     * @param collectionName  Name of collection to delete from, or null to
-     * take the configured default (or the db doesn't use this abstraction).
      * @param handler  Handler to be called with the result.  The result will
      * be a status indicator: an error message string if there was an error,
      * or null if the operation was successful.
      */
-    override fun removeObject(ref: String, collectionName: String?, handler: Consumer<Any?>?) {
-        myRunner.enqueue(RemoveCallHandler(ref, collectionName, handler))
+    override fun removeObject(ref: String, handler: Consumer<Any?>?) {
+        myRunner.enqueue(RemoveCallHandler(ref, handler))
     }
 
     /**
      * Handler to call store's 'remove' method.  Runs in the object database
      * thread.
      */
-    private inner class RemoveCallHandler(private val myRef: String, private val myCollectionName: String?,
+    private inner class RemoveCallHandler(private val myRef: String,
                                           private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
         override fun run() {
-            val what = arrayOf(RequestDesc(myRef, myCollectionName, true))
+            val what = arrayOf(RequestDesc(myRef, true))
             myObjectStore.removeObjects(what, this)
         }
 

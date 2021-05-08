@@ -91,7 +91,7 @@ abstract class ObjectDatabaseBase(
      * an array of the objects referenced by those strings.  Otherwise, the
      * result is null.
      *
-     * In the case of an array result, if all of the elments are of a common
+     * In the case of an array result, if all of the elements are of a common
      * type, then the result will be an array of that type.  Otherwise, the
      * result will be an array of Object.
      *
@@ -127,8 +127,9 @@ abstract class ObjectDatabaseBase(
             }
             result = contents
             if (resultClass != Any::class.java) {
-                result = java.lang.reflect.Array.newInstance(resultClass, contents.size)
-                System.arraycopy(contents, 0, result, 0, contents.size)
+                val copyOfContents = java.lang.reflect.Array.newInstance(resultClass, contents.size)
+                System.arraycopy(contents, 0, copyOfContents, 0, contents.size)
+                result = copyOfContents
             }
         } else if (refValue is String) {
             result = decodeObject(refValue, objs)
@@ -182,9 +183,9 @@ abstract class ObjectDatabaseBase(
     fun loadClassDesc(classDescRefs: String?) {
         addClass("classes", ClassDesc::class.java)
         addClass("class", ClassTagDesc::class.java)
-        getObject("classes", null, ClassDescReceiver("classes"))
+        getObject("classes", ClassDescReceiver("classes"))
         classDescRefs?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
-            getObject(tag, null, ClassDescReceiver(tag))
+            getObject(tag, ClassDescReceiver(tag))
         }
     }
 

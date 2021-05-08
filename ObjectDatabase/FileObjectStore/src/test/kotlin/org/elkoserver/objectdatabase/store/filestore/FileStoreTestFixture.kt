@@ -6,8 +6,6 @@ import org.slf4j.MarkerFactory
 
 val GORGEL = GorgelImpl(LoggerFactory.getLogger("test"), LoggerFactory.getILoggerFactory(), MarkerFactory.getIMarkerFactory())
 
-val SOME_COLLECTION_NAME: String? = null
-
 const val SOME_BOOLEAN = false
 
 const val OBJECT_FILE_CONTENTS = """{"property": "value"}"""

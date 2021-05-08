@@ -309,7 +309,7 @@ internal class Broker(
         myObjectDatabase = objectDatabaseFactory.openObjectDatabase("conf.broker")
         myObjectDatabase.addClass("launchertable", LauncherTable::class.java)
         myObjectDatabase.addClass("launcher", LauncherTable.Launcher::class.java)
-        myObjectDatabase.getObject("launchertable", null, { obj: Any? ->
+        myObjectDatabase.getObject("launchertable") { obj: Any? ->
             if (obj != null) {
                 launcherTable = (obj as LauncherTable).apply {
                     myLaunchers.values.forEach { it.gorgel = launcherTableGorgel.withAdditionalStaticTags(Tag("launcherComponent", it.componentName)) }
@@ -319,6 +319,6 @@ internal class Broker(
                 gorgel.warn("unable to load launcher table")
                 launcherTable = LauncherTable("launchertable", arrayOf())
             }
-        })
+        }
     }
 }

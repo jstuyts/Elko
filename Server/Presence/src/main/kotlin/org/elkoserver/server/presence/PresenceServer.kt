@@ -51,6 +51,7 @@ internal class PresenceServer(
      *
      * @return the set of connected actors.
      */
+    @Suppress("unused")
     fun actors(): Set<PresenceActor> = myActors
 
     /**
@@ -235,8 +236,9 @@ internal class PresenceServer(
         myVisibles = HashMap()
         myContextMetadata = HashMap()
         objectDatabase = objectDatabaseFactory.openObjectDatabase("conf.presence")
+        @Suppress("SpellCheckingInspection")
         objectDatabase.addClass("graphtable", GraphTable::class.java)
-        objectDatabase.getObject("graphs", null, { obj: Any? ->
+        objectDatabase.getObject("graphs") { obj: Any? ->
             if (obj != null) {
                 val info = obj as GraphTable
                 info.graphs
@@ -245,7 +247,7 @@ internal class PresenceServer(
             } else {
                 gorgel.warn("unable to load social graph metadata table")
             }
-        })
+        }
         myServer.registerShutdownWatcher(object : ShutdownWatcher {
             override fun noteShutdown() {
                 isShuttingDown = true

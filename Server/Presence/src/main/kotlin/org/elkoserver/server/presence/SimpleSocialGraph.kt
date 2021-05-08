@@ -1,3 +1,5 @@
+@file:Suppress("unused")
+
 package org.elkoserver.server.presence
 
 import com.grack.nanojson.JsonObject
@@ -23,6 +25,7 @@ internal class SimpleSocialGraph : SocialGraph {
 
     override fun init(master: PresenceServer, gorgel: Gorgel, domain: Domain, conf: JsonObject) {
         myObjectDatabase = master.objectDatabase
+        @Suppress("SpellCheckingInspection")
         myObjectDatabase.addClass("ugraf", UserGraphDesc::class.java)
         myMaster = master
         myDomain = domain
@@ -44,7 +47,7 @@ internal class SimpleSocialGraph : SocialGraph {
      * @param user  The user whose social graph should be fetched.
      */
     override fun loadUserGraph(user: ActiveUser) {
-        myObjectDatabase.getObject("$myPrefix-${user.ref}", null, { obj ->
+        myObjectDatabase.getObject("$myPrefix-${user.ref}") { obj ->
             if (obj != null) {
                 val desc = obj as UserGraphDesc
                 val friends = Iterable { ArrayIterator(desc.friends) }
@@ -53,7 +56,7 @@ internal class SimpleSocialGraph : SocialGraph {
                 user.userGraphIsReady(null, myDomain, myMaster)
                 myGorgel.warn("no social graph info for user ${user.ref} in domain ${myDomain.name}")
             }
-        })
+        }
     }
 
     override fun shutdown() {}

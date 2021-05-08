@@ -49,6 +49,7 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
         fun authDescFromPropertiesFactory(): D<AuthDescFromPropertiesFactory>
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
+        fun workerDatabases(): D<Map<String, ObjectDatabase>>
     }
 
     val sslContextSgd = add(SslContextSgd(object : SslContextSgd.Provided {
@@ -440,7 +441,17 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val refTable by Once { RefTable(req(objectDatabaseDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
-    val workshop: D<Workshop> by Once { Workshop(req(objectDatabase), req(server), req(refTable), req(workshopGorgel), req(startupWorkerListGorgel), req(baseCommGorgel)) }
+    val workshop: D<Workshop> by Once {
+        Workshop(
+                req(objectDatabase),
+                req(server),
+                req(refTable),
+                req(workshopGorgel),
+                req(startupWorkerListGorgel),
+                req(baseCommGorgel),
+                req(provided.workerDatabases())
+        )
+    }
 
     val workshopServiceFactory by Once { WorkshopServiceFactory(req(workshop), req(workshopActorGorgel), req(workshopActorCommGorgel), req(mustSendDebugReplies)) }
 

@@ -19,6 +19,7 @@ class FileObjectStore internal constructor(arguments: ObjectStoreArguments, priv
     /** The directory in which the object "database" contents are stored.  */
     private val myObjectDatabaseDirectory: File
 
+    @Suppress("unused")
     constructor(arguments: ObjectStoreArguments) : this(arguments, RealFileOperations)
 
     /**
@@ -92,10 +93,9 @@ class FileObjectStore internal constructor(arguments: ObjectStoreArguments, priv
      * @return a ResultDesc object describing the success or failure of the
      * operation.
      */
-    private fun doPut(ref: String, obj: String, requireNew: Boolean): ResultDesc {
+    private fun doPut(ref: String, obj: String): ResultDesc {
         var failure: String? = null
         when {
-            requireNew -> failure = "requireNew option not supported in file store"
             else ->
                 try {
                     fileOperations.write(odbFile(ref), obj)
@@ -159,7 +159,7 @@ class FileObjectStore internal constructor(arguments: ObjectStoreArguments, priv
      * failure indicators), when available.
      */
     override fun putObjects(what: Array<PutDesc>, handler: RequestResultHandler) {
-        val results = Array(what.size) { doPut(what[it].ref, what[it].obj, what[it].isRequireNew) }
+        val results = Array(what.size) { doPut(what[it].ref, what[it].obj) }
         handler.handle(results)
     }
 

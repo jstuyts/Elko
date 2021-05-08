@@ -5,8 +5,8 @@ import org.elkoserver.idgeneration.IdGenerator
 import java.util.function.Consumer
 
 class QueryRequestFactory(private val tagGenerator: IdGenerator) {
-    internal fun create(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>?): PendingRequest {
+    internal fun create(template: JsonObject, maxResults: Int, handler: Consumer<Any?>?): PendingRequest {
         val tag = tagGenerator.generate().toString()
-        return PendingRequest(handler, "query", collectionName, tag, msgQuery(template, tag, collectionName, maxResults))
+        return PendingRequest(handler, "query", tag, msgQuery(template, tag, maxResults))
     }
 }

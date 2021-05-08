@@ -8,10 +8,8 @@ import java.util.function.Consumer
  *
  * @param myHandler  Handler to call on the request result.
  * @param ref  Object reference being operated on.
- * @param myCollectionName  Name of collection to get from, or null to take
- *    the configured default.
  */
-internal class PendingRequest(private val myHandler: Consumer<Any?>?, internal val ref: String, private val myCollectionName: String?, internal val tag: String, private val myMsg: JsonLiteral) {
+internal class PendingRequest(private val myHandler: Consumer<Any?>?, internal val ref: String, internal val tag: String, private val myMsg: JsonLiteral) {
 
     /**
      * Handle a reply from the repository.

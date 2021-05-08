@@ -11,17 +11,15 @@ import org.elkoserver.json.singleElementArray
  * @param ref  Reference string naming the object to be put.
  * @param version  Version number of the version of the object to update.
  * @param obj  The object itself.
- * @param collectionName  Name of collection to write, or null to take the
- * configured default (or the db doesn't use this abstraction).
  */
-internal fun msgUpdate(ref: String, tag: String, version: Int, obj: Encodable, collectionName: String?) =
+internal fun msgUpdate(ref: String, tag: String, version: Int, obj: Encodable) =
         JsonLiteralFactory.targetVerb("rep", "update").apply {
             addParameter("tag", tag)
+            @Suppress("SpellCheckingInspection")
             val what = JsonLiteralFactory.type("updatei", EncodeControl.ForClientEncodeControl).apply {
                 addParameter("ref", ref)
                 addParameter("version", version)
                 addParameter("obj", obj.encode(EncodeControl.ForRepositoryEncodeControl)!!.sendableString())
-                addParameterOpt("coll", collectionName)
                 finish()
             }
             addParameter("what", singleElementArray(what))

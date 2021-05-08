@@ -23,7 +23,7 @@ internal class StartupWorkerList @JsonMethod("workers") constructor(private val 
      */
     fun fetchFromObjectDatabase(objectDatabase: ObjectDatabase, workshop: Workshop, gorgel: Gorgel) {
         myWorkers.forEach { elem ->
-            objectDatabase.getObject(elem.ref, null, WorkerReceiver(workshop, elem, gorgel))
+            objectDatabase.getObject(elem.ref, WorkerReceiver(workshop, elem, gorgel))
         }
     }
 

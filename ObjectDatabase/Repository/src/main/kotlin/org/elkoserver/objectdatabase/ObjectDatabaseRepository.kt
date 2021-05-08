@@ -151,14 +151,12 @@ class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
      * Fetch an object from the repository.
      *
      * @param ref  Reference string naming the object desired.
-     * @param collectionName  Name of collection to get from, or null to take
-     * the configured default.
      * @param handler  Handler to be called with the result.  The result will
      * be the object requested, or null if the object could not be
      * retrieved.
      */
-    override fun getObject(ref: String, collectionName: String?, handler: Consumer<Any?>) {
-        newRequest(getRequestFactory.create(ref, collectionName, handler))
+    override fun getObject(ref: String, handler: Consumer<Any?>) {
+        newRequest(getRequestFactory.create(ref, handler))
     }
 
     /**
@@ -265,15 +263,12 @@ class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
      *
      * @param ref  Reference string naming the object to be stored.
      * @param obj  The object to be stored.
-     * @param collectionName  Name of collection to put into, or null to take
-     * the configured default (or the db doesn't use this abstraction).
-     * @param requireNew  If true, require object 'ref' not already exist.
      * @param handler  Handler to be called with the result.  The result will
      * be a status indicator: an error message string if there was an error,
      * or null if the operation was successful.
      */
-    override fun putObject(ref: String, obj: Encodable, collectionName: String?, requireNew: Boolean, handler: Consumer<Any?>?) {
-        newRequest(putRequestFactory.create(ref, obj, collectionName, requireNew, handler))
+    override fun putObject(ref: String, obj: Encodable, handler: Consumer<Any?>?) {
+        newRequest(putRequestFactory.create(ref, obj, handler))
     }
 
     /**
@@ -282,30 +277,26 @@ class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
      * @param ref  Reference string naming the object to be stored.
      * @param version  Version number of the object to be updated.
      * @param obj  The object to be stored.
-     * @param collectionName  Name of collection to put into, or null to take
-     * the configured default (or the db doesn't use this abstraction).
      * @param handler  Handler to be called with the result.  The result will
      * be a status indicator: an error message string if there was an error,
      * or null if the operation was successful.
      */
-    override fun updateObject(ref: String, version: Int, obj: Encodable, collectionName: String?, handler: Consumer<Any?>?) {
-        newRequest(updateRequestFactory.create(ref, version, obj, collectionName, handler))
+    override fun updateObject(ref: String, version: Int, obj: Encodable, handler: Consumer<Any?>?) {
+        newRequest(updateRequestFactory.create(ref, version, obj, handler))
     }
 
     /**
      * Query one or more objects from the object database.
      *
      * @param template  Template object for the objects desired.
-     * @param collectionName  Name of collection to query, or null to take the
-     * configured default.
      * @param maxResults  Maximum number of result objects to return, or 0 to
      * indicate no fixed limit.
      * @param handler  Handler to be called with the results.  The results will
      * be an array of the object(s) requested, or null if no objects could
      * be retrieved.
      */
-    override fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>) {
-        newRequest(queryRequestFactory.create(template, collectionName, maxResults, handler))
+    override fun queryObjects(template: JsonObject, maxResults: Int, handler: Consumer<Any?>) {
+        newRequest(queryRequestFactory.create(template, maxResults, handler))
     }
 
     /**
@@ -314,14 +305,12 @@ class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
      * succeeds.
      *
      * @param ref  Reference string naming the object to remove.
-     * @param collectionName  Name of collection to delete from, or null to
-     * take the configured default (or the db doesn't use this abstraction).
      * @param handler  Handler to be called with the result.  The result will
      * be a status indicator: an error message string if there was an error,
      * or null if the operation was successful.
      */
-    override fun removeObject(ref: String, collectionName: String?, handler: Consumer<Any?>?) {
-        newRequest(removeRequestFactory.create(ref, collectionName, handler))
+    override fun removeObject(ref: String, handler: Consumer<Any?>?) {
+        newRequest(removeRequestFactory.create(ref, handler))
     }
 
     /**

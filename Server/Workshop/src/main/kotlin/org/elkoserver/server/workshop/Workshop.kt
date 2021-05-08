@@ -37,7 +37,9 @@ class Workshop internal constructor(
         internal val refTable: RefTable,
         private val gorgel: Gorgel,
         private val startupWorkerListGorgel: Gorgel,
-        baseCommGorgel: Gorgel) {
+        baseCommGorgel: Gorgel,
+        // FIXME: Only inject object databases into workers for now. Should switch to more generic injection, so workers are not limited to small set of possible dependency types.
+        private val workerDatabases: Map<String, ObjectDatabase>) {
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown: Boolean
@@ -57,10 +59,9 @@ class Workshop internal constructor(
      */
     fun loadStartupWorkers(workerListRefs: String?) {
         myObjectDatabase.addClass("workers", StartupWorkerList::class.java)
-        myObjectDatabase.getObject("workers", null,
-                StartupWorkerListReceiver("workers"))
+        myObjectDatabase.getObject("workers", StartupWorkerListReceiver("workers"))
         workerListRefs?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
-            myObjectDatabase.getObject(tag, null, StartupWorkerListReceiver(tag))
+            myObjectDatabase.getObject(tag, StartupWorkerListReceiver(tag))
         }
     }
 
@@ -114,19 +115,19 @@ class Workshop internal constructor(
      * question, or null if the object was not available.
      */
     fun getObject(ref: String, handler: Consumer<Any?>) {
-        myObjectDatabase.getObject(ref, null, handler)
+        myObjectDatabase.getObject(ref, handler)
     }
 
     /**
-     * Fetch an object from a particular collection in the repository.
+     * Fetch an object from a particular worker database.
      *
      * @param ref  The ref of the object desired.
-     * @param collection  The name of the collection to use.
+     * @param databaseId  The ID of the worker database to get the object from.
      * @param handler  Callback that will be invoked with the object in
      * question, or null if the object was not available.
      */
-    fun getObject(ref: String, collection: String?, handler: Consumer<Any?>) {
-        myObjectDatabase.getObject(ref, collection, handler)
+    fun getObject(ref: String, databaseId: String, handler: Consumer<Any?>) {
+        workerDatabases.getValue(databaseId).getObject(ref,  handler)
     }
 
     /**
@@ -139,21 +140,21 @@ class Workshop internal constructor(
      * null if the query failed.
      */
     fun queryObjects(query: JsonObject, maxResults: Int, handler: Consumer<Any?>) {
-        myObjectDatabase.queryObjects(query, null, maxResults, handler)
+        myObjectDatabase.queryObjects(query, maxResults, handler)
     }
 
     /**
-     * Query a particular collection in the repository.
+     * Query a particular worker database.
      *
      * @param query  JSON object containing a MongoDB query structure.
-     * @param collection  The collection to use.
+     * @param databaseId  The ID of the worker database to query for objects.
      * @param maxResults  Maximum number of result objects acceptable; a value
      * of 0 means no limit.
      * @param handler  Callback that will be invoked with a results array, or
      * null if the query failed.
      */
-    fun queryObjects(query: JsonObject, collection: String?, maxResults: Int, handler: Consumer<Any?>) {
-        myObjectDatabase.queryObjects(query, collection, maxResults, handler)
+    fun queryObjects(query: JsonObject, databaseId: String, maxResults: Int, handler: Consumer<Any?>) {
+        workerDatabases.getValue(databaseId).queryObjects(query, maxResults, handler)
     }
 
     /**
@@ -163,22 +164,22 @@ class Workshop internal constructor(
      * @param object  The object itself.
      */
     fun putObject(ref: String, `object`: Encodable) {
-        myObjectDatabase.putObject(ref, `object`, null, false, null)
+        myObjectDatabase.putObject(ref, `object`, null)
     }
 
     /**
-     * Store an object into a particular collection in the repository with
+     * Store an object into a particular worker database with
      * results notification.
      *
      * @param ref  Ref of the object to write.
      * @param object  The object itself.
-     * @param collection  The name of the collection to use.
+     * @param databaseId  The ID of the worker database to save the object in.
      * @param resultHandler  Handler that wil be invoked with the result of
-     * the operation; the result will be null if the operation suceeded, or
+     * the operation; the result will be null if the operation succeeded, or
      * an error string if the operation failed.
      */
-    fun putObject(ref: String, `object`: Encodable, collection: String?, resultHandler: Consumer<Any?>?) {
-        myObjectDatabase.putObject(ref, `object`, collection, false, resultHandler)
+    fun putObject(ref: String, `object`: Encodable, databaseId: String, resultHandler: Consumer<Any?>?) {
+        workerDatabases.getValue(databaseId).putObject(ref, `object`, resultHandler)
     }
 
     /**
@@ -188,26 +189,26 @@ class Workshop internal constructor(
      * @param version  Version number of the instance being replaced
      * @param object  The object itself.
      * @param resultHandler  Handler that wil be invoked with the result of
-     * the operation; the result will be null if the operation suceeded, or
+     * the operation; the result will be null if the operation succeeded, or
      * an error string if the operation failed.
      */
     fun updateObject(ref: String, version: Int, `object`: Encodable, resultHandler: Consumer<Any?>) {
-        myObjectDatabase.updateObject(ref, version, `object`, null, resultHandler)
+        myObjectDatabase.updateObject(ref, version, `object`, resultHandler)
     }
 
     /**
-     * Update the state of an object in some collection in the repository.
+     * Update the state of an object in some worker database.
      *
      * @param ref  Ref of the object to write.
      * @param version  Version number of the instance being replaced
      * @param object  The object itself.
-     * @param collection  The collection to use.
+     * @param databaseId  The ID of the worker database to update the object in.
      * @param resultHandler  Handler that wil be invoked with the result of
-     * the operation; the result will be null if the operation suceeded, or
+     * the operation; the result will be null if the operation succeeded, or
      * an error string if the operation failed.
      */
-    fun updateObject(ref: String, version: Int, `object`: Encodable, collection: String?, resultHandler: Consumer<Any?>?) {
-        myObjectDatabase.updateObject(ref, version, `object`, collection, resultHandler)
+    fun updateObject(ref: String, version: Int, `object`: Encodable, databaseId: String, resultHandler: Consumer<Any?>?) {
+        workerDatabases.getValue(databaseId).updateObject(ref, version, `object`, resultHandler)
     }
 
     /**
@@ -216,7 +217,7 @@ class Workshop internal constructor(
      * @param ref  The ref of the object to be deleted.
      */
     fun removeObject(ref: String) {
-        myObjectDatabase.removeObject(ref, null, null)
+        myObjectDatabase.removeObject(ref, null)
     }
 
     init {

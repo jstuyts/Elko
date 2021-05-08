@@ -107,7 +107,9 @@ class Contextor internal constructor(
                 add("ctx")
                 add("context")
                 add("\$rc")
+                @Suppress("SpellCheckingInspection")
                 add("\$rctx")
+                @Suppress("SpellCheckingInspection")
                 add("\$rcontext")
 
                 families?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
@@ -133,14 +135,14 @@ class Contextor internal constructor(
      */
     fun addPendingObjectCompletionWatcher(watcher: ObjectCompletionWatcher) {
         val currentPendingObjectCompletionWatchers = myPendingObjectCompletionWatchers
-        val actualPendingObjectCompletionWatchres = if (currentPendingObjectCompletionWatchers == null) {
-            val newPendingObjectCompletionWatchres = LinkedList<ObjectCompletionWatcher>()
-            myPendingObjectCompletionWatchers = newPendingObjectCompletionWatchres
-            newPendingObjectCompletionWatchres
+        val actualPendingObjectCompletionWatchers = if (currentPendingObjectCompletionWatchers == null) {
+            val newPendingObjectCompletionWatchers = LinkedList<ObjectCompletionWatcher>()
+            myPendingObjectCompletionWatchers = newPendingObjectCompletionWatchers
+            newPendingObjectCompletionWatchers
         } else {
             currentPendingObjectCompletionWatchers
         }
-        actualPendingObjectCompletionWatchres.add(watcher)
+        actualPendingObjectCompletionWatchers.add(watcher)
     }
 
     /**
@@ -268,6 +270,7 @@ class Contextor internal constructor(
      * @param isDeletable  Flag that is true if the new item may be deleted by
      * users.
      */
+    @Suppress("unused")
     fun createItem(name: String, isPossibleContainer: Boolean, isDeletable: Boolean): Item =
             createItem(name, null, isPossibleContainer, isDeletable)
 
@@ -283,7 +286,7 @@ class Contextor internal constructor(
      */
     fun createObjectRecord(ref: String?, contRef: String?, obj: BasicObject) {
         val actualRef = ref ?: uniqueID(obj.type())
-        objectDatabase.putObject(actualRef, obj, null, false, null)
+        objectDatabase.putObject(actualRef, obj, null)
     }
 
     /**
@@ -291,8 +294,9 @@ class Contextor internal constructor(
      *
      * @param ref  Reference string identifying the user to be deleted.
      */
+    @Suppress("unused")
     fun deleteUserRecord(ref: String) {
-        objectDatabase.removeObject(ref, null, null)
+        objectDatabase.removeObject(ref, null)
     }
 
     /**
@@ -360,7 +364,7 @@ class Contextor internal constructor(
                 val contentsHandler = ContentsHandler(null, getHandler)
                 val contextReceiver = Consumer { obj: Any? -> contentsHandler.receiveContainer(obj as BasicObject?) }
                 if (addPendingGet(actualContextTemplate, contextHandler)) {
-                    objectDatabase.getObject(actualContextTemplate, null, contextReceiver)
+                    objectDatabase.getObject(actualContextTemplate, contextReceiver)
                     loadContentsOfContainer(contextRef, contentsHandler)
                 }
             } else {
@@ -523,8 +527,7 @@ class Contextor internal constructor(
      */
     private fun loadContentsOfContainer(containerRef: String,
                                         handler: Consumer<Any?>) {
-        queryObjects(contentsQuery(extractBaseRef(containerRef)), null, 0,
-                handler)
+        queryObjects(contentsQuery(extractBaseRef(containerRef)), 0, handler)
     }
 
     /**
@@ -600,13 +603,13 @@ class Contextor internal constructor(
      * @param itemRef  Reference string identifying the item sought.
      * @param itemHandler  Handler to invoke with the resulting item.
      */
+    @Suppress("unused")
     fun getOrLoadItem(itemRef: String, itemHandler: Consumer<Any?>) {
         if (itemRef.startsWith("item-") || itemRef.startsWith("i-")) {
             val result = refTable[itemRef] as Item?
             if (result == null) {
                 if (addPendingGet(itemRef, itemHandler)) {
-                    objectDatabase.getObject(itemRef, null,
-                            GetItemHandler(itemRef))
+                    objectDatabase.getObject(itemRef, GetItemHandler(itemRef))
                 }
             } else {
                 itemHandler.accept(result)
@@ -648,7 +651,7 @@ class Contextor internal constructor(
      * Load the contents of a previously closed container.
      *
      * @param item  The item whose contents are to be loaded.
-     * @param handler  Handler to be notified once the contents are laoded.
+     * @param handler  Handler to be notified once the contents are loaded.
      */
     fun loadItemContents(item: Item, handler: Consumer<Any?>) {
         val contentsHandler = ContentsHandler(null, handler)
@@ -660,15 +663,14 @@ class Contextor internal constructor(
      * Load the static objects indicated by one or more static object list
      * objects.
      *
-     * @param staticListRefs  A comma separated list of statis object list
+     * @param staticListRefs  A comma separated list of static object list
      * object names.
      */
     private fun loadStaticObjects(staticListRefs: String?) {
         objectDatabase.addClass("statics", StaticObjectList::class.java)
-        objectDatabase.getObject("statics", null,
-                StaticObjectListReceiver("statics"))
+        objectDatabase.getObject("statics", StaticObjectListReceiver("statics"))
         staticListRefs?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
-            objectDatabase.getObject(tag, null, StaticObjectListReceiver(tag))
+            objectDatabase.getObject(tag, StaticObjectListReceiver(tag))
         }
     }
 
@@ -704,7 +706,7 @@ class Contextor internal constructor(
             val contentsHandler = ContentsHandler(null, getHandler)
             val userReceiver = Consumer { obj: Any? -> contentsHandler.receiveContainer(obj as BasicObject?) }
             if (addPendingGet(userRef, actualUserHandler)) {
-                objectDatabase.getObject(userRef, null, userReceiver)
+                objectDatabase.getObject(userRef, userReceiver)
                 loadContentsOfContainer(userRef, contentsHandler)
             }
         } else {
@@ -755,7 +757,7 @@ class Contextor internal constructor(
                 } else {
                     val argAsBasicObject = arg as BasicObject
                     myObj = argAsBasicObject
-                    queryObjects(scopeQuery(argAsBasicObject.ref(), myScope), null, 0, this)
+                    queryObjects(scopeQuery(argAsBasicObject.ref(), myScope), 0, this)
                 }
             } else {
                 if (arg != null) {
@@ -840,7 +842,7 @@ class Contextor internal constructor(
      * @param observerRef  Ref of user who cares
      * @param domain  Presence domain of relationship between observer & who
      * @param whoRef  Ref of user who came or went
-     * @param whoMeta  Optional metatdata about user who came or went
+     * @param whoMeta  Optional metadata about user who came or went
      * @param whereRef  Ref of the context entered or exited
      * @param whereMeta  Optional metadata about the context entered or exited
      * @param on  True if they came, false if they left
@@ -883,6 +885,7 @@ class Contextor internal constructor(
      * @return the name for the given context, or null if none has ever been
      * reported.
      */
+    @Suppress("unused")
     fun getMetadataContextName(contextRef: String): String? = myContextNames[contextRef]
 
     /**
@@ -894,6 +897,7 @@ class Contextor internal constructor(
      * @return the name for the given user, or null if none has ever been
      * reported.
      */
+    @Suppress("unused")
     fun getMetadataUserName(userRef: String): String? = myUserNames[userRef]
 
     /**
@@ -917,8 +921,6 @@ class Contextor internal constructor(
      * Query the attached object store.
      *
      * @param template  Query template indicating the object(s) desired.
-     * @param collectionName  Name of collection to query, or null to take the
-     * configured default.
      * @param maxResults  Maximum number of result objects to return, or 0 to
      * indicate no fixed limit.
      * @param handler  Handler to be called with the results.  The results will
@@ -927,8 +929,8 @@ class Contextor internal constructor(
      *
      * XXX Is this a POLA (Principle of Least Authority) violation??
      */
-    fun queryObjects(template: JsonObject, collectionName: String?, maxResults: Int, handler: Consumer<Any?>) {
-        objectDatabase.queryObjects(template, collectionName, maxResults, handler)
+    fun queryObjects(template: JsonObject, maxResults: Int, handler: Consumer<Any?>) {
+        objectDatabase.queryObjects(template, maxResults, handler)
     }
 
     /**
@@ -1139,7 +1141,7 @@ class Contextor internal constructor(
      * @param handler  Completion handler.
      */
     fun writeObjectDelete(ref: String, handler: Consumer<Any?>? = null) {
-        objectDatabase.removeObject(ref, null, handler)
+        objectDatabase.removeObject(ref, handler)
     }
 
     /**
@@ -1150,7 +1152,7 @@ class Contextor internal constructor(
      * @param handler  Completion handler
      */
     fun writeObjectState(ref: String, state: BasicObject, handler: Consumer<Any?>? = null) {
-        objectDatabase.putObject(ref, state, null, false, handler)
+        objectDatabase.putObject(ref, state, handler)
     }
 
     init {

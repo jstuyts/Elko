@@ -54,8 +54,7 @@ open class DevicePersistentUserFactory @JsonMethod("device") internal constructo
             handler.accept(null)
         } else {
             slowServiceRunner.enqueueTask({
-                contextor.queryObjects(deviceQuery(creds.uuid), null, 0,
-                        DeviceQueryResultHandler(contextor, myGorgel, creds, handler))
+                contextor.queryObjects(deviceQuery(creds.uuid), 0, DeviceQueryResultHandler(contextor, myGorgel, creds, handler))
                 null
             }, null)
         }
@@ -89,18 +88,15 @@ open class DevicePersistentUserFactory @JsonMethod("device") internal constructo
     }
 
     private fun deviceQuery(uuid: String): JsonObject {
-        // { type: "user",
-        //   mods: { $elemMatch: { type: "deviceuser", uuid: UUID }}}
-        val modMatchPattern = JsonObject().apply {
-            put("type", "deviceuser")
-            put("uuid", uuid)
-        }
-        val modMatch = JsonObject().apply {
-            put("\$elemMatch", modMatchPattern)
-        }
         return JsonObject().apply {
             put("type", "user")
-            put("mods", modMatch)
+            put("mods", JsonObject().apply {
+                put("\$elemMatch", JsonObject().apply {
+                    @Suppress("SpellCheckingInspection")
+                    put("type", "deviceuser")
+                    put("uuid", uuid)
+                })
+            })
         }
     }
 

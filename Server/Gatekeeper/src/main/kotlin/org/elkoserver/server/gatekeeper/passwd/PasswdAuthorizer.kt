@@ -34,7 +34,7 @@ class PasswdAuthorizer(
      * @param actor  The actor description for the actor to add.
      */
     fun addActor(actor: ActorDesc) {
-        myObjectDatabase.putObject("a-${actor.id}", actor, null, false, null)
+        myObjectDatabase.putObject("a-${actor.id}", actor, null)
     }
 
     /**
@@ -45,7 +45,7 @@ class PasswdAuthorizer(
      */
     fun addPlace(name: String, context: String) {
         val place = PlaceDesc(name, context)
-        myObjectDatabase.putObject("p-$name", place, null, false, null)
+        myObjectDatabase.putObject("p-$name", place, null)
     }
 
     /**
@@ -54,7 +54,7 @@ class PasswdAuthorizer(
      * @param actor  The actor description for the actor to checkpoint.
      */
     fun checkpointActor(actor: ActorDesc) {
-        myObjectDatabase.putObject("a-${actor.id}", actor, null, false, null)
+        myObjectDatabase.putObject("a-${actor.id}", actor, null)
     }
 
     /**
@@ -75,7 +75,7 @@ class PasswdAuthorizer(
      * when retrieved.
      */
     fun getActor(actorID: String, handler: Consumer<Any?>) {
-        myObjectDatabase.getObject("a-$actorID", null, handler)
+        myObjectDatabase.getObject("a-$actorID", handler)
     }
 
     /**
@@ -86,7 +86,7 @@ class PasswdAuthorizer(
      * retrieved.
      */
     fun getPlace(name: String, handler: Consumer<Any?>) {
-        myObjectDatabase.getObject("p-$name", null, handler)
+        myObjectDatabase.getObject("p-$name", handler)
     }
 
     /**
@@ -96,7 +96,7 @@ class PasswdAuthorizer(
      * @param handler  Handler to be called with deletion result.
      */
     fun removeActor(actorID: String, handler: Consumer<Any?>?) {
-        myObjectDatabase.removeObject("a-$actorID", null, handler)
+        myObjectDatabase.removeObject("a-$actorID", handler)
     }
 
     /**
@@ -105,7 +105,7 @@ class PasswdAuthorizer(
      * @param name  The name of the place to remove.
      */
     fun removePlace(name: String) {
-        myObjectDatabase.removeObject("p-$name", null, null)
+        myObjectDatabase.removeObject("p-$name", null)
     }
 
     /**
@@ -221,7 +221,7 @@ class PasswdAuthorizer(
     override fun setPassword(id: String, oldPassword: String?,
                              newPassword: String?,
                              handler: SetPasswordResultHandler) {
-        getActor(id, { obj: Any? ->
+        getActor(id) { obj: Any? ->
             val failure =
                     if (obj != null) {
                         val actor = obj as ActorDesc
@@ -240,7 +240,7 @@ class PasswdAuthorizer(
                         "no such actor"
                     }
             handler.handle(failure)
-        })
+        }
     }
 
     /**

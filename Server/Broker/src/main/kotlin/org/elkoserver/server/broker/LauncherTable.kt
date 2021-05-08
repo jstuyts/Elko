@@ -19,6 +19,7 @@ import java.io.IOException
  *    called "launchtable".
  * @param launchers  Array of launcher configurations.
  */
+@Suppress("SpellCheckingInspection")
 internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private val myRef: String, launchers: Array<Launcher>) : Encodable {
 
     /**
@@ -66,7 +67,7 @@ internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private
      */
     fun checkpoint(objectDatabase: ObjectDatabase) {
         if (amDirty) {
-            objectDatabase.putObject(myRef, this, null, false, null)
+            objectDatabase.putObject(myRef, this, null)
             amDirty = false
         }
     }
@@ -119,6 +120,7 @@ internal class LauncherTable @JsonMethod("ref", "launchers") constructor(private
      * @param flag      The setting for the flag: true=>launch this component
      * when starting in Initial mode; false=> don't.
      */
+    @Suppress("unused")
     fun setInitialLauncher(component: String, flag: Boolean) {
         val launcher = myLaunchers[component]
         if (launcher != null) {

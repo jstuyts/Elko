@@ -30,7 +30,7 @@ import kotlin.math.abs
  *
  * Currency and Key objects are stored as part of the persistent form of the
  * Bank object.  The central motivating idea here is that these objects are (a)
- * few in number and (b) change infrequently.  Consequenly, we manage these
+ * few in number and (b) change infrequently.  Consequently, we manage these
  * objects' persistent states as part of the persistent state of the Bank and
  * simply checkpoint the bank whenever a currency is added or a key is created
  * or cancelled.
@@ -53,15 +53,16 @@ import kotlin.math.abs
  *    be generated and made available for issuance.
  * @param keys  Array of keys for access to this bank's contents.
  * @param currencies  Array of currencies this bank is managing.
- * @param accountCollection  Optional collection name for account storage.
+ * @param databaseId  ID of database to store accounts in.
  */
-internal class Bank @JsonMethod("ref", "rootkey", "keys", "currencies", "collection")
+@Suppress("SpellCheckingInspection")
+internal class Bank @JsonMethod("ref", "rootkey", "keys", "currencies", "databaseid")
 constructor(
         private val myRef: String,
         rootKeyRef: OptString,
         keys: Array<Key>,
         currencies: Array<Currency>,
-        accountCollection: OptString)
+        private val databaseId: String)
     : Encodable, ClockUsingObject, ClassspecificGorgelUsingObject, PostInjectionInitializingObject {
     /** Currently defined currencies, by name.  */
     private val myCurrencies = mutableMapOf<String, Currency>().apply {
@@ -81,9 +82,6 @@ constructor(
 
     /** The workshop in which this bank is running.  */
     private lateinit var myWorkshop: Workshop
-
-    /** MongoDB collection into which account data will be stored.  */
-    private val myAccountCollection = accountCollection.valueOrNull()
 
     private lateinit var clock: Clock
 
@@ -137,7 +135,7 @@ constructor(
                     addParameter("rootkey", myRootKeyRef)
                     addParameter("keys", myKeys.filterKeys { it != myRootKeyRef }.values.toTypedArray())
                     addParameter("currencies", myCurrencies.values.toTypedArray())
-                    addParameterOpt("collection", myAccountCollection)
+                    addParameter("databaseid", databaseId)
                     finish()
                 }
             } else {
@@ -203,7 +201,7 @@ constructor(
         if (allegedAccount is Account) {
             allegedAccount.releaseExpiredEncumbrances()
             if (updater.modify(allegedAccount)) {
-                allegedAccount.checkpoint(myWorkshop, myAccountCollection, Consumer { resultObj: Any? ->
+                allegedAccount.checkpoint(myWorkshop, databaseId, Consumer { resultObj: Any? ->
                     val failure = resultObj as String?
                     when {
                         failure == null -> updater.complete(null)
@@ -268,11 +266,11 @@ constructor(
             account1.releaseExpiredEncumbrances()
             account2.releaseExpiredEncumbrances()
             if (updater.modify(account1, account2)) {
-                account1.checkpoint(myWorkshop, myAccountCollection, Consumer { resultObj: Any? ->
+                account1.checkpoint(myWorkshop, databaseId, Consumer { resultObj: Any? ->
                     val failure = resultObj as String?
                     when {
                         failure == null ->
-                            account2.checkpoint(myWorkshop, myAccountCollection, Consumer { resultObj2: Any? ->
+                            account2.checkpoint(myWorkshop, databaseId, Consumer { resultObj2: Any? ->
                                 val failure2 = resultObj2 as String?
                                 when {
                                     failure2 == null -> updater.complete(null)
@@ -370,7 +368,7 @@ constructor(
     fun makeAccount(currency: String, owner: String?, memo: String?) =
             if (getCurrency(currency) != null) {
                 val account = Account(generateRef("acct"), 0, currency, owner, memo)
-                account.checkpoint(myWorkshop, myAccountCollection, null)
+                account.checkpoint(myWorkshop, databaseId, null)
                 account
             } else {
                 throw Error("invalid currency $currency")
@@ -503,15 +501,14 @@ constructor(
      * manipulation.
      */
     fun withAccount(accountRef: String, updater: AccountUpdater) {
-        myWorkshop.getObject(accountRef, myAccountCollection,
-                { obj: Any? ->
-                    if (obj == null) {
-                        gorgel.error("account object $accountRef not found")
-                        updater.modify(null)
-                    } else {
-                        doAccountUpdate(accountRef, obj, updater)
-                    }
-                })
+        myWorkshop.getObject(accountRef, databaseId) { obj: Any? ->
+            if (obj == null) {
+                gorgel.error("account object $accountRef not found")
+                updater.modify(null)
+            } else {
+                doAccountUpdate(accountRef, obj, updater)
+            }
+        }
     }
 
     /**
@@ -524,23 +521,22 @@ constructor(
      * manipulation.
      */
     fun withEncumberedAccount(encRef: String, updater: AccountUpdater) {
-        myWorkshop.queryObjects(queryEnc(encRef), myAccountCollection, 1,
-                { queryResult: Any? ->
-                    if (queryResult == null) {
-                        gorgel.error("encumbrance object $encRef not found")
-                        updater.modify(null)
-                    } else if (queryResult is Array<*>) {
-                        if (queryResult.size == 1) {
-                            doAccountUpdate(encRef, queryResult[0] as Any, updater)
-                        } else {
-                            gorgel.error("wrong number of query results for $encRef")
-                            updater.modify(null)
-                        }
-                    } else {
-                        gorgel.error("query results for $encRef are malformed")
-                        updater.modify(null)
-                    }
-                })
+        myWorkshop.queryObjects(queryEnc(encRef), databaseId, 1) { queryResult: Any? ->
+            if (queryResult == null) {
+                gorgel.error("encumbrance object $encRef not found")
+                updater.modify(null)
+            } else if (queryResult is Array<*>) {
+                if (queryResult.size == 1) {
+                    doAccountUpdate(encRef, queryResult[0] as Any, updater)
+                } else {
+                    gorgel.error("wrong number of query results for $encRef")
+                    updater.modify(null)
+                }
+            } else {
+                gorgel.error("query results for $encRef are malformed")
+                updater.modify(null)
+            }
+        }
     }
 
     /**
@@ -556,23 +552,9 @@ constructor(
      */
     fun withEncumbranceAndAccount(encRef: String, accountRef: String, updater: DualAccountUpdater) {
         myWorkshop.queryObjects(queryEncAndAccount(encRef, accountRef),
-                myAccountCollection, 2, { queryResult: Any? ->
-            if (queryResult == null) {
-                gorgel.error("accounts via $encRef+$accountRef not found")
-                updater.modify(null, null)
-            } else if (queryResult is Array<*>) {
-                if (queryResult.size == 2) {
-                    doDualAccountUpdate(encRef, queryResult[0] as Any,
-                            accountRef, queryResult[1] as Any, updater)
-                } else {
-                    gorgel.error("wrong number of query results for $encRef+$accountRef")
-                    updater.modify(null, null)
-                }
-            } else {
-                gorgel.error("query results for $encRef+$accountRef are malformed")
-                updater.modify(null, null)
-            }
-        })
+                databaseId, 2) { queryResult: Any? ->
+            updateTwoAccounts(queryResult, encRef, accountRef, updater)
+        }
     }
 
     /**
@@ -587,23 +569,32 @@ constructor(
     fun withTwoAccounts(account1Ref: String, account2Ref: String,
                         updater: DualAccountUpdater) {
         myWorkshop.queryObjects(queryTwoAccounts(account1Ref, account2Ref),
-                myAccountCollection, 2, { queryResult: Any? ->
-            if (queryResult == null) {
-                gorgel.error("accounts $account1Ref+$account2Ref not found")
-                updater.modify(null, null)
-            } else if (queryResult is Array<*>) {
-                if (queryResult.size == 2) {
-                    doDualAccountUpdate(account1Ref, queryResult[0] as Any,
-                            account2Ref, queryResult[1] as Any, updater)
-                } else {
-                    gorgel.error("wrong number of query results for $account1Ref+$account2Ref")
-                    updater.modify(null, null)
-                }
+                databaseId, 2) { queryResult: Any? ->
+            updateTwoAccounts(queryResult, account1Ref, account2Ref, updater)
+        }
+    }
+
+    private fun updateTwoAccounts(
+            queryResult: Any?,
+            account1Ref: String,
+            account2Ref: String,
+            updater: DualAccountUpdater
+    ) {
+        if (queryResult == null) {
+            gorgel.error("accounts $account1Ref+$account2Ref not found")
+            updater.modify(null, null)
+        } else if (queryResult is Array<*>) {
+            if (queryResult.size == 2) {
+                doDualAccountUpdate(account1Ref, queryResult[0] as Any,
+                        account2Ref, queryResult[1] as Any, updater)
             } else {
-                gorgel.error("query results for $account1Ref+$account2Ref are malformed")
+                gorgel.error("wrong number of query results for $account1Ref+$account2Ref")
                 updater.modify(null, null)
             }
-        })
+        } else {
+            gorgel.error("query results for $account1Ref+$account2Ref are malformed")
+            updater.modify(null, null)
+        }
     }
 
     companion object {

@@ -54,6 +54,7 @@ internal class Account(internal val ref: String, private var myVersion: Int, int
      * @param encumbrances  Encumbrances on the account.
      * @param deleted  Flag indicating whether or not account is deleted.
      */
+    @Suppress("SpellCheckingInspection")
     @JsonMethod("ref", "version", "curr", "owner", "memo", "bal", "frozen", "encs", "deleted")
     constructor(ref: String, version: Int, currency: String, owner: String,
                 memo: String, totalBalance: Int, frozen: Boolean,
@@ -82,6 +83,7 @@ internal class Account(internal val ref: String, private var myVersion: Int, int
      */
     override fun encode(control: EncodeControl) =
             if (control.toRepository()) {
+                @Suppress("SpellCheckingInspection")
                 JsonLiteralFactory.type("bankacct", control).apply {
                     addParameter("ref", ref)
                     addParameter("version", myVersion)
@@ -105,16 +107,16 @@ internal class Account(internal val ref: String, private var myVersion: Int, int
      *
      * @param workshop  Workshop object this account is being managed within,
      * for access to the persistent store.
-     * @param collection  MongoDB collection into which to save the account.
+     * @param databaseId  ID of the database to store the account in.
      * @param resultHandler  Handler that will be invoked with status of
      * write, after completion.
      */
-    fun checkpoint(workshop: Workshop, collection: String?, resultHandler: Consumer<Any?>?) {
+    fun checkpoint(workshop: Workshop, databaseId: String, resultHandler: Consumer<Any?>?) {
         if (myVersion == 0) {
             myVersion = 1
-            workshop.putObject(ref, this, collection, resultHandler)
+            workshop.putObject(ref, this, databaseId, resultHandler)
         } else {
-            workshop.updateObject(ref, myVersion++, this, collection, resultHandler)
+            workshop.updateObject(ref, myVersion++, this, databaseId, resultHandler)
         }
     }
 

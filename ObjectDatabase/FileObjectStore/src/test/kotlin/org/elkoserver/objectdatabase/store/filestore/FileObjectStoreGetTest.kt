@@ -378,13 +378,11 @@ class FileObjectStoreGetTest {
         File(temporaryDirectory, "$ref.json").writeText(contents)
     }
 
-    private fun request(ref: String) = RequestDesc(ref, SOME_COLLECTION_NAME, SOME_BOOLEAN)
+    private fun request(ref: String) = RequestDesc(ref, SOME_BOOLEAN)
 
     private fun success(ref: String, obj: String) = ObjectDesc(ref, obj, null)
 
     private fun notFound(ref: String) = ObjectDesc(ref, null, "not found")
-
-    private fun failure(ref: String, failure: String) = ObjectDesc(ref, null, failure)
 }
 
 private fun Array<ObjectDesc>.toComparableStrings() =
