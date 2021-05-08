@@ -56,7 +56,7 @@ import java.util.TreeSet
  */
 internal class TestUserFactory @JsonMethod("key") constructor(private val key: String) : EphemeralUserFactory, ClockUsingObject, ClassspecificGorgelUsingObject, PostInjectionInitializingObject {
     /** Cryptor incorporating the key used to decrypt blobs.  */
-    private var myCryptor: Cryptor? = null
+    private lateinit var myCryptor: Cryptor
 
     /** Collection of unexpired (or recently expired) nonces previously seen  */
     private val myNonces: SortedSet<Nonce> = TreeSet()
@@ -127,46 +127,44 @@ internal class TestUserFactory @JsonMethod("key") constructor(private val key: S
     override fun provideUser(contextor: Contextor, connection: Connection,
                              param: JsonObject?, contextRef: String,
                              contextTemplate: String?): User {
-        if (myCryptor != null) {
-            try {
-                val blob = param!!.getRequiredString("blob")
-                val params = myCryptor!!.decryptJSONObject(blob)
-                val userDesc = params.getRequiredObject("user")
-                val expire = params.getRequiredInt("expire")
-                val now = clock.millis() / 1000
-                if (expire > now) {
-                    val nonceID = params.getRequiredString("nonce")
-                    val nonce = Nonce(expire, nonceID)
-                    if (!myNonces.contains(nonce)) {
-                        purgeExpiredNonces(now)
-                        myNonces.add(nonce)
-                        val reqContextRef = params.getStringOrNull("context")
-                        if (reqContextRef != null &&
-                                reqContextRef != contextRef) {
-                            myGorgel.error("context ref mismatch")
-                            throw IllegalStateException()
-                        }
-                        val reqContextTemplate = params.getStringOrNull("ctmpl")
-                        if (reqContextTemplate != null &&
-                                reqContextTemplate != contextTemplate) {
-                            myGorgel.error(
-                                    "context template ref mismatch")
-                            throw IllegalStateException()
-                        }
-                        val result = jsonToObjectDeserializer.decode(User::class.java, userDesc, contextor.objectDatabase)
-                        return result as User
+        try {
+            val blob = param?.getRequiredString("blob") ?: throw IllegalStateException()
+            val params = myCryptor.decryptJsonObject(blob)
+            val userDesc = params.getRequiredObject("user")
+            val expire = params.getRequiredInt("expire")
+            val now = clock.millis() / 1000
+            if (expire > now) {
+                val nonceID = params.getRequiredString("nonce")
+                val nonce = Nonce(expire, nonceID)
+                if (!myNonces.contains(nonce)) {
+                    purgeExpiredNonces(now)
+                    myNonces.add(nonce)
+                    val reqContextRef = params.getStringOrNull("context")
+                    if (reqContextRef != null &&
+                            reqContextRef != contextRef) {
+                        myGorgel.error("context ref mismatch")
+                        throw IllegalStateException()
                     }
-                    myGorgel.error("reused nonce")
-                } else {
-                    myGorgel.error("expired nonce")
+                    val reqContextTemplate = params.getStringOrNull("ctmpl")
+                    if (reqContextTemplate != null &&
+                            reqContextTemplate != contextTemplate) {
+                        myGorgel.error(
+                                "context template ref mismatch")
+                        throw IllegalStateException()
+                    }
+                    val result = jsonToObjectDeserializer.decode(User::class.java, userDesc, contextor.objectDatabase)
+                    return result as User
                 }
-            } catch (e: IOException) {
-                myGorgel.error("malformed cryptoblob")
-            } catch (e: JsonParserException) {
-                myGorgel.error("bad JSON string in cryptoblob")
-            } catch (e: JsonDecodingException) {
-                myGorgel.error("missing or improperly typed property in cryptoblob")
+                myGorgel.error("reused nonce")
+            } else {
+                myGorgel.error("expired nonce")
             }
+        } catch (e: IOException) {
+            myGorgel.error("malformed cryptoblob")
+        } catch (e: JsonParserException) {
+            myGorgel.error("bad JSON string in cryptoblob")
+        } catch (e: JsonDecodingException) {
+            myGorgel.error("missing or improperly typed property in cryptoblob")
         }
         throw IllegalStateException()
     }

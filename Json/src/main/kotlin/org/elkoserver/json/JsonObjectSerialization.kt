@@ -5,7 +5,7 @@ import org.elkoserver.json.EncodeControl.ForClientEncodeControl
 
 object JsonObjectSerialization {
     /**
-     * Convert this JSONObject into a JSONLiteral.
+     * Convert this JsonObject into a JsonLiteral.
      *
      * @param control  Encode control determining what flavor of encoding
      * is being done.
@@ -29,7 +29,7 @@ object JsonObjectSerialization {
             }
 
     /**
-     * Encode this JSONObject into an externally provided string buffer.
+     * Encode this JsonObject into an externally provided string buffer.
      *
      * @param buf  The buffer into which to build the literal string.
      * @param control  Encode control determining what flavor of encoding

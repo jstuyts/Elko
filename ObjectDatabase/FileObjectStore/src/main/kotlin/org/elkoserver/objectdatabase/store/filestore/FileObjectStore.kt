@@ -18,7 +18,7 @@ import java.util.LinkedList
  */
 class FileObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
     /** The directory in which the object "database" contents are stored.  */
-    private lateinit var myObjectDatabaseDirectory: File
+    private var myObjectDatabaseDirectory: File
 
     /**
      * Obtain the object or objects that a field value references.
@@ -60,7 +60,7 @@ class FileObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
                 objReader.read(buf)
                 objReader.close()
                 obj = String(buf)
-                val jsonObj = JsonParsing.jsonObjectFromString(obj)!!
+                val jsonObj = JsonParsing.jsonObjectFromString(obj) ?: throw IllegalStateException()
                 contents = doGetContents(jsonObj)
             } else {
                 failure = "not found"
@@ -230,17 +230,10 @@ class FileObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
      * The property `"*propRoot*.odjdb"` should specify the
      * pathname of the directory in which the object description files are
      * stored.
-     *
-     * @param props  Properties describing configuration information.
-     * @param propRoot  Prefix string for selecting relevant properties.
      */
     init {
-        arguments.run {
-            val dirname = props.getProperty("$propRoot.odjdb")
-                    ?: throw java.lang.IllegalStateException("no object database directory specified")
-            myObjectDatabaseDirectory = File(dirname)
-            check(myObjectDatabaseDirectory.exists()) { "object database directory '$dirname' does not exist" }
-            check(myObjectDatabaseDirectory.isDirectory) { "requested object database directory $dirname is not a directory" }
+        arguments.parse().run {
+            myObjectDatabaseDirectory = dir
         }
     }
 }

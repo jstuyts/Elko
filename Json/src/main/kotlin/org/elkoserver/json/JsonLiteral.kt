@@ -249,7 +249,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
      * Add a [JsonArray] parameter to an incomplete literal.
      *
      * @param param  The parameter name.
-     * @param value  The parameter (JSONArray) value.
+     * @param value  The parameter (JsonArray) value.
      */
     private fun addParameter(param: String, value: JsonArray) {
         addParameter(param, value as Any)
@@ -261,7 +261,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
      * except that if the value is null, the parameter is not added.
      *
      * @param param  The parameter name.
-     * @param value  The optional (JSONArray) parameter value.
+     * @param value  The optional (JsonArray) parameter value.
      */
     fun addParameterOpt(param: String, value: JsonArray?) {
         value?.let { addParameter(param, it) }

@@ -94,7 +94,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * or null if the operation was successful.
      */
     override fun putObject(ref: String, obj: Encodable, collectionName: String?, requireNew: Boolean, handler: Consumer<Any?>?) {
-        val objToWrite = obj.encode(ForRepositoryEncodeControl)!!
+        val objToWrite = obj.encode(ForRepositoryEncodeControl) ?: throw IllegalStateException()
         myRunner.enqueue(PutCallHandler(ref, objToWrite, collectionName, requireNew, handler))
     }
 
@@ -111,7 +111,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * or null if the operation was successful.
      */
     override fun updateObject(ref: String, version: Int, obj: Encodable, collectionName: String?, handler: Consumer<Any?>?) {
-        val objToWrite = obj.encode(ForRepositoryEncodeControl)!!
+        val objToWrite = obj.encode(ForRepositoryEncodeControl) ?: throw IllegalStateException()
         myRunner.enqueue(UpdateCallHandler(ref, version, objToWrite, collectionName, handler))
     }
 
@@ -206,9 +206,9 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
             val results = arrayOfNulls<Any>(descs.size)
             for (i in descs.indices) {
                 try {
-                    val jsonObj = jsonObjectFromString(descs[i].obj!!)!!
+                    val jsonObj = jsonObjectFromString(descs[i].obj ?: throw IllegalStateException()) ?: throw IllegalStateException()
                     if (jsonObj.getStringOrNull("type") != null) {
-                        results[i] = decodeJSONObject(jsonObj)
+                        results[i] = decodeJsonObject(jsonObj)
                     } else {
                         results[i] = jsonObj
                     }

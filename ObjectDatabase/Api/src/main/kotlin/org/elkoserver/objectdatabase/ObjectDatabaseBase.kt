@@ -40,7 +40,7 @@ abstract class ObjectDatabaseBase(
      *
      * @return the object described by 'jsonObj'.
      */
-    fun decodeJSONObject(jsonObj: JsonObject): Any? {
+    fun decodeJsonObject(jsonObj: JsonObject): Any? {
         var result: Any? = null
         val typeTag = jsonObj.getStringOrNull("type")
         if (typeTag != null) {
@@ -73,9 +73,9 @@ abstract class ObjectDatabaseBase(
             null
         } else {
             try {
-                val jsonObj = jsonObjectFromString(objStr)!!
+                val jsonObj = jsonObjectFromString(objStr) ?: throw IllegalStateException()
                 insertContents(jsonObj, results)
-                decodeJSONObject(jsonObj)
+                decodeJsonObject(jsonObj)
             } catch (e: JsonParserException) {
                 gorgel.error("object store syntax error getting $ref: ${e.message}")
                 null

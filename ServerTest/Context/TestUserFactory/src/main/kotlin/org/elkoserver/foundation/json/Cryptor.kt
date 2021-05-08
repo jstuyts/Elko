@@ -22,7 +22,7 @@ import javax.crypto.spec.SecretKeySpec
  * @param keyStr Base64-encoded symmetric key.
  */
 class Cryptor(keyStr: String, private val gorgel: Gorgel, private val jsonToObjectDeserializer: JsonToObjectDeserializer) {
-    private var myCipher: Cipher? = null
+    private val myCipher: Cipher
     private val myKey: SecretKey
 
     /**
@@ -50,8 +50,8 @@ class Cryptor(keyStr: String, private val gorgel: Gorgel, private val jsonToObje
         return try {
             val iv = base64Decoder.decode(ivStr)
             val ivSpec = IvParameterSpec(iv)
-            myCipher!!.init(Cipher.DECRYPT_MODE, myKey, ivSpec)
-            String(myCipher!!.doFinal(base64Decoder.decode(cypherText)),
+            myCipher.init(Cipher.DECRYPT_MODE, myKey, ivSpec)
+            String(myCipher.doFinal(base64Decoder.decode(cypherText)),
                     StandardCharsets.UTF_8)
         } catch (e: InvalidAlgorithmParameterException) {
             gorgel.error("fatal Cryptor.decrypt failure: ", e)
@@ -74,7 +74,7 @@ class Cryptor(keyStr: String, private val gorgel: Gorgel, private val jsonToObje
      * @throws IOException         if the input string is malformed
      * @throws JsonParserException if the decrypted JSON literal is invalid
      */
-    fun decryptJSONObject(str: String): JsonObject = JsonParsing.jsonObjectFromString(decrypt(str))!!
+    fun decryptJsonObject(str: String): JsonObject = JsonParsing.jsonObjectFromString(decrypt(str)) ?: throw IllegalStateException()
 
     /**
      * Decrypt and decode a (base-64 encoded) encrypted object serialized as a
@@ -90,7 +90,7 @@ class Cryptor(keyStr: String, private val gorgel: Gorgel, private val jsonToObje
      * could not be decoded for some reason.
      * @throws IOException if the input string is malformed
      */
-    fun decryptObject(baseType: Class<*>?, str: String): Any? = jsonToObjectDeserializer.decode(baseType!!, decrypt(str))
+    fun decryptObject(baseType: Class<*>, str: String): Any? = jsonToObjectDeserializer.decode(baseType, decrypt(str))
 
     /**
      * Produce a (base-64 encoded) encrypted version of a string.
@@ -107,9 +107,9 @@ class Cryptor(keyStr: String, private val gorgel: Gorgel, private val jsonToObje
         theRandom.nextBytes(iv)
         val ivSpec = IvParameterSpec(iv)
         val failure = try {
-            myCipher!!.init(Cipher.ENCRYPT_MODE, myKey, ivSpec)
+            myCipher.init(Cipher.ENCRYPT_MODE, myKey, ivSpec)
             return base64Encoder.encodeToString(iv).substring(0, 22) +
-                    base64Encoder.encodeToString(myCipher!!.doFinal(str.toByteArray(StandardCharsets.UTF_8)))
+                    base64Encoder.encodeToString(myCipher.doFinal(str.toByteArray(StandardCharsets.UTF_8)))
         } catch (e: InvalidAlgorithmParameterException) {
             e
         } catch (e: IllegalBlockSizeException) {

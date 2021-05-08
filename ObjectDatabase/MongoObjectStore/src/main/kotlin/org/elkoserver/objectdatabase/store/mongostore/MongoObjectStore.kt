@@ -2,14 +2,12 @@ package org.elkoserver.objectdatabase.store.mongostore
 
 import com.grack.nanojson.JsonArray
 import com.grack.nanojson.JsonObject
-import com.grack.nanojson.JsonParserException
 import com.mongodb.MongoClient
 import com.mongodb.client.MongoCollection
 import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.UpdateOptions
 import org.bson.Document
-import org.bson.types.ObjectId
-import org.elkoserver.json.*
+import org.elkoserver.json.JsonObjectSerialization
 import org.elkoserver.objectdatabase.store.*
 import java.util.LinkedList
 
@@ -62,9 +60,9 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
         try {
             val query = Document()
             query["ref"] = ref
-            val dbObj = collection.find(query).first()
-            if (dbObj != null) {
-                val jsonObj = dbObjectToJSONObject(dbObj)
+            val mongoDocument = collection.find(query).first()
+            if (mongoDocument != null) {
+                val jsonObj = mongoDocumentToJsonObject(mongoDocument)
                 obj = JsonObjectSerialization.sendableString(jsonObj)
                 contents = doGetContents(jsonObj, collection)
             } else {
@@ -79,117 +77,6 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
             results.addAll(contents)
         }
         return results
-    }
-
-    private fun dbObjectToJSONObject(dbObj: Document): JsonObject {
-        val result = JsonObject()
-        for (key in dbObj.keys) {
-            if (!key.startsWith("_")) {
-                var value = dbObj[key]
-                if (value is List<*>) {
-                    value = dbListToJSONArray(value)
-                } else if (value is Document) {
-                    value = dbObjectToJSONObject(value)
-                }
-                result[key] = value
-            } else if (key == "_id") {
-                val oid = dbObj[key] as ObjectId
-                result[key] = oid.toString()
-            }
-        }
-        return result
-    }
-
-    private fun dbListToJSONArray(dbList: List<*>): JsonArray {
-        val result = JsonArray()
-        dbList
-                .map {
-                    when (it) {
-                        is List<*> -> dbListToJSONArray(it)
-                        is Document -> dbObjectToJSONObject(it)
-                        else -> it
-                    }
-                }
-                .forEach(result::add)
-        return result
-    }
-
-    private fun jsonLiteralToDBObject(objStr: String, ref: String): Document? {
-        val obj: JsonObject = try {
-            JsonParsing.jsonObjectFromString(objStr)!!
-        } catch (e: JsonParserException) {
-            return null
-        }
-        val result = jsonObjectToDBObject(obj)
-        result["ref"] = ref
-
-        // WARNING: the following is a rather profound and obnoxious modularity
-        // boundary violation, but as ugly as it is, it appears to be the least
-        // bad way to accommodate some of the limitations of Mongodb's
-        // geo-indexing feature.  In order to spatially index an object,
-        // Mongodb requires the 2D coordinate information to be stored in a
-        // 2-element object or array property at the top level of the object to
-        // be indexed. In the case of a 2-element object, the order the
-        // properties appear in the JSON encoding is meaningful, which totally
-        // violates the definition of JSON but that's what they did.
-        // Unfortunately, the rest of our object encoding/decoding
-        // infrastructure requires object-valued properties whose values are
-        // polymorphic classes to contain a "type" property to indicate what
-        // class they are.  Since there's no way to control the order in which
-        // properties will be encoded when the object is serialized to JSON, we
-        // risk having Mongodb mistake the type tag for the latitude or
-        // longitude.  Even if we could overcome this, we'd still risk having
-        // Mongodb mix the latitude and longitude up with each other.
-        // Consequently, what we do is notice if an object being written has a
-        // "pos" property of type "geopos", and if so we manually generate an
-        // additional "_qpos_" property that is well formed according to
-        // MongoDB's 2D coordinate encoding rules, and have Mongodb index
-        // *that*.  When an object is read from the database, we strip this
-        // property off again before we return the object to the application.
-        val mods = obj.getRequiredArray("mods")
-        mods.iterator().forEachRemaining { mod: Any? ->
-            if (mod is JsonObject) {
-                if ("geopos" == mod.getStringOrNull("type")) {
-                    val lat = mod.getOptionalDouble("lat", 0.0)
-                    val lon = mod.getOptionalDouble("lon", 0.0)
-                    val qpos = Document()
-                    qpos["lat"] = lat
-                    qpos["lon"] = lon
-                    result["_qpos_"] = qpos
-                }
-            }
-        }
-        // End of ugly modularity boundary violation
-        return result
-    }
-
-    private fun valueToDBValue(value: Any?) =
-            if (value is JsonObject) {
-                jsonObjectToDBObject(value)
-            } else if (value is JsonArray) {
-                jsonArrayToDBArray(value)
-            } else if (value is Long) {
-                if (Int.MIN_VALUE <= value && value <= Int.MAX_VALUE) {
-                    value.toInt()
-                } else {
-                    value
-                }
-            } else {
-                value
-            }
-
-    private fun jsonArrayToDBArray(arr: JsonArray): ArrayList<Any?> {
-        val result = ArrayList<Any?>(arr.size)
-        arr.mapTo(result, ::valueToDBValue)
-        return result
-    }
-
-    private fun jsonObjectToDBObject(obj: JsonObject): Document {
-        val result = Document()
-        for ((key, value) in obj.entries) {
-            result[key] = valueToDBValue(value)
-        }
-        return result
     }
 
     /**
@@ -223,7 +110,7 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
     private fun doPut(ref: String, obj: String, collection: MongoCollection<Document>, requireNew: Boolean): ResultDesc {
         var failure: String? = null
         try {
-            val objectToWrite = jsonLiteralToDBObject(obj, ref) ?: throw IllegalStateException()
+            val objectToWrite = jsonLiteralToMongoDocument(obj, ref)
             if (requireNew) {
                 collection.insertOne(objectToWrite)
             } else {
@@ -252,7 +139,7 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
         var failure: String? = null
         var atomicFailure = false
         try {
-            val objectToWrite = jsonLiteralToDBObject(obj, ref) ?: throw IllegalStateException()
+            val objectToWrite = jsonLiteralToMongoDocument(obj, ref)
             val query = Document()
             query["ref"] = ref
             query["version"] = version
@@ -350,14 +237,14 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
     private fun doQuery(template: JsonObject, collection: MongoCollection<Document>, maxResults: Int): List<ObjectDesc> {
         val results: MutableList<ObjectDesc> = LinkedList()
         try {
-            val query = jsonObjectToDBObject(template)
+            val query = jsonObjectToDMongoDocument(template)
             val cursor = if (maxResults > 0) {
                 collection.find(query).batchSize(-maxResults)
             } else {
                 collection.find(query)
             }
             cursor
-                    .map(::dbObjectToJSONObject)
+                    .map(::mongoDocumentToJsonObject)
                     .map(JsonObjectSerialization::sendableString)
                     .mapTo(results) { ObjectDesc("query", it, null) }
         } catch (e: Exception) {
@@ -434,30 +321,12 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
      * The optional property `"*propRoot*.odjdb.mongo.collname"`
      * allows the collection containing the object repository to be specified.
      * If omitted, this defaults to `"odb"`.
-     *
-     * @param props  Properties describing configuration information.
-     * @param propRoot  Prefix string for selecting relevant properties.
      */
     init {
-        arguments.run {
-            val mongoPropRoot = "$propRoot.odjdb.mongo"
-            val addressStr = props.getProperty("$mongoPropRoot.hostport")
-                    ?: throw IllegalStateException("no mongo database server address specified")
-            val colon = addressStr.indexOf(':')
-            val port: Int
-            val host: String
-            if (colon < 0) {
-                port = 27017
-                host = addressStr
-            } else {
-                port = addressStr.substring(colon + 1).toInt()
-                host = addressStr.take(colon)
-            }
+        arguments.parse().run {
             /* The MongoDB instance in which the objects are stored. */
             val myMongo = MongoClient(host, port)
-            val dbName = props.getProperty("$mongoPropRoot.dbname", "elko")
             myDatabase = myMongo.getDatabase(dbName)
-            val collName = props.getProperty("$mongoPropRoot.collname", "odb")
             myObjectDatabaseCollection = myDatabase.getCollection(collName)
         }
     }
