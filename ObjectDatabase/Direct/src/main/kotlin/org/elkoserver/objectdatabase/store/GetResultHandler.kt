@@ -4,7 +4,7 @@ package org.elkoserver.objectdatabase.store
  * Interface for an [ObjectStore] object to deliver the results of
  * servicing a 'get' request.
  */
-interface GetResultHandler {
+fun interface GetResultHandler {
     /**
      * Receive the results of a 'get' request.
      *
@@ -14,5 +14,5 @@ interface GetResultHandler {
      * call, since the number of objects returned may vary depending on the
      * number of contained objects.
      */
-    fun handle(results: Array<ObjectDesc>?)
+    fun handle(results: Array<ObjectDesc>)
 }

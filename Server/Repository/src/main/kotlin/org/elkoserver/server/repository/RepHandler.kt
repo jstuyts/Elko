@@ -42,7 +42,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
     operator fun get(from: RepositoryActor, tag: OptString,
                      what: Array<RequestDesc>) {
         myObjectStore.getObjects(what, object : GetResultHandler {
-            override fun handle(results: Array<ObjectDesc>?) {
+            override fun handle(results: Array<ObjectDesc>) {
                 from.send(msgGet(this@RepHandler, tag.valueOrNull(), results))
             }
         })
@@ -99,7 +99,7 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
     fun query(from: RepositoryActor, tag: OptString,
               what: Array<QueryDesc>) {
         myObjectStore.queryObjects(what, object : GetResultHandler {
-            override fun handle(results: Array<ObjectDesc>?) {
+            override fun handle(results: Array<ObjectDesc>) {
                 from.send(msgQuery(this@RepHandler, tag.valueOrNull(), results))
             }
         })

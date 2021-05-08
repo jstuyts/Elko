@@ -4,8 +4,7 @@ import com.grack.nanojson.JsonArray
 import com.grack.nanojson.JsonObject
 import org.elkoserver.json.JsonParsing
 import org.elkoserver.objectdatabase.store.*
-import java.io.*
-import java.nio.charset.StandardCharsets
+import java.io.File
 import java.util.LinkedList
 
 /**
@@ -16,9 +15,11 @@ import java.util.LinkedList
  * Constructor.  Currently there is nothing to do, since all the real
  * initialization work happens in [initialize()][.initialize].
  */
-class FileObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
+class FileObjectStore internal constructor(arguments: ObjectStoreArguments, private val fileOperations: FileOperations) : ObjectStore {
     /** The directory in which the object "database" contents are stored.  */
-    private var myObjectDatabaseDirectory: File
+    private val myObjectDatabaseDirectory: File
+
+    constructor(arguments: ObjectStoreArguments) : this(arguments, RealFileOperations)
 
     /**
      * Obtain the object or objects that a field value references.
@@ -26,13 +27,12 @@ class FileObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
      * @param value  The value to dereference.
      * @param results  List in which to place the object or objects obtained.
      */
-    private fun dereferenceValue(value: Any, results: MutableList<ObjectDesc>) {
-        if (value is JsonArray) {
-            value
-                    .filterIsInstance<String>()
-                    .forEach { results.addAll(doGet(it)) }
-        } else if (value is String) {
-            results.addAll(doGet(value))
+    private fun dereferenceValue(value: Any?, results: MutableList<ObjectDesc>) {
+        when (value) {
+            is JsonArray -> value.forEach { possibleRef ->
+                (possibleRef as? String)?.let { ref -> results.addAll(doGet(ref)) }
+            }
+            is String -> results.addAll(doGet(value))
         }
     }
 
@@ -45,36 +45,26 @@ class FileObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
      * the result of getting 'ref' and the remainder, if any, will be the
      * results of getting any contents objects.
      */
-    private fun doGet(ref: String): List<ObjectDesc> {
-        val results: MutableList<ObjectDesc> = LinkedList()
-        var failure: String? = null
-        var obj: String? = null
-        var contents: List<ObjectDesc>? = null
-        try {
-            val file = odbFile(ref)
-            val length = file.length()
-            if (length > 0) {
-                val objReader: Reader = InputStreamReader(FileInputStream(file), StandardCharsets.UTF_8)
-                val buf = CharArray(length.toInt())
-                // FIXME: Handle the result
-                objReader.read(buf)
-                objReader.close()
-                obj = String(buf)
-                val jsonObj = JsonParsing.jsonObjectFromString(obj) ?: throw IllegalStateException()
-                contents = doGetContents(jsonObj)
-            } else {
-                failure = "not found"
+    private fun doGet(ref: String) =
+            try {
+                val file = odbFile(ref)
+                if (file.isFile && file.length() > 0) {
+                    val obj = fileOperations.read(file)
+                    val objDesc = ObjectDesc(ref, obj, null)
+                    val contents = doGetContents(obj)
+                    ArrayList<ObjectDesc>(1 + contents.size).apply {
+                        add(objDesc)
+                        addAll(contents)
+                    }
+                } else {
+                    listOf(ObjectDesc(ref, null, "not found"))
+                }
+            } catch (e: Exception) {
+                listOf(ObjectDesc(ref, null, e.message))
             }
-        } catch (e: Exception) {
-            obj = null
-            failure = e.message
-        }
-        results.add(ObjectDesc(ref, obj, failure))
-        if (contents != null) {
-            results.addAll(contents)
-        }
-        return results
-    }
+
+    private fun doGetContents(obj: String): List<ObjectDesc> =
+            doGetContents(JsonParsing.jsonObjectFromString(obj) ?: throw IllegalStateException())
 
     /**
      * Fetch the contents of an object.
@@ -84,15 +74,14 @@ class FileObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
      * @return a List of ObjectDesc objects for the contents as
      * requested.
      */
-    private fun doGetContents(obj: JsonObject): List<ObjectDesc> {
-        val results: MutableList<ObjectDesc> = LinkedList()
-        for ((propName, value) in obj.entries) {
-            if (propName.startsWith("ref$")) {
-                dereferenceValue(value, results)
+    private fun doGetContents(obj: JsonObject): List<ObjectDesc> =
+            LinkedList<ObjectDesc>().apply {
+                for ((propName, value) in obj.entries) {
+                    if (propName.startsWith("ref$")) {
+                        dereferenceValue(value, this)
+                    }
+                }
             }
-        }
-        return results
-    }
 
     /**
      * Perform a single 'put' operation on the local object store.
@@ -103,16 +92,13 @@ class FileObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
      * @return a ResultDesc object describing the success or failure of the
      * operation.
      */
-    private fun doPut(ref: String, obj: String?, requireNew: Boolean): ResultDesc {
+    private fun doPut(ref: String, obj: String, requireNew: Boolean): ResultDesc {
         var failure: String? = null
         when {
-            obj == null -> failure = "no object data given"
             requireNew -> failure = "requireNew option not supported in file store"
             else ->
                 try {
-                    val objWriter: Writer = OutputStreamWriter(FileOutputStream(odbFile(ref)), StandardCharsets.UTF_8)
-                    objWriter.write(obj)
-                    objWriter.close()
+                    fileOperations.write(odbFile(ref), obj)
                 } catch (e: Exception) {
                     failure = e.message
                 }
@@ -147,11 +133,12 @@ class FileObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
      * or failure indicators), when available.
      */
     override fun getObjects(what: Array<RequestDesc>, handler: GetResultHandler) {
-        val resultList: MutableList<ObjectDesc> = LinkedList()
-        for (req in what) {
-            resultList.addAll(doGet(req.ref))
-        }
-        handler.handle(resultList.toTypedArray())
+        val retrievalResults = LinkedList<ObjectDesc>().apply {
+            for (req in what) {
+                addAll(doGet(req.ref))
+            }
+        }.toTypedArray()
+        handler.handle(retrievalResults)
     }
 
     /**

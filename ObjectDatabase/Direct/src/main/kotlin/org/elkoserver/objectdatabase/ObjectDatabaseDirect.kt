@@ -65,16 +65,13 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
             myObjectStore.getObjects(what, this)
         }
 
-        override fun handle(results: Array<ObjectDesc>?) {
-            var obj: Any? = null
-            if (results != null) {
-                val failure = results[0].failure
-                obj = if (failure == null) {
-                    decodeObject(myRef, results)
-                } else {
-                    gorgel.error("object store error getting $myRef: $failure")
-                    null
-                }
+        override fun handle(results: Array<ObjectDesc>) {
+            val failure = results[0].failure
+            val obj = if (failure == null) {
+                decodeObject(myRef, results)
+            } else {
+                gorgel.error("object store error getting $myRef: $failure")
+                null
             }
             myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, obj))
         }
@@ -188,9 +185,9 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
             myObjectStore.queryObjects(what, this)
         }
 
-        override fun handle(results: Array<ObjectDesc>?) {
+        override fun handle(results: Array<ObjectDesc>) {
             var objs: Array<Any?>? = null
-            if (results != null && results.isNotEmpty()) {
+            if (results.isNotEmpty()) {
                 val failure = results[0].failure
                 objs = if (failure == null) {
                     decodeObjectSet(results)
