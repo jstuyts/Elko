@@ -1,7 +1,8 @@
 @file:Suppress("MayBeConstant", "SpellCheckingInspection")
 
 // https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server
-private const val jettyVersion = "11.0.2"
+// DO NOT UPGRADE UNTIL JETTY USES A STABLE VERSION OF SLF4J
+private const val jettyVersion = "9.4.40.v20210413"
 
 // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
 private const val junitVersion = "5.7.1"
