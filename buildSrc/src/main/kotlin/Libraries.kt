@@ -30,7 +30,6 @@ object Libraries {
     // https://mvnrepository.com/artifact/com.grack/nanojson
     val nanojson: String = "com.grack:nanojson:1.7"
 
-
     // https://ooverkommelig.org/
     val ooverkommelig: String = "org.ooverkommelig:ooverkommelig-jvm8:1beta2"
 
