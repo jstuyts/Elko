@@ -7,9 +7,9 @@ import org.elkoserver.foundation.net.ConnectionCloseException
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.run.Runner
-import org.elkoserver.foundation.run.thread.ThreadRunner
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.Queue
+import org.elkoserver.util.throwIfMandatory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.zeromq.ZMQ
 import java.io.IOException
@@ -131,7 +131,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
             commGorgel.i?.run { info("${this@ZeromqConnection} problem", t) }
             close()
             closeIsDone(t)
-            ThreadRunner.throwIfMandatory(t)
+            throwIfMandatory(t)
         }
     }
 
