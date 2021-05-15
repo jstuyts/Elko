@@ -38,7 +38,7 @@ import java.util.function.Consumer
  */
 class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGorgel: Gorgel, jsonToObjectDeserializer: JsonToObjectDeserializer,
                            private val myRunner: ThreadRunner, private val myReturnRunner: Runner) : ObjectDatabaseBase(gorgel, jsonToObjectDeserializer) {
-    /** Local object storage module.  */
+    /** Object storage module.  */
     private val myObjectStore: ObjectStore = createAndInitializeObjectStore(props, propRoot, baseGorgel)
 
     /**

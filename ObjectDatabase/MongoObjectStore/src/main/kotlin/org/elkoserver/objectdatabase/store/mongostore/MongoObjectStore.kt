@@ -44,7 +44,7 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
     }
 
     /**
-     * Perform a single 'get' operation on the local object store.
+     * Perform a single 'get' operation on the object store.
      *
      * @param ref  Object reference string of the object to be gotten.
      * @param collection  Collection to get from.
@@ -99,7 +99,7 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
     }
 
     /**
-     * Perform a single 'put' operation on the local object store.
+     * Perform a single 'put' operation on the object store.
      *
      * @param ref  Object reference string of the object to be written.
      * @param obj  JSON string encoding the object to be written.
@@ -121,7 +121,7 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
     }
 
     /**
-     * Perform a single 'update' operation on the local object store.
+     * Perform a single 'update' operation on the object store.
      *
      * @param ref  Object reference string of the object to be written.
      * @param version  Expected version number of object before updating.
@@ -150,7 +150,7 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
     }
 
     /**
-     * Perform a single 'remove' operation on the local object store.
+     * Perform a single 'remove' operation on the object store.
      *
      * @param ref  Object reference string of the object to be deleted.
      * @param collection  Collection to remove from.
@@ -218,7 +218,7 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
     }
 
     /**
-     * Perform a single 'query' operation on the local object store.
+     * Perform a single 'query' operation on the object store.
      *
      * @param template  Query template indicating what objects are sought.
      * @param maxResults  Maximum number of result objects to return, or 0 to

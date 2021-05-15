@@ -38,7 +38,7 @@ class FileObjectStore internal constructor(arguments: ObjectStoreArguments, priv
     }
 
     /**
-     * Perform a single 'get' operation on the local object store.
+     * Perform a single 'get' operation on the object store.
      *
      * @param ref  Object reference string of the object to be gotten.
      *
@@ -85,7 +85,7 @@ class FileObjectStore internal constructor(arguments: ObjectStoreArguments, priv
             }
 
     /**
-     * Perform a single 'put' operation on the local object store.
+     * Perform a single 'put' operation on the object store.
      *
      * @param ref  Object reference string of the object to be written.
      * @param obj  JSON string encoding the object to be written.
@@ -107,7 +107,7 @@ class FileObjectStore internal constructor(arguments: ObjectStoreArguments, priv
     }
 
     /**
-     * Perform a single 'remove' operation on the local object store.
+     * Perform a single 'remove' operation on the object store.
      *
      * @param ref  Object reference string of the object to be deleted.
      *
