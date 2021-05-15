@@ -5,7 +5,6 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionBase
 import org.elkoserver.foundation.net.ConnectionCloseException
 import org.elkoserver.foundation.net.LoadMonitor
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
@@ -15,6 +14,7 @@ import org.elkoserver.json.JsonLiteral
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
 import java.util.LinkedList
+import java.util.concurrent.Executor
 
 /**
  * An implementation of [Connection] that virtualizes a continuous
@@ -25,7 +25,7 @@ import java.util.LinkedList
  */
 class RtcpSessionConnection internal constructor(
         private val mySessionFactory: RtcpMessageHandlerFactory,
-        runner: Runner,
+        runner: Executor,
         loadMonitor: LoadMonitor,
         sessionIDAsLong: Long,
         private val timer: Timer,

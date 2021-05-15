@@ -26,8 +26,7 @@ import org.elkoserver.foundation.net.ws.server.WebsocketServerFactory
 import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
 import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner
-import org.elkoserver.foundation.run.thread.ThreadRunner
+import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRunner
 import org.elkoserver.foundation.run.threadpoolexecutor.ThreadPoolExecutorSlowServiceRunner
 import org.elkoserver.foundation.server.*
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
@@ -100,8 +99,6 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     val presencerGroupGorgel by Once { req(provided.baseGorgel()).getChild(PresencerGroup::class) }
 
     val reservationGorgel by Once { req(provided.baseGorgel()).getChild(Reservation::class) }
-
-    val runnerGorgel by Once { req(provided.baseGorgel()).getChild(Runner::class) }
 
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 
@@ -220,7 +217,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     }
             .dispose(SelectThread::shutDown)
 
-    val directObjectDatabaseRunnerFactory by Once { DirectObjectDatabaseRunnerFactory(req(runnerGorgel)) }
+    val directObjectDatabaseRunnerFactory by Once { DirectObjectDatabaseRunnerFactory() }
 
     val directObjectDatabaseFactory by Once {
         DirectObjectDatabaseFactory(
@@ -450,8 +447,8 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector), req(slowServiceRunnerInjector)) }
 
-    val runner by Once { ThreadRunner(req(runnerGorgel)) }
-            .dispose(ThreadRunner::orderlyShutdown)
+    val runner by Once { SingleThreadExecutorRunner() }
+            .dispose(SingleThreadExecutorRunner::orderlyShutdown)
 
     val serverTagGenerator by Once { LongIdGenerator() }
 

@@ -6,7 +6,6 @@ import org.elkoserver.foundation.net.ConnectionBase
 import org.elkoserver.foundation.net.ConnectionCloseException
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.Queue
 import org.elkoserver.util.throwIfMandatory
@@ -14,6 +13,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 import org.zeromq.ZMQ
 import java.io.IOException
 import java.time.Clock
+import java.util.concurrent.Executor
 
 /**
  * An implementation of [org.elkoserver.foundation.net.Connection] that
@@ -24,7 +24,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
                                             private val mySocket: ZMQ.Socket,
                                             private val amSendMode: Boolean,
                                             private val myThread: ZeromqThread,
-                                            runner: Runner,
+                                            runner: Executor,
                                             loadMonitor: LoadMonitor,
                                             remoteAddr: String,
                                             clock: Clock,

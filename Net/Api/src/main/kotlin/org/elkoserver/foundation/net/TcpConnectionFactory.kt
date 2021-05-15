@@ -1,15 +1,15 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.nio.channels.SelectionKey
 import java.nio.channels.SocketChannel
 import java.time.Clock
+import java.util.concurrent.Executor
 
 class TcpConnectionFactory(
-        private val runner: Runner,
+        private val runner: Executor,
         private val loadMonitor: LoadMonitor,
         private val clock: Clock,
         private val tcpConnectionGorgel: Gorgel,

@@ -2,7 +2,6 @@ package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.Queue
 import org.elkoserver.util.throwIfMandatory
@@ -14,6 +13,7 @@ import java.nio.channels.SelectionKey
 import java.nio.channels.SocketChannel
 import java.time.Clock
 import java.util.concurrent.Callable
+import java.util.concurrent.Executor
 
 /**
  * An implementation of [Connection] that manages a non-blocking TCP
@@ -32,7 +32,7 @@ import java.util.concurrent.Callable
 class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
                                          framerFactory: ByteIoFramerFactory, private val myChannel: SocketChannel,
                                          private val myKey: SelectionKey, private val mySelectThread: SelectThread,
-                                         runner: Runner,
+                                         runner: Executor,
                                          loadMonitor: LoadMonitor,
                                          private val amSecure: Boolean,
                                          private val gorgel: Gorgel,

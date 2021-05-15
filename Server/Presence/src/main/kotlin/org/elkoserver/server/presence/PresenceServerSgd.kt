@@ -26,8 +26,7 @@ import org.elkoserver.foundation.net.ws.server.WebsocketServerFactory
 import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
 import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner
-import org.elkoserver.foundation.run.thread.ThreadRunner
+import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRunner
 import org.elkoserver.foundation.server.*
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
@@ -89,8 +88,6 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     val presenceActorCommGorgel by Once { req(presenceActorGorgel).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
 
     val presenceServerGorgel by Once { req(provided.baseGorgel()).getChild(PresenceServer::class) }
-
-    val runnerGorgel by Once { req(provided.baseGorgel()).getChild(Runner::class) }
 
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 
@@ -158,7 +155,7 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
     }
             .dispose(SelectThread::shutDown)
 
-    val directObjectDatabaseRunnerFactory by Once { DirectObjectDatabaseRunnerFactory(req(runnerGorgel)) }
+    val directObjectDatabaseRunnerFactory by Once { DirectObjectDatabaseRunnerFactory() }
 
     val directObjectDatabaseFactory by Once {
         DirectObjectDatabaseFactory(
@@ -407,8 +404,8 @@ internal class PresenceServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val domainRegistry by Once(::DomainRegistryImpl)
 
-    val runner by Once { ThreadRunner(req(runnerGorgel)) }
-            .dispose(ThreadRunner::orderlyShutdown)
+    val runner by Once { SingleThreadExecutorRunner() }
+            .dispose(SingleThreadExecutorRunner::orderlyShutdown)
 
     val serverTagGenerator by Once { LongIdGenerator() }
 

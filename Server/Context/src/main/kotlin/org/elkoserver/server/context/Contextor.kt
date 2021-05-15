@@ -5,7 +5,6 @@ import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.ShutdownWatcher
@@ -22,6 +21,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList
 import java.util.Random
+import java.util.concurrent.Executor
 import java.util.function.Consumer
 import kotlin.math.abs
 
@@ -47,7 +47,7 @@ import kotlin.math.abs
 class Contextor internal constructor(
         val objectDatabase: ObjectDatabase,
         private val server: Server,
-        private val runner: Runner,
+        private val runner: Executor,
         internal val refTable: RefTable,
         private val contextorGorgel: Gorgel,
         private val contextGorgelWithoutRef: Gorgel,

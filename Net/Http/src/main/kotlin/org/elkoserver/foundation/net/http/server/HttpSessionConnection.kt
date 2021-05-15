@@ -1,13 +1,13 @@
 package org.elkoserver.foundation.net.http.server
 
 import org.elkoserver.foundation.net.*
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.Queue
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
+import java.util.concurrent.Executor
 
 /**
  * An implementation of [Connection] that virtualizes a continuous
@@ -22,7 +22,7 @@ import java.time.Clock
 class HttpSessionConnection internal constructor(
         private val sessionFactory: HttpMessageHandlerFactory,
         private val gorgel: Gorgel,
-        runner: Runner,
+        runner: Executor,
         loadMonitor: LoadMonitor,
         internal val sessionID: Long, timer: Timer, clock: Clock, commGorgel: Gorgel, idGenerator: IdGenerator)
     : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator) {

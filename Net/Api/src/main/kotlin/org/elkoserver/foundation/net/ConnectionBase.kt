@@ -1,16 +1,16 @@
 package org.elkoserver.foundation.net
 
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
+import java.util.concurrent.Executor
 
 /**
  * Base class providing common internals implementation for various types of
  * Connection objects.
  */
 abstract class ConnectionBase protected constructor(
-        private val myRunner: Runner,
+        private val myRunner: Executor,
         private val myLoadMonitor: LoadMonitor,
         protected var clock: Clock,
         protected val commGorgel: Gorgel,
@@ -52,7 +52,7 @@ abstract class ConnectionBase protected constructor(
         if (myMessageHandler is MessageAcquirer) {
             (myMessageHandler as MessageAcquirer).acquireMessage(message)
         }
-        myRunner.enqueue(MessageHandlerThunk(message))
+        myRunner.execute(MessageHandlerThunk(message))
     }
 
     /**
@@ -81,7 +81,7 @@ abstract class ConnectionBase protected constructor(
      * received on this connection.
      */
     protected fun enqueueHandlerFactory(handlerFactory: MessageHandlerFactory) {
-        myRunner.enqueue(HandlerFactoryThunk(handlerFactory))
+        myRunner.execute(HandlerFactoryThunk(handlerFactory))
     }
 
     private inner class HandlerFactoryThunk(private val myHandlerFactory: MessageHandlerFactory) : Runnable {

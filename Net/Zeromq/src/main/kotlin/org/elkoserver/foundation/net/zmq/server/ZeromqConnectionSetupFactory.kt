@@ -5,15 +5,15 @@ import org.elkoserver.foundation.net.ConnectionSetupFactory
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
+import java.util.concurrent.Executor
 
 class ZeromqConnectionSetupFactory(
         private val props: ElkoProperties,
-        private val runner: Runner,
+        private val runner: Executor,
         private val loadMonitor: LoadMonitor,
         private val baseConnectionSetupGorgel: Gorgel,
         private val connectionBaseCommGorgel: Gorgel,

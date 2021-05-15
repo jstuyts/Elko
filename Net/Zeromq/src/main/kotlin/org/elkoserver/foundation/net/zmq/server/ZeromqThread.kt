@@ -4,7 +4,6 @@ import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.Queue
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -12,9 +11,10 @@ import org.zeromq.SocketType
 import org.zeromq.ZMQ
 import java.io.IOException
 import java.time.Clock
+import java.util.concurrent.Executor
 
 class ZeromqThread(
-        private val runner: Runner,
+        private val runner: Executor,
         private val loadMonitor: LoadMonitor,
         private val connectionCommGorgel: Gorgel,
         private val idGenerator: IdGenerator,

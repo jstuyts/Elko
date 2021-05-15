@@ -26,8 +26,7 @@ import org.elkoserver.foundation.net.ws.server.WebsocketServerFactory
 import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
 import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner
-import org.elkoserver.foundation.run.thread.ThreadRunner
+import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRunner
 import org.elkoserver.foundation.server.*
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
@@ -82,8 +81,6 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
     val repositoryObjectDatabaseGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepository::class) }
 
     val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseActor::class, COMMUNICATION_CATEGORY_TAG) }
-
-    val runnerGorgel by Once { req(provided.baseGorgel()).getChild(Runner::class) }
 
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 
@@ -157,7 +154,7 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
     }
             .dispose(SelectThread::shutDown)
 
-    val directObjectDatabaseRunnerFactory by Once { DirectObjectDatabaseRunnerFactory(req(runnerGorgel)) }
+    val directObjectDatabaseRunnerFactory by Once { DirectObjectDatabaseRunnerFactory() }
 
     val directObjectDatabaseFactory by Once {
         DirectObjectDatabaseFactory(
@@ -393,8 +390,8 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector)) }
 
-    val runner by Once { ThreadRunner(req(runnerGorgel)) }
-            .dispose(ThreadRunner::orderlyShutdown)
+    val runner by Once { SingleThreadExecutorRunner() }
+            .dispose(SingleThreadExecutorRunner::orderlyShutdown)
 
     val messageDispatcherFactory by Once { MessageDispatcherFactory(req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
 
@@ -454,9 +451,4 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
     }
 
     val workshopServiceFactory by Once { WorkshopServiceFactory(req(workshop), req(workshopActorGorgel), req(workshopActorCommGorgel), req(mustSendDebugReplies)) }
-
-    companion object {
-        /** Default value for max number of threads in slow service thread pool.  */
-        private const val DEFAULT_SLOW_THREADS = 5
-    }
 }

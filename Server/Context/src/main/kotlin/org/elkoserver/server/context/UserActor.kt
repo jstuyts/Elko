@@ -8,7 +8,6 @@ import org.elkoserver.foundation.json.Deliverer
 import org.elkoserver.foundation.json.DispatchTarget
 import org.elkoserver.foundation.json.SourceRetargeter
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
@@ -17,6 +16,7 @@ import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList
+import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /**
@@ -32,7 +32,7 @@ import java.util.function.Consumer
 class UserActor(
         private val myConnection: Connection,
         private val myContextor: Contextor,
-        private val runner: Runner,
+        private val runner: Executor,
         private val amAuthRequired: Boolean,
         internal val protocol: String,
         private val userActorGorgel: Gorgel,
@@ -78,11 +78,11 @@ class UserActor(
         if (!amDead) {
             amDead = true
             val users: List<User> = LinkedList(myUsers.values)
-            runner.enqueue({
-                for (user in users) {
-                    user.connectionDied(connection)
-                }
-            })
+            runner.execute({
+                        for (user in users) {
+                            user.connectionDied(connection)
+                        }
+                    })
             close()
         }
     }

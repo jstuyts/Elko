@@ -5,7 +5,7 @@ import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.SelectThread
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner
+import java.util.concurrent.Executor
 
 /**
  * Manage network connections between this server and other entities.
@@ -17,7 +17,7 @@ import org.elkoserver.foundation.run.Runner
 class TcpClientFactory(
         private val props: ElkoProperties,
         private val loadMonitor: LoadMonitor,
-        private val runner: Runner,
+        private val runner: Executor,
         private val mySelectThread: SelectThread) {
 
     /**

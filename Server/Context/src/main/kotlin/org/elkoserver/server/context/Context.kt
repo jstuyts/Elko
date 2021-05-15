@@ -1,12 +1,12 @@
 package org.elkoserver.server.context
 
 import org.elkoserver.foundation.json.*
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.*
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
+import java.util.concurrent.Executor
 
 /**
  * A [Context] is a place for interaction between connected users.  It
@@ -124,7 +124,7 @@ internal constructor(name: String,
 
     private lateinit var timer: Timer
 
-    private lateinit var runner: Runner
+    private lateinit var runner: Executor
 
     /**
      * Activate a context.
@@ -138,7 +138,7 @@ internal constructor(name: String,
      * if not relevant.
      */
     fun activate(ref: String, subID: String, isEphemeral: Boolean,
-                 contextor: Contextor, runner: Runner, loadedFromRef: String,
+                 contextor: Contextor, runner: Executor, loadedFromRef: String,
                  opener: DirectorActor?, gorgel: Gorgel, timer: Timer) {
         super.activate(ref, subID, isEphemeral, contextor, gorgel)
         this.timer = timer
@@ -509,7 +509,9 @@ internal constructor(name: String,
      */
     private inner class ContextEventThunk(private val myThunk: Runnable) : Runnable, TimeoutNoticer {
         override fun noticeTimeout() {
-            assertActivated { runner.enqueue(this) }
+            assertActivated {
+                runner.execute(this)
+            }
         }
 
         override fun run() {

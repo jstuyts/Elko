@@ -6,11 +6,11 @@ import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
+import java.util.concurrent.Executor
 
 class ZeromqConnectionSetup(
         label: String?,
@@ -19,7 +19,7 @@ class ZeromqConnectionSetup(
         secure: Boolean,
         props: ElkoProperties,
         propRoot: String,
-        private val runner: Runner,
+        private val runner: Executor,
         private val loadMonitor: LoadMonitor,
         private val actorFactory: MessageHandlerFactory,
         gorgel: Gorgel,

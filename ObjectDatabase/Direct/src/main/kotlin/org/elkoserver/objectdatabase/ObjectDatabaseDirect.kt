@@ -4,8 +4,7 @@ import com.grack.nanojson.JsonObject
 import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.run.Runner
-import org.elkoserver.foundation.run.thread.ThreadRunner
+import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRunner
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl.ForRepositoryEncodeControl
 import org.elkoserver.json.JsonLiteral
@@ -14,6 +13,7 @@ import org.elkoserver.json.getStringOrNull
 import org.elkoserver.objectdatabase.ObjectStoreFactory.createAndInitializeObjectStore
 import org.elkoserver.objectdatabase.store.*
 import org.elkoserver.util.trace.slf4j.Gorgel
+import java.util.concurrent.Executor
 import java.util.function.Consumer
 
 /**
@@ -37,7 +37,7 @@ import java.util.function.Consumer
  *    properties.
  */
 class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorgel, baseGorgel: Gorgel, jsonToObjectDeserializer: JsonToObjectDeserializer,
-                           private val myRunner: ThreadRunner, private val myReturnRunner: Runner) : ObjectDatabaseBase(gorgel, jsonToObjectDeserializer) {
+                           private val myRunner: SingleThreadExecutorRunner, private val myReturnRunner: Executor) : ObjectDatabaseBase(gorgel, jsonToObjectDeserializer) {
     /** Object storage module.  */
     private val myObjectStore: ObjectStore = createAndInitializeObjectStore(props, propRoot, baseGorgel)
 
@@ -50,7 +50,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * retrieved.
      */
     override fun getObject(ref: String, handler: Consumer<Any?>) {
-        myRunner.enqueue(GetCallHandler(ref, handler))
+        myRunner.execute(GetCallHandler(ref, handler))
     }
 
     /**
@@ -71,7 +71,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
                 gorgel.error("object store error getting $myRef: $failure")
                 null
             }
-            myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, obj))
+            myReturnRunner.execute(ArgRunnableRunnable(myRunnable, obj))
         }
     }
 
@@ -86,7 +86,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      */
     override fun putObject(ref: String, obj: Encodable, handler: Consumer<Any?>?) {
         val objToWrite = obj.encode(ForRepositoryEncodeControl) ?: throw IllegalStateException()
-        myRunner.enqueue(PutCallHandler(ref, objToWrite, handler))
+        myRunner.execute(PutCallHandler(ref, objToWrite, handler))
     }
 
     /**
@@ -101,7 +101,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      */
     override fun updateObject(ref: String, version: Int, obj: Encodable, handler: Consumer<Any?>?) {
         val objToWrite = obj.encode(ForRepositoryEncodeControl) ?: throw IllegalStateException()
-        myRunner.enqueue(UpdateCallHandler(ref, version, objToWrite, handler))
+        myRunner.execute(UpdateCallHandler(ref, version, objToWrite, handler))
     }
 
     /**
@@ -116,7 +116,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
 
         override fun handle(results: Array<out ResultDesc>) {
             if (myRunnable != null) {
-                myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, results[0].failure))
+                myReturnRunner.execute(ArgRunnableRunnable(myRunnable, results[0].failure))
             }
         }
     }
@@ -145,7 +145,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
                     // Only used in class "Bank" for now.
                     failure = "@$failure"
                 }
-                myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, failure))
+                myReturnRunner.execute(ArgRunnableRunnable(myRunnable, failure))
             }
         }
     }
@@ -161,7 +161,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * be retrieved.
      */
     override fun queryObjects(template: JsonObject, maxResults: Int, handler: Consumer<Any?>) {
-        myRunner.enqueue(QueryCallHandler(template, maxResults, handler))
+        myRunner.execute(QueryCallHandler(template, maxResults, handler))
     }
 
     /**
@@ -186,14 +186,15 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
                     null
                 }
             }
-            myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, objs))
+            myReturnRunner.execute(ArgRunnableRunnable(myRunnable, objs))
         }
 
         private fun decodeObjectSet(descs: Array<ObjectDesc>): Array<Any?> {
             val results = arrayOfNulls<Any>(descs.size)
             for (i in descs.indices) {
                 try {
-                    val jsonObj = jsonObjectFromString(descs[i].obj ?: throw IllegalStateException()) ?: throw IllegalStateException()
+                    val jsonObj = jsonObjectFromString(descs[i].obj ?: throw IllegalStateException())
+                            ?: throw IllegalStateException()
                     if (jsonObj.getStringOrNull("type") != null) {
                         results[i] = decodeJsonObject(jsonObj)
                     } else {
@@ -219,7 +220,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * or null if the operation was successful.
      */
     override fun removeObject(ref: String, handler: Consumer<Any?>?) {
-        myRunner.enqueue(RemoveCallHandler(ref, handler))
+        myRunner.execute(RemoveCallHandler(ref, handler))
     }
 
     /**
@@ -235,7 +236,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
 
         override fun handle(results: Array<out ResultDesc>) {
             if (myRunnable != null) {
-                myReturnRunner.enqueue(ArgRunnableRunnable(myRunnable, results[0].failure))
+                myReturnRunner.execute(ArgRunnableRunnable(myRunnable, results[0].failure))
             }
         }
     }

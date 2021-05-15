@@ -2,10 +2,10 @@ package org.elkoserver.server.context
 
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
+import java.util.concurrent.Executor
 
 /**
  * MessageHandlerFactory class to associate new Users with new Connections.
@@ -17,7 +17,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  */
 internal class UserActorFactory(
         private val myContextor: Contextor,
-        private val runner: Runner,
+        private val runner: Executor,
         private val amAuthRequired: Boolean,
         private val myProtocol: String,
         private val userActorGorgel: Gorgel,

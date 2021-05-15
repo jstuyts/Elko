@@ -1,11 +1,7 @@
 package org.elkoserver.foundation.run.threadpoolexecutor
 
-import org.elkoserver.foundation.run.Runner
 import org.elkoserver.foundation.run.SlowServiceRunner
-import java.util.concurrent.Callable
-import java.util.concurrent.LinkedBlockingQueue
-import java.util.concurrent.ThreadPoolExecutor
-import java.util.concurrent.TimeUnit
+import java.util.concurrent.*
 import java.util.function.Consumer
 
 /**
@@ -18,7 +14,7 @@ import java.util.function.Consumer
  * @param myResultRunner  Run queue in which result handlers will be run
  * @param maxPoolSize  Maximum number of threads allowed in the thread pool
  */
-class ThreadPoolExecutorSlowServiceRunner(private val myResultRunner: Runner, maxPoolSize: Int) : SlowServiceRunner {
+class ThreadPoolExecutorSlowServiceRunner(private val myResultRunner: Executor, maxPoolSize: Int) : SlowServiceRunner {
 
     /** Executor to dole out work to a pool of threads that it manages.  */
     private val myExecutor: ThreadPoolExecutor = ThreadPoolExecutor(1, maxPoolSize, 60, TimeUnit.SECONDS, LinkedBlockingQueue())
@@ -52,9 +48,7 @@ class ThreadPoolExecutorSlowServiceRunner(private val myResultRunner: Runner, ma
                 e
             }
             if (resultHandler != null) {
-                myResultRunner.enqueue({
-                    resultHandler.accept(realResult)
-                })
+                myResultRunner.execute({ resultHandler.accept(realResult) })
             }
         }
     }
