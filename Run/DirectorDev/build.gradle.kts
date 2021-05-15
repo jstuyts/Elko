@@ -22,10 +22,6 @@ val startDirectorDev by tasks.registering(JavaExec::class) {
             "gorgel.system.type=director",
             "gorgel.system.identifier=dev",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_dire=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=dire",
-            "tracelog_dir=./logs",
 
             "conf.listen.host=127.0.0.1:9060",
             "conf.listen.bind=127.0.0.1:9060",

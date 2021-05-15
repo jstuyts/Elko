@@ -22,10 +22,6 @@ val startPresenceDev by tasks.registering(JavaExec::class) {
             "gorgel.system.type=presence",
             "gorgel.system.identifier=dev",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_pres=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=prelog",
-            "tracelog_dir=./logs",
 
             "conf.presence.name=PresenceServer",
             "conf.listen.host=127.0.0.1:9040",

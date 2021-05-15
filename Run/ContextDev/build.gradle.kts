@@ -22,10 +22,6 @@ val startContextDev by tasks.registering(JavaExec::class) {
             "gorgel.system.type=context",
             "gorgel.system.identifier=dev",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_cont=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=contlog",
-            "tracelog_dir=./logs",
 
             "conf.comm.httptimeout=15",
             "conf.comm.httpselectwait=60",

@@ -22,10 +22,6 @@ val startGatekeeperDev by tasks.registering(JavaExec::class) {
             "gorgel.system.type=gatekeeper",
             "gorgel.system.identifier=dev",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_gate=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=gatelog",
-            "tracelog_dir=./logs",
 
             "conf.listen.host=127.0.0.1:9030",
             "conf.listen.bind=127.0.0.1:9030",

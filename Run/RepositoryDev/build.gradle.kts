@@ -45,10 +45,6 @@ val startRepositoryDev by tasks.registering(JavaExec::class) {
             "gorgel.system.type=repository",
             "gorgel.system.identifier=dev",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_repo=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=repolog",
-            "tracelog_dir=./logs",
 
             "conf.rep.service=contextdb",
             "conf.rep.name=Repository",

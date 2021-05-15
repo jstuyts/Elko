@@ -49,10 +49,6 @@ val startClusterManagedBroker by tasks.registering(JavaExec::class) {
             "gorgel.system.type=broker",
             "gorgel.system.identifier=cluster-managed",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_brok=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=broker",
-            "tracelog_dir=./logs",
 
             "conf.broker.name=Broker",
 
@@ -99,10 +95,6 @@ val startClusterManagedContext by tasks.registering(JavaExec::class) {
             "gorgel.system.type=context",
             "gorgel.system.identifier=cluster-managed",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_cont=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=ContextServer",
-            "tracelog_dir=./logs",
 
             "conf.listen.host=127.0.0.1:9000",
             "conf.listen.bind=127.0.0.1:9000",
@@ -156,10 +148,6 @@ val startClusterManagedDirector by tasks.registering(JavaExec::class) {
             "gorgel.system.type=director",
             "gorgel.system.identifier=cluster-managed",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_dire=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=director",
-            "tracelog_dir=./logs",
 
             "conf.listen.host=127.0.0.1:9060",
             "conf.listen.bind=127.0.0.1:9060",
@@ -202,10 +190,6 @@ val startClusterManagedGatekeeper by tasks.registering(JavaExec::class) {
             "gorgel.system.type=gatekeeper",
             "gorgel.system.identifier=cluster-managed",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_gate=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=gatekeeper",
-            "tracelog_dir=./logs",
 
             "conf.listen.host=127.0.0.1:9030",
             "conf.listen.bind=127.0.0.1:9030",

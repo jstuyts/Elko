@@ -22,10 +22,6 @@ val startContextStandalone by tasks.registering(JavaExec::class) {
             "gorgel.system.type=broker",
             "gorgel.system.identifier=standalone",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_cont=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=context",
-            "tracelog_dir=./logs",
 
             "conf.comm.httptimeout=180",
             "conf.comm.httpselectwait=30",

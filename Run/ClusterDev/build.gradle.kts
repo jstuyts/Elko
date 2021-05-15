@@ -22,10 +22,6 @@ val startClusterDevContext1 by tasks.registering(JavaExec::class) {
             "gorgel.system.type=context",
             "gorgel.system.identifier=cluster-dev-1",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_cont=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=cont1log",
-            "tracelog_dir=./logs",
 
             "conf.listen.host=127.0.0.1:9000",
             "conf.listen.bind=127.0.0.1:9000",
@@ -83,10 +79,6 @@ val startClusterDevContext2 by tasks.registering(JavaExec::class) {
             "gorgel.system.type=context",
             "gorgel.system.identifier=cluster-dev-2",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_cont=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=cont2log",
-            "tracelog_dir=./logs",
 
             "conf.listen.host=127.0.0.1:9100",
             "conf.listen.bind=127.0.0.1:9100",

@@ -22,10 +22,6 @@ val startWorkshopDev by tasks.registering(JavaExec::class) {
             "gorgel.system.type=workshop",
             "gorgel.system.identifier=dev",
             "gorgel.configuration.file=$logbackRunConfigurationFilePath",
-            "trace_work=EVENT",
-            "trace_comm=EVENT",
-            "tracelog_tag=work",
-            "tracelog_dir=./logs",
 
             "conf.listen.host=127.0.0.1:9020",
             "conf.listen.bind=127.0.0.1:9020",
