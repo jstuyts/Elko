@@ -23,9 +23,6 @@ tasks.named<Wrapper>("wrapper") {
 subprojects {
     repositories {
         mavenCentral()
-        maven {
-            url = uri("https://dl.bintray.com/squins/Squins")
-        }
         mavenLocal {
             mavenContent {
                 snapshotsOnly()

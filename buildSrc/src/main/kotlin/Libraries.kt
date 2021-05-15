@@ -31,7 +31,7 @@ object Libraries {
     val nanojson: String = "com.grack:nanojson:1.7"
 
     // https://ooverkommelig.org/
-    val ooverkommelig: String = "org.ooverkommelig:ooverkommelig-jvm8:1beta2"
+    val ooverkommelig: String = "org.ooverkommelig:ooverkommelig-jvm:1beta3"
 
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
     val slf4j_api: String = "org.slf4j:slf4j-api:1.7.30"
