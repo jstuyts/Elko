@@ -7,12 +7,12 @@ import org.elkoserver.foundation.net.ConnectionCloseException
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.Queue
 import org.elkoserver.util.throwIfMandatory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.zeromq.ZMQ
 import java.io.IOException
 import java.time.Clock
+import java.util.ArrayDeque
 import java.util.concurrent.Executor
 
 /**
@@ -33,7 +33,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
                                             private var amOpen: Boolean = true)
     : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator), MessageReceiver, Runnable {
     /** Queue of unencoded outbound messages.  */
-    private val myOutputQueue = Queue<Any>()
+    private val myOutputQueue = ArrayDeque<Any>()
 
     /** Framer to perform low-level message conversion.  */
     private val myFramer = framerFactory.provideFramer(this, label())
@@ -144,7 +144,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
     fun doWrite() { /* not Dudley */
         var closeException: Exception? = null
         try {
-            val message = myOutputQueue.optDequeue()
+            val message = myOutputQueue.poll()
             var outBytes: ByteArray? = null
             if (message === theCloseMarker) {
                 closeException = ConnectionCloseException("Normal ZMQ connection close")
@@ -160,7 +160,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
         }
         if (closeException != null) {
             closeIsDone(closeException)
-        } else if (!myOutputQueue.hasMoreElements()) {
+        } else if (myOutputQueue.isEmpty()) {
             myThread.unwatchSocket(mySocket)
             commGorgel.d?.run { debug("${this@ZeromqConnection} set poll off") }
         }
@@ -177,7 +177,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
 
         /* If the connection is going away, the message can be discarded. */
         if (amOpen) {
-            myOutputQueue.enqueue(message)
+            myOutputQueue.add(message)
             var doWakeup: Boolean
             synchronized(myWakeupLock) {
                 doWakeup = amNeedingToWakeupThread
@@ -216,7 +216,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
      * opportunities when poll() is called.
      */
     override fun run() {
-        if (myOutputQueue.hasMoreElements()) {
+        if (myOutputQueue.isNotEmpty()) {
             myThread.watchSocket(mySocket, ZMQ.Poller.POLLOUT)
             commGorgel.d?.run { debug("${this@ZeromqConnection} set poller for write") }
         }

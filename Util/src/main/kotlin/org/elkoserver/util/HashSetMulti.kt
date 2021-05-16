@@ -52,13 +52,6 @@ class HashSetMulti<V> : Iterable<V> {
     }
 
     /**
-     * Produce a new set that is a read-only version of this one.
-     *
-     * @return an unmodifiable view onto this set.
-     */
-    fun asUnmodifiable(): HashSetMulti<V> = HashSetMulti(myMembers)
-
-    /**
      * Test if a given object is a member of the set (i.e., that it has been
      * added more times than it has been removed).
      *

@@ -5,12 +5,12 @@ import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.NetAddr
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.Queue
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.zeromq.SocketType
 import org.zeromq.ZMQ
 import java.io.IOException
 import java.time.Clock
+import java.util.ArrayDeque
 import java.util.concurrent.Executor
 
 class ZeromqThread(
@@ -21,7 +21,7 @@ class ZeromqThread(
         private val clock: Clock,
         private val commGorgel: Gorgel) : Thread("Elko ZeroMQ") {
     /** Queue of unserviced I/O requests.  */
-    private val myQueue = Queue<Any>()
+    private val myQueue = ArrayDeque<Any>()
 
     /** ZeroMQ context for all operations.  */
     private val myContext = ZMQ.context(1)
@@ -54,7 +54,7 @@ class ZeromqThread(
         while (true) {
             try {
                 val selectedCount = myPoller.poll().toLong()
-                var workToDo = myQueue.optDequeue()
+                var workToDo = myQueue.poll()
                 while (workToDo != null) {
                     if (workToDo is Runnable) {
                         workToDo.run()
@@ -62,7 +62,7 @@ class ZeromqThread(
                         // FIXME: Does not handle TcpConnection. See #readyToSend
                         commGorgel.error("non-Runnable on ZMQ queue: $workToDo")
                     }
-                    workToDo = myQueue.optDequeue()
+                    workToDo = myQueue.poll()
                 }
                 if (selectedCount > 0) {
                     var actualCount = 0
@@ -164,7 +164,7 @@ class ZeromqThread(
                 finalAddr = "tcp://$remoteAddr"
             }
         }
-        myQueue.enqueue(object : Runnable {
+        myQueue.add(object : Runnable {
             override fun run() {
                 commGorgel.i?.run { info("connecting ZMQ to $finalAddr") }
                 val socket: ZMQ.Socket
@@ -190,7 +190,7 @@ class ZeromqThread(
      * @param connection  The connection whose closure is desired.
      */
     fun close(connection: ZeromqConnection) {
-        myQueue.enqueue(object : Runnable {
+        myQueue.add(object : Runnable {
             override fun run() {
                 commGorgel.i?.run { info("closing ZMQ connection $connection") }
                 val socket = connection.socket()
@@ -236,7 +236,7 @@ class ZeromqThread(
         } else {
             "tcp://*:${result.port}"
         }
-        myQueue.enqueue(object : Runnable {
+        myQueue.add(object : Runnable {
             override fun run() {
                 val socket: ZMQ.Socket
                 if (subscribe) {
@@ -269,7 +269,7 @@ class ZeromqThread(
      * @param connection  The connection that has messages ready to send.
      */
     fun readyToSend(connection: ZeromqConnection) {
-        myQueue.enqueue(connection)
+        myQueue.add(connection)
         wakeup()
     }
 

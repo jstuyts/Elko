@@ -1,7 +1,6 @@
 package org.elkoserver.foundation.net
 
 import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
-import org.elkoserver.util.Queue
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.net.InetSocketAddress
@@ -9,6 +8,7 @@ import java.nio.channels.ClosedChannelException
 import java.nio.channels.SelectionKey
 import java.nio.channels.Selector
 import java.nio.channels.SocketChannel
+import java.util.ArrayDeque
 import java.util.concurrent.Callable
 import javax.net.ssl.SSLContext
 
@@ -30,7 +30,7 @@ class SelectThread(
     private val mySelector: Selector
 
     /** Queue of unserviced I/O requests.  */
-    private val myQueue = Queue<Any>()
+    private val myQueue = ArrayDeque<Any>()
 
     private var mustStop = false
 
@@ -45,7 +45,7 @@ class SelectThread(
             try {
                 val selectedCount = mySelector.select()
                 commGorgel.d?.run { debug("select() returned with count=$selectedCount") }
-                var workToDo = myQueue.optDequeue()
+                var workToDo = myQueue.poll()
                 while (workToDo != null) {
                     when (workToDo) {
                         is Listener -> {
@@ -57,7 +57,7 @@ class SelectThread(
                         // FIXME: Does not handle TcpConnection. See #readyToSend
                         else -> commGorgel.error("mystery object on select queue: $workToDo")
                     }
-                    workToDo = myQueue.optDequeue()
+                    workToDo = myQueue.poll()
                 }
                 if (selectedCount > 0) {
                     val iter = mySelector.selectedKeys().iterator()
@@ -104,7 +104,7 @@ class SelectThread(
     fun connect(handlerFactory: MessageHandlerFactory,
                 framerFactory: ByteIoFramerFactory,
                 remoteAddr: String) {
-        myQueue.enqueue(Callable<Any?> {
+        myQueue.add(Callable<Any?> {
             try {
                 val remoteNetAddr = NetAddr(remoteAddr)
                 val socketAddress = InetSocketAddress(remoteNetAddr.inetAddress,
@@ -134,7 +134,7 @@ class SelectThread(
     fun listen(localAddress: String, handlerFactory: MessageHandlerFactory,
                framerFactory: ByteIoFramerFactory, secure: Boolean): Listener {
         val listener = listenerFactory.create(localAddress, handlerFactory, framerFactory, secure)
-        myQueue.enqueue(listener)
+        myQueue.add(listener)
         mySelector.wakeup()
         return listener
     }
@@ -179,7 +179,7 @@ class SelectThread(
      */
     fun readyToSend(connection: TcpConnection) {
         commGorgel.d?.run { debug("$connection ready to send") }
-        myQueue.enqueue(connection)
+        myQueue.add(connection)
         mySelector.wakeup()
     }
 

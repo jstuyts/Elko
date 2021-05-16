@@ -3,7 +3,6 @@ package org.elkoserver.foundation.net
 import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.Queue
 import org.elkoserver.util.throwIfMandatory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.EOFException
@@ -12,6 +11,7 @@ import java.nio.ByteBuffer
 import java.nio.channels.SelectionKey
 import java.nio.channels.SocketChannel
 import java.time.Clock
+import java.util.ArrayDeque
 import java.util.concurrent.Callable
 import java.util.concurrent.Executor
 
@@ -41,7 +41,7 @@ class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
                                          idGenerator: IdGenerator)
     : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator), MessageReceiver, Callable<Any?> {
     /** Queue of unencoded outbound messages.  */
-    private val myOutputQueue = Queue<Any>()
+    private val myOutputQueue = ArrayDeque<Any>()
 
     /** Framer to perform low-level message conversion.  */
     private val myFramer = framerFactory.provideFramer(this, label())
@@ -69,7 +69,7 @@ class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
      * write opportunities when select() is called.
      */
     override fun call(): Any? {
-        if (myOutputQueue.hasMoreElements() && myKey.isValid) {
+        if (myOutputQueue.isNotEmpty() && myKey.isValid) {
             myKey.interestOps(myKey.interestOps() or SelectionKey.OP_WRITE)
             gorgel.d?.run { debug("${this@TcpConnection} set selectkey Read/Write") }
         }
@@ -110,12 +110,12 @@ class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
         }
         myKey.attach(null)
         gorgel.i?.run { info("${this@TcpConnection} died: $reason") }
-        var message = myOutputQueue.optDequeue()
+        var message = myOutputQueue.poll()
         while (message != null) {
             if (message is Releasable) {
                 message.release()
             }
-            message = myOutputQueue.optDequeue()
+            message = myOutputQueue.poll()
         }
         connectionDied(reason)
     }
@@ -170,7 +170,7 @@ class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
         var closeException: Exception? = null
         try {
             if (myOutputBuffer == null) {
-                val message = myOutputQueue.optDequeue()
+                val message = myOutputQueue.poll()
                 if (message === theCloseMarker) {
                     closeException = ConnectionCloseException(
                             "Normal TCP connection close")
@@ -201,7 +201,7 @@ class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
         if (closeException != null) {
             closeIsDone(closeException)
         } else if (myOutputBuffer == null) {
-            if (!myOutputQueue.hasMoreElements()) {
+            if (myOutputQueue.isEmpty()) {
                 myKey.interestOps(myKey.interestOps() and SelectionKey.OP_WRITE.inv())
                 gorgel.d?.run { debug("${this@TcpConnection} set selectkey ReadOnly") }
             }
@@ -218,7 +218,7 @@ class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
         gorgel.d?.run { debug("enqueue $message") }
 
         /* If the connection is going away, the message can be discarded. */if (amOpen) {
-            myOutputQueue.enqueue(message)
+            myOutputQueue.add(message)
             var doWakeup: Boolean
             synchronized(myWakeupLock) {
                 doWakeup = amNeedingToWakeupSelect
@@ -260,7 +260,7 @@ class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
     val isWritable: Boolean
         get() = try {
             amOpen &&
-                    !myOutputQueue.hasMoreElements() &&
+                    myOutputQueue.isEmpty() &&
                     (myOutputBuffer == null || !myOutputBuffer!!.hasRemaining())
         } catch (e: NullPointerException) {
             /* We are looking at myOutputBuffer from outside the thread that is

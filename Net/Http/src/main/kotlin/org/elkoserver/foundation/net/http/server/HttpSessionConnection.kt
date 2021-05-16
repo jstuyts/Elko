@@ -4,9 +4,9 @@ import org.elkoserver.foundation.net.*
 import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.Queue
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.time.Clock
+import java.util.ArrayDeque
 import java.util.concurrent.Executor
 
 /**
@@ -34,7 +34,7 @@ class HttpSessionConnection internal constructor(
     private var myXmitSequenceNumber = 1
 
     /** Queue of outgoing messages awaiting retrieval by the client.  */
-    private val myQueue = Queue<Any>()
+    private val myQueue = ArrayDeque<Any>()
 
     /** Flag indicating that connection is in the midst of shutting down.  */
     private var amClosing = false
@@ -141,7 +141,7 @@ class HttpSessionConnection internal constructor(
      *
      * @return true if there are pending messages to send, false if not
      */
-    fun hasOutboundMessages(): Boolean = myQueue.hasMoreElements()
+    fun hasOutboundMessages(): Boolean = myQueue.isNotEmpty()
 
     /**
      * Test if this session currently has a pending select waiting.
@@ -272,14 +272,14 @@ class HttpSessionConnection internal constructor(
                         myHttpFramer.makeSequenceErrorReply("sequenceError"))
                 true
             }
-            myQueue.hasMoreElements() -> {
+            myQueue.isNotEmpty() -> {
                 /* There are messages waiting, so send them. */
                 val reply = StringBuilder()
                 var start = true
                 var end: Boolean
                 do {
-                    val message = myQueue.nextElement()
-                    end = !myQueue.hasMoreElements()
+                    val message = myQueue.remove()
+                    end = myQueue.isEmpty()
                     gorgel.i?.run { info("${this@HttpSessionConnection}:$downstreamConnection <- $message") }
                     reply.append(packMessage(message, start, end))
                     start = false
@@ -327,7 +327,7 @@ class HttpSessionConnection internal constructor(
         } else {
             /* If there *is not* a pending select request, put the message on
                the outgoing message queue. */
-            myQueue.enqueue(message)
+            myQueue.add(message)
         }
     }
 
