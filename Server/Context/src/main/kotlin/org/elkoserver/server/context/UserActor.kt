@@ -10,7 +10,6 @@ import org.elkoserver.foundation.json.SourceRetargeter
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timeout
-import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.server.context.model.BasicObject
@@ -44,7 +43,9 @@ class UserActor(
     private val timer: Timer,
     commGorgel: Gorgel,
     private val myIdGenerator: IdGenerator,
-    mustSendDebugReplies: Boolean) : RoutingActor(myConnection, myContextor.realRefTable, commGorgel, mustSendDebugReplies), SourceRetargeter, BasicProtocolActor, UserActorProtocol {
+    mustSendDebugReplies: Boolean
+) : RoutingActor(myConnection, myContextor.realRefTable, commGorgel, mustSendDebugReplies), SourceRetargeter,
+    BasicProtocolActor, UserActorProtocol {
     /** The users this actor is the actor for, by context.  */
     private val myUsers: MutableMap<Context, User> = HashMap()
 
@@ -77,16 +78,18 @@ class UserActor(
      * @param connection  The connection that died.
      * @param reason  Exception explaining why.
      */
-    override fun connectionDied(connection: Connection,
-                                reason: Throwable) {
+    override fun connectionDied(
+        connection: Connection,
+        reason: Throwable
+    ) {
         if (!amDead) {
             amDead = true
             val users: List<User> = LinkedList(myUsers.values)
             runner.execute({
-                        for (user in users) {
-                            user.connectionDied(connection)
-                        }
-                    })
+                for (user in users) {
+                    user.connectionDied(connection)
+                }
+            })
             close()
         }
     }
@@ -145,10 +148,12 @@ class UserActor(
      * @param debug  This session will use debug settings, if enabled.
      * @param scope  Application scope for filtering mods
      */
-    fun enterContext(userRef: String?, name: String?, contextRef: String,
-                     contextTemplate: String?, sess: String?, auth: String?,
-                     utag: String?, uparam: JsonObject?, debug: Boolean,
-                     scope: String?) {
+    fun enterContext(
+        userRef: String?, name: String?, contextRef: String,
+        contextTemplate: String?, sess: String?, auth: String?,
+        utag: String?, uparam: JsonObject?, debug: Boolean,
+        scope: String?
+    ) {
         var actualUserRef = userRef
         var actualName = name
         userActorGorgel.i?.run { info("attempting to enter context $contextRef") }
@@ -161,7 +166,8 @@ class UserActor(
             myConnection.setDebugMode(true)
         }
         if (myContextor.limit > 0 &&
-                myContextor.userCount() >= myContextor.limit) {
+            myContextor.userCount() >= myContextor.limit
+        ) {
             abruptExit("server full", "full")
             return
         }
@@ -217,8 +223,10 @@ class UserActor(
      * by the database: If so, it processes the entry normally.  If not, the
      * user is kicked off.
      */
-    private inner class EnterRunnable(private var myUserRef: String?, private val amEphemeral: Boolean, private val amAnonymous: Boolean,
-                                      private val myEntryName: String?, private val myContextRef: String, private val mySess: String?) : Consumer<Any?> {
+    private inner class EnterRunnable(
+        private var myUserRef: String?, private val amEphemeral: Boolean, private val amAnonymous: Boolean,
+        private val myEntryName: String?, private val myContextRef: String, private val mySess: String?
+    ) : Consumer<Any?> {
         private var myUser: User? = null
         private var myContext: Context? = null
         private var myComponentCount = 0
@@ -255,9 +263,11 @@ class UserActor(
                         val subID = myContextor.uniqueID("")
                         val ref = myUserRef + subID
                         myUsers[currentContext] = currentUser
-                        currentUser.activate(ref, subID, myContextor, name, mySess,
-                                amEphemeral, amAnonymous, this@UserActor,
-                                userGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", ref)))
+                        currentUser.activate(
+                            ref, subID, myContextor, name, mySess,
+                            amEphemeral, amAnonymous, this@UserActor,
+                            userGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", ref))
+                        )
                         currentUser.checkpoint()
                         val problem = currentUser.enterContext(currentContext)
                         myContextor.noteUser(currentUser, true)
@@ -293,26 +303,24 @@ class UserActor(
      * source of a message to 'target' in place of this object.
      */
     override fun findEffectiveSource(target: DispatchTarget): Deliverer? =
-            if (target is BasicObject) {
-                val context = target.context()
-                myUsers[context]
-            } else {
-                this
-            }
+        if (target is BasicObject) {
+            val context = target.context()
+            myUsers[context]
+        } else {
+            this
+        }
 
     /**
      * Initiate a timeout waiting for the user to enter a context.  If the
      * timeout trips before the user acts, the user will be disconnected.
      */
     private fun startEntryTimeout() {
-        myEntryTimeout = timer.after(myContextor.entryTimeout.toLong(), object : TimeoutNoticer {
-            override fun noticeTimeout() {
-                if (myEntryTimeout != null) {
-                    myEntryTimeout = null
-                    abruptExit("entry timeout", "timeout")
-                }
+        myEntryTimeout = timer.after(myContextor.entryTimeout.toLong()) {
+            if (myEntryTimeout != null) {
+                myEntryTimeout = null
+                abruptExit("entry timeout", "timeout")
             }
-        })
+        }
     }
 
     /**

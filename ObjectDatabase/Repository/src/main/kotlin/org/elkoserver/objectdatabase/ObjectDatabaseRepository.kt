@@ -3,7 +3,6 @@ package org.elkoserver.objectdatabase
 import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcherFactory
-import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -53,22 +52,24 @@ import java.util.function.Consumer
  * @param propRoot  Prefix string for generating relevant configuration
  *    property names.
  */
-class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
-                               localName: String,
-                               props: ElkoProperties,
-                               propRoot: String,
-                               gorgel: Gorgel,
-                               private val odbActorGorgel: Gorgel,
-                               messageDispatcherFactory: MessageDispatcherFactory,
-                               hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
-                               jsonToObjectDeserializer: JsonToObjectDeserializer,
-                               private val getRequestFactory: GetRequestFactory,
-                               private val putRequestFactory: PutRequestFactory,
-                               private val updateRequestFactory: UpdateRequestFactory,
-                               private val queryRequestFactory: QueryRequestFactory,
-                               private val removeRequestFactory: RemoveRequestFactory,
-                               private val mustSendDebugReplies: Boolean,
-                               private val connectionRetrierFactory: ConnectionRetrierFactory) : ObjectDatabaseBase(gorgel, jsonToObjectDeserializer) {
+class ObjectDatabaseRepository(
+    serviceFinder: ServiceFinder,
+    localName: String,
+    props: ElkoProperties,
+    propRoot: String,
+    gorgel: Gorgel,
+    private val odbActorGorgel: Gorgel,
+    messageDispatcherFactory: MessageDispatcherFactory,
+    hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
+    jsonToObjectDeserializer: JsonToObjectDeserializer,
+    private val getRequestFactory: GetRequestFactory,
+    private val putRequestFactory: PutRequestFactory,
+    private val updateRequestFactory: UpdateRequestFactory,
+    private val queryRequestFactory: QueryRequestFactory,
+    private val removeRequestFactory: RemoveRequestFactory,
+    private val mustSendDebugReplies: Boolean,
+    private val connectionRetrierFactory: ConnectionRetrierFactory
+) : ObjectDatabaseBase(gorgel, jsonToObjectDeserializer) {
     /** Connection to the repository, if there is one.  */
     private var myObjectDatabaseRepositoryActor: ObjectDatabaseRepositoryActor? = null
 
@@ -99,9 +100,16 @@ class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
     private var amClosing = false
 
     /** Message handler factory for repository connections.  */
-    private val myMessageHandlerFactory = object : MessageHandlerFactory {
-        override fun provideMessageHandler(connection: Connection?) =
-                ObjectDatabaseRepositoryActor(connection!!, this@ObjectDatabaseRepository, localName, myRepHost!!, myDispatcher, odbActorGorgel, mustSendDebugReplies)
+    private val myMessageHandlerFactory = MessageHandlerFactory { connection ->
+        ObjectDatabaseRepositoryActor(
+            connection!!,
+            this@ObjectDatabaseRepository,
+            localName,
+            myRepHost!!,
+            myDispatcher,
+            odbActorGorgel,
+            mustSendDebugReplies
+        )
     }
 
     private inner class RepositoryFoundHandler : Consumer<Array<ServiceDesc>> {

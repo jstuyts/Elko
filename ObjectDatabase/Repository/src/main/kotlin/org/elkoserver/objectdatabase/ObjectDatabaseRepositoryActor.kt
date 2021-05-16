@@ -22,13 +22,14 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param dispatcher  Message dispatcher for repository actors.
  */
 class ObjectDatabaseRepositoryActor(
-        connection: Connection,
-        private val myObjectDatabase: ObjectDatabaseRepository,
-        localName: String?,
-        host: HostDesc,
-        dispatcher: MessageDispatcher,
-        gorgel: Gorgel,
-        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
+    connection: Connection,
+    private val myObjectDatabase: ObjectDatabaseRepository,
+    localName: String?,
+    host: HostDesc,
+    dispatcher: MessageDispatcher,
+    gorgel: Gorgel,
+    mustSendDebugReplies: Boolean
+) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
     /**
      * Handle loss of connection from the repository.
@@ -55,7 +56,7 @@ class ObjectDatabaseRepositoryActor(
      * Process the reply to an earlier 'get' request.
      */
     @JsonMethod("tag", "results")
-    operator fun get(from: ObjectDatabaseRepositoryActor, tag: OptString, results: Array<ObjectDesc>) {
+    fun get(from: ObjectDatabaseRepositoryActor, tag: OptString, results: Array<ObjectDesc>) {
         myObjectDatabase.handleGetResult(tag.valueOrNull(), results)
     }
 

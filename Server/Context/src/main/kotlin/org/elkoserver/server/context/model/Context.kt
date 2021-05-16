@@ -610,11 +610,7 @@ internal constructor(
      * @return a Deliverer that wraps Context.sendToNeighbors
      */
     fun neighbors(exclude: Deliverer): Deliverer {
-        return object : Deliverer {
-            override fun send(message: JsonLiteral) {
-                sendToNeighbors(exclude, message)
-            }
-        }
+        return Deliverer { message -> sendToNeighbors(exclude, message) }
     }
 
     /**

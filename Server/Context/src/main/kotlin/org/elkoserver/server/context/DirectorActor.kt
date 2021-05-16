@@ -10,7 +10,6 @@ import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
-import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.server.context.model.BasicObject
 import org.elkoserver.server.context.model.Context
@@ -34,7 +33,8 @@ class DirectorActor(
     private val reservationFactory: ReservationFactory,
     private val timer: Timer,
     gorgel: Gorgel,
-    mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
+    mustSendDebugReplies: Boolean
+) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
     /** Map from tag strings to users awaiting reservations.  */
     private val myPendingReservationRequests: MutableMap<String, User> = HashMap()
@@ -72,40 +72,40 @@ class DirectorActor(
         private var myNextResult: Any? = null
 
         operator fun hasNext() =
-                if (myNextResult == null) {
-                    try {
-                        myNextResult = next()
-                        true
-                    } catch (e: NoSuchElementException) {
-                        false
-                    }
-                } else {
+            if (myNextResult == null) {
+                try {
+                    myNextResult = next()
                     true
+                } catch (e: NoSuchElementException) {
+                    false
                 }
+            } else {
+                true
+            }
 
         private fun lookupClones(ref: String?) =
-                if (ref == null) {
-                    emptyList()
-                } else {
-                    val result = myGroup.contextor.realRefTable.clones(ref)
-                    result.ifEmpty {
-                        throw MessageHandlerException("$ref not found")
-                    }
+            if (ref == null) {
+                emptyList()
+            } else {
+                val result = myGroup.contextor.realRefTable.clones(ref)
+                result.ifEmpty {
+                    throw MessageHandlerException("$ref not found")
                 }
+            }
 
         private fun nextUser() =
-                try {
-                    myUsers.next() as User
-                } catch (e: ClassCastException) {
-                    throw MessageHandlerException("user reference $myUserRef does not refer to a user")
-                }
+            try {
+                myUsers.next() as User
+            } catch (e: ClassCastException) {
+                throw MessageHandlerException("user reference $myUserRef does not refer to a user")
+            }
 
         private fun nextContext() =
-                try {
-                    myContexts.next() as Context
-                } catch (e: ClassCastException) {
-                    throw MessageHandlerException("context reference $myContextRef does not refer to a context")
-                }
+            try {
+                myContexts.next() as Context
+            } catch (e: ClassCastException) {
+                throw MessageHandlerException("context reference $myContextRef does not refer to a context")
+            }
 
         operator fun next(): Any {
             val currentNextResult = myNextResult
@@ -142,7 +142,8 @@ class DirectorActor(
                     myMode = MODE_CONTEXT
                 }
             } else {
-                myMode = if (myUsers.hasNext()) MODE_USER else throw MessageHandlerException("missing context and/or user parameters")
+                myMode =
+                    if (myUsers.hasNext()) MODE_USER else throw MessageHandlerException("missing context and/or user parameters")
             }
         }
     }
@@ -211,8 +212,12 @@ class DirectorActor(
      */
     @JsonMethod("context", "user", "reservation")
     fun doreserve(from: DirectorActor, context: String, user: OptString, reservation: String) {
-        myGroup.addReservation(reservationFactory.create(user.valueOrNull(), context,
-                reservation, from))
+        myGroup.addReservation(
+            reservationFactory.create(
+                user.valueOrNull(), context,
+                reservation, from
+            )
+        )
     }
 
     /**
@@ -241,12 +246,10 @@ class DirectorActor(
     fun pushNewContext(who: User, contextRef: String) {
         val tag = myNextReservationTag++.toString()
         myPendingReservationRequests[tag] = who
-        timer.after(INTERNAL_RESERVATION_TIMEOUT.toLong(), object : TimeoutNoticer {
-            override fun noticeTimeout() {
-                val user = myPendingReservationRequests.remove(tag)
-                user?.exitContext("no response", "badres", false)
-            }
-        })
+        timer.after(INTERNAL_RESERVATION_TIMEOUT.toLong()) {
+            val user = myPendingReservationRequests.remove(tag)
+            user?.exitContext("no response", "badres", false)
+        }
         send(msgReserve(this, who.protocol(), contextRef, who.baseRef(), tag))
     }
 
@@ -260,9 +263,11 @@ class DirectorActor(
      * @param optTag  Optional tag for requestor to match
      */
     @JsonMethod("context", "user", "hostport", "reservation", "deny", "tag")
-    fun reserve(from: DirectorActor, context: String, optUser: OptString,
-                optHostPort: OptString, optReservation: OptString,
-                optDeny: OptString, optTag: OptString) {
+    fun reserve(
+        from: DirectorActor, context: String, optUser: OptString,
+        optHostPort: OptString, optReservation: OptString,
+        optDeny: OptString, optTag: OptString
+    ) {
         val tag = optTag.valueOrNull()
         val hostPort = optHostPort.valueOrNull()
         val reservation = optReservation.valueOrNull()
@@ -327,12 +332,16 @@ class DirectorActor(
         myGroup.admitMember(this)
         send(msgAuth(this, host.auth, myGroup.contextor.serverName()))
         myGroup.listeners
-                .filter { "reservation" == it.auth.mode }
-                .forEach { send(msgAddress(this, it.protocol!!, it.hostPort!!)) }
+            .filter { "reservation" == it.auth.mode }
+            .forEach { send(msgAddress(this, it.protocol!!, it.hostPort!!)) }
         for (family in myGroup.contextor.contextFamilies) {
             if (family.startsWith("$")) {
-                send(msgWillserve(this, family.substring(1), myGroup.capacity(),
-                        true))
+                send(
+                    msgWillserve(
+                        this, family.substring(1), myGroup.capacity(),
+                        true
+                    )
+                )
             } else {
                 send(msgWillserve(this, family, myGroup.capacity(), false))
             }

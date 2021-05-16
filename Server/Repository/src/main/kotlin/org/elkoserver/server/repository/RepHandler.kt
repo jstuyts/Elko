@@ -3,13 +3,9 @@ package org.elkoserver.server.repository
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.objectdatabase.store.GetResultHandler
-import org.elkoserver.objectdatabase.store.ObjectDesc
 import org.elkoserver.objectdatabase.store.PutDesc
 import org.elkoserver.objectdatabase.store.QueryDesc
 import org.elkoserver.objectdatabase.store.RequestDesc
-import org.elkoserver.objectdatabase.store.RequestResultHandler
-import org.elkoserver.objectdatabase.store.ResultDesc
 import org.elkoserver.objectdatabase.store.UpdateDesc
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -46,13 +42,13 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
      * @param what  Objects requested.
      */
     @JsonMethod("tag", "what")
-    operator fun get(from: RepositoryActor, tag: OptString,
-                     what: Array<RequestDesc>) {
-        myObjectStore.getObjects(what, object : GetResultHandler {
-            override fun handle(results: Array<ObjectDesc>) {
-                from.send(msgGet(this@RepHandler, tag.valueOrNull(), results))
-            }
-        })
+    fun get(
+        from: RepositoryActor, tag: OptString,
+        what: Array<RequestDesc>
+    ) {
+        myObjectStore.getObjects(what) { results ->
+            from.send(msgGet(this@RepHandler, tag.valueOrNull(), results))
+        }
     }
 
     /**
@@ -65,13 +61,13 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
      * @param what  Objects to be written.
      */
     @JsonMethod("tag", "what")
-    fun put(from: RepositoryActor, tag: OptString,
-            what: Array<PutDesc>) {
-        myObjectStore.putObjects(what, object : RequestResultHandler {
-            override fun handle(results: Array<out ResultDesc>) {
-                from.send(msgPut(this@RepHandler, tag.valueOrNull(), results))
-            }
-        })
+    fun put(
+        from: RepositoryActor, tag: OptString,
+        what: Array<PutDesc>
+    ) {
+        myObjectStore.putObjects(
+            what
+        ) { results -> from.send(msgPut(this@RepHandler, tag.valueOrNull(), results)) }
     }
 
     /**
@@ -84,13 +80,13 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
      * @param what  Objects to be written.
      */
     @JsonMethod("tag", "what")
-    fun update(from: RepositoryActor, tag: OptString,
-               what: Array<UpdateDesc>) {
-        myObjectStore.updateObjects(what, object : RequestResultHandler {
-            override fun handle(results: Array<out ResultDesc>) {
-                from.send(msgUpdate(this@RepHandler, tag.valueOrNull(), results))
-            }
-        })
+    fun update(
+        from: RepositoryActor, tag: OptString,
+        what: Array<UpdateDesc>
+    ) {
+        myObjectStore.updateObjects(
+            what
+        ) { results -> from.send(msgUpdate(this@RepHandler, tag.valueOrNull(), results)) }
     }
 
     /**
@@ -103,13 +99,13 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
      * @param what  Query templates for the objects requested.
      */
     @JsonMethod("tag", "what")
-    fun query(from: RepositoryActor, tag: OptString,
-              what: Array<QueryDesc>) {
-        myObjectStore.queryObjects(what, object : GetResultHandler {
-            override fun handle(results: Array<ObjectDesc>) {
-                from.send(msgQuery(this@RepHandler, tag.valueOrNull(), results))
-            }
-        })
+    fun query(
+        from: RepositoryActor, tag: OptString,
+        what: Array<QueryDesc>
+    ) {
+        myObjectStore.queryObjects(what) { results ->
+            from.send(msgQuery(this@RepHandler, tag.valueOrNull(), results))
+        }
     }
 
     /**
@@ -122,12 +118,12 @@ internal class RepHandler(repository: Repository, commGorgel: Gorgel) : BasicPro
      * @param what  Objects to be deleted.
      */
     @JsonMethod("tag", "what")
-    fun remove(from: RepositoryActor, tag: OptString,
-               what: Array<RequestDesc>) {
-        myObjectStore.removeObjects(what, object : RequestResultHandler {
-            override fun handle(results: Array<out ResultDesc>) {
-                from.send(msgRemove(this@RepHandler, tag.valueOrNull(), results))
-            }
-        })
+    fun remove(
+        from: RepositoryActor, tag: OptString,
+        what: Array<RequestDesc>
+    ) {
+        myObjectStore.removeObjects(
+            what
+        ) { results -> from.send(msgRemove(this@RepHandler, tag.valueOrNull(), results)) }
     }
 }

@@ -4,7 +4,7 @@ package org.elkoserver.foundation.server
  * Interface implemented by objects that register to receive periodic samplings
  * of system load.
  */
-interface LoadWatcher {
+fun interface LoadWatcher {
     /**
      * Take note of a load sample.
      *

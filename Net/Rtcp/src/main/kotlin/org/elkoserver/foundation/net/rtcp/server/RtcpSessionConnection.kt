@@ -5,9 +5,7 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.ConnectionBase
 import org.elkoserver.foundation.net.ConnectionCloseException
 import org.elkoserver.foundation.net.LoadMonitor
-import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timeout
-import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.json.JsonLiteral
@@ -24,16 +22,16 @@ import java.util.concurrent.Executor
  * @param sessionIDAsLong  The session ID for the session.
  */
 class RtcpSessionConnection internal constructor(
-        private val mySessionFactory: RtcpMessageHandlerFactory,
-        runner: Executor,
-        loadMonitor: LoadMonitor,
-        sessionIDAsLong: Long,
-        private val timer: Timer,
-        clock: Clock,
-        private val gorgel: Gorgel,
-        commGorgel: Gorgel,
-        idGenerator: IdGenerator)
-    : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator) {
+    private val mySessionFactory: RtcpMessageHandlerFactory,
+    runner: Executor,
+    loadMonitor: LoadMonitor,
+    sessionIDAsLong: Long,
+    private val timer: Timer,
+    clock: Clock,
+    private val gorgel: Gorgel,
+    commGorgel: Gorgel,
+    idGenerator: IdGenerator
+) : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator) {
 
     /** Sequence number of last client->server message received here.  */
     internal var clientSendSeqNum: Int = 0
@@ -59,11 +57,9 @@ class RtcpSessionConnection internal constructor(
     private var myInactivityTimeoutInterval = mySessionFactory.sessionInactivityTimeout(false)
 
     /** Clock: ticks watch for inactive (and thus presumed dead) session.  */
-    private val myInactivityClock = timer.every(myInactivityTimeoutInterval / 2 + 1000.toLong(), object : TickNoticer {
-        override fun noticeTick(ticks: Int) {
-            noticeInactivityTick()
-        }
-    }).apply(org.elkoserver.foundation.timer.Clock::start)
+    private val myInactivityClock = timer.every(
+        myInactivityTimeoutInterval / 2 + 1000.toLong()
+    ) { noticeInactivityTick() }.apply(org.elkoserver.foundation.timer.Clock::start)
 
     /** Timeout for closing an abandoned session.  */
     private var myDisconnectedTimeout: Timeout? = null
@@ -150,11 +146,9 @@ class RtcpSessionConnection internal constructor(
         if (myLiveConnection === connection) {
             myLiveConnection = null
             tcpConnectionDied(connection)
-            myDisconnectedTimeout = timer.after(myDisconnectedTimeoutInterval.toLong(), object : TimeoutNoticer {
-                override fun noticeTimeout() {
-                    noticeDisconnectedTimeout()
-                }
-            })
+            myDisconnectedTimeout = timer.after(
+                myDisconnectedTimeoutInterval.toLong()
+            ) { noticeDisconnectedTimeout() }
         }
     }
 
@@ -237,9 +231,11 @@ class RtcpSessionConnection internal constructor(
     fun replayUnacknowledgedMessages(seqNum: Int) {
         discardAcknowledgedMessages(seqNum)
         for (elem in myQueue) {
-            val messageString = mySessionFactory.makeMessage(elem.seqNum,
-                    clientSendSeqNum,
-                    elem.message.sendableString())
+            val messageString = mySessionFactory.makeMessage(
+                elem.seqNum,
+                clientSendSeqNum,
+                elem.message.sendableString()
+            )
             commGorgel.d?.run { debug("${this@RtcpSessionConnection} resend ${elem.seqNum}") }
             myLiveConnection!!.sendMsg(messageString)
         }
@@ -266,9 +262,11 @@ class RtcpSessionConnection internal constructor(
                 close()
             }
             myQueue.addLast(qMsg)
-            messageString = mySessionFactory.makeMessage(myServerSendSeqNum,
-                    clientSendSeqNum,
-                    message.sendableString())
+            messageString = mySessionFactory.makeMessage(
+                myServerSendSeqNum,
+                clientSendSeqNum,
+                message.sendableString()
+            )
             gorgel.d?.run { debug("$myLiveConnection <| $myServerSendSeqNum $clientSendSeqNum") }
             gorgel.i?.run { info("${this@RtcpSessionConnection} <- $message") }
         } else if (message is String) {

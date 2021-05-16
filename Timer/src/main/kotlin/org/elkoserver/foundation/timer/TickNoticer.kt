@@ -11,7 +11,7 @@ package org.elkoserver.foundation.timer
  * @see Timer.every Timer.every
  * @see Clock
  */
-interface TickNoticer {
+fun interface TickNoticer {
     /**
      * Called by clocks on their targets after each tick.
      *

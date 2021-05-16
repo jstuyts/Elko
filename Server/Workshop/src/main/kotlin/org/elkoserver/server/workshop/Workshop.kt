@@ -3,7 +3,6 @@ package org.elkoserver.server.workshop
 import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.Server
-import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.json.Encodable
@@ -32,14 +31,15 @@ import java.util.function.Consumer
  * @param myServer  Server object.
  */
 class Workshop internal constructor(
-        private val myObjectDatabase: ObjectDatabase,
-        private val myServer: Server,
-        internal val refTable: RefTable,
-        private val gorgel: Gorgel,
-        private val startupWorkerListGorgel: Gorgel,
-        baseCommGorgel: Gorgel,
-        // FIXME: Only inject object databases into workers for now. Should switch to more generic injection, so workers are not limited to small set of possible dependency types.
-        private val workerDatabases: Map<String, ObjectDatabase>) {
+    private val myObjectDatabase: ObjectDatabase,
+    private val myServer: Server,
+    internal val refTable: RefTable,
+    private val gorgel: Gorgel,
+    private val startupWorkerListGorgel: Gorgel,
+    baseCommGorgel: Gorgel,
+    // FIXME: Only inject object databases into workers for now. Should switch to more generic injection, so workers are not limited to small set of possible dependency types.
+    private val workerDatabases: Map<String, ObjectDatabase>
+) {
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown: Boolean
@@ -86,8 +86,8 @@ class Workshop internal constructor(
     fun registerService(serviceName: String) {
         val services = myServer.services()
         val newServices: MutableList<ServiceDesc> = services
-                .filter { "workshop-service" == it.service }
-                .mapTo(LinkedList()) { it.subService(serviceName) }
+            .filter { "workshop-service" == it.service }
+            .mapTo(LinkedList()) { it.subService(serviceName) }
         for (service in newServices) {
             myServer.registerService(service)
         }
@@ -127,7 +127,7 @@ class Workshop internal constructor(
      * question, or null if the object was not available.
      */
     fun getObject(ref: String, databaseId: String, handler: Consumer<Any?>) {
-        workerDatabases.getValue(databaseId).getObject(ref,  handler)
+        workerDatabases.getValue(databaseId).getObject(ref, handler)
     }
 
     /**
@@ -207,7 +207,13 @@ class Workshop internal constructor(
      * the operation; the result will be null if the operation succeeded, or
      * an error string if the operation failed.
      */
-    fun updateObject(ref: String, version: Int, `object`: Encodable, databaseId: String, resultHandler: Consumer<Any?>?) {
+    fun updateObject(
+        ref: String,
+        version: Int,
+        `object`: Encodable,
+        databaseId: String,
+        resultHandler: Consumer<Any?>?
+    ) {
         workerDatabases.getValue(databaseId).updateObject(ref, version, `object`, resultHandler)
     }
 
@@ -225,11 +231,9 @@ class Workshop internal constructor(
         refTable.addRef(ClientHandler(this, baseCommGorgel.getChild(ClientHandler::class)))
         refTable.addRef(AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class)))
         isShuttingDown = false
-        myServer.registerShutdownWatcher(object : ShutdownWatcher {
-            override fun noteShutdown() {
-                isShuttingDown = true
-                myObjectDatabase.shutdown()
-            }
-        })
+        myServer.registerShutdownWatcher {
+            isShuttingDown = true
+            myObjectDatabase.shutdown()
+        }
     }
 }

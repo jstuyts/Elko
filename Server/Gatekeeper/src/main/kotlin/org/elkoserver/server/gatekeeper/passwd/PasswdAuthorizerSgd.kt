@@ -2,7 +2,6 @@
 
 package org.elkoserver.server.gatekeeper.passwd
 
-import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.server.gatekeeper.AuthorizerProvided
 import org.ooverkommelig.ObjectGraphConfiguration
 import org.ooverkommelig.Once
@@ -12,19 +11,34 @@ import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
 import java.security.SecureRandom
 
-internal class PasswdAuthorizerSgd(provided: AuthorizerProvided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(configuration) {
-    val authorizer by Once { PasswdAuthorizer(req(random), req(provided.gatekeeper()), req(objectDatabase), req(anonymousOk), req(actorIdBase)) }
-            .wire {
-                req(provided.server()).registerShutdownWatcher(object : ShutdownWatcher {
-                    override fun noteShutdown() {
-                        it.shutdown()
-                    }
-                })
-            }
+internal class PasswdAuthorizerSgd(
+    provided: AuthorizerProvided,
+    configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()
+) : SubGraphDefinition(configuration) {
+    val authorizer by Once {
+        PasswdAuthorizer(
+            req(random),
+            req(provided.gatekeeper()),
+            req(objectDatabase),
+            req(anonymousOk),
+            req(actorIdBase)
+        )
+    }
+        .wire {
+            req(provided.server()).registerShutdownWatcher { it.shutdown() }
+        }
 
-    val authHandler by Once { AuthHandler(req(authorizer), req(provided.gatekeeper()), req(provided.baseCommGorgel()).getChild(AuthHandler::class), req(random), req(sha)) }
-            .wire { req(provided.gatekeeper()).refTable.addRef(it) }
-            .eager()
+    val authHandler by Once {
+        AuthHandler(
+            req(authorizer),
+            req(provided.gatekeeper()),
+            req(provided.baseCommGorgel()).getChild(AuthHandler::class),
+            req(random),
+            req(sha)
+        )
+    }
+        .wire { req(provided.gatekeeper()).refTable.addRef(it) }
+        .eager()
 
     val random by Once(::SecureRandom)
 

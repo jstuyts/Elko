@@ -5,7 +5,7 @@ package org.elkoserver.objectdatabase.store
  * servicing a simple request, such as 'put' or 'remove', that does not return
  * any objects but only a status indication.
  */
-interface RequestResultHandler {
+fun interface RequestResultHandler {
     /**
      * Receive the results of a request.
      *

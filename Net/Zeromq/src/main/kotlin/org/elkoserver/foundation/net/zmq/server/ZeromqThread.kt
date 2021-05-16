@@ -14,12 +14,13 @@ import java.util.ArrayDeque
 import java.util.concurrent.Executor
 
 class ZeromqThread(
-        private val runner: Executor,
-        private val loadMonitor: LoadMonitor,
-        private val connectionCommGorgel: Gorgel,
-        private val idGenerator: IdGenerator,
-        private val clock: Clock,
-        private val commGorgel: Gorgel) : Thread("Elko ZeroMQ") {
+    private val runner: Executor,
+    private val loadMonitor: LoadMonitor,
+    private val connectionCommGorgel: Gorgel,
+    private val idGenerator: IdGenerator,
+    private val clock: Clock,
+    private val commGorgel: Gorgel
+) : Thread("Elko ZeroMQ") {
     /** Queue of unserviced I/O requests.  */
     private val myQueue = ArrayDeque<Any>()
 
@@ -101,7 +102,7 @@ class ZeromqThread(
     }
 
     private fun getConnection(socketIndex: Int) = myConnections[myPoller.getSocket(socketIndex)]
-            ?: throw IllegalStateException("No connection for socket: $socketIndex")
+        ?: throw IllegalStateException("No connection for socket: $socketIndex")
 
     /**
      * Add a socket to the set being polled.
@@ -164,22 +165,22 @@ class ZeromqThread(
                 finalAddr = "tcp://$remoteAddr"
             }
         }
-        myQueue.add(object : Runnable {
-            override fun run() {
-                commGorgel.i?.run { info("connecting ZMQ to $finalAddr") }
-                val socket: ZMQ.Socket
-                if (push) {
-                    socket = myContext.socket(SocketType.PUSH)
-                    socket.connect(finalAddr)
-                } else {
-                    socket = myContext.socket(SocketType.PUB)
-                    socket.bind(finalAddr)
-                }
-                val connection = ZeromqConnection(handlerFactory, framerFactory,
-                        socket, true, this@ZeromqThread,
-                        runner, loadMonitor, finalAddr, clock, connectionCommGorgel, idGenerator)
-                myConnections[socket] = connection
+        myQueue.add(Runnable {
+            commGorgel.i?.run { info("connecting ZMQ to $finalAddr") }
+            val socket: ZMQ.Socket
+            if (push) {
+                socket = myContext.socket(SocketType.PUSH)
+                socket.connect(finalAddr)
+            } else {
+                socket = myContext.socket(SocketType.PUB)
+                socket.bind(finalAddr)
             }
+            val connection = ZeromqConnection(
+                handlerFactory, framerFactory,
+                socket, true, this@ZeromqThread,
+                runner, loadMonitor, finalAddr, clock, connectionCommGorgel, idGenerator
+            )
+            myConnections[socket] = connection
         })
         wakeup()
     }
@@ -190,13 +191,11 @@ class ZeromqThread(
      * @param connection  The connection whose closure is desired.
      */
     fun close(connection: ZeromqConnection) {
-        myQueue.add(object : Runnable {
-            override fun run() {
-                commGorgel.i?.run { info("closing ZMQ connection $connection") }
-                val socket = connection.socket()
-                unwatchSocket(socket)
-                myConnections.remove(socket)
-            }
+        myQueue.add(Runnable {
+            commGorgel.i?.run { info("closing ZMQ connection $connection") }
+            val socket = connection.socket()
+            unwatchSocket(socket)
+            myConnections.remove(socket)
         })
         wakeup()
     }
@@ -213,7 +212,12 @@ class ZeromqThread(
      * @return the address that ended up being listened upon
      */
     @Throws(IOException::class)
-    fun listen(listenAddress: String, handlerFactory: MessageHandlerFactory, framerFactory: ByteIoFramerFactory, secure: Boolean): NetAddr {
+    fun listen(
+        listenAddress: String,
+        handlerFactory: MessageHandlerFactory,
+        framerFactory: ByteIoFramerFactory,
+        secure: Boolean
+    ): NetAddr {
         var actualListenAddress = listenAddress
         if (secure) {
             throw Error("secure ZeroMQ not yet available")
@@ -236,27 +240,27 @@ class ZeromqThread(
         } else {
             "tcp://*:${result.port}"
         }
-        myQueue.add(object : Runnable {
-            override fun run() {
-                val socket: ZMQ.Socket
-                if (subscribe) {
-                    commGorgel.i?.run { info("subscribing to ZMQ messages from $finalAddress") }
-                    socket = myContext.socket(SocketType.SUB)
-                    socket.subscribe(UNIVERSAL_SUBSCRIPTION)
-                    socket.connect(finalAddress)
-                } else {
-                    commGorgel.i?.run { info("pulling ZMQ messages at $finalAddress") }
-                    socket = myContext.socket(SocketType.PULL)
-                    socket.bind(finalAddress)
-                }
-                commGorgel.i?.run { info("ZMQ socket initialized") }
-                val connection = ZeromqConnection(handlerFactory, framerFactory,
-                        socket, false, this@ZeromqThread,
-                        runner, loadMonitor, "*", clock, connectionCommGorgel, idGenerator)
-                myConnections[socket] = connection
-                commGorgel.i?.run { info("watching ZMQ socket") }
-                watchSocket(socket, ZMQ.Poller.POLLIN)
+        myQueue.add(Runnable {
+            val socket: ZMQ.Socket
+            if (subscribe) {
+                commGorgel.i?.run { info("subscribing to ZMQ messages from $finalAddress") }
+                socket = myContext.socket(SocketType.SUB)
+                socket.subscribe(UNIVERSAL_SUBSCRIPTION)
+                socket.connect(finalAddress)
+            } else {
+                commGorgel.i?.run { info("pulling ZMQ messages at $finalAddress") }
+                socket = myContext.socket(SocketType.PULL)
+                socket.bind(finalAddress)
             }
+            commGorgel.i?.run { info("ZMQ socket initialized") }
+            val connection = ZeromqConnection(
+                handlerFactory, framerFactory,
+                socket, false, this@ZeromqThread,
+                runner, loadMonitor, "*", clock, connectionCommGorgel, idGenerator
+            )
+            myConnections[socket] = connection
+            commGorgel.i?.run { info("watching ZMQ socket") }
+            watchSocket(socket, ZMQ.Poller.POLLIN)
         })
         wakeup()
         return result

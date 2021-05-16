@@ -7,7 +7,6 @@ import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.server.ReinitWatcher
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
@@ -147,12 +146,10 @@ abstract class OutboundGroup(propRoot: String,
     internal abstract fun service(): String
 
     init {
-        myServer.registerReinitWatcher(object : ReinitWatcher {
-            override fun noteReinit() {
-                disconnectHosts()
-                connectHosts()
-            }
-        })
+        myServer.registerReinitWatcher {
+            disconnectHosts()
+            connectHosts()
+        }
 
         hosts.filter { it.protocol != "tcp" }.forEach { gorgel.error("unknown $propRoot server access protocol '${it.protocol}' for access to ${it.hostPort} (configuration ignored)") }
         myHosts = hosts.filter { it.protocol == "tcp" }

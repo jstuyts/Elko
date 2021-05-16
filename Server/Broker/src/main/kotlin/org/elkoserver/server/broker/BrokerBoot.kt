@@ -22,11 +22,7 @@ class BrokerBoot : Bootable {
     override fun boot(props: ElkoProperties, gorgel: Gorgel, clock: Clock) {
         val myGorgel = gorgel.getChild(BrokerBoot::class)
         lateinit var brokerServerGraph: BrokerServerOgd.Graph
-        val graphClosingShutdownWatcher = object : ShutdownWatcher {
-            override fun noteShutdown() {
-                brokerServerGraph.close()
-            }
-        }
+        val graphClosingShutdownWatcher = ShutdownWatcher { brokerServerGraph.close() }
         brokerServerGraph = BrokerServerOgd(object : BrokerServerOgd.Provided {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
@@ -34,7 +30,10 @@ class BrokerBoot : Bootable {
             override fun externalShutdownWatcher() = ConstantDefinition(graphClosingShutdownWatcher)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {
             override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
-                myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)
+                myGorgel.error(
+                    "Error during cleanup of object graph. Object: $sourceObject, operation: $operation",
+                    exception
+                )
             }
         })).Graph()
         brokerServerGraph.server()

@@ -19,11 +19,7 @@ class DirectorBoot : Bootable {
     override fun boot(props: ElkoProperties, gorgel: Gorgel, clock: Clock) {
         val myGorgel = gorgel.getChild(DirectorBoot::class)
         lateinit var directorServerGraph: DirectorServerOgd.Graph
-        val graphClosingShutdownWatcher = object : ShutdownWatcher {
-            override fun noteShutdown() {
-                directorServerGraph.close()
-            }
-        }
+        val graphClosingShutdownWatcher = ShutdownWatcher { directorServerGraph.close() }
         directorServerGraph = DirectorServerOgd(object : DirectorServerOgd.Provided {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
@@ -31,7 +27,10 @@ class DirectorBoot : Bootable {
             override fun externalShutdownWatcher() = ConstantDefinition(graphClosingShutdownWatcher)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {
             override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
-                myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)
+                myGorgel.error(
+                    "Error during cleanup of object graph. Object: $sourceObject, operation: $operation",
+                    exception
+                )
             }
         })).Graph()
         directorServerGraph.server()

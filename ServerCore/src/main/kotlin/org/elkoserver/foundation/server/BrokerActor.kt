@@ -19,20 +19,18 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param host  The broker's host address.
  */
 class BrokerActor(
-        connection: Connection,
-        dispatcher: MessageDispatcher,
-        private val myServer: Server,
-        private val loadMonitor: ServerLoadMonitor,
-        host: HostDesc,
-        gorgel: Gorgel,
-        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
+    connection: Connection,
+    dispatcher: MessageDispatcher,
+    private val myServer: Server,
+    private val loadMonitor: ServerLoadMonitor,
+    host: HostDesc,
+    gorgel: Gorgel,
+    mustSendDebugReplies: Boolean
+) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
     /** Load watcher for this actor to report load to the broker.  */
-    private val myLoadWatcher: LoadWatcher = object : LoadWatcher {
-        override fun noteLoadSample(loadFactor: Double) {
-            send(msgLoad(this@BrokerActor, loadFactor))
-        }
-    }
+    private val myLoadWatcher: LoadWatcher =
+        LoadWatcher { loadFactor -> send(msgLoad(this@BrokerActor, loadFactor)) }
 
     /**
      * Handle loss of connection from the broker.

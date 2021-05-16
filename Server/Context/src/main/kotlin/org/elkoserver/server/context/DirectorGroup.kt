@@ -6,7 +6,6 @@ import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerLoadMonitor
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -26,27 +25,30 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param listeners  List of HostDesc objects describing active
  *    listeners to register with the indicated directors.
  */
-class DirectorGroup(server: Server,
-                    loadMonitor: ServerLoadMonitor,
-                    contextor: Contextor,
-                    directors: List<HostDesc>,
-                    internal val listeners: List<HostDesc>,
-                    gorgel: Gorgel,
-                    messageDispatcher: MessageDispatcher,
-                    private val reservationFactory: ReservationFactory,
-                    private val directorActorFactory: DirectorActorFactory,
-                    timer: Timer,
-                    props: ElkoProperties,
-                    connectionRetrierFactory: ConnectionRetrierFactory) : OutboundGroup(
-        "conf.register",
-        server,
-        contextor,
-        directors,
-        gorgel,
-        messageDispatcher,
-        timer,
-        props,
-        connectionRetrierFactory) {
+class DirectorGroup(
+    server: Server,
+    loadMonitor: ServerLoadMonitor,
+    contextor: Contextor,
+    directors: List<HostDesc>,
+    internal val listeners: List<HostDesc>,
+    gorgel: Gorgel,
+    messageDispatcher: MessageDispatcher,
+    private val reservationFactory: ReservationFactory,
+    private val directorActorFactory: DirectorActorFactory,
+    timer: Timer,
+    props: ElkoProperties,
+    connectionRetrierFactory: ConnectionRetrierFactory
+) : OutboundGroup(
+    "conf.register",
+    server,
+    contextor,
+    directors,
+    gorgel,
+    messageDispatcher,
+    timer,
+    props,
+    connectionRetrierFactory
+) {
 
     /** Iterator for cycling through arbitrary relays.  */
     private var myDirectorPicker: Iterator<Deliverer>? = null
@@ -141,11 +143,19 @@ class DirectorGroup(server: Server,
         val baseCap = context.baseCapacity
         val restricted = context.isRestricted
         if (opener != null) {
-            opener.send(msgContext(ref, open, true, maxCap, baseCap,
-                    restricted))
-            sendToNeighbors(opener,
-                    msgContext(ref, open, false, maxCap, baseCap,
-                            restricted))
+            opener.send(
+                msgContext(
+                    ref, open, true, maxCap, baseCap,
+                    restricted
+                )
+            )
+            sendToNeighbors(
+                opener,
+                msgContext(
+                    ref, open, false, maxCap, baseCap,
+                    restricted
+                )
+            )
         } else {
             send(msgContext(ref, open, false, maxCap, baseCap, restricted))
         }
@@ -240,10 +250,14 @@ class DirectorGroup(server: Server,
      */
     private fun updateDirector(director: DirectorActor) {
         for (context in contextor.contexts()) {
-            director.send(msgContext(context.ref(), true, false,
+            director.send(
+                msgContext(
+                    context.ref(), true, false,
                     context.maxCapacity,
                     context.baseCapacity,
-                    context.isRestricted))
+                    context.isRestricted
+                )
+            )
             if (context.gateIsClosed()) {
                 director.send(msgGate(context.ref(), true, context.gateClosedReason!!))
             }
@@ -259,11 +273,7 @@ class DirectorGroup(server: Server,
     }
 
     init {
-        loadMonitor.registerLoadWatcher(object : LoadWatcher {
-            override fun noteLoadSample(loadFactor: Double) {
-                send(msgLoad(loadFactor))
-            }
-        })
+        loadMonitor.registerLoadWatcher { loadFactor -> send(msgLoad(loadFactor)) }
         connectHosts()
     }
 }

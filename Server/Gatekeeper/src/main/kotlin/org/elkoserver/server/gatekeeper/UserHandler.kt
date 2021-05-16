@@ -15,7 +15,8 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *
  * 'setpassword' - Requests that the user's stored password be changed.
  */
-internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
+internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gorgel) :
+    BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -38,19 +39,32 @@ internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gor
      * @param password  Password for entry, when relevant.
      */
     @JsonMethod("protocol", "context", "id", "name", "password")
-    fun reserve(from: GatekeeperActor, protocol: String, context: String, id: OptString, name: OptString, password: OptString) {
+    fun reserve(
+        from: GatekeeperActor,
+        protocol: String,
+        context: String,
+        id: OptString,
+        name: OptString,
+        password: OptString
+    ) {
         val idStr = id.valueOrNull()
         myAuthorizer.reserve(
-                protocol, context, idStr, name.valueOrNull(), password.valueOrNull(),
-                object : ReservationResultHandler {
-                    override fun handleReservation(actor: String?, context: String?, name: String?, hostport: String?, auth: String?) {
-                        from.send(msgReserve(this@UserHandler, idStr, context, actor, name, hostport, auth, null))
-                    }
+            protocol, context, idStr, name.valueOrNull(), password.valueOrNull(),
+            object : ReservationResultHandler {
+                override fun handleReservation(
+                    actor: String?,
+                    context: String?,
+                    name: String?,
+                    hostport: String?,
+                    auth: String?
+                ) {
+                    from.send(msgReserve(this@UserHandler, idStr, context, actor, name, hostport, auth, null))
+                }
 
-                    override fun handleFailure(failure: String?) {
-                        from.send(msgReserve(this@UserHandler, idStr, context, null, null, null, null, failure))
-                    }
-                })
+                override fun handleFailure(failure: String?) {
+                    from.send(msgReserve(this@UserHandler, idStr, context, null, null, null, null, failure))
+                }
+            })
     }
 
     /**
@@ -66,13 +80,9 @@ internal class UserHandler(private val myAuthorizer: Authorizer, commGorgel: Gor
     @JsonMethod("id", "oldpassword", "newpassword")
     fun setpassword(from: GatekeeperActor, id: String, oldpassword: OptString, newpassword: OptString) {
         myAuthorizer.setPassword(
-                id,
-                oldpassword.valueOrNull(),
-                newpassword.valueOrNull(),
-                object : SetPasswordResultHandler {
-                    override fun handle(failure: String?) {
-                        from.send(msgSetPassword(this@UserHandler, id, failure))
-                    }
-                })
+            id,
+            oldpassword.valueOrNull(),
+            newpassword.valueOrNull()
+        ) { failure -> from.send(msgSetPassword(this@UserHandler, id, failure)) }
     }
 }

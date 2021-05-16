@@ -4,7 +4,6 @@ import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
-import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
@@ -13,14 +12,15 @@ import java.util.LinkedList
  * Main state data structure in a Presence Server.
  */
 internal class PresenceServer(
-        private val myServer: Server,
-        objectDatabaseFactory: ObjectDatabaseFactory,
-        internal val refTable: RefTable,
-        private val gorgel: Gorgel,
-        private val graphDescGorgel: Gorgel,
-        private val socialGraphGorgel: Gorgel,
-        baseCommGorgel: Gorgel,
-        private val domainRegistry: DomainRegistry) {
+    private val myServer: Server,
+    objectDatabaseFactory: ObjectDatabaseFactory,
+    internal val refTable: RefTable,
+    private val gorgel: Gorgel,
+    private val graphDescGorgel: Gorgel,
+    private val socialGraphGorgel: Gorgel,
+    baseCommGorgel: Gorgel,
+    private val domainRegistry: DomainRegistry
+) {
     /** Database that this server stores stuff in.  */
     internal val objectDatabase: ObjectDatabase
 
@@ -190,8 +190,10 @@ internal class PresenceServer(
      * @param context  The name of the context the user is leaving.
      * @param client  Actor connected to context server user was on.
      */
-    fun removeUserPresence(userRef: String, context: String,
-                           client: PresenceActor) {
+    fun removeUserPresence(
+        userRef: String, context: String,
+        client: PresenceActor
+    ) {
         if (isVisible(context)) {
             val user = myUsers[userRef]
             if (user != null) {
@@ -242,21 +244,19 @@ internal class PresenceServer(
             if (obj != null) {
                 val info = obj as GraphTable
                 info.graphs
-                        .mapNotNull { it.init(this@PresenceServer, graphDescGorgel, socialGraphGorgel) }
-                        .forEach { mySocialGraphs[it.domain().name] = it }
+                    .mapNotNull { it.init(this@PresenceServer, graphDescGorgel, socialGraphGorgel) }
+                    .forEach { mySocialGraphs[it.domain().name] = it }
             } else {
                 gorgel.warn("unable to load social graph metadata table")
             }
         }
-        myServer.registerShutdownWatcher(object : ShutdownWatcher {
-            override fun noteShutdown() {
-                isShuttingDown = true
-                val actorListCopy: List<PresenceActor> = LinkedList(myActors)
-                for (actor in actorListCopy) {
-                    actor.doDisconnect()
-                }
-                objectDatabase.shutdown()
+        myServer.registerShutdownWatcher {
+            isShuttingDown = true
+            val actorListCopy: List<PresenceActor> = LinkedList(myActors)
+            for (actor in actorListCopy) {
+                actor.doDisconnect()
             }
-        })
+            objectDatabase.shutdown()
+        }
     }
 }

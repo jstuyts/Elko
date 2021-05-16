@@ -18,11 +18,7 @@ class ContextServerBoot : Bootable {
     override fun boot(props: ElkoProperties, gorgel: Gorgel, clock: Clock) {
         val myGorgel = gorgel.getChild(ContextServerBoot::class)
         lateinit var contextServerGraph: ContextServerOgd.Graph
-        val graphClosingShutdownWatcher = object : ShutdownWatcher {
-            override fun noteShutdown() {
-                contextServerGraph.close()
-            }
-        }
+        val graphClosingShutdownWatcher = ShutdownWatcher { contextServerGraph.close() }
         contextServerGraph = ContextServerOgd(object : ContextServerOgd.Provided {
             override fun clock() = ConstantDefinition(clock)
             override fun props() = ConstantDefinition(props)
@@ -30,7 +26,10 @@ class ContextServerBoot : Bootable {
             override fun externalShutdownWatcher() = ConstantDefinition(graphClosingShutdownWatcher)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {
             override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
-                myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)
+                myGorgel.error(
+                    "Error during cleanup of object graph. Object: $sourceObject, operation: $operation",
+                    exception
+                )
             }
         })).Graph()
         contextServerGraph.contextor()

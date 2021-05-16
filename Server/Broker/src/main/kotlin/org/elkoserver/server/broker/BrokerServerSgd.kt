@@ -55,7 +55,6 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRunner
 import org.elkoserver.foundation.server.BrokerActorFactory
 import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
-import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
@@ -91,7 +90,10 @@ import org.ooverkommelig.req
 import java.security.SecureRandom
 import java.time.Clock
 
-internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(configuration) {
+internal class BrokerServerSgd(
+    provided: Provided,
+    configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()
+) : SubGraphDefinition(configuration) {
     interface Provided {
         fun timer(): D<Timer>
         fun props(): D<ElkoProperties>
@@ -120,12 +122,19 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val connectionRetrierWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(ConnectionRetrier::class) }
 
-    val jsonHttpFramerCommGorgel by Once { req(provided.baseGorgel()).getChild(JsonHttpFramer::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
+    val jsonHttpFramerCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(JsonHttpFramer::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG)
+    }
     val tcpConnectionGorgel by Once { req(provided.baseGorgel()).getChild(TcpConnection::class) }
     val jsonByteIoFramerWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(JsonByteIoFramer::class) }
     val websocketFramerGorgel by Once { req(provided.baseGorgel()).getChild(WebsocketByteIoFramerFactory.WebsocketFramer::class) }
-    val methodInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(MethodInvoker::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
-    val constructorInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(ConstructorInvoker::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
+    val methodInvokerCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(MethodInvoker::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG)
+    }
+    val constructorInvokerCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(ConstructorInvoker::class)
+            .withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG)
+    }
 
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
@@ -137,7 +146,12 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val repositoryObjectDatabaseGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepository::class) }
 
-    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepositoryActor::class, COMMUNICATION_CATEGORY_TAG) }
+    val odbActorGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            ObjectDatabaseRepositoryActor::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 
@@ -151,21 +165,66 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val sslContextSgdGorgel by Once { req(provided.baseGorgel()).getChild(SslContextSgd::class) }
 
-    val httpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(HttpSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
+    val httpSessionConnectionCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            HttpSessionConnection::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
     val rtcpSessionConnectionGorgel by Once { req(provided.baseGorgel()).getChild(RtcpSessionConnection::class) }
-    val rtcpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(RtcpSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
-    val rtcpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(RtcpMessageHandler::class, COMMUNICATION_CATEGORY_TAG) }
+    val rtcpSessionConnectionCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            RtcpSessionConnection::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
+    val rtcpMessageHandlerCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            RtcpMessageHandler::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
     val rtcpMessageHandlerFactoryGorgel by Once { req(provided.baseGorgel()).getChild(RtcpMessageHandlerFactory::class) }
-    val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TcpConnection::class, COMMUNICATION_CATEGORY_TAG) }
+    val tcpConnectionCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            TcpConnection::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
     val baseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
-    val zeromqThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(ZeromqThread::class, COMMUNICATION_CATEGORY_TAG) }
+    val zeromqThreadCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            ZeromqThread::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
-    val httpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(HttpMessageHandler::class, COMMUNICATION_CATEGORY_TAG) }
-    val httpMessageHandlerFactoryCommGorgel by Once { req(provided.baseGorgel()).getChild(HttpMessageHandlerFactory::class, COMMUNICATION_CATEGORY_TAG) }
+    val httpMessageHandlerCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            HttpMessageHandler::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
+    val httpMessageHandlerFactoryCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            HttpMessageHandlerFactory::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
-    val inputGorgel by Once { req(provided.baseGorgel()).getChild(ChunkyByteArrayInputStream::class, COMMUNICATION_CATEGORY_TAG) }
+    val inputGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            ChunkyByteArrayInputStream::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
-    val selectThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(SelectThread::class, COMMUNICATION_CATEGORY_TAG) }
+    val selectThreadCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            SelectThread::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
     val sslContextPropertyNamePrefix by Once { "conf.ssl." }
 
@@ -189,7 +248,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(provided.clock()),
             req(tcpConnectionGorgel),
             req(tcpConnectionCommGorgel),
-            req(connectionIdGenerator))
+            req(connectionIdGenerator)
+        )
     }
 
     val selectThread by Once {
@@ -197,7 +257,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             opt(optionalSslContext),
             req(selectThreadCommGorgel),
             req(tcpConnectionFactory),
-            req(listenerFactory))
+            req(listenerFactory)
+        )
     }
         .dispose(SelectThread::shutDown)
 
@@ -210,7 +271,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(directObjectDatabaseRunnerFactory),
             req(provided.baseGorgel()),
             req(jsonToObjectDeserializer),
-            req(runner))
+            req(runner)
+        )
     }
 
     val chunkyByteArrayInputStreamFactory by Once {
@@ -222,15 +284,27 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
     }
 
     val jsonByteIoFramerFactoryFactory by Once {
-        JsonByteIoFramerFactoryFactory(req(jsonByteIoFramerWithoutLabelGorgel), req(chunkyByteArrayInputStreamFactory), req(mustSendDebugReplies))
+        JsonByteIoFramerFactoryFactory(
+            req(jsonByteIoFramerWithoutLabelGorgel),
+            req(chunkyByteArrayInputStreamFactory),
+            req(mustSendDebugReplies)
+        )
     }
 
     val rtcpByteIoFramerFactoryFactory by Once {
-        RtcpRequestByteIoFramerFactoryFactory(req(tcpConnectionGorgel), req(chunkyByteArrayInputStreamFactory), req(mustSendDebugReplies))
+        RtcpRequestByteIoFramerFactoryFactory(
+            req(tcpConnectionGorgel),
+            req(chunkyByteArrayInputStreamFactory),
+            req(mustSendDebugReplies)
+        )
     }
 
     val websocketByteIoFramerFactoryFactory by Once {
-        WebsocketByteIoFramerFactoryFactory(req(websocketFramerGorgel), req(chunkyByteArrayInputStreamFactory), req(jsonByteIoFramerFactoryFactory).create())
+        WebsocketByteIoFramerFactoryFactory(
+            req(websocketFramerGorgel),
+            req(chunkyByteArrayInputStreamFactory),
+            req(jsonByteIoFramerFactoryFactory).create()
+        )
     }
 
     val httpSessionConnectionFactory by Once {
@@ -242,7 +316,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(httpSessionConnectionCommGorgel),
             req(baseCommGorgel),
             req(sessionIdGenerator),
-            req(connectionIdGenerator))
+            req(connectionIdGenerator)
+        )
     }
 
     val httpServerFactory by Once {
@@ -253,7 +328,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(httpMessageHandlerFactoryCommGorgel),
             req(tcpServerFactory),
             req(httpRequestByteIoFramerFactoryFactory),
-            req(httpSessionConnectionFactory))
+            req(httpSessionConnectionFactory)
+        )
     }
 
     val httpConnectionSetupFactory by Once {
@@ -262,7 +338,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(httpServerFactory),
             req(baseConnectionSetupGorgel),
             req(jsonHttpFramerCommGorgel),
-            req(mustSendDebugReplies))
+            req(mustSendDebugReplies)
+        )
     }
 
     val rtcpSessionConnectionFactory by Once {
@@ -274,7 +351,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(provided.timer()),
             req(provided.clock()),
             req(sessionIdGenerator),
-            req(connectionIdGenerator))
+            req(connectionIdGenerator)
+        )
     }
 
     val rtcpMessageHandlerFactoryFactory by Once {
@@ -282,14 +360,16 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(provided.props()),
             req(provided.timer()),
             req(rtcpMessageHandlerCommGorgel),
-            req(rtcpSessionConnectionFactory))
+            req(rtcpSessionConnectionFactory)
+        )
     }
 
     val rtcpServerFactory by Once {
         RtcpServerFactory(
             req(rtcpMessageHandlerFactoryFactory),
             req(tcpServerFactory),
-            req(rtcpByteIoFramerFactoryFactory))
+            req(rtcpByteIoFramerFactoryFactory)
+        )
     }
 
     val rtcpConnectionSetupFactory by Once {
@@ -297,7 +377,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(provided.props()),
             req(rtcpServerFactory),
             req(baseConnectionSetupGorgel),
-            req(rtcpMessageHandlerFactoryGorgel))
+            req(rtcpMessageHandlerFactoryGorgel)
+        )
     }
 
     val tcpServerFactory by Once {
@@ -309,20 +390,23 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(provided.props()),
             req(tcpServerFactory),
             req(baseConnectionSetupGorgel),
-            req(jsonByteIoFramerFactoryFactory))
+            req(jsonByteIoFramerFactoryFactory)
+        )
     }
 
     val websocketServerFactory by Once {
         WebsocketServerFactory(
             req(tcpServerFactory),
-            req(websocketByteIoFramerFactoryFactory))
+            req(websocketByteIoFramerFactoryFactory)
+        )
     }
 
     val websocketConnectionSetupFactory by Once {
         WebsocketConnectionSetupFactory(
             req(provided.props()),
             req(websocketServerFactory),
-            req(baseConnectionSetupGorgel))
+            req(baseConnectionSetupGorgel)
+        )
     }
 
     val zeromqConnectionSetupFactory by Once {
@@ -335,7 +419,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(zeromqThreadCommGorgel),
             req(connectionIdGenerator),
             req(provided.clock()),
-            req(jsonByteIoFramerFactoryFactory))
+            req(jsonByteIoFramerFactoryFactory)
+        )
     }
 
     val tcpClientFactory by Once {
@@ -347,26 +432,47 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(tcpClientFactory),
             req(provided.timer()),
             req(connectionRetrierWithoutLabelGorgel),
-            req(jsonByteIoFramerFactoryFactory))
+            req(jsonByteIoFramerFactoryFactory)
+        )
     }
 
     val connectionSetupFactoriesByCode by Once {
-        mapOf("http" to req(httpConnectionSetupFactory),
+        mapOf(
+            "http" to req(httpConnectionSetupFactory),
             "rtcp" to req(rtcpConnectionSetupFactory),
             "tcp" to req(tcpConnectionSetupFactory),
             "ws" to req(websocketConnectionSetupFactory),
-            "zmq" to req(zeromqConnectionSetupFactory))
+            "zmq" to req(zeromqConnectionSetupFactory)
+        )
     }
 
     val messageDispatcher by Once {
         MessageDispatcher(AlwaysBaseTypeResolver, req(methodInvokerCommGorgel), req(jsonToObjectDeserializer))
     }
 
-    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(serverLoadMonitor), req(brokerActorGorgel), req(mustSendDebugReplies)) }
+    val brokerActorFactory by Once {
+        BrokerActorFactory(
+            req(messageDispatcher),
+            req(serverLoadMonitor),
+            req(brokerActorGorgel),
+            req(mustSendDebugReplies)
+        )
+    }
 
-    val serviceActorFactory by Once { ServiceActorFactory(req(serviceActorGorgel), req(serviceActorCommGorgel), req(mustSendDebugReplies)) }
+    val serviceActorFactory by Once {
+        ServiceActorFactory(
+            req(serviceActorGorgel),
+            req(serviceActorCommGorgel),
+            req(mustSendDebugReplies)
+        )
+    }
 
-    val listenerConfigurationFromPropertiesFactory by Once { ListenerConfigurationFromPropertiesFactory(req(provided.props()), req(provided.authDescFromPropertiesFactory())) }
+    val listenerConfigurationFromPropertiesFactory by Once {
+        ListenerConfigurationFromPropertiesFactory(
+            req(provided.props()),
+            req(provided.authDescFromPropertiesFactory())
+        )
+    }
 
     val serverDescriptionFromPropertiesFactory by Once { ServerDescriptionFromPropertiesFactory(req(provided.props())) }
 
@@ -385,7 +491,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
             req(serverTagGenerator),
             req(connectionSetupFactoriesByCode),
-            req(connectionRetrierFactory))
+            req(connectionRetrierFactory)
+        )
     }
         .wire {
             it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
@@ -404,15 +511,12 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
         ServerLoadMonitor(
             req(provided.timer()),
             req(provided.clock()),
-            req(provided.props()).intProperty("conf.load.time", ServerLoadMonitor.DEFAULT_LOAD_SAMPLE_TIMEOUT) * 1000)
+            req(provided.props()).intProperty("conf.load.time", ServerLoadMonitor.DEFAULT_LOAD_SAMPLE_TIMEOUT) * 1000
+        )
     }
         .init {
             if (req(provided.props()).testProperty("conf.load.log")) {
-                it.registerLoadWatcher(object : LoadWatcher {
-                    override fun noteLoadSample(loadFactor: Double) {
-                        req(serverLoadMonitorGorgel).d?.run { debug("Load $loadFactor") }
-                    }
-                })
+                it.registerLoadWatcher { loadFactor -> req(serverLoadMonitorGorgel).d?.run { debug("Load $loadFactor") } }
             }
         }
 
@@ -427,7 +531,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
         JsonToObjectDeserializer(
             req(jsonToObjectDeserializerGorgel),
             req(constructorInvokerCommGorgel),
-            req(injectors))
+            req(injectors)
+        )
     }
 
     val clockInjector by Once { ClockInjector(req(provided.clock())) }
@@ -445,7 +550,12 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
 
-    val messageDispatcherFactory by Once { MessageDispatcherFactory(req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
+    val messageDispatcherFactory by Once {
+        MessageDispatcherFactory(
+            req(methodInvokerCommGorgel),
+            req(jsonToObjectDeserializer)
+        )
+    }
 
     val repositoryObjectDatabaseFactory by Once {
         RepositoryObjectDatabaseFactory(
@@ -463,7 +573,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(queryRequestFactory),
             req(removeRequestFactory),
             req(mustSendDebugReplies),
-            req(connectionRetrierFactory))
+            req(connectionRetrierFactory)
+        )
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
@@ -493,7 +604,13 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
-    val objectDatabaseFactory by Once { ObjectDatabaseFactory(req(provided.props()), req(repositoryObjectDatabaseFactory), req(directObjectDatabaseFactory)) }
+    val objectDatabaseFactory by Once {
+        ObjectDatabaseFactory(
+            req(provided.props()),
+            req(repositoryObjectDatabaseFactory),
+            req(directObjectDatabaseFactory)
+        )
+    }
 
     val broker: D<Broker> by Once {
         Broker(
@@ -504,7 +621,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(launcherTableGorgel),
             req(provided.timer()),
             req(baseCommGorgel),
-            req(startMode))
+            req(startMode)
+        )
     }
 
     val brokerServiceFactory by Once {
@@ -513,7 +631,8 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
             req(brokerActorGorgel),
             req(brokerActorCommGorgel),
             req(clientOrdinalGenerator),
-            req(mustSendDebugReplies))
+            req(mustSendDebugReplies)
+        )
     }
 
     val clientOrdinalGenerator by Once { LongOrdinalGenerator() }

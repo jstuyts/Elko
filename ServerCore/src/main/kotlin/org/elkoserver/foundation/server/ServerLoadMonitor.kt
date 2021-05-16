@@ -2,7 +2,6 @@ package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.timer.Timeout
-import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import java.time.Clock
 import java.util.LinkedList
@@ -10,7 +9,11 @@ import java.util.LinkedList
 /**
  * Processing time accumulator to help keep track of system load.
  */
-class ServerLoadMonitor constructor(private val timer: Timer, private val clock: Clock, private val myLoadSampleTimeoutTime: Int) : LoadMonitor {
+class ServerLoadMonitor constructor(
+    private val timer: Timer,
+    private val clock: Clock,
+    private val myLoadSampleTimeoutTime: Int
+) : LoadMonitor {
     /** When load tracking began.  */
     private var mySampleStartTime = clock.millis()
 
@@ -53,20 +56,18 @@ class ServerLoadMonitor constructor(private val timer: Timer, private val clock:
      */
     private fun scheduleLoadSampling() {
         myLoadSampleTimeout = timer.after(
-                myLoadSampleTimeoutTime.toLong(),
-                object : TimeoutNoticer {
-                    override fun noticeTimeout() {
-                        val factor = sampleLoad()
-                        if (myLoadWatchers.size > 0) {
-                            for (watcher in myLoadWatchers) {
-                                watcher.noteLoadSample(factor)
-                            }
-                            scheduleLoadSampling()
-                        } else {
-                            myLoadSampleTimeout = null
-                        }
-                    }
-                })
+            myLoadSampleTimeoutTime.toLong()
+        ) {
+            val factor = sampleLoad()
+            if (myLoadWatchers.size > 0) {
+                for (watcher in myLoadWatchers) {
+                    watcher.noteLoadSample(factor)
+                }
+                scheduleLoadSampling()
+            } else {
+                myLoadSampleTimeout = null
+            }
+        }
     }
 
     /**

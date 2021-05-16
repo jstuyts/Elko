@@ -8,7 +8,7 @@ import org.elkoserver.json.JsonLiteral
  * along network connections, and objects that represent groups of other
  * deliverers to which messages are fanned.
  */
-interface Deliverer {
+fun interface Deliverer {
     /**
      * Send a message to this object.  The message may be anything that can be
      * represented in JSON; it is up to the sender and receiver to agree on

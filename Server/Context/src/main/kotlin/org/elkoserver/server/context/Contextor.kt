@@ -7,7 +7,6 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServiceLink
-import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JsonDecodingException
@@ -1204,21 +1203,19 @@ class Contextor internal constructor(
         server.setServiceRefTable(realRefTable)
         contextFamilies = initializeContextFamilies()
         loadStaticObjects(staticsToLoad)
-        server.registerShutdownWatcher(object : ShutdownWatcher {
-            override fun noteShutdown() {
-                /* List copy to avert ConcurrentModificationException */
-                val saveUsers: List<User> = LinkedList(myUsers)
-                for (user in saveUsers) {
-                    user.exitContext(
-                        "server shutting down", "shutdown",
-                        false
-                    )
-                }
-                myDirectorGroup?.disconnectHosts()
-                myPresencerGroup?.disconnectHosts()
-                checkpointAll()
-                objectDatabase.shutdown()
+        server.registerShutdownWatcher {
+            /* List copy to avert ConcurrentModificationException */
+            val saveUsers: List<User> = LinkedList(myUsers)
+            for (user in saveUsers) {
+                user.exitContext(
+                    "server shutting down", "shutdown",
+                    false
+                )
             }
-        })
+            myDirectorGroup?.disconnectHosts()
+            myPresencerGroup?.disconnectHosts()
+            checkpointAll()
+            objectDatabase.shutdown()
+        }
     }
 }

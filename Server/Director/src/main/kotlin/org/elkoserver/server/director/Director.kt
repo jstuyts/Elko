@@ -5,7 +5,6 @@ import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.Server
-import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.HashSetMulti
@@ -22,13 +21,14 @@ import java.util.TreeMap
  * @param myProviderLimit Maximum number of providers supported.
  */
 internal class Director(
-        private val myServer: Server,
-        internal val refTable: RefTable,
-        private val gorgel: Gorgel,
-        baseCommGorgel: Gorgel,
-        random: Random,
-        private val myEstimatedLoadIncrement: Double,
-        private val myProviderLimit: Int) {
+    private val myServer: Server,
+    internal val refTable: RefTable,
+    private val gorgel: Gorgel,
+    baseCommGorgel: Gorgel,
+    random: Random,
+    private val myEstimatedLoadIncrement: Double,
+    private val myProviderLimit: Int
+) {
 
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false
@@ -147,7 +147,7 @@ internal class Director(
      * Test if a particular user is online.
      */
     private fun hasUser(userName: String) =
-            myUsers.containsKey(userName) || myUserCloneSets.containsKey(userName)
+        myUsers.containsKey(userName) || myUserCloneSets.containsKey(userName)
 
     /**
      * Test if this director already has all the providers it can handle.
@@ -329,15 +329,16 @@ internal class Director(
             }
         } else if (clones != null) {
             myProviders.keys
-                    .filter { it != omitProvider && it.hasClone(contextRef!!) && (userRef == null || it.hasUser(userRef)) }
-                    .forEach { it.actor.send(msg) }
+                .filter { it != omitProvider && it.hasClone(contextRef!!) && (userRef == null || it.hasUser(userRef)) }
+                .forEach { it.actor.send(msg) }
         } else if (directorHasUser) {
             myProviders.keys
-                    .filter { it != omitProvider && it.hasUser(userRef!!) }
-                    .forEach { it.actor.send(msg) }
+                .filter { it != omitProvider && it.hasUser(userRef!!) }
+                .forEach { it.actor.send(msg) }
         } else {
             throw MessageHandlerException(
-                    "request message missing context or user")
+                "request message missing context or user"
+            )
         }
     }
 
@@ -419,15 +420,13 @@ internal class Director(
         refTable.addRef(UserHandler(this, baseCommGorgel.getChild(UserHandler::class), random))
         myAdminHandler = AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class))
         refTable.addRef(myAdminHandler)
-        myServer.registerShutdownWatcher(object : ShutdownWatcher {
-            override fun noteShutdown() {
-                isShuttingDown = true
-                val doomedProviders = LinkedList(myProviders.keys)
-                myProviders.clear()
-                for (provider in doomedProviders) {
-                    provider.actor.close()
-                }
+        myServer.registerShutdownWatcher {
+            isShuttingDown = true
+            val doomedProviders = LinkedList(myProviders.keys)
+            myProviders.clear()
+            for (provider in doomedProviders) {
+                provider.actor.close()
             }
-        })
+        }
     }
 }

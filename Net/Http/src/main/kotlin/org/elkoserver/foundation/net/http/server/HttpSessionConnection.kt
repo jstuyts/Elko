@@ -5,7 +5,6 @@ import org.elkoserver.foundation.net.ConnectionBase
 import org.elkoserver.foundation.net.ConnectionCloseException
 import org.elkoserver.foundation.net.LoadMonitor
 import org.elkoserver.foundation.net.SessionUri
-import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -28,8 +27,8 @@ class HttpSessionConnection internal constructor(
     private val gorgel: Gorgel,
     runner: Executor,
     loadMonitor: LoadMonitor,
-    internal val sessionID: Long, timer: Timer, clock: Clock, commGorgel: Gorgel, idGenerator: IdGenerator)
-    : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator) {
+    internal val sessionID: Long, timer: Timer, clock: Clock, commGorgel: Gorgel, idGenerator: IdGenerator
+) : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator) {
 
     /** Server to client message sequence number.  */
     private var mySelectSequenceNumber = 1
@@ -61,18 +60,14 @@ class HttpSessionConnection internal constructor(
     private var mySessionTimeoutInterval = sessionFactory.sessionTimeout(false)
 
     /** Clock: ticks watch for expired message selects.  */
-    private val mySelectClock = timer.every((mySelectTimeoutInterval + 1000) / 4.toLong(), object : TickNoticer {
-        override fun noticeTick(ticks: Int) {
-            noticeSelectTick()
-        }
-    }).apply(org.elkoserver.foundation.timer.Clock::start)
+    private val mySelectClock = timer.every(
+        (mySelectTimeoutInterval + 1000) / 4.toLong()
+    ) { noticeSelectTick() }.apply(org.elkoserver.foundation.timer.Clock::start)
 
     /** Clock: ticks watch for dead session.  */
-    private val myInactivityClock = timer.every(mySessionTimeoutInterval + 1000.toLong(), object : TickNoticer {
-        override fun noticeTick(ticks: Int) {
-            noticeInactivityTick()
-        }
-    }).apply(org.elkoserver.foundation.timer.Clock::start)
+    private val myInactivityClock = timer.every(
+        mySessionTimeoutInterval + 1000.toLong()
+    ) { noticeInactivityTick() }.apply(org.elkoserver.foundation.timer.Clock::start)
 
     /** Time that connection started waiting for a message select to be
      * responded to, or 0 if it isn't waiting for that.  */
@@ -114,8 +109,8 @@ class HttpSessionConnection internal constructor(
             val connectionsToClose: Set<Connection> = myConnections
             myConnections = mutableSetOf()
             connectionsToClose
-                    .filter { it !== myDownstreamConnection }
-                    .forEach(Connection::close)
+                .filter { it !== myDownstreamConnection }
+                .forEach(Connection::close)
             sessionFactory.removeSession(this)
             myInactivityClock.stop()
             mySelectClock.stop()
@@ -125,7 +120,7 @@ class HttpSessionConnection internal constructor(
                 sendMsg(theHTTPCloseMarker)
             }
             connectionDied(
-                    ConnectionCloseException("Normal HTTP session close")
+                ConnectionCloseException("Normal HTTP session close")
             )
         }
     }
@@ -190,8 +185,9 @@ class HttpSessionConnection internal constructor(
      */
     private fun noticeInactivityTick() {
         if (mySelectWaitStartTime == 0L &&
-                clock.millis() - myLastActivityTime >
-                mySessionTimeoutInterval) {
+            clock.millis() - myLastActivityTime >
+            mySessionTimeoutInterval
+        ) {
             gorgel.i?.run { info("${this@HttpSessionConnection} tick: HTTP session timeout") }
             close()
         } else {
@@ -266,15 +262,18 @@ class HttpSessionConnection internal constructor(
      *
      * @return true if an HTTP reply was sent.
      */
-    fun selectMessages(downstreamConnection: Connection, uri: SessionUri,
-                       nonPersistent: Boolean): Boolean {
+    fun selectMessages(
+        downstreamConnection: Connection, uri: SessionUri,
+        nonPersistent: Boolean
+    ): Boolean {
         noteClientActivity()
         return when {
             uri.sequenceNumber != mySelectSequenceNumber -> {
                 /* Client did a bad, bad thing. */
                 gorgel.error("$this expected select seq # $mySelectSequenceNumber, got ${uri.sequenceNumber}")
                 downstreamConnection.sendMsg(
-                        myHttpFramer.makeSequenceErrorReply("sequenceError"))
+                    myHttpFramer.makeSequenceErrorReply("sequenceError")
+                )
                 true
             }
             myQueue.isNotEmpty() -> {

@@ -4,7 +4,6 @@ import org.elkoserver.foundation.byteioframer.http.HttpRequest
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.timer.Timeout
-import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.Locale
@@ -18,20 +17,17 @@ import java.util.Locale
  * something before kicking them off.
  */
 class HttpMessageHandler(
-        private val myConnection: Connection,
-        private val myFactory: HttpMessageHandlerFactory,
-        startupTimeoutInterval: Int,
-        timer: Timer,
-        private val commGorgel: Gorgel) : MessageHandler {
+    private val myConnection: Connection,
+    private val myFactory: HttpMessageHandlerFactory,
+    startupTimeoutInterval: Int,
+    timer: Timer,
+    private val commGorgel: Gorgel
+) : MessageHandler {
 
     /** Timeout for kicking off users who connect and then don't do anything  */
     private var myStartupTimeout: Timeout? = timer.after(
-            startupTimeoutInterval.toLong(),
-            object : TimeoutNoticer {
-                override fun noticeTimeout() {
-                    handleStartupTimeout()
-                }
-            })
+        startupTimeoutInterval.toLong()
+    ) { handleStartupTimeout() }
 
     /** Flag that startup timeout has tripped, to detect late messages.  */
     private var myStartupTimeoutTripped = false
@@ -93,7 +89,12 @@ class HttpMessageHandler(
         }
         when (actualMessage.method!!.uppercase(Locale.ENGLISH)) {
             "GET" -> myFactory.handleGET(connection, actualMessage.uri!!, actualMessage.isNonPersistent)
-            "POST" -> myFactory.handlePOST(connection, actualMessage.uri!!, actualMessage.isNonPersistent, actualMessage.content)
+            "POST" -> myFactory.handlePOST(
+                connection,
+                actualMessage.uri!!,
+                actualMessage.isNonPersistent,
+                actualMessage.content
+            )
             "OPTIONS" -> myFactory.handleOPTIONS(connection, actualMessage)
             else -> {
                 commGorgel.i?.run { info("Received invalid HTTP method ${actualMessage.method} from $connection") }

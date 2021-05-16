@@ -18,11 +18,7 @@ class RepositoryBoot : Bootable {
     override fun boot(props: ElkoProperties, gorgel: Gorgel, clock: Clock) {
         val myGorgel = gorgel.getChild(RepositoryBoot::class)
         lateinit var repositoryServerGraph: RepositoryServerOgd.Graph
-        val graphClosingShutdownWatcher = object : ShutdownWatcher {
-            override fun noteShutdown() {
-                repositoryServerGraph.close()
-            }
-        }
+        val graphClosingShutdownWatcher = ShutdownWatcher { repositoryServerGraph.close() }
         repositoryServerGraph = RepositoryServerOgd(object : RepositoryServerOgd.Provided {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
@@ -30,7 +26,10 @@ class RepositoryBoot : Bootable {
             override fun externalShutdownWatcher() = ConstantDefinition(graphClosingShutdownWatcher)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {
             override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
-                myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)
+                myGorgel.error(
+                    "Error during cleanup of object graph. Object: $sourceObject, operation: $operation",
+                    exception
+                )
             }
         })).Graph()
         repositoryServerGraph.server()

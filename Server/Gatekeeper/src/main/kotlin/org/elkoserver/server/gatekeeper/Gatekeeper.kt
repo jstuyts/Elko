@@ -5,7 +5,6 @@ import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
-import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
@@ -18,13 +17,14 @@ import java.util.function.Consumer
  * do most of the real work in the Gatekeeper.
  */
 class Gatekeeper internal constructor(
-        private val myServer: Server,
-        internal val refTable: RefTable,
-        private val gorgel: Gorgel,
-        baseCommGorgel: Gorgel,
-        directorActorFactoryFactory: DirectorActorFactoryFactory,
-        hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
-        props: ElkoProperties) {
+    private val myServer: Server,
+    internal val refTable: RefTable,
+    private val gorgel: Gorgel,
+    baseCommGorgel: Gorgel,
+    directorActorFactoryFactory: DirectorActorFactoryFactory,
+    hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
+    props: ElkoProperties
+) {
 
     /** Host description for the director.  */
     internal var directorHost: HostDesc? = null
@@ -133,10 +133,6 @@ class Gatekeeper internal constructor(
                 setDirectorHost(newDirectorHost)
             }
         }
-        myServer.registerShutdownWatcher(object : ShutdownWatcher {
-            override fun noteShutdown() {
-                myDirectorActorFactory.disconnectDirector()
-            }
-        })
+        myServer.registerShutdownWatcher { myDirectorActorFactory.disconnectDirector() }
     }
 }

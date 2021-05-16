@@ -8,7 +8,7 @@ package org.elkoserver.foundation.net
  * MessageHandlerFactory will be asked to provide a [MessageHandler] to
  * handle events on the new connection.
  */
-interface MessageHandlerFactory {
+fun interface MessageHandlerFactory {
     /**
      * Provide a message handler for a new connection.
      *

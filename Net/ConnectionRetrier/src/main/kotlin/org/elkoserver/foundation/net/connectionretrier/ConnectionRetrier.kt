@@ -22,13 +22,14 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * use once connection is established.
  */
 class ConnectionRetrier(
-        private val myHost: HostDesc,
-        private val myLabel: String,
-        private val tcpClientFactory: TcpClientFactory,
-        private val myActualFactory: MessageHandlerFactory,
-        timer: Timer,
-        private val gorgel: Gorgel,
-        jsonByteIoFramerFactoryFactory: JsonByteIoFramerFactoryFactory) {
+    private val myHost: HostDesc,
+    private val myLabel: String,
+    private val tcpClientFactory: TcpClientFactory,
+    private val myActualFactory: MessageHandlerFactory,
+    timer: Timer,
+    private val gorgel: Gorgel,
+    jsonByteIoFramerFactoryFactory: JsonByteIoFramerFactoryFactory
+) {
 
     /** Low-level I/O framer factory for the new connection.  */
     private val myFramerFactory: JsonByteIoFramerFactory = jsonByteIoFramerFactoryFactory.create(myLabel)
@@ -37,16 +38,11 @@ class ConnectionRetrier(
     private var myKeepTryingFlag = true
 
     /** Message handler factory to use when connection attempt is pending.  */
-    private val myRetryHandlerFactory = object : MessageHandlerFactory {
-        override fun provideMessageHandler(connection: Connection?) = createRetryHandler(connection, timer)
-    }
+    private val myRetryHandlerFactory =
+        MessageHandlerFactory { connection -> createRetryHandler(connection, timer) }
 
     /** Timeout handler to retry failed connection attempts after a while.  */
-    private val myRetryTimeout = object : TimeoutNoticer {
-        override fun noticeTimeout() {
-            handleRetryTimeout()
-        }
-    }
+    private val myRetryTimeout = TimeoutNoticer { handleRetryTimeout() }
 
     /**
      * Attempt to make the connection.

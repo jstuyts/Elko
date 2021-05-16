@@ -7,7 +7,6 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timeout
-import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -20,13 +19,14 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *    in milliseconds.
  */
 internal class GatekeeperActor(
-        connection: Connection,
-        private val myFactory: GatekeeperActorFactory,
-        actionTime: Int,
-        private val gorgel: Gorgel,
-        timer: Timer,
-        commGorgel: Gorgel,
-        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.refTable(), commGorgel, mustSendDebugReplies), BasicProtocolActor {
+    connection: Connection,
+    private val myFactory: GatekeeperActorFactory,
+    actionTime: Int,
+    private val gorgel: Gorgel,
+    timer: Timer,
+    commGorgel: Gorgel,
+    mustSendDebugReplies: Boolean
+) : RoutingActor(connection, myFactory.refTable(), commGorgel, mustSendDebugReplies), BasicProtocolActor {
 
     /** True if actor has been disconnected.  */
     private var amLoggedOut = false
@@ -45,11 +45,9 @@ internal class GatekeeperActor(
 
     /** Timeout for kicking off users who connect and don't either request a
      * reservation or authenticate as an administrator.  */
-    private var myActionTimeout: Timeout? = timer.after(actionTime.toLong(), object : TimeoutNoticer {
-        override fun noticeTimeout() {
-            disconnectAfterTimeout()
-        }
-    })
+    private var myActionTimeout: Timeout? = timer.after(
+        actionTime.toLong()
+    ) { disconnectAfterTimeout() }
 
     /**
      * Cancel the reservation timeout, because the user is real.

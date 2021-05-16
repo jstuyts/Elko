@@ -4,7 +4,6 @@ import org.elkoserver.foundation.byteioframer.rtcp.RtcpRequest
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.timer.Timeout
-import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -17,20 +16,17 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * something before kicking them off.
  */
 class RtcpMessageHandler(
-        private val myConnection: Connection,
-        private val myFactory: RtcpMessageHandlerFactory,
-        startupTimeoutInterval: Int,
-        timer: Timer,
-        private val rtcpMessageHandlerCommGorgel: Gorgel) : MessageHandler {
+    private val myConnection: Connection,
+    private val myFactory: RtcpMessageHandlerFactory,
+    startupTimeoutInterval: Int,
+    timer: Timer,
+    private val rtcpMessageHandlerCommGorgel: Gorgel
+) : MessageHandler {
 
     /** Timeout for kicking off users who connect and then don't do anything  */
     private var myStartupTimeout: Timeout? = timer.after(
-            startupTimeoutInterval.toLong(),
-            object : TimeoutNoticer {
-                override fun noticeTimeout() {
-                    handleStartupTimeout()
-                }
-            })
+        startupTimeoutInterval.toLong()
+    ) { handleStartupTimeout() }
 
     /** Flag that startup timeout has tripped, to detect late messages.  */
     private var myStartupTimeoutTripped = false
@@ -74,8 +70,10 @@ class RtcpMessageHandler(
         rtcpMessageHandlerCommGorgel.d?.run { debug("$connection $actualMessage") }
         when (actualMessage.verb) {
             RtcpRequest.VERB_START -> myFactory.doStart(connection)
-            RtcpRequest.VERB_RESUME -> myFactory.doResume(connection, actualMessage.sessionID!!,
-                    actualMessage.clientRecvSeqNum)
+            RtcpRequest.VERB_RESUME -> myFactory.doResume(
+                connection, actualMessage.sessionID!!,
+                actualMessage.clientRecvSeqNum
+            )
             RtcpRequest.VERB_ACK -> myFactory.doAck(connection, actualMessage.clientRecvSeqNum)
             RtcpRequest.VERB_MESSAGE -> myFactory.doMessage(connection, actualMessage)
             RtcpRequest.VERB_END -> myFactory.doEnd(connection)

@@ -20,20 +20,21 @@ class GatekeeperBoot : Bootable {
     override fun boot(props: ElkoProperties, gorgel: Gorgel, clock: Clock) {
         val myGorgel = gorgel.getChild(GatekeeperBoot::class)
         lateinit var gatekeeperServerGraph: GatekeeperServerOgd.Graph
-        val graphClosingShutdownWatcher = object : ShutdownWatcher {
-            override fun noteShutdown() {
-                gatekeeperServerGraph.close()
-            }
-        }
+        val graphClosingShutdownWatcher = ShutdownWatcher { gatekeeperServerGraph.close() }
         gatekeeperServerGraph = GatekeeperServerOgd(object : GatekeeperServerOgd.Provided {
             override fun clock() = ConstantDefinition(clock)
             override fun baseGorgel() = ConstantDefinition(gorgel)
-            override fun baseCommGorgel() = ConstantDefinition(gorgel.withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG))
+            override fun baseCommGorgel() =
+                ConstantDefinition(gorgel.withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG))
+
             override fun props() = ConstantDefinition(props)
             override fun externalShutdownWatcher() = ConstantDefinition(graphClosingShutdownWatcher)
         }, ObjectGraphConfiguration(object : ObjectGraphLogger {
             override fun errorDuringCleanUp(sourceObject: Any, operation: String, exception: Exception) {
-                myGorgel.error("Error during cleanup of object graph. Object: $sourceObject, operation: $operation", exception)
+                myGorgel.error(
+                    "Error during cleanup of object graph. Object: $sourceObject, operation: $operation",
+                    exception
+                )
             }
         })).Graph()
         gatekeeperServerGraph.server()

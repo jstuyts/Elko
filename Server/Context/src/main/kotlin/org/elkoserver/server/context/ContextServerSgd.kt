@@ -58,7 +58,6 @@ import org.elkoserver.foundation.run.threadpoolexecutor.ThreadPoolExecutorSlowSe
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
 import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
-import org.elkoserver.foundation.server.LoadWatcher
 import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
@@ -98,7 +97,10 @@ import org.ooverkommelig.req
 import java.security.SecureRandom
 import java.time.Clock
 
-internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : SubGraphDefinition(configuration) {
+internal class ContextServerSgd(
+    provided: Provided,
+    configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()
+) : SubGraphDefinition(configuration) {
     interface Provided {
         fun clock(): D<Clock>
         fun props(): D<ElkoProperties>
@@ -117,7 +119,12 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val baseConnectionSetupGorgel by Once { req(provided.baseGorgel()).getChild(BaseConnectionSetup::class) }
 
-    val brokerActorGorgel by Once { req(provided.baseGorgel()).getChild(BrokerActor::class, COMMUNICATION_CATEGORY_TAG) }
+    val brokerActorGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            BrokerActor::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
     val connectionRetrierWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(ConnectionRetrier::class) }
 
@@ -127,18 +134,30 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val directorGroupGorgel by Once { req(provided.baseGorgel()).getChild(DirectorGroup::class) }
 
-    val directorActorGorgel by Once { req(provided.baseGorgel()).getChild(DirectorActor::class, COMMUNICATION_CATEGORY_TAG) }
+    val directorActorGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            DirectorActor::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
     val internalActorGorgel by Once { req(provided.baseGorgel()).getChild(InternalActor::class) }
 
     val internalActorCommGorgel by Once { req(internalActorGorgel).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
 
-    val jsonHttpFramerCommGorgel by Once { req(provided.baseGorgel()).getChild(JsonHttpFramer::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
+    val jsonHttpFramerCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(JsonHttpFramer::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG)
+    }
     val tcpConnectionGorgel by Once { req(provided.baseGorgel()).getChild(TcpConnection::class) }
     val jsonByteIoFramerWithoutLabelGorgel by Once { req(provided.baseGorgel()).getChild(JsonByteIoFramer::class) }
     val websocketFramerGorgel by Once { req(provided.baseGorgel()).getChild(WebsocketByteIoFramerFactory.WebsocketFramer::class) }
-    val methodInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(MethodInvoker::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
-    val constructorInvokerCommGorgel by Once { req(provided.baseGorgel()).getChild(ConstructorInvoker::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
+    val methodInvokerCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(MethodInvoker::class).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG)
+    }
+    val constructorInvokerCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(ConstructorInvoker::class)
+            .withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG)
+    }
 
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
@@ -148,9 +167,19 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val repositoryObjectDatabaseGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepository::class) }
 
-    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepositoryActor::class, COMMUNICATION_CATEGORY_TAG) }
+    val odbActorGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            ObjectDatabaseRepositoryActor::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
-    val presencerActorGorgel by Once { req(provided.baseGorgel()).getChild(PresencerActor::class, COMMUNICATION_CATEGORY_TAG) }
+    val presencerActorGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            PresencerActor::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
     val presencerGroupGorgel by Once { req(provided.baseGorgel()).getChild(PresencerGroup::class) }
 
@@ -184,60 +213,108 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val userGorgelWithoutRef by Once { req(provided.baseGorgel()).getChild(User::class) }
 
-    val httpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(HttpSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
+    val httpSessionConnectionCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            HttpSessionConnection::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
     val rtcpSessionConnectionGorgel by Once { req(provided.baseGorgel()).getChild(RtcpSessionConnection::class) }
-    val rtcpSessionConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(RtcpSessionConnection::class, COMMUNICATION_CATEGORY_TAG) }
-    val rtcpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(RtcpMessageHandler::class, COMMUNICATION_CATEGORY_TAG) }
+    val rtcpSessionConnectionCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            RtcpSessionConnection::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
+    val rtcpMessageHandlerCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            RtcpMessageHandler::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
     val rtcpMessageHandlerFactoryGorgel by Once { req(provided.baseGorgel()).getChild(RtcpMessageHandlerFactory::class) }
-    val tcpConnectionCommGorgel by Once { req(provided.baseGorgel()).getChild(TcpConnection::class, COMMUNICATION_CATEGORY_TAG) }
+    val tcpConnectionCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            TcpConnection::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
     val baseCommGorgel by Once { req(provided.baseGorgel()).withAdditionalStaticTags(COMMUNICATION_CATEGORY_TAG) }
-    val zeromqThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(ZeromqThread::class, COMMUNICATION_CATEGORY_TAG) }
+    val zeromqThreadCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            ZeromqThread::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
-    val httpMessageHandlerCommGorgel by Once { req(provided.baseGorgel()).getChild(HttpMessageHandler::class, COMMUNICATION_CATEGORY_TAG) }
-    val httpMessageHandlerFactoryCommGorgel by Once { req(provided.baseGorgel()).getChild(HttpMessageHandlerFactory::class, COMMUNICATION_CATEGORY_TAG) }
+    val httpMessageHandlerCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            HttpMessageHandler::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
+    val httpMessageHandlerFactoryCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            HttpMessageHandlerFactory::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
     val internalActorFactoryFactory by Once {
         InternalActorFactoryFactory(
-                req(contextor),
-                req(internalActorGorgel),
-                req(internalActorCommGorgel),
-                req(mustSendDebugReplies))
+            req(contextor),
+            req(internalActorGorgel),
+            req(internalActorCommGorgel),
+            req(mustSendDebugReplies)
+        )
     }
 
     val userActorFactoryFactory by Once {
         UserActorFactoryFactory(
-                req(contextor),
-                req(runner),
-                req(userActorGorgel),
-                req(userActorCommGorgel),
-                req(userGorgelWithoutRef),
-                req(provided.timer()),
-                req(idGenerator),
-                req(mustSendDebugReplies))
+            req(contextor),
+            req(runner),
+            req(userActorGorgel),
+            req(userActorCommGorgel),
+            req(userGorgelWithoutRef),
+            req(provided.timer()),
+            req(idGenerator),
+            req(mustSendDebugReplies)
+        )
     }
 
     val contextServiceFactory by Once {
         ContextServiceFactory(
-                req(contextServiceFactoryGorgel),
-                req(internalActorFactoryFactory),
-                req(userActorFactoryFactory))
+            req(contextServiceFactoryGorgel),
+            req(internalActorFactoryFactory),
+            req(userActorFactoryFactory)
+        )
     }
-            .init {
-                check(req(server).startListeners("conf.listen", it) != 0) { "no listeners specified" }
-                // This must run after the listeners of the server have been started.
-                val contextor = req(contextor)
-                contextor.registerWithDirectors(req(directors), req(serverListeners))
-                contextor.registerWithPresencers(req(presencers))
-            }
-            .eager()
+        .init {
+            check(req(server).startListeners("conf.listen", it) != 0) { "no listeners specified" }
+            // This must run after the listeners of the server have been started.
+            val contextor = req(contextor)
+            contextor.registerWithDirectors(req(directors), req(serverListeners))
+            contextor.registerWithPresencers(req(presencers))
+        }
+        .eager()
 
     val idGenerator by Once { LongIdGenerator(1L) }
 
-    val inputGorgel by Once { req(provided.baseGorgel()).getChild(ChunkyByteArrayInputStream::class, COMMUNICATION_CATEGORY_TAG) }
+    val inputGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            ChunkyByteArrayInputStream::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
     val mustSendDebugReplies by Once { req(provided.props()).testProperty("conf.msgdiagnostics") }
 
-    val selectThreadCommGorgel by Once { req(provided.baseGorgel()).getChild(SelectThread::class, COMMUNICATION_CATEGORY_TAG) }
+    val selectThreadCommGorgel by Once {
+        req(provided.baseGorgel()).getChild(
+            SelectThread::class,
+            COMMUNICATION_CATEGORY_TAG
+        )
+    }
 
     val sslContextPropertyNamePrefix by Once { "conf.ssl." }
 
@@ -256,33 +333,36 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val tcpConnectionFactory by Once {
         TcpConnectionFactory(
-                req(runner),
-                req(serverLoadMonitor),
-                req(provided.clock()),
-                req(tcpConnectionGorgel),
-                req(tcpConnectionCommGorgel),
-                req(connectionIdGenerator))
+            req(runner),
+            req(serverLoadMonitor),
+            req(provided.clock()),
+            req(tcpConnectionGorgel),
+            req(tcpConnectionCommGorgel),
+            req(connectionIdGenerator)
+        )
     }
 
     val selectThread by Once {
         SelectThread(
-                opt(optionalSslContext),
-                req(selectThreadCommGorgel),
-                req(tcpConnectionFactory),
-                req(listenerFactory))
+            opt(optionalSslContext),
+            req(selectThreadCommGorgel),
+            req(tcpConnectionFactory),
+            req(listenerFactory)
+        )
     }
-            .dispose(SelectThread::shutDown)
+        .dispose(SelectThread::shutDown)
 
     val directObjectDatabaseRunnerFactory by Once { DirectObjectDatabaseRunnerFactory() }
 
     val directObjectDatabaseFactory by Once {
         DirectObjectDatabaseFactory(
-                req(provided.props()),
-                req(directObjectDatabaseGorgel),
-                req(directObjectDatabaseRunnerFactory),
-                req(provided.baseGorgel()),
-                req(jsonToObjectDeserializer),
-                req(runner))
+            req(provided.props()),
+            req(directObjectDatabaseGorgel),
+            req(directObjectDatabaseRunnerFactory),
+            req(provided.baseGorgel()),
+            req(jsonToObjectDeserializer),
+            req(runner)
+        )
     }
 
     val chunkyByteArrayInputStreamFactory by Once {
@@ -294,82 +374,101 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
     }
 
     val jsonByteIoFramerFactoryFactory by Once {
-        JsonByteIoFramerFactoryFactory(req(jsonByteIoFramerWithoutLabelGorgel), req(chunkyByteArrayInputStreamFactory), req(mustSendDebugReplies))
+        JsonByteIoFramerFactoryFactory(
+            req(jsonByteIoFramerWithoutLabelGorgel),
+            req(chunkyByteArrayInputStreamFactory),
+            req(mustSendDebugReplies)
+        )
     }
 
     val rtcpByteIoFramerFactoryFactory by Once {
-        RtcpRequestByteIoFramerFactoryFactory(req(tcpConnectionGorgel), req(chunkyByteArrayInputStreamFactory), req(mustSendDebugReplies))
+        RtcpRequestByteIoFramerFactoryFactory(
+            req(tcpConnectionGorgel),
+            req(chunkyByteArrayInputStreamFactory),
+            req(mustSendDebugReplies)
+        )
     }
 
     val websocketByteIoFramerFactoryFactory by Once {
-        WebsocketByteIoFramerFactoryFactory(req(websocketFramerGorgel), req(chunkyByteArrayInputStreamFactory), req(jsonByteIoFramerFactoryFactory).create())
+        WebsocketByteIoFramerFactoryFactory(
+            req(websocketFramerGorgel),
+            req(chunkyByteArrayInputStreamFactory),
+            req(jsonByteIoFramerFactoryFactory).create()
+        )
     }
 
     val httpSessionConnectionFactory by Once {
         HttpSessionConnectionFactory(
-                req(runner),
-                req(serverLoadMonitor),
-                req(provided.timer()),
-                req(provided.clock()),
-                req(httpSessionConnectionCommGorgel),
-                req(baseCommGorgel),
-                req(sessionIdGenerator),
-                req(connectionIdGenerator))
+            req(runner),
+            req(serverLoadMonitor),
+            req(provided.timer()),
+            req(provided.clock()),
+            req(httpSessionConnectionCommGorgel),
+            req(baseCommGorgel),
+            req(sessionIdGenerator),
+            req(connectionIdGenerator)
+        )
     }
 
     val httpServerFactory by Once {
         HttpServerFactory(
-                req(provided.props()),
-                req(provided.timer()),
-                req(httpMessageHandlerCommGorgel),
-                req(httpMessageHandlerFactoryCommGorgel),
-                req(tcpServerFactory),
-                req(httpRequestByteIoFramerFactoryFactory),
-                req(httpSessionConnectionFactory))
+            req(provided.props()),
+            req(provided.timer()),
+            req(httpMessageHandlerCommGorgel),
+            req(httpMessageHandlerFactoryCommGorgel),
+            req(tcpServerFactory),
+            req(httpRequestByteIoFramerFactoryFactory),
+            req(httpSessionConnectionFactory)
+        )
     }
 
     val httpConnectionSetupFactory by Once {
         HttpConnectionSetupFactory(
-                req(provided.props()),
-                req(httpServerFactory),
-                req(baseConnectionSetupGorgel),
-                req(jsonHttpFramerCommGorgel),
-                req(mustSendDebugReplies))
+            req(provided.props()),
+            req(httpServerFactory),
+            req(baseConnectionSetupGorgel),
+            req(jsonHttpFramerCommGorgel),
+            req(mustSendDebugReplies)
+        )
     }
 
     val rtcpSessionConnectionFactory by Once {
         RtcpSessionConnectionFactory(
-                req(rtcpSessionConnectionGorgel),
-                req(rtcpSessionConnectionCommGorgel),
-                req(runner),
-                req(serverLoadMonitor),
-                req(provided.timer()),
-                req(provided.clock()),
-                req(sessionIdGenerator),
-                req(connectionIdGenerator))
+            req(rtcpSessionConnectionGorgel),
+            req(rtcpSessionConnectionCommGorgel),
+            req(runner),
+            req(serverLoadMonitor),
+            req(provided.timer()),
+            req(provided.clock()),
+            req(sessionIdGenerator),
+            req(connectionIdGenerator)
+        )
     }
 
     val rtcpMessageHandlerFactoryFactory by Once {
         RtcpMessageHandlerFactoryFactory(
-                req(provided.props()),
-                req(provided.timer()),
-                req(rtcpMessageHandlerCommGorgel),
-                req(rtcpSessionConnectionFactory))
+            req(provided.props()),
+            req(provided.timer()),
+            req(rtcpMessageHandlerCommGorgel),
+            req(rtcpSessionConnectionFactory)
+        )
     }
 
     val rtcpServerFactory by Once {
         RtcpServerFactory(
-                req(rtcpMessageHandlerFactoryFactory),
-                req(tcpServerFactory),
-                req(rtcpByteIoFramerFactoryFactory))
+            req(rtcpMessageHandlerFactoryFactory),
+            req(tcpServerFactory),
+            req(rtcpByteIoFramerFactoryFactory)
+        )
     }
 
     val rtcpConnectionSetupFactory by Once {
         RtcpConnectionSetupFactory(
-                req(provided.props()),
-                req(rtcpServerFactory),
-                req(baseConnectionSetupGorgel),
-                req(rtcpMessageHandlerFactoryGorgel))
+            req(provided.props()),
+            req(rtcpServerFactory),
+            req(baseConnectionSetupGorgel),
+            req(rtcpMessageHandlerFactoryGorgel)
+        )
     }
 
     val tcpServerFactory by Once {
@@ -378,36 +477,40 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val tcpConnectionSetupFactory by Once {
         TcpConnectionSetupFactory(
-                req(provided.props()),
-                req(tcpServerFactory),
-                req(baseConnectionSetupGorgel),
-                req(jsonByteIoFramerFactoryFactory))
+            req(provided.props()),
+            req(tcpServerFactory),
+            req(baseConnectionSetupGorgel),
+            req(jsonByteIoFramerFactoryFactory)
+        )
     }
 
     val websocketServerFactory by Once {
         WebsocketServerFactory(
-                req(tcpServerFactory),
-                req(websocketByteIoFramerFactoryFactory))
+            req(tcpServerFactory),
+            req(websocketByteIoFramerFactoryFactory)
+        )
     }
 
     val websocketConnectionSetupFactory by Once {
         WebsocketConnectionSetupFactory(
-                req(provided.props()),
-                req(websocketServerFactory),
-                req(baseConnectionSetupGorgel))
+            req(provided.props()),
+            req(websocketServerFactory),
+            req(baseConnectionSetupGorgel)
+        )
     }
 
     val zeromqConnectionSetupFactory by Once {
         ZeromqConnectionSetupFactory(
-                req(provided.props()),
-                req(runner),
-                req(serverLoadMonitor),
-                req(baseConnectionSetupGorgel),
-                req(baseCommGorgel),
-                req(zeromqThreadCommGorgel),
-                req(connectionIdGenerator),
-                req(provided.clock()),
-                req(jsonByteIoFramerFactoryFactory))
+            req(provided.props()),
+            req(runner),
+            req(serverLoadMonitor),
+            req(baseConnectionSetupGorgel),
+            req(baseCommGorgel),
+            req(zeromqThreadCommGorgel),
+            req(connectionIdGenerator),
+            req(provided.clock()),
+            req(jsonByteIoFramerFactoryFactory)
+        )
     }
 
     val tcpClientFactory by Once {
@@ -416,25 +519,46 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val connectionRetrierFactory by Once {
         ConnectionRetrierFactory(
-                req(tcpClientFactory),
-                req(provided.timer()),
-                req(connectionRetrierWithoutLabelGorgel),
-                req(jsonByteIoFramerFactoryFactory))
+            req(tcpClientFactory),
+            req(provided.timer()),
+            req(connectionRetrierWithoutLabelGorgel),
+            req(jsonByteIoFramerFactoryFactory)
+        )
     }
 
     val connectionSetupFactoriesByCode by Once {
-        mapOf("http" to req(httpConnectionSetupFactory),
-                "rtcp" to req(rtcpConnectionSetupFactory),
-                "tcp" to req(tcpConnectionSetupFactory),
-                "ws" to req(websocketConnectionSetupFactory),
-                "zmq" to req(zeromqConnectionSetupFactory))
+        mapOf(
+            "http" to req(httpConnectionSetupFactory),
+            "rtcp" to req(rtcpConnectionSetupFactory),
+            "tcp" to req(tcpConnectionSetupFactory),
+            "ws" to req(websocketConnectionSetupFactory),
+            "zmq" to req(zeromqConnectionSetupFactory)
+        )
     }
 
-    val brokerActorFactory by Once { BrokerActorFactory(req(messageDispatcher), req(serverLoadMonitor), req(brokerActorGorgel), req(mustSendDebugReplies)) }
+    val brokerActorFactory by Once {
+        BrokerActorFactory(
+            req(messageDispatcher),
+            req(serverLoadMonitor),
+            req(brokerActorGorgel),
+            req(mustSendDebugReplies)
+        )
+    }
 
-    val serviceActorFactory by Once { ServiceActorFactory(req(serviceActorGorgel), req(serviceActorCommGorgel), req(mustSendDebugReplies)) }
+    val serviceActorFactory by Once {
+        ServiceActorFactory(
+            req(serviceActorGorgel),
+            req(serviceActorCommGorgel),
+            req(mustSendDebugReplies)
+        )
+    }
 
-    val listenerConfigurationFromPropertiesFactory by Once { ListenerConfigurationFromPropertiesFactory(req(provided.props()), req(provided.authDescFromPropertiesFactory())) }
+    val listenerConfigurationFromPropertiesFactory by Once {
+        ListenerConfigurationFromPropertiesFactory(
+            req(provided.props()),
+            req(provided.authDescFromPropertiesFactory())
+        )
+    }
 
     val serverDescriptionFromPropertiesFactory by Once { ServerDescriptionFromPropertiesFactory(req(provided.props())) }
 
@@ -442,55 +566,59 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val server by Once {
         Server(
-                req(provided.props()),
-                req(serverDescription),
-                req(serverGorgel),
-                req(serviceLinkGorgel),
-                req(brokerActorFactory),
-                req(serviceActorFactory),
-                req(messageDispatcher),
-                req(listenerConfigurationFromPropertiesFactory),
-                req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
-                req(serverTagGenerator),
-                req(connectionSetupFactoriesByCode),
-                req(connectionRetrierFactory))
+            req(provided.props()),
+            req(serverDescription),
+            req(serverGorgel),
+            req(serviceLinkGorgel),
+            req(brokerActorFactory),
+            req(serviceActorFactory),
+            req(messageDispatcher),
+            req(listenerConfigurationFromPropertiesFactory),
+            req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
+            req(serverTagGenerator),
+            req(connectionSetupFactoriesByCode),
+            req(connectionRetrierFactory)
+        )
     }
-            .wire {
-                it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
-            }
+        .wire {
+            it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
+        }
 
-    val slowRunnerMaximumNumberOfThreads by Once { req(provided.props()).intProperty("conf.slowthreads", DEFAULT_SLOW_THREADS) }
+    val slowRunnerMaximumNumberOfThreads by Once {
+        req(provided.props()).intProperty(
+            "conf.slowthreads",
+            DEFAULT_SLOW_THREADS
+        )
+    }
 
     val slowRunner by Once { ThreadPoolExecutorSlowServiceRunner(req(runner), req(slowRunnerMaximumNumberOfThreads)) }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
-                req(provided.timer()),
-                req(provided.clock()),
-                req(provided.props()).intProperty("conf.load.time", ServerLoadMonitor.DEFAULT_LOAD_SAMPLE_TIMEOUT) * 1000)
+            req(provided.timer()),
+            req(provided.clock()),
+            req(provided.props()).intProperty("conf.load.time", ServerLoadMonitor.DEFAULT_LOAD_SAMPLE_TIMEOUT) * 1000
+        )
     }
-            .init {
-                if (req(provided.props()).testProperty("conf.load.log")) {
-                    it.registerLoadWatcher(object : LoadWatcher {
-                        override fun noteLoadSample(loadFactor: Double) {
-                            req(serverLoadMonitorGorgel).d?.run { debug("Load $loadFactor") }
-                        }
-                    })
-                }
+        .init {
+            if (req(provided.props()).testProperty("conf.load.log")) {
+                it.registerLoadWatcher { loadFactor -> req(serverLoadMonitorGorgel).d?.run { debug("Load $loadFactor") } }
             }
+        }
 
     val sessionIdGenerator by Once { RandomIdGenerator(req(sessionIdRandom)) }
 
     val connectionIdGenerator by Once { LongIdGenerator() }
 
     val sessionIdRandom by Once(::SecureRandom)
-            .init { it.nextBoolean() }
+        .init { it.nextBoolean() }
 
     val jsonToObjectDeserializer by Once {
         JsonToObjectDeserializer(
-                req(jsonToObjectDeserializerGorgel),
-                req(constructorInvokerCommGorgel),
-                req(injectors))
+            req(jsonToObjectDeserializerGorgel),
+            req(constructorInvokerCommGorgel),
+            req(injectors)
+        )
     }
 
     val clockInjector by Once { ClockInjector(req(provided.clock())) }
@@ -501,32 +629,45 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val slowServiceRunnerInjector by Once { SlowServiceRunnerInjector(req(slowRunner)) }
 
-    val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector), req(slowServiceRunnerInjector)) }
+    val injectors by Once {
+        listOf(
+            req(clockInjector),
+            req(baseCommGorgelInjector),
+            req(classspecificGorgelInjector),
+            req(slowServiceRunnerInjector)
+        )
+    }
 
     val runner by Once { SingleThreadExecutorRunner() }
-            .dispose(SingleThreadExecutorRunner::orderlyShutdown)
+        .dispose(SingleThreadExecutorRunner::orderlyShutdown)
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
-    val messageDispatcherFactory by Once { MessageDispatcherFactory(req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
+    val messageDispatcherFactory by Once {
+        MessageDispatcherFactory(
+            req(methodInvokerCommGorgel),
+            req(jsonToObjectDeserializer)
+        )
+    }
 
     val repositoryObjectDatabaseFactory by Once {
         RepositoryObjectDatabaseFactory(
-                req(server),
-                req(serverDescription).serverName,
-                req(provided.props()),
-                req(repositoryObjectDatabaseGorgel),
-                req(odbActorGorgel),
-                req(messageDispatcherFactory),
-                req(provided.hostDescFromPropertiesFactory()),
-                req(jsonToObjectDeserializer),
-                req(getRequestFactory),
-                req(putRequestFactory),
-                req(updateRequestFactory),
-                req(queryRequestFactory),
-                req(removeRequestFactory),
-                req(mustSendDebugReplies),
-                req(connectionRetrierFactory))
+            req(server),
+            req(serverDescription).serverName,
+            req(provided.props()),
+            req(repositoryObjectDatabaseGorgel),
+            req(odbActorGorgel),
+            req(messageDispatcherFactory),
+            req(provided.hostDescFromPropertiesFactory()),
+            req(jsonToObjectDeserializer),
+            req(getRequestFactory),
+            req(putRequestFactory),
+            req(updateRequestFactory),
+            req(queryRequestFactory),
+            req(removeRequestFactory),
+            req(mustSendDebugReplies),
+            req(connectionRetrierFactory)
+        )
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
@@ -543,7 +684,13 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val serverListeners by Once { req(server).listeners }
 
-    val objectDatabaseFactory by Once { ObjectDatabaseFactory(req(provided.props()), req(repositoryObjectDatabaseFactory), req(directObjectDatabaseFactory)) }
+    val objectDatabaseFactory by Once {
+        ObjectDatabaseFactory(
+            req(provided.props()),
+            req(repositoryObjectDatabaseFactory),
+            req(directObjectDatabaseFactory)
+        )
+    }
 
     val objectDatabase by Once {
         req(objectDatabaseFactory).openObjectDatabase("conf.context").apply {
@@ -562,7 +709,13 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
         req(provided.props()).intProperty("conf.context.userlimit", 0)
     }
 
-    val objectDatabaseDispatcher by Once { MessageDispatcher(req(objectDatabase), req(methodInvokerCommGorgel), req(jsonToObjectDeserializer)) }
+    val objectDatabaseDispatcher by Once {
+        MessageDispatcher(
+            req(objectDatabase),
+            req(methodInvokerCommGorgel),
+            req(jsonToObjectDeserializer)
+        )
+    }
 
     val refTable by Once { RefTable(req(objectDatabaseDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
@@ -575,67 +728,83 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
         ReservationFactory(req(reservationGorgel), req(reservationTimeout), req(provided.timer()))
     }
 
-    val directorActorFactory by Once { DirectorActorFactory(req(directorActorGorgel), req(reservationFactory), req(provided.timer()), req(mustSendDebugReplies)) }
+    val directorActorFactory by Once {
+        DirectorActorFactory(
+            req(directorActorGorgel),
+            req(reservationFactory),
+            req(provided.timer()),
+            req(mustSendDebugReplies)
+        )
+    }
 
     val presencerGroupFactory by Once {
         PresencerGroupFactory(
-                req(server),
-                req(presencerGroupGorgel),
-                req(presencerActorGorgel),
-                req(messageDispatcher),
-                req(provided.timer()),
-                req(provided.props()),
-                req(mustSendDebugReplies),
-                req(connectionRetrierFactory))
+            req(server),
+            req(presencerGroupGorgel),
+            req(presencerActorGorgel),
+            req(messageDispatcher),
+            req(provided.timer()),
+            req(provided.props()),
+            req(mustSendDebugReplies),
+            req(connectionRetrierFactory)
+        )
     }
 
     val directorGroupFactory by Once {
         DirectorGroupFactory(
-                req(server),
-                req(serverLoadMonitor),
-                req(directorGroupGorgel),
-                req(reservationFactory),
-                req(directorActorFactory),
-                req(messageDispatcher),
-                req(provided.timer()),
-                req(provided.props()),
-                req(connectionRetrierFactory))
+            req(server),
+            req(serverLoadMonitor),
+            req(directorGroupGorgel),
+            req(reservationFactory),
+            req(directorActorFactory),
+            req(messageDispatcher),
+            req(provided.timer()),
+            req(provided.props()),
+            req(connectionRetrierFactory)
+        )
     }
 
     val sessionFactory by Once {
         SessionFactory(
-                req(server),
-                req(sessionClientGorgel),
-                req(sessionCommGorgel),
-                opt(sessionPassword))
+            req(server),
+            req(sessionClientGorgel),
+            req(sessionCommGorgel),
+            opt(sessionPassword)
+        )
     }
 
     val contextor by Once {
         Contextor(
-                req(objectDatabase),
-                req(server),
-                req(runner),
-                req(refTable),
-                req(contextorGorgel),
-                req(contextGorgelWithoutRef),
-                req(itemGorgelWithoutRef),
-                req(staticObjectReceiverGorgel),
-                req(presencerGroupFactory),
-                req(directorGroupFactory),
-                req(sessionFactory),
-                req(provided.timer()),
-                req(contextorEntryTimeout),
-                req(contextorLimit),
-                req(contextorRandom),
-                opt(staticsToLoad),
-                opt(families))
+            req(objectDatabase),
+            req(server),
+            req(runner),
+            req(refTable),
+            req(contextorGorgel),
+            req(contextGorgelWithoutRef),
+            req(itemGorgelWithoutRef),
+            req(staticObjectReceiverGorgel),
+            req(presencerGroupFactory),
+            req(directorGroupFactory),
+            req(sessionFactory),
+            req(provided.timer()),
+            req(contextorEntryTimeout),
+            req(contextorLimit),
+            req(contextorRandom),
+            opt(staticsToLoad),
+            opt(families)
+        )
     }
 
     val sessionPassword by Once { req(provided.props()).getPropertyOrNull("conf.context.shutdownpassword") }
 
     val staticsToLoad by Once { req(provided.props()).getProperty("conf.context.statics") }
 
-    val reservationTimeout by Once { 1000 * req(provided.props()).intProperty("conf.context.reservationexpire", DEFAULT_RESERVATION_EXPIRATION_TIMEOUT) }
+    val reservationTimeout by Once {
+        1000 * req(provided.props()).intProperty(
+            "conf.context.reservationexpire",
+            DEFAULT_RESERVATION_EXPIRATION_TIMEOUT
+        )
+    }
 
     val families by Once { req(provided.props()).getProperty("conf.context.contexts") }
 

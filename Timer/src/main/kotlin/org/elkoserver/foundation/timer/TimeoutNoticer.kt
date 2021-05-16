@@ -9,7 +9,7 @@ package org.elkoserver.foundation.timer
  * @see Timer.after Timer.after
  * @see Timeout
  */
-interface TimeoutNoticer {
+fun interface TimeoutNoticer {
     /**
      * Notification of a timeout event.
      */
