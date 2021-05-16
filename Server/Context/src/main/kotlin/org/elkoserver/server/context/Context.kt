@@ -526,7 +526,7 @@ internal constructor(name: String,
 
     /**
      * Transmit a description of this context as a series of 'make' messages,
-     * such that the receiver will be able to construct a local presence of it.
+     * such that the receiver will be able to construct a local presunce of it.
      *
      * @param to  Where to send the description.
      * @param maker  Maker object to address the message(s) to.

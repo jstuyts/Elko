@@ -21,7 +21,7 @@ dependencies {
     implementation(project(":ServerManagement"))
     implementation(Libraries.logstash_logback_encoder)
 
-    webFiles(project(":Presence:JavaScript")) {
+    webFiles(project(":Presunce:JavaScript")) {
         targetConfiguration = "archives"
     }
 }

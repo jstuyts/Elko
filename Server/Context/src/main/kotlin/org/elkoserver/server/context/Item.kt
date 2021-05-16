@@ -265,7 +265,7 @@ class Item : BasicObject {
      * determined for purposes of deciding whether or not to send 'make'
      * messages.
      * @param maker  Maker object to address message to.  This is the object
-     * that is responsible, on the client, for creating the client presence
+     * that is responsible, on the client, for creating the client presunce
      * of the item.  Normally this should be the item's container.
      * @param force  If true, force the transmission, even if this item is
      * marked as being invisible to 'to'.  Note, however, that forcing
@@ -281,7 +281,7 @@ class Item : BasicObject {
 
     /**
      * Transmit a description of this item as a series of 'make' messages,
-     * such that the receiver will be able to construct a local presence of it.
+     * such that the receiver will be able to construct a local presunce of it.
      *
      * @param to  Where to send the description.
      * @param maker  Maker object to address the message(s) to.

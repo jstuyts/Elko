@@ -25,7 +25,7 @@ Note that most code of [`SimpleChat`](../../Example/src/main/kotlin/com/example/
 
 The client-side code is in [`web/index.html`](web/index.html). Look at how the session (`getObject("session")`), context (`ctxType`) and user (`userType`) types are extended for this specific application.
 
-Generic Elko code can be found in the separate JavaScript files in project `:Presence:JavaScript`.
+Generic Elko code can be found in the separate JavaScript files in project `:Presunce:JavaScript`.
 
 ## Security
 
