@@ -50,7 +50,7 @@ internal class SimpleSocialGraph : SocialGraph {
         myObjectDatabase.getObject("$myPrefix-${user.ref}") { obj ->
             if (obj != null) {
                 val desc = obj as UserGraphDesc
-                val friends = Iterable { ArrayIterator(desc.friends) }
+                val friends = desc.friends.asIterable()
                 user.userGraphIsReady(friends, myDomain, myMaster)
             } else {
                 user.userGraphIsReady(null, myDomain, myMaster)
