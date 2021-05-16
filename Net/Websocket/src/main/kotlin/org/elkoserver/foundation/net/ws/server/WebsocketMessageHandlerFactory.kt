@@ -140,7 +140,11 @@ internal class WebsocketMessageHandlerFactory(
      *
      * @param connection  The TCP connection object that was just created.
      */
-    override fun provideMessageHandler(connection: Connection?): MessageHandler = WebsocketMessageHandler(myInnerFactory.provideMessageHandler(connection)!!)
+    override fun provideMessageHandler(connection: Connection): MessageHandler = WebsocketMessageHandler(myInnerFactory.provideMessageHandler(connection)!!)
+
+    override fun handleConnectionFailure() {
+        // No action needed. This factory ignores failures.
+    }
 
     private inner class WebsocketMessageHandler(var myInnerHandler: MessageHandler) : MessageHandler {
 

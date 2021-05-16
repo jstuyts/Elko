@@ -39,8 +39,12 @@ internal class DirectorActorFactory(
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection?) =
-            DirectorActor(connection!!, this, directorActorGorgel, providerGorgel, adminFactory, providerFactory, mustSendDebugReplies)
+    override fun provideMessageHandler(connection: Connection) =
+            DirectorActor(connection, this, directorActorGorgel, providerGorgel, adminFactory, providerFactory, mustSendDebugReplies)
+
+    override fun handleConnectionFailure() {
+        // No action needed. This factory ignores failures.
+    }
 
     /**
      * Get this factory's ref table.

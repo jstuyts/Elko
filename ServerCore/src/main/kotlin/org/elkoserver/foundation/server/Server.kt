@@ -14,7 +14,6 @@ import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.idgeneration.IdGenerator
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.util.HashMap
 import java.util.LinkedList
 import java.util.function.Consumer
 
@@ -113,7 +112,11 @@ class Server(
     }
 
     private inner class BrokerMessageHandlerFactory : MessageHandlerFactory {
-        override fun provideMessageHandler(connection: Connection?): MessageHandler = brokerActorFactory.create(connection!!, this@Server, myBrokerHost!!)
+        override fun provideMessageHandler(connection: Connection): MessageHandler = brokerActorFactory.create(connection, this@Server, myBrokerHost!!)
+
+        override fun handleConnectionFailure() {
+            // No action needed. This factory ignores failures.
+        }
     }
 
     /**
@@ -232,11 +235,15 @@ class Server(
          *
          * @param connection  The Connection object that was just created.
          */
-        override fun provideMessageHandler(connection: Connection?): MessageHandler {
-            val actor = serviceActorFactory.create(connection!!, myServiceRefTable!!, myDesc!!, this@Server)
+        override fun provideMessageHandler(connection: Connection): MessageHandler {
+            val actor = serviceActorFactory.create(connection, myServiceRefTable!!, myDesc!!, this@Server)
             myServiceActorsByProviderID[myDesc!!.providerID] = actor
             connectLinkToActor(actor)
             return actor
+        }
+
+        override fun handleConnectionFailure() {
+            // No action needed. This factory ignores failures.
         }
 
         /**

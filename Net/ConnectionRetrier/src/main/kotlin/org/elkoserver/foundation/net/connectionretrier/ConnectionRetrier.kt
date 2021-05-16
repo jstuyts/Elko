@@ -3,7 +3,6 @@ package org.elkoserver.foundation.net.connectionretrier
 import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramerFactory
 import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramerFactoryFactory
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.server.metadata.HostDesc
@@ -26,7 +25,7 @@ class ConnectionRetrier(
     private val myLabel: String,
     private val tcpClientFactory: TcpClientFactory,
     private val myActualFactory: MessageHandlerFactory,
-    timer: Timer,
+    private val timer: Timer,
     private val gorgel: Gorgel,
     jsonByteIoFramerFactoryFactory: JsonByteIoFramerFactoryFactory
 ) {
@@ -39,7 +38,16 @@ class ConnectionRetrier(
 
     /** Message handler factory to use when connection attempt is pending.  */
     private val myRetryHandlerFactory =
-        MessageHandlerFactory { connection -> createRetryHandler(connection, timer) }
+        object : MessageHandlerFactory {
+            override fun provideMessageHandler(connection: Connection) =
+                myActualFactory.provideMessageHandler(connection)
+
+            override fun handleConnectionFailure() {
+                if (myKeepTryingFlag) {
+                    timer.after(myHost.retryInterval * 1000.toLong(), myRetryTimeout)
+                }
+            }
+        }
 
     /** Timeout handler to retry failed connection attempts after a while.  */
     private val myRetryTimeout = TimeoutNoticer { handleRetryTimeout() }
@@ -67,17 +75,6 @@ class ConnectionRetrier(
         if (myKeepTryingFlag) {
             gorgel.i?.run { info("retrying connection to $myLabel at ${myHost.hostPort}") }
             doConnect(myRetryHandlerFactory)
-        }
-    }
-
-    private fun createRetryHandler(connection: Connection?, timer: Timer): MessageHandler? {
-        return if (connection == null) {
-            if (myKeepTryingFlag) {
-                timer.after(myHost.retryInterval * 1000.toLong(), myRetryTimeout)
-            }
-            null
-        } else {
-            myActualFactory.provideMessageHandler(connection)
         }
     }
 }

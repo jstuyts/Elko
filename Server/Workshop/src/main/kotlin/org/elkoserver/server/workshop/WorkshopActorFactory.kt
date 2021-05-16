@@ -35,8 +35,12 @@ internal class WorkshopActorFactory(
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection?) =
-            WorkshopActor(connection!!, this, workshopActorGorgel, workshopActorCommGorgel, mustSendDebugReplies)
+    override fun provideMessageHandler(connection: Connection) =
+            WorkshopActor(connection, this, workshopActorGorgel, workshopActorCommGorgel, mustSendDebugReplies)
+
+    override fun handleConnectionFailure() {
+        // No action needed. This factory ignores failures.
+    }
 
     /**
      * Check an actor's authorization.

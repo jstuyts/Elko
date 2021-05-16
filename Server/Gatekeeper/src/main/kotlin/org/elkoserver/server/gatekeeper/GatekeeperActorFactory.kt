@@ -30,8 +30,12 @@ internal class GatekeeperActorFactory(
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection?) =
-            GatekeeperActor(connection!!, this, myActionTimeout, gatekeeperActorGorgel, timer, gatekeeperActorCommGorgel, mustSendDebugReplies)
+    override fun provideMessageHandler(connection: Connection) =
+            GatekeeperActor(connection, this, myActionTimeout, gatekeeperActorGorgel, timer, gatekeeperActorCommGorgel, mustSendDebugReplies)
+
+    override fun handleConnectionFailure() {
+        // No action needed. This factory ignores failures.
+    }
 
     /**
      * Get this factory's ref table.

@@ -92,8 +92,11 @@ abstract class OutboundGroup(propRoot: String,
          *
          * @param connection  The Connection object that was just created.
          */
-        override fun provideMessageHandler(connection: Connection?): MessageHandler = provideActor(connection!!, myDispatcher, myHost)
+        override fun provideMessageHandler(connection: Connection): MessageHandler = provideActor(connection, myDispatcher, myHost)
 
+        override fun handleConnectionFailure() {
+            // No action needed. This factory ignores failures.
+        }
     }
 
     /**

@@ -7,7 +7,6 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.util.trace.slf4j.Gorgel
-import java.util.HashMap
 
 /**
  * Message handler factory to provide message handlers that wrap a message
@@ -265,9 +264,13 @@ class RtcpMessageHandlerFactory(
      *
      * @param connection  The TCP connection object that was just created.
      */
-    override fun provideMessageHandler(connection: Connection?): MessageHandler {
-        return RtcpMessageHandler(connection!!, this,
+    override fun provideMessageHandler(connection: Connection): MessageHandler {
+        return RtcpMessageHandler(connection, this,
                 sessionInactivityTimeout(false), timer, rtcpMessageHandlerCommGorgel)
+    }
+
+    override fun handleConnectionFailure() {
+        // No action needed. This factory ignores failures.
     }
 
     /**

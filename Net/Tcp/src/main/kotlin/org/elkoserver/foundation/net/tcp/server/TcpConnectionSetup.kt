@@ -10,16 +10,16 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 
 class TcpConnectionSetup(
-        label: String?,
-        override var serverAddress: String,
-        auth: AuthDesc,
-        secure: Boolean,
-        props: ElkoProperties,
-        propRoot: String,
-        private val tcpServerFactory: TcpServerFactory,
-        private val actorFactory: MessageHandlerFactory,
-        gorgel: Gorgel,
-        private val jsonByteIoFramerFactoryFactory: JsonByteIoFramerFactoryFactory)
+    label: String?,
+    override var serverAddress: String,
+    auth: AuthDesc,
+    secure: Boolean,
+    props: ElkoProperties,
+    propRoot: String,
+    private val tcpServerFactory: TcpServerFactory,
+    private val actorFactory: MessageHandlerFactory,
+    gorgel: Gorgel,
+    private val jsonByteIoFramerFactoryFactory: JsonByteIoFramerFactoryFactory)
     : BaseConnectionSetup(label, serverAddress, auth, secure, props, propRoot, gorgel) {
     override val protocol: String = "tcp"
 

@@ -24,8 +24,12 @@ internal class InternalActorFactory(
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection?) =
-            InternalActor(connection!!, this, internalActorGorgel, internalActorCommGorgel, mustSendDebugReplies)
+    override fun provideMessageHandler(connection: Connection) =
+            InternalActor(connection, this, internalActorGorgel, internalActorCommGorgel, mustSendDebugReplies)
+
+    override fun handleConnectionFailure() {
+        // No action needed. This factory ignores failures.
+    }
 
     /**
      * Check the actor's authorization.

@@ -308,7 +308,11 @@ class HttpMessageHandlerFactory internal constructor(
      *
      * @param connection  The TCP connection object that was just created.
      */
-    override fun provideMessageHandler(connection: Connection?): MessageHandler = HttpMessageHandler(connection!!, this, sessionTimeout(false), timer, handlerCommGorgel)
+    override fun provideMessageHandler(connection: Connection): MessageHandler = HttpMessageHandler(connection, this, sessionTimeout(false), timer, handlerCommGorgel)
+
+    override fun handleConnectionFailure() {
+        // No action needed. This factory ignores failures.
+    }
 
     /**
      * Remove a session from the session table.

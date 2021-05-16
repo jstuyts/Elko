@@ -35,8 +35,12 @@ internal class RepositoryActorFactory(
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection?) =
-            RepositoryActor(connection!!, this, repositoryActorGorgel, repositoryActorCommGorgel, mustSendDebugReplies)
+    override fun provideMessageHandler(connection: Connection) =
+            RepositoryActor(connection, this, repositoryActorGorgel, repositoryActorCommGorgel, mustSendDebugReplies)
+
+    override fun handleConnectionFailure() {
+        // No action needed. This factory ignores failures.
+    }
 
     /**
      * Return the object ref table for this factor.

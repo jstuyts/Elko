@@ -114,7 +114,7 @@ class SelectThread(
                 newChannel(handlerFactory, framerFactory, channel, false)
             } catch (e: IOException) {
                 commGorgel.error("unable to connect to $remoteAddr: $e")
-                handlerFactory.provideMessageHandler(null)
+                handlerFactory.handleConnectionFailure()
             }
             null
         })
@@ -158,10 +158,10 @@ class SelectThread(
             val key = channel.register(mySelector, SelectionKey.OP_READ)
             key.attach(tcpConnectionFactory.create(handlerFactory, framerFactory, channel, isSecure, key, this))
         } catch (e: ClosedChannelException) {
-            handlerFactory.provideMessageHandler(null)
+            handlerFactory.handleConnectionFailure()
             commGorgel.error("channel closed before it could be used", e)
         } catch (e: IOException) {
-            handlerFactory.provideMessageHandler(null)
+            handlerFactory.handleConnectionFailure()
             commGorgel.error("trouble opening TCPConnection for channel", e)
             try {
                 channel.close()

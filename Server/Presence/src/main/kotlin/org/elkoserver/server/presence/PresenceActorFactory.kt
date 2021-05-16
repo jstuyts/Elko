@@ -35,8 +35,12 @@ internal class PresenceActorFactory(
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection?) =
-            PresenceActor(connection!!, this, presenceActorGorgel, presenceActorCommGorgel, mustSendDebugReplies)
+    override fun provideMessageHandler(connection: Connection) =
+            PresenceActor(connection, this, presenceActorGorgel, presenceActorCommGorgel, mustSendDebugReplies)
+
+    override fun handleConnectionFailure() {
+        // No action needed. This factory ignores failures.
+    }
 
     /**
      * Get this factory's ref table.

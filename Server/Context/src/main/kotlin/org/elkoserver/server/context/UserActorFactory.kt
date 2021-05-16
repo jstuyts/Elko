@@ -32,6 +32,10 @@ internal class UserActorFactory(
      *
      * @param connection  The new connection.
      */
-    override fun provideMessageHandler(connection: Connection?) =
-            UserActor(connection!!, myContextor, runner, amAuthRequired, myProtocol, userActorGorgel, userGorgelWithoutRef, timer, userActorCommGorgel, idGenerator, mustSendDebugReplies)
+    override fun provideMessageHandler(connection: Connection) =
+            UserActor(connection, myContextor, runner, amAuthRequired, myProtocol, userActorGorgel, userGorgelWithoutRef, timer, userActorCommGorgel, idGenerator, mustSendDebugReplies)
+
+    override fun handleConnectionFailure() {
+        // No action needed. This factory ignores failures.
+    }
 }

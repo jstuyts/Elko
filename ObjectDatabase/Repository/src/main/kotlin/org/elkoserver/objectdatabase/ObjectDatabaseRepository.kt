@@ -3,6 +3,8 @@ package org.elkoserver.objectdatabase
 import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcherFactory
+import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
@@ -100,16 +102,22 @@ class ObjectDatabaseRepository(
     private var amClosing = false
 
     /** Message handler factory for repository connections.  */
-    private val myMessageHandlerFactory = MessageHandlerFactory { connection ->
-        ObjectDatabaseRepositoryActor(
-            connection!!,
-            this@ObjectDatabaseRepository,
-            localName,
-            myRepHost!!,
-            myDispatcher,
-            odbActorGorgel,
-            mustSendDebugReplies
-        )
+    private val myMessageHandlerFactory = object : MessageHandlerFactory {
+        override fun provideMessageHandler(connection: Connection): MessageHandler {
+            return ObjectDatabaseRepositoryActor(
+                connection,
+                this@ObjectDatabaseRepository,
+                localName,
+                myRepHost!!,
+                myDispatcher,
+                odbActorGorgel,
+                mustSendDebugReplies
+            )
+        }
+
+        override fun handleConnectionFailure() {
+            // No action needed. This factory ignores failures.
+        }
     }
 
     private inner class RepositoryFoundHandler : Consumer<Array<ServiceDesc>> {

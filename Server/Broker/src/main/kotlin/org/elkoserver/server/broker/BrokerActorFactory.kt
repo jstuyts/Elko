@@ -30,8 +30,12 @@ internal class BrokerActorFactory(
      *
      * @param connection The new connection.
      */
-    override fun provideMessageHandler(connection: Connection?) =
-            BrokerActor(connection!!, this, brokerActorGorgel, brokerActorCommGorgel, clientOrdinalGenerator, mustSendDebugReplies)
+    override fun provideMessageHandler(connection: Connection) =
+            BrokerActor(connection, this, brokerActorGorgel, brokerActorCommGorgel, clientOrdinalGenerator, mustSendDebugReplies)
+
+    override fun handleConnectionFailure() {
+        // No action needed. This factory ignores failures.
+    }
 
     /**
      * Get this factory's ref table.

@@ -8,7 +8,7 @@ package org.elkoserver.foundation.net
  * MessageHandlerFactory will be asked to provide a [MessageHandler] to
  * handle events on the new connection.
  */
-fun interface MessageHandlerFactory {
+interface MessageHandlerFactory {
     /**
      * Provide a message handler for a new connection.
      *
@@ -25,6 +25,7 @@ fun interface MessageHandlerFactory {
      * @param connection  The connection that was just created, or null if
      * the attempt to create the connection failed.
      */
-    // FIXME: Many implementations expect a connection. Is that correct?
-    fun provideMessageHandler(connection: Connection?): MessageHandler?
+    fun provideMessageHandler(connection: Connection): MessageHandler
+
+    fun handleConnectionFailure()
 }
