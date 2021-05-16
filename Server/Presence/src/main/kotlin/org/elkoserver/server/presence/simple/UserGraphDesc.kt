@@ -1,4 +1,4 @@
-package org.elkoserver.server.presence
+package org.elkoserver.server.presence.simple
 
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.Encodable

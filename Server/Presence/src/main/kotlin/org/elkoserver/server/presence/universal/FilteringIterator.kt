@@ -1,4 +1,4 @@
-package org.elkoserver.server.presence
+package org.elkoserver.server.presence.universal
 
 /**
  * Iterator that takes an iterator producing values of one type and generates

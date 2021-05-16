@@ -1,10 +1,14 @@
 @file:Suppress("unused")
 
-package org.elkoserver.server.presence
+package org.elkoserver.server.presence.simple
 
 import com.grack.nanojson.JsonObject
 import org.elkoserver.json.getOptionalString
 import org.elkoserver.objectdatabase.ObjectDatabase
+import org.elkoserver.server.presence.ActiveUser
+import org.elkoserver.server.presence.Domain
+import org.elkoserver.server.presence.PresenceServer
+import org.elkoserver.server.presence.SocialGraph
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 internal class SimpleSocialGraph : SocialGraph {

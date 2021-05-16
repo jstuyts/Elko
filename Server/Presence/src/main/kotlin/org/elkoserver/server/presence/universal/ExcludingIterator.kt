@@ -1,4 +1,4 @@
-package org.elkoserver.server.presence
+package org.elkoserver.server.presence.universal
 
 /**
  * Iterator over a collection that excludes a distinguished element.

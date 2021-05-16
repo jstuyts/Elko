@@ -4,7 +4,7 @@
     "graphs": [
         {
             "name": "elkousers",
-            "class": "org.elkoserver.server.presence.UniversalGraph"
+            "class": "org.elkoserver.server.presence.universal.UniversalGraph"
         }
     ]
 }

@@ -1,8 +1,12 @@
-package org.elkoserver.server.presence
+package org.elkoserver.server.presence.universal
 
 import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.RandomUsingObject
 import org.elkoserver.json.getOptionalInt
+import org.elkoserver.server.presence.ActiveUser
+import org.elkoserver.server.presence.Domain
+import org.elkoserver.server.presence.PresenceServer
+import org.elkoserver.server.presence.SocialGraph
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.Random
 
