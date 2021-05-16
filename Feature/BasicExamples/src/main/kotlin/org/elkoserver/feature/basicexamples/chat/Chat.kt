@@ -7,7 +7,12 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.*
+import org.elkoserver.server.context.model.ContextMod
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.ObjectCompletionWatcher
+import org.elkoserver.server.context.model.User
+import org.elkoserver.server.context.model.UserWatcher
+import org.elkoserver.server.context.msgSay
 
 /**
  * Mod to enable users in a context to chat with each other.  This mod must be

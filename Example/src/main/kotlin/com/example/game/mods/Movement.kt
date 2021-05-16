@@ -7,10 +7,10 @@ import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.ContextMod
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.User
-import org.elkoserver.server.context.msgError
+import org.elkoserver.server.context.model.ContextMod
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.User
+import org.elkoserver.server.context.model.msgError
 
 /**
  * A simple context mod to enable users in a context to move around.

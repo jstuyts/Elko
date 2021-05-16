@@ -5,9 +5,9 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.ContextKey
-import org.elkoserver.server.context.ItemMod
-import org.elkoserver.server.context.UserMod
+import org.elkoserver.server.context.model.ContextKey
+import org.elkoserver.server.context.model.ItemMod
+import org.elkoserver.server.context.model.UserMod
 
 /**
  * Capability to enable entry to one or more entry controlled contexts.

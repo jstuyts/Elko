@@ -10,8 +10,8 @@ import org.elkoserver.json.JsonDecodingException
 import org.elkoserver.json.getRequiredString
 import org.elkoserver.json.getStringOrNull
 import org.elkoserver.server.context.Contextor
-import org.elkoserver.server.context.User
 import org.elkoserver.server.context.UserFactory
+import org.elkoserver.server.context.model.User
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 

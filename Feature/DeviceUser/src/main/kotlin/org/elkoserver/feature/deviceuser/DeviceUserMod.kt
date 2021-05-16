@@ -4,8 +4,8 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.UserMod
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.UserMod
 
 /**
  * This Mod holds device specific identity information for a user.

@@ -5,9 +5,9 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.GeneralMod
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.User
+import org.elkoserver.server.context.model.GeneralMod
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.User
 
 /**
  * Mod to enable tracking a context's population.  This mod may be attached to

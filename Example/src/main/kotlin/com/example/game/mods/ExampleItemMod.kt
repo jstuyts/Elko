@@ -6,9 +6,9 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.ItemMod
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.User
+import org.elkoserver.server.context.model.ItemMod
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.User
 
 class ExampleItemMod @JsonMethod("str1", "str2", "int1", "int2") constructor(
         private val myString1: String,

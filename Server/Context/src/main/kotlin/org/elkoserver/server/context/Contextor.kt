@@ -13,8 +13,18 @@ import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JsonDecodingException
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonParsing
+import org.elkoserver.json.Referenceable
 import org.elkoserver.json.getRequiredString
 import org.elkoserver.objectdatabase.ObjectDatabase
+import org.elkoserver.server.context.model.BasicObject
+import org.elkoserver.server.context.model.Context
+import org.elkoserver.server.context.model.ContextorProtocol
+import org.elkoserver.server.context.model.Item
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.ObjectCompletionWatcher
+import org.elkoserver.server.context.model.RefTableProtocol
+import org.elkoserver.server.context.model.User
+import org.elkoserver.server.context.model.extractBaseRef
 import org.elkoserver.util.HashMapMulti
 import org.elkoserver.util.tokenize
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -45,26 +55,39 @@ import kotlin.math.abs
  * @param myRandom Random number generator, for creating unique IDs and sub-IDs.
  */
 class Contextor internal constructor(
-        val objectDatabase: ObjectDatabase,
-        private val server: Server,
-        private val runner: Executor,
-        internal val refTable: RefTable,
-        private val contextorGorgel: Gorgel,
-        private val contextGorgelWithoutRef: Gorgel,
-        private val itemGorgelWithoutRef: Gorgel,
-        private val staticObjectReceiverGorgel: Gorgel,
-        private val presencerGroupFactory: PresencerGroupFactory,
-        private val directorGroupFactory: DirectorGroupFactory,
-        sessionFactory: SessionFactory,
-        private val timer: Timer,
-        internal val entryTimeout: Int,
-        internal val limit: Int,
-        private val myRandom: Random,
-        staticsToLoad: String?,
-        private val families: String?) {
+    val objectDatabase: ObjectDatabase,
+    private val server: Server,
+    private val runner: Executor,
+    internal val realRefTable: RefTable,
+    private val contextorGorgel: Gorgel,
+    private val contextGorgelWithoutRef: Gorgel,
+    private val itemGorgelWithoutRef: Gorgel,
+    private val staticObjectReceiverGorgel: Gorgel,
+    private val presencerGroupFactory: PresencerGroupFactory,
+    private val directorGroupFactory: DirectorGroupFactory,
+    sessionFactory: SessionFactory,
+    private val timer: Timer,
+    internal val entryTimeout: Int,
+    internal val limit: Int,
+    private val myRandom: Random,
+    staticsToLoad: String?,
+    private val families: String?
+) : ContextorProtocol {
+
+    override val refTable = object : RefTableProtocol {
+        override fun addRef(target: Referenceable) {
+            realRefTable.addRef(target)
+        }
+
+        override fun addClass(targetClass: Class<in Mod>) {
+            realRefTable.addClass(targetClass)
+        }
+
+        override fun get(ref: String) = realRefTable[ref]
+    }
 
     /** The generic 'session' object for talking to this server.  */
-    internal val session: Session = sessionFactory.create(this)
+    override val session: Session = sessionFactory.create(this)
 
     /** Sets of entities awaiting objects from the object database, by object
      * reference string.  */
@@ -102,20 +125,20 @@ class Contextor internal constructor(
     private var myPendingObjectCompletionWatchers: MutableList<ObjectCompletionWatcher>? = null
 
     private fun initializeContextFamilies() =
-            HashSet<String>().apply {
-                add("c")
-                add("ctx")
-                add("context")
-                add("\$rc")
-                @Suppress("SpellCheckingInspection")
-                add("\$rctx")
-                @Suppress("SpellCheckingInspection")
-                add("\$rcontext")
+        HashSet<String>().apply {
+            add("c")
+            add("ctx")
+            add("context")
+            add("\$rc")
+            @Suppress("SpellCheckingInspection")
+            add("\$rctx")
+            @Suppress("SpellCheckingInspection")
+            add("\$rcontext")
 
-                families?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
-                    add(tag)
-                }
+            families?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
+                add(tag)
             }
+        }
 
     private fun isValidContextRef(ref: String): Boolean {
         val delim = ref.indexOf('-')
@@ -133,7 +156,7 @@ class Contextor internal constructor(
      *
      * @param watcher  The watching Mod to be notified.
      */
-    fun addPendingObjectCompletionWatcher(watcher: ObjectCompletionWatcher) {
+    override fun addPendingObjectCompletionWatcher(watcher: ObjectCompletionWatcher) {
         val currentPendingObjectCompletionWatchers = myPendingObjectCompletionWatchers
         val actualPendingObjectCompletionWatchers = if (currentPendingObjectCompletionWatchers == null) {
             val newPendingObjectCompletionWatchers = LinkedList<ObjectCompletionWatcher>()
@@ -150,7 +173,7 @@ class Contextor internal constructor(
      *
      * As a side effect, this will clear the list of who is waiting.
      */
-    fun notifyPendingObjectCompletionWatchers() {
+    override fun notifyPendingObjectCompletionWatchers() {
         val currentPendingObjectCompletionWatchers = myPendingObjectCompletionWatchers
         if (currentPendingObjectCompletionWatchers != null) {
             val targets: List<ObjectCompletionWatcher> = currentPendingObjectCompletionWatchers
@@ -208,7 +231,7 @@ class Contextor internal constructor(
         myStaticObjects[key] = obj
         if (obj is InternalObject) {
             obj.activate(key, this)
-            (obj as? AdminObject)?.let(refTable::addRef)
+            (obj as? AdminObject)?.let(realRefTable::addRef)
         }
     }
 
@@ -216,9 +239,9 @@ class Contextor internal constructor(
      * Save all changed objects that need saving.
      */
     private fun checkpointAll() {
-        refTable
-                .filterIsInstance<BasicObject>()
-                .forEach(BasicObject::checkpointWithoutContents)
+        realRefTable
+            .filterIsInstance<BasicObject>()
+            .forEach(BasicObject::checkpointWithoutContents)
     }
 
     /**
@@ -251,8 +274,10 @@ class Contextor internal constructor(
      * @param isDeletable  Flag that is true if the new item may be deleted by
      * users.
      */
-    fun createItem(name: String, container: BasicObject?,
-                   isPossibleContainer: Boolean, isDeletable: Boolean): Item {
+    override fun createItem(
+        name: String, container: BasicObject?,
+        isPossibleContainer: Boolean, isDeletable: Boolean
+    ): Item {
         val item = Item(name, isPossibleContainer, isDeletable, false)
         initializeItem(item, container)
         return item
@@ -272,7 +297,7 @@ class Contextor internal constructor(
      */
     @Suppress("unused")
     fun createItem(name: String, isPossibleContainer: Boolean, isDeletable: Boolean): Item =
-            createItem(name, null, isPossibleContainer, isDeletable)
+        createItem(name, null, isPossibleContainer, isDeletable)
 
     /**
      * Create a new (offline) object and store its description in the object
@@ -284,7 +309,7 @@ class Contextor internal constructor(
      * to not have it put into a container.
      * @param obj  The new object.
      */
-    fun createObjectRecord(ref: String?, contRef: String?, obj: BasicObject) {
+    override fun createObjectRecord(ref: String?, contRef: String?, obj: BasicObject) {
         val actualRef = ref ?: uniqueID(obj.type())
         objectDatabase.putObject(actualRef, obj, null)
     }
@@ -307,7 +332,7 @@ class Contextor internal constructor(
      */
     fun deliverMessage(destination: BasicObject, message: JsonObject) {
         try {
-            refTable.dispatchMessage(null, destination, message)
+            realRefTable.dispatchMessage(null, destination, message)
         } catch (e: MessageHandlerException) {
             contextorGorgel.i?.run { info("ignoring error from internal msg relay: $e") }
         }
@@ -323,7 +348,7 @@ class Contextor internal constructor(
      * context or if all the clones are full.
      */
     private fun findContextClone(ref: String): Context? =
-            myContextClones.getMulti(ref).firstOrNull { it.userCount < it.baseCapacity && !it.gateIsClosed() }
+        myContextClones.getMulti(ref).firstOrNull { it.userCount < it.baseCapacity && !it.gateIsClosed() }
 
     /**
      * Find or make a connection to an external service.
@@ -348,13 +373,15 @@ class Contextor internal constructor(
      * @param opener  Director that requested this context be opened, or null
      * if not relevant.
      */
-    fun getOrLoadContext(contextRef: String, contextTemplate: String?,
-                         contextHandler: Consumer<Any?>, opener: DirectorActor?) {
+    fun getOrLoadContext(
+        contextRef: String, contextTemplate: String?,
+        contextHandler: Consumer<Any?>, opener: DirectorActor?
+    ) {
         var actualContextTemplate = contextTemplate
         if (isValidContextRef(contextRef)) {
             var result = findContextClone(contextRef)
             if (result == null) {
-                result = refTable[contextRef] as Context?
+                result = realRefTable[contextRef] as Context?
             }
             if (result == null) {
                 if (actualContextTemplate == null) {
@@ -391,8 +418,9 @@ class Contextor internal constructor(
      * it is available.
      */
     private inner class ContentsHandler(
-            private val myParentHandler: ContentsHandler?,
-            private val myTopHandler: Consumer<in BasicObject?>) : Consumer<Any?> {
+        private val myParentHandler: ContentsHandler?,
+        private val myTopHandler: Consumer<in BasicObject?>
+    ) : Consumer<Any?> {
 
         /** Number of objects whose loading is being awaited.  Initially, this
          * is the number of contained objects plus two: the container itself,
@@ -525,8 +553,10 @@ class Contextor internal constructor(
      * @param containerRef  Ref of the container object.
      * @param handler  Runnable to be invoked with the retrieved objects.
      */
-    private fun loadContentsOfContainer(containerRef: String,
-                                        handler: Consumer<Any?>) {
+    private fun loadContentsOfContainer(
+        containerRef: String,
+        handler: Consumer<Any?>
+    ) {
         queryObjects(contentsQuery(extractBaseRef(containerRef)), 0, handler)
     }
 
@@ -540,9 +570,10 @@ class Contextor internal constructor(
      * @param myOpener  The director who requested the context activation.
      */
     private inner class GetContextHandler(
-            private val myContextTemplate: String,
-            private var myContextRef: String,
-            private val myOpener: DirectorActor?) : Consumer<BasicObject?> {
+        private val myContextTemplate: String,
+        private var myContextRef: String,
+        private val myOpener: DirectorActor?
+    ) : Consumer<BasicObject?> {
 
         /**
          * Callback that will be invoked when the context is loaded.
@@ -562,7 +593,8 @@ class Contextor internal constructor(
                     contextorGorgel.error("context '$myContextRef' may only be used as a template")
                     context = null
                 } else if (!spawningTemplate ||
-                        context.isAllowableTemplate) {
+                    context.isAllowableTemplate
+                ) {
                     var subID = ""
                     if (spawningClone || spawningTemplate) {
                         subID = uniqueID("")
@@ -570,10 +602,12 @@ class Contextor internal constructor(
                     if (spawningClone) {
                         myContextRef += subID
                     }
-                    context.activate(myContextRef, subID,
-                            myContextRef != myContextTemplate,
-                            this@Contextor, runner, myContextTemplate,
-                            myOpener, contextGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", myContextRef)), timer)
+                    context.activate(
+                        myContextRef, subID,
+                        myContextRef != myContextTemplate,
+                        this@Contextor, runner, myContextTemplate,
+                        myOpener, contextGorgelWithoutRef.withAdditionalStaticTags(Tag("ref", myContextRef)), timer
+                    )
                     context.objectIsComplete()
                     notifyPendingObjectCompletionWatchers()
                 } else {
@@ -590,7 +624,7 @@ class Contextor internal constructor(
         }
     }
 
-    fun resolvePendingInit(obj: BasicObject) {
+    override fun resolvePendingInit(obj: BasicObject) {
         if (obj.isReady) {
             resolvePendingGet(obj.baseRef(), obj)
         }
@@ -606,7 +640,7 @@ class Contextor internal constructor(
     @Suppress("unused")
     fun getOrLoadItem(itemRef: String, itemHandler: Consumer<Any?>) {
         if (itemRef.startsWith("item-") || itemRef.startsWith("i-")) {
-            val result = refTable[itemRef] as Item?
+            val result = realRefTable[itemRef] as Item?
             if (result == null) {
                 if (addPendingGet(itemRef, itemHandler)) {
                     objectDatabase.getObject(itemRef, GetItemHandler(itemRef))
@@ -645,7 +679,7 @@ class Contextor internal constructor(
      * @return the object named 'ref' from the static object table, or null if
      * there is no such object.
      */
-    fun getStaticObject(ref: String): Any? = myStaticObjects[ref]
+    override fun getStaticObject(ref: String): Any? = myStaticObjects[ref]
 
     /**
      * Load the contents of a previously closed container.
@@ -653,7 +687,7 @@ class Contextor internal constructor(
      * @param item  The item whose contents are to be loaded.
      * @param handler  Handler to be notified once the contents are loaded.
      */
-    fun loadItemContents(item: Item, handler: Consumer<Any?>) {
+    override fun loadItemContents(item: Item, handler: Consumer<Any?>) {
         val contentsHandler = ContentsHandler(null, handler)
         contentsHandler.receiveContainer(item)
         loadContentsOfContainer(item.ref(), contentsHandler)
@@ -695,8 +729,10 @@ class Contextor internal constructor(
      * @param userHandler  Handler to invoke with the resulting user object or
      * with null if the user object could not be obtained.
      */
-    fun loadUser(userRef: String, scope: String?,
-                 userHandler: Consumer<Any?>) {
+    fun loadUser(
+        userRef: String, scope: String?,
+        userHandler: Consumer<Any?>
+    ) {
         var actualUserHandler = userHandler
         if (userRef.startsWith("user-") || userRef.startsWith("u-")) {
             if (scope != null) {
@@ -724,7 +760,10 @@ class Contextor internal constructor(
      * @param myOuterHandler  The original handler to which the modified
      * object should be passed.
      */
-    private inner class ScopedModAttacher(private val myScope: String, private val myOuterHandler: Consumer<in BasicObject?>) : Consumer<Any?> {
+    private inner class ScopedModAttacher(
+        private val myScope: String,
+        private val myOuterHandler: Consumer<in BasicObject?>
+    ) : Consumer<Any?> {
         private var myObj: BasicObject? = null
 
         /**
@@ -782,7 +821,7 @@ class Contextor internal constructor(
      * @return the requested reservation if there is one, or null if not.
      */
     fun lookupReservation(who: String?, where: String, authCode: String): Reservation? =
-            myDirectorGroup!!.lookupReservation(who, where, authCode)
+        myDirectorGroup!!.lookupReservation(who, where, authCode)
 
     /**
      * Do record keeping associated with tracking the set of open contexts:
@@ -792,7 +831,7 @@ class Contextor internal constructor(
      * @param context  The context.
      * @param open  true if opened, false if closed.
      */
-    fun noteContext(context: Context, open: Boolean) {
+    override fun noteContext(context: Context, open: Boolean) {
         if (open) {
             myContexts.add(context)
             if (context.baseCapacity > 0) {
@@ -815,7 +854,7 @@ class Contextor internal constructor(
      * @param open  Flag indicating open or closed
      * @param reason  Reason for closing the gate
      */
-    fun noteContextGate(context: Context, open: Boolean, reason: String?) {
+    override fun noteContextGate(context: Context, open: Boolean, reason: String?) {
         myDirectorGroup?.noteContextGate(context, open, reason)
     }
 
@@ -825,7 +864,7 @@ class Contextor internal constructor(
      * @param user  The user.
      * @param on  true if now online, false if now offline.
      */
-    fun noteUser(user: User, on: Boolean) {
+    override fun noteUser(user: User, on: Boolean) {
         if (on) {
             myUsers.add(user)
         } else {
@@ -847,10 +886,12 @@ class Contextor internal constructor(
      * @param whereMeta  Optional metadata about the context entered or exited
      * @param on  True if they came, false if they left
      */
-    fun observePresenceChange(contextRef: String, observerRef: String,
-                              domain: String?, whoRef: String,
-                              whoMeta: JsonObject?, whereRef: String,
-                              whereMeta: JsonObject?, on: Boolean) {
+    fun observePresenceChange(
+        contextRef: String, observerRef: String,
+        domain: String?, whoRef: String,
+        whoMeta: JsonObject?, whereRef: String,
+        whereMeta: JsonObject?, on: Boolean
+    ) {
         if (whoMeta != null) {
             try {
                 val name = whoMeta.getRequiredString("name")
@@ -867,10 +908,12 @@ class Contextor internal constructor(
                 // No action needed. Do not add a context name.
             }
         }
-        val subscriber = refTable[contextRef] as Context?
+        val subscriber = realRefTable[contextRef] as Context?
         if (subscriber != null) {
-            subscriber.observePresenceChange(observerRef, domain, whoRef,
-                    whereRef, on)
+            subscriber.observePresenceChange(
+                observerRef, domain, whoRef,
+                whereRef, on
+            )
         } else {
             contextorGorgel.warn("presence change of $whoRef${if (on) " entering " else " exiting "}$whereRef for $observerRef directed to unknown context $contextRef")
         }
@@ -908,7 +951,7 @@ class Contextor internal constructor(
      * @param who  The user being pushed
      * @param contextRef  The ref of the context to push them to.
      */
-    fun pushNewContext(who: User, contextRef: String) {
+    override fun pushNewContext(who: User, contextRef: String) {
         val currentDirectorGroup = myDirectorGroup
         if (currentDirectorGroup != null) {
             currentDirectorGroup.pushNewContext(who, contextRef)
@@ -974,7 +1017,7 @@ class Contextor internal constructor(
      * @param source  Object that is sending the message.
      * @param message  The message itself.
      */
-    fun relay(source: BasicObject, message: JsonLiteral) {
+    override fun relay(source: BasicObject, message: JsonLiteral) {
         if (source.isClone) {
             val baseRef = source.baseRef()
             var contextRef: String? = null
@@ -985,7 +1028,7 @@ class Contextor internal constructor(
                 else -> throw Error("relay from inappropriate object")
             }
             var msgObject: JsonObject? = null
-            for (target in refTable.clones(baseRef)) {
+            for (target in realRefTable.clones(baseRef)) {
                 val obj = target as BasicObject
                 if (obj !== source) {
                     /* Generating the text form of the message and then
@@ -1017,11 +1060,11 @@ class Contextor internal constructor(
      *
      * @param object  The object to remove.
      */
-    fun remove(`object`: BasicObject) {
+    override fun remove(`object`: BasicObject) {
         for (item in `object`.contents()) {
             remove(item)
         }
-        refTable.remove(`object`)
+        realRefTable.remove(`object`)
     }
 
     /**
@@ -1032,8 +1075,7 @@ class Contextor internal constructor(
      * @param obj  The object itself, or null if it could not be obtained.
      */
     private fun resolvePendingGet(ref: String, obj: Any?) {
-        var actualRef = ref
-        actualRef = extractBaseRef(actualRef)
+        val actualRef = extractBaseRef(ref)
         val handlerSet: Set<Consumer<Any?>>? = myPendingGets[actualRef]
         if (handlerSet != null) {
             myPendingGets.remove(actualRef)
@@ -1060,7 +1102,7 @@ class Contextor internal constructor(
      * string if clones are not being generated.
      * @param contents  Array of inactive items to be added to the container.
      */
-    fun setContents(container: BasicObject, subID: String, contents: Array<Item>?) {
+    override fun setContents(container: BasicObject, subID: String, contents: Array<Item>?) {
         contents?.forEach { item ->
             activateContentsItem(container, subID, item)
         }
@@ -1088,10 +1130,12 @@ class Contextor internal constructor(
      * @param userHandler  Handler to invoke with the resulting user object or
      * with null if the user object could not be produced.
      */
-    fun synthesizeUser(connection: Connection, factoryTag: String,
-                       param: JsonObject?, contextRef: String,
-                       contextTemplate: String?,
-                       userHandler: Consumer<in User?>) {
+    fun synthesizeUser(
+        connection: Connection, factoryTag: String,
+        param: JsonObject?, contextRef: String,
+        contextTemplate: String?,
+        userHandler: Consumer<in User?>
+    ) {
         when (val rawFactory = getStaticObject(factoryTag)) {
             null -> {
                 contextorGorgel.error("user factory '$factoryTag' not found")
@@ -1140,7 +1184,7 @@ class Contextor internal constructor(
      * @param ref  Reference string designating the deleted object.
      * @param handler  Completion handler.
      */
-    fun writeObjectDelete(ref: String, handler: Consumer<Any?>? = null) {
+    override fun writeObjectDelete(ref: String, handler: Consumer<Any?>?) {
         objectDatabase.removeObject(ref, handler)
     }
 
@@ -1151,13 +1195,13 @@ class Contextor internal constructor(
      * @param state  The object state to be written.
      * @param handler  Completion handler
      */
-    fun writeObjectState(ref: String, state: BasicObject, handler: Consumer<Any?>? = null) {
+    override fun writeObjectState(ref: String, state: BasicObject, handler: Consumer<Any?>?) {
         objectDatabase.putObject(ref, state, handler)
     }
 
     init {
-        refTable.addRef(session)
-        server.setServiceRefTable(refTable)
+        realRefTable.addRef(session)
+        server.setServiceRefTable(realRefTable)
         contextFamilies = initializeContextFamilies()
         loadStaticObjects(staticsToLoad)
         server.registerShutdownWatcher(object : ShutdownWatcher {
@@ -1165,8 +1209,10 @@ class Contextor internal constructor(
                 /* List copy to avert ConcurrentModificationException */
                 val saveUsers: List<User> = LinkedList(myUsers)
                 for (user in saveUsers) {
-                    user.exitContext("server shutting down", "shutdown",
-                            false)
+                    user.exitContext(
+                        "server shutting down", "shutdown",
+                        false
+                    )
                 }
                 myDirectorGroup?.disconnectHosts()
                 myPresencerGroup?.disconnectHosts()

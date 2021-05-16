@@ -4,10 +4,10 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.ContextMod
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.ObjectCompletionWatcher
-import org.elkoserver.server.context.User
+import org.elkoserver.server.context.model.ContextMod
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.ObjectCompletionWatcher
+import org.elkoserver.server.context.model.User
 import java.util.function.Consumer
 
 /**

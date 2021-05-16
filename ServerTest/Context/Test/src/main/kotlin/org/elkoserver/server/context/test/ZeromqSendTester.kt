@@ -6,17 +6,19 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.ContextMod
-import org.elkoserver.server.context.ContextShutdownWatcher
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.ObjectCompletionWatcher
-import org.elkoserver.server.context.User
+import org.elkoserver.server.context.model.ContextMod
+import org.elkoserver.server.context.model.ContextShutdownWatcher
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.ObjectCompletionWatcher
+import org.elkoserver.server.context.model.User
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
  * Context mod to test ZMQ outbound connections
  */
-class ZeromqSendTester @JsonMethod("address") constructor(private val myAddress: String) : Mod(), ContextMod, ObjectCompletionWatcher, ContextShutdownWatcher, ClassspecificGorgelUsingObject {
+class ZeromqSendTester @JsonMethod("address") constructor(private val myAddress: String) : Mod(), ContextMod,
+    ObjectCompletionWatcher,
+    ContextShutdownWatcher, ClassspecificGorgelUsingObject {
     
     /** Outbound ZMQ connection to myAddress, or null if not yet open  */
     private var myOutbound: Connection? = null

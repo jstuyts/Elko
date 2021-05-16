@@ -7,9 +7,9 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.ItemMod
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.User
+import org.elkoserver.server.context.model.ItemMod
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.User
 
 /**
  * Mod to hold a free-floating chunk of text.  This mod must be attached to an

@@ -6,8 +6,8 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.ContextMod
-import org.elkoserver.server.context.Mod
+import org.elkoserver.server.context.model.ContextMod
+import org.elkoserver.server.context.model.Mod
 
 /**
  * Mod to hold a context's permissible chat text display style options.  This

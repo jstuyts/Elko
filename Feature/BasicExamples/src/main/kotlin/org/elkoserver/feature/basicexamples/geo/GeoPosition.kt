@@ -4,10 +4,10 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.BasicObject
-import org.elkoserver.server.context.ItemMod
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.UserMod
+import org.elkoserver.server.context.model.BasicObject
+import org.elkoserver.server.context.model.ItemMod
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.UserMod
 
 /**
  * Position class representing a latitude/longitude position on the surface of

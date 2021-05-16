@@ -4,7 +4,7 @@ import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.server.context.Contextor
-import org.elkoserver.server.context.User
+import org.elkoserver.server.context.model.User
 import java.util.function.Consumer
 
 /**

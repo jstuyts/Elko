@@ -3,11 +3,18 @@ package org.elkoserver.server.context
 import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.NonRoutingActor
 import org.elkoserver.foundation.actor.msgAuth
-import org.elkoserver.foundation.json.*
+import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.foundation.json.MessageDispatcher
+import org.elkoserver.foundation.json.MessageHandlerException
+import org.elkoserver.foundation.json.OptBoolean
+import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
+import org.elkoserver.server.context.model.BasicObject
+import org.elkoserver.server.context.model.Context
+import org.elkoserver.server.context.model.User
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 
@@ -20,14 +27,14 @@ import java.util.LinkedList
  * @param host  Host description for this connection.
  */
 class DirectorActor(
-        connection: Connection,
-        dispatcher: MessageDispatcher,
-        private val myGroup: DirectorGroup,
-        host: HostDesc,
-        private val reservationFactory: ReservationFactory,
-        private val timer: Timer,
-        gorgel: Gorgel,
-        mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
+    connection: Connection,
+    dispatcher: MessageDispatcher,
+    private val myGroup: DirectorGroup,
+    host: HostDesc,
+    private val reservationFactory: ReservationFactory,
+    private val timer: Timer,
+    gorgel: Gorgel,
+    mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
     /** Map from tag strings to users awaiting reservations.  */
     private val myPendingReservationRequests: MutableMap<String, User> = HashMap()
@@ -80,7 +87,7 @@ class DirectorActor(
                 if (ref == null) {
                     emptyList()
                 } else {
-                    val result = myGroup.contextor.refTable.clones(ref)
+                    val result = myGroup.contextor.realRefTable.clones(ref)
                     result.ifEmpty {
                         throw MessageHandlerException("$ref not found")
                     }

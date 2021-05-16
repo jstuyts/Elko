@@ -6,11 +6,11 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.Item
-import org.elkoserver.server.context.ItemMod
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.User
-import org.elkoserver.server.context.msgDelete
+import org.elkoserver.server.context.model.Item
+import org.elkoserver.server.context.model.ItemMod
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.User
+import org.elkoserver.server.context.model.msgDelete
 
 class Prop @JsonMethod("kind") constructor(private val myKind: String) : Mod(), ItemMod {
     override fun encode(control: EncodeControl): JsonLiteral =

@@ -7,10 +7,10 @@ import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.BasicObject
-import org.elkoserver.server.context.ItemMod
-import org.elkoserver.server.context.User
-import org.elkoserver.server.context.UserMod
+import org.elkoserver.server.context.model.BasicObject
+import org.elkoserver.server.context.model.ItemMod
+import org.elkoserver.server.context.model.User
+import org.elkoserver.server.context.model.UserMod
 
 /**
  * Capability to enable external definition of persistent C-U-I objects.

@@ -5,7 +5,10 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.server.context.*
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.User
+import org.elkoserver.server.context.model.UserMod
+import org.elkoserver.server.context.msgSay
 
 /**
  * Mod to enable users in a context to chat privately with each other.  This

@@ -1,11 +1,22 @@
 package org.elkoserver.feature.caps
 
 import com.grack.nanojson.JsonObject
-import org.elkoserver.foundation.json.*
+import org.elkoserver.foundation.json.ClockUsingObject
+import org.elkoserver.foundation.json.Deliverer
+import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.foundation.json.MessageHandlerException
+import org.elkoserver.foundation.json.OptBoolean
+import org.elkoserver.foundation.json.OptInteger
+import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.getOptionalBoolean
 import org.elkoserver.json.getOptionalLong
-import org.elkoserver.server.context.*
+import org.elkoserver.server.context.model.BasicObject
+import org.elkoserver.server.context.model.Item
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.ObjectCompletionWatcher
+import org.elkoserver.server.context.model.User
+import org.elkoserver.server.context.model.msgDelete
 import java.time.Clock
 
 /**

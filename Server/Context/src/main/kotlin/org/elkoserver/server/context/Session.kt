@@ -3,9 +3,15 @@ package org.elkoserver.server.context
 import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.Actor
 import org.elkoserver.foundation.actor.BasicProtocolHandler
-import org.elkoserver.foundation.json.*
+import org.elkoserver.foundation.json.Deliverer
+import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.foundation.json.MessageHandlerException
+import org.elkoserver.foundation.json.OptBoolean
+import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
+import org.elkoserver.server.context.model.SessionProtocol
+import org.elkoserver.server.context.model.User
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -20,7 +26,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *
  * @param myContextor  The contextor for this session.
  */
-class Session(private val myContextor: Contextor, private val password: String?, private val myGorgel: Gorgel, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
+class Session(private val myContextor: Contextor, private val password: String?, private val myGorgel: Gorgel, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel), SessionProtocol {
 
     /**
      * Get this object's reference string.  This singleton object is always

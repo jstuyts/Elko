@@ -6,9 +6,9 @@ import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.GeneralMod
-import org.elkoserver.server.context.Mod
-import org.elkoserver.server.context.User
+import org.elkoserver.server.context.model.GeneralMod
+import org.elkoserver.server.context.model.Mod
+import org.elkoserver.server.context.model.User
 
 /**
  * Mod to associate a server-moderated hashtable with its object.  This mod
@@ -19,7 +19,8 @@ import org.elkoserver.server.context.User
  * @param persist  If true, make sure any changes get saved to disk; if
  *    false (the default), changes are ephemeral.
  */
-class Dictionary @JsonMethod("names", "values", "persist") constructor(names: Array<String>, values: Array<String>, persist: OptBoolean) : Mod(), GeneralMod {
+class Dictionary @JsonMethod("names", "values", "persist") constructor(names: Array<String>, values: Array<String>, persist: OptBoolean) : Mod(),
+    GeneralMod {
     private val myVars: MutableMap<String, String> = mutableMapOf<String, String>().apply {
         names.forEachIndexed { index, name ->
             this[name] = values[index]

@@ -13,6 +13,10 @@ import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
+import org.elkoserver.server.context.model.BasicObject
+import org.elkoserver.server.context.model.Context
+import org.elkoserver.server.context.model.User
+import org.elkoserver.server.context.model.UserActorProtocol
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList
@@ -30,17 +34,17 @@ import java.util.function.Consumer
  * @param myIdGenerator Counter for assigning ephemeral user IDs.
  */
 class UserActor(
-        private val myConnection: Connection,
-        private val myContextor: Contextor,
-        private val runner: Executor,
-        private val amAuthRequired: Boolean,
-        internal val protocol: String,
-        private val userActorGorgel: Gorgel,
-        private val userGorgelWithoutRef: Gorgel,
-        private val timer: Timer,
-        commGorgel: Gorgel,
-        private val myIdGenerator: IdGenerator,
-        mustSendDebugReplies: Boolean) : RoutingActor(myConnection, myContextor.refTable, commGorgel, mustSendDebugReplies), SourceRetargeter, BasicProtocolActor {
+    private val myConnection: Connection,
+    private val myContextor: Contextor,
+    private val runner: Executor,
+    private val amAuthRequired: Boolean,
+    override val protocol: String,
+    private val userActorGorgel: Gorgel,
+    private val userGorgelWithoutRef: Gorgel,
+    private val timer: Timer,
+    commGorgel: Gorgel,
+    private val myIdGenerator: IdGenerator,
+    mustSendDebugReplies: Boolean) : RoutingActor(myConnection, myContextor.realRefTable, commGorgel, mustSendDebugReplies), SourceRetargeter, BasicProtocolActor, UserActorProtocol {
     /** The users this actor is the actor for, by context.  */
     private val myUsers: MutableMap<Context, User> = HashMap()
 
@@ -110,7 +114,7 @@ class UserActor(
      *
      * @return the ID number of the connection associated with this actor.
      */
-    fun connectionID(): Int = myConnection.id()
+    override fun connectionID(): Int = myConnection.id()
 
     /**
      * Disconnect this actor.
@@ -270,7 +274,7 @@ class UserActor(
     /**
      * Remove this actor from one of the contexts that it is in.
      */
-    fun exitContext(context: Context?) {
+    override fun exitContext(context: Context?) {
         if (context != null) {
             myUsers.remove(context)
         }

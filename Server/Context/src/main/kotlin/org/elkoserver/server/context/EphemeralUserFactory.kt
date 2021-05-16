@@ -2,6 +2,7 @@ package org.elkoserver.server.context
 
 import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.server.context.model.User
 
 /**
  * Interface implemented by objects that can synthesize ephemeral User objects

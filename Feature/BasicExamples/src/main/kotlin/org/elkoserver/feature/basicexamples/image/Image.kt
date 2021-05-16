@@ -5,8 +5,8 @@ import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralFactory
-import org.elkoserver.server.context.GeneralMod
-import org.elkoserver.server.context.Mod
+import org.elkoserver.server.context.model.GeneralMod
+import org.elkoserver.server.context.model.Mod
 
 /**
  * Mod to associate an image with an object.  This mod may be attached to a
@@ -19,7 +19,8 @@ import org.elkoserver.server.context.Mod
  * @param myHeight  Vertical extent of the image (optional).
  * @param myImg  URL of the image itself.
  */
-class Image @JsonMethod("width", "height", "img") constructor(private val myWidth: OptInteger, private val myHeight: OptInteger, private val myImg: String) : Mod(), GeneralMod {
+class Image @JsonMethod("width", "height", "img") constructor(private val myWidth: OptInteger, private val myHeight: OptInteger, private val myImg: String) : Mod(),
+    GeneralMod {
 
     /**
      * Encode this mod for transmission or persistence.

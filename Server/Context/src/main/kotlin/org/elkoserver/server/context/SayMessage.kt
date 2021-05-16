@@ -13,7 +13,7 @@ import org.elkoserver.json.Referenceable
  * not relevant.  This normally indicates the user who is speaking.
  * @param text  The text to be said.
  */
-fun msgSay(target: Referenceable, from: Referenceable?, text: String?): JsonLiteral =
+fun msgSay(target: Referenceable, from: Referenceable?, text: String): JsonLiteral =
         JsonLiteralFactory.targetVerb(target, "say").apply {
             addParameterOpt("from", from)
             addParameter("text", text)

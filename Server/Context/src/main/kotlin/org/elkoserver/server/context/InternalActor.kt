@@ -21,7 +21,7 @@ class InternalActor internal constructor(
         private val myFactory: InternalActorFactory,
         private val gorgel: Gorgel,
         commGorgel: Gorgel,
-        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.contextor.refTable, commGorgel, mustSendDebugReplies), BasicProtocolActor {
+        mustSendDebugReplies: Boolean) : RoutingActor(connection, myFactory.contextor.realRefTable, commGorgel, mustSendDebugReplies), BasicProtocolActor {
 
     /** Flag that connection has been authorized.  */
     private var amAuthorized = false

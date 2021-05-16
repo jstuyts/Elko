@@ -2,7 +2,7 @@ package org.elkoserver.feature.basicexamples.cartesian
 
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.json.Referenceable
-import org.elkoserver.server.context.BasicObject
+import org.elkoserver.server.context.model.BasicObject
 
 /**
  * Create a 'move' message.
