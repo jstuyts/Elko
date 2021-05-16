@@ -96,7 +96,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
     private var amAtEOF = false
 
     /** Flag indicating that WebSocket framing is enabled.  */
-    private var amWebsocketFraming = false
+    internal var amWebsocketFraming = false
 
     /**
      * Be given a buffer full of input bytes.
@@ -125,11 +125,19 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
             myClientBuffer = buf
             myClientBufferLength = length
             (0 until length)
-                    .filter { buf[it] == LINE_FEED_AS_BYTE || amWebsocketFraming && buf[it] == (-1).toByte() }
-                    .forEach { myUsefulByteCount = myTotalByteCount + it + 1 }
+                    .filter { isEndOfLineMarker(buf, it) }
+                    .forEach { indexOfEndOfLineMarker -> myUsefulByteCount = myTotalByteCount + indexOfEndOfLineMarker + 1 }
             myTotalByteCount += length
         }
     }
+
+    private fun isEndOfLineMarker(buf: ByteArray, index: Int) =
+            isLineFeed(buf, index) || isWebsocketEndOfLineMarker(buf, index)
+
+    private fun isLineFeed(buf: ByteArray, index: Int) = buf[index] == LINE_FEED_AS_BYTE
+
+    private fun isWebsocketEndOfLineMarker(buf: ByteArray, index: Int) =
+            amWebsocketFraming && buf[index] == WEBSOCKET_END_OF_FRAME_MARKER_AS_BYTE
 
     /**
      * Get the number of bytes that can be read from this input stream without
@@ -141,7 +149,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
     override fun available(): Int = myTotalByteCount
 
     /**
-     * Copy any unread portions of the client buffer passed to [ ][.addBuffer].  This has the side effect of passing responsibility for the
+     * Copy any unread portions of the client buffer passed to [addBuffer][addBuffer].  This has the side effect of passing responsibility for the
      * client buffer back to the client.  This indirection minimizes
      * unnecessary byte array allocation and copying.
      */
@@ -206,7 +214,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
             }
             myWorkingBufferIdx = 0
         }
-        val result = myWorkingBuffer!![myWorkingBufferIdx++].toInt()
+        val result = myWorkingBuffer!![myWorkingBufferIdx++].toInt() and 0xFF
         if (myWorkingBufferIdx >= myWorkingBufferLength) {
             if (myWorkingBuffer === myClientBuffer) {
                 myClientBuffer = null
@@ -217,7 +225,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
         if (myUsefulByteCount > 0) {
             --myUsefulByteCount
         }
-        return result and 0xFF
+        return result
     }
 
     /**
@@ -241,122 +249,6 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
             result
         }
     }
-
-    /**
-     * Read the next UTF-8 encoded character from the input stream.  If
-     * another full character is not available, -1 is returned, even if there
-     * are still bytes remaining in the input stream.
-     *
-     * @return the next character in the input, or -1 if the end of the
-     * currently available input is reached.
-     *
-     * @throws IOException if an incomplete line is in the buffers upon
-     * encountering the true end of input.
-     */
-    @Throws(IOException::class)
-    private fun readUTF8Char(): Int {
-        val byteA = read()
-        if (byteA == -1) {
-            /* EOF */
-            return -1
-        } else if (amWebsocketFraming && byteA == 0x00) {
-            /* WebSocket start-of-frame: return a nul; it will be ignored */
-            return 0
-        } else if (amWebsocketFraming && byteA == 0xFF) {
-            /* WebSocket end-of-frame: pretend it's a newline */
-            return LINE_FEED_AS_INT
-        } else if (byteA and 0x80 == 0) {
-            /* One byte UTF-8 character */
-            return byteA
-        } else if (byteA and 0xE0 == 0xC0) {
-            /* Two byte UTF-8 character */
-            val byteB = read()
-            if (byteB and 0xC0 == 0x80) {
-                return byteA and 0x1F shl 6 or
-                        (byteB and 0x3F)
-            }
-        } else if (byteA and 0xF0 == 0xE0) {
-            /* Three byte UTF-8 character */
-            val byteB = read()
-            if (byteB and 0xC0 == 0x80) {
-                val byteC = read()
-                if (byteC and 0xC0 == 0x80) {
-                    return byteA and 0x0F shl 12 or
-                            (byteB and 0x3F shl 6) or
-                            (byteC and 0x3F)
-                }
-            }
-        }
-        throw IOException("bad UTF-8 encoding")
-    }
-
-    /**
-     * Read the next line of raw ASCII characters from the input stream.
-     * However, if a complete line is not available in the buffers, null is
-     * returned.
-     *
-     * Takes ASCII characters from the buffers until a newline (optionally
-     * preceded by a carriage return) is read, at which point the line is
-     * returned as a String, not including the line terminator character(s).
-     *
-     * @return the next line of ASCII characters in the input, or null if
-     * another complete line is not currently available.
-     *
-     * @throws EOFException if the true end of input is reached.
-     */
-    @Throws(IOException::class)
-    fun readASCIILine(): String? = readLine(false)
-
-    /**
-     * Common read logic for readASCIILine() and readUTF8Line().
-     *
-     * @param doUTF8  If true, read UTF-8 characters; if false, read ASCII
-     * characters.
-     *
-     * @return the next line of characters in the input according the doUTF8
-     * flag, or null if another complete line is not currently available.
-     *
-     * @throws EOFException if the true end of input is reached.
-     */
-    @Throws(IOException::class)
-    private fun readLine(doUTF8: Boolean): String? {
-        val myLine = StringBuilder(1000)
-        var inCharCode = if (doUTF8) readUTF8Char() else read()
-        return if (inCharCode == -1) {
-            null
-        } else {
-            var inChar = inCharCode.toChar()
-            if (inChar == '\n') {
-                ""
-            } else {
-                do {
-                    if (inCharCode != -1 && inChar != '\r' && inChar.code != 0) {
-                        myLine.append(inChar)
-                    }
-                    inCharCode = if (doUTF8) readUTF8Char() else read()
-                    inChar = inCharCode.toChar()
-                } while (inChar != '\n')
-                myLine.toString()
-            }
-        }
-    }
-
-    /**
-     * Read the next line of UTF-8 encoded characters from the input stream.
-     * However, If a complete line is not available in the buffers, null is
-     * returned.
-     *
-     * Takes UTF-8 characters from the buffers until a newline (optionally
-     * preceded by a carriage return) is read, at which point the line is
-     * returned as a String, not including the line terminator character(s).
-     *
-     * @return the next line of UTF-8 characters in the input, or null if
-     * another complete line is not currently available.
-     *
-     * @throws EOFException if the true end of input is reached.
-     */
-    @Throws(IOException::class)
-    fun readUTF8Line(): String? = readLine(true)
 
     fun updateUsefulByteCount(byteCount: Int) {
         if (myUsefulByteCount < byteCount) {
@@ -404,4 +296,5 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
 }
 
 private const val LINE_FEED_AS_BYTE = '\n'.code.toByte()
-private const val LINE_FEED_AS_INT = LINE_FEED_AS_BYTE.toInt()
+
+private const val WEBSOCKET_END_OF_FRAME_MARKER_AS_BYTE = (-1).toByte()

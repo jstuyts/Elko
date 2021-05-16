@@ -5,6 +5,7 @@ import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.byteioframer.ByteIoFramer
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.MessageReceiver
+import org.elkoserver.foundation.byteioframer.readUTF8Line
 import org.elkoserver.foundation.net.Communication
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonObjectSerialization.sendableString
