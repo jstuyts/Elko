@@ -80,7 +80,7 @@ internal class WorkshopServerSgd(provided: Provided, configuration: ObjectGraphC
 
     val repositoryObjectDatabaseGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepository::class) }
 
-    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseActor::class, COMMUNICATION_CATEGORY_TAG) }
+    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepositoryActor::class, COMMUNICATION_CATEGORY_TAG) }
 
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 

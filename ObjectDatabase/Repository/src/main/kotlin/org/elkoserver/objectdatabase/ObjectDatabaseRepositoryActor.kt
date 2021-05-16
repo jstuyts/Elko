@@ -21,7 +21,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param host  Description of repository host address.
  * @param dispatcher  Message dispatcher for repository actors.
  */
-class ObjectDatabaseActor(
+class ObjectDatabaseRepositoryActor(
         connection: Connection,
         private val myObjectDatabase: ObjectDatabaseRepository,
         localName: String?,
@@ -55,7 +55,7 @@ class ObjectDatabaseActor(
      * Process the reply to an earlier 'get' request.
      */
     @JsonMethod("tag", "results")
-    operator fun get(from: ObjectDatabaseActor, tag: OptString, results: Array<ObjectDesc>) {
+    operator fun get(from: ObjectDatabaseRepositoryActor, tag: OptString, results: Array<ObjectDesc>) {
         myObjectDatabase.handleGetResult(tag.valueOrNull(), results)
     }
 
@@ -65,7 +65,7 @@ class ObjectDatabaseActor(
      * Process the reply to an earlier 'put' request.
      */
     @JsonMethod("tag", "results")
-    fun put(from: ObjectDatabaseActor, tag: OptString, results: Array<ResultDesc>) {
+    fun put(from: ObjectDatabaseRepositoryActor, tag: OptString, results: Array<ResultDesc>) {
         myObjectDatabase.handlePutResult(tag.valueOrNull(), results)
     }
 
@@ -75,7 +75,7 @@ class ObjectDatabaseActor(
      * Process the reply to an earlier 'update' request.
      */
     @JsonMethod("tag", "results")
-    fun update(from: ObjectDatabaseActor, tag: OptString, results: Array<ResultDesc>) {
+    fun update(from: ObjectDatabaseRepositoryActor, tag: OptString, results: Array<ResultDesc>) {
         myObjectDatabase.handleUpdateResult(tag.valueOrNull(), results)
     }
 
@@ -85,7 +85,7 @@ class ObjectDatabaseActor(
      * Process the reply to an earlier 'query' request.
      */
     @JsonMethod("tag", "results")
-    fun query(from: ObjectDatabaseActor, tag: OptString, results: Array<ObjectDesc>) {
+    fun query(from: ObjectDatabaseRepositoryActor, tag: OptString, results: Array<ObjectDesc>) {
         myObjectDatabase.handleQueryResult(tag.valueOrNull(), results)
     }
 
@@ -95,7 +95,7 @@ class ObjectDatabaseActor(
      * Process the reply to an earlier 'remove' request.
      */
     @JsonMethod("tag", "results")
-    fun remove(from: ObjectDatabaseActor, tag: OptString, results: Array<ResultDesc>) {
+    fun remove(from: ObjectDatabaseRepositoryActor, tag: OptString, results: Array<ResultDesc>) {
         myObjectDatabase.handleRemoveResult(tag.valueOrNull(), results)
     }
 

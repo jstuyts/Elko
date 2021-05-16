@@ -23,9 +23,9 @@ internal class PendingRequest(private val myHandler: Consumer<Any?>?, internal v
     /**
      * Transmit the request message to the repository.
      *
-     * @param objectDatabaseActor  Actor representing the connection to the repository.
+     * @param objectDatabaseRepositoryActor  Actor representing the connection to the repository.
      */
-    fun sendRequest(objectDatabaseActor: ObjectDatabaseActor) {
-        objectDatabaseActor.send(myMsg)
+    fun sendRequest(objectDatabaseRepositoryActor: ObjectDatabaseRepositoryActor) {
+        objectDatabaseRepositoryActor.send(myMsg)
     }
 }

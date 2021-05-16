@@ -70,7 +70,7 @@ class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
                                private val mustSendDebugReplies: Boolean,
                                private val connectionRetrierFactory: ConnectionRetrierFactory) : ObjectDatabaseBase(gorgel, jsonToObjectDeserializer) {
     /** Connection to the repository, if there is one.  */
-    private var myObjectDatabaseActor: ObjectDatabaseActor? = null
+    private var myObjectDatabaseRepositoryActor: ObjectDatabaseRepositoryActor? = null
 
     /** Repository requests that have been issued to this object database, the
      * responses to which are still pending, either because the repository has
@@ -88,7 +88,7 @@ class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
 
     /** Message dispatcher for repository connections.  */
     private val myDispatcher = messageDispatcherFactory.create(this).apply {
-        addClass(ObjectDatabaseActor::class.java)
+        addClass(ObjectDatabaseRepositoryActor::class.java)
     }
 
     /** Repository connection retry interval, in seconds, or -1 to take the
@@ -101,7 +101,7 @@ class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
     /** Message handler factory for repository connections.  */
     private val myMessageHandlerFactory = object : MessageHandlerFactory {
         override fun provideMessageHandler(connection: Connection?) =
-                ObjectDatabaseActor(connection!!, this@ObjectDatabaseRepository, localName, myRepHost!!, myDispatcher, odbActorGorgel, mustSendDebugReplies)
+                ObjectDatabaseRepositoryActor(connection!!, this@ObjectDatabaseRepository, localName, myRepHost!!, myDispatcher, odbActorGorgel, mustSendDebugReplies)
     }
 
     private inner class RepositoryFoundHandler : Consumer<Array<ServiceDesc>> {
@@ -131,18 +131,18 @@ class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
     /**
      * Set the connection to the repository.
      *
-     * @param objectDatabaseActor  Actor representing the connection to the repository;
+     * @param objectDatabaseRepositoryActor  Actor representing the connection to the repository;
      * this may be null, indicating that a connection has been lost.
      */
-    fun repositoryConnected(objectDatabaseActor: ObjectDatabaseActor?) {
-        myObjectDatabaseActor = objectDatabaseActor
-        if (objectDatabaseActor == null) {
+    fun repositoryConnected(objectDatabaseRepositoryActor: ObjectDatabaseRepositoryActor?) {
+        myObjectDatabaseRepositoryActor = objectDatabaseRepositoryActor
+        if (objectDatabaseRepositoryActor == null) {
             connectToRepository()
         } else {
             val unsentRequests = myUnsentRequests!!
             myUnsentRequests = null
             for (req in unsentRequests) {
-                req.sendRequest(objectDatabaseActor)
+                req.sendRequest(objectDatabaseRepositoryActor)
             }
         }
     }
@@ -242,7 +242,7 @@ class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
      */
     private fun newRequest(req: PendingRequest) {
         myPendingRequests[req.tag] = req
-        val currentOdbActor = myObjectDatabaseActor
+        val currentOdbActor = myObjectDatabaseRepositoryActor
         if (currentOdbActor != null) {
             req.sendRequest(currentOdbActor)
         } else {
@@ -318,7 +318,7 @@ class ObjectDatabaseRepository(serviceFinder: ServiceFinder,
      */
     override fun shutdown() {
         amClosing = true
-        myObjectDatabaseActor?.close()
+        myObjectDatabaseRepositoryActor?.close()
     }
 
     init {

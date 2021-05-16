@@ -92,7 +92,7 @@ internal class ContextServerSgd(provided: Provided, configuration: ObjectGraphCo
 
     val repositoryObjectDatabaseGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepository::class) }
 
-    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseActor::class, COMMUNICATION_CATEGORY_TAG) }
+    val odbActorGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepositoryActor::class, COMMUNICATION_CATEGORY_TAG) }
 
     val presencerActorGorgel by Once { req(provided.baseGorgel()).getChild(PresencerActor::class, COMMUNICATION_CATEGORY_TAG) }
 
