@@ -72,7 +72,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      * is being applied to a capability that is actually available to that
      * user.  To be available, the capability must be attached to an object
      * that is reachable by the user and it must not be expired.  If this
-     * capability is not available, this method with throw a [ ].
+     * capability is not available, this method will throw a [MessageHandlerException].
      *
      * @throws MessageHandlerException if the test fails.
      */
@@ -177,7 +177,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
      *
      * If 'dest' designates a different holder, the operation will also be
      * regarded as a transfer and subjected to all the same checks as a call to
-     * [transfer()][.transfer].
+     * [transfer].
      *
      * <u>recv</u>: ` { to:*REF*, op:"spawn", dest:*optDESTREF*,
      * transferrable:*optBOOL*,

@@ -16,13 +16,13 @@ package org.elkoserver.server.context
  * To enable initialization operations based on the object environment, mods
  * may implement this interface.  Once all of the mods associated with an
  * object have been created and attached to it, and the object has been plugged
- * into its containership hierarchy, the server will invoke the [ ][.objectIsComplete] method of each of that object's mods that implement this
+ * into its containership hierarchy, the server will invoke the [objectIsComplete] method of each of that object's mods that implement this
  * interface.
  *
  * This interface is only useful when implemented by subclasses of [ ].
  *
  * IMPORTANT NOTE: Implementors of this interface MUST not depend on the
- * relative ordering of calls to [.objectIsComplete] on different mods to
+ * relative ordering of calls to [objectIsComplete] on different mods to
  * the same object, nor those of different objects being loaded at the same
  * time as part of a common containership hierarchy.
  */

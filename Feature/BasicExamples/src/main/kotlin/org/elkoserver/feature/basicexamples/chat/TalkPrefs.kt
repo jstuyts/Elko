@@ -23,7 +23,7 @@ import org.elkoserver.server.context.UserMod
  * is attached dynamically by the [TalkOptions] mod.
  *
  * Note that although this method takes a 'style'
- * parameter, normally styles are initialized (in the [ ][.objectIsComplete] method) by choosing, in a round-robin fashion, from
+ * parameter, normally styles are initialized (in the [objectIsComplete] method) by choosing, in a round-robin fashion, from
  * the style options available in in the context's [TalkOptions] mod.
  *
  * @param myStyle The [StyleDesc] associated with the chat text of the

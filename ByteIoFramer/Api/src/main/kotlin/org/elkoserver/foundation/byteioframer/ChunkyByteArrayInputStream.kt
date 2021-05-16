@@ -103,7 +103,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
      *
      * Note: this class assumes that it may continue to freely make direct
      * use of the contents of the byte buffer that is given to this method
-     * (i.e., without copying it to internal storage) until [ ][.preserveBuffers] is called; after that, the buffer contents may be
+     * (i.e., without copying it to internal storage) until [preserveBuffers] is called; after that, the buffer contents may be
      * modified externally.  This is somewhat delicate, but eliminates a vast
      * amount of unnecessary byte array allocation and copying.
      *
@@ -149,7 +149,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
     override fun available(): Int = myTotalByteCount
 
     /**
-     * Copy any unread portions of the client buffer passed to [addBuffer][addBuffer].  This has the side effect of passing responsibility for the
+     * Copy any unread portions of the client buffer passed to [addBuffer(ByteArray, Int)][addBuffer].  This has the side effect of passing responsibility for the
      * client buffer back to the client.  This indirection minimizes
      * unnecessary byte array allocation and copying.
      */

@@ -75,7 +75,7 @@ class JsonToObjectDeserializer(
 
     /**
      * A simple JSON object decoder for one-shot objects.  The given object is
-     * by the [.decode] method, using the
+     * by the [decode] method, using the
      * [AlwaysBaseTypeResolver] to resolve type tags.
      *
      * @param baseType  The desired class of the resulting Java object.  The
@@ -91,7 +91,7 @@ class JsonToObjectDeserializer(
 
     /**
      * A simple JSON string decoder for one-shot objects.  The given string is
-     * first parsed, and then decoded as by the [ ][.decode] method, using the [ ] to resolve type tags.
+     * first parsed, and then decoded as by the [decode] method, using the [baseType] to resolve type tags.
      *
      * @param baseType  The desired class of the resulting Java object.  The
      * result will not necessarily be of this class, but will be assignable

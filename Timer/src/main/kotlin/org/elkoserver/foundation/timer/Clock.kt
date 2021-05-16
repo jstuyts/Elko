@@ -17,7 +17,7 @@ interface Clock {
     fun start()
 
     /**
-     * Stops this clock from ticking.  It can be restarted with [.start].
+     * Stops this clock from ticking.  It can be restarted with [start].
      */
     fun stop()
 }

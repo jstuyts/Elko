@@ -8,8 +8,8 @@ import org.elkoserver.json.EncodeControl.ForClientEncodeControl
  *
  * Users of this class should call the constructor to begin creation of the
  * literal, incrementally add to it using the various
- * [addElement()][.addElement] methods, then finally complete it by
- * calling the [.finish] method.  After the literal is completed, it may
+ * [addElement] methods, then finally complete it by
+ * calling the [finish] method.  After the literal is completed, it may
  * be used as another literal's parameter value.
  *
  * @param stringBuilder  The buffer into which to build the literal string.

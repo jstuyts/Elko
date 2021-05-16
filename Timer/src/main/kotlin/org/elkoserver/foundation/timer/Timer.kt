@@ -3,9 +3,9 @@ package org.elkoserver.foundation.timer
 /**
  * The master control object for scheduling timed events using timeouts and
  * clocks.  One-time events (controlled by [Timeout] objects) may be
- * scheduled by calling either of the [after()][.after] methods.
+ * scheduled by calling either of the [after] methods.
  * Recurring events (controlled by [Clock] objects) may be scheduled by
- * calling either of the [every()][.every] methods.
+ * calling either of the [every] methods.
  *
  * Event notification is guaranteed to be prompt but not immediate: the event
  * handler will be invoked no sooner than scheduled and as soon thereafter as

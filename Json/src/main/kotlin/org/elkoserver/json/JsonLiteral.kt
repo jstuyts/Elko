@@ -10,10 +10,10 @@ import org.elkoserver.json.EncodeControl.ForClientEncodeControl
  *
  * Users of this class should call one of the constructors to begin creation
  * of the literal, incrementally add to it using the various
- * [addParameter()][.addParameter] methods, then finally complete it by
- * calling the [.finish] method.  After the literal is completed, it may
+ * [addParameter] methods, then finally complete it by
+ * calling the [finish] method.  After the literal is completed, it may
  * be used as another literal's parameter value, or its string form can be
- * extracted by calling [.sendableString].
+ * extracted by calling [sendableString].
  *
  * @param myStringBuilder  The buffer into which to build the literal string.
  * @param control  Encode control determining what flavor of encoding
@@ -63,7 +63,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional arbitrary parameter to an incomplete literal.  This is
-     * similar to [.addParameter], except that if the
+     * similar to [addParameter], except that if the
      * value is null, the parameter is not added.
      *
      * @param param  The parameter name.
@@ -113,7 +113,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional array parameter to an incomplete literal.  This is
-     * similar to [.addParameter], except that if the
+     * similar to [addParameter], except that if the
      * value is null, the parameter is not added.
      *
      * @param param  The parameter name.
@@ -125,7 +125,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional collection parameter to an incomplete literal.  This is
-     * similar to [.addParameter], except that if the
+     * similar to [addParameter], except that if the
      * value is null or the collection is empty, the parameter is not added.
      *
      * @param param  The parameter name.
@@ -154,7 +154,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional int array parameter to an incomplete literal.  This is
-     * similar to [.addParameter], except that if the value
+     * similar to [addParameter], except that if the value
      * is null, the parameter is not added.
      *
      * @param param  The parameter name
@@ -181,7 +181,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional long array parameter to an incomplete literal.  This is
-     * similar to [.addParameter], except that if the
+     * similar to [addParameter], except that if the
      * value is null, the parameter is not added.
      *
      * @param param  The parameter name.
@@ -208,7 +208,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional double array parameter to an incomplete literal.  This
-     * is similar to [.addParameter], except that if the
+     * is similar to [addParameter], except that if the
      * value is null, the parameter is not added.
      *
      * @param param  The parameter name.
@@ -235,7 +235,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional boolean array parameter to an incomplete literal.  This
-     * is similar to [.addParameter], except that if
+     * is similar to [addParameter], except that if
      * the value is null, the parameter is not added.
      *
      * @param param  The parameter name.
@@ -257,7 +257,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional [JsonArray] parameter to an incomplete
-     * literal.  This is similar to [.addParameter],
+     * literal.  This is similar to [addParameter],
      * except that if the value is null, the parameter is not added.
      *
      * @param param  The parameter name.
@@ -279,7 +279,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional array literal parameter to an incomplete literal.  This
-     * is similar to [.addParameter], except
+     * is similar to [addParameter], except
      * that if the value is null, the parameter is not added.
      *
      * @param param  The parameter name.
@@ -301,7 +301,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional object-valued parameter to an incomplete literal.  This
-     * is similar to [.addParameter], except that if
+     * is similar to [addParameter], except that if
      * the value is null, the parameter is not added.
      *
      * @param param  The parameter name.
@@ -363,7 +363,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional JSON object parameter to an incomplete literal.  This is
-     * similar to [.addParameter], except that if the
+     * similar to [addParameter], except that if the
      * value is null, the parameter is not added.
      *
      * @param param  The parameter name.
@@ -385,7 +385,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional reference parameter to an incomplete literal.  This is
-     * similar to [.addParameter], except that if
+     * similar to [addParameter], except that if
      * the value is null, the parameter is not added.
      *
      * @param param  The parameter name
@@ -407,7 +407,7 @@ class JsonLiteral internal constructor(internal val myStringBuilder: StringBuild
 
     /**
      * Add an optional string parameter to an incomplete literal.  This is
-     * similar to [.addParameter], except that if the
+     * similar to [addParameter], except that if the
      * value is null, the parameter is not added.
      *
      * @param param  The parameter name.

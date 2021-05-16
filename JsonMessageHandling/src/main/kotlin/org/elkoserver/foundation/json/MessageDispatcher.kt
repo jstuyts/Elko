@@ -91,20 +91,20 @@ class MessageDispatcher(
      * This proceeds as follows:
      *
      * First, if 'from' is an instance of [SourceRetargeter], then
-     * 'from' is replaced with result of calling its [ ][SourceRetargeter.findEffectiveSource] method.
+     * 'from' is replaced with result of calling its [SourceRetargeter.findEffectiveSource] method.
      *
      * Second, if 'target' is an instance of [MessageRetargeter], then
-     * 'target' is replaced with the result of calling its [ ][MessageRetargeter.findActualTarget] method.  This
+     * 'target' is replaced with the result of calling its [MessageRetargeter.findActualTarget] method.  This
      * step is repeated as many times as necessary until 'target' is no longer
      * an instance of [MessageRetargeter].
      *
      * If 'target' has a method with the same name as the message verb in
      * 'message' and which matches the message handler signature pattern as
-     * described in the description of the [addClass()][.addClass] method,
+     * described in the description of the [addClass] method,
      * then this method is invoked to handle the message and the message
      * dispatch operation is complete.  Note: for this to work, the 'target's
      * class must have previously been inserted into this dispatcher using the
-     * [addClass()][.addClass] method.
+     * [addClass] method.
      *
      * If the previous step failed to located a message handler method, but
      * 'target' is an instance of [DefaultDispatchTarget], then its

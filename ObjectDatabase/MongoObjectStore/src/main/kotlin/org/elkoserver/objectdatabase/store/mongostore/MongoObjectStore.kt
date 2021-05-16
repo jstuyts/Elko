@@ -14,9 +14,6 @@ import java.util.LinkedList
 /**
  * An [ObjectStore] implementation that stores objects in a MongoDB NoSQL
  * object database.
- *
- * Constructor.  Currently there is nothing to do, since all the real
- * initialization work happens in [initialize()][.initialize].
  */
 @Suppress("unused")
 class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {

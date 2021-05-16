@@ -4,7 +4,7 @@ package org.elkoserver.server.context
  * Interface implemented by objects that wish to be notified when users arrive
  * in or depart from context.
  *
- * This notification can be arranged by calling the [ ][Context.registerUserWatcher] method on the [ ] in which one has an interest in the comings and goings of users.
+ * This notification can be arranged by calling the [Context.registerUserWatcher] method on the [ ] in which one has an interest in the comings and goings of users.
  */
 interface UserWatcher {
     /**

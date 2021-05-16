@@ -1,7 +1,5 @@
 package org.elkoserver.server.presence
 
-import java.util.NoSuchElementException
-
 /**
  * Iterator over a collection that excludes a distinguished element.
  *
@@ -36,7 +34,7 @@ internal abstract class ExcludingIterator<V> protected constructor(private val m
 
     /**
      * Returns true if the iteration has more elements.  (In other words,
-     * returns true if [.next] would return an element rather than
+     * returns true if [next] would return an element rather than
      * throwing an exception.)
      *
      * @return true if the iterator has more elements.

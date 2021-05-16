@@ -12,7 +12,7 @@ internal class FilteringIterator<From, out To>(private val myBase: Iterator<From
 
     /**
      * Returns true if the iteration has more elements.  (In other words,
-     * returns true if [.next] would return an element rather than
+     * returns true if [next] would return an element rather than
      * throwing an exception.)
      *
      * @return true if the iterator has more elements.

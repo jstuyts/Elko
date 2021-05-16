@@ -11,7 +11,7 @@ import com.grack.nanojson.JsonObject
  * corresponding to the specific message it is trying to deliver.  If such a
  * method is found, that method is invoked.  However, if there is no such
  * method, then the dispatcher checks whether the object implements this
- * interface; if it does, then it invokes the [ handleMessage()][.handleMessage] method to handle it.
+ * interface; if it does, then it invokes the [handleMessage] method to handle it.
  */
 interface DefaultDispatchTarget {
     /**

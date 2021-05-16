@@ -9,7 +9,7 @@ package org.elkoserver.server.context
  * modified state associated with the context or any of the objects contained
  * by it is written to persistent storage and the context and its attendent
  * objects become eligible for garbage collection.  Prior to doing this,
- * however, the server first calls the [.noteContextShutdown] method of
+ * however, the server first calls the [noteContextShutdown] method of
  * each object implementing this interface that has registered an interest by
  * called the context's [ registerContextShutdownWatcher()][Context.registerContextShutdownWatcher] method.
  *

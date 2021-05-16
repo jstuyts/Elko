@@ -289,7 +289,7 @@ internal constructor(name: String,
 
     /**
      * Close this context, even if it has been retained by one or more calls to
-     * the [.retain] method, and even if there are still users in it
+     * the [retain] method, and even if there are still users in it
      * (this means kicking those users off).
      */
     fun forceClose() {
@@ -298,7 +298,7 @@ internal constructor(name: String,
 
     /**
      * Close this context, even if it has been retained by one or more calls to
-     * the [.retain] method, and even if there are still users in it
+     * the [retain] method, and even if there are still users in it
      * (this means kicking those users off).
      *
      * @param dup  true if this is being done to eliminate a duplicate context.
@@ -458,11 +458,11 @@ internal constructor(name: String,
     }
 
     /**
-     * Release an earlier call to [.retain].  When `release` has
-     * been called the same number of times as [.retain] has been, the
+     * Release an earlier call to [retain].  When `release` has
+     * been called the same number of times as [retain] has been, the
      * context is free to shut down when empty.  If the context is already
      * empty, it will be shut down immediately.  Calls to this method in excess
-     * of the number of calls to [.retain] will be ignored.
+     * of the number of calls to [retain] will be ignored.
      */
     private fun release() {
         if (myRetainCount > 0) {
@@ -474,8 +474,8 @@ internal constructor(name: String,
     /**
      * Keep this context open even if all users exit (normally a context will
      * be shut down automatically after the last user leaves).  Each call to
-     * `retain` must be matched by a corresponding call to [ ][.release] in order for the context to be permitted to close normally
-     * (though it can still be closed by called [.forceClose]).
+     * `retain` must be matched by a corresponding call to [release] in order for the context to be permitted to close normally
+     * (though it can still be closed by called [forceClose]).
      */
     private fun retain() {
         myRetainCount += 1

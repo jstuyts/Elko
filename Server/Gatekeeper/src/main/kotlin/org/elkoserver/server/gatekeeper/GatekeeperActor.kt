@@ -74,8 +74,8 @@ internal class GatekeeperActor(
      * Do the actual work of authorizing an administrator.
      *
      * After a call to this method returns true, this actor will be an
-     * authorized administrator, meaning that [.isAdmin] will return true
-     * and [.ensureAuthorizedAdmin] will succeed without throwing an
+     * authorized administrator, meaning that [isAdmin] will return true
+     * and [ensureAuthorizedAdmin] will succeed without throwing an
      * exception.
      *
      * This method is invoked in response to receipt of an "auth" message by

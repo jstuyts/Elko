@@ -12,7 +12,7 @@ import org.elkoserver.json.Encodable
  * regardless of application.
  *
  * Subclasses need to implement application-specific mod logic as well as the
- * [encode()][Encodable.encode] method called for by the [ ] interface.
+ * [encode()][Encodable.encode] method called for by the [Encodable] interface.
  */
 abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneable {
     /** The object to which this Mod is attached, or null if unattached.  */
@@ -20,12 +20,10 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
 
     /**
      * Test if this mod is ephemeral.  If a mod is ephemeral, its state is
-     * not persisted.  A mod is made ephemeral by calling the [ ][.markAsEphemeral] method.
+     * not persisted.  A mod is made ephemeral by calling the [markAsEphemeral] method.
      *
      * @return true if the mod is ephemeral, false if not.
      */
-    /** Flag indicating that this mod disappears when leaving the context or
-     * when the object to which it is attached is persisted.  */
     var isEphemeral: Boolean = false
         private set
 
@@ -84,10 +82,9 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
     /**
      * Guard function to guarantee that an operation being attempted by a user
      * is being applied to an object that that user is holding.  If this mod is
-     * not attached to such an object, this method will throw a [ ] exception.
+     * not attached to such an object, this method will throw a [MessageHandlerException] exception.
      *
      * @param who  The user who is attempting the operation.
-     *
      * @throws MessageHandlerException if the test fails.
      */
     protected fun ensureHolding(who: User) {
@@ -135,7 +132,7 @@ abstract class Mod protected constructor() : Encodable, DispatchTarget, Cloneabl
     /**
      * Guard function to guarantee that an operation being attempted by a user
      * on an object that is contained by the user's context.  If this mod is
-     * not attached to such an object, this method will throw a [ ].
+     * not attached to such an object, this method will throw a [MessageHandlerException].
      *
      * @param who  The user who is attempting the operation.
      *

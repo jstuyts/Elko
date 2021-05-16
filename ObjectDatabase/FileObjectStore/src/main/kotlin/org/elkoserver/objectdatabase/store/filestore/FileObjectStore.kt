@@ -11,9 +11,6 @@ import java.util.LinkedList
  * A simple [ObjectStore] implementation that stores objects in text
  * files, one file per object.  Each file contains a JSON-encoded
  * representation of the object it stores.
- *
- * Constructor.  Currently there is nothing to do, since all the real
- * initialization work happens in [initialize()][.initialize].
  */
 class FileObjectStore internal constructor(arguments: ObjectStoreArguments, private val fileOperations: FileOperations) : ObjectStore {
     /** The directory in which the object "database" contents are stored.  */

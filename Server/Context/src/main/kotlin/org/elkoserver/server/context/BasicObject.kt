@@ -47,11 +47,10 @@ abstract class BasicObject internal constructor(
 
     /**
      * Test if this object is ephemeral.  If an object is ephemeral, its state
-     * is not persisted.  An object is made ephemeral by calling the [ ][.markAsEphemeral] method.
+     * is not persisted.  An object is made ephemeral by calling the [markAsEphemeral] method.
      *
      * @return true if the object is ephemeral, false if not.
      */
-    /** Flag that this object is ephemeral.  */
     var isEphemeral: Boolean = false
         private set
 
@@ -281,7 +280,7 @@ abstract class BasicObject internal constructor(
     /**
      * Obtain an iterable for this object's contents.  If the object has no
      * contents, either because it is empty or because it is not a container,
-     * the iterable returned will be empty (i.e., its iterator's [ ][java.util.Iterator.hasNext] method will return false right
+     * the iterable returned will be empty (i.e., its iterators [java.util.Iterator.hasNext] method will return false right
      * away) but null will never be returned.
      *
      * @return an iterable that iterates over this object's contents.
@@ -415,7 +414,7 @@ abstract class BasicObject internal constructor(
     }
 
     /**
-     * Mark this object as having been deleted.  Note that unlike [ ][.markAsChanged], there is no corresponding method to unmark deletion;
+     * Mark this object as having been deleted.  Note that unlike [markAsChanged], there is no corresponding method to unmark deletion;
      * this is a one-way trip.
      */
     fun markAsDeleted() {
@@ -516,27 +515,27 @@ abstract class BasicObject internal constructor(
      * description of the object will be transmitted to clients as part of the
      * description of the containing context.  Four cases are supported:
      *
-     * [.VIS_PUBLIC] indicates that the object is visible to anyone in
+     * [VIS_PUBLIC] indicates that the object is visible to anyone in
      * the context, i.e., its description will always be transmitted.
      *
-     * [.VIS_PERSONAL] indicates that the object's description will only
+     * [VIS_PERSONAL] indicates that the object's description will only
      * be sent to the user who is holding it and not to anyone else.
      *
-     * [.VIS_NONE] indicates that the object's description will never be
+     * [VIS_NONE] indicates that the object's description will never be
      * sent to anyone.
      *
-     * [.VIS_CONTAINER] indicates that the object inherits its visiblity
+     * [VIS_CONTAINER] indicates that the object inherits its visibility
      * from its container, i.e., its description will be transmitted to anyone
      * to whom its container's description is transmitted.
      *
      * If the visibility is not set by calling this method, a default
      * visibility rule will be applied, which is equivalent in every way to
-     * [.VIS_PUBLIC] except that it may be modified by calling this
+     * [VIS_PUBLIC] except that it may be modified by calling this
      * method.  Note also that users and contexts are always implicitly set to
-     * [.VIS_PUBLIC] regardless.
+     * [VIS_PUBLIC] regardless.
      *
      * @param visibility  The visibility setting.  This should be one of the
-     * constants [.VIS_PUBLIC], [.VIS_PERSONAL], [    ][.VIS_NONE], or [.VIS_CONTAINER].
+     * constants [VIS_PUBLIC], [VIS_PERSONAL], [VIS_NONE], or [VIS_CONTAINER].
      */
     fun setVisibility(visibility: Int) {
         if (myVisibility == VIS_DEFAULT) {

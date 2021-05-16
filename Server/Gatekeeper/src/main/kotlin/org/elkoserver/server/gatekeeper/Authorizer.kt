@@ -20,7 +20,7 @@ interface Authorizer {
      * each time the Gatekeeper receives a 'reserve' request from a client.
      * The various parameters are extracted from that message.  The result,
      * once available, should be passed to the object specified by the
-     * 'handler' parameter, by invoking the handler's [ ][ReservationResultHandler.handleReservation] method.
+     * 'handler' parameter, by invoking the handler's [ReservationResultHandler.handleReservation] method.
      *
      * @param protocol  The protocol the reservation seeker wants to use.
      * @param context  The context they wish to enter.
@@ -38,7 +38,7 @@ interface Authorizer {
      * called each time the Gatekeeper receives a 'setpassword' request from a
      * client.  The various parameters are extracted from that message.  The
      * result, once available, should be passed to the object specified by the
-     * 'handler' parameter, by invoking the handler's [ ][SetPasswordResultHandler.handle] method.
+     * 'handler' parameter, by invoking the handler's [SetPasswordResultHandler.handle] method.
      *
      * @param id  The user who is asking for this.
      * @param oldPassword  Current password, to check for permission.
