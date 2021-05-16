@@ -1,7 +1,11 @@
 package org.elkoserver.foundation.run.threadpoolexecutor
 
 import org.elkoserver.foundation.run.SlowServiceRunner
-import java.util.concurrent.*
+import java.util.concurrent.Callable
+import java.util.concurrent.Executor
+import java.util.concurrent.LinkedBlockingQueue
+import java.util.concurrent.ThreadPoolExecutor
+import java.util.concurrent.TimeUnit.SECONDS
 import java.util.function.Consumer
 
 /**
@@ -17,7 +21,7 @@ import java.util.function.Consumer
 class ThreadPoolExecutorSlowServiceRunner(private val myResultRunner: Executor, maxPoolSize: Int) : SlowServiceRunner {
 
     /** Executor to dole out work to a pool of threads that it manages.  */
-    private val myExecutor: ThreadPoolExecutor = ThreadPoolExecutor(1, maxPoolSize, 60, TimeUnit.SECONDS, LinkedBlockingQueue())
+    private val myExecutor: ThreadPoolExecutor = ThreadPoolExecutor(1, maxPoolSize, 60, SECONDS, LinkedBlockingQueue())
 
     /**
      * Enqueue a task to be executed via the slow path.  Unlike most code

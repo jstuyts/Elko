@@ -11,7 +11,16 @@ import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
 import org.elkoserver.json.getStringOrNull
 import org.elkoserver.objectdatabase.ObjectStoreFactory.createAndInitializeObjectStore
-import org.elkoserver.objectdatabase.store.*
+import org.elkoserver.objectdatabase.store.GetResultHandler
+import org.elkoserver.objectdatabase.store.ObjectDesc
+import org.elkoserver.objectdatabase.store.ObjectStore
+import org.elkoserver.objectdatabase.store.PutDesc
+import org.elkoserver.objectdatabase.store.QueryDesc
+import org.elkoserver.objectdatabase.store.RequestDesc
+import org.elkoserver.objectdatabase.store.RequestResultHandler
+import org.elkoserver.objectdatabase.store.ResultDesc
+import org.elkoserver.objectdatabase.store.UpdateDesc
+import org.elkoserver.objectdatabase.store.UpdateResultDesc
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.concurrent.Executor
 import java.util.function.Consumer
@@ -57,7 +66,8 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * Handler to call the store's 'get' method.  Runs in the object database
      * thread.
      */
-    private inner class GetCallHandler(private val myRef: String, private val myRunnable: Consumer<Any?>) : Runnable, GetResultHandler {
+    private inner class GetCallHandler(private val myRef: String, private val myRunnable: Consumer<Any?>) : Runnable,
+        GetResultHandler {
         override fun run() {
             val what = arrayOf(RequestDesc(myRef, true))
             myObjectStore.getObjects(what, this)
@@ -108,7 +118,8 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
      * Handler to call the store's 'put' method.  Runs in the object database
      * thread.
      */
-    private inner class PutCallHandler(private val myRef: String, private val myObj: JsonLiteral, private val myRunnable: Consumer<Any?>?) : Runnable, RequestResultHandler {
+    private inner class PutCallHandler(private val myRef: String, private val myObj: JsonLiteral, private val myRunnable: Consumer<Any?>?) : Runnable,
+        RequestResultHandler {
         override fun run() {
             val what = arrayOf(PutDesc(myRef, myObj.sendableString()))
             myObjectStore.putObjects(what, this)

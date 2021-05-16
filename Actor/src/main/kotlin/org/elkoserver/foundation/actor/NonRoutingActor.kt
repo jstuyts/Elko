@@ -1,7 +1,12 @@
 package org.elkoserver.foundation.actor
 
 import com.grack.nanojson.JsonObject
-import org.elkoserver.foundation.json.*
+import org.elkoserver.foundation.json.Deliverer
+import org.elkoserver.foundation.json.DispatchTarget
+import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.foundation.json.MessageDispatcher
+import org.elkoserver.foundation.json.MessageHandlerException
+import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
 import org.elkoserver.json.JsonLiteralFactory.targetVerb
 import org.elkoserver.json.Referenceable
@@ -30,10 +35,10 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param myDispatcher  Dispatcher to invoke message handlers based on 'op'.
  */
 abstract class NonRoutingActor protected constructor(
-        connection: Connection,
-        private val myDispatcher: MessageDispatcher,
-        protected val gorgel: Gorgel,
-        mustSendDebugReplies: Boolean) : Actor(connection, mustSendDebugReplies), Referenceable, DispatchTarget {
+    connection: Connection,
+    private val myDispatcher: MessageDispatcher,
+    protected val gorgel: Gorgel,
+    mustSendDebugReplies: Boolean) : Actor(connection, mustSendDebugReplies), Referenceable, DispatchTarget {
 
     /**
      * Send a 'debug' message over the connection, addressed to the 'error'

@@ -1,7 +1,11 @@
 package org.elkoserver.server.gatekeeper.passwd
 
 import org.elkoserver.objectdatabase.ObjectDatabase
-import org.elkoserver.server.gatekeeper.*
+import org.elkoserver.server.gatekeeper.Authorizer
+import org.elkoserver.server.gatekeeper.Gatekeeper
+import org.elkoserver.server.gatekeeper.ReservationResult
+import org.elkoserver.server.gatekeeper.ReservationResultHandler
+import org.elkoserver.server.gatekeeper.SetPasswordResultHandler
 import java.util.Random
 import java.util.function.Consumer
 import kotlin.math.abs
@@ -15,11 +19,11 @@ import kotlin.math.abs
  * @param myRandom Random number generator, for generating IDs.
  */
 class PasswdAuthorizer(
-        private val myRandom: Random,
-        private val myGatekeeper: Gatekeeper,
-        private val myObjectDatabase: ObjectDatabase,
-        private val amAnonymousOK: Boolean,
-        private val myActorIDBase: String) : Authorizer {
+    private val myRandom: Random,
+    private val myGatekeeper: Gatekeeper,
+    private val myObjectDatabase: ObjectDatabase,
+    private val amAnonymousOK: Boolean,
+    private val myActorIDBase: String) : Authorizer {
 
     init {
         myObjectDatabase.apply {
@@ -122,7 +126,8 @@ class PasswdAuthorizer(
      */
     override fun reserve(protocol: String, context: String, id: String?,
                          name: String?, password: String?,
-                         handler: ReservationResultHandler) {
+                         handler: ReservationResultHandler
+    ) {
         if (id == null && !amAnonymousOK) {
             handler.handleFailure("anonymous reservations not allowed")
         } else {
@@ -220,7 +225,8 @@ class PasswdAuthorizer(
      */
     override fun setPassword(id: String, oldPassword: String?,
                              newPassword: String?,
-                             handler: SetPasswordResultHandler) {
+                             handler: SetPasswordResultHandler
+    ) {
         getActor(id) { obj: Any? ->
             val failure =
                     if (obj != null) {

@@ -11,13 +11,39 @@ import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramerFactoryFactor
 import org.elkoserver.foundation.byteioframer.rtcp.RtcpRequestByteIoFramerFactoryFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIoFramerFactory
 import org.elkoserver.foundation.byteioframer.websocket.WebsocketByteIoFramerFactoryFactory
-import org.elkoserver.foundation.json.*
-import org.elkoserver.foundation.net.*
+import org.elkoserver.foundation.json.AlwaysBaseTypeResolver
+import org.elkoserver.foundation.json.BaseCommGorgelInjector
+import org.elkoserver.foundation.json.ClassspecificGorgelInjector
+import org.elkoserver.foundation.json.ClockInjector
+import org.elkoserver.foundation.json.ConstructorInvoker
+import org.elkoserver.foundation.json.JsonToObjectDeserializer
+import org.elkoserver.foundation.json.MessageDispatcher
+import org.elkoserver.foundation.json.MessageDispatcherFactory
+import org.elkoserver.foundation.json.MethodInvoker
+import org.elkoserver.foundation.net.BaseConnectionSetup
 import org.elkoserver.foundation.net.Communication.COMMUNICATION_CATEGORY_TAG
+import org.elkoserver.foundation.net.Listener
+import org.elkoserver.foundation.net.ListenerFactory
+import org.elkoserver.foundation.net.SelectThread
+import org.elkoserver.foundation.net.SslContextSgd
+import org.elkoserver.foundation.net.TcpConnection
+import org.elkoserver.foundation.net.TcpConnectionFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
-import org.elkoserver.foundation.net.http.server.*
-import org.elkoserver.foundation.net.rtcp.server.*
+import org.elkoserver.foundation.net.http.server.HttpConnectionSetupFactory
+import org.elkoserver.foundation.net.http.server.HttpMessageHandler
+import org.elkoserver.foundation.net.http.server.HttpMessageHandlerFactory
+import org.elkoserver.foundation.net.http.server.HttpServerFactory
+import org.elkoserver.foundation.net.http.server.HttpSessionConnection
+import org.elkoserver.foundation.net.http.server.HttpSessionConnectionFactory
+import org.elkoserver.foundation.net.http.server.JsonHttpFramer
+import org.elkoserver.foundation.net.rtcp.server.RtcpConnectionSetupFactory
+import org.elkoserver.foundation.net.rtcp.server.RtcpMessageHandler
+import org.elkoserver.foundation.net.rtcp.server.RtcpMessageHandlerFactory
+import org.elkoserver.foundation.net.rtcp.server.RtcpMessageHandlerFactoryFactory
+import org.elkoserver.foundation.net.rtcp.server.RtcpServerFactory
+import org.elkoserver.foundation.net.rtcp.server.RtcpSessionConnection
+import org.elkoserver.foundation.net.rtcp.server.RtcpSessionConnectionFactory
 import org.elkoserver.foundation.net.tcp.client.TcpClientFactory
 import org.elkoserver.foundation.net.tcp.server.TcpConnectionSetupFactory
 import org.elkoserver.foundation.net.tcp.server.TcpServerFactory
@@ -27,17 +53,41 @@ import org.elkoserver.foundation.net.zmq.server.ZeromqConnectionSetupFactory
 import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRunner
-import org.elkoserver.foundation.server.*
 import org.elkoserver.foundation.server.BrokerActorFactory
+import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
+import org.elkoserver.foundation.server.LoadWatcher
+import org.elkoserver.foundation.server.ObjectDatabaseFactory
+import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
+import org.elkoserver.foundation.server.ServerLoadMonitor
+import org.elkoserver.foundation.server.ServiceActor
+import org.elkoserver.foundation.server.ServiceActorFactory
+import org.elkoserver.foundation.server.ServiceLink
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.LongIdGenerator
 import org.elkoserver.idgeneration.RandomIdGenerator
-import org.elkoserver.objectdatabase.*
+import org.elkoserver.objectdatabase.DirectObjectDatabaseFactory
+import org.elkoserver.objectdatabase.DirectObjectDatabaseRunnerFactory
+import org.elkoserver.objectdatabase.GetRequestFactory
+import org.elkoserver.objectdatabase.ObjectDatabaseDirect
+import org.elkoserver.objectdatabase.ObjectDatabaseRepository
+import org.elkoserver.objectdatabase.ObjectDatabaseRepositoryActor
+import org.elkoserver.objectdatabase.PutRequestFactory
+import org.elkoserver.objectdatabase.QueryRequestFactory
+import org.elkoserver.objectdatabase.RemoveRequestFactory
+import org.elkoserver.objectdatabase.RepositoryObjectDatabaseFactory
+import org.elkoserver.objectdatabase.UpdateRequestFactory
 import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
 import org.elkoserver.util.trace.slf4j.Gorgel
-import org.ooverkommelig.*
+import org.ooverkommelig.D
+import org.ooverkommelig.ObjectGraphConfiguration
+import org.ooverkommelig.Once
+import org.ooverkommelig.SubGraphDefinition
+import org.ooverkommelig.opt
+import org.ooverkommelig.req
 import java.security.SecureRandom
 import java.time.Clock
 
@@ -134,33 +184,33 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val tcpConnectionFactory by Once {
         TcpConnectionFactory(
-                req(runner),
-                req(serverLoadMonitor),
-                req(provided.clock()),
-                req(tcpConnectionGorgel),
-                req(tcpConnectionCommGorgel),
-                req(connectionIdGenerator))
+            req(runner),
+            req(serverLoadMonitor),
+            req(provided.clock()),
+            req(tcpConnectionGorgel),
+            req(tcpConnectionCommGorgel),
+            req(connectionIdGenerator))
     }
 
     val selectThread by Once {
         SelectThread(
-                opt(optionalSslContext),
-                req(selectThreadCommGorgel),
-                req(tcpConnectionFactory),
-                req(listenerFactory))
+            opt(optionalSslContext),
+            req(selectThreadCommGorgel),
+            req(tcpConnectionFactory),
+            req(listenerFactory))
     }
-            .dispose(SelectThread::shutDown)
+        .dispose(SelectThread::shutDown)
 
     val directObjectDatabaseRunnerFactory by Once { DirectObjectDatabaseRunnerFactory() }
 
     val directObjectDatabaseFactory by Once {
         DirectObjectDatabaseFactory(
-                req(provided.props()),
-                req(directObjectDatabaseGorgel),
-                req(directObjectDatabaseRunnerFactory),
-                req(provided.baseGorgel()),
-                req(jsonToObjectDeserializer),
-                req(runner))
+            req(provided.props()),
+            req(directObjectDatabaseGorgel),
+            req(directObjectDatabaseRunnerFactory),
+            req(provided.baseGorgel()),
+            req(jsonToObjectDeserializer),
+            req(runner))
     }
 
     val chunkyByteArrayInputStreamFactory by Once {
@@ -185,69 +235,69 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val httpSessionConnectionFactory by Once {
         HttpSessionConnectionFactory(
-                req(runner),
-                req(serverLoadMonitor),
-                req(provided.timer()),
-                req(provided.clock()),
-                req(httpSessionConnectionCommGorgel),
-                req(baseCommGorgel),
-                req(sessionIdGenerator),
-                req(connectionIdGenerator))
+            req(runner),
+            req(serverLoadMonitor),
+            req(provided.timer()),
+            req(provided.clock()),
+            req(httpSessionConnectionCommGorgel),
+            req(baseCommGorgel),
+            req(sessionIdGenerator),
+            req(connectionIdGenerator))
     }
 
     val httpServerFactory by Once {
         HttpServerFactory(
-                req(provided.props()),
-                req(provided.timer()),
-                req(httpMessageHandlerCommGorgel),
-                req(httpMessageHandlerFactoryCommGorgel),
-                req(tcpServerFactory),
-                req(httpRequestByteIoFramerFactoryFactory),
-                req(httpSessionConnectionFactory))
+            req(provided.props()),
+            req(provided.timer()),
+            req(httpMessageHandlerCommGorgel),
+            req(httpMessageHandlerFactoryCommGorgel),
+            req(tcpServerFactory),
+            req(httpRequestByteIoFramerFactoryFactory),
+            req(httpSessionConnectionFactory))
     }
 
     val httpConnectionSetupFactory by Once {
         HttpConnectionSetupFactory(
-                req(provided.props()),
-                req(httpServerFactory),
-                req(baseConnectionSetupGorgel),
-                req(jsonHttpFramerCommGorgel),
-                req(mustSendDebugReplies))
+            req(provided.props()),
+            req(httpServerFactory),
+            req(baseConnectionSetupGorgel),
+            req(jsonHttpFramerCommGorgel),
+            req(mustSendDebugReplies))
     }
 
     val rtcpSessionConnectionFactory by Once {
         RtcpSessionConnectionFactory(
-                req(rtcpSessionConnectionGorgel),
-                req(rtcpSessionConnectionCommGorgel),
-                req(runner),
-                req(serverLoadMonitor),
-                req(provided.timer()),
-                req(provided.clock()),
-                req(sessionIdGenerator),
-                req(connectionIdGenerator))
+            req(rtcpSessionConnectionGorgel),
+            req(rtcpSessionConnectionCommGorgel),
+            req(runner),
+            req(serverLoadMonitor),
+            req(provided.timer()),
+            req(provided.clock()),
+            req(sessionIdGenerator),
+            req(connectionIdGenerator))
     }
 
     val rtcpMessageHandlerFactoryFactory by Once {
         RtcpMessageHandlerFactoryFactory(
-                req(provided.props()),
-                req(provided.timer()),
-                req(rtcpMessageHandlerCommGorgel),
-                req(rtcpSessionConnectionFactory))
+            req(provided.props()),
+            req(provided.timer()),
+            req(rtcpMessageHandlerCommGorgel),
+            req(rtcpSessionConnectionFactory))
     }
 
     val rtcpServerFactory by Once {
         RtcpServerFactory(
-                req(rtcpMessageHandlerFactoryFactory),
-                req(tcpServerFactory),
-                req(rtcpByteIoFramerFactoryFactory))
+            req(rtcpMessageHandlerFactoryFactory),
+            req(tcpServerFactory),
+            req(rtcpByteIoFramerFactoryFactory))
     }
 
     val rtcpConnectionSetupFactory by Once {
         RtcpConnectionSetupFactory(
-                req(provided.props()),
-                req(rtcpServerFactory),
-                req(baseConnectionSetupGorgel),
-                req(rtcpMessageHandlerFactoryGorgel))
+            req(provided.props()),
+            req(rtcpServerFactory),
+            req(baseConnectionSetupGorgel),
+            req(rtcpMessageHandlerFactoryGorgel))
     }
 
     val tcpServerFactory by Once {
@@ -256,36 +306,36 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val tcpConnectionSetupFactory by Once {
         TcpConnectionSetupFactory(
-                req(provided.props()),
-                req(tcpServerFactory),
-                req(baseConnectionSetupGorgel),
-                req(jsonByteIoFramerFactoryFactory))
+            req(provided.props()),
+            req(tcpServerFactory),
+            req(baseConnectionSetupGorgel),
+            req(jsonByteIoFramerFactoryFactory))
     }
 
     val websocketServerFactory by Once {
         WebsocketServerFactory(
-                req(tcpServerFactory),
-                req(websocketByteIoFramerFactoryFactory))
+            req(tcpServerFactory),
+            req(websocketByteIoFramerFactoryFactory))
     }
 
     val websocketConnectionSetupFactory by Once {
         WebsocketConnectionSetupFactory(
-                req(provided.props()),
-                req(websocketServerFactory),
-                req(baseConnectionSetupGorgel))
+            req(provided.props()),
+            req(websocketServerFactory),
+            req(baseConnectionSetupGorgel))
     }
 
     val zeromqConnectionSetupFactory by Once {
         ZeromqConnectionSetupFactory(
-                req(provided.props()),
-                req(runner),
-                req(serverLoadMonitor),
-                req(baseConnectionSetupGorgel),
-                req(baseCommGorgel),
-                req(zeromqThreadCommGorgel),
-                req(connectionIdGenerator),
-                req(provided.clock()),
-                req(jsonByteIoFramerFactoryFactory))
+            req(provided.props()),
+            req(runner),
+            req(serverLoadMonitor),
+            req(baseConnectionSetupGorgel),
+            req(baseCommGorgel),
+            req(zeromqThreadCommGorgel),
+            req(connectionIdGenerator),
+            req(provided.clock()),
+            req(jsonByteIoFramerFactoryFactory))
     }
 
     val tcpClientFactory by Once {
@@ -294,18 +344,18 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val connectionRetrierFactory by Once {
         ConnectionRetrierFactory(
-                req(tcpClientFactory),
-                req(provided.timer()),
-                req(connectionRetrierWithoutLabelGorgel),
-                req(jsonByteIoFramerFactoryFactory))
+            req(tcpClientFactory),
+            req(provided.timer()),
+            req(connectionRetrierWithoutLabelGorgel),
+            req(jsonByteIoFramerFactoryFactory))
     }
 
     val connectionSetupFactoriesByCode by Once {
         mapOf("http" to req(httpConnectionSetupFactory),
-                "rtcp" to req(rtcpConnectionSetupFactory),
-                "tcp" to req(tcpConnectionSetupFactory),
-                "ws" to req(websocketConnectionSetupFactory),
-                "zmq" to req(zeromqConnectionSetupFactory))
+            "rtcp" to req(rtcpConnectionSetupFactory),
+            "tcp" to req(tcpConnectionSetupFactory),
+            "ws" to req(websocketConnectionSetupFactory),
+            "zmq" to req(zeromqConnectionSetupFactory))
     }
 
     val messageDispatcher by Once {
@@ -324,60 +374,60 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val server by Once {
         Server(
-                req(provided.props()),
-                req(serverDescription),
-                req(serverGorgel),
-                req(serviceLinkGorgel),
-                req(brokerActorFactory),
-                req(serviceActorFactory),
-                req(messageDispatcher),
-                req(listenerConfigurationFromPropertiesFactory),
-                req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
-                req(serverTagGenerator),
-                req(connectionSetupFactoriesByCode),
-                req(connectionRetrierFactory))
+            req(provided.props()),
+            req(serverDescription),
+            req(serverGorgel),
+            req(serviceLinkGorgel),
+            req(brokerActorFactory),
+            req(serviceActorFactory),
+            req(messageDispatcher),
+            req(listenerConfigurationFromPropertiesFactory),
+            req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
+            req(serverTagGenerator),
+            req(connectionSetupFactoriesByCode),
+            req(connectionRetrierFactory))
     }
-            .wire {
-                it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
+        .wire {
+            it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
+        }
+        .init {
+            if (it.startListeners("conf.listen", req(brokerServiceFactory)) == 0) {
+                req(brokerBootGorgel).error("no listeners specified")
             }
-            .init {
-                if (it.startListeners("conf.listen", req(brokerServiceFactory)) == 0) {
-                    req(brokerBootGorgel).error("no listeners specified")
-                }
-                for (service in it.services()) {
-                    service.providerID = 0
-                    req(broker).addService(service)
-                }
+            for (service in it.services()) {
+                service.providerID = 0
+                req(broker).addService(service)
             }
+        }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
-                req(provided.timer()),
-                req(provided.clock()),
-                req(provided.props()).intProperty("conf.load.time", ServerLoadMonitor.DEFAULT_LOAD_SAMPLE_TIMEOUT) * 1000)
+            req(provided.timer()),
+            req(provided.clock()),
+            req(provided.props()).intProperty("conf.load.time", ServerLoadMonitor.DEFAULT_LOAD_SAMPLE_TIMEOUT) * 1000)
     }
-            .init {
-                if (req(provided.props()).testProperty("conf.load.log")) {
-                    it.registerLoadWatcher(object : LoadWatcher {
-                        override fun noteLoadSample(loadFactor: Double) {
-                            req(serverLoadMonitorGorgel).d?.run { debug("Load $loadFactor") }
-                        }
-                    })
-                }
+        .init {
+            if (req(provided.props()).testProperty("conf.load.log")) {
+                it.registerLoadWatcher(object : LoadWatcher {
+                    override fun noteLoadSample(loadFactor: Double) {
+                        req(serverLoadMonitorGorgel).d?.run { debug("Load $loadFactor") }
+                    }
+                })
             }
+        }
 
     val sessionIdGenerator by Once { RandomIdGenerator(req(sessionIdRandom)) }
 
     val connectionIdGenerator by Once { LongIdGenerator() }
 
     val sessionIdRandom by Once(::SecureRandom)
-            .init { it.nextBoolean() }
+        .init { it.nextBoolean() }
 
     val jsonToObjectDeserializer by Once {
         JsonToObjectDeserializer(
-                req(jsonToObjectDeserializerGorgel),
-                req(constructorInvokerCommGorgel),
-                req(injectors))
+            req(jsonToObjectDeserializerGorgel),
+            req(constructorInvokerCommGorgel),
+            req(injectors))
     }
 
     val clockInjector by Once { ClockInjector(req(provided.clock())) }
@@ -389,7 +439,7 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
     val injectors by Once { listOf(req(clockInjector), req(baseCommGorgelInjector), req(classspecificGorgelInjector)) }
 
     val runner by Once { SingleThreadExecutorRunner() }
-            .dispose(SingleThreadExecutorRunner::orderlyShutdown)
+        .dispose(SingleThreadExecutorRunner::orderlyShutdown)
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
@@ -399,21 +449,21 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val repositoryObjectDatabaseFactory by Once {
         RepositoryObjectDatabaseFactory(
-                req(server),
-                req(serverDescription).serverName,
-                req(provided.props()),
-                req(repositoryObjectDatabaseGorgel),
-                req(odbActorGorgel),
-                req(messageDispatcherFactory),
-                req(provided.hostDescFromPropertiesFactory()),
-                req(jsonToObjectDeserializer),
-                req(getRequestFactory),
-                req(putRequestFactory),
-                req(updateRequestFactory),
-                req(queryRequestFactory),
-                req(removeRequestFactory),
-                req(mustSendDebugReplies),
-                req(connectionRetrierFactory))
+            req(server),
+            req(serverDescription).serverName,
+            req(provided.props()),
+            req(repositoryObjectDatabaseGorgel),
+            req(odbActorGorgel),
+            req(messageDispatcherFactory),
+            req(provided.hostDescFromPropertiesFactory()),
+            req(jsonToObjectDeserializer),
+            req(getRequestFactory),
+            req(putRequestFactory),
+            req(updateRequestFactory),
+            req(queryRequestFactory),
+            req(removeRequestFactory),
+            req(mustSendDebugReplies),
+            req(connectionRetrierFactory))
     }
 
     val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
@@ -447,23 +497,23 @@ internal class BrokerServerSgd(provided: Provided, configuration: ObjectGraphCon
 
     val broker: D<Broker> by Once {
         Broker(
-                req(server),
-                req(objectDatabaseFactory),
-                req(refTable),
-                req(brokerGorgel),
-                req(launcherTableGorgel),
-                req(provided.timer()),
-                req(baseCommGorgel),
-                req(startMode))
+            req(server),
+            req(objectDatabaseFactory),
+            req(refTable),
+            req(brokerGorgel),
+            req(launcherTableGorgel),
+            req(provided.timer()),
+            req(baseCommGorgel),
+            req(startMode))
     }
 
     val brokerServiceFactory by Once {
         BrokerServiceFactory(
-                req(broker),
-                req(brokerActorGorgel),
-                req(brokerActorCommGorgel),
-                req(clientOrdinalGenerator),
-                req(mustSendDebugReplies))
+            req(broker),
+            req(brokerActorGorgel),
+            req(brokerActorCommGorgel),
+            req(clientOrdinalGenerator),
+            req(mustSendDebugReplies))
     }
 
     val clientOrdinalGenerator by Once { LongOrdinalGenerator() }

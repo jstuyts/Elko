@@ -3,7 +3,11 @@ package org.elkoserver.foundation.server.metadata
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptInteger
 import org.elkoserver.foundation.json.OptString
-import org.elkoserver.json.*
+import org.elkoserver.json.Encodable
+import org.elkoserver.json.EncodeControl
+import org.elkoserver.json.JsonLiteral
+import org.elkoserver.json.JsonLiteralArray
+import org.elkoserver.json.JsonLiteralFactory
 
 /**
  * Description of a (possibly) registered service.

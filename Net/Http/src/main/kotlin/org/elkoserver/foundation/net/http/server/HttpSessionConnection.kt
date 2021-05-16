@@ -1,6 +1,10 @@
 package org.elkoserver.foundation.net.http.server
 
-import org.elkoserver.foundation.net.*
+import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.net.ConnectionBase
+import org.elkoserver.foundation.net.ConnectionCloseException
+import org.elkoserver.foundation.net.LoadMonitor
+import org.elkoserver.foundation.net.SessionUri
 import org.elkoserver.foundation.timer.TickNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.IdGenerator
@@ -20,11 +24,11 @@ import java.util.concurrent.Executor
  * @param sessionID  The session ID for the session.
  */
 class HttpSessionConnection internal constructor(
-        private val sessionFactory: HttpMessageHandlerFactory,
-        private val gorgel: Gorgel,
-        runner: Executor,
-        loadMonitor: LoadMonitor,
-        internal val sessionID: Long, timer: Timer, clock: Clock, commGorgel: Gorgel, idGenerator: IdGenerator)
+    private val sessionFactory: HttpMessageHandlerFactory,
+    private val gorgel: Gorgel,
+    runner: Executor,
+    loadMonitor: LoadMonitor,
+    internal val sessionID: Long, timer: Timer, clock: Clock, commGorgel: Gorgel, idGenerator: IdGenerator)
     : ConnectionBase(runner, loadMonitor, clock, commGorgel, idGenerator) {
 
     /** Server to client message sequence number.  */
@@ -121,7 +125,8 @@ class HttpSessionConnection internal constructor(
                 sendMsg(theHTTPCloseMarker)
             }
             connectionDied(
-                    ConnectionCloseException("Normal HTTP session close"))
+                    ConnectionCloseException("Normal HTTP session close")
+            )
         }
     }
 

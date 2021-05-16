@@ -1,6 +1,10 @@
 package org.elkoserver.server.workshop.bank
 
-import org.elkoserver.foundation.json.*
+import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
+import org.elkoserver.foundation.json.ClockUsingObject
+import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.foundation.json.OptBoolean
+import org.elkoserver.foundation.json.OptString
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
@@ -356,7 +360,7 @@ class BankWorker
      *
      * @param from  The sender of the request.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      */
     @JsonMethod("xid", "rep", "memo")
@@ -383,7 +387,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param src  Ref of transfer source account.
      * @param dst  Ref of transfer destination account.
@@ -460,7 +464,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param dst  Ref of destination account for new money.
      * @param amount  Quantity of money to create.
@@ -513,7 +517,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param src  Ref of the account from which the money should be taken.
      * @param amount  Quantity of money to destroy.
@@ -567,7 +571,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param src  Ref of account whose funds are to be encumbered.
      * @param amount  Quantity of money to encumber.
@@ -629,7 +633,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param encRef  Ref of the encumbrance to release.
      */
@@ -677,7 +681,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param dst  Ref of transfer destination account.
      * @param encRef  Ref of the encumbrance that will be the source of funds.
@@ -748,7 +752,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param encRef  Ref of the encumbrance that will be the source of funds.
      */
@@ -796,7 +800,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param encRef  Ref of the encumbrance that is of interest.
      */
@@ -846,7 +850,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param currs  Currencies in which the new accounts will be denominated.
      * @param owner  Ref of the user who is to be the owner of the new account.
@@ -883,7 +887,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param account  Ref of the account that is to be deleted.
      */
@@ -930,7 +934,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param accounts  Refs of the accounts of interest
      * @param encs  Flag that is true if reply should include encumbrance info.
@@ -938,7 +942,8 @@ class BankWorker
     @JsonMethod("key", "xid", "rep", "memo", "accounts", "encs")
     fun queryaccounts(from: WorkshopActor, key: String,
                       xid: OptString, rep: OptString, memo: OptString,
-                      accounts: Array<String>, encs: OptBoolean) {
+                      accounts: Array<String>, encs: OptBoolean
+    ) {
         val env = init(from, "queryaccounts", key, xid, rep, true, memo, false, clock) ?: return
         if (env.operationAuthorityFailure("acct")) {
             return
@@ -1022,7 +1027,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param account  Ref of the account to be frozen.
      */
@@ -1107,7 +1112,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param curr  Name for the new currency.
      */
@@ -1137,7 +1142,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      */
     @JsonMethod("key", "xid", "rep", "memo")
@@ -1170,7 +1175,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param auth  The desired authority of the new key.
      * @param currs  Optional currencies scoping the new key.
@@ -1213,7 +1218,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access.
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param cancel  Ref of the key to be cancelled.
      */
@@ -1245,7 +1250,7 @@ class BankWorker
      * @param from  The sender of the request.
      * @param key  Key from authorizing access (which will be copied).
      * @param xid  Optional client-side response tag.
-     * @param rep  Optioanl reference to client object to reply to.
+     * @param rep  Optional reference to client object to reply to.
      * @param memo  Transaction annotation, for logging.
      * @param optExpires  Date after which the new key will become invalid.
      */

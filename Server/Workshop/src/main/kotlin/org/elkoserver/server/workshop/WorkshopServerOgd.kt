@@ -6,7 +6,11 @@ import org.elkoserver.foundation.server.metadata.ServerMetadataSgd
 import org.elkoserver.foundation.timer.timerthread.TimerThreadTimerSgd
 import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.trace.slf4j.Gorgel
-import org.ooverkommelig.*
+import org.ooverkommelig.ConstantDefinition
+import org.ooverkommelig.D
+import org.ooverkommelig.ObjectGraphConfiguration
+import org.ooverkommelig.ObjectGraphDefinition
+import org.ooverkommelig.req
 import java.time.Clock
 
 internal class WorkshopServerOgd(provided: Provided, configuration: ObjectGraphConfiguration = ObjectGraphConfiguration()) : ObjectGraphDefinition(configuration) {

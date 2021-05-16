@@ -2,7 +2,11 @@ package org.elkoserver.server.workshop.bank
 
 import com.grack.nanojson.JsonArray
 import com.grack.nanojson.JsonObject
-import org.elkoserver.foundation.json.*
+import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
+import org.elkoserver.foundation.json.ClockUsingObject
+import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.json.PostInjectionInitializingObject
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteralFactory
@@ -58,11 +62,11 @@ import kotlin.math.abs
 @Suppress("SpellCheckingInspection")
 internal class Bank @JsonMethod("ref", "rootkey", "keys", "currencies", "databaseid")
 constructor(
-        private val myRef: String,
-        rootKeyRef: OptString,
-        keys: Array<Key>,
-        currencies: Array<Currency>,
-        private val databaseId: String)
+    private val myRef: String,
+    rootKeyRef: OptString,
+    keys: Array<Key>,
+    currencies: Array<Currency>,
+    private val databaseId: String)
     : Encodable, ClockUsingObject, ClassspecificGorgelUsingObject, PostInjectionInitializingObject {
     /** Currently defined currencies, by name.  */
     private val myCurrencies = mutableMapOf<String, Currency>().apply {

@@ -1,9 +1,14 @@
 package org.elkoserver.foundation.byteioframer.websocket
 
-import org.elkoserver.foundation.byteioframer.*
+import org.elkoserver.foundation.byteioframer.ByteIoFramer
+import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
+import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
+import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.foundation.byteioframer.http.HttpError
 import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramer
 import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramerFactory
+import org.elkoserver.foundation.byteioframer.readASCIILine
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -16,11 +21,11 @@ import java.util.Base64
  * and TCP.
  */
 class WebsocketByteIoFramerFactory(
-        private val websocketFramerGorgel: Gorgel,
-        private val myHostAddress: String,
-        private val mySocketUri: String,
-        private val chunkyByteArrayInputStreamFactory: ChunkyByteArrayInputStreamFactory,
-        private val jsonByteIoFramerFactory: JsonByteIoFramerFactory) : ByteIoFramerFactory {
+    private val websocketFramerGorgel: Gorgel,
+    private val myHostAddress: String,
+    private val mySocketUri: String,
+    private val chunkyByteArrayInputStreamFactory: ChunkyByteArrayInputStreamFactory,
+    private val jsonByteIoFramerFactory: JsonByteIoFramerFactory) : ByteIoFramerFactory {
 
     /** The host address, stripped of port number.  */
     private val myHostName: String
@@ -40,7 +45,8 @@ class WebsocketByteIoFramerFactory(
     inner class WebsocketFramer internal constructor(
             private val myReceiver: MessageReceiver,
             private val myLabel: String,
-            private val myIn: ChunkyByteArrayInputStream) : ByteIoFramer {
+            private val myIn: ChunkyByteArrayInputStream
+    ) : ByteIoFramer {
 
         /** Lower-level framer once we start actually reading messages.  */
         private var myMessageFramer: JsonByteIoFramer? = null

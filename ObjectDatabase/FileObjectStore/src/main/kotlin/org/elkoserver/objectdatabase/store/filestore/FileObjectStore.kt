@@ -3,7 +3,16 @@ package org.elkoserver.objectdatabase.store.filestore
 import com.grack.nanojson.JsonArray
 import com.grack.nanojson.JsonObject
 import org.elkoserver.json.JsonParsing
-import org.elkoserver.objectdatabase.store.*
+import org.elkoserver.objectdatabase.store.GetResultHandler
+import org.elkoserver.objectdatabase.store.ObjectDesc
+import org.elkoserver.objectdatabase.store.ObjectStore
+import org.elkoserver.objectdatabase.store.ObjectStoreArguments
+import org.elkoserver.objectdatabase.store.PutDesc
+import org.elkoserver.objectdatabase.store.QueryDesc
+import org.elkoserver.objectdatabase.store.RequestDesc
+import org.elkoserver.objectdatabase.store.RequestResultHandler
+import org.elkoserver.objectdatabase.store.ResultDesc
+import org.elkoserver.objectdatabase.store.UpdateDesc
 import java.io.File
 import java.util.LinkedList
 
@@ -12,7 +21,8 @@ import java.util.LinkedList
  * files, one file per object.  Each file contains a JSON-encoded
  * representation of the object it stores.
  */
-class FileObjectStore internal constructor(arguments: ObjectStoreArguments, private val fileOperations: FileOperations) : ObjectStore {
+class FileObjectStore internal constructor(arguments: ObjectStoreArguments, private val fileOperations: FileOperations) :
+    ObjectStore {
     /** The directory in which the object "database" contents are stored.  */
     private val myObjectDatabaseDirectory: File
 

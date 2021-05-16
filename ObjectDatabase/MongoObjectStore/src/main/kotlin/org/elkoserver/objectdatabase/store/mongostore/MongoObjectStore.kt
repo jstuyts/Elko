@@ -8,7 +8,17 @@ import com.mongodb.client.MongoDatabase
 import com.mongodb.client.model.UpdateOptions
 import org.bson.Document
 import org.elkoserver.json.JsonObjectSerialization
-import org.elkoserver.objectdatabase.store.*
+import org.elkoserver.objectdatabase.store.GetResultHandler
+import org.elkoserver.objectdatabase.store.ObjectDesc
+import org.elkoserver.objectdatabase.store.ObjectStore
+import org.elkoserver.objectdatabase.store.ObjectStoreArguments
+import org.elkoserver.objectdatabase.store.PutDesc
+import org.elkoserver.objectdatabase.store.QueryDesc
+import org.elkoserver.objectdatabase.store.RequestDesc
+import org.elkoserver.objectdatabase.store.RequestResultHandler
+import org.elkoserver.objectdatabase.store.ResultDesc
+import org.elkoserver.objectdatabase.store.UpdateDesc
+import org.elkoserver.objectdatabase.store.UpdateResultDesc
 import java.util.LinkedList
 
 /**

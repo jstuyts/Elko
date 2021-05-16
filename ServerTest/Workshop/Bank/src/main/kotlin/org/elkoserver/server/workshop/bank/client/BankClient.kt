@@ -1,6 +1,10 @@
 package org.elkoserver.server.workshop.bank.client
 
-import org.elkoserver.foundation.json.*
+import org.elkoserver.foundation.json.ClassspecificGorgelUsingObject
+import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.foundation.json.OptBoolean
+import org.elkoserver.foundation.json.OptInteger
+import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.json.JsonLiteralFactory
@@ -13,7 +17,8 @@ import java.util.function.Consumer
 /**
  * Internal object that acts as a client for the external 'bank' service.
  */
-class BankClient @JsonMethod("servicename") constructor(private val myServiceName: String) : AdminObject(), Consumer<ServiceLink?>, ClassspecificGorgelUsingObject {
+class BankClient @JsonMethod("servicename") constructor(private val myServiceName: String) : AdminObject(), Consumer<ServiceLink?>,
+    ClassspecificGorgelUsingObject {
     /** Connection to the workshop running the bank service.  */
     private var myServiceLink: ServiceLink? = null
 
@@ -886,7 +891,8 @@ class BankClient @JsonMethod("servicename") constructor(private val myServiceNam
     @JsonMethod("xid", "fail", "desc", "src", "srcbal", "active")
     fun releaseenc(from: ServiceActor, xid: String, fail: OptString,
                    desc: OptString, optSrc: OptString,
-                   optSrcbal: OptInteger, optActive: OptBoolean) {
+                   optSrcbal: OptInteger, optActive: OptBoolean
+    ) {
         val handler = handlerForReply("releaseenc", xid, fail, desc) as ReleaseResultHandler?
         if (handler != null) {
             val src = optSrc.valueOrNull()
