@@ -2,7 +2,7 @@ package org.elkoserver.server.broker
 
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.ordinalgeneration.LongOrdinalGenerator
-import org.elkoserver.util.HashMapMulti
+import org.elkoserver.util.HashMapMultiImpl
 
 /**
  * The client facet of a broker actor.  This object represents the state
@@ -25,7 +25,7 @@ internal class Client(private val myBroker: Broker, private val myActor: BrokerA
     /**
      * Services offered by this client.
      */
-    private val myServices = HashMapMulti<String, ServiceDesc>()
+    private val myServices = HashMapMultiImpl<String, ServiceDesc>()
 
     /**
      * Provider ID associated with this client.

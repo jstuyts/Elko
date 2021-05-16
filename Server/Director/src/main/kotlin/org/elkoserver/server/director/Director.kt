@@ -6,7 +6,7 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.util.HashMapMulti
+import org.elkoserver.util.HashMapMultiImpl
 import org.elkoserver.util.HashSetMulti
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
@@ -38,14 +38,14 @@ internal class Director(
 
     /** Open context clone groups.  Maps context set names to sets of
      * OpenContext objects.  */
-    private val myContextCloneSets = HashMapMulti<String, OpenContext>()
+    private val myContextCloneSets = HashMapMultiImpl<String, OpenContext>()
 
     /** Online users.  Maps user names to sets of OpenContext objects.  */
-    private val myUsers = HashMapMulti<String, OpenContext>()
+    private val myUsers = HashMapMultiImpl<String, OpenContext>()
 
     /** Online user context clone groups.  Maps user set names to sets of
      * OpenContext objects.  */
-    private val myUserCloneSets = HashMapMulti<String, OpenContext>()
+    private val myUserCloneSets = HashMapMultiImpl<String, OpenContext>()
 
     /** Currently active providers (sorted by load).  */
     private val myProviders = TreeMap<Provider, Provider>()
@@ -57,10 +57,10 @@ internal class Director(
     internal val providerHandler = ProviderHandler(this, baseCommGorgel.getChild(ProviderHandler::class), random)
 
     /** Map of context names to sets of watching admin actors.  */
-    private val myWatchedContexts = HashMapMulti<String, DirectorActor>()
+    private val myWatchedContexts = HashMapMultiImpl<String, DirectorActor>()
 
     /** Map of user names to sets of watching admin actors.  */
-    private val myWatchedUsers = HashMapMulti<String, DirectorActor>()
+    private val myWatchedUsers = HashMapMultiImpl<String, DirectorActor>()
 
     /**
      * Add a new context to the table of known contexts.

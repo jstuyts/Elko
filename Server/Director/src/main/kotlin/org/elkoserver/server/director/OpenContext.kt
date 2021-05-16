@@ -1,6 +1,6 @@
 package org.elkoserver.server.director
 
-import org.elkoserver.util.HashSetMulti
+import org.elkoserver.util.HashSetMultiImpl
 
 /**
  * Information describing an open context.
@@ -27,7 +27,7 @@ internal class OpenContext(internal val provider: Provider, internal val name: S
     private val myUsers: MutableSet<String> = HashSet()
 
     /** User clones in this context.  */
-    private val myUserClones = HashSetMulti<String>()
+    private val myUserClones = HashSetMultiImpl<String>()
 
     /** Reason this context is closed to user entry, or null if it is not.  */
     internal var gateClosedReason: String? = null

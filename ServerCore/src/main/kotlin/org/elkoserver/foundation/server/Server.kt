@@ -12,7 +12,7 @@ import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.idgeneration.IdGenerator
-import org.elkoserver.util.HashMapMulti
+import org.elkoserver.util.HashMapMultiImpl
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
 import java.util.function.Consumer
@@ -55,10 +55,10 @@ class Server(
 
     /** Table of 'find' requests that have been issued to the broker, for which
      * responses are still pending.  Indexed by the service name queried.  */
-    private val myPendingFinds: HashMapMulti<String, ServiceQuery> = HashMapMulti()
+    private val myPendingFinds = HashMapMultiImpl<String, ServiceQuery>()
 
     /** Objects to be notified when the server is shutting down.  */
-    private val myShutdownWatchers: MutableList<ShutdownWatcher> = LinkedList()
+    private val myShutdownWatchers = LinkedList<ShutdownWatcher>()
 
     /** Objects to be notified when the server is reinitialized.  */
     private val myReinitWatchers: MutableList<ReinitWatcher> = LinkedList()

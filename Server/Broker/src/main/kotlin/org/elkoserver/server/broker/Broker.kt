@@ -9,7 +9,7 @@ import org.elkoserver.foundation.timer.Timeout
 import org.elkoserver.foundation.timer.TimeoutNoticer
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.objectdatabase.ObjectDatabase
-import org.elkoserver.util.HashMapMulti
+import org.elkoserver.util.HashMapMultiImpl
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
 import java.util.LinkedList
@@ -34,11 +34,11 @@ internal class Broker(
 
     /** Registered services.  Maps (service name, protocol) pairs to sets of
      * ServiceDesc objects.  */
-    private val myServices = HashMapMulti<String, ServiceDesc>()
+    private val myServices = HashMapMultiImpl<String, ServiceDesc>()
 
     /** Clients waiting for services.  Maps service names to sets of
      * WaiterForService objects.  */
-    private val myWaiters = HashMapMulti<String, WaiterForService>()
+    private val myWaiters = HashMapMultiImpl<String, WaiterForService>()
 
     /** Set of currently connected actors.  */
     private val myActors: MutableSet<BrokerActor> = HashSet()

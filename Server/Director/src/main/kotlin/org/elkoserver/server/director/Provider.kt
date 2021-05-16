@@ -1,7 +1,7 @@
 package org.elkoserver.server.director
 
 import org.elkoserver.ordinalgeneration.OrdinalGenerator
-import org.elkoserver.util.HashMapMulti
+import org.elkoserver.util.HashMapMultiImpl
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -47,7 +47,7 @@ internal class Provider(
     private val myContexts: MutableMap<String, OpenContext> = HashMap()
 
     /** Context clone sets current open, by name.  */
-    private val myCloneSets = HashMapMulti<String, OpenContext>()
+    private val myCloneSets = HashMapMultiImpl<String, OpenContext>()
 
     /** Ordinal for consistent non-equality when load factors are equal.  */
     private val myOrdinal = myOrdinalGenerator.generate()

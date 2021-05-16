@@ -24,7 +24,7 @@ import org.elkoserver.server.context.model.ObjectCompletionWatcher
 import org.elkoserver.server.context.model.RefTableProtocol
 import org.elkoserver.server.context.model.User
 import org.elkoserver.server.context.model.extractBaseRef
-import org.elkoserver.util.HashMapMulti
+import org.elkoserver.util.HashMapMultiImpl
 import org.elkoserver.util.tokenize
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.elkoserver.util.trace.slf4j.Tag
@@ -96,7 +96,7 @@ class Contextor internal constructor(
     private val myContexts: MutableSet<Context> = HashSet()
 
     /** Cloned contexts, by base reference string.  */
-    private val myContextClones: HashMapMulti<String, Context> = HashMapMulti()
+    private val myContextClones = HashMapMultiImpl<String, Context>()
 
     /** Currently connected users.  */
     private val myUsers: MutableSet<User> = HashSet()
