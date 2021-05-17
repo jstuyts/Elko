@@ -6,8 +6,6 @@ import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
-import org.elkoserver.foundation.byteioframer.readASCIILine
-import org.elkoserver.foundation.byteioframer.readUTF8Line
 import org.elkoserver.foundation.net.Communication
 import org.elkoserver.json.JsonParsing.jsonObjectFromString
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -76,7 +74,7 @@ class RtcpRequestByteIoFramerFactory(private val gorgel: Gorgel, private val chu
             while (true) {
                 when (myRTCPParseStage) {
                     RTCP_STAGE_REQUEST -> {
-                        val line = myIn.readASCIILine()
+                        val line = myIn.readAsciiLine()
                         if (line == null) {
                             myIn.preserveBuffers()
                             return
@@ -89,7 +87,7 @@ class RtcpRequestByteIoFramerFactory(private val gorgel: Gorgel, private val chu
                         }
                     }
                     RTCP_STAGE_MESSAGES -> {
-                        val line = myIn.readUTF8Line()
+                        val line = myIn.readUtf8Line()
                         if (line == null) {
                             myIn.preserveBuffers()
                             return

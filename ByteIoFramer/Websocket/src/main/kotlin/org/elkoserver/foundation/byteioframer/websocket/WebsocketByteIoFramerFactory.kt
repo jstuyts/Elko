@@ -8,9 +8,8 @@ import org.elkoserver.foundation.byteioframer.MessageReceiver
 import org.elkoserver.foundation.byteioframer.http.HttpError
 import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramer
 import org.elkoserver.foundation.byteioframer.json.JsonByteIoFramerFactory
-import org.elkoserver.foundation.byteioframer.readASCIILine
 import org.elkoserver.json.JsonLiteral
-import org.elkoserver.util.ByteArrayToAscii.byteArrayToASCII
+import org.elkoserver.util.byteArrayToAscii
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
 import java.nio.charset.StandardCharsets
@@ -70,7 +69,7 @@ class WebsocketByteIoFramerFactory(
             while (true) {
                 when (myWSParseStage) {
                     WS_STAGE_START -> {
-                        val line = myIn.readASCIILine()
+                        val line = myIn.readAsciiLine()
                         if (line == null) {
                             myIn.preserveBuffers()
                             return
@@ -80,7 +79,7 @@ class WebsocketByteIoFramerFactory(
                         }
                     }
                     WS_STAGE_HEADER -> {
-                        val line = myIn.readASCIILine()
+                        val line = myIn.readAsciiLine()
                         when {
                             line == null -> {
                                 myIn.preserveBuffers()
@@ -167,7 +166,7 @@ class WebsocketByteIoFramerFactory(
                                     headerBytes.size)
                             System.arraycopy(handshakeBytes, 0, reply,
                                     headerBytes.size, handshakeBytes.size)
-                            websocketFramerGorgel.d?.run { debug("WS sending handshake:\n$header${byteArrayToASCII(handshakeBytes, 0, handshakeBytes.size)}") }
+                            websocketFramerGorgel.d?.run { debug("WS sending handshake:\n$header${byteArrayToAscii(handshakeBytes, 0, handshakeBytes.size)}") }
                             reply
                         }
                         6 -> {

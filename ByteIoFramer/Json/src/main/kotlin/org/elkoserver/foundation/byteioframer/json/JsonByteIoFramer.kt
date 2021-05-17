@@ -5,7 +5,6 @@ import com.grack.nanojson.JsonParserException
 import org.elkoserver.foundation.byteioframer.ByteIoFramer
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.MessageReceiver
-import org.elkoserver.foundation.byteioframer.readUTF8Line
 import org.elkoserver.foundation.net.Communication
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.json.JsonObjectSerialization.sendableString
@@ -19,11 +18,11 @@ import java.nio.charset.StandardCharsets
  * I/O framer implementation for JSON messages.
  */
 class JsonByteIoFramer(
-        private val gorgel: Gorgel,
-        private val myReceiver: MessageReceiver,
-        private val myLabel: String,
-        private val myIn: ChunkyByteArrayInputStream,
-        private val mustSendDebugReplies: Boolean) : ByteIoFramer {
+    private val gorgel: Gorgel,
+    private val myReceiver: MessageReceiver,
+    private val myLabel: String,
+    private val myIn: ChunkyByteArrayInputStream,
+    private val mustSendDebugReplies: Boolean) : ByteIoFramer {
 
     /** Message input currently in progress.  */
     private val myMsgBuffer = StringBuilder(1000)
@@ -39,7 +38,7 @@ class JsonByteIoFramer(
     override fun receiveBytes(data: ByteArray, length: Int) {
         myIn.addBuffer(data, length)
         while (true) {
-            val line = myIn.readUTF8Line() ?: break
+            val line = myIn.readUtf8Line() ?: break
             when {
                 line.isEmpty() -> {
                     val msgString = myMsgBuffer.toString()

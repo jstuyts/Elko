@@ -5,7 +5,6 @@ import org.elkoserver.foundation.byteioframer.ByteIoFramerFactory
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStream
 import org.elkoserver.foundation.byteioframer.ChunkyByteArrayInputStreamFactory
 import org.elkoserver.foundation.byteioframer.MessageReceiver
-import org.elkoserver.foundation.byteioframer.readASCIILine
 import org.elkoserver.foundation.net.Communication
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.io.IOException
@@ -54,7 +53,7 @@ class HttpRequestByteIoFramerFactory(private val baseCommGorgel: Gorgel, private
             while (true) {
                 when (myHTTPParseStage) {
                     HTTP_STAGE_START -> {
-                        val line = myIn.readASCIILine()
+                        val line = myIn.readAsciiLine()
                         if (line == null) {
                             myIn.preserveBuffers()
                             return
@@ -64,7 +63,7 @@ class HttpRequestByteIoFramerFactory(private val baseCommGorgel: Gorgel, private
                         }
                     }
                     HTTP_STAGE_HEADER -> {
-                        val line = myIn.readASCIILine()
+                        val line = myIn.readAsciiLine()
                         when {
                             line == null -> {
                                 myIn.preserveBuffers()
