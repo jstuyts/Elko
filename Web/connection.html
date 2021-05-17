@@ -15,7 +15,7 @@
         <script src="http://us.js2.yimg.com/us.js.yimg.com/lib/common/utils/2/event_2.0.6.js"></script>
         <script src="http://us.js2.yimg.com/us.js.yimg.com/lib/common/utils/2/connection_2.0.5.js"></script>
         <script src="json.js"></script>
-        <script src="connection.js"></script>
+        <script src="elko-connection.js"></script>
         <script>
 
 String.prototype.entityify = function () {
@@ -33,7 +33,7 @@ dumpError = function (e) {
 (function () {
     try {
         var root = "http://example.com:9001/test",
-            connection = ELKO.connection(root,
+            connection = elkoConnection.connection(root,
                 function (m) {
                     log.innerHTML = '<p>' + m.toJSONString().entityify() +
                         '<\/p>' + log.innerHTML;

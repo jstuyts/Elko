@@ -35,8 +35,8 @@
     </div>
     <div id="log" class="bg-orange-100 w-full mt-4 p-2 rounded"></div>
 </div>
-<script src="connection.js"></script>
-<script src="session.js"></script>
+<script src="elko-connection.js"></script>
+<script src="elko-session.js"></script>
 <script>
 
     String.prototype.entityify = function () {
@@ -80,7 +80,7 @@
             let contextReady = false;
             const users = [];
 
-            const session = ELKO.session();
+            const session = elkoSession.session();
             session.getObject("session").op_exit = function(msg) {
                 window.alert(msg.why);
                 disconnect(session);
