@@ -907,7 +907,7 @@ class BankWorker
                 if (env.currencyAuthorityFailure(account!!.currency)) {
                     return false
                 }
-                if (account.totalBalance > 0) {
+                if (0 < account.totalBalance) {
                     env.fail("notempty", "account still contains funds")
                     return false
                 }

@@ -273,7 +273,7 @@ internal constructor(
         } else if (gateClosedReason != null) {
             myGorgel.info("$who forbidden entry (gate closed: $gateClosedReason)")
             "gateclosed"
-        } else if (userCount > maxCapacity && maxCapacity != -1) {
+        } else if (maxCapacity < userCount && maxCapacity != -1) {
             myGorgel.info("$who forbidden entry (capacity limit reached)")
             "full"
         } else if (amClosing) {
@@ -496,7 +496,7 @@ internal constructor(
      * of the number of calls to [retain] will be ignored.
      */
     private fun release() {
-        if (myRetainCount > 0) {
+        if (0 < myRetainCount) {
             --myRetainCount
             checkForContextShutdown()
         }
@@ -752,7 +752,7 @@ internal constructor(
             }
             addParameter("name", name)
             val mods = myModSet.encode(control)
-            if (mods.size > 0) {
+            if (0 < mods.size) {
                 addParameter("mods", mods)
             }
             if (control.toRepository() && myUserMods != null) {
@@ -760,7 +760,7 @@ internal constructor(
                 for (mod in myUserMods) {
                     userMods.addElement(mod)
                 }
-                if (userMods.size > 0) {
+                if (0 < userMods.size) {
                     addParameter("usermods", userMods)
                 }
             }

@@ -169,7 +169,7 @@ class HttpSessionConnection internal constructor(
     private fun noticeSelectTick() {
         if (mySelectWaitStartTime != 0L) {
             val now = clock.millis()
-            if (now - mySelectWaitStartTime > mySelectTimeoutInterval) {
+            if (mySelectTimeoutInterval < now - mySelectWaitStartTime) {
                 mySelectWaitStartTime = 0
                 noteClientActivity()
                 sendMsg(theTimeoutMarker)

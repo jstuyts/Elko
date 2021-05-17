@@ -42,7 +42,7 @@ class QueryDesc(val template: JsonObject, val maxResults: Int) : Encodable {
     override fun encode(control: EncodeControl): JsonLiteral =
             type("queryi", control).apply {
                 addParameter("template", template)
-                if (maxResults > 0) {
+                if (0 < maxResults) {
                     addParameter("limit", maxResults)
                 }
                 finish()

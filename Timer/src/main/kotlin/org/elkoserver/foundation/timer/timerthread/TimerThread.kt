@@ -70,7 +70,7 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
         }
         synchronized(this) {
             try {
-                if (time >= 0) {
+                if (0 <= time) {
                     (this as Object).wait(time)
                 }
             } catch (e: Exception) {

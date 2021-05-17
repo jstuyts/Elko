@@ -126,7 +126,7 @@ internal class ExpirationDate : Comparable<ExpirationDate>, Encodable, ClockUsin
         val deltaTime = myTime - other.myTime
         return when {
             deltaTime < 0 -> -1
-            deltaTime > 0 -> 1
+            0 < deltaTime -> 1
             else -> 0
         }
     }

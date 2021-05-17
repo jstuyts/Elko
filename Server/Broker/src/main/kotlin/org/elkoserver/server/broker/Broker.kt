@@ -251,7 +251,7 @@ internal class Broker(
      */
     private inner class WaiterForService(val service: String, private val myWaiter: BrokerActor,
                                          private val amKeepWatching: Boolean, timeout: Int, private var amSuccessful: Boolean, private val myTag: String?, timer: Timer) : TimeoutNoticer {
-        private var myTimeout: Timeout? = if (timeout > 0) timer.after(timeout * 1000.toLong(), this) else null
+        private var myTimeout: Timeout? = if (0 < timeout) timer.after(timeout * 1000.toLong(), this) else null
 
         /**
          * Take note of a service having arrived.  Notify the actor who was

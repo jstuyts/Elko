@@ -463,7 +463,7 @@ class Contextor internal constructor(
          * kind has terminated loading).
          */
         private fun somethingArrived(count: Int) {
-            if (myWaitCount >= 0) {
+            if (0 <= myWaitCount) {
                 if (count < 0) {
                     myWaitCount = 0
                 } else {
@@ -587,7 +587,7 @@ class Contextor internal constructor(
             }
             if (context != null) {
                 val spawningTemplate = myContextRef != myContextTemplate
-                val spawningClone = context.baseCapacity > 0
+                val spawningClone = 0 < context.baseCapacity
                 if (!spawningTemplate && context.isMandatoryTemplate) {
                     contextorGorgel.error("context '$myContextRef' may only be used as a template")
                     context = null
@@ -833,12 +833,12 @@ class Contextor internal constructor(
     override fun noteContext(context: Context, open: Boolean) {
         if (open) {
             myContexts.add(context)
-            if (context.baseCapacity > 0) {
+            if (0 < context.baseCapacity) {
                 myContextClones.add(context.baseRef(), context)
             }
         } else {
             myContexts.remove(context)
-            if (context.baseCapacity > 0) {
+            if (0 < context.baseCapacity) {
                 myContextClones.remove(context.baseRef(), context)
             }
         }

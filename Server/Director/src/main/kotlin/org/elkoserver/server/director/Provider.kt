@@ -62,7 +62,7 @@ internal class Provider(
         val diff = loadFactor - other.loadFactor
         return when {
             diff < 0.0 -> -1
-            diff > 0.0 -> 1
+            0.0 < diff -> 1
             else -> myOrdinal.compareTo(other.myOrdinal)
         }
     }

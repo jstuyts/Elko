@@ -65,7 +65,7 @@ class JsonByteIoFramer(
                     }
                     myMsgBuffer.setLength(0)
                 }
-                myMsgBuffer.length + line.length > Communication.MAX_MSG_LENGTH -> throw IOException("input too large (limit ${Communication.MAX_MSG_LENGTH} bytes)")
+                Communication.MAX_MSG_LENGTH < myMsgBuffer.length + line.length -> throw IOException("input too large (limit ${Communication.MAX_MSG_LENGTH} bytes)")
                 else -> {
                     myMsgBuffer.append(' ')
                     myMsgBuffer.append(line)

@@ -44,7 +44,7 @@ class NetAddr {
             actualAddressStr = actualAddressStr.take(colon)
         }
         val slash = actualAddressStr.indexOf('/')
-        if (slash >= 0) {
+        if (0 <= slash) {
             actualAddressStr = actualAddressStr.substring(slash + 1)
         }
         inetAddress = if (actualAddressStr.isNotEmpty()) {

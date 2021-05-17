@@ -65,7 +65,7 @@ class ZeromqThread(
                     }
                     workToDo = myQueue.poll()
                 }
-                if (selectedCount > 0) {
+                if (0 < selectedCount) {
                     var actualCount = 0
                     val maxIndex = myPoller.size
                     for (i in 0 until maxIndex) {

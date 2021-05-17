@@ -78,13 +78,13 @@ class JsonHttpFramer(private val commGorgel: Gorgel, private val mustSendDebugRe
         private fun extractBodyFromSafariPostIfNeeded(postBody: String): String {
             var actualPostBody = postBody
             val junkMark = actualPostBody.indexOf('=')
-            if (junkMark >= 0) {
-                if (actualPostBody.length > junkMark &&
+            if (0 <= junkMark) {
+                if (junkMark < actualPostBody.length &&
                         actualPostBody[junkMark + 1] == '%') {
                     actualPostBody = URLDecoder.decode(actualPostBody, StandardCharsets.UTF_8)
                 }
                 val startOfMessageMark = actualPostBody.indexOf('{')
-                if (startOfMessageMark > junkMark) {
+                if (junkMark < startOfMessageMark) {
                     actualPostBody = actualPostBody.substring(junkMark + 1)
                 }
             }

@@ -165,8 +165,8 @@ class UserActor(
         if (debug) {
             myConnection.setDebugMode(true)
         }
-        if (myContextor.limit > 0 &&
-            myContextor.userCount() >= myContextor.limit
+        if (0 < myContextor.limit &&
+            myContextor.limit <= myContextor.userCount()
         ) {
             abruptExit("server full", "full")
             return

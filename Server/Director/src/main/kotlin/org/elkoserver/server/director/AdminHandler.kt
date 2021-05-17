@@ -180,11 +180,11 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
         for (subj in myDirector.providers()) {
             if (providerName == null || subj.matchLabel(providerName)) {
                 val providerDump = ProviderDump(depth, subj, contextName)
-                if (providerDump.numContexts > 0 || contextName == null) {
+                if (0 < providerDump.numContexts || contextName == null) {
                     ++numProviders
                     numContexts += providerDump.numContexts
                     numUsers += providerDump.numUsers
-                    if (depth > 0) {
+                    if (0 < depth) {
                         providerList.add(providerDump)
                     }
                 }
@@ -211,7 +211,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
                     addParameter("hostports", encodeStrings(myProvider.hostPorts()))
                     addParameter("protocols", encodeStrings(myProvider.protocols()))
                     addParameter("serving", encodeStrings(myProvider.services()))
-                    if (myOpenContexts.size > 0) {
+                    if (0 < myOpenContexts.size) {
                         addParameter("contexts", encodeEncodableList(myOpenContexts))
                     }
                     finish()
@@ -223,7 +223,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
                     val contextDump = ContextDump(depth, context)
                     ++numContexts
                     numUsers += context.userCount()
-                    if (depth > 1) {
+                    if (1 < depth) {
                         myOpenContexts.add(contextDump)
                     }
                 }
@@ -236,7 +236,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
                 JsonLiteralFactory.type("contextdesc", control).apply {
                     addParameter("context", myContext.name)
                     addParameter("numusers", myContext.userCount())
-                    if (myDepth > 2) {
+                    if (2 < myDepth) {
                         addParameter("users", encodeStrings(myContext.users()))
                     }
                     finish()

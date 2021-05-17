@@ -86,11 +86,11 @@ open class HttpRequest {
         var actualLine = line
         actualLine = actualLine.trim { it <= ' ' }
         var methodEnd = actualLine.indexOf(' ')
-        if (methodEnd >= 0) {
+        if (0 <= methodEnd) {
             method = actualLine.take(methodEnd)
             ++methodEnd
             val uriEnd = actualLine.indexOf(' ', methodEnd)
-            if (uriEnd >= 0) {
+            if (0 <= uriEnd) {
                 uri = actualLine.substring(methodEnd, uriEnd).lowercase(Locale.getDefault())
             }
         }

@@ -98,7 +98,7 @@ class RtcpSessionConnection internal constructor(
         noteClientActivity()
         commGorgel.d?.run { debug("${this@RtcpSessionConnection} ack $clientRecvSeqNum") }
         discardAcknowledgedMessages(clientRecvSeqNum)
-        if (timeInactive > myInactivityTimeoutInterval / 4) {
+        if (myInactivityTimeoutInterval / 4 < timeInactive) {
             val ack = mySessionFactory.makeAck(clientSendSeqNum)
             sendMsg(ack)
         }
@@ -128,7 +128,7 @@ class RtcpSessionConnection internal constructor(
     private fun discardAcknowledgedMessages(seqNum: Int) {
         while (true) {
             val peek = myQueue.peek()
-            if (peek == null || peek.seqNum > seqNum) {
+            if (peek == null || seqNum < peek.seqNum) {
                 break
             }
             myQueueBacklog -= peek.message.length()
@@ -184,11 +184,11 @@ class RtcpSessionConnection internal constructor(
     private fun noticeInactivityTick() {
         val timeInactive = clock.millis() - myLastActivityTime
         when {
-            timeInactive > myInactivityTimeoutInterval -> {
+            myInactivityTimeoutInterval < timeInactive -> {
                 commGorgel.i?.run { info("${this@RtcpSessionConnection} tick: RTCP session timeout") }
                 close()
             }
-            timeInactive > myInactivityTimeoutInterval / 2 -> {
+            myInactivityTimeoutInterval / 2 < timeInactive -> {
                 commGorgel.d?.run { debug("${this@RtcpSessionConnection} tick: RTCP session acking") }
                 val ack = mySessionFactory.makeAck(clientSendSeqNum)
                 sendMsg(ack)
@@ -257,7 +257,7 @@ class RtcpSessionConnection internal constructor(
             val qMsg = RtcpMessage(myServerSendSeqNum, message)
             myQueueBacklog += message.length()
             commGorgel.d?.run { debug("${this@RtcpSessionConnection} queue backlog increased to $myQueueBacklog") }
-            if (myQueueBacklog > mySessionFactory.sessionBacklogLimit) {
+            if (mySessionFactory.sessionBacklogLimit < myQueueBacklog) {
                 commGorgel.i?.run { info("${this@RtcpSessionConnection} queue backlog limit exceeded") }
                 close()
             }

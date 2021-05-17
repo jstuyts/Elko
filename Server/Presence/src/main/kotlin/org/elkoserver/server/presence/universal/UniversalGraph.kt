@@ -66,7 +66,7 @@ internal class UniversalGraph : SocialGraph, RandomUsingObject {
 
         public override fun isExcluded(element: V) = when {
             element == myExclusion -> true
-            myStochasticFriendshipOdds >= 1.0f -> false
+            1.0f <= myStochasticFriendshipOdds -> false
             else -> myRandom.nextFloat() < myStochasticFriendshipOdds
         }
     }

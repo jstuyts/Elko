@@ -70,7 +70,7 @@ open class DevicePersistentUserFactory @JsonMethod("device") internal constructo
             val user: User
             @Suppress("UNCHECKED_CAST") val result = queryResult as Array<Any>?
             if (result != null && result.isNotEmpty()) {
-                if (result.size > 1) {
+                if (1 < result.size) {
                     gorgel.warn("uuid query loaded ${result.size} users, choosing first")
                 }
                 user = result[0] as User

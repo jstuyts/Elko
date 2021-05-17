@@ -56,7 +56,7 @@ class FileObjectStore internal constructor(arguments: ObjectStoreArguments, priv
     private fun doGet(ref: String) =
             try {
                 val file = odbFile(ref)
-                if (file.isFile && file.length() > 0) {
+                if (file.isFile && 0 < file.length()) {
                     val obj = fileOperations.read(file)
                     val objDesc = ObjectDesc(ref, obj, null)
                     val contents = doGetContents(obj)

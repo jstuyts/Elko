@@ -60,7 +60,7 @@ internal class ActiveUser(internal val ref: String, private val domainRegistry: 
             /* A vacant slot! remember it in case we need one. */
             val nullIdx = presences.indices.firstOrNull { presences[it] == null }
                     ?: -1
-            if (nullIdx >= 0) {
+            if (0 <= nullIdx) {
                 /* If we found a vacant slot, put the new entry there. */
                 presences[nullIdx] = context
             } else {

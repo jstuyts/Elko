@@ -201,7 +201,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
     private fun readByteInternal(): Int {
         if (myWorkingBuffer == null) {
             when {
-                myPendingBuffers.size > 0 -> {
+                0 < myPendingBuffers.size -> {
                     val nextBuffer = myPendingBuffers.removeFirst()
                     myWorkingBuffer = nextBuffer
                     myWorkingBufferLength = nextBuffer.size
@@ -215,14 +215,14 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
             myWorkingBufferIdx = 0
         }
         val result = myWorkingBuffer!![myWorkingBufferIdx++].toInt() and 0xFF
-        if (myWorkingBufferIdx >= myWorkingBufferLength) {
+        if (myWorkingBufferLength <= myWorkingBufferIdx) {
             if (myWorkingBuffer === myClientBuffer) {
                 myClientBuffer = null
             }
             myWorkingBuffer = null
         }
         --myTotalByteCount
-        if (myUsefulByteCount > 0) {
+        if (0 < myUsefulByteCount) {
             --myUsefulByteCount
         }
         return result
@@ -282,7 +282,7 @@ class ChunkyByteArrayInputStream(private val gorgel: Gorgel) : InputStream() {
     private fun testEnd(): Boolean {
         return if (myUsefulByteCount == 0) {
             if (amAtEOF) {
-                if (myTotalByteCount > 0) {
+                if (0 < myTotalByteCount) {
                     throw IOException("undecodeable bytes left over")
                 }
                 throw EOFException()

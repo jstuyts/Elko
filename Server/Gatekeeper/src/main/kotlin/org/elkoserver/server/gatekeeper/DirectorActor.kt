@@ -105,7 +105,7 @@ internal class DirectorActor(
             handler = myPendingReservations.remove("$contextKey|$nonNullActor")
             if (handler == null) {
                 val slash = contextKey.lastIndexOf('-')
-                if (slash > -1) {
+                if (-1 < slash) {
                     contextKey = contextKey.take(slash)
                 } else {
                     haveAllSlashesBeenProcessed = true

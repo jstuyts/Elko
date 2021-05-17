@@ -20,7 +20,7 @@ internal class HostListScanner(private val hostDescFromPropertiesFactory: HostDe
         var index = 0
         var haveAllHostsBeenProcessed = false
         while (!haveAllHostsBeenProcessed) {
-            val hostPropRoot = if (index > 0) "$propRoot$index" else propRoot
+            val hostPropRoot = if (0 < index) "$propRoot$index" else propRoot
             val host = hostDescFromPropertiesFactory.fromProperties(hostPropRoot)
             if (host == null) {
                 haveAllHostsBeenProcessed = true

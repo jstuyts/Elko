@@ -169,7 +169,7 @@ class User(name: String?, mods: Array<Mod>?, contents: Array<Item>?, ref: String
             }
             addParameter("name", name)
             val mods = myModSet.encode(control)
-            if (mods.size > 0) {
+            if (0 < mods.size) {
                 addParameter("mods", mods)
             }
             finish()

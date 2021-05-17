@@ -83,7 +83,7 @@ internal class Key(
         if (myParentRef != null) {
             throw Error("attempt to exercise authority of incomplete key")
         }
-        return currencies == null || binarySearch(currencies, currency) >= 0
+        return currencies == null || 0 <= binarySearch(currencies, currency)
     }
 
     /**

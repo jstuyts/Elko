@@ -59,7 +59,7 @@ class ServerLoadMonitor constructor(
             myLoadSampleTimeoutTime.toLong()
         ) {
             val factor = sampleLoad()
-            if (myLoadWatchers.size > 0) {
+            if (0 < myLoadWatchers.size) {
                 for (watcher in myLoadWatchers) {
                     watcher.noteLoadSample(factor)
                 }
@@ -91,7 +91,7 @@ class ServerLoadMonitor constructor(
     private fun sampleLoad(): Double {
         val clockTime = clock.millis() - mySampleStartTime
         var loadFactor = 0.0
-        if (clockTime > 0) {
+        if (0 < clockTime) {
             loadFactor = myCumulativeProcessingTime.toDouble() /
                     clockTime.toDouble()
         }

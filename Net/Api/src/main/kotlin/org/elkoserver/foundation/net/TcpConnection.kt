@@ -137,14 +137,14 @@ class TcpConnection internal constructor(handlerFactory: MessageHandlerFactory,
                     throw EOFException()
                 }
                 /* Data read: give bytes to framer, then recycle the buffer. */
-                if (count > 0) {
+                if (0 < count) {
                     myFramer.receiveBytes(myInputBuffer.array(),
                             myInputBuffer.position())
                     myInputBuffer.clear()
                 } else {
                     gorgel.i?.run { info("${this@TcpConnection} zero length read") }
                 }
-            } while (count > 0 && amSecure)
+            } while (0 < count && amSecure)
         } catch (t: Throwable) {
             /* If anything bad happens during read, the connection is dead. */
             gorgel.d?.run { debug("${this@TcpConnection} caught exception", t) }

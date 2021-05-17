@@ -11,7 +11,7 @@ internal class BootArguments internal constructor(vararg arguments: String) {
         val argumentsThatAreNotProperties = ArrayList<String>(arguments.size)
         val properties = HashMap<String, String>(arguments.size)
         scanArgumentsForProperties(arguments, properties, argumentsThatAreNotProperties)
-        require(argumentsThatAreNotProperties.size >= 1) { "Boot needs class name to boot" }
+        require(1 <= argumentsThatAreNotProperties.size) { "Boot needs class name to boot" }
         mainClassName = argumentsThatAreNotProperties[0]
         bootProperties = ElkoProperties(properties)
     }
@@ -24,7 +24,7 @@ internal class BootArguments internal constructor(vararg arguments: String) {
 
     private fun scanArgumentForProperty(argument: String, destinationProperties: MutableMap<String, String>, destinationArgumentsThatAreNotProperties: MutableList<String>) {
         val indexOfEqualsSign = argument.indexOf('=')
-        if (indexOfEqualsSign > 0) {
+        if (0 < indexOfEqualsSign) {
             val key = argument.take(indexOfEqualsSign)
             val value = argument.substring(indexOfEqualsSign + 1)
             destinationProperties[key] = value

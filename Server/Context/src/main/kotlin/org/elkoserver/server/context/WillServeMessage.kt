@@ -14,7 +14,7 @@ import org.elkoserver.json.Referenceable
 internal fun msgWillserve(target: Referenceable, context: String, capacity: Int, restricted: Boolean) =
         JsonLiteralFactory.targetVerb(target, "willserve").apply {
             addParameter("context", context)
-            if (capacity > 0) {
+            if (0 < capacity) {
                 addParameter("capacity", capacity)
             }
             if (restricted) {

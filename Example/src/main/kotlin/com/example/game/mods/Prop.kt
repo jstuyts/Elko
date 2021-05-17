@@ -68,7 +68,7 @@ class Prop @JsonMethod("kind") constructor(private val myKind: String) : Mod(), 
                     ?: throw MessageHandlerException("user $from attempted grab $this but Cartesian position mod not present on item")
 
     private fun assertWithinGrabDistance(dx: Int, dy: Int, item: Item) {
-        if (dx * dx + dy * dy > GRAB_DISTANCE * GRAB_DISTANCE) {
+        if (GRAB_DISTANCE * GRAB_DISTANCE < dx * dx + dy * dy) {
             throw MessageHandlerException("attempt to grab too far away item $item")
         }
     }

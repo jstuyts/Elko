@@ -71,7 +71,7 @@ internal class OpenContext(internal val provider: Provider, internal val name: S
         get() = if (myMaxCapacity < 0) {
             false
         } else {
-            myUsers.size >= myMaxCapacity
+            myMaxCapacity <= myUsers.size
         }
 
     /**
@@ -83,7 +83,7 @@ internal class OpenContext(internal val provider: Provider, internal val name: S
         get() = if (myBaseCapacity < 0) {
             false
         } else {
-            myUsers.size >= myBaseCapacity
+            myBaseCapacity <= myUsers.size
         }
 
     /**
@@ -145,14 +145,14 @@ internal class OpenContext(internal val provider: Provider, internal val name: S
     init {
         var dashPos = 0
         var dashCount = 0
-        while (dashPos >= 0) {
+        while (0 <= dashPos) {
             dashPos = name.indexOf('-', dashPos)
-            if (dashPos >= 0) {
+            if (0 <= dashPos) {
                 ++dashCount
                 ++dashPos
             }
         }
-        if (dashCount > 1) {
+        if (1 < dashCount) {
             isClone = true
             dashPos = name.lastIndexOf('-')
             cloneSetName = name.take(dashPos)

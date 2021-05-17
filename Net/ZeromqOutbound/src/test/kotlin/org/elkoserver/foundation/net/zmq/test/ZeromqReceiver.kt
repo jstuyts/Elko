@@ -49,10 +49,10 @@ internal object ZeromqReceiver {
             val data = socket.recv(0)
             if (data != null) {
                 var length = data.size
-                while (length > 0 && data[length - 1] == 0.toByte()) {
+                while (0 < length && data[length - 1] == 0.toByte()) {
                     --length
                 }
-                while (length > 0 && data[length - 1] == LINEFEED_ASCII_BYTE) {
+                while (0 < length && data[length - 1] == LINEFEED_ASCII_BYTE) {
                     --length
                 }
                 val msg = String(data, 0, length, UTF_16)

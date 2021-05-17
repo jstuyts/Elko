@@ -91,7 +91,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
             var data = mySocket.recv(0)
             if (data != null) {
                 var length = data.size
-                while (length > 0 && data[length - 1] == 0.toByte()) {
+                while (0 < length && data[length - 1] == 0.toByte()) {
                     --length
                 }
                 /* XXX Some message sources (I'm looking at you, ZWatcher) put
@@ -104,7 +104,7 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
                 while (data[start] != OPEN_BRACE_AS_BYTE && start < length) {
                     ++start
                 }
-                if (start > 0) {
+                if (0 < start) {
                     length -= start
                     val newData = ByteArray(length)
                     System.arraycopy(data, start, newData, 0, length)
@@ -112,11 +112,11 @@ class ZeromqConnection internal constructor(handlerFactory: MessageHandlerFactor
                 }
                 /* XXX end of hack */
                 var nlCount = 0
-                while (length > 0 && data[length - 1] == LINEFEED_AS_BYTE) {
+                while (0 < length && data[length - 1] == LINEFEED_AS_BYTE) {
                     --length
                     ++nlCount
                 }
-                if (length > 0) {
+                if (0 < length) {
                     if (nlCount < 2) {
                         myFramer.receiveBytes(data, length)
                         myFramer.receiveBytes(NEWLINES, 2)

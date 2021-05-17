@@ -46,7 +46,7 @@ class HttpConnectionSetup(
                 }
                 var indexOfLastDot = result.lastIndexOf('.')
                 indexOfLastDot = result.lastIndexOf('.', indexOfLastDot - 1)
-                if (indexOfLastDot > 0) {
+                if (0 < indexOfLastDot) {
                     result = result.substring(indexOfLastDot + 1)
                 }
             }

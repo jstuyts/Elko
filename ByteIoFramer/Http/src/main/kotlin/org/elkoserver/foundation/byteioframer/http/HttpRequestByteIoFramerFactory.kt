@@ -76,9 +76,9 @@ class HttpRequestByteIoFramerFactory(private val baseCommGorgel: Gorgel, private
                     }
                     HTTP_STAGE_BODY -> {
                         val bodyLen = myRequest.contentLength
-                        if (bodyLen > Communication.MAX_MSG_LENGTH) {
+                        if (Communication.MAX_MSG_LENGTH < bodyLen) {
                             throw IOException("message too large: $bodyLen > ${Communication.MAX_MSG_LENGTH}")
-                        } else if (bodyLen > 0) {
+                        } else if (0 < bodyLen) {
                             if (myIn.available() < bodyLen) {
                                 myIn.preserveBuffers()
                                 return

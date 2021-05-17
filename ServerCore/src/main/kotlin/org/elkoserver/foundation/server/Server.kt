@@ -222,7 +222,7 @@ class Server(
                 myInnerHandler.accept(null)
                 return
             }
-            if (obj.size > 1) {
+            if (1 < obj.size) {
                 gorgel.warn("service query for $myLabel returned multiple results; using first one")
             }
             val actor = myServiceActorsByProviderID[desc.providerID]

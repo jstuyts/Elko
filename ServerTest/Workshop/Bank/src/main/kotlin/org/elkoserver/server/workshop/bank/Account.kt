@@ -124,7 +124,7 @@ internal class Account(internal val ref: String, private var myVersion: Int, int
      * Mark this account as deleted.
      */
     fun delete() {
-        if (totalBalance > 0) {
+        if (0 < totalBalance) {
             throw Error("attempt to delete non-empty account")
         }
         isDeleted = true

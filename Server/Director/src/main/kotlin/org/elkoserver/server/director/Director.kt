@@ -156,7 +156,7 @@ internal class Director(
      * the provider limit.
      */
     val isFull: Boolean
-        get() = myProviderLimit > 0 && myProviders.size >= myProviderLimit
+        get() = 0 < myProviderLimit && myProviderLimit <= myProviders.size
 
     /**
      * Determine what provider to use for some context service.  Pick the least

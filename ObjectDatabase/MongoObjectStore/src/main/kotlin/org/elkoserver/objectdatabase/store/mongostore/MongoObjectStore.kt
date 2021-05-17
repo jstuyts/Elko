@@ -237,7 +237,7 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
         val results: MutableList<ObjectDesc> = LinkedList()
         try {
             val query = jsonObjectToDMongoDocument(template)
-            val cursor = if (maxResults > 0) {
+            val cursor = if (0 < maxResults) {
                 myObjectDatabaseCollection.find(query).batchSize(-maxResults)
             } else {
                 myObjectDatabaseCollection.find(query)

@@ -53,13 +53,13 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, commGo
             if (userName == null || user.ref == userName) {
                 ++numUsers
                 numPresences += user.presenceCount()
-                if (depth > 0) {
+                if (0 < depth) {
                     val elem = JsonLiteral().apply {
                         addParameter("user", user.ref)
-                        if (depth > 1) {
+                        if (1 < depth) {
                             addParameter("pres", user.presences)
                         }
-                        if (depth > 2) {
+                        if (2 < depth) {
                             addParameter("conn", user.encodeFriendsDump())
                         }
                         finish()
@@ -70,7 +70,7 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, commGo
         }
         userDump.finish()
         from.send(msgDump(this, numUsers, numPresences,
-                if (depth > 0) userDump else null))
+                if (0 < depth) userDump else null))
     }
 
     /**

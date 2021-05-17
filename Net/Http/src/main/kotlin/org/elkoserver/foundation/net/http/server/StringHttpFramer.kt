@@ -50,7 +50,7 @@ class StringHttpFramer private constructor() : HttpFramer() {
 
         init {
             val junkMark = postBody.indexOf('=')
-            myReceivedMessage = if (junkMark >= 0) postBody.substring(junkMark + 1) else postBody
+            myReceivedMessage = if (0 <= junkMark) postBody.substring(junkMark + 1) else postBody
         }
     }
 }

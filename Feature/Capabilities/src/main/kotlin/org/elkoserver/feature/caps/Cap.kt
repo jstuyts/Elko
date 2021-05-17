@@ -73,7 +73,7 @@ abstract class Cap internal constructor(desc: JsonObject) : Mod(), ObjectComplet
         if (!amTransferrable) {
             lit.addParameter("transferrable", amTransferrable)
         }
-        if (myExpiration > 0) {
+        if (0 < myExpiration) {
             lit.addParameter("expiration", myExpiration)
         }
     }

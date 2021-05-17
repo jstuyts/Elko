@@ -94,10 +94,10 @@ class StyleOptions @JsonMethod("colors", "backgroundColors", "borderColors", "te
                 if (icons.isNotEmpty()) {
                     addParameter("icons", icons)
                 }
-                if (iconWidth >= 0) {
+                if (0 <= iconWidth) {
                     addParameter("iconWidth", iconWidth)
                 }
-                if (iconHeight >= 0) {
+                if (0 <= iconHeight) {
                     addParameter("iconHeight", iconHeight)
                 }
                 finish()

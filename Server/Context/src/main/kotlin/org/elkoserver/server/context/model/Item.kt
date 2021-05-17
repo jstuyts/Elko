@@ -172,7 +172,7 @@ class Item : BasicObject {
             addParameter("ref", myRef)
             addParameterOpt("name", name)
             val mods = myModSet.encode(control)
-            if (mods.size > 0) {
+            if (0 < mods.size) {
                 addParameter("mods", mods)
             }
             if (!isContainer) {

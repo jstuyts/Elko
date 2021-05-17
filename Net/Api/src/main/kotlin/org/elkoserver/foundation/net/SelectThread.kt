@@ -59,7 +59,7 @@ class SelectThread(
                     }
                     workToDo = myQueue.poll()
                 }
-                if (selectedCount > 0) {
+                if (0 < selectedCount) {
                     val iter = mySelector.selectedKeys().iterator()
                     var actualCount = 0
                     while (iter.hasNext()) {
@@ -83,7 +83,7 @@ class SelectThread(
                             connection.doWrite()
                         }
                     }
-                    if (actualCount > 0) {
+                    if (0 < actualCount) {
                         commGorgel.d?.run { debug("select thread selected $actualCount/$selectedCount I/O sources") }
                     }
                 }

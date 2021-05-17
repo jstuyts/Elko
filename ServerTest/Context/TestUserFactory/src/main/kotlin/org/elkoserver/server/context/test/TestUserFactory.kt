@@ -145,7 +145,7 @@ internal class TestUserFactory @JsonMethod("key") constructor(private val key: S
             val userDesc = params.getRequiredObject("user")
             val expire = params.getRequiredInt("expire")
             val now = clock.millis() / 1000
-            if (expire > now) {
+            if (now < expire) {
                 val nonceID = params.getRequiredString("nonce")
                 val nonce = Nonce(expire, nonceID)
                 if (!myNonces.contains(nonce)) {
@@ -189,8 +189,9 @@ internal class TestUserFactory @JsonMethod("key") constructor(private val key: S
      * @param now  Time (seconds since epoch) that we are doing this
      */
     private fun purgeExpiredNonces(now: Long) {
-        if (now - myLastPurgeTime > PURGE_TIME_THRESHOLD ||
-                myNonces.size > PURGE_SIZE_THRESHOLD) {
+        if (PURGE_TIME_THRESHOLD < now - myLastPurgeTime ||
+            PURGE_SIZE_THRESHOLD < myNonces.size
+        ) {
             myLastPurgeTime = now
             val iter = myNonces.iterator()
             while (iter.hasNext()) {

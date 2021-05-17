@@ -18,7 +18,7 @@ internal fun msgQuery(template: JsonObject, tag: String, maxResults: Int) =
             @Suppress("SpellCheckingInspection")
             val what = JsonLiteralFactory.type("queryi", EncodeControl.ForClientEncodeControl).apply {
                 addParameter("template", template)
-                if (maxResults > 0) {
+                if (0 < maxResults) {
                     addParameter("limit", maxResults)
                 }
                 finish()

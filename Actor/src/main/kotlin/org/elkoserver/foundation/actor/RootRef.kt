@@ -12,9 +12,9 @@ package org.elkoserver.foundation.actor
 internal fun rootRef(ref: String): String {
     var delim = 0
     var count = 0
-    while (delim >= 0) {
+    while (0 <= delim) {
         delim = ref.indexOf('-', delim)
-        if (delim >= 0) {
+        if (0 <= delim) {
             ++count
             if (count == 2) {
                 return ref.take(delim)
