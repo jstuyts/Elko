@@ -7,18 +7,19 @@ import java.util.concurrent.Executor
 
 class DirectObjectDatabaseFactory(
         private val props: ElkoProperties,
+        private val propRoot: String,
         private val gorgel: Gorgel,
         private val runnerFactory: DirectObjectDatabaseRunnerFactory,
         private val baseGorgel: Gorgel,
         private val jsonToObjectDeserializer: JsonToObjectDeserializer,
-        private val returnRunner: Executor) {
-    fun create(propRoot: String): ObjectDatabaseDirect =
-            ObjectDatabaseDirect(
-                    props,
-                    propRoot,
-                    gorgel,
-                    baseGorgel,
-                    jsonToObjectDeserializer,
-                    runnerFactory.create(),
-                    returnRunner)
+        private val returnRunner: Executor): ObjectDatabaseFactory {
+    override fun create() =
+        ObjectDatabaseDirect(
+            props,
+            propRoot,
+            gorgel,
+            baseGorgel,
+            jsonToObjectDeserializer,
+            runnerFactory.create(),
+            returnRunner)
 }

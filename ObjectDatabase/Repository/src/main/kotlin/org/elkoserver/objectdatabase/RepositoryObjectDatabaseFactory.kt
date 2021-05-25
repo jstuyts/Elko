@@ -12,6 +12,7 @@ class RepositoryObjectDatabaseFactory(
         private val serviceFinder: ServiceFinder,
         private val serverName: String,
         private val myProps: ElkoProperties,
+        private val propRoot: String,
         private val repositoryObjectDatabaseGorgel: Gorgel,
         private val odbActorGorgel: Gorgel,
         private val messageDispatcherFactory: MessageDispatcherFactory,
@@ -23,23 +24,23 @@ class RepositoryObjectDatabaseFactory(
         private val queryRequestFactory: QueryRequestFactory,
         private val removeRequestFactory: RemoveRequestFactory,
         private val mustSendDebugReplies: Boolean,
-        private val connectionRetrierFactory: ConnectionRetrierFactory) {
-    fun create(propRoot: String): ObjectDatabaseRepository =
-            ObjectDatabaseRepository(
-                    serviceFinder,
-                    serverName,
-                    myProps,
-                    propRoot,
-                    repositoryObjectDatabaseGorgel,
-                    odbActorGorgel,
-                    messageDispatcherFactory,
-                    hostDescFromPropertiesFactory,
-                    jsonToObjectDeserializer,
-                    getRequestFactory,
-                    putRequestFactory,
-                    updateRequestFactory,
-                    queryRequestFactory,
-                    removeRequestFactory,
-                    mustSendDebugReplies,
-                    connectionRetrierFactory)
+        private val connectionRetrierFactory: ConnectionRetrierFactory): ObjectDatabaseFactory {
+    override fun create() =
+        ObjectDatabaseRepository(
+            serviceFinder,
+            serverName,
+            myProps,
+            propRoot,
+            repositoryObjectDatabaseGorgel,
+            odbActorGorgel,
+            messageDispatcherFactory,
+            hostDescFromPropertiesFactory,
+            jsonToObjectDeserializer,
+            getRequestFactory,
+            putRequestFactory,
+            updateRequestFactory,
+            queryRequestFactory,
+            removeRequestFactory,
+            mustSendDebugReplies,
+            connectionRetrierFactory)
 }

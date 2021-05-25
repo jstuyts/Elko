@@ -54,8 +54,10 @@ import org.elkoserver.foundation.net.zmq.server.ZeromqThread
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRunner
 import org.elkoserver.foundation.server.BrokerActorFactory
+import org.elkoserver.foundation.server.DirectObjectDatabaseConfiguration
 import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
-import org.elkoserver.foundation.server.ObjectDatabaseFactory
+import org.elkoserver.foundation.server.ObjectDatabaseConfigurationFromPropertiesFactory
+import org.elkoserver.foundation.server.RepositoryObjectDatabaseConfiguration
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
@@ -267,6 +269,7 @@ internal class BrokerServerSgd(
     val directObjectDatabaseFactory by Once {
         DirectObjectDatabaseFactory(
             req(provided.props()),
+            "conf.broker",
             req(directObjectDatabaseGorgel),
             req(directObjectDatabaseRunnerFactory),
             req(provided.baseGorgel()),
@@ -562,6 +565,7 @@ internal class BrokerServerSgd(
             req(server),
             req(serverDescription).serverName,
             req(provided.props()),
+            "conf.broker",
             req(repositoryObjectDatabaseGorgel),
             req(odbActorGorgel),
             req(messageDispatcherFactory),
@@ -604,18 +608,26 @@ internal class BrokerServerSgd(
 
     val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
+    val objectDatabaseConfigurationFromPropertiesFactory by Once { ObjectDatabaseConfigurationFromPropertiesFactory(req(provided.props()), "conf.broker") }
+
     val objectDatabaseFactory by Once {
-        ObjectDatabaseFactory(
-            req(provided.props()),
-            req(repositoryObjectDatabaseFactory),
-            req(directObjectDatabaseFactory)
-        )
+        when (req(objectDatabaseConfigurationFromPropertiesFactory).read()) {
+            DirectObjectDatabaseConfiguration -> req(directObjectDatabaseFactory)
+            RepositoryObjectDatabaseConfiguration -> req(repositoryObjectDatabaseFactory)
+        }
+    }
+
+    val objectDatabase by Once {
+        req(objectDatabaseFactory).create().apply {
+            addClass("launchertable", LauncherTable::class.java)
+            addClass("launcher", LauncherTable.Launcher::class.java)
+        }
     }
 
     val broker: D<Broker> by Once {
         Broker(
             req(server),
-            req(objectDatabaseFactory),
+            req(objectDatabase),
             req(refTable),
             req(brokerGorgel),
             req(launcherTableGorgel),

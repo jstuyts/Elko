@@ -56,8 +56,10 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
+import org.elkoserver.foundation.server.DirectObjectDatabaseConfiguration
 import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
-import org.elkoserver.foundation.server.ObjectDatabaseFactory
+import org.elkoserver.foundation.server.ObjectDatabaseConfigurationFromPropertiesFactory
+import org.elkoserver.foundation.server.RepositoryObjectDatabaseConfiguration
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
@@ -292,6 +294,7 @@ internal class GatekeeperServerSgd(
     val directObjectDatabaseFactory by Once {
         DirectObjectDatabaseFactory(
             req(provided.props()),
+            "conf.gatekeeper",
             req(directObjectDatabaseGorgel),
             req(directObjectDatabaseRunnerFactory),
             req(provided.baseGorgel()),
@@ -524,12 +527,13 @@ internal class GatekeeperServerSgd(
             }
         }
 
+    val objectDatabaseConfigurationFromPropertiesFactory by Once { ObjectDatabaseConfigurationFromPropertiesFactory(req(provided.props()), "conf.gatekeeper") }
+
     val objectDatabaseFactory by Once {
-        ObjectDatabaseFactory(
-            req(provided.props()),
-            req(repositoryObjectDatabaseFactory),
-            req(directObjectDatabaseFactory)
-        )
+        when (req(objectDatabaseConfigurationFromPropertiesFactory).read()) {
+            DirectObjectDatabaseConfiguration -> req(directObjectDatabaseFactory)
+            RepositoryObjectDatabaseConfiguration -> req(repositoryObjectDatabaseFactory)
+        }
     }
 
     val serverLoadMonitor by Once {
@@ -612,6 +616,7 @@ internal class GatekeeperServerSgd(
             req(server),
             req(serverDescription).serverName,
             req(provided.props()),
+            "conf.gatekeeper",
             req(repositoryObjectDatabaseGorgel),
             req(odbActorGorgel),
             req(messageDispatcherFactory),

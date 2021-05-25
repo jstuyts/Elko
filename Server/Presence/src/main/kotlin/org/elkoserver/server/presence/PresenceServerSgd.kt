@@ -56,8 +56,10 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
+import org.elkoserver.foundation.server.DirectObjectDatabaseConfiguration
 import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
-import org.elkoserver.foundation.server.ObjectDatabaseFactory
+import org.elkoserver.foundation.server.ObjectDatabaseConfigurationFromPropertiesFactory
+import org.elkoserver.foundation.server.RepositoryObjectDatabaseConfiguration
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
@@ -279,6 +281,7 @@ internal class PresenceServerSgd(
     val directObjectDatabaseFactory by Once {
         DirectObjectDatabaseFactory(
             req(provided.props()),
+            "conf.presence",
             req(directObjectDatabaseGorgel),
             req(directObjectDatabaseRunnerFactory),
             req(provided.baseGorgel()),
@@ -590,6 +593,7 @@ internal class PresenceServerSgd(
             req(server),
             req(serverDescription).serverName,
             req(provided.props()),
+            "conf.presence",
             req(repositoryObjectDatabaseGorgel),
             req(odbActorGorgel),
             req(messageDispatcherFactory),
@@ -619,18 +623,26 @@ internal class PresenceServerSgd(
 
     val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
+    val objectDatabaseConfigurationFromPropertiesFactory by Once { ObjectDatabaseConfigurationFromPropertiesFactory(req(provided.props()), "conf.presence") }
+
     val objectDatabaseFactory by Once {
-        ObjectDatabaseFactory(
-            req(provided.props()),
-            req(repositoryObjectDatabaseFactory),
-            req(directObjectDatabaseFactory)
-        )
+        when (req(objectDatabaseConfigurationFromPropertiesFactory).read()) {
+            DirectObjectDatabaseConfiguration -> req(directObjectDatabaseFactory)
+            RepositoryObjectDatabaseConfiguration -> req(repositoryObjectDatabaseFactory)
+        }
+    }
+
+    val objectDatabase by Once {
+        req(objectDatabaseFactory).create().apply {
+            @Suppress("SpellCheckingInspection")
+            addClass("graphtable", GraphTable::class.java)
+        }
     }
 
     val presenceServer: D<PresenceServer> by Once {
         PresenceServer(
             req(server),
-            req(objectDatabaseFactory),
+            req(objectDatabase),
             req(refTable),
             req(presenceServerGorgel),
             req(graphDescGorgel),

@@ -2,7 +2,6 @@ package org.elkoserver.server.presence
 
 import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -13,7 +12,7 @@ import java.util.LinkedList
  */
 internal class PresenceServer(
     private val myServer: Server,
-    objectDatabaseFactory: ObjectDatabaseFactory,
+    internal val objectDatabase: ObjectDatabase,
     internal val refTable: RefTable,
     private val gorgel: Gorgel,
     private val graphDescGorgel: Gorgel,
@@ -21,9 +20,6 @@ internal class PresenceServer(
     baseCommGorgel: Gorgel,
     private val domainRegistry: DomainRegistry
 ) {
-    /** Database that this server stores stuff in.  */
-    internal val objectDatabase: ObjectDatabase
-
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false
 
@@ -237,9 +233,6 @@ internal class PresenceServer(
         myUsers = HashMap()
         myVisibles = HashMap()
         myContextMetadata = HashMap()
-        objectDatabase = objectDatabaseFactory.openObjectDatabase("conf.presence")
-        @Suppress("SpellCheckingInspection")
-        objectDatabase.addClass("graphtable", GraphTable::class.java)
         objectDatabase.getObject("graphs") { obj: Any? ->
             if (obj != null) {
                 val info = obj as GraphTable

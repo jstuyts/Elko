@@ -3,7 +3,6 @@ package org.elkoserver.server.workshop
 import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.Server
-import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.json.Encodable
 import org.elkoserver.objectdatabase.ObjectDatabase
@@ -58,7 +57,6 @@ class Workshop internal constructor(
      * Load the statically configured worker objects.
      */
     fun loadStartupWorkers(workerListRefs: String?) {
-        myObjectDatabase.addClass("workers", StartupWorkerList::class.java)
         myObjectDatabase.getObject("workers", StartupWorkerListReceiver("workers"))
         workerListRefs?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
             myObjectDatabase.getObject(tag, StartupWorkerListReceiver(tag))
@@ -227,7 +225,6 @@ class Workshop internal constructor(
     }
 
     init {
-        myObjectDatabase.addClass("auth", AuthDesc::class.java)
         refTable.addRef(ClientHandler(this, baseCommGorgel.getChild(ClientHandler::class)))
         refTable.addRef(AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class)))
         isShuttingDown = false

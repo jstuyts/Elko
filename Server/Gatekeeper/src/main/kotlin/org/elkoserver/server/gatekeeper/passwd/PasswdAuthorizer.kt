@@ -25,13 +25,6 @@ class PasswdAuthorizer(
     private val amAnonymousOK: Boolean,
     private val myActorIDBase: String) : Authorizer {
 
-    init {
-        myObjectDatabase.apply {
-            addClass("place", PlaceDesc::class.java)
-            addClass("actor", ActorDesc::class.java)
-        }
-    }
-
     /**
      * Add an actor to the actor table.
      *

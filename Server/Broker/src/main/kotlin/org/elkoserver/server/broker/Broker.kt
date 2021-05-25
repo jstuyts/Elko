@@ -1,7 +1,6 @@
 package org.elkoserver.server.broker
 
 import org.elkoserver.foundation.actor.RefTable
-import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.metadata.LoadDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
@@ -20,17 +19,14 @@ import java.util.LinkedList
  * @param myServer  Server object.
  */
 internal class Broker(
-        private val myServer: Server,
-        objectDatabaseFactory: ObjectDatabaseFactory,
-        internal val refTable: RefTable,
-        gorgel: Gorgel,
-        launcherTableGorgel: Gorgel,
-        private val timer: Timer,
-        baseCommGorgel: Gorgel,
-        startMode: Int) {
-
-    /** Database for configuration data.  */
-    private val myObjectDatabase: ObjectDatabase
+    private val myServer: Server,
+    private val myObjectDatabase: ObjectDatabase,
+    internal val refTable: RefTable,
+    gorgel: Gorgel,
+    launcherTableGorgel: Gorgel,
+    private val timer: Timer,
+    baseCommGorgel: Gorgel,
+    startMode: Int) {
 
     /** Registered services.  Maps (service name, protocol) pairs to sets of
      * ServiceDesc objects.  */
@@ -306,9 +302,6 @@ internal class Broker(
     init {
         refTable.addRef(clientHandler)
         refTable.addRef(myAdminHandler)
-        myObjectDatabase = objectDatabaseFactory.openObjectDatabase("conf.broker")
-        myObjectDatabase.addClass("launchertable", LauncherTable::class.java)
-        myObjectDatabase.addClass("launcher", LauncherTable.Launcher::class.java)
         myObjectDatabase.getObject("launchertable") { obj: Any? ->
             if (obj != null) {
                 launcherTable = (obj as LauncherTable).apply {

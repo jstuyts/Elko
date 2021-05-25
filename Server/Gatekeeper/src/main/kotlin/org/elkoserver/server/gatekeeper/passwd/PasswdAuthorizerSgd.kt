@@ -60,6 +60,9 @@ internal class PasswdAuthorizerSgd(
     val anonymousOk by Once { !req(provided.props()).testProperty("conf.gatekeeper.anonymous", "false") }
 
     val objectDatabase by Once {
-        req(provided.objectDatabaseFactory()).openObjectDatabase("conf.gatekeeper")
+        req(provided.objectDatabaseFactory()).create().apply {
+            addClass("place", PlaceDesc::class.java)
+            addClass("actor", ActorDesc::class.java)
+        }
     }
 }

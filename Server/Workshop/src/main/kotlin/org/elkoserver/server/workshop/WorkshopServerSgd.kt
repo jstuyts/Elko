@@ -55,8 +55,10 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
+import org.elkoserver.foundation.server.DirectObjectDatabaseConfiguration
 import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
-import org.elkoserver.foundation.server.ObjectDatabaseFactory
+import org.elkoserver.foundation.server.ObjectDatabaseConfigurationFromPropertiesFactory
+import org.elkoserver.foundation.server.RepositoryObjectDatabaseConfiguration
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
@@ -64,6 +66,7 @@ import org.elkoserver.foundation.server.ServiceActor
 import org.elkoserver.foundation.server.ServiceActorFactory
 import org.elkoserver.foundation.server.ServiceLink
 import org.elkoserver.foundation.server.ShutdownWatcher
+import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.AuthDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
@@ -278,6 +281,7 @@ internal class WorkshopServerSgd(
     val directObjectDatabaseFactory by Once {
         DirectObjectDatabaseFactory(
             req(provided.props()),
+            "conf.workshop",
             req(directObjectDatabaseGorgel),
             req(directObjectDatabaseRunnerFactory),
             req(provided.baseGorgel()),
@@ -568,6 +572,7 @@ internal class WorkshopServerSgd(
             req(server),
             req(serverDescription).serverName,
             req(provided.props()),
+            "conf.workshop",
             req(repositoryObjectDatabaseGorgel),
             req(odbActorGorgel),
             req(messageDispatcherFactory),
@@ -597,16 +602,20 @@ internal class WorkshopServerSgd(
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
+    val objectDatabaseConfigurationFromPropertiesFactory by Once { ObjectDatabaseConfigurationFromPropertiesFactory(req(provided.props()), "conf.workshop") }
+
     val objectDatabaseFactory by Once {
-        ObjectDatabaseFactory(
-            req(provided.props()),
-            req(repositoryObjectDatabaseFactory),
-            req(directObjectDatabaseFactory)
-        )
+        when (req(objectDatabaseConfigurationFromPropertiesFactory).read()) {
+            DirectObjectDatabaseConfiguration -> req(directObjectDatabaseFactory)
+            RepositoryObjectDatabaseConfiguration -> req(repositoryObjectDatabaseFactory)
+        }
     }
 
     val objectDatabase by Once {
-        req(objectDatabaseFactory).openObjectDatabase("conf.workshop")
+        req(objectDatabaseFactory).create().apply {
+            addClass("auth", AuthDesc::class.java)
+            addClass("workers", StartupWorkerList::class.java)
+        }
     }
 
     val objectDatabaseDispatcher by Once {

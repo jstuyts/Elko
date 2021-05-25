@@ -1,8 +1,8 @@
 package org.elkoserver.server.gatekeeper
 
 import org.elkoserver.foundation.properties.ElkoProperties
-import org.elkoserver.foundation.server.ObjectDatabaseFactory
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.objectdatabase.ObjectDatabaseFactory
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
 

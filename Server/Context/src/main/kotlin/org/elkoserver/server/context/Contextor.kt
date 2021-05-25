@@ -700,7 +700,6 @@ class Contextor internal constructor(
      * object names.
      */
     private fun loadStaticObjects(staticListRefs: String?) {
-        objectDatabase.addClass("statics", StaticObjectList::class.java)
         objectDatabase.getObject("statics", StaticObjectListReceiver("statics"))
         staticListRefs?.tokenize(' ', ',', ';', ':')?.forEach { tag ->
             objectDatabase.getObject(tag, StaticObjectListReceiver(tag))
