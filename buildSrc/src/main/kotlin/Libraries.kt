@@ -2,10 +2,10 @@
 
 // https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server
 // DO NOT UPGRADE UNTIL JETTY USES A STABLE VERSION OF SLF4J
-private const val jettyVersion = "9.4.40.v20210413"
+private const val jettyVersion = "9.4.41.v20210516"
 
 // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
-private const val junitVersion = "5.7.1"
+private const val junitVersion = "5.7.2"
 
 object Libraries {
     // https://mvnrepository.com/artifact/net.sourceforge.argparse4j/argparse4j
