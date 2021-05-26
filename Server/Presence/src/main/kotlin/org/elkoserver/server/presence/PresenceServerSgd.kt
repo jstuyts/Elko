@@ -18,7 +18,6 @@ import org.elkoserver.foundation.json.ClockInjector
 import org.elkoserver.foundation.json.ConstructorInvoker
 import org.elkoserver.foundation.json.JsonToObjectDeserializer
 import org.elkoserver.foundation.json.MessageDispatcher
-import org.elkoserver.foundation.json.MessageDispatcherFactory
 import org.elkoserver.foundation.json.MethodInvoker
 import org.elkoserver.foundation.json.RandomInjector
 import org.elkoserver.foundation.net.BaseConnectionSetup
@@ -56,10 +55,7 @@ import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRunner
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
-import org.elkoserver.foundation.server.DirectObjectDatabaseConfiguration
 import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
-import org.elkoserver.foundation.server.ObjectDatabaseConfigurationFromPropertiesFactory
-import org.elkoserver.foundation.server.RepositoryObjectDatabaseConfiguration
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
@@ -72,17 +68,7 @@ import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.idgeneration.LongIdGenerator
 import org.elkoserver.idgeneration.RandomIdGenerator
-import org.elkoserver.objectdatabase.DirectObjectDatabaseFactory
-import org.elkoserver.objectdatabase.DirectObjectDatabaseRunnerFactory
-import org.elkoserver.objectdatabase.GetRequestFactory
-import org.elkoserver.objectdatabase.ObjectDatabaseDirect
-import org.elkoserver.objectdatabase.ObjectDatabaseRepository
-import org.elkoserver.objectdatabase.ObjectDatabaseRepositoryActor
-import org.elkoserver.objectdatabase.PutRequestFactory
-import org.elkoserver.objectdatabase.QueryRequestFactory
-import org.elkoserver.objectdatabase.RemoveRequestFactory
-import org.elkoserver.objectdatabase.RepositoryObjectDatabaseFactory
-import org.elkoserver.objectdatabase.UpdateRequestFactory
+import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.trace.slf4j.Gorgel
 import org.ooverkommelig.D
 import org.ooverkommelig.ObjectGraphConfiguration
@@ -105,6 +91,7 @@ internal class PresenceServerSgd(
         fun authDescFromPropertiesFactory(): D<AuthDescFromPropertiesFactory>
         fun hostDescFromPropertiesFactory(): D<HostDescFromPropertiesFactory>
         fun externalShutdownWatcher(): D<ShutdownWatcher>
+        fun objectDatabase(): D<ObjectDatabase>
     }
 
     val sslContextSgd = add(SslContextSgd(object : SslContextSgd.Provided {
@@ -145,17 +132,6 @@ internal class PresenceServerSgd(
     val jsonToObjectDeserializerGorgel by Once { req(provided.baseGorgel()).getChild(JsonToObjectDeserializer::class) }
 
     val listenerGorgel by Once { req(provided.baseGorgel()).getChild(Listener::class) }
-
-    val directObjectDatabaseGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseDirect::class) }
-
-    val repositoryObjectDatabaseGorgel by Once { req(provided.baseGorgel()).getChild(ObjectDatabaseRepository::class) }
-
-    val odbActorGorgel by Once {
-        req(provided.baseGorgel()).getChild(
-            ObjectDatabaseRepositoryActor::class,
-            COMMUNICATION_CATEGORY_TAG
-        )
-    }
 
     val presenceActorGorgel by Once { req(provided.baseGorgel()).getChild(PresenceActor::class) }
 
@@ -275,20 +251,6 @@ internal class PresenceServerSgd(
         )
     }
         .dispose(SelectThread::shutDown)
-
-    val directObjectDatabaseRunnerFactory by Once { DirectObjectDatabaseRunnerFactory() }
-
-    val directObjectDatabaseFactory by Once {
-        DirectObjectDatabaseFactory(
-            req(provided.props()),
-            "conf.presence",
-            req(directObjectDatabaseGorgel),
-            req(directObjectDatabaseRunnerFactory),
-            req(provided.baseGorgel()),
-            req(jsonToObjectDeserializer),
-            req(runner)
-        )
-    }
 
     val chunkyByteArrayInputStreamFactory by Once {
         ChunkyByteArrayInputStreamFactory(req(inputGorgel))
@@ -493,6 +455,8 @@ internal class PresenceServerSgd(
 
     val serverDescription by Once { req(serverDescriptionFromPropertiesFactory).create("presence") }
 
+    val serverName by Once { req(serverDescription).serverName }
+
     val server by Once {
         Server(
             req(provided.props()),
@@ -581,68 +545,17 @@ internal class PresenceServerSgd(
 
     val serverTagGenerator by Once { LongIdGenerator() }
 
-    val messageDispatcherFactory by Once {
-        MessageDispatcherFactory(
-            req(methodInvokerCommGorgel),
-            req(jsonToObjectDeserializer)
-        )
-    }
-
-    val repositoryObjectDatabaseFactory by Once {
-        RepositoryObjectDatabaseFactory(
-            req(server),
-            req(serverDescription).serverName,
-            req(provided.props()),
-            "conf.presence",
-            req(repositoryObjectDatabaseGorgel),
-            req(odbActorGorgel),
-            req(messageDispatcherFactory),
-            req(provided.hostDescFromPropertiesFactory()),
-            req(jsonToObjectDeserializer),
-            req(getRequestFactory),
-            req(putRequestFactory),
-            req(updateRequestFactory),
-            req(queryRequestFactory),
-            req(removeRequestFactory),
-            req(mustSendDebugReplies),
-            req(connectionRetrierFactory)
-        )
-    }
-
-    val getRequestFactory by Once { GetRequestFactory(req(requestTagGenerator)) }
-
-    val putRequestFactory by Once { PutRequestFactory(req(requestTagGenerator)) }
-
-    val updateRequestFactory by Once { UpdateRequestFactory(req(requestTagGenerator)) }
-
-    val queryRequestFactory by Once { QueryRequestFactory(req(requestTagGenerator)) }
-
-    val removeRequestFactory by Once { RemoveRequestFactory(req(requestTagGenerator)) }
-
-    val requestTagGenerator by Once { LongIdGenerator(1L) }
-
     val refTable by Once { RefTable(req(messageDispatcher), req(baseCommGorgel).getChild(RefTable::class)) }
 
-    val objectDatabaseConfigurationFromPropertiesFactory by Once { ObjectDatabaseConfigurationFromPropertiesFactory(req(provided.props()), "conf.presence") }
-
-    val objectDatabaseFactory by Once {
-        when (req(objectDatabaseConfigurationFromPropertiesFactory).read()) {
-            DirectObjectDatabaseConfiguration -> req(directObjectDatabaseFactory)
-            RepositoryObjectDatabaseConfiguration -> req(repositoryObjectDatabaseFactory)
-        }
-    }
-
-    val objectDatabase by Once {
-        req(objectDatabaseFactory).create().apply {
-            @Suppress("SpellCheckingInspection")
-            addClass("graphtable", GraphTable::class.java)
-        }
+    val objectDatabaseClassList by Once {
+        @Suppress("SpellCheckingInspection")
+        mapOf("graphtable" to GraphTable::class.java)
     }
 
     val presenceServer: D<PresenceServer> by Once {
         PresenceServer(
             req(server),
-            req(objectDatabase),
+            req(provided.objectDatabase()),
             req(refTable),
             req(presenceServerGorgel),
             req(graphDescGorgel),

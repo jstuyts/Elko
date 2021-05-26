@@ -1,8 +1,8 @@
-package org.elkoserver.foundation.server
+package org.elkoserver.objectdatabase.propertiesbased
 
 import org.elkoserver.foundation.properties.ElkoProperties
 
-class ObjectDatabaseConfigurationFromPropertiesFactory(
+internal class ObjectDatabaseConfigurationFromPropertiesFactory(
     private val props: ElkoProperties,
     private val propRoot: String,
 ) {
@@ -10,7 +10,7 @@ class ObjectDatabaseConfigurationFromPropertiesFactory(
         when {
             propsContainDirectConfiguration() -> DirectObjectDatabaseConfiguration
             propsContainRepositoryConfiguration() -> RepositoryObjectDatabaseConfiguration
-            else -> throw IllegalStateException()
+            else -> throw IllegalStateException("No database definition at: $propRoot, in $props")
         }
 
     private fun propsContainDirectConfiguration() =

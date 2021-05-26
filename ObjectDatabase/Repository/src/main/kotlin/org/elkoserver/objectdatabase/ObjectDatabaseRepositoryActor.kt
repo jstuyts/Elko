@@ -24,7 +24,7 @@ import org.elkoserver.util.trace.slf4j.Gorgel
 class ObjectDatabaseRepositoryActor(
     connection: Connection,
     private val myObjectDatabase: ObjectDatabaseRepository,
-    localName: String?,
+    localName: String,
     host: HostDesc,
     dispatcher: MessageDispatcher,
     gorgel: Gorgel,

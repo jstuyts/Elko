@@ -19,7 +19,7 @@ internal class PasswdAuthorizerSgd(
         PasswdAuthorizer(
             req(random),
             req(provided.gatekeeper()),
-            req(objectDatabase),
+            req(objectDatabaseWithClassesAdded),
             req(anonymousOk),
             req(actorIdBase)
         )
@@ -59,8 +59,8 @@ internal class PasswdAuthorizerSgd(
 
     val anonymousOk by Once { !req(provided.props()).testProperty("conf.gatekeeper.anonymous", "false") }
 
-    val objectDatabase by Once {
-        req(provided.objectDatabaseFactory()).create().apply {
+    val objectDatabaseWithClassesAdded by Once {
+        req(provided.objectDatabase()).apply {
             addClass("place", PlaceDesc::class.java)
             addClass("actor", ActorDesc::class.java)
         }
