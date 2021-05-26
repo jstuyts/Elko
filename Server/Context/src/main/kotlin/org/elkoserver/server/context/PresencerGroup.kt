@@ -6,6 +6,7 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JsonLiteral
@@ -70,8 +71,8 @@ internal class PresencerGroup(
      *
      * @return a new Actor object for use on this new connection
      */
-    override fun provideActor(connection: Connection, dispatcher: MessageDispatcher, host: HostDesc): Actor {
-        val presencer = PresencerActor(connection, dispatcher, this, host, presencerActorGorgel, mustSendDebugReplies)
+    override fun provideActor(connection: Connection, dispatcher: MessageDispatcher, auth: AuthDesc): Actor {
+        val presencer = PresencerActor(connection, dispatcher, this, auth, presencerActorGorgel, mustSendDebugReplies)
         updatePresencer(presencer)
         return presencer
     }

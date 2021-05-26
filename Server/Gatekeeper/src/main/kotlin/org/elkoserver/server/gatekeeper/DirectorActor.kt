@@ -6,7 +6,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.server.metadata.HostDesc
+import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
 
@@ -22,13 +22,12 @@ import java.util.function.Consumer
  * @param connection  The connection for actually communicating.
  * @param dispatcher  Message dispatcher for incoming messages.
  * @param myFactory  The factory that created this actor.
- * @param director  Host description for the director connected to.
  */
 internal class DirectorActor(
         connection: Connection,
         dispatcher: MessageDispatcher,
         private val myFactory: DirectorActorFactory,
-        director: HostDesc,
+        auth: AuthDesc,
         gorgel: Gorgel,
         mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
@@ -121,6 +120,6 @@ internal class DirectorActor(
 
     init {
         myFactory.setDirector(this)
-        send(msgAuth(this, director.auth, myFactory.gatekeeper.serverName()))
+        send(msgAuth(this, auth, myFactory.gatekeeper.serverName()))
     }
 }

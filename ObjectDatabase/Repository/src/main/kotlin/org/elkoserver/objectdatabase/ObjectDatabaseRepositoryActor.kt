@@ -6,7 +6,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.server.metadata.HostDesc
+import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.objectdatabase.store.ObjectDesc
 import org.elkoserver.objectdatabase.store.ResultDesc
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -18,14 +18,14 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *    repository.
  * @param myObjectDatabase  Local interface to the remote repository.
  * @param localName  Name of this server.
- * @param host  Description of repository host address.
+ * @param auth  Description of authentication information of this server.
  * @param dispatcher  Message dispatcher for repository actors.
  */
 class ObjectDatabaseRepositoryActor(
     connection: Connection,
     private val myObjectDatabase: ObjectDatabaseRepository,
     localName: String,
-    host: HostDesc,
+    auth: AuthDesc,
     dispatcher: MessageDispatcher,
     gorgel: Gorgel,
     mustSendDebugReplies: Boolean
@@ -101,7 +101,7 @@ class ObjectDatabaseRepositoryActor(
     }
 
     init {
-        send(msgAuth(this, host.auth, localName))
+        send(msgAuth(this, auth, localName))
         myObjectDatabase.repositoryConnected(this)
     }
 }

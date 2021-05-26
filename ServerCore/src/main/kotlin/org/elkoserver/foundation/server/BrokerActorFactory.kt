@@ -2,7 +2,7 @@ package org.elkoserver.foundation.server
 
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.server.metadata.HostDesc
+import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 class BrokerActorFactory(
@@ -10,6 +10,6 @@ class BrokerActorFactory(
         private val serverLoadMonitor: ServerLoadMonitor,
         private val gorgel: Gorgel,
         private val mustSendDebugReplies: Boolean) {
-    fun create(connection: Connection, server: Server, brokerHost: HostDesc): BrokerActor =
-            BrokerActor(connection, dispatcher, server, serverLoadMonitor, brokerHost, gorgel, mustSendDebugReplies)
+    fun create(connection: Connection, server: Server, auth: AuthDesc): BrokerActor =
+            BrokerActor(connection, dispatcher, server, serverLoadMonitor, auth, gorgel, mustSendDebugReplies)
 }

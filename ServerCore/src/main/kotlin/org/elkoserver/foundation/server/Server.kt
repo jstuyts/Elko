@@ -112,7 +112,7 @@ class Server(
     }
 
     private inner class BrokerMessageHandlerFactory : MessageHandlerFactory {
-        override fun provideMessageHandler(connection: Connection): MessageHandler = brokerActorFactory.create(connection, this@Server, myBrokerHost!!)
+        override fun provideMessageHandler(connection: Connection): MessageHandler = brokerActorFactory.create(connection, this@Server, myBrokerHost!!.auth)
 
         override fun handleConnectionFailure() {
             // No action needed. This factory ignores failures.

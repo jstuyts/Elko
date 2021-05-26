@@ -6,7 +6,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.server.metadata.HostDesc
+import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -16,14 +16,13 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param connection  The connection for communicating with the broker.
  * @param dispatcher  Dispatcher for routing messages from the broker.
  * @param myServer  This actor's own server.
- * @param host  The broker's host address.
  */
 class BrokerActor(
     connection: Connection,
     dispatcher: MessageDispatcher,
     private val myServer: Server,
     private val loadMonitor: ServerLoadMonitor,
-    host: HostDesc,
+    auth: AuthDesc,
     gorgel: Gorgel,
     mustSendDebugReplies: Boolean
 ) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
@@ -101,7 +100,7 @@ class BrokerActor(
     }
 
     init {
-        send(msgAuth(this, host.auth, myServer.serverName))
+        send(msgAuth(this, auth, myServer.serverName))
         send(msgWillserve(this, myServer.services()))
         loadMonitor.registerLoadWatcher(myLoadWatcher)
         myServer.brokerConnected(this)

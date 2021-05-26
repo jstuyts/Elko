@@ -5,6 +5,7 @@ import org.elkoserver.foundation.net.Connection
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrier
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
+import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.function.Consumer
@@ -25,6 +26,7 @@ internal class DirectorActorFactory(
         private val connectionRetrierFactory: ConnectionRetrierFactory) : MessageHandlerFactory {
     /** Descriptor for the director host.  */
     private var myDirectorHost: HostDesc? = null
+    private var myDirectorAuth: AuthDesc? = null
 
     /** The active director connection, if there is one.  */
     private var myDirector: DirectorActor? = null
@@ -42,7 +44,7 @@ internal class DirectorActorFactory(
             gorgel.error("unknown director access protocol '${director.protocol}' for access to ${director.hostPort}")
         } else {
             myConnectionRetrier?.giveUp()
-            myDirectorHost = director
+            myDirectorAuth = director.auth
             connectionRetrierFactory.create(director, "director", this)
         }
     }
@@ -60,7 +62,7 @@ internal class DirectorActorFactory(
      * @param connection  The Connection object that was just created.
      */
     override fun provideMessageHandler(connection: Connection) =
-            DirectorActor(connection, myDispatcher, this, myDirectorHost!!, directorActorGorgel, mustSendDebugReplies)
+            DirectorActor(connection, myDispatcher, this, myDirectorAuth!!, directorActorGorgel, mustSendDebugReplies)
 
     override fun handleConnectionFailure() {
         // No action needed. This factory ignores failures.

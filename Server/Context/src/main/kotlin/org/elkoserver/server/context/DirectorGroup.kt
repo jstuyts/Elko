@@ -8,6 +8,7 @@ import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerLoadMonitor
+import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.json.JsonLiteral
@@ -84,8 +85,8 @@ class DirectorGroup(
      *
      * @return a new Actor object for use on this new connection
      */
-    override fun provideActor(connection: Connection, dispatcher: MessageDispatcher, host: HostDesc): Actor {
-        val director = directorActorFactory.create(connection, dispatcher, this, host)
+    override fun provideActor(connection: Connection, dispatcher: MessageDispatcher, auth: AuthDesc): Actor {
+        val director = directorActorFactory.create(connection, dispatcher, this, auth)
         updateDirector(director)
         return director
     }

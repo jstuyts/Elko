@@ -9,7 +9,7 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.server.metadata.HostDesc
+import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.server.context.model.BasicObject
 import org.elkoserver.server.context.model.Context
@@ -23,13 +23,12 @@ import java.util.LinkedList
  * @param connection  The connection for actually communicating.
  * @param dispatcher  Message dispatcher for incoming messages.
  * @param myGroup  The send group for all the directors.
- * @param host  Host description for this connection.
  */
 class DirectorActor(
     connection: Connection,
     dispatcher: MessageDispatcher,
     private val myGroup: DirectorGroup,
-    host: HostDesc,
+    auth: AuthDesc,
     private val reservationFactory: ReservationFactory,
     private val timer: Timer,
     gorgel: Gorgel,
@@ -330,7 +329,7 @@ class DirectorActor(
 
     init {
         myGroup.admitMember(this)
-        send(msgAuth(this, host.auth, myGroup.contextor.serverName()))
+        send(msgAuth(this, auth, myGroup.contextor.serverName()))
         myGroup.listeners
             .filter { "reservation" == it.auth.mode }
             .forEach { send(msgAddress(this, it.protocol!!, it.hostPort!!)) }

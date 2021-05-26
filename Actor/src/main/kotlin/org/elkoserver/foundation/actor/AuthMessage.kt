@@ -12,7 +12,7 @@ import org.elkoserver.json.Referenceable
  * @param auth  Authentication information to use.
  * @param label  Label to identify the entity seeking authorization.
  */
-fun msgAuth(target: Referenceable, auth: AuthDesc?, label: String?): JsonLiteral = msgAuth(target.ref(), auth, label)
+fun msgAuth(target: Referenceable, auth: AuthDesc, label: String): JsonLiteral = msgAuth(target.ref(), auth, label)
 
 /**
  * Create an 'auth' message.
@@ -21,9 +21,9 @@ fun msgAuth(target: Referenceable, auth: AuthDesc?, label: String?): JsonLiteral
  * @param auth  Authentication information to use.
  * @param label  Label to identify the entity seeking authorization.
  */
-fun msgAuth(target: String, auth: AuthDesc?, label: String?): JsonLiteral =
+fun msgAuth(target: String, auth: AuthDesc, label: String): JsonLiteral =
         JsonLiteralFactory.targetVerb(target, "auth").apply {
-            addParameterOpt("auth", auth)
-            addParameterOpt("label", label)
+            addParameter("auth", auth)
+            addParameter("label", label)
             finish()
         }

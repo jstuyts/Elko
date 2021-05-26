@@ -108,7 +108,7 @@ class ObjectDatabaseRepository(
                 connection,
                 this@ObjectDatabaseRepository,
                 localName,
-                myRepHost!!,
+                myRepHost!!.auth,
                 myDispatcher,
                 odbActorGorgel,
                 mustSendDebugReplies

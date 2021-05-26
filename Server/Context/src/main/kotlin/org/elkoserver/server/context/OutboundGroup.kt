@@ -8,6 +8,7 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.timer.Timer
@@ -57,7 +58,7 @@ abstract class OutboundGroup(propRoot: String,
      */
     fun connectHosts() {
         for (host in myHosts) {
-            connectionRetrierFactory.create(host, label(), HostConnector(host))
+            connectionRetrierFactory.create(host, label(), HostConnector(host.auth))
         }
         if (amAutoRegister) {
             myServer.findService(service(), HostFoundHandler(), true)
@@ -76,7 +77,7 @@ abstract class OutboundGroup(propRoot: String,
                     .filter { it.failure == null }
                     .map { it.asHostDesc(myRetryInterval) }
                     .forEach {
-                        connectionRetrierFactory.create(it, label(), HostConnector(it))
+                        connectionRetrierFactory.create(it, label(), HostConnector(it.auth))
                     }
         }
     }
@@ -85,14 +86,14 @@ abstract class OutboundGroup(propRoot: String,
      * Factory class to hold onto host information while attempting to
      * establish an external server connection.
      */
-    private inner class HostConnector(private val myHost: HostDesc) : MessageHandlerFactory {
+    private inner class HostConnector(private val myAuth: AuthDesc) : MessageHandlerFactory {
 
         /**
          * Provide a message handler for a new external server connection.
          *
          * @param connection  The Connection object that was just created.
          */
-        override fun provideMessageHandler(connection: Connection): MessageHandler = provideActor(connection, myDispatcher, myHost)
+        override fun provideMessageHandler(connection: Connection): MessageHandler = provideActor(connection, myDispatcher, myAuth)
 
         override fun handleConnectionFailure() {
             // No action needed. This factory ignores failures.
@@ -138,7 +139,7 @@ abstract class OutboundGroup(propRoot: String,
      *
      * @return a new Actor object for use on this new connection
      */
-    abstract fun provideActor(connection: Connection, dispatcher: MessageDispatcher, host: HostDesc): Actor
+    abstract fun provideActor(connection: Connection, dispatcher: MessageDispatcher, auth: AuthDesc): Actor
 
     /**
      * Obtain a broker service string describing the type of service that

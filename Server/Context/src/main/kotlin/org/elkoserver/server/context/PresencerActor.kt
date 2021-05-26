@@ -6,7 +6,7 @@ import org.elkoserver.foundation.actor.msgAuth
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.server.metadata.HostDesc
+import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -15,13 +15,12 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * @param connection  The connection for actually communicating.
  * @param dispatcher  Message dispatcher for incoming messages.
  * @param myGroup  The send group for all the directors.
- * @param host  Host description for this connection.
  */
 internal class PresencerActor(
         connection: Connection,
         dispatcher: MessageDispatcher,
         private val myGroup: PresencerGroup,
-        host: HostDesc,
+        auth: AuthDesc,
         gorgel: Gorgel,
         mustSendDebugReplies: Boolean) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
 
@@ -100,6 +99,6 @@ internal class PresencerActor(
 
     init {
         myGroup.admitMember(this)
-        send(msgAuth(this, host.auth, myGroup.contextor.serverName()))
+        send(msgAuth(this, auth, myGroup.contextor.serverName()))
     }
 }
