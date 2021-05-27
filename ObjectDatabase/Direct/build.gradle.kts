@@ -7,10 +7,12 @@ plugins {
 
 dependencies {
     api(project(":JsonMessageHandling"))
+    api(project(":Net:ConnectionRetrier"))
     api(project(":ObjectDatabase:Api"))
     api(project(":Properties"))
     api(project(":Trace"))
     api(Libraries.nanojson)
+    api(Libraries.ooverkommelig)
 
     implementation(project(":Running"))
     implementation(kotlin("stdlib-jdk8"))

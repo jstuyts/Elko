@@ -9,9 +9,6 @@ import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.metadata.HostDesc
-import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
-import org.elkoserver.foundation.server.metadata.ServiceDesc
-import org.elkoserver.foundation.server.metadata.ServiceFinder
 import org.elkoserver.json.Encodable
 import org.elkoserver.objectdatabase.store.ObjectDesc
 import org.elkoserver.objectdatabase.store.ResultDesc
@@ -48,21 +45,18 @@ import java.util.function.Consumer
  * <p>The property <code>"<i>propRoot</i>.classdesc"</code> may specify a
  * (comma-separated) list of references to class description objects to
  * read from the repository at startup time.
- *  @param serviceFinder  Access to broker, to locate repository server.
  * @param localName  Name of this server.
  * @param props  Properties that the hosting server was configured with
  * @param propRoot  Prefix string for generating relevant configuration
  *    property names.
  */
 class ObjectDatabaseRepository(
-    serviceFinder: ServiceFinder,
     localName: String,
     props: ElkoProperties,
     propRoot: String,
     gorgel: Gorgel,
     private val odbActorGorgel: Gorgel,
     messageDispatcherFactory: MessageDispatcherFactory,
-    hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
     jsonToObjectDeserializer: JsonToObjectDeserializer,
     private val getRequestFactory: GetRequestFactory,
     private val putRequestFactory: PutRequestFactory,
@@ -70,7 +64,8 @@ class ObjectDatabaseRepository(
     private val queryRequestFactory: QueryRequestFactory,
     private val removeRequestFactory: RemoveRequestFactory,
     private val mustSendDebugReplies: Boolean,
-    private val connectionRetrierFactory: ConnectionRetrierFactory
+    private val connectionRetrierFactory: ConnectionRetrierFactory,
+    repositoryHostInitializer: RepositoryHostInitializer
 ) : ObjectDatabaseBase(gorgel, jsonToObjectDeserializer) {
     /** Connection to the repository, if there is one.  */
     private var myObjectDatabaseRepositoryActor: ObjectDatabaseRepositoryActor? = null
@@ -94,10 +89,6 @@ class ObjectDatabaseRepository(
         addClass(ObjectDatabaseRepositoryActor::class.java)
     }
 
-    /** Repository connection retry interval, in seconds, or -1 to take the
-     * default.  */
-    private val myRetryInterval: Int
-
     /** Flag to prevent reopening repository connection while shutting down.  */
     private var amClosing = false
 
@@ -120,15 +111,9 @@ class ObjectDatabaseRepository(
         }
     }
 
-    private inner class RepositoryFoundHandler : Consumer<Array<ServiceDesc>> {
-        override fun accept(obj: Array<ServiceDesc>) {
-            if (obj[0].failure != null) {
-                gorgel.error("unable to find repository: ${obj[0].failure}")
-            } else {
-                myRepHost = obj[0].asHostDesc(myRetryInterval)
-                connectToRepository()
-            }
-        }
+    internal fun connectToRepository(hostDesc: HostDesc?) {
+        myRepHost = hostDesc
+        connectToRepository()
     }
 
     /**
@@ -341,16 +326,6 @@ class ObjectDatabaseRepository(
         addClass("obji", ObjectDesc::class.java)
         addClass("stati", ResultDesc::class.java)
         loadClassDesc(props.getProperty("$propRoot.classdesc"))
-        val odbPropRoot = "$propRoot.repository"
-        myRetryInterval = props.intProperty("$odbPropRoot.retry", -1)
-        var serviceName = props.getProperty("$odbPropRoot.service")
-        if (serviceName != null) {
-            myRepHost = null
-            serviceName = if (serviceName == "any") "repository-rep" else "repository-rep-$serviceName"
-            serviceFinder.findService(serviceName, RepositoryFoundHandler(), false)
-        } else {
-            myRepHost = hostDescFromPropertiesFactory.fromProperties(odbPropRoot)
-            connectToRepository()
-        }
+        repositoryHostInitializer.initialize(this)
     }
 }
