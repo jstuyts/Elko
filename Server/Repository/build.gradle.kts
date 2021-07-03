@@ -32,5 +32,7 @@ val apiClasses by tasks.registering(ApiClassesTask::class) {
 }
 
 tasks.withType<KotlinCompile>().configureEach {
-    kotlinOptions.jvmTarget = "11"
+    kotlinOptions {
+        jvmTarget = "11"
+    }
 }

@@ -2,7 +2,7 @@
 
 // https://mvnrepository.com/artifact/org.eclipse.jetty/jetty-server
 // DO NOT UPGRADE UNTIL JETTY USES A STABLE VERSION OF SLF4J
-private const val jettyVersion = "9.4.41.v20210516"
+private const val jettyVersion = "9.4.42.v20210604"
 
 // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
 private const val junitVersion = "5.7.2"
@@ -34,5 +34,5 @@ object Libraries {
     val ooverkommelig: String = "org.ooverkommelig:ooverkommelig-jvm:1beta3"
 
     // https://mvnrepository.com/artifact/org.slf4j/slf4j-api
-    val slf4j_api: String = "org.slf4j:slf4j-api:1.7.30"
+    val slf4j_api: String = "org.slf4j:slf4j-api:1.7.31"
 }
