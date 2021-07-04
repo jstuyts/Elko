@@ -14,7 +14,6 @@ dependencies {
     api(project(":Trace"))
     api(project(":Util"))
     api(Libraries.ooverkommelig)
-
     implementation(kotlin("stdlib-jdk8"))
 }
 

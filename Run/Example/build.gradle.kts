@@ -45,7 +45,7 @@ val startExampleBroker by tasks.registering(JavaExec::class) {
     inputs.files(brokerDataDirectory)
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=broker",
             "gorgel.system.identifier=example",
@@ -78,7 +78,7 @@ val startExampleBroker by tasks.registering(JavaExec::class) {
             "conf.comm.httptimeout=180",
             "conf.comm.httpselectwait=30",
 
-            // Alwyas use "recover" for now as the launcher table is empty,
+            // Always use "recover" for now as the launcher table is empty,
             // so "initial" won't have an effect anyway.
             "conf.broker.startmode=recover",
 
@@ -93,7 +93,7 @@ val stopExampleBroker by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BrokerShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.BrokerShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9011",
@@ -106,7 +106,7 @@ val startExampleContext by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=context",
             "gorgel.system.identifier=example",
@@ -153,7 +153,7 @@ val stopExampleContext by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.ServerViaBrokerShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.ServerViaBrokerShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9011",
@@ -167,7 +167,7 @@ val startExampleDirector by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=director",
             "gorgel.system.identifier=example",
@@ -207,7 +207,7 @@ val stopExampleDirector by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DirectorShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DirectorShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9062",
@@ -220,7 +220,7 @@ val startExampleWorkshop by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=workshop",
             "gorgel.system.identifier=example",
@@ -255,7 +255,7 @@ val stopExampleWorkshop by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.WorkshopShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.WorkshopShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9020",

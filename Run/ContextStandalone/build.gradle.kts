@@ -17,7 +17,7 @@ val startContextStandalone by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=broker",
             "gorgel.system.identifier=standalone",
@@ -61,7 +61,7 @@ val stopContextStandalone by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.ContextShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.ContextShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9000",

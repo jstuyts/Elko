@@ -7,7 +7,6 @@ plugins {
 
 dependencies {
     api(Libraries.nanojson)
-
     implementation(kotlin("stdlib-jdk8"))
 
     testApi(kotlin("test"))

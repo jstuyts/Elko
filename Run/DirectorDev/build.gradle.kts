@@ -17,7 +17,7 @@ val startDirectorDev by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=director",
             "gorgel.system.identifier=dev",
@@ -51,7 +51,7 @@ val stopDirectorDev by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DirectorShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DirectorShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9062",

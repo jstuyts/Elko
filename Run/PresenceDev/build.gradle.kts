@@ -17,7 +17,7 @@ val startPresenceDev by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=presence",
             "gorgel.system.identifier=dev",
@@ -50,7 +50,7 @@ val stopPresenceDev by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.PresenceShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.PresenceShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9041",

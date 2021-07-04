@@ -44,7 +44,7 @@ val startClusterManagedBroker by tasks.registering(JavaExec::class) {
     inputs.files(brokerDataDirectory)
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=broker",
             "gorgel.system.identifier=cluster-managed",
@@ -77,7 +77,7 @@ val stopClusterManagedBroker by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BrokerShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.BrokerShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9011",
@@ -90,7 +90,7 @@ val startClusterManagedContext by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=context",
             "gorgel.system.identifier=cluster-managed",
@@ -129,7 +129,7 @@ val stopClusterManagedContext by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.ServerViaBrokerShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.ServerViaBrokerShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9011",
@@ -143,7 +143,7 @@ val startClusterManagedDirector by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=director",
             "gorgel.system.identifier=cluster-managed",
@@ -172,7 +172,7 @@ val stopClusterManagedDirector by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DirectorShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DirectorShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9061",
@@ -185,7 +185,7 @@ val startClusterManagedGatekeeper by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=gatekeeper",
             "gorgel.system.identifier=cluster-managed",
@@ -226,7 +226,7 @@ val stopClusterManagedGatekeeper by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.GatekeeperShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.GatekeeperShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9031",

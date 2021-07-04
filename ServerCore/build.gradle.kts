@@ -17,7 +17,6 @@ dependencies {
     api(project(":Timer"))
     api(project(":Trace"))
     api(Libraries.nanojson)
-
     implementation(project(":ByteIoFramer:Api"))
     implementation(project(":ByteIoFramer:Json"))
     implementation(project(":Communication"))

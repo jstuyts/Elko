@@ -17,7 +17,7 @@ val startWorkshopDev by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=workshop",
             "gorgel.system.identifier=dev",
@@ -55,7 +55,7 @@ val stopWorkshopDev by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.WorkshopShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.WorkshopShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9021",

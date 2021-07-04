@@ -17,7 +17,7 @@ val startClusterDevContext1 by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=context",
             "gorgel.system.identifier=cluster-dev-1",
@@ -61,7 +61,7 @@ val stopClusterDevContext1 by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.ContextShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.ContextShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9000",
@@ -74,7 +74,7 @@ val startClusterDevContext2 by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=context",
             "gorgel.system.identifier=cluster-dev-2",
@@ -118,7 +118,7 @@ val stopClusterDevContext2 by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.ContextShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.ContextShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9100",

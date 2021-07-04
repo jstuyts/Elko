@@ -17,7 +17,7 @@ val startGatekeeperDev by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=gatekeeper",
             "gorgel.system.identifier=dev",
@@ -54,7 +54,7 @@ val stopGatekeeperDev by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.GatekeeperShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.GatekeeperShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9031",

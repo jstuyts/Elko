@@ -11,8 +11,6 @@ dependencies {
     api(project(":ServerMetadata"))
     api(project(":Trace"))
     api(Libraries.nanojson)
-
-    api(Libraries.nanojson)
     implementation(project(":Communication"))
     implementation(kotlin("stdlib-jdk8"))
 }

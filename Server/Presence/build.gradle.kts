@@ -13,7 +13,6 @@ dependencies {
     api(project(":Properties"))
     api(project(":Trace"))
     api(Libraries.nanojson)
-
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":ByteIoFramer:Json"))
     implementation(project(":ByteIoFramer:Websocket"))

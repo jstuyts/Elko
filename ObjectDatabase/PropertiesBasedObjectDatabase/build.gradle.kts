@@ -14,7 +14,6 @@ dependencies {
     api(project(":ServerMetadata"))
     api(project(":Trace"))
     api(Libraries.ooverkommelig)
-
     implementation(project(":Communication"))
     implementation(project(":ObjectDatabase:Direct"))
     implementation(project(":ObjectDatabase:Repository"))

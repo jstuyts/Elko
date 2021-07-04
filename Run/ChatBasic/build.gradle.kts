@@ -38,7 +38,7 @@ val startChatBasicContext by tasks.registering(JavaExec::class) {
     val hostName = InetAddress.getLocalHost().hostName
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=context",
             "gorgel.system.identifier=chat-basic",
@@ -93,7 +93,7 @@ val stopChatBasicContext by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.ContextShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.ContextShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9003",
@@ -114,7 +114,7 @@ val startChatBasicWebServer by tasks.registering(JavaExec::class) {
     dependsOn(createChatBasicWebRoot)
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.run.services.webserver.StartWebServerKt"
+    mainClass.set("org.elkoserver.run.services.webserver.StartWebServerKt")
     args = mutableListOf(
             createChatBasicWebRoot.get().temporaryDir.absolutePath,
             "figleaf",
@@ -129,7 +129,7 @@ val stopChatBasicWebServer by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.run.services.webserver.StopWebServerKt"
+    mainClass.set("org.elkoserver.run.services.webserver.StopWebServerKt")
     args = mutableListOf(
             "figleaf",
             "--port",

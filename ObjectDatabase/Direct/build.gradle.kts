@@ -13,7 +13,6 @@ dependencies {
     api(project(":Trace"))
     api(Libraries.nanojson)
     api(Libraries.ooverkommelig)
-
     implementation(project(":Running"))
     implementation(kotlin("stdlib-jdk8"))
 }

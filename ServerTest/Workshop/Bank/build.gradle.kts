@@ -11,7 +11,6 @@ dependencies {
     api(project(":Server:Workshop"))
     api(project(":ServerCore"))
     api(Libraries.nanojson)
-
     implementation(kotlin("stdlib-jdk8"))
 }
 

@@ -16,7 +16,6 @@ dependencies {
     api(project(":Trace"))
     api(Libraries.nanojson)
     api(Libraries.ooverkommelig)
-
     implementation(project(":Actor"))
     implementation(project(":Communication"))
     implementation(kotlin("stdlib-jdk8"))

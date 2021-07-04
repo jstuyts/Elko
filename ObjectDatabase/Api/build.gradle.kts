@@ -8,7 +8,6 @@ plugins {
 dependencies {
     api(project(":JsonMessageHandling"))
     api(Libraries.nanojson)
-
     implementation(kotlin("stdlib-jdk8"))
     implementation(project(":Util"))
 }

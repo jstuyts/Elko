@@ -40,7 +40,7 @@ val startRepositoryDev by tasks.registering(JavaExec::class) {
     inputs.files(repositoryDataDirectory)
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=repository",
             "gorgel.system.identifier=dev",
@@ -73,7 +73,7 @@ val stopRepositoryDev by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.RepositoryShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.RepositoryShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9051",

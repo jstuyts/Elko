@@ -44,7 +44,7 @@ val startBasicClusterBroker by tasks.registering(JavaExec::class) {
     inputs.files(brokerDataDirectory)
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=broker",
             "gorgel.system.identifier=basic-cluster",
@@ -77,7 +77,7 @@ val startBasicClusterBroker by tasks.registering(JavaExec::class) {
             "conf.comm.httptimeout=180",
             "conf.comm.httpselectwait=30",
 
-            // Alwyas use "recover" for now as the launcher table is empty,
+            // Always use "recover" for now as the launcher table is empty,
             // so "initial" won't have an effect anyway.
             "conf.broker.startmode=recover",
 
@@ -92,7 +92,7 @@ val stopBasicClusterBroker by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BrokerShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.BrokerShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9011",
@@ -105,7 +105,7 @@ val startBasicClusterContext by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=context",
             "gorgel.system.identifier=basic-cluster",
@@ -153,7 +153,7 @@ val stopBasicClusterContext by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.ServerViaBrokerShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.ServerViaBrokerShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9011",
@@ -167,7 +167,7 @@ val startBasicClusterDirector by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=director",
             "gorgel.system.identifier=basic-cluster",
@@ -207,7 +207,7 @@ val stopBasicClusterDirector by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DirectorShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DirectorShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9062",
@@ -220,7 +220,7 @@ val startBasicClusterWorkshop by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=workshop",
             "gorgel.system.identifier=basic-cluster",
@@ -255,7 +255,7 @@ val stopBasicClusterWorkshop by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.WorkshopShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.WorkshopShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9020",

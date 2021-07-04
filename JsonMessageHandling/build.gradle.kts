@@ -10,7 +10,6 @@ dependencies {
     api(project(":Running"))
     api(project(":Trace"))
     api(Libraries.nanojson)
-
     implementation(kotlin("stdlib-jdk8"))
 }
 

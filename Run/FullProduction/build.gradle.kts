@@ -45,7 +45,7 @@ val startFullProductionBroker by tasks.registering(JavaExec::class) {
     inputs.files(brokerDataDirectory)
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=broker",
             "gorgel.system.identifier=full-production",
@@ -78,7 +78,7 @@ val startFullProductionBroker by tasks.registering(JavaExec::class) {
             "conf.comm.httptimeout=180",
             "conf.comm.httpselectwait=30",
 
-            // Alwyas use "recover" for now as the launcher table is empty,
+            // Always use "recover" for now as the launcher table is empty,
             // so "initial" won't have an effect anyway.
             "conf.broker.startmode=recover",
 
@@ -93,7 +93,7 @@ val stopFullProductionBroker by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.BrokerShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.BrokerShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9011",
@@ -106,7 +106,7 @@ val startFullProductionContext by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=context",
             "gorgel.system.identifier=full-production",
@@ -154,7 +154,7 @@ val stopFullProductionContext by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.ServerViaBrokerShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.ServerViaBrokerShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9011",
@@ -168,7 +168,7 @@ val startFullProductionDirector by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=director",
             "gorgel.system.identifier=full-production",
@@ -208,7 +208,7 @@ val stopFullProductionDirector by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DirectorShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DirectorShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9062",
@@ -221,7 +221,7 @@ val startFullProductionPresence by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=presence",
             "gorgel.system.identifier=full-production",
@@ -260,7 +260,7 @@ val stopFullProductionPresence by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.PresenceShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.PresenceShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9041",
@@ -273,7 +273,7 @@ val startFullProductionWorkshop by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.DebugBootSpawner"
+    mainClass.set("org.elkoserver.foundation.servermanagement.DebugBootSpawner")
     args = mutableListOf(
             "gorgel.system.type=workshop",
             "gorgel.system.identifier=full-production",
@@ -308,7 +308,7 @@ val stopFullProductionWorkshop by tasks.registering(JavaExec::class) {
     group = "Elko"
 
     classpath = sourceSets["main"].runtimeClasspath
-    main = "org.elkoserver.foundation.servermanagement.WorkshopShutdown"
+    mainClass.set("org.elkoserver.foundation.servermanagement.WorkshopShutdown")
     args = mutableListOf(
             "127.0.0.1",
             "9020",

@@ -10,7 +10,6 @@ dependencies {
     api(project(":Server:Context"))
     api(project(":ServerCore"))
     api(Libraries.nanojson)
-
     implementation(kotlin("stdlib-jdk8"))
 }
 
