@@ -3,6 +3,7 @@ package org.elkoserver.server.gatekeeper
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.util.trace.slf4j.Gorgel
@@ -22,7 +23,11 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *
  * @param myGatekeeper  The Gatekeeper object for this handler.
  */
-internal class AdminHandler(private val myGatekeeper: Gatekeeper, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
+internal class AdminHandler(
+    private val myGatekeeper: Gatekeeper,
+    private val shutdownWatcher: ShutdownWatcher,
+    commGorgel: Gorgel
+) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -76,6 +81,6 @@ internal class AdminHandler(private val myGatekeeper: Gatekeeper, commGorgel: Go
     @JsonMethod
     fun shutdown(from: GatekeeperActor) {
         from.ensureAuthorizedAdmin()
-        myGatekeeper.shutdown()
+        shutdownWatcher.noteShutdown()
     }
 }

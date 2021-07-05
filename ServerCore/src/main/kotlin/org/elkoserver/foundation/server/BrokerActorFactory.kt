@@ -9,7 +9,8 @@ class BrokerActorFactory(
         private val dispatcher: MessageDispatcher,
         private val serverLoadMonitor: ServerLoadMonitor,
         private val gorgel: Gorgel,
-        private val mustSendDebugReplies: Boolean) {
+        private val mustSendDebugReplies: Boolean,
+        private val shutdownWatcher: ShutdownWatcher) {
     fun create(connection: Connection, server: Server, auth: AuthDesc): BrokerActor =
-            BrokerActor(connection, dispatcher, server, serverLoadMonitor, auth, gorgel, mustSendDebugReplies)
+            BrokerActor(connection, dispatcher, server, serverLoadMonitor, shutdownWatcher, auth, gorgel, mustSendDebugReplies)
 }

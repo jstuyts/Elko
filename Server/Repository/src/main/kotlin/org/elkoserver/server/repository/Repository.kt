@@ -2,6 +2,7 @@ package org.elkoserver.server.repository
 
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.objectdatabase.store.ObjectStore
 import org.elkoserver.util.trace.slf4j.Gorgel
 
@@ -14,7 +15,8 @@ internal class Repository(
     private val myServer: Server,
     internal val myRefTable: RefTable,
     baseCommGorgel: Gorgel,
-    internal val myObjectStore: ObjectStore
+    internal val myObjectStore: ObjectStore,
+    shutdownWatcher: ShutdownWatcher
 ) {
 
     /** Number of repository clients currently connected.  */
@@ -38,7 +40,7 @@ internal class Repository(
     fun countRepClients(delta: Int) {
         myRepClientCount += delta
         if (isShuttingDown && myRepClientCount <= 0) {
-            myObjectStore.shutdown()
+            myObjectStore.shutDown()
         }
     }
 
@@ -49,19 +51,13 @@ internal class Repository(
         myServer.reinit()
     }
 
-    /**
-     * Shutdown the server.
-     */
-    fun shutdown() {
-        myServer.shutdown()
+    fun shutDown() {
+        isShuttingDown = true
+        countRepClients(0)
     }
 
     init {
         myRefTable.addRef(RepHandler(this, baseCommGorgel.getChild(RepHandler::class)))
-        myRefTable.addRef(AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class)))
-        myServer.registerShutdownWatcher {
-            isShuttingDown = true
-            countRepClients(0)
-        }
+        myRefTable.addRef(AdminHandler(this, shutdownWatcher, baseCommGorgel.getChild(AdminHandler::class)))
     }
 }

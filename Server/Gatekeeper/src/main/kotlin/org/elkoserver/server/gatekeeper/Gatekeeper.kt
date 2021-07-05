@@ -5,6 +5,7 @@ import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.properties.ElkoProperties
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.HostDesc
 import org.elkoserver.foundation.server.metadata.HostDescFromPropertiesFactory
 import org.elkoserver.foundation.server.metadata.ServiceDesc
@@ -23,7 +24,8 @@ class Gatekeeper internal constructor(
     baseCommGorgel: Gorgel,
     directorActorFactoryFactory: DirectorActorFactoryFactory,
     hostDescFromPropertiesFactory: HostDescFromPropertiesFactory,
-    props: ElkoProperties
+    props: ElkoProperties,
+    shutdownWatcher: ShutdownWatcher
 ) {
 
     /** Host description for the director.  */
@@ -115,12 +117,12 @@ class Gatekeeper internal constructor(
     /**
      * Shutdown the server.
      */
-    fun shutdown() {
-        myServer.shutdown()
+    fun shutDown() {
+        myDirectorActorFactory.disconnectDirector()
     }
 
     init {
-        refTable.addRef(AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class)))
+        refTable.addRef(AdminHandler(this, shutdownWatcher, baseCommGorgel.getChild(AdminHandler::class)))
         myDirectorActorFactory = directorActorFactoryFactory.create(this)
         myRetryInterval = props.intProperty("conf.gatekeeper.director.retry", -1)
         if (props.testProperty("conf.gatekeeper.director.auto")) {
@@ -133,6 +135,5 @@ class Gatekeeper internal constructor(
                 setDirectorHost(newDirectorHost)
             }
         }
-        myServer.registerShutdownWatcher { myDirectorActorFactory.disconnectDirector() }
     }
 }

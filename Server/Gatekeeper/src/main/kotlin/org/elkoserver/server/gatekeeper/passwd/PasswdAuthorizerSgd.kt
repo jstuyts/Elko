@@ -24,9 +24,7 @@ internal class PasswdAuthorizerSgd(
             req(actorIdBase)
         )
     }
-        .wire {
-            req(provided.server()).registerShutdownWatcher { it.shutdown() }
-        }
+        .dispose { it.shutDown() }
 
     val authHandler by Once {
         AuthHandler(

@@ -1106,11 +1106,18 @@ class Contextor internal constructor(
         }
     }
 
-    /**
-     * Cause the server to be shutdown.
-     */
-    fun shutdownServer() {
-        server.shutdown()
+    fun shutDown() {
+        /* List copy to avert ConcurrentModificationException */
+        val saveUsers: List<User> = LinkedList(myUsers)
+        for (user in saveUsers) {
+            user.exitContext(
+                "server shutting down", "shutdown",
+                false
+            )
+        }
+        myDirectorGroup?.disconnectHosts()
+        myPresencerGroup?.disconnectHosts()
+        checkpointAll()
     }
 
     /**
@@ -1202,19 +1209,5 @@ class Contextor internal constructor(
         server.setServiceRefTable(realRefTable)
         contextFamilies = initializeContextFamilies()
         loadStaticObjects(staticsToLoad)
-        server.registerShutdownWatcher {
-            /* List copy to avert ConcurrentModificationException */
-            val saveUsers: List<User> = LinkedList(myUsers)
-            for (user in saveUsers) {
-                user.exitContext(
-                    "server shutting down", "shutdown",
-                    false
-                )
-            }
-            myDirectorGroup?.disconnectHosts()
-            myPresencerGroup?.disconnectHosts()
-            checkpointAll()
-            objectDatabase.shutdown()
-        }
     }
 }

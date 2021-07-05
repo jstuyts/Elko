@@ -420,7 +420,8 @@ internal class BrokerServerSgd(
             req(messageDispatcher),
             req(serverLoadMonitor),
             req(brokerActorGorgel),
-            req(mustSendDebugReplies)
+            req(mustSendDebugReplies),
+            req(provided.externalShutdownWatcher())
         )
     }
 
@@ -461,9 +462,6 @@ internal class BrokerServerSgd(
             req(connectionRetrierFactory)
         )
     }
-        .wire {
-            it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
-        }
         .init {
             if (it.startListeners("conf.listen", req(brokerServiceFactory)) == 0) {
                 req(brokerBootGorgel).error("no listeners specified")
@@ -473,6 +471,7 @@ internal class BrokerServerSgd(
                 req(broker).addService(service)
             }
         }
+        .dispose { it.shutDown() }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -547,6 +546,7 @@ internal class BrokerServerSgd(
             req(brokerGorgel),
             req(launcherTableGorgel),
             req(provided.timer()),
+            req(provided.externalShutdownWatcher()),
             req(baseCommGorgel),
             req(startMode)
         )

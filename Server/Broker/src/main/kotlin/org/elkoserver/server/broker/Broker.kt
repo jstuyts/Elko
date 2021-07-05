@@ -2,6 +2,7 @@ package org.elkoserver.server.broker
 
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.LoadDesc
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.foundation.timer.Timeout
@@ -25,6 +26,7 @@ internal class Broker(
     gorgel: Gorgel,
     launcherTableGorgel: Gorgel,
     private val timer: Timer,
+    private val shutdownWatcher: ShutdownWatcher,
     baseCommGorgel: Gorgel,
     startMode: Int) {
 
@@ -187,12 +189,11 @@ internal class Broker(
     /**
      * Shutdown the server.
      */
-    fun shutdownServer() {
+    fun shutDownServer() {
         for (actor in LinkedList(myActors)) {
             actor.doDisconnect()
         }
-        myObjectDatabase.shutdown()
-        myServer.shutdown()
+        shutdownWatcher.noteShutdown()
     }
 
     /**

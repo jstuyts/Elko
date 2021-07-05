@@ -66,7 +66,7 @@ interface ObjectDatabase : TypeResolver {
     /**
      * Shutdown the object database.
      */
-    fun shutdown()
+    fun shutDown()
 
     /**
      * Update an object in the object database.

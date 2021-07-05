@@ -434,7 +434,8 @@ internal class DirectorServerSgd(
             req(messageDispatcher),
             req(serverLoadMonitor),
             req(brokerActorGorgel),
-            req(mustSendDebugReplies)
+            req(mustSendDebugReplies),
+            req(provided.externalShutdownWatcher())
         )
     }
 
@@ -473,14 +474,12 @@ internal class DirectorServerSgd(
             req(connectionRetrierFactory)
         )
     }
-        .wire {
-            it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
-        }
         .init {
             if (it.startListeners("conf.listen", req(directorServiceFactory)) == 0) {
                 req(bootGorgel).error("no listeners specified")
             }
         }
+        .dispose { it.shutDown() }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -542,9 +541,11 @@ internal class DirectorServerSgd(
             req(baseCommGorgel),
             req(random),
             req(estimatedLoadIncrement),
-            req(providerLimit)
+            req(providerLimit),
+            req(provided.externalShutdownWatcher())
         )
     }
+        .dispose { it.shutDown() }
 
     val random by Once(::SecureRandom)
 

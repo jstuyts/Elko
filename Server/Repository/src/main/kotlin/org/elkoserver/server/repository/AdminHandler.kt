@@ -2,6 +2,7 @@ package org.elkoserver.server.repository
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -14,7 +15,11 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  * 'shutdown' - Requests the repository to shut down, with an option to force
  * abrupt termination.
  */
-internal class AdminHandler(private val myRepository: Repository, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
+internal class AdminHandler(
+    private val myRepository: Repository,
+    private val shutdownWatcher: ShutdownWatcher,
+    commGorgel: Gorgel
+) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -47,6 +52,6 @@ internal class AdminHandler(private val myRepository: Repository, commGorgel: Go
     @JsonMethod
     fun shutdown(from: RepositoryActor) {
         from.ensureAuthorizedAdmin()
-        myRepository.shutdown()
+        shutdownWatcher.noteShutdown()
     }
 }

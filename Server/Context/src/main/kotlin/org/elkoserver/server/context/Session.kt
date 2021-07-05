@@ -8,6 +8,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonLiteralArray
 import org.elkoserver.json.JsonLiteralFactory
 import org.elkoserver.server.context.model.SessionProtocol
@@ -26,7 +27,13 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *
  * @param myContextor  The contextor for this session.
  */
-class Session(private val myContextor: Contextor, private val password: String?, private val myGorgel: Gorgel, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel), SessionProtocol {
+class Session(
+    private val myContextor: Contextor,
+    private val password: String?,
+    private val myGorgel: Gorgel,
+    private val shutdownWatcher: ShutdownWatcher,
+    commGorgel: Gorgel
+) : BasicProtocolHandler(commGorgel), SessionProtocol {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -150,7 +157,7 @@ class Session(private val myContextor: Contextor, private val password: String?,
             fromUser = from
         }
         if (password == null || password == testPassword.valueOrNull()) {
-            myContextor.shutdownServer()
+            shutdownWatcher.noteShutdown()
             if (fromUser != null) {
                 fromUser.exitContext("server shutting down", "shutdown", false)
             } else {

@@ -31,7 +31,7 @@ class PropertiesBasedObjectDatabaseSgd(
         fun serverName(): D<String>
         fun serviceFinder(): D<ServiceFinder>
     }
-    
+
     private val objectDatabaseConfigurationFromPropertiesFactory by Once { ObjectDatabaseConfigurationFromPropertiesFactory(req(provided.props()), req(provided.propRoot())) }
 
     private val objectDatabaseFactory by Once {
@@ -46,6 +46,7 @@ class PropertiesBasedObjectDatabaseSgd(
             req(provided.classList()).forEach(this::addClass)
         }
     }
+        .dispose { it.shutDown() }
 
     private val directObjectDatabaseSgd = add(DirectObjectDatabaseSgd(object: DirectObjectDatabaseSgd.Provided {
         override fun baseGorgel() = provided.baseGorgel()

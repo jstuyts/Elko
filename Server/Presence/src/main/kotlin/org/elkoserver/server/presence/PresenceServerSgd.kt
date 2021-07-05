@@ -432,7 +432,8 @@ internal class PresenceServerSgd(
             req(messageDispatcher),
             req(serverLoadMonitor),
             req(brokerActorGorgel),
-            req(mustSendDebugReplies)
+            req(mustSendDebugReplies),
+            req(provided.externalShutdownWatcher())
         )
     }
 
@@ -473,14 +474,12 @@ internal class PresenceServerSgd(
             req(connectionRetrierFactory)
         )
     }
-        .wire {
-            it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
-        }
         .init {
             if (it.startListeners("conf.listen", req(presenceServiceFactory)) == 0) {
                 req(bootGorgel).error("no listeners specified")
             }
         }
+        .dispose { it.shutDown() }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -561,9 +560,11 @@ internal class PresenceServerSgd(
             req(graphDescGorgel),
             req(socialGraphGorgel),
             req(baseCommGorgel),
-            req(domainRegistry)
+            req(domainRegistry),
+            req(provided.externalShutdownWatcher())
         )
     }
+        .dispose { it.shutDown() }
 
     val presenceServiceFactory by Once {
         PresenceServiceFactory(

@@ -285,7 +285,7 @@ class MongoObjectStore(arguments: ObjectStoreArguments) : ObjectStore {
      * Do any work required immediately prior to shutting down the server.
      * This method gets invoked at most once, at server shutdown time.
      */
-    override fun shutdown() {
+    override fun shutDown() {
         /* nothing to do in this implementation */
     }
 

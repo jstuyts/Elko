@@ -317,7 +317,7 @@ class ObjectDatabaseRepository(
     /**
      * Shutdown the object database.
      */
-    override fun shutdown() {
+    override fun shutDown() {
         amClosing = true
         myObjectDatabaseRepositoryActor?.close()
     }

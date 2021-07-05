@@ -441,7 +441,8 @@ internal class GatekeeperServerSgd(
             req(messageDispatcher),
             req(serverLoadMonitor),
             req(brokerActorGorgel),
-            req(mustSendDebugReplies)
+            req(mustSendDebugReplies),
+            req(provided.externalShutdownWatcher())
         )
     }
 
@@ -482,14 +483,12 @@ internal class GatekeeperServerSgd(
             req(connectionRetrierFactory)
         )
     }
-        .wire {
-            it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
-        }
         .init {
             if (it.startListeners("conf.listen", req(gatekeeperServiceFactory)) == 0) {
                 req(bootGorgel).error("no listeners specified")
             }
         }
+        .dispose { it.shutDown() }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -584,9 +583,11 @@ internal class GatekeeperServerSgd(
             req(baseCommGorgel),
             req(directorActorFactoryFactory),
             req(provided.hostDescFromPropertiesFactory()),
-            req(provided.props())
+            req(provided.props()),
+            req(provided.externalShutdownWatcher())
         )
     }
+        .dispose { it.shutDown() }
 
     val actionTimeout by Once {
         1000 * req(provided.props()).intProperty(

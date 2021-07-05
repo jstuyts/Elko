@@ -7,8 +7,6 @@ package org.elkoserver.foundation.server
 fun interface ShutdownWatcher {
     /**
      * Take note that the server is about to be shut down.
-     *
-     * @see Server.registerShutdownWatcher
      */
     fun noteShutdown()
 }

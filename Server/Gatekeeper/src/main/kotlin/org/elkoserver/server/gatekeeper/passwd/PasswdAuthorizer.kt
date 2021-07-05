@@ -245,7 +245,6 @@ class PasswdAuthorizer(
     /**
      * Shut down the authorization service.
      */
-    override fun shutdown() {
-        myObjectDatabase.shutdown()
+    override fun shutDown() {
     }
 }

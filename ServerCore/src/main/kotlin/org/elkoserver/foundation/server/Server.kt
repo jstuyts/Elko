@@ -57,9 +57,6 @@ class Server(
      * responses are still pending.  Indexed by the service name queried.  */
     private val myPendingFinds = HashMapMultiImpl<String, ServiceQuery>()
 
-    /** Objects to be notified when the server is shutting down.  */
-    private val myShutdownWatchers = LinkedList<ShutdownWatcher>()
-
     /** Objects to be notified when the server is reinitialized.  */
     private val myReinitWatchers: MutableList<ReinitWatcher> = LinkedList()
 
@@ -313,26 +310,6 @@ class Server(
     }
 
     /**
-     * Add an object to the collection of objects to be notified when the
-     * server is being shut down.
-     *
-     * @param watcher  An object to notify at shutdown time.
-     */
-    fun registerShutdownWatcher(watcher: ShutdownWatcher) {
-        myShutdownWatchers.add(watcher)
-    }
-
-    /**
-     * Remove an object from the collection of objects that are notified when
-     * the server is being shut down.
-     *
-     * @param watcher  The object that no longer cares about shutdown.
-     */
-    fun unregisterShutdownWatcher(watcher: ShutdownWatcher) {
-        myShutdownWatchers.remove(watcher)
-    }
-
-    /**
      * Reinitialize the server.
      */
     fun reinit() {
@@ -371,14 +348,11 @@ class Server(
      * Shut down the server.  Actually, this initiates the shutdown process;
      * the actual shutdown happens in serverExit().
      */
-    fun shutdown() {
+    fun shutDown() {
         if (!amShuttingDown) {
             amShuttingDown = true
             gorgel.i?.run { info("Shutting down ${description.serverName}") }
             myBrokerActor?.close()
-            for (watcher in myShutdownWatchers) {
-                watcher.noteShutdown()
-            }
             for (service in myServiceActorsByProviderID.values) {
                 service.close()
             }

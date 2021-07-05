@@ -53,5 +53,5 @@ interface Authorizer {
      * will be called by the Gatekeeper as part of its orderly shutdown
      * procedure.
      */
-    fun shutdown()
+    fun shutDown()
 }

@@ -142,7 +142,7 @@ internal class TimerThread(private val clock: Clock, private val exceptionReport
     /**
      * Stop the thread.
      */
-    fun shutdown() {
+    fun shutDown() {
         synchronized(this) {
             myRunning = false
             wakeup()

@@ -22,6 +22,7 @@ class BrokerActor(
     dispatcher: MessageDispatcher,
     private val myServer: Server,
     private val loadMonitor: ServerLoadMonitor,
+    private val shutdownWatcher: ShutdownWatcher,
     auth: AuthDesc,
     gorgel: Gorgel,
     mustSendDebugReplies: Boolean
@@ -96,7 +97,7 @@ class BrokerActor(
      */
     @JsonMethod
     fun shutdown(from: BrokerActor) {
-        myServer.shutdown()
+        shutdownWatcher.noteShutdown()
     }
 
     init {

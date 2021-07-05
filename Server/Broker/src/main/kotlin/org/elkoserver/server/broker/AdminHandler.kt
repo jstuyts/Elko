@@ -216,7 +216,7 @@ internal class AdminHandler(private val myBroker: Broker, commGorgel: Gorgel) : 
         }
         myBroker.checkpoint()
         if (optSelf.value(false)) {
-            myBroker.shutdownServer()
+            myBroker.shutDownServer()
         }
     }
 

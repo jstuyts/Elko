@@ -54,7 +54,7 @@ interface ObjectStore {
      * Do any work required immediately prior to shutting down the server.
      * This method gets invoked at most once, at server shutdown time.
      */
-    fun shutdown()
+    fun shutDown()
 
     /**
      * Service an 'update' request.  This is a request to write one or more

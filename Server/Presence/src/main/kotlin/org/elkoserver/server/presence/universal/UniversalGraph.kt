@@ -83,6 +83,6 @@ internal class UniversalGraph : SocialGraph, RandomUsingObject {
         user.userGraphIsReady(friends, myDomain, myMaster)
     }
 
-    override fun shutdown() {}
+    override fun shutDown() {}
     override fun update(master: PresenceServer, domain: Domain, conf: JsonObject) {}
 }

@@ -6,6 +6,7 @@ import org.elkoserver.foundation.json.JsonMethod
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.Encodable
 import org.elkoserver.json.EncodeControl
 import org.elkoserver.json.JsonLiteralFactory
@@ -58,7 +59,11 @@ import java.util.LinkedList
  *
  * @param myDirector  The Director object for this handler.
  */
-internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
+internal class AdminHandler(
+    private val myDirector: Director,
+    private val shutdownWatcher: ShutdownWatcher,
+    commGorgel: Gorgel
+) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Do the actual work of a 'find' or 'watch' verb.
@@ -383,7 +388,7 @@ internal class AdminHandler(private val myDirector: Director, commGorgel: Gorgel
                     .forEach { it.actor.send(msg) }
         }
         if (director.value(false)) {
-            myDirector.shutdownServer()
+            shutdownWatcher.noteShutdown()
         }
     }
 

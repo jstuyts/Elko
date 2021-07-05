@@ -5,6 +5,7 @@ import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.json.JsonLiteral
 import org.elkoserver.util.HashMapMultiImpl
 import org.elkoserver.util.HashSetMulti
@@ -27,7 +28,8 @@ internal class Director(
     baseCommGorgel: Gorgel,
     random: Random,
     private val myEstimatedLoadIncrement: Double,
-    private val myProviderLimit: Int
+    private val myProviderLimit: Int,
+    shutdownWatcher: ShutdownWatcher
 ) {
 
     /** Flag that is set once server shutdown begins.  */
@@ -282,8 +284,13 @@ internal class Director(
     /**
      * Shutdown the server.
      */
-    fun shutdownServer() {
-        myServer.shutdown()
+    fun shutDown() {
+        isShuttingDown = true
+        val doomedProviders = LinkedList(myProviders.keys)
+        myProviders.clear()
+        for (provider in doomedProviders) {
+            provider.actor.close()
+        }
     }
 
     /**
@@ -418,15 +425,7 @@ internal class Director(
         refTable.addRef(providerHandler)
         refTable.addRef("session", providerHandler)
         refTable.addRef(UserHandler(this, baseCommGorgel.getChild(UserHandler::class), random))
-        myAdminHandler = AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class))
+        myAdminHandler = AdminHandler(this, shutdownWatcher, baseCommGorgel.getChild(AdminHandler::class))
         refTable.addRef(myAdminHandler)
-        myServer.registerShutdownWatcher {
-            isShuttingDown = true
-            val doomedProviders = LinkedList(myProviders.keys)
-            myProviders.clear()
-            for (provider in doomedProviders) {
-                provider.actor.close()
-            }
-        }
     }
 }

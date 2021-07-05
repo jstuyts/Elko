@@ -63,6 +63,6 @@ internal class SimpleSocialGraph : SocialGraph {
         }
     }
 
-    override fun shutdown() {}
+    override fun shutDown() {}
     override fun update(master: PresenceServer, domain: Domain, conf: JsonObject) {}
 }

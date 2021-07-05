@@ -506,7 +506,8 @@ internal class ContextServerSgd(
             req(messageDispatcher),
             req(serverLoadMonitor),
             req(brokerActorGorgel),
-            req(mustSendDebugReplies)
+            req(mustSendDebugReplies),
+            req(provided.externalShutdownWatcher())
         )
     }
 
@@ -547,9 +548,7 @@ internal class ContextServerSgd(
             req(connectionRetrierFactory)
         )
     }
-        .wire {
-            it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
-        }
+        .dispose { it.shutDown() }
 
     val slowRunnerMaximumNumberOfThreads by Once {
         req(provided.props()).intProperty(
@@ -654,7 +653,8 @@ internal class ContextServerSgd(
             req(directorActorGorgel),
             req(reservationFactory),
             req(provided.timer()),
-            req(mustSendDebugReplies)
+            req(mustSendDebugReplies),
+            req(provided.externalShutdownWatcher())
         )
     }
 
@@ -690,7 +690,8 @@ internal class ContextServerSgd(
             req(server),
             req(sessionClientGorgel),
             req(sessionCommGorgel),
-            opt(sessionPassword)
+            opt(sessionPassword),
+            req(provided.externalShutdownWatcher())
         )
     }
 
@@ -715,6 +716,7 @@ internal class ContextServerSgd(
             opt(families)
         )
     }
+        .dispose { it.shutDown() }
 
     val sessionPassword by Once { req(provided.props()).getPropertyOrNull("conf.context.shutdownpassword") }
 

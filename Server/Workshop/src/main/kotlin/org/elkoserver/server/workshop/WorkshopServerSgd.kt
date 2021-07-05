@@ -431,7 +431,8 @@ internal class WorkshopServerSgd(
             req(messageDispatcher),
             req(serverLoadMonitor),
             req(brokerActorGorgel),
-            req(mustSendDebugReplies)
+            req(mustSendDebugReplies),
+            req(provided.externalShutdownWatcher())
         )
     }
 
@@ -472,9 +473,6 @@ internal class WorkshopServerSgd(
             req(connectionRetrierFactory)
         )
     }
-        .wire {
-            it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
-        }
         .init {
             if (it.startListeners("conf.listen", req(workshopServiceFactory)) == 0) {
                 req(bootGorgel).error("no listeners specified")
@@ -483,6 +481,7 @@ internal class WorkshopServerSgd(
             }
 
         }
+        .dispose { it.shutDown() }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -550,9 +549,11 @@ internal class WorkshopServerSgd(
             req(workshopGorgel),
             req(startupWorkerListGorgel),
             req(baseCommGorgel),
-            req(provided.workerDatabases())
+            req(provided.workerDatabases()),
+            req(provided.externalShutdownWatcher())
         )
     }
+        .dispose { it.shutDown() }
 
     val workshopServiceFactory by Once {
         WorkshopServiceFactory(

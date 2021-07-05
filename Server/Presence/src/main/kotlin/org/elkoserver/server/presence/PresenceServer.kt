@@ -3,6 +3,7 @@ package org.elkoserver.server.presence
 import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.objectdatabase.ObjectDatabase
 import org.elkoserver.util.trace.slf4j.Gorgel
 import java.util.LinkedList
@@ -18,7 +19,8 @@ internal class PresenceServer(
     private val graphDescGorgel: Gorgel,
     private val socialGraphGorgel: Gorgel,
     baseCommGorgel: Gorgel,
-    private val domainRegistry: DomainRegistry
+    private val domainRegistry: DomainRegistry,
+    private val shutdownWatcher: ShutdownWatcher
 ) {
     /** Flag that is set once server shutdown begins.  */
     var isShuttingDown = false
@@ -208,11 +210,19 @@ internal class PresenceServer(
     /**
      * Shutdown the server.
      */
-    fun shutdownServer() {
+    fun shutDownServer() {
         for (graph in mySocialGraphs.values) {
-            graph.shutdown()
+            graph.shutDown()
         }
-        myServer.shutdown()
+        shutdownWatcher.noteShutdown()
+    }
+
+    fun shutDown() {
+        isShuttingDown = true
+        val actorListCopy: List<PresenceActor> = LinkedList(myActors)
+        for (actor in actorListCopy) {
+            actor.doDisconnect()
+        }
     }
 
     /**
@@ -242,14 +252,6 @@ internal class PresenceServer(
             } else {
                 gorgel.warn("unable to load social graph metadata table")
             }
-        }
-        myServer.registerShutdownWatcher {
-            isShuttingDown = true
-            val actorListCopy: List<PresenceActor> = LinkedList(myActors)
-            for (actor in actorListCopy) {
-                actor.doDisconnect()
-            }
-            objectDatabase.shutdown()
         }
     }
 }

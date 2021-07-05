@@ -2,6 +2,7 @@ package org.elkoserver.server.workshop
 
 import org.elkoserver.foundation.actor.BasicProtocolHandler
 import org.elkoserver.foundation.json.JsonMethod
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.util.trace.slf4j.Gorgel
 
 /**
@@ -16,7 +17,11 @@ import org.elkoserver.util.trace.slf4j.Gorgel
  *
  * @param myWorkshop The workshop for this handler.
  */
-internal class AdminHandler(private val myWorkshop: Workshop, commGorgel: Gorgel) : BasicProtocolHandler(commGorgel) {
+internal class AdminHandler(
+    private val myWorkshop: Workshop,
+    private val shutdownWatcher: ShutdownWatcher,
+    commGorgel: Gorgel
+) : BasicProtocolHandler(commGorgel) {
 
     /**
      * Get this object's reference string.  This singleton object is always
@@ -49,6 +54,6 @@ internal class AdminHandler(private val myWorkshop: Workshop, commGorgel: Gorgel
     @JsonMethod
     fun shutdown(from: WorkshopActor) {
         from.ensureAuthorizedAdmin()
-        myWorkshop.shutdown()
+        shutdownWatcher.noteShutdown()
     }
 }

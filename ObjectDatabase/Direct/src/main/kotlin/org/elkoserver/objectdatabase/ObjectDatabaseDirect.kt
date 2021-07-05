@@ -255,7 +255,7 @@ class ObjectDatabaseDirect(props: ElkoProperties, propRoot: String, gorgel: Gorg
     /**
      * Shutdown the object database.
      */
-    override fun shutdown() {
+    override fun shutDown() {
         myRunner.orderlyShutdown()
     }
 

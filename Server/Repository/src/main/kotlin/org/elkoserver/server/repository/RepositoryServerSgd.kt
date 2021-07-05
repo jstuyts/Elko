@@ -429,7 +429,8 @@ internal class RepositoryServerSgd(
             req(messageDispatcher),
             req(serverLoadMonitor),
             req(brokerActorGorgel),
-            req(mustSendDebugReplies)
+            req(mustSendDebugReplies),
+            req(provided.externalShutdownWatcher())
         )
     }
 
@@ -468,14 +469,12 @@ internal class RepositoryServerSgd(
             req(connectionRetrierFactory)
         )
     }
-        .wire {
-            it.registerShutdownWatcher(req(provided.externalShutdownWatcher()))
-        }
         .init {
             if (it.startListeners("conf.listen", req(repositoryServiceFactory)) == 0) {
                 req(bootGorgel).error("no listeners specified")
             }
         }
+        .dispose { it.shutDown() }
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(
@@ -525,9 +524,11 @@ internal class RepositoryServerSgd(
             req(server),
             req(refTable),
             req(baseCommGorgel),
-            req(objectStore)
+            req(objectStore),
+            req(provided.externalShutdownWatcher())
         )
     }
+        .dispose { it.shutDown() }
 
     val objectStore by Once {
         ObjectStoreFactory.createAndInitializeObjectStore(

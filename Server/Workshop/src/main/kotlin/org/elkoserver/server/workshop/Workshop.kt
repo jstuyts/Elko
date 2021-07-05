@@ -3,6 +3,7 @@ package org.elkoserver.server.workshop
 import com.grack.nanojson.JsonObject
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.server.Server
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.ServiceDesc
 import org.elkoserver.json.Encodable
 import org.elkoserver.objectdatabase.ObjectDatabase
@@ -37,11 +38,12 @@ class Workshop internal constructor(
     private val startupWorkerListGorgel: Gorgel,
     baseCommGorgel: Gorgel,
     // FIXME: Only inject object databases into workers for now. Should switch to more generic injection, so workers are not limited to small set of possible dependency types.
-    private val workerDatabases: Map<String, ObjectDatabase>
+    private val workerDatabases: Map<String, ObjectDatabase>,
+    shutdownWatcher: ShutdownWatcher
 ) {
 
     /** Flag that is set once server shutdown begins.  */
-    var isShuttingDown: Boolean
+    var isShuttingDown = false
 
     /**
      * Add a worker to the object table.
@@ -98,11 +100,8 @@ class Workshop internal constructor(
         myServer.reinit()
     }
 
-    /**
-     * Shutdown the server.
-     */
-    fun shutdown() {
-        myServer.shutdown()
+    fun shutDown() {
+        isShuttingDown = true
     }
 
     /**
@@ -226,11 +225,6 @@ class Workshop internal constructor(
 
     init {
         refTable.addRef(ClientHandler(this, baseCommGorgel.getChild(ClientHandler::class)))
-        refTable.addRef(AdminHandler(this, baseCommGorgel.getChild(AdminHandler::class)))
-        isShuttingDown = false
-        myServer.registerShutdownWatcher {
-            isShuttingDown = true
-            myObjectDatabase.shutdown()
-        }
+        refTable.addRef(AdminHandler(this, shutdownWatcher, baseCommGorgel.getChild(AdminHandler::class)))
     }
 }

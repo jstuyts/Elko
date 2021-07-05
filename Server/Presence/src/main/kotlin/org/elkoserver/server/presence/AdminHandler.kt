@@ -96,7 +96,7 @@ internal class AdminHandler(private val myPresenceServer: PresenceServer, commGo
     @JsonMethod
     fun shutdown(from: PresenceActor) {
         from.ensureAuthorizedAdmin()
-        myPresenceServer.shutdownServer()
+        myPresenceServer.shutDownServer()
     }
 
     /**

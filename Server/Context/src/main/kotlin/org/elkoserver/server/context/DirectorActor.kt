@@ -9,6 +9,7 @@ import org.elkoserver.foundation.json.MessageHandlerException
 import org.elkoserver.foundation.json.OptBoolean
 import org.elkoserver.foundation.json.OptString
 import org.elkoserver.foundation.net.Connection
+import org.elkoserver.foundation.server.ShutdownWatcher
 import org.elkoserver.foundation.server.metadata.AuthDesc
 import org.elkoserver.foundation.timer.Timer
 import org.elkoserver.server.context.model.BasicObject
@@ -31,6 +32,7 @@ class DirectorActor(
     auth: AuthDesc,
     private val reservationFactory: ReservationFactory,
     private val timer: Timer,
+    private val shutdownWatcher: ShutdownWatcher,
     gorgel: Gorgel,
     mustSendDebugReplies: Boolean
 ) : NonRoutingActor(connection, dispatcher, gorgel, mustSendDebugReplies) {
@@ -315,7 +317,7 @@ class DirectorActor(
      */
     @JsonMethod
     fun shutdown(from: DirectorActor) {
-        myGroup.contextor.shutdownServer()
+        shutdownWatcher.noteShutdown()
     }
 
     companion object {

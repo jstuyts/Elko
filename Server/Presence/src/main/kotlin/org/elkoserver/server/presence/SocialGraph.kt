@@ -54,5 +54,5 @@ internal interface SocialGraph {
      * will be called by the PresenceServer as part of its orderly shutdown
      * procedure.
      */
-    fun shutdown()
+    fun shutDown()
 }
