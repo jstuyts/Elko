@@ -57,6 +57,7 @@ import org.elkoserver.foundation.run.threadpoolexecutor.ThreadPoolExecutorSlowSe
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
 import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
+import org.elkoserver.foundation.server.ListenersStarter
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
@@ -165,6 +166,8 @@ internal class ContextServerSgd(
 
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
 
+    val listenersStarterGorgel by Once { req(provided.baseGorgel()).getChild(ListenersStarter::class) }
+
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
 
     val serviceActorGorgel by Once { req(provided.baseGorgel()).getChild(ServiceActor::class) }
@@ -268,10 +271,12 @@ internal class ContextServerSgd(
         )
     }
         .init {
-            check(req(server).startListeners("conf.listen", it) != 0) { "no listeners specified" }
+            val serverListeners = req(listenersStarter).startListeners("conf.listen", it)
+            check(serverListeners.isNotEmpty()) { "no listeners specified" }
+            req(server).connectToBrokerIfBrokerSpecified()
             // This must run after the listeners of the server have been started.
             val contextor = req(contextor)
-            contextor.registerWithDirectors(req(directors), req(serverListeners))
+            contextor.registerWithDirectors(req(directors), serverListeners)
             contextor.registerWithPresencers(req(presencers))
         }
         .eager()
@@ -535,20 +540,29 @@ internal class ContextServerSgd(
     val server by Once {
         Server(
             req(provided.props()),
-            req(serverDescription),
+            req(serverName),
             req(serverGorgel),
             req(serviceLinkGorgel),
             req(brokerActorFactory),
             req(serviceActorFactory),
             req(messageDispatcher),
-            req(listenerConfigurationFromPropertiesFactory),
             req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
             req(serverTagGenerator),
-            req(connectionSetupFactoriesByCode),
             req(connectionRetrierFactory)
         )
     }
         .dispose { it.shutDown() }
+
+    val listenersStarter by Once {
+        ListenersStarter(
+            req(provided.props()),
+            req(serverDescription).serviceName,
+            req(listenersStarterGorgel),
+            req(listenerConfigurationFromPropertiesFactory),
+            req(connectionSetupFactoriesByCode),
+            req(server)
+        )
+    }
 
     val slowRunnerMaximumNumberOfThreads by Once {
         req(provided.props()).intProperty(
@@ -608,8 +622,6 @@ internal class ContextServerSgd(
         .dispose(SingleThreadExecutorRunner::orderlyShutdown)
 
     val serverTagGenerator by Once { LongIdGenerator() }
-
-    val serverListeners by Once { req(server).listeners }
 
     val contextorEntryTimeout by Once {
         req(provided.props()).intProperty("conf.context.entrytimeout", DEFAULT_ENTER_TIMEOUT_IN_SECONDS)

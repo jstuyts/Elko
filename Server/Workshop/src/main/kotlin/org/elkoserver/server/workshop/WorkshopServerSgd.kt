@@ -55,6 +55,7 @@ import org.elkoserver.foundation.run.singlethreadexecutor.SingleThreadExecutorRu
 import org.elkoserver.foundation.server.BrokerActor
 import org.elkoserver.foundation.server.BrokerActorFactory
 import org.elkoserver.foundation.server.ListenerConfigurationFromPropertiesFactory
+import org.elkoserver.foundation.server.ListenersStarter
 import org.elkoserver.foundation.server.Server
 import org.elkoserver.foundation.server.ServerDescriptionFromPropertiesFactory
 import org.elkoserver.foundation.server.ServerLoadMonitor
@@ -133,6 +134,8 @@ internal class WorkshopServerSgd(
     val listenerGorgel by Once { req(provided.baseGorgel()).getChild(Listener::class) }
 
     val serverGorgel by Once { req(provided.baseGorgel()).getChild(Server::class) }
+
+    val listenersStarterGorgel by Once { req(provided.baseGorgel()).getChild(ListenersStarter::class) }
 
     val serverLoadMonitorGorgel by Once { req(provided.baseGorgel()).getChild(ServerLoadMonitor::class) }
 
@@ -460,28 +463,40 @@ internal class WorkshopServerSgd(
     val server by Once {
         Server(
             req(provided.props()),
-            req(serverDescription),
+            req(serverName),
             req(serverGorgel),
             req(serviceLinkGorgel),
             req(brokerActorFactory),
             req(serviceActorFactory),
             req(messageDispatcher),
-            req(listenerConfigurationFromPropertiesFactory),
             req(provided.hostDescFromPropertiesFactory()).fromProperties("conf.broker"),
             req(serverTagGenerator),
-            req(connectionSetupFactoriesByCode),
             req(connectionRetrierFactory)
         )
     }
+        .dispose { it.shutDown() }
+
+    val listenersStarter by Once {
+        ListenersStarter(
+            req(provided.props()),
+            req(serverDescription).serviceName,
+            req(listenersStarterGorgel),
+            req(listenerConfigurationFromPropertiesFactory),
+            req(connectionSetupFactoriesByCode),
+            req(server)
+        )
+    }
         .init {
-            if (it.startListeners("conf.listen", req(workshopServiceFactory)) == 0) {
+            val serverListeners = it.startListeners("conf.listen", req(workshopServiceFactory))
+            req(server).connectToBrokerIfBrokerSpecified()
+            if (serverListeners.isEmpty()) {
                 req(bootGorgel).error("no listeners specified")
             } else {
                 req(workshop).loadStartupWorkers(req(provided.props()).getProperty("conf.workshop.workers"))
             }
 
         }
-        .dispose { it.shutDown() }
+        .eager()
 
     val serverLoadMonitor by Once {
         ServerLoadMonitor(

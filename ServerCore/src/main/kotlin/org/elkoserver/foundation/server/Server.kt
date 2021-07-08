@@ -3,7 +3,6 @@ package org.elkoserver.foundation.server
 import org.elkoserver.foundation.actor.RefTable
 import org.elkoserver.foundation.json.MessageDispatcher
 import org.elkoserver.foundation.net.Connection
-import org.elkoserver.foundation.net.ConnectionSetupFactory
 import org.elkoserver.foundation.net.MessageHandler
 import org.elkoserver.foundation.net.MessageHandlerFactory
 import org.elkoserver.foundation.net.connectionretrier.ConnectionRetrierFactory
@@ -28,27 +27,19 @@ import java.util.function.Consumer
  */
 class Server(
         private val myProps: ElkoProperties,
-        private val description: ServerDescription,
+        val serverName: String,
         private val gorgel: Gorgel,
         private val serviceLinkGorgel: Gorgel,
         private val brokerActorFactory: BrokerActorFactory,
         private val serviceActorFactory: ServiceActorFactory,
         myDispatcher: MessageDispatcher,
-        private val listenerConfigurationFromPropertiesFactory: ListenerConfigurationFromPropertiesFactory,
         private val myBrokerHost: HostDesc?,
         private val myTagGenerator: IdGenerator,
-        private val connectionSetupFactoriesByCode: Map<String, ConnectionSetupFactory>,
         private val connectionRetrierFactory: ConnectionRetrierFactory)
     : ServiceFinder {
 
-    /** The name of this server (for logging).  */
-    val serverName: String = description.serverName
-
     /** List of ServiceDesc objects describing services this server offers.  */
     private val myServices: MutableList<ServiceDesc> = LinkedList()
-
-    /** List of host information for this server's configured listeners.  */
-    lateinit var listeners: List<HostDesc>
 
     /** Connection to the broker, if there is one.  */
     private var myBrokerActor: BrokerActor? = null
@@ -83,20 +74,21 @@ class Server(
      * If null, this indicates that a connection has been lost and must be
      * re-established.
      */
-    fun brokerConnected(brokerActor: BrokerActor?) {
+    fun brokerConnected(brokerActor: BrokerActor) {
         myBrokerActor = brokerActor
-        if (brokerActor == null) {
-            myOldServiceActors.addAll(myServiceActorsByProviderID.values)
-            myServiceActorsByProviderID.clear()
-            myServiceLinksByService.clear()
-            connectToBroker()
-        } else {
-            for (key in myPendingFinds.keys()) {
-                for (query in myPendingFinds.getMulti(key)) {
-                    brokerActor.findService(key, query.isMonitor, query.tag)
-                }
+        for (key in myPendingFinds.keys()) {
+            for (query in myPendingFinds.getMulti(key)) {
+                brokerActor.findService(key, query.isMonitor, query.tag)
             }
         }
+    }
+
+    fun brokerDisconnected() {
+        myBrokerActor = null
+        myOldServiceActors.addAll(myServiceActorsByProviderID.values)
+        myServiceActorsByProviderID.clear()
+        myServiceLinksByService.clear()
+        connectToBroker()
     }
 
     /**
@@ -351,7 +343,7 @@ class Server(
     fun shutDown() {
         if (!amShuttingDown) {
             amShuttingDown = true
-            gorgel.i?.run { info("Shutting down ${description.serverName}") }
+            gorgel.i?.run { info("Shutting down ${serverName}") }
             myBrokerActor?.close()
             for (service in myServiceActorsByProviderID.values) {
                 service.close()
@@ -362,72 +354,17 @@ class Server(
         }
     }
 
-    /**
-     * Start listening for connections on some port.
-     *
-     * @param propRoot  Prefix string for all the properties describing the
-     * listener that is to be started.
-     * @param host  The host:port string for the port to listen on.
-     * @param metaFactory   Object that will provide a message handler factory
-     * for connections made to this listener.
-     *
-     * @return host description for the listener that was started, or null if
-     * the operation failed for some reason.
-     */
-    private fun startOneListener(propRoot: String, host: String, metaFactory: ServiceFactory) =
-            startOneListener(propRoot, host, metaFactory, listenerConfigurationFromPropertiesFactory.read(propRoot))
-
-    private fun startOneListener(propRoot: String, host: String, metaFactory: ServiceFactory, configuration: ListenerConfiguration) =
-            configuration.run {
-                val serviceNames: MutableList<String> = LinkedList()
-                val actorFactory = metaFactory.provideFactory(propRoot, auth, allow, serviceNames, protocol)
-                val connectionSetup = connectionSetupFactoriesByCode[protocol]?.create(label, host, auth, secure, propRoot, actorFactory)
-                if (connectionSetup == null) {
-                    gorgel.error("unknown value for $propRoot.protocol: $protocol, listener $propRoot not started")
-                    throw IllegalStateException()
-                }
-                connectionSetup.startListener()
-                serviceNames
-                        .map { "$it${description.serviceName}" }
-                        .forEach { registerService(ServiceDesc(it, host, protocol, label, auth, null, -1)) }
-                HostDesc(protocol, secure, connectionSetup.serverAddress, auth, -1)
-            }
-
-    /**
-     * Start listening for connections on all the ports that are configured.
-     *
-     * @param propRoot  Prefix string for all the properties describing the
-     * listeners that are to be started.
-     * @param serviceFactory   Object to provide message handler factories for
-     * the new listeners.
-     *
-     * @return the number of ports that were configured.
-     */
-    fun startListeners(propRoot: String, serviceFactory: ServiceFactory): Int {
-        var listenerPropRoot = propRoot
-        var listenerCount = 0
-        val theListeners: MutableList<HostDesc> = LinkedList()
-        var hostName = myProps.getProperty("$listenerPropRoot.host")
-        while (hostName != null) {
-            val listener = startOneListener(listenerPropRoot, hostName, serviceFactory)
-            theListeners.add(listener)
-
-            listenerPropRoot = propRoot + ++listenerCount
-
-            hostName = myProps.getProperty("$listenerPropRoot.host")
-        }
+    fun connectToBrokerIfBrokerSpecified() {
         if (myBrokerHost != null) {
             connectToBroker()
         }
-        listeners = theListeners
-        return listenerCount
     }
 
     init {
         gorgel.i?.run {
             info(BuildVersion.version)
             info(("Copyright 2016 ElkoServer.org; see LICENSE"))
-            info("Starting ${description.serverName}")
+            info("Starting ${serverName}")
         }
 
         myDispatcher.addClass(BrokerActor::class.java)

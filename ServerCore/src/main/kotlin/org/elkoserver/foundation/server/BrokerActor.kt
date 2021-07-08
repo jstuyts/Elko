@@ -41,7 +41,7 @@ class BrokerActor(
     override fun connectionDied(connection: Connection, reason: Throwable) {
         gorgel.i?.run { info("lost broker connection $connection: $reason") }
         loadMonitor.unregisterLoadWatcher(myLoadWatcher)
-        myServer.brokerConnected(null)
+        myServer.brokerDisconnected()
     }
 
     /**
